@@ -1,9 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-create-address-modal';
+import swOrderCreateAddressModal from 'src/module/sw-order/component/sw-order-create-address-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
+
+Shopware.Component.register('sw-order-create-address-modal', swOrderCreateAddressModal);
 
 const { Classes: { ShopwareError } } = Shopware;
 

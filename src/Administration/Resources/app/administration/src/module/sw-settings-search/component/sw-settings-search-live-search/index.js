@@ -2,11 +2,11 @@ import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
 import '../sw-settings-search-live-search-keyword';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-search-live-search', {
+export default {
     template,
 
     inject: [
@@ -134,4 +134,4 @@ Component.register('sw-settings-search-live-search', {
             this.showExampleModal = false;
         },
     },
-});
+};

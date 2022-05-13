@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-entry-point-card';
+import swCategoryEntryPointCard from 'src/module/sw-category/component/sw-category-entry-point-card';
+
+Shopware.Component.register('sw-category-entry-point-card', swCategoryEntryPointCard);
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;

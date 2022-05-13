@@ -1,11 +1,9 @@
 import template from './sw-cms-el-preview-text.html.twig';
 import './sw-cms-el-preview-text.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-preview-text', {
+export default {
     template,
-});
+};

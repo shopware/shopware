@@ -1,12 +1,10 @@
 import template from './sw-extension-deactivation-modal.html.twig';
 import './sw-extension-deactivation-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-extension-deactivation-modal', {
+export default {
     template,
 
     props: {
@@ -48,4 +46,4 @@ Component.register('sw-extension-deactivation-modal', {
             this.$emit('extension-deactivate');
         },
     },
-});
+};

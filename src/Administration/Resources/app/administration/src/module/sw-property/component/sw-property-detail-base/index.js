@@ -4,7 +4,7 @@ const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-property-detail-base', {
+export default {
     template,
 
     mixins: [
@@ -54,4 +54,4 @@ Component.register('sw-property-detail-base', {
             'sortingType',
         ]),
     },
-});
+};

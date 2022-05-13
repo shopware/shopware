@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-promotion-field';
+import swOrderPromotionField from 'src/module/sw-order/component/sw-order-promotion-field';
 
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',
@@ -76,7 +76,6 @@ const createStateMapper = (customOrder = {}) => {
         ...newModule,
     });
 };
-
 
 const createWrapper = async (custom) => {
     const notificationMixin = {
@@ -155,6 +154,8 @@ const createWrapper = async (custom) => {
         ...custom,
     });
 };
+
+Shopware.Component.register('sw-order-promotion-field', swOrderPromotionField);
 
 describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     it('should be a Vue.js component', async () => {

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-base-form';
+import swCustomerBaseForm from 'src/module/sw-customer/component/sw-customer-base-form';
+
+Shopware.Component.register('sw-customer-base-form', swCustomerBaseForm);
 
 const customer = {
     id: '1',

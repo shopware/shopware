@@ -1,17 +1,12 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-import '../sw-order-document-settings-invoice-modal';
-import '../sw-order-document-settings-storno-modal';
-import '../sw-order-document-settings-delivery-note-modal';
-import '../sw-order-document-settings-credit-note-modal';
-import '../sw-order-document-settings-modal';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-document-card', {
+export default {
     template,
 
     inject: [
@@ -465,4 +460,4 @@ Component.register('sw-order-document-card', {
             }
         },
     },
-});
+};

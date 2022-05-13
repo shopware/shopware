@@ -1,8 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
+import swSettingsCustomerGroupList from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
+
+Shopware.Component.register('sw-settings-customer-group-list', swSettingsCustomerGroupList);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

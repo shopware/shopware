@@ -1,11 +1,13 @@
 import { mount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
+import swSalesChannelMenu from 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/structure/sw-admin-menu-item';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
+
+Shopware.Component.register('sw-sales-channel-menu', swSalesChannelMenu);
 
 const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
 
@@ -170,7 +172,7 @@ async function createWrapper(salesChannels = [], privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').languageId = defaultAdminLanguageId;
         Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
 

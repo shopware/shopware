@@ -2,7 +2,7 @@ import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-settings-mailer', {
+export default {
     template,
 
     inject: ['systemConfigApiService'],
@@ -139,4 +139,4 @@ Shopware.Component.register('sw-settings-mailer', {
             this.smtpPortError = null;
         },
     },
-});
+};

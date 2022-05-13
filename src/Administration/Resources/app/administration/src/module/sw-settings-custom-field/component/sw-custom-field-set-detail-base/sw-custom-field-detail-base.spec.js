@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
+import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+
+Shopware.Component.register('sw-custom-field-set-detail-base', swCustomFieldSetDetailBase);
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',

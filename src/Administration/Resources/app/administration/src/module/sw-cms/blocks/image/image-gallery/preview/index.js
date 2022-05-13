@@ -1,11 +1,9 @@
 import template from './sw-cms-preview-image-gallery.html.twig';
 import './sw-cms-preview-image-gallery.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-preview-image-gallery', {
+export default {
     template,
-});
+};

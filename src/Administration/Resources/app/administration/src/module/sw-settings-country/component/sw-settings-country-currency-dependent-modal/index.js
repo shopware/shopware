@@ -1,11 +1,10 @@
 import template from './sw-settings-country-currency-dependent-modal.html.twig';
 import './sw-settings-country-currency-dependent-modal.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-currency-dependent-modal', {
+export default {
     template,
 
     inject: [
@@ -245,4 +244,4 @@ Component.register('sw-settings-country-currency-dependent-modal', {
             return currency || {};
         },
     },
-});
+};

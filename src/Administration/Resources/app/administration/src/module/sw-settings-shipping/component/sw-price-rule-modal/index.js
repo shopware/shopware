@@ -1,8 +1,7 @@
 import template from './sw-price-rule-modal.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -18,4 +17,4 @@ Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
         },
 
     },
-});
+};

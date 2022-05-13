@@ -1,13 +1,12 @@
 import template from './sw-first-run-wizard-welcome.html.twig';
 import './sw-first-run-wizard-welcome.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const cacheApiService = Shopware.Service('cacheApiService');
 const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-first-run-wizard-welcome', {
+export default {
     template,
 
     inject: [
@@ -376,4 +375,4 @@ Component.register('sw-first-run-wizard-welcome', {
             });
         },
     },
-});
+};

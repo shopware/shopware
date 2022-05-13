@@ -12,9 +12,9 @@ const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-detail', {
+export default {
     template,
 
     inject: [
@@ -1273,4 +1273,4 @@ Component.register('sw-cms-detail', {
             });
         },
     },
-});
+};

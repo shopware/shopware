@@ -42,7 +42,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
     beforeAll(async () => {});
 
-    beforeEach(() => {});
+    beforeEach(async () => {});
 
     afterEach(async () => {
         if (wrapper) await wrapper.destroy();

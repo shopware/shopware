@@ -1,8 +1,7 @@
 import template from './sw-bulk-edit-form-field-renderer.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -10,4 +9,4 @@ Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', {
             return this.config?.suffixLabel ? this.config.suffixLabel : null;
         },
     },
-});
+};

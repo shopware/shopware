@@ -1,9 +1,12 @@
-import './page/sw-manufacturer-list';
-import './page/sw-manufacturer-detail';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
+
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-manufacturer-list', () => import('./page/sw-manufacturer-list'));
+Shopware.Component.register('sw-manufacturer-detail', () => import('./page/sw-manufacturer-detail'));
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-manufacturer', {

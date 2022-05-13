@@ -1,7 +1,7 @@
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -14,7 +14,7 @@ const profileTypes = {
 /**
  * @private
  */
-Component.register('sw-import-export-edit-profile-modal', {
+export default {
     template,
 
     inject: [
@@ -369,4 +369,4 @@ Component.register('sw-import-export-edit-profile-modal', {
             return true;
         },
     },
-});
+};

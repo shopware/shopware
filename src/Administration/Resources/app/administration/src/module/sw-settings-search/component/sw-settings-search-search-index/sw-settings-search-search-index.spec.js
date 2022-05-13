@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-search-index';
+import swSettingsSearchSearchIndex from 'src/module/sw-settings-search/component/sw-settings-search-search-index';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/mixin/notification.mixin';
+
+Shopware.Component.register('sw-settings-search-search-index', swSettingsSearchSearchIndex);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

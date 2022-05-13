@@ -88,7 +88,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [];
         Shopware.State.get('settingsItems').settingsGroups.system = [];
     });

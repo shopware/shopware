@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-detail-menu';
+import swCategoryDetailMenu from 'src/module/sw-category/component/sw-category-detail-menu';
+
+Shopware.Component.register('sw-category-detail-menu', swCategoryDetailMenu);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-category-detail-menu'), {

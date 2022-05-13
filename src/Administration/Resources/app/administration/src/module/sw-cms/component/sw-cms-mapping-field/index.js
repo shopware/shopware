@@ -1,12 +1,10 @@
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-mapping-field', {
+export default {
     template,
 
     inject: ['cmsService'],
@@ -145,4 +143,4 @@ Component.register('sw-cms-mapping-field', {
             );
         },
     },
-});
+};

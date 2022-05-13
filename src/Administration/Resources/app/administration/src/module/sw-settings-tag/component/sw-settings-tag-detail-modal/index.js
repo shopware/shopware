@@ -1,11 +1,11 @@
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tag-detail-modal', {
+export default {
     template,
 
     inject: [
@@ -224,4 +224,4 @@ Component.register('sw-settings-tag-detail-modal', {
             this.$set(this.assignmentsToBeDeleted[assignment], id, item);
         },
     },
-});
+};

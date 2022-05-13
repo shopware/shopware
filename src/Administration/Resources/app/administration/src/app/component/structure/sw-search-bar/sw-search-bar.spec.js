@@ -49,6 +49,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
         const localVue = createLocalVue();
+        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
+        spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
+        spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
 
         return shallowMount(swSearchBarComponent, {
             localVue,
@@ -264,7 +268,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
             id: 'id'
         };

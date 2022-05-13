@@ -1,10 +1,8 @@
 import template from './sw-settings-item.html.twig';
 import './sw-settings-item.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-item', {
+export default {
     template,
 
     props: {
@@ -40,4 +38,4 @@ Component.register('sw-settings-item', {
             };
         },
     },
-});
+};

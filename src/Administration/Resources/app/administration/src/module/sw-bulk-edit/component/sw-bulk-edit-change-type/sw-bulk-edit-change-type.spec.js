@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+import swBulkEditChangeType from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -9,6 +9,8 @@ import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-popover';
+
+Shopware.Component.register('sw-bulk-edit-change-type', swBulkEditChangeType);
 
 async function createWrapper(propsData = {}) {
     const localVue = createLocalVue();

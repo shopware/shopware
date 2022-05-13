@@ -1,13 +1,11 @@
 import template from './sw-extension-domains-modal.html.twig';
 import './sw-extension-domains-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-extension-domains-modal', {
+export default {
     template,
 
     props: {
@@ -36,4 +34,4 @@ Component.register('sw-extension-domains-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

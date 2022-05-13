@@ -1,10 +1,8 @@
 import template from './sw-settings-snippet-filter-switch.html.twig';
 import './sw-settings-snippet-filter-switch.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-snippet-filter-switch', {
+export default {
     template,
 
     props: {
@@ -76,4 +74,4 @@ Component.register('sw-settings-snippet-filter-switch', {
             this.$emit('change', { value, name, group });
         },
     },
-});
+};

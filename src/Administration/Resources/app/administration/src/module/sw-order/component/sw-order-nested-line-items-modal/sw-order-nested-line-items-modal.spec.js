@@ -1,6 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-nested-line-items-modal';
-import 'src/module/sw-order/component/sw-order-nested-line-items-row';
+import swOrderNestedLineItemsModal from 'src/module/sw-order/component/sw-order-nested-line-items-modal';
+import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-nested-line-items-row';
+
+Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);
+Shopware.Component.register('sw-order-nested-line-items-row', swOrderNestedLineItemsRow);
 
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');

@@ -1,9 +1,12 @@
-import 'src/app/component/grid/sw-grid';
+import swGrid from 'src/app/component/grid/sw-grid';
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-document/page/sw-settings-document-list/';
+import swSettingsDocumentList from 'src/module/sw-settings-document/page/sw-settings-document-list/';
+
+Shopware.Component.register('sw-grid', swGrid);
+Shopware.Component.register('sw-settings-document-list', swSettingsDocumentList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-document-list'), {

@@ -5,7 +5,7 @@ const { hasOwnProperty } = Shopware.Utils.object;
 
 let settingsIndex;
 
-beforeEach(() => {
+beforeEach(async () => {
     const modules = ModuleFactory.getModuleRegistry();
     modules.clear();
 

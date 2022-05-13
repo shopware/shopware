@@ -1,9 +1,9 @@
 import template from './sw-settings-country-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -43,4 +43,4 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
             this.$router.push({ name: 'sw.settings.country.detail', params: { id: this.country.id } });
         },
     },
-});
+};

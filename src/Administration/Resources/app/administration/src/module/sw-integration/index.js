@@ -1,7 +1,9 @@
-import './page/sw-integration-list';
 import './acl';
 
 const { Module } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {

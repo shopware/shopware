@@ -1,10 +1,10 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-customer-group-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -162,4 +162,4 @@ Component.register('sw-settings-customer-group-list', {
             this.$refs.listing.deleteId = customerGroup.id;
         },
     },
-});
+};

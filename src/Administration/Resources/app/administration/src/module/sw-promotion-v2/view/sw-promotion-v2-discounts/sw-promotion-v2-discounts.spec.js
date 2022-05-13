@@ -1,38 +1,39 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-
-import 'src/module/sw-promotion-v2/view/sw-promotion-v2-discounts';
-import 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection';
-
+import swPromotionV2Discounts from 'src/module/sw-promotion-v2/view/sw-promotion-v2-discounts';
+import swPromotionV2WizardDiscountSelection from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection';
 import 'src/app/component/wizard/sw-wizard';
 import 'src/app/component/wizard/sw-wizard-page';
 import 'src/app/component/base/sw-empty-state';
 
-const { Component } = Shopware;
+Shopware.Component.register('sw-promotion-v2-discounts', swPromotionV2Discounts);
+Shopware.Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', swPromotionV2WizardDiscountSelection);
 
-const stubs = {
-    'sw-card': {
-        template: '<div class="sw-card"><slot></slot></div>'
-    },
-    'sw-empty-state': Component.build('sw-empty-state'),
-    'sw-modal': {
-        template: '<div class="sw-modal"><slot></slot></div>'
-    },
-    'sw-wizard': Component.build('sw-wizard'),
-    'sw-wizard-page': Component.build('sw-wizard-page'),
-    'sw-wizard-dot-navigation': true,
-    'sw-promotion-v2-wizard-description': {
-        template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>'
-    },
-    'sw-promotion-v2-wizard-discount-selection': Component.build('sw-promotion-v2-wizard-discount-selection'),
-    'sw-promotion-v2-settings-discount-type': true,
-    'sw-button': true,
-    'sw-button-process': true,
-    'sw-icon': true,
-    'sw-radio-field': true
-};
+const { Component } = Shopware;
+let stubs = {};
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
+    stubs = {
+        'sw-card': {
+            template: '<div class="sw-card"><slot></slot></div>'
+        },
+        'sw-empty-state': await Component.build('sw-empty-state'),
+        'sw-modal': {
+            template: '<div class="sw-modal"><slot></slot></div>'
+        },
+        'sw-wizard': await Component.build('sw-wizard'),
+        'sw-wizard-page': await Component.build('sw-wizard-page'),
+        'sw-wizard-dot-navigation': true,
+        'sw-promotion-v2-wizard-description': {
+            template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>'
+        },
+        'sw-promotion-v2-wizard-discount-selection': await Component.build('sw-promotion-v2-wizard-discount-selection'),
+        'sw-promotion-v2-settings-discount-type': true,
+        'sw-button': true,
+        'sw-button-process': true,
+        'sw-icon': true,
+        'sw-radio-field': true
+    };
     localVue.filter('asset', ((key) => {
         return key;
     }));

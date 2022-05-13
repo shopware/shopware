@@ -1,6 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import 'src/module/sw-cms/component/sw-cms-sidebar';
+import swCmsSidebar from 'src/module/sw-cms/component/sw-cms-sidebar';
+
+Shopware.Component.register('sw-cms-sidebar', swCmsSidebar);
 
 const { EntityCollection, Entity } = Shopware.Data;
 
@@ -36,6 +38,18 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
     });
 
     localStorage.clear();
+
+    if (Shopware.State.get('cmsPageState')) {
+        Shopware.State.unregisterModule('cmsPageState');
+    }
+
+    Shopware.State.registerModule('cmsPageState', {
+        namespaced: true,
+        state: {
+            isSystemDefaultLanguage: true,
+            currentPageType: 'product_list'
+        }
+    });
 
     return shallowMount(await Shopware.Component.build('sw-cms-sidebar'), {
         localVue,
@@ -156,16 +170,6 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
 }
 
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
-                isSystemDefaultLanguage: true,
-                currentPageType: 'product_list'
-            }
-        });
-    });
-
     it('should be a Vue.js component', async () => {
         global.activeAclRoles = [];
 
@@ -357,7 +361,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
+        await wrapper.find('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
 
         await wrapper.vm.$nextTick();
 
@@ -410,7 +414,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').trigger('click');
+        wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').vm.$emit('click');
 
         expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
     });

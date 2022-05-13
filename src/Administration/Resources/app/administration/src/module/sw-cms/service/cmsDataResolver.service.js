@@ -89,7 +89,7 @@ function resolve(page) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -99,7 +99,7 @@ function initSlotConfig(slot) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -109,7 +109,7 @@ function initSlotDefaultData(slot) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
@@ -142,7 +142,7 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
@@ -200,7 +200,7 @@ function fetchByIdentifier(directReads) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function fetchByCriteria(searches) {
     const results = {};
@@ -241,7 +241,7 @@ function fetchByCriteria(searches) {
 }
 
 /**
- * @private since v6.5.0
+ * @private
  */
 function getRepository(entity) {
     if (repositories[entity]) {

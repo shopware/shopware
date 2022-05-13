@@ -1,8 +1,10 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing';
+import swSettingsRuleAddAssignmentListing from 'src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-settings-rule-add-assignment-listing', swSettingsRuleAddAssignmentListing);
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);

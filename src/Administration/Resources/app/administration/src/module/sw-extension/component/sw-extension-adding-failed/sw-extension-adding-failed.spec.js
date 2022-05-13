@@ -1,11 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-adding-failed';
+import swExtensionAddingFailed from 'src/module/sw-extension/component/sw-extension-adding-failed';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-circle-icon';
 import 'src/app/component/base/sw-label';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 
+Shopware.Component.register('sw-extension-adding-failed', swExtensionAddingFailed);
 Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
 async function createWrapper() {

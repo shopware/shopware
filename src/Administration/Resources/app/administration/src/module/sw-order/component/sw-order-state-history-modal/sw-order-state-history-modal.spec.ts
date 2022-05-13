@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-state-history-modal';
+import swOrderStateHistoryModalComponent from 'src/module/sw-order/component/sw-order-state-history-modal';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/grid/sw-pagination';
@@ -106,6 +106,8 @@ orderProp.deliveries.first = () => ({
         }
     }
 });
+
+Shopware.Component.register('sw-order-state-history-modal', swOrderStateHistoryModalComponent);
 
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;

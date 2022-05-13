@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/view/sw-customer-detail-base';
+import swCustomerDetailBase from 'src/module/sw-customer/view/sw-customer-detail-base';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+
+Shopware.Component.register('sw-customer-detail-base', swCustomerDetailBase);
 
 const customFields = [
     {

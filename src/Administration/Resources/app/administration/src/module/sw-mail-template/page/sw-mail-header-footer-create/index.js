@@ -1,9 +1,9 @@
 import template from './sw-mail-header-footer-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -37,4 +37,4 @@ Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail',
             this.$super('onSave');
         },
     },
-});
+};

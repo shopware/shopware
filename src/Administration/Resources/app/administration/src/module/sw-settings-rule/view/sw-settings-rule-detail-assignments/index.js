@@ -2,11 +2,11 @@ import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/serv
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 
-const { Component, Mixin, Context, Utils } = Shopware;
+const { Mixin, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-rule-detail-assignments', {
+export default {
     // eslint-disable-next-line max-len
     template,
 
@@ -270,4 +270,4 @@ Component.register('sw-settings-rule-detail-assignments', {
                 });
         },
     },
-});
+};

@@ -4,7 +4,7 @@ import './sw-extension-rating-stars.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-extension-rating-stars', {
+export default {
     template,
 
     model: {
@@ -110,4 +110,4 @@ Shopware.Component.register('sw-extension-rating-stars', {
                 && (this.maxRating - Math.ceil(this.ratingValue)) === key;
         },
     },
-});
+};

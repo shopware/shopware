@@ -1,12 +1,12 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-image-slider', {
+export default {
     template,
 
     inject: ['feature'],
@@ -186,4 +186,4 @@ Component.register('sw-cms-el-image-slider', {
             this.$emit('active-image-change', this.sliderItems[this.sliderPos].media, this.sliderPos);
         },
     },
-});
+};

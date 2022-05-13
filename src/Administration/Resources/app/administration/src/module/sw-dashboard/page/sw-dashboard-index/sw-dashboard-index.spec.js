@@ -1,7 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-dashboard/page/sw-dashboard-index';
+import swDashboardIndex from 'src/module/sw-dashboard/page/sw-dashboard-index';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 import { currency } from 'src/core/service/utils/format.utils';
+
+Shopware.Component.register('sw-dashboard-index', swDashboardIndex);
 
 async function createWrapper(privileges = [], orderSumToday = null) {
     const localVue = createLocalVue();
@@ -79,7 +81,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;
 
-    beforeAll(() => {
+    beforeAll(async () => {
         Shopware.State.registerModule('session', {
             state: {
                 currentUser: null

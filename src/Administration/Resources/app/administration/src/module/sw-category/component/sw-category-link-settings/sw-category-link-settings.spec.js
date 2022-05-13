@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-link-settings';
+import swCategoryLinkSettings from 'src/module/sw-category/component/sw-category-link-settings';
+
+Shopware.Component.register('sw-category-link-settings', swCategoryLinkSettings);
 
 async function createWrapper(privileges = [], category = {}) {
     const localVue = createLocalVue();

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product-stream/page/sw-product-stream-detail';
+import swProductStreamDetail from 'src/module/sw-product-stream/page/sw-product-stream-detail';
+
+Shopware.Component.register('sw-product-stream-detail', swProductStreamDetail);
 
 const responses = global.repositoryFactoryMock.responses;
 

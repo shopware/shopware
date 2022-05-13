@@ -1,10 +1,8 @@
 import template from './sw-users-permissions-additional-permissions.html.twig';
 import './sw-users-permissions-additional-permissions.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-additional-permissions', {
+export default {
     template,
 
     inject: ['privileges'],
@@ -90,4 +88,4 @@ Component.register('sw-users-permissions-additional-permissions', {
             });
         },
     },
-});
+};

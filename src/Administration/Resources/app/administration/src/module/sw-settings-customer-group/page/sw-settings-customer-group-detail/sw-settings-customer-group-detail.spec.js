@@ -1,11 +1,13 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
+import swSettingsCustomerGroupDetail from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/utils/sw-popover';
+
+Shopware.Component.register('sw-settings-customer-group-detail', swSettingsCustomerGroupDetail);
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;

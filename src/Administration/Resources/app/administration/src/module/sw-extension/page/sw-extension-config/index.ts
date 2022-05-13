@@ -4,7 +4,7 @@ import type { Extension } from '../../service/extension-store-action.service';
 import template from './sw-extension-config.html.twig';
 import './sw-extension-config.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 type ComponentData = {
     salesChannelId: string|null,
@@ -21,7 +21,7 @@ type BeforeRouteEnterGuard = (to?: RawLocation | false | ((vm: VmWithFromLink) =
 /**
  * @private
  */
-Component.register('sw-extension-config', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     beforeRouteEnter(to: Route, from: Route, next: BeforeRouteEnterGuard) {

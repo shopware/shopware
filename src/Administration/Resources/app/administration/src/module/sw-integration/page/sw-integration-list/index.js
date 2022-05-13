@@ -1,10 +1,10 @@
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-integration-list', {
+export default {
     template,
 
     inject: ['integrationService', 'repositoryFactory', 'acl'],
@@ -200,4 +200,4 @@ Component.register('sw-integration-list', {
                 });
         },
     },
-});
+};

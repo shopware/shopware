@@ -105,8 +105,20 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         // Add simple image block
         cy.get('.sw-cms-section__empty-stage').click();
+
+        cy.intercept('/bundles/administration/static/**').as('loadStaticFiles')
+
         cy.get('#sw-field--currentBlockCategory').select('Images');
+
+        // Wait for sub-components to load
+        cy.wait(['@loadStaticFiles']);
+
+        cy.get('.sw-cms-sidebar__block-selection').should('be.visible');
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)').should('exist');
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)').scrollIntoView();
+        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)')
+            .invoke('outerHeight')
+            .should('be.greaterThan', 200);
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');

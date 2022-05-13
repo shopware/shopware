@@ -2,12 +2,10 @@ import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import CMS from '../../constant/sw-cms.constant';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-page-form', {
+export default {
     template,
 
     inject: ['cmsService'],
@@ -98,4 +96,4 @@ Component.register('sw-cms-page-form', {
                 this.$tc('sw-cms.section.positionLeft');
         },
     },
-});
+};

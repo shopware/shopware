@@ -1,10 +1,8 @@
 import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-default-addresses', {
+export default {
     template,
 
     inject: ['customSnippetApiService'],
@@ -84,4 +82,4 @@ Component.register('sw-customer-default-addresses', {
                 });
         },
     },
-});
+};

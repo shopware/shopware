@@ -5,7 +5,7 @@ import './sw-extension-my-extensions-listing-controls.scss';
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
+export default {
     template,
 
     data() {
@@ -38,4 +38,4 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
             this.$emit('update:sorting-option', value);
         },
     },
-});
+};

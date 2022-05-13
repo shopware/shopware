@@ -6,7 +6,7 @@ import './sw-first-run-wizard-markets.scss';
  * @status deprecated
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-first-run-wizard-markets', {
+export default {
     template,
 
     inject: ['extensionHelperService'],
@@ -63,4 +63,4 @@ Shopware.Component.register('sw-first-run-wizard-markets', {
                 });
         },
     },
-});
+};

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
+import swUsersPermissionsRoleListing from 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
+
+Shopware.Component.register('sw-users-permissions-role-listing', swUsersPermissionsRoleListing);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-users-permissions-role-listing'), {

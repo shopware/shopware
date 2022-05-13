@@ -5,7 +5,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-number-range-detail', {
+export default {
     template,
 
     inject: [
@@ -432,4 +432,4 @@ Component.register('sw-settings-number-range-detail', {
             );
         },
     },
-});
+};

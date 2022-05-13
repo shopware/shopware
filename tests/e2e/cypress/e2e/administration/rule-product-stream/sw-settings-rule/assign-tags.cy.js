@@ -33,14 +33,15 @@ describe('Rule builder: Test assigning tags', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-settings-rule-detail-base').should('exist');
 
         // fill basic data
-        cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
+        cy.contains('.sw-field', 'Name').then((field) => {
             cy.get('input', { withinSubject: field }).type('Rule 1st');
             cy.wrap(field).should('not.have.class', 'has--error');
         });
 
-        cy.get('.sw-field').contains('.sw-field', 'Priority').then((field) => {
+        cy.contains('.sw-field', 'Priority').then((field) => {
             cy.get('input', { withinSubject: field }).type('1').blur();
             cy.wrap(field).should('not.have.class', 'has--error');
         });

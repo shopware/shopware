@@ -6,10 +6,12 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
-import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
+import swUsersPermissionsUserDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/app/component/base/sw-button-process';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-users-permissions-user-detail', swUsersPermissionsUserDetail);
 
 let wrapper;
 

@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-card-base';
-import 'src/module/sw-extension/component/sw-extension-card-bought';
-import 'src/module/sw-extension/component/sw-extension-removal-modal';
-import 'src/module/sw-extension/component/sw-extension-adding-failed';
-import 'src/app/component/context-menu/sw-context-menu-item/';
+import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-card-base';
+import swExtensionCardBought from 'src/module/sw-extension/component/sw-extension-card-bought';
+import swExtensionRemovalModal from 'src/module/sw-extension/component/sw-extension-removal-modal';
+import swExtensionAddingFailed from 'src/module/sw-extension/component/sw-extension-adding-failed';
+import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
@@ -13,6 +13,11 @@ import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-e
 import ExtensionStoreActionService from 'src/module/sw-extension/service/extension-store-action.service';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
+
+Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
+Shopware.Component.extend('sw-extension-card-bought', 'sw-extension-card-base', swExtensionCardBought);
+Shopware.Component.register('sw-extension-removal-modal', swExtensionRemovalModal);
+Shopware.Component.register('sw-extension-adding-failed', swExtensionAddingFailed);
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
@@ -325,7 +330,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             active: false,
             type: 'plugin'
         });
-
         expect(wrapper.vm.showRatingModal).toEqual(false);
 
         expect(wrapper.find('.sw-extension-card-bought__rate-link')

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-deactivation-modal';
+import swExtensionDeactivationModal from 'src/module/sw-extension/component/sw-extension-deactivation-modal';
+
+Shopware.Component.register('sw-extension-deactivation-modal', swExtensionDeactivationModal);
 
 async function createWrapper(propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-extension-deactivation-modal'), {

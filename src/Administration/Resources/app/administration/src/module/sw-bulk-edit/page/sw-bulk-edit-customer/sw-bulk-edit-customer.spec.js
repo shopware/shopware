@@ -24,20 +24,31 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
-import 'src/module/sw-bulk-edit/page/sw-bulk-edit-customer';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+import swBulkEditCustomer from 'src/module/sw-bulk-edit/page/sw-bulk-edit-customer';
+import swBulkEditCustomFields from 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
+import swBulkEditChangeTypeFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
+import swBulkEditFormFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
+import swBulkEditChangeType from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
 import 'src/app/component/form/sw-select-field';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+import swBulkEditSaveModal from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+import swBulkEditSaveModalConfirm from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+import swBulkEditSaveModalProcess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+import swBulkEditSaveModalSuccess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+import swBulkEditSaveModalError from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+
+Shopware.Component.register('sw-bulk-edit-customer', swBulkEditCustomer);
+Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
+Shopware.Component.register('sw-bulk-edit-change-type-field-renderer', swBulkEditChangeTypeFieldRenderer);
+Shopware.Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', swBulkEditFormFieldRenderer);
+Shopware.Component.register('sw-bulk-edit-change-type', swBulkEditChangeType);
+Shopware.Component.register('sw-bulk-edit-save-modal', swBulkEditSaveModal);
+Shopware.Component.register('sw-bulk-edit-save-modal-confirm', swBulkEditSaveModalConfirm);
+Shopware.Component.register('sw-bulk-edit-save-modal-process', swBulkEditSaveModalProcess);
+Shopware.Component.register('sw-bulk-edit-save-modal-success', swBulkEditSaveModalSuccess);
+Shopware.Component.register('sw-bulk-edit-save-modal-error', swBulkEditSaveModalError);
 
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
     let wrapper;
@@ -255,7 +266,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         jest.spyOn(console, 'log').mockImplementation(() => {});
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
@@ -450,6 +461,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
     it('should set route meta module when component created', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
         wrapper.vm.setRouteMetaModule = jest.fn();
 
         wrapper.vm.createdComponent();

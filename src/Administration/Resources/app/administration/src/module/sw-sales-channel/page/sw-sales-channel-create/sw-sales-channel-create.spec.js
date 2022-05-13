@@ -1,6 +1,9 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
-import 'src/module/sw-sales-channel/page/sw-sales-channel-create';
+import swSalesChannelDetail from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
+import swSalesChannelCreate from 'src/module/sw-sales-channel/page/sw-sales-channel-create';
+
+Shopware.Component.register('sw-sales-channel-detail', swSalesChannelDetail);
+Shopware.Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', swSalesChannelCreate);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-mail-send-modal', {
+export default {
     template,
 
     inject: [
@@ -426,4 +426,4 @@ Component.register('sw-flow-mail-send-modal', {
             return itemIndex !== this.recipients.length - 1;
         },
     },
-});
+};

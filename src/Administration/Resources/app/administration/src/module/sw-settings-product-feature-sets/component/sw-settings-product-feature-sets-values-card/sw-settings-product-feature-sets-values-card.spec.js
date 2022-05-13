@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
+import swSettingsProductFeatureSetsValuesCard from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
+
+Shopware.Component.register('sw-settings-product-feature-sets-values-card', swSettingsProductFeatureSetsValuesCard);
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;

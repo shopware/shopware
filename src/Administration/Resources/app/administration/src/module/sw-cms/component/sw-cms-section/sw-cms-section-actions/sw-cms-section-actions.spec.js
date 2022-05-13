@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
+import swCmsSectionActions from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
+
+Shopware.Component.register('sw-cms-section-actions', swCmsSectionActions);
 
 async function createWrapper() {
     const localVue = createLocalVue();
@@ -14,6 +16,7 @@ async function createWrapper() {
         }
     });
 }
+
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

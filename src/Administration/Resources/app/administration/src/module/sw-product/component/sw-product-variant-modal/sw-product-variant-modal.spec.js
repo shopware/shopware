@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-variant-modal';
+import swProductVariantModal from 'src/module/sw-product/component/sw-product-variant-modal';
+
+Shopware.Component.register('sw-product-variant-modal', swProductVariantModal);
 
 function getOptions() {
     return [

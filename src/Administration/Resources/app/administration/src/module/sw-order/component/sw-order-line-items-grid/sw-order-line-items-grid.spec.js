@@ -1,10 +1,12 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-line-items-grid';
+import swOrderLineItemsGrid from 'src/module/sw-order/component/sw-order-line-items-grid';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-order-line-items-grid', swOrderLineItemsGrid);
 
 const mockItems = [
     {

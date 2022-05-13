@@ -599,30 +599,19 @@ function getTemplateOverrides(componentName) {
  * @returns {null|string}
  */
 function getRenderedTemplate(componentName) {
-    if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
-        const component = templateRegistry.get(componentName);
+    const component = templateRegistry.get(componentName);
 
-        if (!component) {
-            return null;
-        }
-
-        registerNormalizedTemplate(component);
-
-        const componentTemplate = normalizedTemplateRegistry.get(componentName);
-
-        if (!componentTemplate) {
-            return null;
-        }
-
-        return componentTemplate.html;
-        // eslint-disable-next-line no-else-return
-    } else {
-        const componentTemplate = normalizedTemplateRegistry.get(componentName);
-
-        if (!componentTemplate) {
-            return null;
-        }
-
-        return componentTemplate.html;
+    if (!component) {
+        return null;
     }
+
+    registerNormalizedTemplate(component);
+
+    const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+    if (!componentTemplate) {
+        return null;
+    }
+
+    return componentTemplate.html;
 }

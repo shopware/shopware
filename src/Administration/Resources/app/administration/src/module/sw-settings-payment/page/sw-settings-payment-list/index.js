@@ -1,7 +1,7 @@
 import template from './sw-settings-payment-list.html.twig';
 import './sw-settings-payment-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
  * @deprecated tag:v6.5.0 - will be removed, use `sw-settings-payment-overview` instead
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-payment-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -168,4 +168,4 @@ Component.register('sw-settings-payment-list', {
             return null;
         },
     },
-});
+};

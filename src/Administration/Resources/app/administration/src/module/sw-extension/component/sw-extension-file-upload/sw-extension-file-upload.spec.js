@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-file-upload';
+import swExtensionFileUpload from 'src/module/sw-extension/component/sw-extension-file-upload';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -7,6 +7,8 @@ import 'src/app/component/form/field-base/sw-base-field';
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
 const userConfigSaveSpy = jest.fn(() => Promise.resolve({}));
+
+Shopware.Component.register('sw-extension-file-upload', swExtensionFileUpload);
 
 async function createWrapper(userConfig = {}) {
     return shallowMount(await Shopware.Component.build('sw-extension-file-upload'), {

@@ -1,11 +1,10 @@
 import template from './sw-product-visibility-detail.html.twig';
 import './sw-product-visibility-detail.scss';
 
-const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-visibility-detail', {
+export default {
     template,
 
     props: {
@@ -54,4 +53,4 @@ Component.register('sw-product-visibility-detail', {
             item.visibility = Number(event);
         },
     },
-});
+};

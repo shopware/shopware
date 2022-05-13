@@ -5,15 +5,7 @@ import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-icon';
 
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
-
-const stubs = {
-    'sw-modal': {
-        template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
-    },
-    'icons-small-default-x-line-medium': {
-        template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
-    },
-};
+let stubs = {};
 
 describe('sw-app-wrong-app-url-modal', () => {
     let wrapper = null;
@@ -21,6 +13,16 @@ describe('sw-app-wrong-app-url-modal', () => {
     const deleteNotificationMock = jest.fn();
 
     async function createWrapper() {
+        stubs = {
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
+            },
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'icons-small-default-x-line-medium': {
+                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+            },
+        };
         const localVue = createLocalVue();
 
         const modal = await Shopware.Component.build('sw-app-wrong-app-url-modal');

@@ -14,7 +14,7 @@ import type {
     RedirectOption,
     RoutePropsFunction,
 } from 'vue-router/types/router';
-import type { ComponentConfig } from './component.factory';
+import type { ComponentConfig } from './async-component.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

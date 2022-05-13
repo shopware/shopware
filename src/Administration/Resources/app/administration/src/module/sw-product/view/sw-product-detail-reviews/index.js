@@ -6,7 +6,7 @@ const { Criteria } = Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail-reviews', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -149,4 +149,4 @@ Component.register('sw-product-detail-reviews', {
             this.getReviews();
         },
     },
-});
+};

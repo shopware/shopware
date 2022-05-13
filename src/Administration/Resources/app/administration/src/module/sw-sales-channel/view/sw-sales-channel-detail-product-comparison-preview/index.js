@@ -1,10 +1,8 @@
 import template from './sw-sales-channel-detail-product-comparison-preview.html.twig';
 import './sw-sales-channel-detail-product-comparison-preview.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail-product-comparison-preview', {
+export default {
     template,
 
     props: {
@@ -48,4 +46,4 @@ Component.register('sw-sales-channel-detail-product-comparison-preview', {
             this.$refs.previewEditor.editor.gotoLine(line, 0, true);
         },
     },
-});
+};

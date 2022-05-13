@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-page-form';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/utils/sw-ignore-class';
+import swCmsPageForm from 'src/module/sw-cms/component/sw-cms-page-form';
+
+Shopware.Component.register('sw-cms-page-form', swCmsPageForm);
 
 async function createWrapper() {
     const localVue = createLocalVue();
@@ -16,12 +16,14 @@ async function createWrapper() {
             'sw-icon': {
                 template: '<div></div>'
             },
-            'sw-card': await Shopware.Component.build('sw-card'),
+            'sw-card': {
+                template: '<div class="sw-card"><slot /></div>',
+                props: ['title']
+            },
             'sw-cms-el-config-text': {
                 template: '<div class="config-element">Config element</div>'
             },
             'sw-extension-component-section': true,
-            'sw-ignore-class': await Shopware.Component.build('sw-ignore-class'),
         },
         provide: {
             cmsService: {
@@ -41,8 +43,6 @@ async function createWrapper() {
 }
 
 function createPageProp() {
-    // providing only bare minimum
-
     return {
         sections: [
             {
@@ -96,7 +96,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('display the block name', async () => {
         const wrapper = await createWrapper();
-        const blockNameText = wrapper.find('.sw-card__title').text();
+        const blockNameText = wrapper.find('.sw-cms-page-form__block-card').props('title');
 
         expect(blockNameText).toBe('BLOCK NAME');
     });

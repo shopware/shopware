@@ -1,6 +1,5 @@
-const { Component } = Shopware;
-
-Component.extend('sw-settings-rule-tree', 'sw-tree', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
 
     data() {
         return {
@@ -36,4 +35,4 @@ Component.extend('sw-settings-rule-tree', 'sw-tree', {
             return items;
         },
     },
-});
+};

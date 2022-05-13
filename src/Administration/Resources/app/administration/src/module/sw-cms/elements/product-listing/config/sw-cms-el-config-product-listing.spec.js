@@ -1,19 +1,26 @@
 import Vue from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/product-listing/config';
-import 'src/app/component/data-grid/sw-data-grid';
+import swCmsElConfigProductListing from 'src/module/sw-cms/elements/product-listing/config';
+import swDataGrid from 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+Shopware.Component.register('sw-cms-el-config-product-listing', swCmsElConfigProductListing);
+Shopware.Component.register('sw-data-grid', swDataGrid);
+
 const productSortingRepositoryMock = {
-    search: () => Promise.resolve(new EntityCollection(
-        '',
-        '',
-        Shopware.Context.api,
-        null,
-        [{}],
-        1
-    )),
+    search() {
+        return Promise.resolve(
+            new EntityCollection(
+                '',
+                '',
+                Shopware.Context.api,
+                null,
+                [{}],
+                1
+            )
+        );
+    },
     route: '/product_sorting',
     schema: {
         entity: 'product_sorting'
@@ -158,6 +165,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
     it('should contain only some content for sorting when defaultSorting is activated', async () => {
         const wrapper = await createWrapper();
+
         wrapper.vm.element.config.useCustomSorting.value = false;
 
         await wrapper.vm.$nextTick();

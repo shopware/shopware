@@ -1,9 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
+import swCustomFieldDetail from 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-custom-field-detail', swCustomFieldDetail);
 
 function getFieldTypes() {
     return {

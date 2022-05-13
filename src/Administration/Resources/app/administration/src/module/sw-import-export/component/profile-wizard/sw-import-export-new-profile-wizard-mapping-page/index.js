@@ -3,9 +3,8 @@ import unionBy from 'lodash/unionBy';
 import template from './sw-import-export-new-profile-wizard-mapping-page.html.twig';
 import './sw-import-export-new-profile-wizard-mapping-page.scss';
 
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-import-export-new-profile-wizard-mapping-page', {
+export default {
     template,
 
     inject: [
@@ -76,4 +75,4 @@ Shopware.Component.register('sw-import-export-new-profile-wizard-mapping-page', 
             }, 0);
         },
     },
-});
+};

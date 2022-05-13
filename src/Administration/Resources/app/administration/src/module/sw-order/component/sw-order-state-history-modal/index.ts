@@ -26,7 +26,7 @@ interface CombinedStates {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-history-modal', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

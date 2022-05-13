@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms';
+import swSettingsSearchExcludedSearchTerms from 'src/module/sw-settings-search/component/sw-settings-search-excluded-search-terms';
 import 'src/app/component/base/sw-empty-state';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -12,6 +12,8 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
+
+Shopware.Component.register('sw-settings-search-excluded-search-terms', swSettingsSearchExcludedSearchTerms);
 
 async function createWrapper(privileges = [], resetError = false) {
     const localVue = createLocalVue();

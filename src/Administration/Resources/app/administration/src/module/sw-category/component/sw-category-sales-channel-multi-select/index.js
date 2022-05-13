@@ -1,9 +1,9 @@
 import template from './sw-category-sales-channel-multi-select.html.twig';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-select', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -38,4 +38,4 @@ Component.extend('sw-category-sales-channel-multi-select', 'sw-entity-multi-sele
             this.onSelectExpanded();
         },
     },
-});
+};

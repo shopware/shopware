@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-language/page/sw-settings-language-detail';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import swSettingsLanguageDetail from 'src/module/sw-settings-language/page/sw-settings-language-detail';
+
+Shopware.Component.register('sw-settings-language-detail', swSettingsLanguageDetail);
 
 async function createWrapper(privileges = [], languageId = null) {
     const localVue = createLocalVue();

@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-layout-assignment';
+import swProductLayoutAssignemt from 'src/module/sw-product/component/sw-product-layout-assignment';
+
+Shopware.Component.register('sw-product-layout-assignment', swProductLayoutAssignemt);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-product-layout-assignment'), {

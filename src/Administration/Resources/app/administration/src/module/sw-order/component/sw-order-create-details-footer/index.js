@@ -1,10 +1,10 @@
 import template from './sw-order-create-details-footer.html.twig';
 
-const { Component, State, Service } = Shopware;
+const { State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-details-footer', {
+export default {
     template,
 
     /**
@@ -166,4 +166,4 @@ Component.register('sw-order-create-details-footer', {
             });
         },
     },
-});
+};

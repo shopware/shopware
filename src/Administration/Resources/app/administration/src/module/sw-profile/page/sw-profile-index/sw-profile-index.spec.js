@@ -1,7 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-profile/page/sw-profile-index';
+import swProfileIndex from 'src/module/sw-profile/page/sw-profile-index';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
+
+Shopware.Component.register('sw-profile-index', swProfileIndex);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

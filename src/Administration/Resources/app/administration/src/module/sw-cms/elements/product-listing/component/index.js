@@ -1,12 +1,12 @@
 import template from './sw-cms-el-product-listing.html.twig';
 import './sw-cms-el-product-listing.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-product-listing', {
+export default {
     template,
 
     mixins: [
@@ -76,4 +76,4 @@ Component.register('sw-cms-el-product-listing', {
             return this.demoProductElement;
         },
     },
-});
+};

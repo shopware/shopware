@@ -1,9 +1,9 @@
 import template from './sw-flow-list.html.twig';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-list', {
+export default {
     template,
 
     inject: ['acl', 'repositoryFactory'],
@@ -170,4 +170,4 @@ Component.register('sw-flow-list', {
             ${this.$tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount })}`;
         },
     },
-});
+};

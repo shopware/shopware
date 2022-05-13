@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-payment/page/sw-settings-payment-list';
+import swSettingsPaymentList from 'src/module/sw-settings-payment/page/sw-settings-payment-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-settings-payment-list', swSettingsPaymentList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-payment-list'), {

@@ -85,7 +85,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(iconComponent.exists()).toBe(false);
     });
 
-    it('should render the module icon when slot "smart-bar-icon" is not filled', () => {
+    it('should render the module icon when slot "smart-bar-icon" is not filled', async () => {
         const iconComponent = wrapper.find('sw-icon-stub');
         expect(iconComponent.exists()).toBe(true);
         expect(iconComponent.attributes()).toHaveProperty('name');
@@ -135,7 +135,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(navigationComponent.exists()).toBe(false);
     });
 
-    it('should render the title of the page when slot "smart-bar-header" is not filled', () => {
+    it('should render the title of the page when slot "smart-bar-header" is not filled', async () => {
         const title = wrapper.find('.sw-meteor-page__smart-bar-title');
 
         expect(title.exists()).toBe(true);
@@ -170,7 +170,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(routerLinksStubs.at(2).text()).toEqual('Tab 3');
     });
 
-    it('should not render the tabs when slot is empty', () => {
+    it('should not render the tabs when slot is empty', async () => {
         const tabsContent = wrapper.find('.sw-tabs__content');
         expect(tabsContent.exists()).toBe(false);
     });

@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-document-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
@@ -543,4 +543,4 @@ Component.register('sw-settings-document-detail', {
             });
         },
     },
-});
+};

@@ -1,9 +1,8 @@
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 
-const { Component } = Shopware;
-
-Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -94,4 +93,4 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
             });
         },
     },
-});
+};

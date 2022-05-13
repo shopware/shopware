@@ -1,14 +1,14 @@
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-seo-url-template-card', {
+export default {
     template,
 
     inject: ['seoUrlTemplateService', 'repositoryFactory'],
@@ -297,4 +297,4 @@ Component.register('sw-seo-url-template-card', {
             });
         },
     },
-});
+};

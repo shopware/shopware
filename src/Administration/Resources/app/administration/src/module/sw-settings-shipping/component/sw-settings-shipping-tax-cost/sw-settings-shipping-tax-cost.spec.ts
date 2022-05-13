@@ -1,8 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost';
+import swSettingsShippingTaxCost from 'src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 Shopware.State.registerModule('swShippingDetail', state);
+Shopware.Component.register('sw-settings-shipping-tax-cost', swSettingsShippingTaxCost);
 
 const createWrapper = async () => {
     return shallowMount(await Shopware.Component.build('sw-settings-shipping-tax-cost'), {

@@ -2,11 +2,11 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
-const { Component, Mixin, EntityDefinition } = Shopware;
+const { Mixin, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-detail-addresses', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -330,4 +330,4 @@ Component.register('sw-customer-detail-addresses', {
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
         },
     },
-});
+};

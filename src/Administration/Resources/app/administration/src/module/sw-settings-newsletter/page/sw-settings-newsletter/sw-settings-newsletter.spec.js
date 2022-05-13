@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-newsletter/page/sw-settings-newsletter';
-import 'src/module/sw-settings/component/sw-system-config';
+import swSettingsNewsletter from 'src/module/sw-settings-newsletter/page/sw-settings-newsletter';
+import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/form/sw-field';
@@ -12,6 +12,9 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-help-text';
+
+Shopware.Component.register('sw-settings-newsletter', swSettingsNewsletter);
+Shopware.Component.register('sw-system-config', swSystemConfig);
 
 const classes = {
     root: 'sw-page__main-content',

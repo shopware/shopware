@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-general';
+import swSettingsSearchSearchableContentGeneral from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-general';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -9,6 +9,8 @@ import 'src/app/component/data-grid/sw-data-grid-skeleton';
 import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors.push(missingGetListMethod);
+
+Shopware.Component.register('sw-settings-search-searchable-content-general', swSettingsSearchSearchableContentGeneral);
 
 async function createWrapper() {
     const localVue = createLocalVue();
@@ -57,7 +59,7 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeAclRoles = [];
     });
 

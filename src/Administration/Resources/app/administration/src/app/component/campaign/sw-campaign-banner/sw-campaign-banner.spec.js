@@ -185,7 +185,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // add spy to window.open
         jest.spyOn(window, 'open').mockImplementation(() => {});
         // reset campaign

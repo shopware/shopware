@@ -1,10 +1,8 @@
 import template from './sw-payment-card.html.twig';
 import './sw-payment-card.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-payment-card', {
+export default {
     template,
 
     inject: ['acl'],
@@ -29,4 +27,4 @@ Component.register('sw-payment-card', {
             this.$emit('set-payment-active', this.paymentMethod);
         },
     },
-});
+};

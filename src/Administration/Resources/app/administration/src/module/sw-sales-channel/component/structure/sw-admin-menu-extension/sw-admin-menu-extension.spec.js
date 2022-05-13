@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
-import 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
+import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';
 
 // Turn off known errors
 import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+
+Shopware.Component.register('sw-admin-menu-extension', swAdminMenuExtension);
 
 global.allowedErrors = [missingGetListMethod];
 

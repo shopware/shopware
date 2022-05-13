@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
+import swProductVariantsDeliveryOrder from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
+
+Shopware.Component.register('sw-product-variants-delivery-order', swProductVariantsDeliveryOrder);
 
 async function createWrapper() {
     const localVue = createLocalVue();

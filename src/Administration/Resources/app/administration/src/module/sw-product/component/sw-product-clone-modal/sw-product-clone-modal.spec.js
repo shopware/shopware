@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-clone-modal';
+import swProductCloneModal from 'src/module/sw-product/component/sw-product-clone-modal';
+
+Shopware.Component.register('sw-product-clone-modal', swProductCloneModal);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-clone-modal'), {

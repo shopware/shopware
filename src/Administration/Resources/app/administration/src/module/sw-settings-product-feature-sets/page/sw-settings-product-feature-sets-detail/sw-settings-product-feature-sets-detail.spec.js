@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail';
+import swSettingProductFeatureSetsDetail from 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
@@ -8,6 +8,8 @@ import 'src/app/component/form/sw-textarea-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+
+Shopware.Component.register('sw-settings-product-feature-sets-detail', swSettingProductFeatureSetsDetail);
 
 const classes = {
     componentRoot: 'sw-settings-product-feature-sets-detail',

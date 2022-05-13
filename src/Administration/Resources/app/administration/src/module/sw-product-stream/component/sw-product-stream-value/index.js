@@ -1,11 +1,10 @@
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-value', {
+export default {
     template,
 
     inject: [
@@ -464,4 +463,4 @@ Component.register('sw-product-stream-value', {
             return Object.values(category.breadcrumb).join(' / ');
         },
     },
-});
+};

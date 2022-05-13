@@ -11,6 +11,7 @@ Lighthouse (Administration):
             alias: database
     variables:
       APP_ENV: prod
+      FEATURE_ALL: "major"
       DD_API_KEY: "$DATADOG_API_KEY"
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ''
     rules:

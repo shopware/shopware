@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-add-properties-modal';
+import swProductAddPropertiesModal from 'src/module/sw-product/component/sw-product-add-properties-modal';
+
+Shopware.Component.register('sw-product-add-properties-modal', swProductAddPropertiesModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

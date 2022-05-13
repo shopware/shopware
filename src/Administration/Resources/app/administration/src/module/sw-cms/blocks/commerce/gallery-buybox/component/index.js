@@ -1,12 +1,12 @@
 import template from './sw-cms-block-gallery-buybox.html.twig';
 import './sw-cms-block-gallery-buybox.scss';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-block-gallery-buybox', {
+export default {
     template,
 
     computed: {
@@ -22,4 +22,4 @@ Component.register('sw-cms-block-gallery-buybox', {
             return null;
         },
     },
-});
+};

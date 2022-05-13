@@ -1,13 +1,11 @@
 import template from './sw-extension-permissions-details-modal.html.twig';
 import './sw-extension-permissions-details-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-extension-permissions-details-modal', {
+export default {
     template,
 
     props: {
@@ -91,4 +89,4 @@ Component.register('sw-extension-permissions-details-modal', {
             return this.$te(translation) ? this.$tc(translation) : entity;
         },
     },
-});
+};

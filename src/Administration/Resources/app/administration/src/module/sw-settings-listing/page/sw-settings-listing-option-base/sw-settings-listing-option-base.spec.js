@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
+import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
+
+Shopware.Component.register('sw-settings-listing-option-base', swSettingsListingOptionBase);
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', () => {
     function getProductSortingEntity() {

@@ -2,7 +2,7 @@ import template from './sw-extension-file-upload.html.twig';
 import './sw-extension-file-upload.scss';
 import pluginErrorHandler from '../../service/extension-error-handler.service';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const USER_CONFIG_KEY = 'extension.plugin_upload';
@@ -11,7 +11,7 @@ const USER_CONFIG_KEY = 'extension.plugin_upload';
  * @deprecated tag:v6.5.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-extension-file-upload', {
+export default {
     template,
 
     inject: ['extensionStoreActionService', 'repositoryFactory'],
@@ -147,4 +147,4 @@ Component.register('sw-extension-file-upload', {
             });
         },
     },
-});
+};

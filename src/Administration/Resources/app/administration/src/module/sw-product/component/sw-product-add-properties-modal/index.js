@@ -1,11 +1,11 @@
 import template from './sw-product-add-properties-modal.html.twig';
 import './sw-product-add-properties-modal.scss';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-add-properties-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -286,4 +286,4 @@ Component.register('sw-product-add-properties-modal', {
             }
         },
     },
-});
+};

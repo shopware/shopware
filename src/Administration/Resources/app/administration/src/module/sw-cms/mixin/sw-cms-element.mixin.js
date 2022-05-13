@@ -3,7 +3,7 @@ const { types } = Shopware.Utils;
 const { cloneDeep, merge } = Shopware.Utils.object;
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Mixin.register('cms-element', {
     inject: ['cmsService'],

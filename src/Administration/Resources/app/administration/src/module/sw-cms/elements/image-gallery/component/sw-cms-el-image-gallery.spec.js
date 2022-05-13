@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image-gallery/component';
+import swCmsElImageGallery from 'src/module/sw-cms/elements/image-gallery/component';
+
+Shopware.Component.register('sw-cms-el-image-gallery', swCmsElImageGallery);
 
 const sliderItemsConfigMock = [
     {

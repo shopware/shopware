@@ -1,11 +1,10 @@
 import template from './sw-promotion-v2-conditions.html.twig';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-promotion-v2-conditions', {
+export default {
     template,
 
     inject: [
@@ -147,4 +146,4 @@ Component.register('sw-promotion-v2-conditions', {
             return new EntityCollection('/promotion', 'promotion', Shopware.Context.api, new Criteria(1, 25));
         },
     },
-});
+};

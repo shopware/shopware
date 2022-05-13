@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-integration/page/sw-integration-list';
+import swIntegrationList from 'src/module/sw-integration/page/sw-integration-list';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -8,6 +8,8 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-integration-list', swIntegrationList);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-integration-list'), {

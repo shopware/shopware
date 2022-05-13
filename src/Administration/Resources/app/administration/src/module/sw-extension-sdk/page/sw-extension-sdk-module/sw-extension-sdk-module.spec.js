@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
+import swExtensionSdkModule from 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
+
+Shopware.Component.register('sw-extension-sdk-module', swExtensionSdkModule);
 
 const module = {
     heading: 'jest',

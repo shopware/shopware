@@ -1,9 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
+import swImportExportEditProfileImportSettings from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+
+Shopware.Component.register('sw-import-export-edit-profile-import-settings', swImportExportEditProfileImportSettings);
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-import-settings', () => {
     /** @type Wrapper */

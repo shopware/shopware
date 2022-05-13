@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/page/sw-order-create';
+import swOrderCreate from 'src/module/sw-order/page/sw-order-create';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
@@ -8,6 +8,8 @@ import 'src/app/component/structure/sw-page';
 const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });
+
+Shopware.Component.register('sw-order-create', swOrderCreate);
 
 describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;

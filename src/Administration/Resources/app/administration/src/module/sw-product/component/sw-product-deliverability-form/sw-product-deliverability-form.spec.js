@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/component/sw-product-deliverability-form';
+import swProductDeliverabilityForm from 'src/module/sw-product/component/sw-product-deliverability-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+
+Shopware.Component.register('sw-product-deliverability-form', swProductDeliverabilityForm);
 
 const { Utils } = Shopware;
 

@@ -1,12 +1,12 @@
 import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
-const { Component, State, Mixin, Context } = Shopware;
+const { State, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-customer-grid', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -211,4 +211,4 @@ Component.register('sw-order-customer-grid', {
             });
         },
     },
-});
+};

@@ -1,7 +1,7 @@
 const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Mixin.register('cms-state', {
     computed: {

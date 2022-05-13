@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-seo-form';
+import swCategorySeoForm from 'src/module/sw-category/component/sw-category-seo-form';
+
+Shopware.Component.register('sw-category-seo-form', swCategorySeoForm);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-category-seo-form'), {

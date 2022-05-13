@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/sidebar-filter/component';
+import swCmsElSidebarFilter from 'src/module/sw-cms/elements/sidebar-filter/component';
+
+Shopware.Component.register('sw-cms-el-sidebar-filter', swCmsElSidebarFilter);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-sidebar-filter'), {

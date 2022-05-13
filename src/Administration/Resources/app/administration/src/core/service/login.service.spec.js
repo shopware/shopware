@@ -22,7 +22,7 @@ const loginServiceFactory = () => {
 
 let cookieStorageMock = '';
 describe('core/service/login.service.js', () => {
-    beforeAll(() => {
+    beforeAll(async () => {
         Object.defineProperty(document, 'cookie', {
             // eslint-disable-next-line func-names
             set: function (value) {

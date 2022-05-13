@@ -1,11 +1,11 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-list', {
+export default {
     template,
 
     inject: [
@@ -590,4 +590,4 @@ Component.register('sw-order-list', {
             return item.transactions.last();
         },
     },
-});
+};

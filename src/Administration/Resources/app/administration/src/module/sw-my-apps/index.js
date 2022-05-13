@@ -1,7 +1,9 @@
-import './component/sw-my-apps-error-page';
-import './page/sw-my-apps-page';
-
 const { Module } = Shopware;
+
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-my-apps-error-page', () => import('./component/sw-my-apps-error-page'));
+Shopware.Component.register('sw-my-apps-page', () => import('./page/sw-my-apps-page'));
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-my-apps', {

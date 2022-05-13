@@ -1,11 +1,9 @@
 import template from './sw-order-detail-documents.html.twig';
 
-const { Component } = Shopware;
-
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-detail-documents', {
+export default {
     template,
 
     computed: {
@@ -28,4 +26,4 @@ Component.register('sw-order-detail-documents', {
             this.$emit('update-loading', loading);
         },
     },
-});
+};

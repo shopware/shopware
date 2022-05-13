@@ -1,10 +1,10 @@
 import template from './sw-settings-tax-rule-type-individual-states.html.twig';
 
-const { Component, Context } = Shopware;
+const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tax-rule-type-individual-states', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -65,4 +65,4 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
             this.taxRule.data.states = collection.getIds();
         },
     },
-});
+};

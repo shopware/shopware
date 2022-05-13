@@ -1,12 +1,11 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import 'src/module/sw-cms/component/sw-cms-stage-add-section';
+import swCmsStageAddSection from 'src/module/sw-cms/component/sw-cms-stage-add-section';
+
+Shopware.Component.register('sw-cms-stage-add-section', swCmsStageAddSection);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
     return shallowMount(await Shopware.Component.build('sw-cms-stage-add-section'), {
-        localVue,
         propsData: {},
         stubs: {
             'sw-icon': true

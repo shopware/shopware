@@ -1,13 +1,13 @@
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-category-form', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
@@ -171,4 +171,4 @@ Component.register('sw-product-category-form', {
             return visibilities;
         },
     },
-});
+};

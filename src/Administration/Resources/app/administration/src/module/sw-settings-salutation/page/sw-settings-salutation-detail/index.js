@@ -1,13 +1,13 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-salutation-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -232,4 +232,4 @@ Component.register('sw-settings-salutation-detail', {
             });
         }, 500),
     },
-});
+};

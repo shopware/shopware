@@ -2,9 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
-import 'src/module/sw-extension/page/sw-extension-config';
+import swExtensionConfigPage from 'src/module/sw-extension/page/sw-extension-config';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import Vue from 'vue';
+
+Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
 
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     let wrapper: Wrapper<Vue>;
@@ -80,7 +82,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('domain should suffix config', () => {
+    it('domain should suffix config', async () => {
         expect(wrapper.vm.domain).toBe('MyExtension.config');
     });
 

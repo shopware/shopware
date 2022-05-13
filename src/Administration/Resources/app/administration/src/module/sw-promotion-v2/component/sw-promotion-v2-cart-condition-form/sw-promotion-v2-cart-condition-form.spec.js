@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
+import swPromotionV2CartConditionForm from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
+
+Shopware.Component.register('sw-promotion-v2-cart-condition-form', swPromotionV2CartConditionForm);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

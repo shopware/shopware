@@ -1,11 +1,14 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-document-settings-modal';
-import 'src/module/sw-order/component/sw-order-document-settings-credit-note-modal';
+import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
+import swOrderDocumentSettingsCreditNoteModal from 'src/module/sw-order/component/sw-order-document-settings-credit-note-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
+
+Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
+Shopware.Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsCreditNoteModal);
 
 const orderFixture = {
     id: 'order1',

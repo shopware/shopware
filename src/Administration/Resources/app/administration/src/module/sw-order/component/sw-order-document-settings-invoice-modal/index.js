@@ -1,8 +1,9 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     mixins: [
@@ -24,4 +25,4 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
             this.$super('onPreview');
         },
     },
-});
+};

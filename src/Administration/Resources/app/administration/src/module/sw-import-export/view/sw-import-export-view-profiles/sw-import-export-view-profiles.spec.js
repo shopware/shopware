@@ -1,7 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/view/sw-import-export-view-profiles';
+import swImportExportViewProfiles from 'src/module/sw-import-export/view/sw-import-export-view-profiles';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 
+Shopware.Component.register('sw-import-export-view-profiles', swImportExportViewProfiles);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-import-export-view-profiles'), {
@@ -24,7 +25,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
     const responses = global.repositoryFactoryMock.responses;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         responses.addResponse({
             method: 'Post',
             url: '/search/import-export-profile',

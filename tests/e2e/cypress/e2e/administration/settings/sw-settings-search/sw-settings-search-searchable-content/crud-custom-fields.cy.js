@@ -25,17 +25,9 @@ describe('Product Search: Test crud operations of custom field', () => {
             method: 'POST'
         }).as('getCustomField');
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
-        }).as('getData');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
@@ -90,17 +82,9 @@ describe('Product Search: Test crud operations of custom field', () => {
             method: 'POST'
         }).as('getCustomField');
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
-        }).as('getData');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
@@ -165,17 +149,9 @@ describe('Product Search: Test crud operations of custom field', () => {
             method: 'POST'
         }).as('getCustomField');
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST'
-        }).as('getData');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
 
         // change to customfield tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();

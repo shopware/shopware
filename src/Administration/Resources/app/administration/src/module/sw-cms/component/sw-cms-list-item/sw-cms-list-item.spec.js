@@ -1,7 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-cms/component/sw-cms-list-item';
+import swCmsListItem from 'src/module/sw-cms/component/sw-cms-list-item';
 
+Shopware.Component.register('sw-cms-list-item', swCmsListItem);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-list-item'), {

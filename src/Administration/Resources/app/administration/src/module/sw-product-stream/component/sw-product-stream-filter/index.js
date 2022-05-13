@@ -1,9 +1,10 @@
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
-const { Component, EntityDefinition } = Shopware;
+const { EntityDefinition } = Shopware;
 
-Component.extend('sw-product-stream-filter', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -215,4 +216,4 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             return Object.keys(this.productCustomFields).includes(strippedFieldName);
         },
     },
-});
+};

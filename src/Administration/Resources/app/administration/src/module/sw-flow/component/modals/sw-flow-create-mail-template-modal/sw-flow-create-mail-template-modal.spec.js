@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal';
+import swFlowCreateMailTemplateModal from 'src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -8,6 +8,8 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/sw-code-editor';
+
+Shopware.Component.register('sw-flow-create-mail-template-modal', swFlowCreateMailTemplateModal);
 
 const fieldsClasses = [
     '.sw-flow-create-mail-template-modal__type',

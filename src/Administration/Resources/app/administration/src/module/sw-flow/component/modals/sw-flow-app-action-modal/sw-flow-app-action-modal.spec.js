@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-app-action-modal';
+import swFlowAppActionModal from 'src/module/sw-flow/component/modals/sw-flow-app-action-modal';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -12,6 +12,8 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/select/base/sw-multi-select';
 
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-flow-app-action-modal', swFlowAppActionModal);
 
 const sequence = {
     sequence: {

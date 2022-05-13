@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal';
+import swPromotionV2GenerateCodesModalCmp from 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal';
+
+Shopware.Component.register('sw-promotion-v2-generate-codes-modal', swPromotionV2GenerateCodesModalCmp);
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';
 
@@ -9,6 +11,8 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
 
     async function createWrapper(promotionProps = {}) {
         const localVue = createLocalVue();
+
+        swPromotionV2GenerateCodesModal = await Shopware.Component.build('sw-promotion-v2-generate-codes-modal');
 
         return shallowMount(swPromotionV2GenerateCodesModal, {
             localVue,

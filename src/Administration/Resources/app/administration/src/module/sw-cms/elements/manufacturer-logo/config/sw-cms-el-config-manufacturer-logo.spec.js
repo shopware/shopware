@@ -1,48 +1,54 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image/config';
-import 'src/module/sw-cms/elements/manufacturer-logo/config';
+import swCmsElConfigImage from 'src/module/sw-cms/elements/image/config';
+import swCmsElConfigManufacturerLogo from 'src/module/sw-cms/elements/manufacturer-logo/config';
 
-async function createWrapper(propsOverride) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
-        propsData: {
-            element: {
-                config: {
-                    media: {
-                        source: 'static',
-                        value: null,
-                        required: true,
-                        entity: {
-                            name: 'media'
-                        }
-                    },
-                    displayMode: {
-                        source: 'static',
-                        value: 'cover'
-                    },
-                    url: {
-                        source: 'static',
-                        value: null
-                    },
-                    newTab: {
-                        source: 'static',
-                        value: true
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: null
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: null
-                    }
-                },
-                data: {
-                    media: ''
+Shopware.Component.register('sw-cms-el-config-image', swCmsElConfigImage);
+Shopware.Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', swCmsElConfigManufacturerLogo);
+
+const defaultProps = {
+    element: {
+        config: {
+            media: {
+                source: 'static',
+                value: null,
+                required: true,
+                entity: {
+                    name: 'media'
                 }
             },
-            defaultConfig: {},
-            ...propsOverride
+            displayMode: {
+                source: 'static',
+                value: 'cover'
+            },
+            url: {
+                source: 'static',
+                value: null
+            },
+            newTab: {
+                source: 'static',
+                value: true
+            },
+            minHeight: {
+                source: 'static',
+                value: null
+            },
+            verticalAlign: {
+                source: 'static',
+                value: null
+            }
+        },
+        data: {
+            media: ''
+        }
+    },
+    defaultConfig: {},
+};
+
+async function createWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
+        propsData: {
+            ...defaultProps,
         },
         stubs: {
             'sw-dynamic-url-field': true,
@@ -80,26 +86,20 @@ async function createWrapper(propsOverride) {
 }
 
 describe('module/sw-cms/elements/manufacturer-logo/config', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should map to a product manufacturer media if the component is in a product page', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm.element.config.media.source).toBe('mapped');
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
     });
 
     it('should not initially map to a product manufacturer media if element translated config', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
             element: {
                 config: {
-                    ...wrapper.props().element.config,
+                    ...defaultProps.element.config,
                     media: {
                         source: 'static',
                         value: '1',

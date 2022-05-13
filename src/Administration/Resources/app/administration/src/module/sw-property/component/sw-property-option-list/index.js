@@ -1,10 +1,10 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-property-option-list', {
+export default {
     template,
 
     inject: [
@@ -180,4 +180,4 @@ Component.register('sw-property-option-list', {
             }];
         },
     },
-});
+};

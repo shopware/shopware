@@ -8,7 +8,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @private
  */
-Component.register('sw-settings-units-detail', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [

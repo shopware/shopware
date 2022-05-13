@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
+import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
+
+Shopware.Component.register('sw-promotion-v2-rule-select', swPromotionV2RuleSelect);
 
 const ruleConditionDataProviderService = {
     getRestrictedRuleTooltipConfig: jest.fn(),

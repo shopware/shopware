@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-mail-template/component/sw-mail-template-list';
+import swMailTemplateList from 'src/module/sw-mail-template/component/sw-mail-template-list';
+
+Shopware.Component.register('sw-mail-template-list', swMailTemplateList);
 
 const createWrapper = async (privileges = []) => {
     const localVue = createLocalVue();

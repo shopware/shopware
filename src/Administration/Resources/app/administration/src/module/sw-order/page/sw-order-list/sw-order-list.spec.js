@@ -1,9 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/page/sw-order-list';
+import swOrderList from 'src/module/sw-order/page/sw-order-list';
 import 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+
+Shopware.Component.register('sw-order-list', swOrderList);
 
 const mockItem = {
     orderNumber: '1',

@@ -6,7 +6,7 @@ const { ChangesetGenerator } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-promotion-field', {
+export default {
     template,
 
     inject: [
@@ -258,4 +258,4 @@ Component.register('sw-order-promotion-field', {
             });
         },
     },
-});
+};

@@ -1,9 +1,16 @@
 import CMS from '../../../constant/sw-cms.constant';
-import './component';
-import './preview';
 
 /**
- * @private since v6.5.0
+ * @private
+ */
+Shopware.Component.register('sw-cms-preview-image-bubble-row', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-block-image-bubble-row', () => import('./component'));
+
+/**
+ * @private
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-bubble-row',

@@ -1,11 +1,25 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import 'src/module/sw-cms/component/sw-cms-section';
+import swCmsSection from 'src/module/sw-cms/component/sw-cms-section';
 import Vuex from 'vuex';
+
+Shopware.Component.register('sw-cms-section', swCmsSection);
 
 async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
+
+    Shopware.State.registerModule('cmsPageState', {
+        namespaced: true,
+        state: {
+            selectedBlock: {
+                id: '1a2b',
+                sectionPosition: 'main',
+                type: 'foo-bar'
+            },
+            isSystemDefaultLanguage: true
+        }
+    });
 
     return shallowMount(await Shopware.Component.build('sw-cms-section'), {
         localVue,
@@ -57,20 +71,6 @@ async function createWrapper() {
     });
 }
 describe('module/sw-cms/component/sw-cms-section', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
-                selectedBlock: {
-                    id: '1a2b',
-                    sectionPosition: 'main',
-                    type: 'foo-bar'
-                },
-                isSystemDefaultLanguage: true
-            }
-        });
-    });
-
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 

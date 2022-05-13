@@ -1,8 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
+import swExtensionRatingModal from 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal';
+import swExtensionReviewCreation from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation';
+import swExtensionReviewCreationInputs from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
 import 'src/app/component/form/sw-gtc-checkbox';
+
+Shopware.Component.register('sw-extension-review-creation', swExtensionReviewCreation);
+Shopware.Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', swExtensionRatingModal);
+Shopware.Component.register('sw-extension-review-creation-inputs', swExtensionReviewCreationInputs);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal', () => {
     /** @type Wrapper */

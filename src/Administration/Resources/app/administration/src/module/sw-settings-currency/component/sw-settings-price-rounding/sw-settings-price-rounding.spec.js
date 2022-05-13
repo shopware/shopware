@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-currency/component/sw-settings-price-rounding';
+import swSettingsPriceRounding from 'src/module/sw-settings-currency/component/sw-settings-price-rounding';
+
+Shopware.Component.register('sw-settings-price-rounding', swSettingsPriceRounding);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-settings-price-rounding'), {

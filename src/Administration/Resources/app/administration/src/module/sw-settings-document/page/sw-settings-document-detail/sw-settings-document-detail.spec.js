@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-document/page/sw-settings-document-detail';
+import swSettingsDocumentDetail from 'src/module/sw-settings-document/page/sw-settings-document-detail';
+
+Shopware.Component.register('sw-settings-document-detail', swSettingsDocumentDetail);
 
 const documentBaseConfigRepositoryMock = {
     create: () => {
@@ -134,7 +136,7 @@ const createWrapper = async (customOptions, privileges = []) => {
 };
 
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 

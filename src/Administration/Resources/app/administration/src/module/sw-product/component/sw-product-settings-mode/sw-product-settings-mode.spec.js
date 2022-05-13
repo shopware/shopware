@@ -1,9 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-product/component/sw-product-settings-mode';
+import swProductSettingsMode from 'src/module/sw-product/component/sw-product-settings-mode';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
+
+Shopware.Component.register('sw-product-settings-mode', swProductSettingsMode);
 
 describe('module/sw-product/component/sw-product-settings-mode', () => {
     async function createWrapper() {

@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-settings-rule/view/sw-settings-rule-detail-base';
+import swSettingsRuleDetailBase from 'src/module/sw-settings-rule/view/sw-settings-rule-detail-base';
+
+Shopware.Component.register('sw-settings-rule-detail-base', swSettingsRuleDetailBase);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

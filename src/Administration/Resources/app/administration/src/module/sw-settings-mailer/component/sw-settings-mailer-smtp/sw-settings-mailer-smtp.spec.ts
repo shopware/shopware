@@ -1,11 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-mailer/component/sw-settings-mailer-smtp';
+import swSettingsMailerSmtp from 'src/module/sw-settings-mailer/component/sw-settings-mailer-smtp';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-number-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+
+Shopware.Component.register('sw-settings-mailer-smtp', swSettingsMailerSmtp);
 
 describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () => {
     const createWrapper = async (mailerSettings = {}) => {

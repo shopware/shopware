@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
+import swPromotionV2DetailBase from 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
+
+Shopware.Component.register('sw-promotion-v2-detail-base', swPromotionV2DetailBase);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

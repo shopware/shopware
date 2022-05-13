@@ -1,3 +1,4 @@
+import defaultSearchConfiguration from './default-search-configuration';
 import './service/cms.service';
 import './service/cmsDataResolver.service';
 import './state/cms-page.state';
@@ -6,17 +7,21 @@ import './mixin/sw-cms-state.mixin';
 import './blocks';
 import './elements';
 import './component';
-import './page/sw-cms-list';
-import './page/sw-cms-detail';
-import './page/sw-cms-create';
 import './acl';
 
-import defaultSearchConfiguration from './default-search-configuration';
-
-const { Module } = Shopware;
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-cms-list', () => import('./page/sw-cms-list'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-detail', () => import('./page/sw-cms-detail'));
+/**
+ * @private
+ */
+Shopware.Component.extend('sw-cms-create', 'sw-cms-detail', () => import('./page/sw-cms-create'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Module.register('sw-cms', {
+Shopware.Module.register('sw-cms', {
     type: 'core',
     name: 'cms',
     title: 'sw-cms.general.mainMenuItemGeneral',

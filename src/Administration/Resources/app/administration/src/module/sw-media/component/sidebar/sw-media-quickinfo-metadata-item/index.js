@@ -1,7 +1,7 @@
 import './sw-media-quickinfo-metadata-item.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-media-quickinfo-metadata-item', {
+export default {
     functional: true,
 
     render(createElement, context) {
@@ -45,4 +45,4 @@ Shopware.Component.register('sw-media-quickinfo-metadata-item', {
             type: String,
         },
     },
-});
+};

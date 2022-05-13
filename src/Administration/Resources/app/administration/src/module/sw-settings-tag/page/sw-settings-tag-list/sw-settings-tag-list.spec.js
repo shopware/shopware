@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-tag/page/sw-settings-tag-list';
+import swSettingsTagList from 'src/module/sw-settings-tag/page/sw-settings-tag-list';
+
+Shopware.Component.register('sw-settings-tag-list', swSettingsTagList);
 
 const connections = {
     products: 412,

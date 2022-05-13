@@ -1,11 +1,11 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature', 'systemConfigApiService'],
@@ -557,4 +557,4 @@ Component.register('sw-cms-list', {
                 !this.acl.can('cms.deleter');
         },
     },
-});
+};

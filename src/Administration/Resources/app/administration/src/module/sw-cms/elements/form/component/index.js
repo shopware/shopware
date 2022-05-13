@@ -3,12 +3,12 @@ import contact from './templates/form-contact/index';
 import newsletter from './templates/form-newsletter/index';
 import './sw-cms-el-form.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-form', {
+export default {
     template,
 
     mixins: [
@@ -35,4 +35,4 @@ Component.register('sw-cms-el-form', {
             this.initElementConfig('form');
         },
     },
-});
+};

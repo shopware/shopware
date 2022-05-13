@@ -1,7 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-category/view/sw-category-detail-products';
+import swCategoryDetailProducts from 'src/module/sw-category/view/sw-category-detail-products';
 
+Shopware.Component.register('sw-category-detail-products', swCategoryDetailProducts);
 
 describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     let wrapper;

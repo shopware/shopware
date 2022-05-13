@@ -1,5 +1,7 @@
-import 'src/module/sw-settings-store/page/sw-settings-store';
+import swSettingsStore from 'src/module/sw-settings-store/page/sw-settings-store';
 import { shallowMount } from '@vue/test-utils';
+
+Shopware.Component.register('sw-settings-store', swSettingsStore);
 
 async function createWrapper(customString = '') {
     return shallowMount(await Shopware.Component.build('sw-settings-store'), {

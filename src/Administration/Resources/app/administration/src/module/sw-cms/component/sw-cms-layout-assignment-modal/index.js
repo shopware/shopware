@@ -6,9 +6,9 @@ const { cloneDeep } = Shopware.Utils.object;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Shopware.Component.register('sw-cms-layout-assignment-modal', {
+export default {
     template,
 
     inject: [
@@ -442,4 +442,4 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.loadSystemConfig();
         },
     },
-});
+};

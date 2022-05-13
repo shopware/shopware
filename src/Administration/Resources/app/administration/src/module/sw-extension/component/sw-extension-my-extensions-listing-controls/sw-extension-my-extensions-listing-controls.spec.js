@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-my-extensions-listing-controls';
+import swExtensionMyExtensionsListingControls from 'src/module/sw-extension/component/sw-extension-my-extensions-listing-controls';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -7,6 +7,8 @@ import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExtensionMyExtensionsListingControls);
 
 // eslint-disable-next-line max-len
 describe('src/Administration/Resources/app/administration/src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {

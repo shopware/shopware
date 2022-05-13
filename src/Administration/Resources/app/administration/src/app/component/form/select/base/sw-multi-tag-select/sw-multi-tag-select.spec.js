@@ -52,7 +52,6 @@ const pressEspace = el => pressKey(el, 'Escape');
 describe('components/sw-multi-tag-select', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createMultiDataSelect();
-
         expect(wrapper.vm).toBeTruthy();
     });
 

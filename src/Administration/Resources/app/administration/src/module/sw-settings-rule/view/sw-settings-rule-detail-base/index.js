@@ -1,7 +1,7 @@
 import template from './sw-settings-rule-detail-base.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-settings-rule-detail-base', {
+export default {
     template,
 
     inject: [
@@ -92,4 +92,4 @@ Shopware.Component.register('sw-settings-rule-detail-base', {
             this.$emit('conditions-changed', event);
         },
     },
-});
+};

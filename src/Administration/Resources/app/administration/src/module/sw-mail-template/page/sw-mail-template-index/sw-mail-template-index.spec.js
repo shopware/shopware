@@ -1,8 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-mail-template/page/sw-mail-template-index';
+import swMailTemplateIndex from 'src/module/sw-mail-template/page/sw-mail-template-index';
 
 // Turn off known errors
 import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+
+Shopware.Component.register('sw-mail-template-index', swMailTemplateIndex);
 
 global.allowedErrors = [missingGetListMethod];
 
@@ -52,7 +54,7 @@ const createWrapper = async () => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeAclRoles = [];
     });
     it('should not allow to create', async () => {

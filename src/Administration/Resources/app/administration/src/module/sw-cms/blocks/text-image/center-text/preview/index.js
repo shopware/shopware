@@ -1,11 +1,9 @@
 import template from './sw-cms-preview-center-text.html.twig';
 import './sw-cms-preview-center-text.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-preview-center-text', {
+export default {
     template,
-});
+};

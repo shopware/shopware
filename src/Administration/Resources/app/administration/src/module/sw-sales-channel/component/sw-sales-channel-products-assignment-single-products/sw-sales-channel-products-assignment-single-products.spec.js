@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
+import swSalesChannelProductsAssignmentSingleProducts from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/form/sw-field';
@@ -11,6 +11,8 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/context-menu/sw-context-button';
+
+Shopware.Component.register('sw-sales-channel-products-assignment-single-products', swSalesChannelProductsAssignmentSingleProducts);
 
 let productData = [];
 

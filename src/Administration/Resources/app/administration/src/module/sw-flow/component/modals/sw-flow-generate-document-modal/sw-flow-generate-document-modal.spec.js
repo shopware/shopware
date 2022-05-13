@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-generate-document-modal';
+import swFlowGenerateDocumentModal from 'src/module/sw-flow/component/modals/sw-flow-generate-document-modal';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-multi-select';
@@ -12,6 +12,8 @@ import 'src/app/component/base/sw-highlight-text';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+
+Shopware.Component.register('sw-flow-generate-document-modal', swFlowGenerateDocumentModal);
 
 const documentTypeMock = [
     {

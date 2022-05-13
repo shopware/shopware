@@ -6,7 +6,7 @@ const { get, format, array } = Utils;
 const { mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-base', {
+export default {
     template,
 
     inject: ['feature'],
@@ -532,4 +532,4 @@ Component.register('sw-order-create-base', {
             this.loadCart();
         },
     },
-});
+};

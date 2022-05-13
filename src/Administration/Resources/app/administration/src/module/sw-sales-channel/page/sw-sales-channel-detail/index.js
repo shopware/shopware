@@ -1,10 +1,10 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-detail', {
+export default {
     template,
 
     inject: [
@@ -348,4 +348,4 @@ Component.register('sw-sales-channel-detail', {
             this.loadEntityData();
         },
     },
-});
+};

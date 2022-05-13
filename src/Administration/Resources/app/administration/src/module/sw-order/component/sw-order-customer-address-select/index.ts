@@ -10,7 +10,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-customer-address-select', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory'],

@@ -7,7 +7,7 @@ const { mapState } = Component.getComponentHelper();
 const { capitalizeString } = Shopware.Utils.string;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-tag-modal', {
+export default {
     template,
 
     inject: [
@@ -214,4 +214,4 @@ Component.register('sw-flow-tag-modal', {
             return capitalizeString(normalText);
         },
     },
-});
+};

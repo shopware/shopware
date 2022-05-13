@@ -718,7 +718,7 @@ describe('Order: Create order', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '10');
     });
 
-    it('@base @order: add promotion code', { tags: ['pa-customers-orders'] }, () => {
+    it.only('@base @order: add promotion code', { tags: ['pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -726,6 +726,8 @@ describe('Order: Create order', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        cy.contains('.smart-bar__header', 'Promotions');
 
         cy.get('.smart-bar__actions .sw-button--primary').click();
         cy.get('.sw-skeleton').should('not.exist');
@@ -822,6 +824,8 @@ describe('Order: Create order', () => {
 
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
         cy.get('.sw-order-create-initial-modal__tab-product').click();
+
+        cy.get('.sw-order-product-grid-product-list').should('be.visible');
 
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(1).type('{enter}');
 

@@ -92,6 +92,7 @@ describe('Mail templates: Test crud privileges', () => {
         // go to mail template module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-mail-template').click();
+        cy.get('.sw-mail-templates-list-grid').should('exist');
 
         // filter for updated email template
         cy.get(page.elements.smartBarSearch)

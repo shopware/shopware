@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils';
-import 'src/module/sw-manufacturer/page/sw-manufacturer-list';
+import swManufacturerList from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-manufacturer-list', swManufacturerList);
 
 async function createWrapper(privileges = []) {
     return mount(await Shopware.Component.build('sw-manufacturer-list'), {

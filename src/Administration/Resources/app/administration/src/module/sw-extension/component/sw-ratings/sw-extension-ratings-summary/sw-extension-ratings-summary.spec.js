@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary';
+import swExtensionRatingsSummary from 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary';
 import 'src/app/component/utils/sw-progress-bar';
+
+Shopware.Component.register('sw-extension-ratings-summary', swExtensionRatingsSummary);
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {

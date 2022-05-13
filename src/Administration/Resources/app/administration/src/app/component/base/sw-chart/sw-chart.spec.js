@@ -35,7 +35,7 @@ const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
 };
 
 describe('components/base/sw-chart', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.commit('setAdminLocale', {
             locale: 'en-GB',
             locales: ['en-GB', 'nl-NL']

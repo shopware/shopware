@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-media/component/sw-media-modal-v2';
+import swMediaModalV2 from 'src/module/sw-media/component/sw-media-modal-v2';
+
+Shopware.Component.register('sw-media-modal-v2', swMediaModalV2);
 
 describe('src/module/sw-media/component/sw-media-modal-v2', () => {
     let wrapper;

@@ -1,11 +1,11 @@
 import template from './sw-product-variants-price-field.html.twig';
 import './sw-product-variants-price-field.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-price-field', {
+export default {
     template,
 
     props: {
@@ -151,4 +151,4 @@ Component.register('sw-product-variants-price-field', {
             });
         },
     },
-});
+};

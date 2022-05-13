@@ -1,12 +1,15 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
-import 'src/module/sw-product/component/sw-product-media-form';
+import swBulkEditProductMediaForm from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
+import swProductMediaForm from 'src/module/sw-product/component/sw-product-media-form';
 import 'src/app/component/base/sw-product-image';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
+
+Shopware.Component.register('sw-product-media-form', swProductMediaForm);
+Shopware.Component.extend('sw-bulk-edit-product-media-form', 'sw-product-media-form', swBulkEditProductMediaForm);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

@@ -1,11 +1,11 @@
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Context, Feature } = Shopware;
+const { Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-stream-modal-preview', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'productStreamPreviewService'],
@@ -223,4 +223,4 @@ Component.register('sw-product-stream-modal-preview', {
                 });
         },
     },
-});
+};

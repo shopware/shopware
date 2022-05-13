@@ -1,11 +1,11 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
@@ -399,4 +399,4 @@ Component.register('sw-customer-list', {
             this.showBulkEditModal = false;
         },
     },
-});
+};

@@ -3,7 +3,7 @@ import FlatTree from 'src/core/helper/flattree.helper';
 describe('core/helper/flattree.helper.js', () => {
     let flatTree;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         flatTree = new FlatTree();
     });
 
@@ -28,7 +28,6 @@ describe('core/helper/flattree.helper.js', () => {
     it('expects a node to have a path or id property', async () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
-
         flatTree.add({
             label: 'with path',
             path: '/foo/bar'

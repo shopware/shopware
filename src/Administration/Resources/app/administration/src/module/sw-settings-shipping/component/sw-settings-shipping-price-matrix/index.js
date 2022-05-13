@@ -1,12 +1,12 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
+const { Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-shipping-price-matrix', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -463,4 +463,4 @@ Component.register('sw-settings-shipping-price-matrix', {
             this.onAddNewShippingPrice();
         },
     },
-});
+};

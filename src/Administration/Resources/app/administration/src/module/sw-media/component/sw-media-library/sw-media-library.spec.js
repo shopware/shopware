@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';
 
-import 'src/module/sw-media/component/sw-media-library/index';
+import swMediaLibrary from 'src/module/sw-media/component/sw-media-library/index';
+
+Shopware.Component.register('sw-media-library', swMediaLibrary);
 
 class Repository {
     constructor(entityName, amounts) {
@@ -201,7 +203,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should limit association loading to 25', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.nextMedia();
+        await wrapper.vm.nextMedia();
 
         const usedCriteria = wrapper.vm.mediaRepository.lastUsedCriteria;
 
@@ -219,7 +221,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'shippingMethods',
             'cmsBlocks.section.page',
             'cmsSections.page',
-            'cmsPages',
+            'cmsPages'
         ].forEach(association => {
             const associationParts = association.split('.');
 

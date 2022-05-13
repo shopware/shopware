@@ -90,7 +90,7 @@ describe('sw-app-actions', () => {
         };
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
         document.location.href = 'http://localhost/';
     });

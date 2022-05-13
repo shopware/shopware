@@ -1,6 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/product-description-reviews/config';
+import swCmsElConfigProductDescriptionReviews from 'src/module/sw-cms/elements/product-description-reviews/config';
+
+Shopware.Component.register('sw-cms-el-config-product-description-reviews', swCmsElConfigProductDescriptionReviews);
 
 const productMock = {
     name: 'Awesome Product',
@@ -8,10 +10,7 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
-        localVue,
-        sync: false,
         stubs: {
             'sw-tabs': {
                 template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
@@ -70,6 +69,7 @@ async function createWrapper() {
 describe('src/module/sw-cms/elements/product-description-reviews/config', () => {
     it('should show product selector if page type is not product detail', async () => {
         const wrapper = await createWrapper();
+
         const productSelector = wrapper.find('sw-entity-single-select-stub');
         const alert = wrapper.find('sw-alert-stub');
 

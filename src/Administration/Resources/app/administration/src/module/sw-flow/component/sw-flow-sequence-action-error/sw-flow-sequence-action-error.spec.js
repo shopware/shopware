@@ -1,11 +1,13 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/sw-flow-sequence-action-error';
+import swFlowSequenceActionError from 'src/module/sw-flow/component/sw-flow-sequence-action-error';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-flow-sequence-action-error', swFlowSequenceActionError);
 
 async function createWrapper() {
     const localVue = createLocalVue();

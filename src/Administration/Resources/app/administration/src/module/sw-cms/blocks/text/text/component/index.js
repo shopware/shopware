@@ -1,10 +1,8 @@
 import template from './sw-cms-block-text.html.twig';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-block-text', {
+export default {
     template,
-});
+};

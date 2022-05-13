@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-live-search';
-import 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
+import swSettingsSearchLiveSearch from 'src/module/sw-settings-search/component/sw-settings-search-live-search';
+import swSettingsSearchLiveSearchKeyword from 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
@@ -15,6 +15,9 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/base/sw-highlight-text';
+
+Shopware.Component.register('sw-settings-search-live-search', swSettingsSearchLiveSearch);
+Shopware.Component.register('sw-settings-search-live-search-keyword', swSettingsSearchLiveSearchKeyword);
 
 const salesChannels = [
     {

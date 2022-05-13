@@ -2,13 +2,13 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-mail-template-detail', {
+export default {
     template,
 
     inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
@@ -595,4 +595,4 @@ Component.register('sw-mail-template-detail', {
             });
         },
     },
-});
+};

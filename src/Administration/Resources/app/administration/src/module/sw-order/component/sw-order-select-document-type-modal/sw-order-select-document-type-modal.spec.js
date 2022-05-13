@@ -1,9 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-select-document-type-modal';
+import swOrderSelectDocumentTypeModal from 'src/module/sw-order/component/sw-order-select-document-type-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
 
 const orderFixture = {
     id: '1234',

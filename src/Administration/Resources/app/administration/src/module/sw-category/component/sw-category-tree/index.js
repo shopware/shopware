@@ -1,12 +1,11 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-tree', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'syncService'],
@@ -601,4 +600,4 @@ Component.register('sw-category-tree', {
             );
         },
     },
-});
+};

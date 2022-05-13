@@ -3,12 +3,12 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-const { Component, Mixin, Defaults } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-card', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -97,4 +97,4 @@ Component.register('sw-customer-card', {
             return `mailto:${mail}`;
         },
     },
-});
+};

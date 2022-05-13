@@ -44,7 +44,7 @@ function createRepositoryData() {
 }
 
 describe('repository.data.ts', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         clientMock.resetHistory();
     });
 

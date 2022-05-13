@@ -1,7 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
-import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create';
+import swSettingsCustomFieldSetDetail from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
+import swSettingsCustomFieldSetCreate from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create';
 import 'src/app/mixin/notification.mixin';
+
+Shopware.Component.register('sw-settings-custom-field-set-detail', swSettingsCustomFieldSetDetail);
+Shopware.Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', swSettingsCustomFieldSetCreate);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-create'), {

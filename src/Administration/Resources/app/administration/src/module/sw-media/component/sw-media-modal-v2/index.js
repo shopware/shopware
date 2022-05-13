@@ -1,14 +1,14 @@
 import template from './sw-media-modal-v2.html.twig';
 import './sw-media-modal-v2.scss';
 
-const { Component, Context, Utils } = Shopware;
+const { Context, Utils } = Shopware;
 
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-modal-v2', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -273,4 +273,4 @@ Component.register('sw-media-modal-v2', {
             return upload.id === this.selectedMediaItem.id;
         },
     },
-});
+};

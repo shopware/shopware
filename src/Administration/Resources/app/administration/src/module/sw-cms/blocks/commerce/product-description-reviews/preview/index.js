@@ -1,11 +1,9 @@
 import template from './sw-cms-preview-product-description-reviews.html.twig';
 import './sw-cms-preview-product-description-reviews.scss';
 
-const { Component } = Shopware;
-
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-preview-product-description-reviews', {
+export default {
     template,
-});
+};

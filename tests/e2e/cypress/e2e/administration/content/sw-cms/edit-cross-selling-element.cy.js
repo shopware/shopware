@@ -123,6 +123,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-cms-el-preview-cross-selling').click();
 
         // Select a product with cross selling data
+        cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
         cy.get('.sw-cms-el-config-cross-selling .sw-entity-single-select')
             .typeSingleSelectAndCheck('First product', '.sw-cms-el-config-cross-selling .sw-entity-single-select');
@@ -260,11 +261,21 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        // Add text block
+        // Open CMS Block sidebar
         cy.get('.sw-cms-section__empty-stage').click();
+        cy.intercept('/bundles/administration/static/**').as('loadStaticFiles')
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
-        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(6)').scrollIntoView();
-        cy.get('.sw-cms-block-preview-cross-selling').should('be.visible');
+        
+        // Wait for sub-components to load
+        cy.wait(['@loadStaticFiles']);
+
+        cy.intercept('/bundles/administration/static/**').as('loadStaticFiles')
+        cy.contains('.sw-cms-product-box-preview__name', 'Lorem Ipsum');
+        
+        // Wait for sub-components to load
+        cy.wait(['@loadStaticFiles']);
+
+        cy.get('.sw-cms-block-preview-cross-selling').scrollIntoView();
         cy.get('.sw-cms-block-preview-cross-selling').dragTo('.sw-cms-section__empty-stage');
 
         cy.get('.sw-cms-block__config-overlay').invoke('show');

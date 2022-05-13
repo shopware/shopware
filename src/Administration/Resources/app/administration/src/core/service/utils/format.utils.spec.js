@@ -18,7 +18,7 @@ describe('src/core/service/utils/format.utils.js', () => {
         };
         const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
 
-        beforeEach(() => {
+        beforeEach(async () => {
             setLocale('en-GB');
             setTimeZone('UTC');
         });
@@ -77,7 +77,7 @@ describe('src/core/service/utils/format.utils.js', () => {
         };
         const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
 
-        beforeEach(() => {
+        beforeEach(async () => {
             setLocale('en-GB');
             setTimeZone('UTC');
         });

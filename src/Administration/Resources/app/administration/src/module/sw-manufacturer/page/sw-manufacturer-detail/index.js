@@ -1,12 +1,12 @@
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-manufacturer-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -212,4 +212,4 @@ Component.register('sw-manufacturer-detail', {
             this.$router.push({ name: 'sw.manufacturer.index' });
         },
     },
-});
+};

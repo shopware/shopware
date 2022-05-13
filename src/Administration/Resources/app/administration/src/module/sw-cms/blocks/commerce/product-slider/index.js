@@ -1,8 +1,14 @@
-import './component';
-import './preview';
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-preview-product-slider', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-block-product-slider', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-slider',

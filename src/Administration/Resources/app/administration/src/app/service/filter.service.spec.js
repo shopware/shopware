@@ -7,7 +7,7 @@ describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Application.view = {
             router: new VueRouter()
         };

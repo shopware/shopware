@@ -1,6 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/buy-box/component';
+import swCmsElBuyBox from 'src/module/sw-cms/elements/buy-box/component';
+
+Shopware.Component.register('sw-cms-el-buy-box', swCmsElBuyBox);
 
 const productMock = {
     name: 'Lorem Ipsum dolor',

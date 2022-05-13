@@ -1,11 +1,9 @@
 import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', {
+export default {
     template,
 
     mixins: ['sw-extension-error'],
@@ -120,4 +118,4 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
             }
         },
     },
-});
+};

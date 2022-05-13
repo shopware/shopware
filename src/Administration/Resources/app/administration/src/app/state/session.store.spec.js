@@ -4,7 +4,7 @@ import SessionStore from 'src/app/state/session.store';
 describe('src/app/state/session.store.js', () => {
     let sessionStore = null;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         sessionStore = new Vuex.Store(SessionStore);
     });
 

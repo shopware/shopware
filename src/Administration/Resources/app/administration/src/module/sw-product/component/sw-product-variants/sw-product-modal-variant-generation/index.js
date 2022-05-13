@@ -2,11 +2,10 @@ import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
 
-const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-modal-variant-generation', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -154,4 +153,4 @@ Component.register('sw-product-modal-variant-generation', {
             this.isLoading = false;
         },
     },
-});
+};

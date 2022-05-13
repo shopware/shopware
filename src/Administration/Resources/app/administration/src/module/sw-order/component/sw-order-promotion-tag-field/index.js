@@ -1,10 +1,11 @@
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
-const { Component, Utils } = Shopware;
+const { Utils } = Shopware;
 const { format } = Utils;
 
-Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     props: {
@@ -82,4 +83,4 @@ Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
             );
         },
     },
-});
+};

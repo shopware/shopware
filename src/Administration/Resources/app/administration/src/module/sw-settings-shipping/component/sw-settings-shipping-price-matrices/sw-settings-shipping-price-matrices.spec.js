@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
-import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+import swSettingsShippingPriceMatrices from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
+import swSettingsShippingPriceMatrixReg from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -13,6 +13,9 @@ import 'src/app/component/base/sw-inheritance-switch';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 Shopware.State.registerModule('swShippingDetail', state);
+
+Shopware.Component.register('sw-settings-shipping-price-matrices', swSettingsShippingPriceMatrices);
+Shopware.Component.register('sw-settings-shipping-price-matrix', swSettingsShippingPriceMatrixReg);
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrices', () => {
     let swSettingsShippingPriceMatrix;
@@ -83,7 +86,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         swSettingsShippingPriceMatrix = await Shopware.Component.build('sw-settings-shipping-price-matrix');
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.commit('swShippingDetail/setCurrencies', [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },

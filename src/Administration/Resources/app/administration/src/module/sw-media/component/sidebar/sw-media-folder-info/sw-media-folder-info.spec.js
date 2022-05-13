@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
-import 'src/module/sw-media/component/sidebar/sw-media-folder-info';
+import swMediaFolderInfo from 'src/module/sw-media/component/sidebar/sw-media-folder-info';
 
 const { Mixin } = Shopware;
+
+Shopware.Component.register('sw-media-folder-info', swMediaFolderInfo);
 
 async function createWrapper(privileges = [], options = {}) {
     return shallowMount(await Shopware.Component.build('sw-media-folder-info'), {

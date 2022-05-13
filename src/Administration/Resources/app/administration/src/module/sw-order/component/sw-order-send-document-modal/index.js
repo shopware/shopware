@@ -1,11 +1,10 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-send-document-modal', {
+export default {
     template,
 
     inject: [
@@ -164,4 +163,4 @@ Component.register('sw-order-send-document-modal', {
                 });
         },
     },
-});
+};

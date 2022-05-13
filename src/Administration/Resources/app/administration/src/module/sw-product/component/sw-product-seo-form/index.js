@@ -1,11 +1,11 @@
 import template from './sw-product-seo-form.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-seo-form', {
+export default {
     template,
 
     inject: [
@@ -198,4 +198,4 @@ Component.register('sw-product-seo-form', {
             });
         },
     },
-});
+};

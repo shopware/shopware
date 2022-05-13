@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import 'src/module/sw-settings-search/page/sw-settings-search';
+import swSettingsSearch from 'src/module/sw-settings-search/page/sw-settings-search';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 import 'src/app/component/base/sw-button-process';
@@ -24,6 +24,8 @@ const mockData = [
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c'
     }
 ];
+
+Shopware.Component.register('sw-settings-search', swSettingsSearch);
 
 async function createWrapper() {
     // delete global $router and $routes mocks
@@ -109,7 +111,7 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-search/page/sw-settings-search', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
     });

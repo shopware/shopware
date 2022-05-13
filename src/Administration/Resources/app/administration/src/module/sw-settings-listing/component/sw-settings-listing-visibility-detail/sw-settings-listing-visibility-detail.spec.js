@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
-import 'src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail';
-import 'src/module/sw-product/component/sw-product-visibility-detail';
+import swSettingsListingVisibiltyDetail from 'src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail';
+import swProductVisibilityDetail from 'src/module/sw-product/component/sw-product-visibility-detail';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
 import 'src/app/component/grid/sw-grid-row';
@@ -12,8 +12,10 @@ import 'src/app/component/form/sw-radio-field';
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
-global.allowedErrors = [unknownOptionError];
+Shopware.Component.register('sw-settings-listing-visibility-detail', swSettingsListingVisibiltyDetail);
+Shopware.Component.register('sw-product-visibility-detail', swProductVisibilityDetail);
 
+global.allowedErrors = [unknownOptionError];
 
 let config = [];
 

@@ -1,8 +1,11 @@
-import './page/sw-settings-cache-index';
-import './component/sw-settings-cache-modal';
 import './acl';
 
 const { Module } = Shopware;
+
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-cache-index', () => import('./page/sw-settings-cache-index'));
+Shopware.Component.register('sw-settings-cache-modal', () => import('./component/sw-settings-cache-modal'));
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-cache', {

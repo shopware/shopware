@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+import swSettingsShippingDetail from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+
+Shopware.Component.register('sw-settings-shipping-detail', swSettingsShippingDetail);
 
 
 async function createWrapper(privileges = []) {

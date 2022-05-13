@@ -8,7 +8,7 @@ const { format } = Shopware.Utils;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-activity', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'importExport', 'feature'],
@@ -378,4 +378,4 @@ Shopware.Component.register('sw-import-export-activity', {
             };
         },
     },
-});
+};

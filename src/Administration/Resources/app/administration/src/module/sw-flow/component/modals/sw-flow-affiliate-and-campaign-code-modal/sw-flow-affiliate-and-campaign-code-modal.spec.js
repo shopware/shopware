@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal';
+import swFlowAffiliateAndCampaignCodeModal from 'src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -16,6 +16,8 @@ import 'src/app/component/base/sw-container';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+
+Shopware.Component.register('sw-flow-affiliate-and-campaign-code-modal', swFlowAffiliateAndCampaignCodeModal);
 
 const fieldClasses = [
     '.sw-flow-affiliate-and-campaign-code-modal__entity',

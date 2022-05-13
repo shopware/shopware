@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-privilege-error/page/sw-privilege-error';
+import swPrivilegeError from 'src/module/sw-privilege-error/page/sw-privilege-error';
+
+Shopware.Component.register('sw-privilege-error', swPrivilegeError);
 
 describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
     let wrapper;

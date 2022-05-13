@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-import-export/component/sw-import-export-progress';
+import swImportExportProgress from 'src/module/sw-import-export/component/sw-import-export-progress';
+
+Shopware.Component.register('sw-import-export-progress', swImportExportProgress);
 
 describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;

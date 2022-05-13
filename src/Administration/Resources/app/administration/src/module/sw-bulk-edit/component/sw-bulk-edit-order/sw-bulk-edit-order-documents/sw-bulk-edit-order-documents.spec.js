@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
+import swBulkEditOrderDocuments from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
+
+Shopware.Component.register('sw-bulk-edit-order-documents', swBulkEditOrderDocuments);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-order-documents'), {

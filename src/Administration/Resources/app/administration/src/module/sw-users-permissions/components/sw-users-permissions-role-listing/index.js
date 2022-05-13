@@ -1,11 +1,11 @@
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
 
-const { Component, Data, Mixin, Feature } = Shopware;
+const { Data, Mixin, Feature } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-role-listing', {
+export default {
     template,
 
     inject: [
@@ -147,4 +147,4 @@ Component.register('sw-users-permissions-role-listing', {
             this.confirmPasswordModal = false;
         },
     },
-});
+};

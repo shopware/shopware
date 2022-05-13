@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
+import swSalesChannelProductsAssignmentDynamicProductGroups from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
+
+Shopware.Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', swSalesChannelProductsAssignmentDynamicProductGroups);
 
 const productStreamsMock = [
     {

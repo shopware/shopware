@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-listing/page/sw-settings-listing';
+import swSettingsListing from 'src/module/sw-settings-listing/page/sw-settings-listing';
 
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
+
+Shopware.Component.register('sw-settings-listing', swSettingsListing);
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const testedSortingKey = 'tested-sorting-key';

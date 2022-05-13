@@ -1,11 +1,11 @@
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
-const { Component, Module, State, Mixin, Utils } = Shopware;
+const { Module, State, Mixin, Utils } = Shopware;
 const { deepMergeObject } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-profile-index-search-preferences', {
+export default {
     template,
 
     inject: ['searchPreferencesService'],
@@ -144,4 +144,4 @@ Component.register('sw-profile-index-search-preferences', {
             });
         },
     },
-});
+};

@@ -2,12 +2,11 @@ import template from './sw-extension-review.html.twig';
 import './sw-extension-review.scss';
 
 const { date } = Shopware.Utils.format;
-const { Component } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-extension-review', {
+export default {
     template,
 
     props: {
@@ -31,4 +30,4 @@ Component.register('sw-extension-review', {
             return this.review.replies && this.review.replies.length > 0;
         },
     },
-});
+};

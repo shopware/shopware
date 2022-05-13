@@ -1,11 +1,11 @@
 import template from './sw-order-product-select.html.twig';
 import './sw-order-product-select.scss';
 
-const { Component, Service } = Shopware;
+const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-product-select', {
+export default {
     template,
 
     props: {
@@ -101,4 +101,4 @@ Component.register('sw-order-product-select', {
             });
         },
     },
-});
+};

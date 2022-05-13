@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-domains-modal';
+import swExtensionDomainsModal from 'src/module/sw-extension/component/sw-extension-domains-modal';
+
+Shopware.Component.register('sw-extension-domains-modal', swExtensionDomainsModal);
 
 async function createWrapper(propsData) {
     return shallowMount(await Shopware.Component.build('sw-extension-domains-modal'), {

@@ -3,7 +3,7 @@ import LocaleHelperService from 'src/app/service/locale-helper.service';
 describe('app/service/locale-helper.service.js', () => {
     let localeHelperService;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         localeHelperService = new LocaleHelperService({
             Shopware: { Context: { api: {} }, State: { dispatch: () => Promise.resolve() } },
             localeRepository: { get: () => Promise.resolve({ code: 'abc123def456' }) },

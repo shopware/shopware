@@ -1,8 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
-import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
+import swUsersPermissionsUserDefault from 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
+import swUsersPermissionsUserCreate from 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-users-permissions-user-detail', swUsersPermissionsUserDefault);
+Shopware.Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-detail', swUsersPermissionsUserCreate);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-users-permissions-user-create'), {

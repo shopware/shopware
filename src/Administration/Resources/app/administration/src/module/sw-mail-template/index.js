@@ -1,14 +1,16 @@
-import './component/sw-mail-template-list';
-import './component/sw-mail-header-footer-list';
-import './page/sw-mail-template-detail';
-import './page/sw-mail-template-create';
-import './page/sw-mail-template-index';
-import './page/sw-mail-header-footer-detail';
-import './page/sw-mail-header-footer-create';
-
 import './acl';
 
 const { Module } = Shopware;
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
+Shopware.Component.register('sw-mail-header-footer-list', () => import('./component/sw-mail-header-footer-list'));
+Shopware.Component.register('sw-mail-template-detail', () => import('./page/sw-mail-template-detail'));
+Shopware.Component.extend('sw-mail-template-create', 'sw-mail-template-detail', () => import('./page/sw-mail-template-create'));
+Shopware.Component.register('sw-mail-template-index', () => import('./page/sw-mail-template-index'));
+Shopware.Component.register('sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-detail'));
+Shopware.Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-create'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {

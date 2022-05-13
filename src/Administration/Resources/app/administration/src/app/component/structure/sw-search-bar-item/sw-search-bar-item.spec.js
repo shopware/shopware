@@ -48,6 +48,10 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     async function createWrapper(props) {
         const localVue = createLocalVue();
 
+        swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
+        spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
+        spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');
+
         return shallowMount(swSearchBarItemComponent, {
             localVue,
             stubs: {

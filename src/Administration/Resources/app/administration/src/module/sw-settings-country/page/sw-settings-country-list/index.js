@@ -1,11 +1,11 @@
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-list', {
+export default {
     template,
 
     inject: [
@@ -131,4 +131,4 @@ Component.register('sw-settings-country-list', {
             }];
         },
     },
-});
+};

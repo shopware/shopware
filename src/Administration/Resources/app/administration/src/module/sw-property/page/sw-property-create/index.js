@@ -1,9 +1,8 @@
 import template from './sw-property-create.html.twig';
 import './sw-property-create.scss';
 
-const { Component } = Shopware;
-
-Component.extend('sw-property-create', 'sw-property-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -38,4 +37,4 @@ Component.extend('sw-property-create', 'sw-property-detail', {
             this.$super('onSave');
         },
     },
-});
+};

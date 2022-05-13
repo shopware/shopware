@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-payment/component/sw-payment-card';
+import swPaymentCard from 'src/module/sw-settings-payment/component/sw-payment-card';
+
+Shopware.Component.register('sw-payment-card', swPaymentCard);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-payment-card'), {

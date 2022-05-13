@@ -1,7 +1,7 @@
 import PrivilegesService from 'src/app/service/privileges.service';
 
 describe('src/app/service/privileges.service.js', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         global.console.warn = jest.fn();
         global.console.error = jest.fn();
     });

@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/view/sw-order-create-base';
+import swOrderCreateBase from 'src/module/sw-order/view/sw-order-create-base';
 import orderStore from 'src/module/sw-order/state/order.store';
+
+Shopware.Component.register('sw-order-create-base', swOrderCreateBase);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-order-create-base'), {

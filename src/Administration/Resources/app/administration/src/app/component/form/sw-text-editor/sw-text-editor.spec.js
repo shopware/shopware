@@ -148,7 +148,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         };
     });
 
-    beforeEach(() => {});
+    beforeEach(async () => {});
 
     afterEach(() => {
         if (wrapper) { wrapper.destroy(); }

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-exporter', {
+export default {
     template,
 
     inject: ['importExport', 'repositoryFactory', 'feature'],
@@ -107,4 +107,4 @@ Shopware.Component.register('sw-import-export-exporter', {
             this.exportModalProfile = profileName;
         },
     },
-});
+};

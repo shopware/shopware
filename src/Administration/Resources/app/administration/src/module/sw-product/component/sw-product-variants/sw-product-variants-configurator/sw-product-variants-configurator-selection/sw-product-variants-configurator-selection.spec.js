@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 // eslint-disable-next-line max-len
-import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
+import swProductVariantsConfiguratorSelection from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
 import 'src/app/component/base/sw-property-search';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/form/sw-field';
@@ -9,6 +9,8 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+
+Shopware.Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', swProductVariantsConfiguratorSelection);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-variants-configurator-selection'), {

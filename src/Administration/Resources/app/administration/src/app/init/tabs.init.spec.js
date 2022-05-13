@@ -25,7 +25,7 @@ describe('src/app/init/tabs.init', () => {
         };
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // Reset tab store
         Object.keys(Shopware.State.get('tabs').tabItems).forEach(key => {
             Vue.set(Shopware.State.get('tabs').tabItems, key, []);

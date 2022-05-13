@@ -141,6 +141,7 @@ describe('Shipping: Test acl privileges', () => {
 
         cy.setEntitySearchable('shipping_method', 'name');
 
+        cy.get('.sw-settings-shipping-list').should('be.visible');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.clickContextMenuItem(

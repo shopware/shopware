@@ -1,9 +1,7 @@
 import template from './sw-users-permissions.html.twig';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions', {
+export default {
     template,
 
     inject: ['feature'],
@@ -25,4 +23,4 @@ Component.register('sw-users-permissions', {
             }
         },
     },
-});
+};

@@ -1,10 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/page/sw-customer-detail';
+import swCustomerDetail from 'src/module/sw-customer/page/sw-customer-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-button-process';
+
+Shopware.Component.register('sw-customer-detail', swCustomerDetail);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-customer-detail'), {

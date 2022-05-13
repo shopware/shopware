@@ -1,12 +1,12 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
  */
-Component.register('sw-cms-el-config-image', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -110,4 +110,4 @@ Component.register('sw-cms-el-config-image', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

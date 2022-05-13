@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/component/sw-extension-card-base';
+import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-card-base';
+
+Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
 
 async function createWrapper(propsData = {}, provide = {}) {
     return shallowMount(await Shopware.Component.build('sw-extension-card-base'), {

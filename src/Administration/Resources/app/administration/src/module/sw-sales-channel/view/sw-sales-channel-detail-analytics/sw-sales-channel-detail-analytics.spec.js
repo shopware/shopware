@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics';
+import swSalesChannelDetailAnalytics from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics';
+
+Shopware.Component.register('sw-sales-channel-detail-analytics', swSalesChannelDetailAnalytics);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-analytics'), {

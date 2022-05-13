@@ -1,8 +1,7 @@
 import template from './sw-custom-field-type-entity.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -91,4 +90,4 @@ Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', {
             this.currentCustomField.config.componentName = 'sw-entity-single-select';
         },
     },
-});
+};

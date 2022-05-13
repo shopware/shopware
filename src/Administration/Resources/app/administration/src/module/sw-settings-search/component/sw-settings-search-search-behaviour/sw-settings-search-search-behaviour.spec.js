@@ -1,11 +1,13 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-search/component/sw-settings-search-search-behaviour';
+import swSettingsSearchSearchBehaviour from 'src/module/sw-settings-search/component/sw-settings-search-search-behaviour';
 import 'src/app/component/form/sw-radio-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-number-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
+
+Shopware.Component.register('sw-settings-search-search-behaviour', swSettingsSearchSearchBehaviour);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

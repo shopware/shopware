@@ -1,9 +1,9 @@
 import template from './sw-settings-newsletter.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-newsletter', {
+export default {
     template,
 
     mixins: [
@@ -49,4 +49,4 @@ Component.register('sw-settings-newsletter', {
             this.isLoading = loading;
         },
     },
-});
+};

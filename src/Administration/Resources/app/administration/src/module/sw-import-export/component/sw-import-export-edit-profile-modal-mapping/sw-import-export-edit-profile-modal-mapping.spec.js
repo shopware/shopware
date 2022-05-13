@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 
-import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping';
+import swImportExportEditProfileModalMapping from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -9,6 +9,8 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
+
+Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', swImportExportEditProfileModalMapping);
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-mapping', () => {
     let wrapper;
@@ -86,7 +88,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const responses = global.repositoryFactoryMock.responses;
 
         responses.addResponse({

@@ -1,10 +1,16 @@
 import CMS from '../../../constant/sw-cms.constant';
 
-import './component';
-import './preview';
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-preview-image-slider', () => import('./preview'));
+/**
+ * @private
+ */
+Shopware.Component.register('sw-cms-block-image-slider', () => import('./component'));
 
 /**
- * @private since v6.5.0
+ * @private
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-slider',

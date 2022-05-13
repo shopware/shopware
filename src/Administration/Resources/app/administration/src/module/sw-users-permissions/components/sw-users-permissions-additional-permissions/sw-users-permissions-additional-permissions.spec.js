@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions';
+import swUsersPermissionsAdditionalPermissions from 'src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions';
+
+Shopware.Component.register('sw-users-permissions-additional-permissions', swUsersPermissionsAdditionalPermissions);
 
 describe('module/sw-users-permissions/components/sw-users-permissions-additional-permissions', () => {
     let wrapper;

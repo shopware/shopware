@@ -1,12 +1,12 @@
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-language-detail', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -257,4 +257,4 @@ Component.register('sw-settings-language-detail', {
             this.loadEntityData();
         },
     },
-});
+};

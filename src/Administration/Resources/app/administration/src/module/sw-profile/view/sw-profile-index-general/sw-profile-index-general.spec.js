@@ -1,11 +1,12 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-profile/view/sw-profile-index-general';
+import swProfileIndexGeneral from 'src/module/sw-profile/view/sw-profile-index-general';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/base/sw-highlight-text';
 
+Shopware.Component.register('sw-profile-index-general', swProfileIndexGeneral);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

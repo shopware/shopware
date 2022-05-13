@@ -1,4 +1,5 @@
-import './page/sw-settings-login-registration';
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-settings-login-registration', () => import('./page/sw-settings-login-registration'));
 
 const { Module } = Shopware;
 

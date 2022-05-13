@@ -1,10 +1,8 @@
 import template from './sw-product-variants-delivery-order.html.twig';
 import './sw-product-variants-delivery-order.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-delivery-order', {
+export default {
     template,
 
     props: {
@@ -181,4 +179,4 @@ Component.register('sw-product-variants-delivery-order', {
             });
         },
     },
-});
+};

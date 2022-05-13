@@ -1,12 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import 'src/module/sw-settings-snippet/page/sw-settings-snippet-set-list';
+import swSettingsSnippetSetList from 'src/module/sw-settings-snippet/page/sw-settings-snippet-set-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-grid-column';
 import 'src/app/component/grid/sw-grid-row';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/context-menu/sw-context-menu';
+
+Shopware.Component.register('sw-settings-snippet-set-list', swSettingsSnippetSetList);
 
 function getSnippetSets() {
     return [

@@ -4,7 +4,7 @@ import * as mapErrors from 'src/app/service/map-errors.service';
 describe('app/service/map-errors.service.js', () => {
     Shopware.Utils.debug.warn = jest.fn();
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.Utils.debug.warn.mockClear();
     });
 

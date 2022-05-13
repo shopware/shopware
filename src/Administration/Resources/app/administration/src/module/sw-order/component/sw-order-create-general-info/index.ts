@@ -8,7 +8,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @private since v6.5.0
  */
-Component.register('sw-order-create-general-info', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

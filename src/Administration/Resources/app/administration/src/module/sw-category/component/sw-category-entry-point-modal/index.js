@@ -1,10 +1,8 @@
 import template from './sw-category-entry-point-modal.html.twig';
 import './sw-category-entry-point-modal.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-entry-point-modal', {
+export default {
     template,
 
     inject: [
@@ -186,4 +184,4 @@ Component.register('sw-category-entry-point-modal', {
             });
         },
     },
-});
+};

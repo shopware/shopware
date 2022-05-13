@@ -1,45 +1,47 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-cms/component/sw-cms-layout-modal';
+import swCmsLayoutModal from 'src/module/sw-cms/component/sw-cms-layout-modal';
+
+Shopware.Component.register('sw-cms-layout-modal', swCmsLayoutModal);
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
+
+const productMocks = [
+    {
+        id: 'some-other-id',
+        sections: [],
+        categories: [],
+        products: [],
+        translated: {
+            name: 'CMS Page 1'
+        }
+    },
+    {
+        id: defaultProductId,
+        sections: [],
+        categories: [],
+        products: [],
+        translated: {
+            name: 'CMS Page 2'
+        }
+    },
+    {
+        id: defaultCategoryId,
+        sections: [],
+        categories: [],
+        products: [],
+        translated: {
+            name: 'CMS Page 3'
+        }
+    }
+];
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-layout-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: jest.fn(() => {
-                        return Promise.resolve([
-                            {
-                                id: 'some-other-id',
-                                sections: [],
-                                categories: [],
-                                products: [],
-                                translated: {
-                                    name: 'CMS Page 1'
-                                }
-                            },
-                            {
-                                id: defaultProductId,
-                                sections: [],
-                                categories: [],
-                                products: [],
-                                translated: {
-                                    name: 'CMS Page 2'
-                                }
-                            },
-                            {
-                                id: defaultCategoryId,
-                                sections: [],
-                                categories: [],
-                                products: [],
-                                translated: {
-                                    name: 'CMS Page 3'
-                                }
-                            }
-                        ]);
-                    })
+                    search: jest.fn(() => Promise.resolve(productMocks))
                 })
             },
             searchRankingService: {},

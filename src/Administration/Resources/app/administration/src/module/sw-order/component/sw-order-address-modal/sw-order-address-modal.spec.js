@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-address-modal';
+import swOrderAddressModal from 'src/module/sw-order/component/sw-order-address-modal';
+
+Shopware.Component.register('sw-order-address-modal', swOrderAddressModal);
 
 async function createWrapper() {
     const localVue = createLocalVue();

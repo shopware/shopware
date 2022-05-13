@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-payment/page/sw-settings-payment-detail';
+import swSettingsPaymentDetail from 'src/module/sw-settings-payment/page/sw-settings-payment-detail';
+
+Shopware.Component.register('sw-settings-payment-detail', swSettingsPaymentDetail);
 
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-settings-payment-detail'), {

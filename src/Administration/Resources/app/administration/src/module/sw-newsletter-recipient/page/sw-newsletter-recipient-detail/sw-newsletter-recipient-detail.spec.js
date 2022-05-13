@@ -1,9 +1,11 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
+import swNewsletterRecipientDetail from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
 
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/structure/sw-card-view';
+
+Shopware.Component.register('sw-newsletter-recipient-detail', swNewsletterRecipientDetail);
 
 class MockRepositoryFactory {
     constructor() {

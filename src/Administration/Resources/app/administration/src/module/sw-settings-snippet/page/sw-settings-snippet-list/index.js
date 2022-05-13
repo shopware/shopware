@@ -2,10 +2,10 @@ import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 import './sw-settings-snippet-list.scss';
 
-const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-snippet-list', {
+export default {
     template,
 
     inject: [
@@ -665,4 +665,4 @@ Component.register('sw-settings-snippet-list', {
             this.initializeSnippetSet({});
         },
     },
-});
+};

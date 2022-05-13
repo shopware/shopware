@@ -1,9 +1,9 @@
 import template from './sw-users-permissions-role-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-role-detail', {
+export default {
     template,
 
     inject: [
@@ -198,4 +198,4 @@ Component.register('sw-users-permissions-role-detail', {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
     },
-});
+};

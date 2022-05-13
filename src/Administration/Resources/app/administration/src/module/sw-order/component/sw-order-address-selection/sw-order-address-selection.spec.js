@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-address-selection';
+import swOrderAddressSelection from 'src/module/sw-order/component/sw-order-address-selection';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/form/select/base/sw-select-result';
@@ -9,12 +9,15 @@ import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/utils/sw-popover';
-import 'src/module/sw-customer/component/sw-customer-address-form';
+import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/form/field-base/sw-base-field';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
+
+Shopware.Component.register('sw-order-address-selection', swOrderAddressSelection);
+Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);
 
 async function createWrapper(propsData) {
     const localVue = createLocalVue();

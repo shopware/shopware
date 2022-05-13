@@ -14,7 +14,7 @@ const { Component, State, Mixin, Utils } = Shopware;
 const { get, format, array } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-general', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [

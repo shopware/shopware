@@ -1,10 +1,10 @@
 import template from './sw-settings-custom-field-set-create.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -72,4 +72,4 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             };
         },
     },
-});
+};

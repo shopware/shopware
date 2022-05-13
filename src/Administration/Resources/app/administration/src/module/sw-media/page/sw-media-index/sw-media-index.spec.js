@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-media/page/sw-media-index';
+import swMediaIndex from 'src/module/sw-media/page/sw-media-index';
+
+Shopware.Component.register('sw-media-index', swMediaIndex);
 
 describe('src/module/sw-media/page/sw-media-index', () => {
     async function createWrapper(privileges = []) {

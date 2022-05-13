@@ -2,14 +2,14 @@ import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-customer', {
+export default {
     template,
 
     inject: [
@@ -313,5 +313,4 @@ Component.register('sw-bulk-edit-customer', {
             Shopware.State.commit('context/setApiLanguageId', languageId);
         },
     },
-});
-
+};

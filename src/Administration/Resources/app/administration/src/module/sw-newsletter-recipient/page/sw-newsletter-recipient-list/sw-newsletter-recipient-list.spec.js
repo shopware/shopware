@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
+import swNewsletterRecipientList from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
 
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -7,6 +7,8 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+
+Shopware.Component.register('sw-newsletter-recipient-list', swNewsletterRecipientList);
 
 function mockApiCall(type) {
     switch (type) {

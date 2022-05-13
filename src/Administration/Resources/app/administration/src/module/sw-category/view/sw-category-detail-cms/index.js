@@ -1,10 +1,8 @@
 import template from './sw-category-detail-cms.html.twig';
 import './sw-category-detail-cms.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-detail-cms', {
+export default {
     template,
 
     inject: ['acl'],
@@ -25,4 +23,4 @@ Component.register('sw-category-detail-cms', {
             return Shopware.State.get('cmsPageState').currentPage;
         },
     },
-});
+};

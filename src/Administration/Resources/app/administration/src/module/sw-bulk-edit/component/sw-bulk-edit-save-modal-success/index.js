@@ -1,11 +1,10 @@
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-save-modal-success', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'orderDocumentApiService'],
@@ -179,4 +178,4 @@ Component.register('sw-bulk-edit-save-modal-success', {
                 });
         },
     },
-});
+};

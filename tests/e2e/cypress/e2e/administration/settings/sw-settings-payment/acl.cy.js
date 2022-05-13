@@ -87,6 +87,9 @@ describe('Payment: Test ACL privileges', () => {
             .contains('Edit detail')
             .click();
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-settings-payment-detail__field-name').should('be.visible');
         cy.get('#sw-field--paymentMethod-description').type('My description');
         cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
 

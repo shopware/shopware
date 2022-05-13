@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/component/sw-product-media-form';
+import swProductMediaForm from 'src/module/sw-product/component/sw-product-media-form';
 import 'src/app/component/base/sw-product-image';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/context-menu/sw-context-menu';
@@ -8,6 +8,8 @@ import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/utils/sw-popover';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-product-media-form', swProductMediaForm);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

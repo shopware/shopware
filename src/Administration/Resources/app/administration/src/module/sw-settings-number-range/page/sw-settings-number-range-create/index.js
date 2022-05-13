@@ -1,9 +1,9 @@
 import template from './sw-settings-number-range-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -48,4 +48,4 @@ Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-de
             this.$super('onSave');
         },
     },
-});
+};

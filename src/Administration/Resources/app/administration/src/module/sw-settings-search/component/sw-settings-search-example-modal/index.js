@@ -1,10 +1,8 @@
 import template from './sw-settings-search-example-modal.html.twig';
 import './sw-settings-search-example-modal.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-search-example-modal', {
+export default {
     template,
 
     data() {
@@ -61,4 +59,4 @@ Component.register('sw-settings-search-example-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

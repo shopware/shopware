@@ -1,13 +1,15 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
-import 'src/app/mixin/notification.mixin';
-import 'src/module/sw-cms/component/sw-cms-layout-assignment-modal';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
+import swCmsLayoutAssignmentModal from 'src/module/sw-cms/component/sw-cms-layout-assignment-modal';
+import swTabs from 'src/app/component/base/sw-tabs';
+import swTabsItem from 'src/app/component/base/sw-tabs-item';
+import swModal from 'src/app/component/base/sw-modal';
+
+Shopware.Component.register('sw-cms-layout-assignment-modal', swCmsLayoutAssignmentModal);
+Shopware.Component.register('sw-tabs', swTabs);
+Shopware.Component.register('sw-tabs-item', swTabsItem);
+Shopware.Component.register('sw-modal', swModal);
 
 const mockCategories = [
     {
@@ -66,13 +68,8 @@ const mockLandingPages = [
     }
 ];
 
-async function createWrapper(layoutType = 'product_list', privileges = []) {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {});
-
+async function createWrapper(layoutType = 'product_list') {
     return shallowMount(await Shopware.Component.build('sw-cms-layout-assignment-modal'), {
-        localVue,
         propsData: {
             page: {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), mockCategories),
@@ -85,7 +82,9 @@ async function createWrapper(layoutType = 'product_list', privileges = []) {
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button': {
+                template: '<div class="sw-button" @click="$emit(\'click\')"></div>'
+            },
             'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
             'sw-category-tree-field': true,
             'sw-inherit-wrapper': true,
@@ -104,9 +103,6 @@ async function createWrapper(layoutType = 'product_list', privileges = []) {
             'sw-icon': true,
             'sw-cms-product-assignment': true,
             transition: false,
-        },
-        mocks: {
-            cloneDeep: cloneDeep
         },
         provide: {
             systemConfigApiService: {
@@ -145,31 +141,30 @@ async function createWrapper(layoutType = 'product_list', privileges = []) {
                 stopEventListener: () => {},
                 startEventListener: () => {}
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
         }
     });
 }
 
 describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render category selection', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
     });
 
     it('should emit modal confirm and close event', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         wrapper.vm.onConfirm();
@@ -181,6 +176,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should render tabs when type is shop page', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
@@ -189,6 +186,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should disable shop pages tab with missing system config permission', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('page');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages')
@@ -196,6 +195,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should not render tabs when type is not shop page', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         // Tab container should exist but not the individual tabs
@@ -206,6 +207,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should store previous categories on component creation', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.previousCategories).toEqual(mockCategories);
@@ -213,6 +216,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add categories', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -244,6 +249,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add a category which already has a different assigned layout', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -299,6 +306,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove categories and confirm', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -337,6 +346,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove categories but discard changes', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -376,6 +387,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove categories but keep editing', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -422,7 +435,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add shop pages', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         await wrapper.vm.$nextTick(); // Wait for shop pages to load
         await wrapper.vm.$nextTick(); // Wait for shop pages to be converted
@@ -461,7 +476,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove shop pages and confirm', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         await wrapper.vm.$nextTick(); // Wait for shop pages to load
         await wrapper.vm.$nextTick(); // Wait for shop pages to be converted
@@ -507,7 +524,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove shop pages but discard changes', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         await wrapper.vm.$nextTick(); // Wait for shop pages to load
         await wrapper.vm.$nextTick(); // Wait for shop pages to be converted
@@ -555,7 +574,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should load system config when layout type is shop page', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         // Wait for system config to load
         await wrapper.vm.$nextTick();
@@ -567,7 +588,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should load system config with different sales channel', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         // Select shop page tab
         await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
@@ -592,7 +615,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should load system config with different sales channel without matching shop pages', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
 
         // Select shop page tab
         await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
@@ -616,7 +641,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should load system config when changing sales channel', async () => {
-        const wrapper = await createWrapper('page', ['system.system_config']);
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
         const onInputSalesChannelSelectSpy = jest.spyOn(wrapper.vm, 'onInputSalesChannelSelect');
 
         // Select shop page tab
@@ -632,6 +659,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should contain all available shop pages', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.shopPages.length).toBe(9);
@@ -679,6 +708,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should close modal and discard all changes on abort', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         const discardCategoryChangesSpy = jest.spyOn(wrapper.vm, 'discardCategoryChanges');
         const discardShopPageChangesSpy = jest.spyOn(wrapper.vm, 'discardShopPageChanges');
@@ -695,12 +726,16 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should render product selection', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBeTruthy();
     });
 
     it('should store previous products on component creation', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         expect(wrapper.vm.previousProducts).toEqual(mockProducts);
@@ -708,6 +743,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add products', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -739,6 +776,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add a product which already has a different assigned layout', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -794,6 +833,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
     //
     it('should remove products and confirm', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -832,6 +873,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove products but discard changes', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -868,6 +911,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove products but keep editing', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('product_detail');
 
         await wrapper.setData({
@@ -914,6 +959,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should render tabs when type is landing pages', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper('landingpage');
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
@@ -930,6 +977,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add landing pages', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         const newPage = {
             name: 'New Landing Page',
@@ -959,6 +1008,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should add a landing page which already has a different assigned layout', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         const newPage1 = {
@@ -1009,6 +1060,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove landing pages and confirm', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1047,6 +1100,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove landing pages but discard changes', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1086,6 +1141,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     });
 
     it('should remove landing pages but keep editing', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         const page1 = {
             name: 'Computers',

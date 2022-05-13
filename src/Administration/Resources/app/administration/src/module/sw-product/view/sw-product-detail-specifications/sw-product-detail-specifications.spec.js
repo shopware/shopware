@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-product/view/sw-product-detail-specifications';
-import 'src/module/sw-product/component/sw-product-packaging-form';
+import swProductDetailSpecifications from 'src/module/sw-product/view/sw-product-detail-specifications';
+import swProductPackagingForm from 'src/module/sw-product/component/sw-product-packaging-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
@@ -15,11 +15,14 @@ const packagingItemClassName = [
     '.sw-product-packaging-form__reference-unit-field'
 ];
 
+Shopware.Component.register('sw-product-detail-specifications', swProductDetailSpecifications);
+Shopware.Component.register('sw-product-packaging-form', swProductPackagingForm);
+
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Component.build('sw-product-detail-specifications'), {
+    return shallowMount(await Component.build('sw-product-detail-specifications'), {
         localVue,
         provide: {
             acl: {
@@ -34,7 +37,7 @@ async function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-card': true,
-            'sw-product-packaging-form': Component.build('sw-product-packaging-form'),
+            'sw-product-packaging-form': await Component.build('sw-product-packaging-form'),
             'sw-product-properties': true,
             'sw-product-feature-set-form': true,
             'sw-custom-field-set-renderer': true,

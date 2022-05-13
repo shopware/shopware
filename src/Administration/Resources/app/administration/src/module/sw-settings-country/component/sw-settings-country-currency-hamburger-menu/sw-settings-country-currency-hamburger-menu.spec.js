@@ -1,8 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu';
+import swSettingsCountryCurrencyHamburgerMenu from 'src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-settings-country-currency-hamburger-menu', swSettingsCountryCurrencyHamburgerMenu);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();

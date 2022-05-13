@@ -1,8 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 
 import 'src/app/component/base/sw-button';
-import 'src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal';
+import swExtensionPrivacyPolicyExtensionsModal from 'src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal';
 
+Shopware.Component.register('sw-extension-privacy-policy-extensions-modal', swExtensionPrivacyPolicyExtensionsModal);
 
 async function createWrapper(props) {
     return shallowMount(await Shopware.Component.build('sw-extension-privacy-policy-extensions-modal'), {

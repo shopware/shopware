@@ -1,9 +1,7 @@
 import template from './sw-order-credit-item.html.twig';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-credit-item', {
+export default {
     template,
 
     props: {
@@ -23,4 +21,4 @@ Component.register('sw-order-credit-item', {
             this.$set(this.credit, 'price', Math.abs(value) * -1);
         },
     },
-});
+};

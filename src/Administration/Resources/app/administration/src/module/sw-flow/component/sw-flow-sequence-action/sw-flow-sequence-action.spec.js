@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/sw-flow-sequence-action';
+import swFlowSequenceAction from 'src/module/sw-flow/component/sw-flow-sequence-action';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-grouped-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -17,6 +17,8 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
 });
+
+Shopware.Component.register('sw-flow-sequence-action', swFlowSequenceAction);
 
 const sequenceFixture = {
     id: '2',

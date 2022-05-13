@@ -1,7 +1,7 @@
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 
-beforeEach(() => {
+beforeEach(async () => {
     const registry = WorkerNotificationFactory.getRegistry();
     registry.clear();
 

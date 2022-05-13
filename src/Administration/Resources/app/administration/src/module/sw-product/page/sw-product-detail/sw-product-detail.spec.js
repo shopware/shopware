@@ -1,8 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/module/sw-product/page/sw-product-detail';
-import 'src/module/sw-product/component/sw-product-settings-mode';
+import swProductDetail from 'src/module/sw-product/page/sw-product-detail';
+import swProductSettingsMode from 'src/module/sw-product/component/sw-product-settings-mode';
+
+Shopware.Component.register('sw-product-detail', swProductDetail);
+Shopware.Component.register('sw-product-settings-mode', swProductSettingsMode);
 
 const advancedModeSettings = {
     value: {

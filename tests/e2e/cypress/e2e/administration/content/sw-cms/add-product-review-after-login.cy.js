@@ -65,6 +65,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.sw-cms-el-preview-product-description-reviews').click();
 
         // Select a product
+        cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
         cy.get('.sw-cms-el-config-product-description-reviews-rating .sw-entity-single-select')
             .typeSingleSelectAndCheck('Product name', '.sw-cms-el-config-product-description-reviews-rating .sw-entity-single-select');
@@ -114,7 +115,6 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
     it('@content: can login to write review when assign product for PDP layout', { tags: ['pa-content-management'] }, () => {
         const page = new AccountPageObject();
-
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,

@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
+import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
+
+Shopware.Component.register('sw-custom-field-set-detail-base', swCustomFieldSetDetailBase);
 
 function getFieldTypes() {
     return {

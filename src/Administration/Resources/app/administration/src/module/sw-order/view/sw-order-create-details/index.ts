@@ -18,7 +18,7 @@ const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-details', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

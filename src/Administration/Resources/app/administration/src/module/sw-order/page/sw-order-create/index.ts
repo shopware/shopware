@@ -4,11 +4,11 @@ import swOrderState from '../../state/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 
-const { Context, Component, State, Mixin } = Shopware;
+const { Context, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'feature'],

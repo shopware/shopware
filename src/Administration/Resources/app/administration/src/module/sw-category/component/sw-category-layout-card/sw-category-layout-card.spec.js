@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-category/component/sw-category-layout-card';
+import swCategoryLayoutCard from 'src/module/sw-category/component/sw-category-layout-card';
+
+Shopware.Component.register('sw-category-layout-card', swCategoryLayoutCard);
 
 const categoryId = 'some-category-id';
 const cmsPageId = 'some-cms-page-id';

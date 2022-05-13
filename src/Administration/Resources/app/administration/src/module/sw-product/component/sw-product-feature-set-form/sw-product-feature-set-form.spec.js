@@ -1,6 +1,6 @@
 import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import 'src/module/sw-product/component/sw-product-feature-set-form';
+import swProductFeatureSetForm from 'src/module/sw-product/component/sw-product-feature-set-form';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
@@ -9,6 +9,8 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/base/sw-inheritance-switch';
 import Vue from 'vue';
+
+Shopware.Component.register('sw-product-feature-set-form', swProductFeatureSetForm);
 
 describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     let wrapper;

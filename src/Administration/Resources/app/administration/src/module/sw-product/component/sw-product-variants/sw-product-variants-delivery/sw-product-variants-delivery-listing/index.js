@@ -1,11 +1,10 @@
 import template from './sw-product-variants-delivery-listing.html.twig';
 import './sw-product-variants-delivery-listing.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-delivery-listing', {
+export default {
     template,
 
     props: {
@@ -188,4 +187,4 @@ Component.register('sw-product-variants-delivery-listing', {
             this.searchTerm = '';
         },
     },
-});
+};

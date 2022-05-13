@@ -6,7 +6,7 @@ import './sw-order-add-items-modal.scss';
 import type { Cart, LineItem } from '../../order.types';
 import { LineItemType, PriceType } from '../../order.types';
 
-const { Component, Utils, Mixin } = Shopware;
+const { Utils, Mixin } = Shopware;
 
 interface ProductEntity extends Entity {
     name: string,
@@ -38,7 +38,7 @@ interface CreditItem {
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-add-items-modal', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'cartStoreService'],

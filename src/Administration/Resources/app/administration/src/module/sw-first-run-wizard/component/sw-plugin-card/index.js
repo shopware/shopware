@@ -1,10 +1,8 @@
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-plugin-card', {
+export default {
     template,
 
     inject: ['cacheApiService', 'extensionHelperService'],
@@ -64,4 +62,4 @@ Component.register('sw-plugin-card', {
                 });
         },
     },
-});
+};

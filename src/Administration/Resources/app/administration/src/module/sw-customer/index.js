@@ -1,19 +1,22 @@
-import './page/sw-customer-list';
-import './page/sw-customer-detail';
-import './page/sw-customer-create';
-import './view/sw-customer-detail-base';
-import './view/sw-customer-detail-addresses';
-import './view/sw-customer-detail-order';
-import './component/sw-customer-base-form';
-import './component/sw-customer-base-info';
-import './component/sw-customer-address-form';
-import './component/sw-customer-address-form-options';
-import './component/sw-customer-default-addresses';
-import './component/sw-customer-card';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-customer-list', () => import('./page/sw-customer-list'));
+Shopware.Component.register('sw-customer-detail', () => import('./page/sw-customer-detail'));
+Shopware.Component.register('sw-customer-create', () => import('./page/sw-customer-create'));
+Shopware.Component.register('sw-customer-detail-base', () => import('./view/sw-customer-detail-base'));
+Shopware.Component.register('sw-customer-detail-addresses', () => import('./view/sw-customer-detail-addresses'));
+Shopware.Component.register('sw-customer-detail-order', () => import('./view/sw-customer-detail-order'));
+Shopware.Component.register('sw-customer-base-form', () => import('./component/sw-customer-base-form'));
+Shopware.Component.register('sw-customer-base-info', () => import('./component/sw-customer-base-info'));
+Shopware.Component.register('sw-customer-address-form', () => import('./component/sw-customer-address-form'));
+Shopware.Component.register('sw-customer-address-form-options', () => import('./component/sw-customer-address-form-options'));
+Shopware.Component.register('sw-customer-default-addresses', () => import('./component/sw-customer-default-addresses'));
+Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-customer', {

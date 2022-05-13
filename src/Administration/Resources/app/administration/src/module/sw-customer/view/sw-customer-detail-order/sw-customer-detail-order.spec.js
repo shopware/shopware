@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/view/sw-customer-detail-order';
+import swCustomerDetailOrder from 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+Shopware.Component.register('sw-customer-detail-order', swCustomerDetailOrder);
 
 const orderFixture = [{
     orderNumber: '10062',

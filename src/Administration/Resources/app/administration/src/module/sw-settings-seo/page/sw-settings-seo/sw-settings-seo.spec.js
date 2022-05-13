@@ -1,8 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-seo/page/sw-settings-seo';
+import swSettingsSeo from 'src/module/sw-settings-seo/page/sw-settings-seo';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
-import 'src/module/sw-settings/component/sw-system-config';
+import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
 import 'src/app/component/base/sw-card';
 
 const classes = {
@@ -12,6 +12,9 @@ const classes = {
     systemConfig: 'sw-system-config',
     settingsCard: 'sw-card'
 };
+
+Shopware.Component.register('sw-settings-seo', swSettingsSeo);
+Shopware.Component.register('sw-system-config', swSystemConfig);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-settings-seo'), {

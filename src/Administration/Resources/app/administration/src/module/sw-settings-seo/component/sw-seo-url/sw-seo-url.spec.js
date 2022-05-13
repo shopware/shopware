@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import 'src/module/sw-settings-seo/component/sw-seo-url';
+import swSeoUrl from 'src/module/sw-settings-seo/component/sw-seo-url';
+
+Shopware.Component.register('sw-seo-url', swSeoUrl);
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);

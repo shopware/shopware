@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/sw-flow-sequence-condition';
+import swFlowSequenceCondition from 'src/module/sw-flow/component/sw-flow-sequence-condition';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -12,6 +12,8 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+
+Shopware.Component.register('sw-flow-sequence-condition', swFlowSequenceCondition);
 
 const sequenceFixture = {
     id: '1',

@@ -1,13 +1,13 @@
 import template from './sw-mail-header-footer-detail.html.twig';
 import './sw-mail-header-footer-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-mail-header-footer-detail', {
+export default {
     template,
 
     inject: ['entityMappingService', 'repositoryFactory', 'acl'],
@@ -241,4 +241,4 @@ Component.register('sw-mail-header-footer-detail', {
             }, []);
         },
     },
-});
+};

@@ -79,10 +79,9 @@ Component.register('sw-media-library', {
         return {
             isLoading: false,
             selectedItems: this.selection,
-            pageItem: 0,
-            pageFolder: 0,
+            pageItem: 1,
+            pageFolder: 1,
             itemLoaderDone: false,
-            // @deprecated tag:v6.5.0 - Will be removed
             folderLoaderDone: false,
             items: [],
             subFolders: [],
@@ -138,7 +137,7 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && (!this.itemLoaderDone);
+            return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone) && !this.shouldDisplayEmptyState;
         },
     },
 
@@ -203,12 +202,24 @@ Component.register('sw-media-library', {
             this.clearSelection();
             await this.fetchAssociatedFolders();
 
-            this.pageItem = 0;
-            this.pageFolder = 0;
+            this.pageItem = 1;
+            this.pageFolder = 1;
+
             this.itemLoaderDone = false;
-            // @deprecated tag:v6.5.0 - Will be removed
             this.folderLoaderDone = false;
 
+            this.loadItems();
+        },
+
+        isValidTerm(term) {
+            return term?.trim()?.length > 1;
+        },
+
+        loadNextItems() {
+            if (this.isLoading === true) {
+                return;
+            }
+            this.isLoading = true;
             this.loadItems();
         },
 
@@ -234,9 +245,23 @@ Component.register('sw-media-library', {
 
         async loadItems() {
             this.isLoading = true;
-            const nextFolders = await this.nextFolders();
+            const [nextFolders, nextMedia] = await Promise.allSettled([this.nextFolders(), this.nextMedia()]);
 
-            this.pageItem += 1;
+            if (nextMedia.status === 'fulfilled') {
+                this.items.push(...nextMedia.value);
+            }
+
+            if (nextFolders.status === 'fulfilled') {
+                this.subFolders.push(...nextFolders.value);
+            }
+
+            this.isLoading = false;
+        },
+
+        async nextMedia() {
+            if (this.itemLoaderDone) {
+                return [];
+            }
 
             // always search without folderId criteria --> search for all items
             let criteria = new Criteria(this.pageItem, this.limit);
@@ -262,7 +287,8 @@ Component.register('sw-media-library', {
                 if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
                     this.isLoading = false;
                     this.itemLoaderDone = true;
-                    return;
+
+                    return [];
                 }
 
                 criteria = this.searchRankingService.buildSearchQueriesForEntity(
@@ -285,31 +311,21 @@ Component.register('sw-media-library', {
                 ]));
             }
 
-            const items = await this.mediaRepository.search(criteria, Context.api);
+            const media = this.mediaRepository.search(criteria, Context.api);
 
-            this.items.push(...items);
-            this.subFolders.push(...nextFolders);
-            this.itemLoaderDone = this.isLoaderDone(criteria, items);
+            this.itemLoaderDone = this.isLoaderDone(criteria, media);
 
-            this.isLoading = false;
-        },
+            this.pageItem += 1;
 
-        isValidTerm(term) {
-            return term && term.trim().length > 1;
-        },
-
-        loadNextItems() {
-            if (this.isLoading === true) {
-                return;
-            }
-            this.isLoading = true;
-            this.loadItems();
+            return media;
         },
 
         async nextFolders() {
-            this.pageFolder += 1;
+            if (this.folderLoaderDone) {
+                return [];
+            }
 
-            const criteria = new Criteria(this.pageFolder, 25)
+            const criteria = new Criteria(this.pageFolder, this.limit)
                 .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
                 .setTerm(this.term);
 
@@ -319,8 +335,9 @@ Component.register('sw-media-library', {
 
             const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
 
-            // @deprecated tag:v6.5.0 - Will be removed
             this.folderLoaderDone = this.isLoaderDone(criteria, subFolders);
+
+            this.pageFolder += 1;
 
             return subFolders;
         },

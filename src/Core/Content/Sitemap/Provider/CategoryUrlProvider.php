@@ -141,6 +141,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
         $query->andWhere('`category`.version_id = :versionId');
         $query->andWhere('`category`.active = 1');
+        $query->andWhere('`category`.type != :linkType');
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
@@ -149,6 +150,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
 
         return $query->execute()->fetchAll();
     }

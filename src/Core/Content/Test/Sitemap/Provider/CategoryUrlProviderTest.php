@@ -85,6 +85,12 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNull($urlResult->getNextOffset());
     }
 
+    public function testExcludeCategoryLink(): void
+    {
+        $urlResult = $this->getCategoryUrlProvider()->getUrls($this->salesChannelContext, 10);
+        static::assertCount(4, $urlResult->getUrls());
+    }
+
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
         return new CategoryUrlProvider(
@@ -136,6 +142,7 @@ class CategoryUrlProviderTest extends TestCase
                     [
                         'name' => 'Sub 5',
                         'active' => true,
+                        'type' => CategoryDefinition::TYPE_LINK,
                     ],
                 ],
             ],

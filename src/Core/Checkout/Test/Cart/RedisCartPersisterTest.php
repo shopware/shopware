@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
@@ -26,6 +27,7 @@ class RedisCartPersisterTest extends TestCase
 
         $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
 
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('set')
@@ -33,7 +35,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
 
         $persister->save($cart, $context);
     }
@@ -48,6 +50,8 @@ class RedisCartPersisterTest extends TestCase
 
         $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
 
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('get')
@@ -56,7 +60,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($redis, $dispatcher, true))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -66,13 +70,14 @@ class RedisCartPersisterTest extends TestCase
         $token = Uuid::randomHex();
 
         $dispatcher = $this->createMock(EventDispatcher::class);
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
 
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('del')
             ->with(static::equalTo(RedisCartPersister::PREFIX . $token));
 
-        $persister = new RedisCartPersister($redis, $dispatcher, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -87,6 +92,8 @@ class RedisCartPersisterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+
         $compressedRedis = $this->createMock(\Redis::class);
         $compressedRedis->expects(static::once())
             ->method('set')
@@ -94,13 +101,15 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($compressedRedis, $dispatcher, true);
+        $persister = new RedisCartPersister($compressedRedis, $dispatcher, $cartSerializationCleaner, true);
 
         $persister->save($cart, $context);
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
         $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
+
+        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
 
         $uncompressedRedis = $this->createMock(\Redis::class);
         $uncompressedRedis->expects(static::once())
@@ -110,7 +119,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, false))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, false))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }

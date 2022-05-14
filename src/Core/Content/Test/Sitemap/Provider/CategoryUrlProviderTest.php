@@ -88,7 +88,7 @@ class CategoryUrlProviderTest extends TestCase
     public function testExcludeCategoryLink(): void
     {
         $urlResult = $this->getCategoryUrlProvider()->getUrls($this->salesChannelContext, 10);
-        static::assertCount(5, $urlResult->getUrls());
+        static::assertCount(4, $urlResult->getUrls());
     }
 
     private function getCategoryUrlProvider(): CategoryUrlProvider

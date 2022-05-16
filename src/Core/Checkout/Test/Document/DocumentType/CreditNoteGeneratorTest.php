@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
@@ -277,7 +278,9 @@ class CreditNoteGeneratorTest extends TestCase
         static::assertStringContainsString('<html>', $processedTemplate);
         static::assertStringContainsString('</html>', $processedTemplate);
 
-        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
+        /** @var OrderAddressCollection */
+        $orderAddresses = $order->getAddresses();
+        $billingAddress = $orderAddresses->get($order->getBillingAddressId());
         $expectedFormattingRender = $billingAddress
             ? ($billingAddress->getFirstName() . "<br />\n" . $billingAddress->getLastName())
             : '';

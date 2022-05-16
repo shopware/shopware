@@ -32,11 +32,11 @@ class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullableTest exten
 
     public function testMigration(): void
     {
-        $databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1);
-        $sql = <<<SQL
-            SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = '$databaseName' and TABLE_NAME = 'customer_address' and COLUMN_NAME = 'zipcode'
-        SQL;
+        /** @var string[] */
+        $dbUrlArr = parse_url($_SERVER['DATABASE_URL']);
+        $databaseName = substr($dbUrlArr['path'], 1);
+        $sql = "SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = '{$databaseName}' and TABLE_NAME = 'customer_address' and COLUMN_NAME = 'zipcode'";
 
         $columns = array_column($this->connection->fetchAllAssociative($sql), 'IS_NULLABLE');
         static::assertSame('YES', $columns[0]);

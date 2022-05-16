@@ -19,10 +19,19 @@ class CustomerZipcodeValidatorTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * @var DataValidator
+     */
     private $validator;
 
+    /**
+     * @var DataValidationDefinition
+     */
     private $validation;
 
+    /**
+     * @var CustomerZipCode
+     */
     private $constraint;
 
     protected function setUp(): void
@@ -38,9 +47,9 @@ class CustomerZipcodeValidatorTest extends TestCase
     public function testValidateZipcodeWithoutEnabledValidation(): void
     {
         try {
-            static::assertEmpty($this->validator->validate([
+            $this->validator->validate([
                 'zipcode' => '1235468',
-            ], $this->validation));
+            ], $this->validation);
         } catch (\Throwable $exception) {
             static::assertInstanceOf(ConstraintViolationException::class, $exception);
             $violations = $exception->getViolations();
@@ -71,9 +80,9 @@ class CustomerZipcodeValidatorTest extends TestCase
     {
         $this->upsertCountryAddressHandlingConfig($this->getValidCountryId(), ['checkPostalCodePattern' => false]);
 
-        static::assertEmpty($this->validator->validate([
+        $this->validator->validate([
             'zipcode' => '',
-        ], $this->validation));
+        ], $this->validation);
     }
 
     public function testValidZipcodeWhenUseDefaultValidation(): void
@@ -83,9 +92,9 @@ class CustomerZipcodeValidatorTest extends TestCase
         ]);
 
         try {
-            static::assertEmpty($this->validator->validate([
+            $this->validator->validate([
                 'zipcode' => '12345',
-            ], $this->validation));
+            ], $this->validation);
         } catch (\Throwable $exception) {
             static::assertInstanceOf(ConstraintViolationException::class, $exception);
             $violations = $exception->getViolations();
@@ -120,9 +129,9 @@ class CustomerZipcodeValidatorTest extends TestCase
             'checkAdvancedPostalCodePattern' => true,
             'advancedPostalCodePattern' => '\\d{2}',
         ]);
-        static::assertEmpty($this->validator->validate([
+        $this->validator->validate([
             'zipcode' => '12',
-        ], $this->validation));
+        ], $this->validation);
     }
 
     public function testInvalidZipcodeWithAdvancedValidationPattern(): void
@@ -145,7 +154,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         }
     }
 
-    private function upsertCountryAddressHandlingConfig($countryId, $addressConfigs = []): void
+    private function upsertCountryAddressHandlingConfig(string $countryId, array $addressConfigs = []): void
     {
         $country = array_merge(['id' => $countryId], $addressConfigs);
 

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Page\Address\Listing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Test\Country\Helpers\Traits\CountryAddressFormattingTestBehaviour;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPage;
@@ -26,7 +27,9 @@ class AddressListingPageTest extends TestCase
 
         $request = new Request();
 
-        $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        /** @var CustomerEntity */
+        $customer = $context->getCustomer();
+        $page = $this->getPageLoader()->load($request, $context, $customer);
 
         static::assertInstanceOf(AddressListingPage::class, $page);
     }
@@ -37,7 +40,9 @@ class AddressListingPageTest extends TestCase
 
         $request = new Request();
 
-        $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        /** @var CustomerEntity */
+        $customer = $context->getCustomer();
+        $page = $this->getPageLoader()->load($request, $context, $customer);
 
         static::assertIsArray($page->getFormattingCustomerAddresses());
         static::assertCount(0, $page->getFormattingCustomerAddresses());
@@ -53,7 +58,9 @@ class AddressListingPageTest extends TestCase
 
         $request = new Request();
 
-        $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        /** @var CustomerEntity */
+        $customer = $context->getCustomer();
+        $page = $this->getPageLoader()->load($request, $context, $customer);
 
         static::assertIsArray($page->getFormattingCustomerAddresses());
         static::assertCount(1, $page->getFormattingCustomerAddresses());

@@ -170,6 +170,9 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('.sw-settings-rule-detail__save-action').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
+        cy.get('.sw-skeleton').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         // go back to listing and edit rule again
         cy.get(page.elements.smartBarBack).click();
 

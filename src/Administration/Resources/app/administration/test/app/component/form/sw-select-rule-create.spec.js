@@ -109,4 +109,17 @@ describe('components/sw-select-rule-create', () => {
         expect(firstResult.attributes('class')).not.toContain('is--disabled');
         expect(secondResult.attributes('class')).toContain('is--disabled');
     });
+
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_18215) Remove test when feature flag is removed
+     */
+    it('should always return false when feature flag is deactivated', async () => {
+        wrapper = await createWrapper();
+
+        global.activeFeatureFlags = [];
+
+        const isRestricted = wrapper.vm.isRuleRestricted({});
+
+        expect(isRestricted).toBeFalsy();
+    });
 });

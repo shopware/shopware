@@ -192,6 +192,9 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
+        cy.get('.sw-skeleton').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
         cy.get(page.elements.loader).should('not.exist');

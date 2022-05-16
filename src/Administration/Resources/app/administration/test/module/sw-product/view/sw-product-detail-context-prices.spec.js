@@ -22,6 +22,8 @@ import flushPromises from 'flush-promises';
 
 const { EntityCollection } = Shopware.Data;
 
+const ruleConditionDataProviderServiceMock = {};
+
 describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
     Shopware.State.registerModule('context', {
@@ -100,7 +102,8 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                     }
                 },
                 acl: { can: () => true },
-                validationService: {}
+                validationService: {},
+                ruleConditionDataProviderService: ruleConditionDataProviderServiceMock
             }
         });
     };
@@ -291,5 +294,26 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         const secondPriceFieldGross = wrapper.find('.context-price-group-1 .sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__price input[name="sw-price-field-gross"]');
         expect(secondPriceFieldGross.element.value).toBe('0');
+    });
+
+    it('should have disabled tooltip because price rule was not used', async () => {
+        wrapper = await createWrapper();
+        const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'ruleId', conditions: [] });
+
+        expect(tooltipConfig.disabled).toBeTruthy();
+        expect(tooltipConfig.message).toEqual('sw-product.advancedPrices.ruleAlreadyUsed');
+    });
+
+    it('should have enabled tooltip because of restricted rule', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        wrapper = await createWrapper();
+        ruleConditionDataProviderServiceMock.isRuleRestricted = jest.fn().mockReturnValue(true);
+        ruleConditionDataProviderServiceMock.getRestrictedRuleTooltipConfig = jest.fn().mockReturnValue(
+            { message: '', disabled: true }
+        );
+
+        const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'ruleId', conditions: [] });
+
+        expect(tooltipConfig.disabled).toBeTruthy();
     });
 });

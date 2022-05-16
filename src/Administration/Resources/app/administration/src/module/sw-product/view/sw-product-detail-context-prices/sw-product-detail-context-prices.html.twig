@@ -46,9 +46,31 @@
                         :disabled="!acl.can('product.editor')"
                         class="sw-product-detail-context-prices__toolbar-selection"
                         size="small"
-                        restriction="productPrices"
+                        rule-aware-group-key="productPrices"
                         @save-rule="onRuleChange($event, priceGroup.ruleId)"
-                    />
+                    >
+                        <template
+                            #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                        >
+                            <li
+                                is="sw-select-result"
+                                v-tooltip="tooltipConfig(item)"
+                                :selected="isSelected(item)"
+                                :disabled="!!priceRuleGroups[item.id] || isRuleRestricted(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                </template>
+                            </li>
+                        </template>
+                    </sw-select-rule-create>
 
                     {# @deprecated tag:v6.5.0 - component `sw-entity-single-select` will be removed, use `sw-select-rule-create` instead #}
                     <sw-entity-single-select
@@ -422,7 +444,7 @@
                 class="sw-product-detail-context-prices__empty-state-select-rule"
                 :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                 :disabled="isInherited || !acl.can('product.editor')"
-                restriction="productPrices"
+                rule-aware-group-key="productPrices"
                 @save-rule="onAddNewPriceGroup($event)"
             />
 

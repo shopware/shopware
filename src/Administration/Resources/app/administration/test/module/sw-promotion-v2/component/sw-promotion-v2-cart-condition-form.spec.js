@@ -19,7 +19,8 @@ function createWrapper(privileges = []) {
             },
             'sw-promotion-rule-select': {
                 template: '<div class="sw-promotion-rule-select"></div>'
-            }
+            },
+            'sw-promotion-v2-rule-select': true
         },
         provide: {
             acl: {
@@ -83,7 +84,8 @@ function createWrapper(privileges = []) {
                 orderRules: [],
                 cartRules: [],
                 translations: [],
-                hasOrders: false
+                hasOrders: false,
+                isNew: () => false,
             }
         }
     });
@@ -141,5 +143,13 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         const promotionSelectionElements = wrapper.findAll('.sw-promotion-rule-select');
         expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
         promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+    });
+
+    it('should add conditions association', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        wrapper = createWrapper();
+        const criteria = wrapper.vm.ruleFilter;
+
+        expect(criteria.associations[0].association).toEqual('conditions');
     });
 });

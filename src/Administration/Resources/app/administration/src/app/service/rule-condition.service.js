@@ -187,9 +187,16 @@ export default function createConditionService() {
         getRestrictedRules,
         /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedConditions,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedAssociations,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictionsByAssociation,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getTranslatedConditionViolationList,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getRestrictedRuleTooltipConfig,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        isRuleRestricted,
     };
 
     function getByType(type) {
@@ -487,6 +494,7 @@ export default function createConditionService() {
     /**
      * Checks the conditions with the current awareness configuration and returns the result for
      * every assignment name.
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} conditions
      * @returns {object}
      * Example return: {
@@ -522,6 +530,7 @@ export default function createConditionService() {
 
     /**
      * Translates a list of violations and return the translated text
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {array} violations
      * @param {string} connectionSnippetPath
      * @returns {string}
@@ -538,5 +547,84 @@ export default function createConditionService() {
             }
         });
         return text;
+    }
+
+    /**
+     *
+     * @internal (flag:FEATURE_NEXT_18215)
+     * @param {EntityCollection} ruleConditions
+     * @param {string|null} ruleAwareGroupKey
+     * @returns {object}
+     */
+    function getRestrictedRuleTooltipConfig(ruleConditions, ruleAwareGroupKey) {
+        const app = Shopware.Application.getApplicationRoot();
+
+        if (!ruleAwareGroupKey) {
+            return { message: '', disabled: true };
+        }
+
+        const restrictionConfig = this.getRestrictionsByAssociation(
+            ruleConditions,
+            ruleAwareGroupKey,
+        );
+
+        if (!restrictionConfig.isRestricted) {
+            return { message: '', disabled: true };
+        }
+
+        if (restrictionConfig.notEqualsViolations?.length > 0) {
+            return {
+                showOnDisabledElements: true,
+                disabled: false,
+                message: app.$tc(
+                    'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
+                    {},
+                    {
+                        conditions: this.getTranslatedConditionViolationList(
+                            restrictionConfig.notEqualsViolations,
+                            'sw-restricted-rules.and',
+                        ),
+                        entityLabel: app.$tc(restrictionConfig.assignmentSnippet, 2),
+                    },
+                ),
+            };
+        }
+
+        return {
+            showOnDisabledElements: true,
+            disabled: false,
+            width: 400,
+            message: app.$tc(
+                'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                0,
+                {
+                    conditions: this.getTranslatedConditionViolationList(
+                        restrictionConfig.equalsAnyNotMatched,
+                        'sw-restricted-rules.or',
+                    ),
+                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet, 2),
+                },
+            ),
+        };
+    }
+
+    /**
+     *
+     * @internal (flag:FEATURE_NEXT_18215)
+     * @param {EntityCollection} ruleConditions
+     * @param {string|null} ruleAwareGroupKey
+     * @returns {boolean}
+     */
+    function isRuleRestricted(ruleConditions, ruleAwareGroupKey) {
+        if (!ruleAwareGroupKey) {
+            return false;
+        }
+
+        const restrictionConfig = this.getRestrictionsByAssociation(
+            ruleConditions,
+            ruleAwareGroupKey,
+        );
+
+        return restrictionConfig.isRestricted;
     }
 }

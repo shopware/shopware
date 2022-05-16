@@ -14,7 +14,6 @@ Component.register('sw-flow-detail', {
         'acl',
         'repositoryFactory',
         'feature',
-        'ruleConditionDataProviderService',
     ],
 
     mixins: [
@@ -174,12 +173,6 @@ Component.register('sw-flow-detail', {
 
     methods: {
         createdComponent() {
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.ruleConditionDataProviderService.getRestrictedRules('flowSequences').then(rules => {
-                    this.$store.commit('swFlowState/setRestrictedRules', rules);
-                });
-            }
-
             if (this.flowId) {
                 this.getDetailFlow();
                 return;

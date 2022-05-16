@@ -12,7 +12,6 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         'acl',
         'promotionSyncService',
         'feature',
-        'ruleConditionDataProviderService',
     ],
 
     props: {
@@ -35,8 +34,6 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         return {
             packagerKeys: [],
             sorterKeys: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            setGroupRestrictedRules: [],
         };
     },
     computed: {
@@ -53,6 +50,10 @@ Component.register('sw-promotion-v2-cart-condition-form', {
                         Criteria.equalsAny('conditions.type', ['cartCartAmount']),
                     ]),
                 );
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
             }
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -117,11 +118,6 @@ Component.register('sw-promotion-v2-cart-condition-form', {
             this.promotionSyncService.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
             });
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups')
-                    .then((result) => { this.setGroupRestrictedRules = result; });
-            }
         },
 
         loadSetGroups() {

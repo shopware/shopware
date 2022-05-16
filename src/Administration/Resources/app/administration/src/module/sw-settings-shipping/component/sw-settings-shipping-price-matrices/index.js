@@ -27,15 +27,6 @@ Component.register('sw-settings-shipping-price-matrices', {
         },
     },
 
-    data() {
-        return {
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedShippingMethodRules: [],
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedShippingPriceRules: [],
-        };
-    },
-
     computed: {
         ...mapState('swShippingDetail', [
             'shippingMethod',
@@ -80,15 +71,6 @@ Component.register('sw-settings-shipping-price-matrices', {
             if (this.feature.isActive('FEATURE_NEXT_18215')) {
                 this.getRestrictedRules();
             }
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        getRestrictedRules() {
-            this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices')
-                .then(result => { this.restrictedShippingMethodRules = result; });
-
-            this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPriceCalculations')
-                .then(result => { this.restrictedShippingPriceRules = result; });
         },
 
         onAddNewPriceGroup() {

@@ -137,5 +137,13 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         const settingsShippingTax = wrapper.find('sw-settings-shipping-tax-cost-stub');
         expect(settingsShippingTax.attributes().disabled).toBeUndefined();
     });
+
+    it('should add conditions association', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        const wrapper = await createWrapper();
+        const criteria = wrapper.vm.ruleFilter;
+
+        expect(criteria.associations[0].association).toEqual('conditions');
+    });
 });
 

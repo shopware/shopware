@@ -1,6 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
 
+const ruleConditionDataProviderService = {
+    getRestrictedRuleTooltipConfig: jest.fn(),
+    isRuleRestricted: jest.fn(),
+};
+
 function createWrapper(customProps = {}, customOptions = {}) {
     return shallowMount(Shopware.Component.build('sw-promotion-v2-rule-select'), {
         stubs: {
@@ -9,7 +14,7 @@ function createWrapper(customProps = {}, customOptions = {}) {
             'sw-grouped-single-select': true
         },
         provide: {
-            ruleConditionDataProviderService: {},
+            ruleConditionDataProviderService: ruleConditionDataProviderService,
         },
         propsData: {
             ...customProps
@@ -25,91 +30,28 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select', () 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled tooltip without rule aware group key property', async () => {
-        const wrapper = createWrapper({}, {
-            provide: {
-                ruleConditionDataProviderService: {},
-            },
-        });
+    it('should call the rule condition service with activated feature flag', async () => {
+        const wrapper = createWrapper();
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
 
-        const tooltipConfig = wrapper.vm.tooltipConfig({
-            conditions: [],
-        });
+        wrapper.vm.tooltipConfig({});
+        wrapper.vm.isRuleRestricted({});
+
+        expect(ruleConditionDataProviderService.getRestrictedRuleTooltipConfig).toHaveBeenCalled();
+        expect(ruleConditionDataProviderService.isRuleRestricted).toHaveBeenCalled();
+    });
+
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_18215) Remove test when feature flag is removed
+     */
+    it('should have disabled tooltip and no restriction without tooltip', async () => {
+        const wrapper = createWrapper();
+        global.activeFeatureFlags = [];
+
+        const tooltipConfig = wrapper.vm.tooltipConfig({});
+        const restricted = wrapper.vm.isRuleRestricted({});
 
         expect(tooltipConfig.disabled).toBeTruthy();
-    });
-
-    it.only('should have disabled tooltip', async () => {
-        const wrapper = createWrapper({
-            ruleAwareGroupKey: 'assignmentOne'
-        }, {
-            provide: {
-                ruleConditionDataProviderService: {
-                    getRestrictionsByAssociation: () => ({
-                        assignmentName: 'assignmentOne',
-                        isRestricted: false,
-                    })
-                },
-            },
-        });
-
-        const tooltipConfig = wrapper.vm.tooltipConfig({
-            conditions: [],
-        });
-
-        expect(tooltipConfig.disabled).toBeTruthy();
-    });
-
-    it('should have enabled tooltip', async () => {
-        const wrapper = createWrapper({
-            ruleAwareGroupKey: 'assignmentOne'
-        }, {
-            provide: {
-                ruleConditionDataProviderService: {
-                    getRestrictionsByAssociation: () => ({
-                        assignmentName: 'assignmentOne',
-                        notEqualsViolations: [],
-                        equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                        equalsAnyNotMatched: [],
-                        isRestricted: true,
-                        assignmentSnippet: 'sw-assignment-one-snippet'
-                    })
-                },
-            },
-        });
-
-        const tooltipConfig = wrapper.vm.tooltipConfig({
-            conditions: [],
-        });
-
-        expect(tooltipConfig.disabled).toBeFalsy();
-    });
-
-    it('should return true when rule is restricted', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper({
-            ruleAwareGroupKey: 'assignmentOne'
-        }, {
-            provide: {
-                ruleConditionDataProviderService: {
-                    getRestrictionsByAssociation: () => ({
-                        assignmentName: 'assignmentOne',
-                        notEqualsViolations: [],
-                        equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                        equalsAnyNotMatched: [],
-                        isRestricted: true,
-                        assignmentSnippet: 'sw-assignment-one-snippet'
-                    })
-                },
-            },
-        });
-
-        expect(wrapper.vm.isRuleRestricted({ conditions: [] })).toBeTruthy();
-    });
-
-    it('should return restricted false when rule aware group key property is empty ', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper({}, {});
-        expect(wrapper.vm.isRuleRestricted({ conditions: [] })).toBeFalsy();
+        expect(restricted).toBeFalsy();
     });
 });

@@ -238,4 +238,130 @@ describe('src/app/service/rule-condition.service.js', () => {
         ], 'and');
         expect(translatedViolations).toEqual('"violation1"');
     });
+
+    it('should return a disabled restriction tooltip because of no violations', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
+
+        const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
+        expect(tooltipConfig.disabled).toBeTruthy();
+        expect(tooltipConfig.message).toBeFalsy();
+    });
+
+    it('should return a disabled restriction tooltip because empty ruleAwareGroupKey', () => {
+        const ruleConditionService = createConditionService();
+
+        const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig([], undefined);
+        expect(tooltipConfig.disabled).toBeTruthy();
+        expect(tooltipConfig.message).toBeFalsy();
+    });
+
+    it('should return an enabled restriction tooltip by not equals violation', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
+        ruleConditionService.addCondition('conditionType2', { label: 'conditionType2Label' });
+        ruleConditionService.addCondition('conditionType3', { label: 'conditionType3Label' });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+            { type: 'conditionType3' },
+        ];
+
+        const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
+        expect(tooltipConfig.disabled).toBeFalsy();
+        expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip');
+    });
+
+    it('should return an enabled restriction tooltip by equals any violation', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: [],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
+        ruleConditionService.addCondition('conditionType2', { label: 'conditionType2Label' });
+        ruleConditionService.addCondition('conditionType3', { label: 'conditionType3Label' });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+        ];
+
+        const tooltipConfig = ruleConditionService.getRestrictedRuleTooltipConfig(conditions, 'assignmentOne');
+        expect(tooltipConfig.disabled).toBeFalsy();
+        expect(tooltipConfig.message).toEqual('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip');
+    });
+
+    it('should be restricted', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: [],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
+        ruleConditionService.addCondition('conditionType2', { label: 'conditionType2Label' });
+        ruleConditionService.addCondition('conditionType3', { label: 'conditionType3Label' });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+        ];
+
+        const result = ruleConditionService.isRuleRestricted(conditions, 'assignmentOne');
+        expect(result).toBeTruthy();
+    });
+
+    it('should not be restricted', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: [],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        ruleConditionService.addCondition('conditionType1', { label: 'conditionType1Label' });
+        ruleConditionService.addCondition('conditionType2', { label: 'conditionType2Label' });
+        ruleConditionService.addCondition('conditionType3', { label: 'conditionType3Label' });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+        ];
+
+        const result = ruleConditionService.isRuleRestricted(conditions, 'assignmentOne');
+        expect(result).toBeFalsy();
+    });
+
+    it('should not be restricted if group parameter is not set', () => {
+        const ruleConditionService = createConditionService();
+
+        const result = ruleConditionService.isRuleRestricted([], undefined);
+        expect(result).toBeFalsy();
+    });
 });

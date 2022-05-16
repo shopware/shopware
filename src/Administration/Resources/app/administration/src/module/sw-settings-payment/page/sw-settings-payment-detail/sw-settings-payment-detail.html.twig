@@ -181,7 +181,7 @@
                     :rule-id="paymentMethod.availabilityRuleId"
                     :rule-filter="ruleFilter"
                     :placeholder="$tc('sw-settings-payment.detail.placeholderAvailabilityRule')"
-                    :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'paymentMethods' : ''"
+                    rule-aware-group-key="paymentMethods"
                     @save-rule="onSaveRule"
                     @dismiss-rule="onDismissRule"
                 />

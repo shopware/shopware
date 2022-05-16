@@ -15,8 +15,6 @@ function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
-let getRestrictedAssociationsFunction = jest.fn();
-
 function createWrapper(entitiesWithResults = [], customProps = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -90,8 +88,10 @@ function createWrapper(entitiesWithResults = [], customProps = {}) {
             },
 
             ruleConditionDataProviderService: {
-                getRestrictedAssociations: getRestrictedAssociationsFunction,
-                getTranslatedConditionViolationList: () => { return 'text'; }
+                getRestrictedAssociations: () => {},
+                getTranslatedConditionViolationList: () => { return 'text'; },
+                isRuleRestricted: () => { return true; },
+                getRestrictedRuleTooltipConfig: () => ({ message: 'tooltipConfig', disabled: true })
             },
         }
     });
@@ -280,103 +280,31 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(detailRouteAttribute).toBe('sw.promotion.v2.detail.conditions');
     });
 
-    it('should disable adding entities by restriction', async () => {
+    it('should disable adding then rule is restricted', () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        const wrapper = createWrapper();
+        const disabled = wrapper.vm.disableAdd({});
 
-        getRestrictedAssociationsFunction = jest.fn();
-        getRestrictedAssociationsFunction.mockReturnValue({
-            assignmentName1: {
-                assignmentName: 'assignmentName1',
-                notEqualsViolations: [],
-                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                equalsAnyNotMatched: [],
-                isRestricted: true,
-                assignmentSnippet: 'sw-assignment-one-snippet'
-            }
-        });
-        const wrapper = createWrapper([], {
-            conditions: [{ id: 'conditionId1' }]
-        });
-
-        const disableAdd = wrapper.vm.disableAdd({
-            associationName: 'assignmentName1',
-            notAssignedDataTotal: 5
-        });
-        expect(disableAdd).toBeTruthy();
+        expect(disabled).toBeTruthy();
     });
 
-    it('should have enabled tooltip', async () => {
+    it('should call rule condition service', () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        const wrapper = createWrapper();
+        const config = wrapper.vm.getTooltipConfig({});
 
-        getRestrictedAssociationsFunction = jest.fn();
-        getRestrictedAssociationsFunction.mockReturnValue({
-            assignmentName1: {
-                assignmentName: 'assignmentName1',
-                notEqualsViolations: [],
-                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                equalsAnyNotMatched: [],
-                isRestricted: true,
-                assignmentSnippet: 'sw-assignment-one-snippet'
-            }
-        });
-        const wrapper = createWrapper([], {
-            conditions: [{ id: 'conditionId1' }]
-        });
-
-        const tooltipConfig = wrapper.vm.getTooltipConfig({
-            associationName: 'assignmentName1',
-        });
-
-        expect(tooltipConfig.disabled).toBeFalsy();
+        expect(config.message).toEqual('tooltipConfig');
     });
 
-    it('should have enabled tooltip for not equals violations', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_18215) test can be removed
+     */
+    it('should return disabled tooltip when feature is off', () => {
+        global.activeFeatureFlags = [];
+        const wrapper = createWrapper();
+        const config = wrapper.vm.getTooltipConfig({});
 
-        getRestrictedAssociationsFunction = jest.fn();
-        getRestrictedAssociationsFunction.mockReturnValue({
-            assignmentName1: {
-                assignmentName: 'assignmentName1',
-                notEqualsViolations: [{ type: 'conditionType2' }],
-                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                equalsAnyNotMatched: [],
-                isRestricted: true,
-                assignmentSnippet: 'sw-assignment-one-snippet'
-            }
-        });
-        const wrapper = createWrapper([], {
-            conditions: [{ id: 'conditionId1' }]
-        });
-
-        const tooltipConfig = wrapper.vm.getTooltipConfig({
-            associationName: 'assignmentName1',
-        });
-
-        expect(tooltipConfig.disabled).toBeFalsy();
-    });
-
-    it('should have disabled tooltip', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-
-        getRestrictedAssociationsFunction = jest.fn();
-        getRestrictedAssociationsFunction.mockReturnValue({
-            assignmentName1: {
-                assignmentName: 'assignmentName1',
-                notEqualsViolations: [{ type: 'conditionType2' }],
-                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
-                equalsAnyNotMatched: [],
-                isRestricted: true,
-                assignmentSnippet: 'sw-assignment-one-snippet'
-            }
-        });
-        const wrapper = createWrapper([], {
-            conditions: [{ id: 'conditionId1' }]
-        });
-
-        const tooltipConfig = wrapper.vm.getTooltipConfig({
-            associationName: 'assignmentName2',
-        });
-
-        expect(tooltipConfig.disabled).toBeTruthy();
+        expect(config.message).toEqual('');
+        expect(config.disabled).toBeTruthy();
     });
 });

@@ -838,7 +838,7 @@ Component.register('sw-bulk-edit-product', {
 
         setRouteMetaModule() {
             this.$set(this.$route.meta.$module, 'color', '#57D9A3');
-            this.$set(this.$route.meta.$module, 'icon', 'default-symbol-products');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-products');
         },
 
         setBulkEditProductValue() {

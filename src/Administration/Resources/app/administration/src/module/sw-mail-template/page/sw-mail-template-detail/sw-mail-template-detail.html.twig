@@ -294,7 +294,7 @@
 
             {% block sw_mail_template_detail_sidebar_inner_test_mail %}
             <sw-sidebar-item
-                icon="default-object-paperplane"
+                icon="regular-paper-plane"
                 :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
                 class="sw-mail-template-detail__test-mail-sidebar"
             >
@@ -333,7 +333,7 @@
 
             {% block sw_mail_template_detail_sidebar_inner_variables %}
             <sw-sidebar-item
-                icon="default-text-code"
+                icon="regular-code"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
                 :disabled="isLoading || !hasTemplateData"
                 class="sw-mail-template-detail__show-available-variables"
@@ -384,7 +384,7 @@
                                             width: 150,
                                             position: 'bottom'
                                         }"
-                                        name="small-copy"
+                                        name="regular-products-s"
                                         class="sw-mail-template-detail__copy_icon"
                                         @click="onCopyVariable(item.schema)"
                                     />
@@ -402,7 +402,7 @@
 
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
-                icon="default-eye-open"
+                icon="regular-eye"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="isLoading || showPreview || !hasTemplateData"
                 class="sw-mail-template-detail__show-preview-sidebar"

@@ -2,7 +2,7 @@
 <sw-sidebar class="sw-snippet-settings__sidebar">
     {% block sw_settings_snippet_grid_sidebar_refresh %}
     <sw-sidebar-item
-        icon="default-arrow-360-left"
+        icon="regular-undo"
         :title="$tc('sw-settings-snippet.list.titleSidebarItemRefresh')"
         @click="onRefresh"
     />
@@ -11,7 +11,7 @@
     {% block sw_settings_snippet_grid_sidebar_filter %}
     <sw-sidebar-item
         ref="filterSideBar"
-        icon="default-action-filter"
+        icon="regular-filter"
         :title="$tc('sw-settings-snippet.list.titleSidebarItemFilter')"
         @close-content="closeContent"
         @click="closeContent"

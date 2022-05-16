@@ -102,7 +102,7 @@ describe('Product: Edit property assignment', () => {
         });
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @catalogue: delete property', () => {
@@ -131,7 +131,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @catalogue: delete properties', () => {
@@ -156,7 +156,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
 
         cy.getSDKiFrame('location-index').should('be.visible');
         cy.get('.sw-product-properties .sw-empty-state').scrollIntoView();
@@ -191,7 +191,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @catalogue: add properties', () => {
@@ -236,6 +236,6 @@ describe('Product: Edit property assignment', () => {
         cy.get(page.elements.productSaveAction).click();
         cy.get('.sw-product-properties__card').scrollIntoView();
         cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 });

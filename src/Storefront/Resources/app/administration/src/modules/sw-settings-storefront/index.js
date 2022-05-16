@@ -7,7 +7,7 @@ Shopware.Module.register('sw-settings-storefront', {
     title: 'sw-settings-storefront.general.mainMenuItemGeneral',
     description: 'sw-settings-storefront.general.description',
     color: '#9AA8B5',
-    icon: 'default-building-shop',
+    icon: 'regular-storefront',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -24,7 +24,7 @@ Shopware.Module.register('sw-settings-storefront', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.storefront.index',
-        icon: 'default-building-shop',
+        icon: 'regular-storefront',
         privilege: 'system.system_config',
     },
 });

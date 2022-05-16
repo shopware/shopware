@@ -68,13 +68,13 @@ Component.register('sw-alert', {
     computed: {
         alertIcon(): string {
             const iconConfig: { [type: string]: string } = {
-                info: 'default-badge-info',
-                warning: 'default-badge-warning',
-                error: 'default-badge-error',
-                success: 'default-basic-checkmark-circle',
+                info: 'regular-info-circle',
+                warning: 'regular-exclamation-triangle',
+                error: 'regular-times-hexagon',
+                success: 'regular-check-circle',
             };
 
-            return iconConfig[this.variant] || 'default-bell-bell';
+            return iconConfig[this.variant] || 'regular-bell';
         },
 
         hasActionSlot(): boolean {

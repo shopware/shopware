@@ -95,10 +95,10 @@ describe('Customer:  Visual test', () => {
         // Verify new customer in detail
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
+        cy.get('.icon--regular-checkmark-xs').should('not.exist');
 
         // Take snapshot for visual testing
         cy.contains('.sw-card-section--secondary', 'English');

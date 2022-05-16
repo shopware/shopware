@@ -4,7 +4,7 @@
     {% block sw_cms_sidebar_page_settings %}
     <sw-sidebar-item
         ref="pageConfigSidebar"
-        icon="default-action-settings"
+        icon="regular-cog"
         :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
         :has-simple-badge="hasPageConfigErrors"
         badge-type="error"
@@ -127,7 +127,7 @@
     {% block sw_cms_sidebar_block_overview %}
     <sw-sidebar-item
         ref="blockSelectionSidebar"
-        icon="default-basic-plus-circle"
+        icon="regular-plus-circle"
         :title="addBlockTitle"
         :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage || page.locked || disabled"
     >
@@ -208,7 +208,7 @@
     {% block sw_cms_sidebar_block_and_section_settings %}
     <sw-sidebar-item
         ref="itemConfigSidebar"
-        icon="default-documentation-paper-pencil"
+        icon="regular-file-edit"
         :title="sidebarItemSettings"
         :disabled="(selectedBlock === null && selectedSection === null) || page.locked || disabled"
         @close-content="onCloseBlockConfig"
@@ -289,7 +289,7 @@
     {% block sw_cms_sidebar_navigator %}
     <sw-sidebar-item
         ref="blockNavigator"
-        icon="default-os-layers"
+        icon="regular-layer-group"
         :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
         :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
         @click="onSidebarNavigatorClick"
@@ -454,7 +454,7 @@
     <sw-sidebar-item
         ref="layoutAssignment"
         class="sw-cms-sidebar__layout-assignment"
-        icon="default-action-share"
+        icon="regular-share"
         :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
         :disabled="page.locked || disabled"
     >

@@ -14,8 +14,8 @@ Module.register('sw-newsletter-recipient', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'default-object-marketing',
-    favicon: 'default-object-marketing',
+    icon: 'regular-megaphone',
+    favicon: 'regular-megaphone',
     entity: 'newsletter_recipient',
     entityDisplayProperty: 'email',
 
@@ -41,7 +41,7 @@ Module.register('sw-newsletter-recipient', {
 
     navigation: [{
         id: 'sw-newsletter-recipient',
-        icon: 'default-object-marketing',
+        icon: 'regular-megaphone',
         color: '#FFD700',
         path: 'sw.newsletter.recipient.index',
         privilege: 'newsletter_recipient.viewer',

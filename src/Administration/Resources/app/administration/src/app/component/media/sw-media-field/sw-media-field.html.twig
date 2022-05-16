@@ -40,7 +40,7 @@
             @click="onTogglePicker"
         >
             {% block sw_media_field_media_icon %}
-            <sw-icon name="default-object-image" />
+            <sw-icon name="regular-image" />
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
@@ -59,7 +59,7 @@
                     >
                         <sw-icon
                             class="sw-media-field__icon-add"
-                            name="default-basic-plus-line"
+                            name="regular-plus"
                             small
                         />
                         {{ toggleButtonLabel }}
@@ -74,7 +74,7 @@
                     >
                         <sw-icon
                             class="sw-media-field__icon-remove"
-                            name="small-default-x-circle"
+                            name="regular-times-circle-s"
                             small
                         />
                         {{ $tc('global.sw-media-field.labelUnlink') }}

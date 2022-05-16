@@ -107,7 +107,7 @@
                 {% block sw_promotion_individualcodes_grid_redeemed_active %}
                 <sw-icon
                     v-if="item.isRedeemed"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                     class="is--active"
                 />
@@ -115,7 +115,7 @@
                 {% block sw_promotion_individualcodes_grid_redeemed_inactive %}
                 <sw-icon
                     v-else
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                     class="is--inactive"
                 />
@@ -143,7 +143,7 @@
             @click="onDeleteSelectedCodes"
         >
             <sw-icon
-                name="default-action-trash"
+                name="regular-trash"
                 small
             />
         </sw-button>

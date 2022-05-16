@@ -14,7 +14,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     it('should get action title correctly based on action name', async () => {
         let expected = {
             value: ACTION.MAIL_SEND,
-            icon: 'default-communication-envelope',
+            icon: 'regular-envelope',
             label: 'sw-flow.actions.mailSend'
         };
 
@@ -24,7 +24,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
 
         expected = {
             value: ACTION.SET_ORDER_STATE,
-            icon: 'default-shopping-plastic-bag',
+            icon: 'regular-shopping-bag-alt',
             label: 'sw-flow.actions.setOrderState'
         };
 
@@ -43,7 +43,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     it('should get action title correctly based on duplicated action', async () => {
         const expected = {
             value: ACTION.ADD_ORDER_TAG,
-            icon: 'default-action-tags',
+            icon: 'regular-tag',
             label: 'sw-flow.actions.addTag'
         };
 

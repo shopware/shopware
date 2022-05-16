@@ -29,7 +29,7 @@ Component.register('sw-external-link', {
         icon: {
             type: String,
             required: false,
-            default: 'small-arrow-small-external',
+            default: 'regular-external-link-s',
         },
 
         rel: {

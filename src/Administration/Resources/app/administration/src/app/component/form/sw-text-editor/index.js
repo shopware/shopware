@@ -101,7 +101,7 @@ Component.register('sw-text-editor', {
                     {
                         type: 'paragraph',
                         title: this.$tc('sw-text-editor-toolbar.title.format'),
-                        icon: 'default-text-editor-style',
+                        icon: 'regular-style-xs',
                         children: [
                             {
                                 type: 'formatBlock',
@@ -162,82 +162,82 @@ Component.register('sw-text-editor', {
                     {
                         type: 'bold',
                         title: this.$tc('sw-text-editor-toolbar.title.bold'),
-                        icon: 'default-text-editor-bold',
+                        icon: 'regular-bold-xs',
                         tag: 'b',
                     },
                     {
                         type: 'italic',
                         title: this.$tc('sw-text-editor-toolbar.title.italic'),
-                        icon: 'default-text-editor-italic',
+                        icon: 'regular-italic-xs',
                         tag: 'i',
                     },
                     {
                         type: 'underline',
                         title: this.$tc('sw-text-editor-toolbar.title.underline'),
-                        icon: 'default-text-editor-underline',
+                        icon: 'regular-underline-xs',
                         tag: 'u',
                     },
                     {
                         type: 'strikethrough',
                         title: this.$tc('sw-text-editor-toolbar.title.strikethrough'),
-                        icon: 'default-text-editor-strikethrough',
+                        icon: 'regular-strikethrough-xs',
                         tag: 'strike',
                     },
                     {
                         type: 'superscript',
                         title: this.$tc('sw-text-editor-toolbar.title.superscript'),
-                        icon: 'default-text-editor-superscript',
+                        icon: 'regular-superscript-xs',
                         tag: 'sup',
                     },
                     {
                         type: 'subscript',
                         title: this.$tc('sw-text-editor-toolbar.title.subscript'),
-                        icon: 'default-text-editor-subscript',
+                        icon: 'regular-subscript-xs',
                         tag: 'sub',
                     },
                     {
                         type: 'justify',
                         title: this.$tc('sw-text-editor-toolbar.title.textAlign'),
-                        icon: 'default-text-editor-align-left',
+                        icon: 'regular-align-left-xs',
                         children: [
                             {
                                 type: 'justifyLeft',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignLeft'),
-                                icon: 'default-text-align-left',
+                                icon: 'regular-align-left',
                             },
                             {
                                 type: 'justifyCenter',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignCenter'),
-                                icon: 'default-text-align-center',
+                                icon: 'regular-align-center',
                             },
                             {
                                 type: 'justifyRight',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignRight'),
-                                icon: 'default-text-align-right',
+                                icon: 'regular-align-right',
                             },
                             {
                                 type: 'justifyFull',
                                 title: this.$tc('sw-text-editor-toolbar.title.justify'),
-                                icon: 'default-text-align-justify',
+                                icon: 'regular-align-justify',
                             },
                         ],
                     },
                     {
                         type: 'insertUnorderedList',
                         title: this.$tc('sw-text-editor-toolbar.title.insert-unordered-list'),
-                        icon: 'default-text-editor-list-unordered',
+                        icon: 'regular-list-unordered-xs',
                         tag: 'ul',
                     },
                     {
                         type: 'insertOrderedList',
                         title: this.$tc('sw-text-editor-toolbar.title.insert-ordered-list'),
-                        icon: 'default-text-editor-list-numberd',
+                        icon: 'regular-list-numbered-xs',
                         tag: 'ol',
                     },
                     {
                         type: 'link',
                         title: this.$tc('sw-text-editor-toolbar.title.link'),
-                        icon: 'default-text-editor-link',
+                        icon: 'regular-link-xs',
                         expanded: false,
                         newTab: false,
                         displayAsButton: false,
@@ -247,13 +247,13 @@ Component.register('sw-text-editor', {
                     {
                         type: 'undo',
                         title: this.$tc('sw-text-editor-toolbar.title.undo'),
-                        icon: 'default-text-editor-undo',
+                        icon: 'regular-undo-xs',
                         position: 'middle',
                     },
                     {
                         type: 'redo',
                         title: this.$tc('sw-text-editor-toolbar.title.redo'),
-                        icon: 'default-text-editor-redo',
+                        icon: 'regular-redo-xs',
                         position: 'middle',
                     },
                 ];
@@ -369,7 +369,7 @@ Component.register('sw-text-editor', {
                 this.buttonConfig.push({
                     type: 'table',
                     title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
-                    icon: 'default-text-editor-table',
+                    icon: 'regular-table-xs',
                     tag: 'table',
                     expanded: false,
                     handler: this.handleInsertTable,
@@ -379,7 +379,7 @@ Component.register('sw-text-editor', {
                     this.buttonConfig.push({
                         type: 'codeSwitch',
                         title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
-                        icon: 'default-text-editor-code',
+                        icon: 'regular-code-xs',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
                         position: 'right',

@@ -92,13 +92,13 @@
                 <template #column-active="{ item }">
                     <sw-icon
                         v-if="item.active"
-                        name="small-default-checkmark-line-medium"
+                        name="regular-checkmark-xs"
                         small
                         class="is--active"
                     />
                     <sw-icon
                         v-else
-                        name="small-default-x-line-medium"
+                        name="regular-times-s"
                         small
                         class="is--inactive"
                     />
@@ -145,7 +145,7 @@
     <sw-sidebar slot="sidebar">
         {% block sw_promotion_list_sidebar_refresh %}
         <sw-sidebar-item
-            icon="default-arrow-360-left"
+            icon="regular-undo"
             :title="$tc('sw-promotion.list.titleSidebarItemRefresh')"
             @click="onRefresh"
         />

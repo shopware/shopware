@@ -1,4 +1,5 @@
 import template from './sw-icon.html.twig';
+import legacyIconMapping from './legacy-icon-mapping';
 import './sw-icon.scss';
 
 const { Component } = Shopware;
@@ -11,18 +12,22 @@ const { warn } = Shopware.Utils.debug;
  * @example-type static
  * @component-example
  * <div>
- *     <sw-icon name="default-action-circle-download" color="#1abc9c"></sw-icon>
- *     <sw-icon name="default-building-shop" color="#3498db"></sw-icon>
- *     <sw-icon name="default-eye-crossed" color="#9b59b6"></sw-icon>
- *     <sw-icon name="default-lock-fingerprint" color="#f39c12"></sw-icon>
- *     <sw-icon name="default-tools-ruler-pencil" color="#d35400"></sw-icon>
- *     <sw-icon name="default-avatar-single" color="#c0392b"></sw-icon>
- *     <sw-icon name="default-basic-shape-heart" color="#fc427b"></sw-icon>
- *     <sw-icon name="default-default-bell-bell" color="#f1c40f"></sw-icon>
+ *     <sw-icon name="regular-circle-download" color="#1abc9c"></sw-icon>
+ *     <sw-icon name="regular-storefront" color="#3498db"></sw-icon>
+ *     <sw-icon name="regular-eye-slash" color="#9b59b6"></sw-icon>
+ *     <sw-icon name="regular-fingerprint" color="#f39c12"></sw-icon>
+ *     <sw-icon name="regular-tools-alt" color="#d35400"></sw-icon>
+ *     <sw-icon name="regular-user" color="#c0392b"></sw-icon>
+ *     <sw-icon name="regular-circle" color="#fc427b"></sw-icon>
+ *     <sw-icon name="default-regular-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
 Component.register('sw-icon', {
     template,
+
+    inject: [
+        'feature',
+    ],
 
     props: {
         name: {
@@ -95,6 +100,22 @@ Component.register('sw-icon', {
                 height: size,
             };
         },
+
+        isLegacyName() {
+            return Object.keys(legacyIconMapping).includes(this.iconName);
+        },
+
+        replacementName() {
+            if (!this.isLegacyName) {
+                return null;
+            }
+
+            return legacyIconMapping[this.iconName];
+        },
+
+        useIconKit() {
+            return this.feature.isActive('FEATURE_NEXT_17235');
+        },
     },
 
     created() {
@@ -109,6 +130,27 @@ Component.register('sw-icon', {
                     `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`,
                 );
             }
+
+            // No legacy name passed
+            if (!this.isLegacyName) {
+                return;
+            }
+
+            // Legacy name passed and replacement available
+            if (this.replacementName) {
+                warn(
+                    this.$options.name,
+                    `The icon name "${this.name}" you provided is deprecated. Use "${this.replacementName}" instead.`,
+                );
+
+                return;
+            }
+
+            // Legacy name passed no replacement available
+            warn(
+                this.$options.name,
+                `The icon name "${this.name}" you provided is deprecated without a replacement.`,
+            );
         },
     },
 });

@@ -24,10 +24,10 @@ Component.register('sw-cms-create-wizard', {
         };
 
         const pageTypeIcons = {
-            page: 'default-object-lightbulb',
-            landingpage: 'default-web-dashboard',
-            product_list: 'default-shopping-basket',
-            product_detail: 'default-action-tags',
+            page: 'regular-lightbulb',
+            landingpage: 'regular-dashboard',
+            product_list: 'regular-shopping-basket',
+            product_detail: 'regular-tag',
         };
 
         return {

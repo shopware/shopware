@@ -194,7 +194,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -210,7 +210,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);

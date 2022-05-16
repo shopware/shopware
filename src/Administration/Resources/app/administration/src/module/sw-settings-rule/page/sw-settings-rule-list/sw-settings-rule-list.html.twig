@@ -19,7 +19,7 @@
         <h2>
             {% block sw_settings_rule_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             /> {{ $tc('sw-settings-rule.list.textHeadline') }}
             {% endblock %}
@@ -139,7 +139,7 @@
         <sw-sidebar>
             {% block sw_settings_rule_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

@@ -511,7 +511,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toBeCalled();
         expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
-        expect(wrapper.vm.$route.meta.$module.icon).toBe('default-shopping-paper-bag');
+        expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
     });

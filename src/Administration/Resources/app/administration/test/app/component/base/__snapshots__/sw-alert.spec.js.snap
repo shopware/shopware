@@ -8,7 +8,7 @@ exports[`components/base/sw-alert should render correctly 1`] = `
   <sw-icon-stub
     class="sw-alert__icon"
     decorative=""
-    name="default-badge-info"
+    name="regular-info-circle"
     size="20px"
   />
    

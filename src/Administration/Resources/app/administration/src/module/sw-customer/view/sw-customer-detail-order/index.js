@@ -23,7 +23,7 @@ Component.register('sw-customer-detail-order', {
             orders: null,
             term: '',
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
-            orderIcon: 'default-shopping-paper-bag',
+            orderIcon: 'regular-shopping-bag',
         };
     },
 

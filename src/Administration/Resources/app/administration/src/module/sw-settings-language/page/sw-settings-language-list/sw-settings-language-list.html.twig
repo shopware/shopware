@@ -22,7 +22,7 @@
             {% block sw_settings_language_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             /> {{ $tc('sw-settings-language.list.textHeadline') }}
             {% endblock %}
@@ -120,7 +120,7 @@
             <template #column-id="{ item, column, compact, isInlineEdit }">
                 <sw-icon
                     v-if="isDefault(item.id)"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                     class="is--default"
                 />
@@ -168,7 +168,7 @@
 
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
-                icon="default-action-filter"
+                icon="regular-filter"
                 :title="$tc('sw-settings-language.list.titleSidebarFilter')"
             >
                 <sw-collapse expand-on-loading>
@@ -189,7 +189,7 @@
                                 v-if="expanded"
                                 key="filter-collapse-expanded-indicator"
                                 class="sw-media-collapse__button"
-                                name="small-arrow-small-down"
+                                name="regular-chevron-down-xxs"
                             />
                             {% endblock %}
 
@@ -198,7 +198,7 @@
                                 v-else
                                 key="filter-collapse-expanded-indicator"
                                 class="sw-media-collapse__button"
-                                name="small-arrow-small-right"
+                                name="regular-chevron-right-xxs"
                             />
                             {% endblock %}
                             {% endblock %}

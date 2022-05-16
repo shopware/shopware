@@ -14,8 +14,8 @@ function createWrapper(action, listeners = {}) {
         },
         stubs: {
             'sw-icon': Shopware.Component.build('sw-icon'),
-            'icons-default-action-external': {
-                template: '<span class="sw-icon sw-icon--default-action-external"></span>'
+            'icons-regular-external-link': {
+                template: '<span class="sw-icon sw-icon--regular-external-link"></span>'
             }
         },
         provide: {

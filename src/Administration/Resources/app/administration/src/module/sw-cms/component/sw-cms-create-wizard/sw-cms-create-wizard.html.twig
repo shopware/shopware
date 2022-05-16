@@ -22,7 +22,7 @@
                     @click="onPageTypeSelect('page')"
                 >
                     <sw-icon
-                        name="default-object-lightbulb"
+                        name="regular-lightbulb"
                         size="24"
                     />
                     <p>{{ $tc('sw-cms.detail.label.pageTypeShopPage') }}</p>
@@ -36,7 +36,7 @@
                     @click="onPageTypeSelect('landingpage')"
                 >
                     <sw-icon
-                        name="default-web-dashboard"
+                        name="regular-dashboard"
                         size="24"
                     />
                     <p>{{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}</p>
@@ -50,7 +50,7 @@
                     @click="onPageTypeSelect('product_list')"
                 >
                     <sw-icon
-                        name="default-shopping-basket"
+                        name="regular-shopping-basket"
                         size="24"
                     />
                     <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
@@ -64,7 +64,7 @@
                     @click="onPageTypeSelect('product_detail')"
                 >
                     <sw-icon
-                        name="default-action-tags"
+                        name="regular-tag"
                         size="24"
                     />
                     <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>
@@ -80,7 +80,7 @@
                 :to="{ name: 'sw.cms.index' }"
             >
                 <sw-icon
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                 /> {{ $tc('sw-cms.createWizard.abortCreation') }}
             </router-link>
@@ -117,7 +117,7 @@
                 @click="goToStep('pageType')"
             >
                 <sw-icon
-                    name="default-arrow-simple-left"
+                    name="regular-long-arrow-left"
                     small
                 /> {{ $tc('sw-cms.createWizard.stepBack') }}
             </div>
@@ -194,7 +194,7 @@
                 @click="goToStep('sectionType')"
             >
                 <sw-icon
-                    name="default-arrow-simple-left"
+                    name="regular-long-arrow-left"
                     small
                 /> {{ $tc('sw-cms.createWizard.stepBack') }}
             </div>

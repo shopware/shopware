@@ -16,7 +16,7 @@ Module.register('sw-settings-snippet', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'snippet',
 
@@ -58,7 +58,7 @@ Module.register('sw-settings-snippet', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.snippet.index',
-        icon: 'default-object-globe',
+        icon: 'regular-globe-stand',
         privilege: 'snippet.viewer',
     },
 });

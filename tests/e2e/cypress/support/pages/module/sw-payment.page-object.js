@@ -6,7 +6,7 @@ export default class PaymentPageObject {
             ...elements,
             ...{
                 paymentSaveAction: '.sw-payment-detail__save-action',
-                shippingBackToListViewAction: '.sw-icon.icon--default-action-settings.sw-icon--small'
+                shippingBackToListViewAction: '.sw-icon.icon--regular-cog.sw-icon--small'
             }
         };
     }

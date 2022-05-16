@@ -69,7 +69,7 @@ Component.register('sw-sales-channel-menu', {
                 active: true,
                 children: [],
                 color: '#D8DDE6',
-                icon: 'default-action-more-vertical',
+                icon: 'regular-ellipsis-v',
                 label: this.$tc('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
                 position: -1, // use last position

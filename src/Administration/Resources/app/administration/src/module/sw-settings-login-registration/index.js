@@ -10,7 +10,7 @@ Module.register('sw-settings-login-registration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -27,7 +27,7 @@ Module.register('sw-settings-login-registration', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.login.registration.index',
-        icon: 'default-action-log-in',
+        icon: 'regular-sign-in',
         privilege: 'system.system_config',
     },
 });

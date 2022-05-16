@@ -42,7 +42,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
 
         expect(wrapper.get('.sw-circle-icon').props('variant')).toBe('danger');
         expect(wrapper.get('.sw-circle-icon').props('size')).toBe(72);
-        expect(wrapper.get('.sw-circle-icon').props('iconName')).toBe('small-default-x-circle');
+        expect(wrapper.get('.sw-circle-icon').props('iconName')).toBe('regular-times-circle-s');
     });
 
     it('has a primary block button', () => {

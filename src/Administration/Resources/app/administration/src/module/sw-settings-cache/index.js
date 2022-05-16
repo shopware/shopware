@@ -12,7 +12,7 @@ Module.register('sw-settings-cache', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -30,6 +30,6 @@ Module.register('sw-settings-cache', {
         privilege: 'system.clear_cache',
         group: 'system',
         to: 'sw.settings.cache.index',
-        icon: 'default-action-replace',
+        icon: 'regular-files',
     },
 });

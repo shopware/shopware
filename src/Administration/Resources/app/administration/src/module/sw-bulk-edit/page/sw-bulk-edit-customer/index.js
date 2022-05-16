@@ -179,7 +179,7 @@ Component.register('sw-bulk-edit-customer', {
 
         setRouteMetaModule() {
             this.$set(this.$route.meta.$module, 'color', '#F88962');
-            this.$set(this.$route.meta.$module, 'icon', 'default-avatar-multiple');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-users');
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {

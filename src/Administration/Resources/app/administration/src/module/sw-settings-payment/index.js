@@ -13,7 +13,7 @@ Module.register('sw-settings-payment', {
     title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'payment_method',
 
@@ -47,7 +47,7 @@ Module.register('sw-settings-payment', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.payment.index',
-        icon: 'default-money-card',
+        icon: 'regular-credit-card',
         privilege: 'payment.viewer',
     },
 

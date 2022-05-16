@@ -12,7 +12,7 @@ Module.register('sw-settings-seo', {
     title: 'sw-settings-seo.general.mainMenuItemGeneral',
     description: 'SEO section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'seo',
 
@@ -30,7 +30,7 @@ Module.register('sw-settings-seo', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.seo.index',
-        icon: 'default-action-search',
+        icon: 'regular-search',
         privilege: 'system.system_config',
     },
 });

@@ -58,14 +58,14 @@
                     >
                         <sw-icon
                             v-if="permissions.includes(operation.operation)"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             :small="true"
                             color="#37D046"
                         />
 
                         <sw-icon
                             v-else-if="category !== 'additional_privileges'"
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             :small="true"
                             color="#DE294C"
                         />

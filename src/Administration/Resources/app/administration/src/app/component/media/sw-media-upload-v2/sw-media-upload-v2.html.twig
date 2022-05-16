@@ -33,7 +33,7 @@
                         class="sw-media-upload-v2__button-context-menu"
                     >
                         <sw-icon
-                            name="small-arrow-medium-down"
+                            name="regular-chevron-down-xs"
                             size="16"
                         />
                     </sw-button>
@@ -142,7 +142,7 @@
                 >
                     <sw-icon
                         class="sw-media-upload-v2__fallback-icon"
-                        name="default-object-image"
+                        name="regular-image"
                     />
                 </div>
                 {% endblock %}
@@ -151,7 +151,7 @@
             <template v-else>
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
-                    <sw-icon name="default-action-cloud-upload" />
+                    <sw-icon name="regular-cloud-upload" />
                     {{ $tc('global.sw-media-upload-v2.caption') }}
                 </div>
                 {% endblock %}
@@ -174,7 +174,7 @@
                     <sw-icon
                         v-if="!disabled"
                         class="sw-media-upload-v2__remove-icon"
-                        name="small-default-x-line-small"
+                        name="regular-times-xs"
                         small
                         @click="onRemoveMediaItem"
                     />

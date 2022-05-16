@@ -441,7 +441,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toBeCalled();
         expect(wrapper.vm.$route.meta.$module.color).toBe('#F88962');
-        expect(wrapper.vm.$route.meta.$module.icon).toBe('default-avatar-multiple');
+        expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-users');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
     });

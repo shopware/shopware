@@ -28,7 +28,7 @@
             v-if="selectedFile === null"
             class="sw-file-input__upload-caption"
         >
-            <sw-icon name="default-action-cloud-upload" />
+            <sw-icon name="regular-cloud-upload" />
             <slot name="caption-label">
                 {{ $tc('global.sw-file-input.caption') }}
             </slot>
@@ -50,7 +50,7 @@
                 </span>
                 <sw-icon
                     class="sw-file-input__remove-icon"
-                    name="small-default-x-line-small"
+                    name="regular-times-xs"
                     small
                     @click="onRemoveIconClick"
                 />

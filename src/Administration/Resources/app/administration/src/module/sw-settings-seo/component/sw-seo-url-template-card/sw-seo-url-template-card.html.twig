@@ -52,22 +52,22 @@
                                 <sw-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
-                                    name="default-basic-x-line"
+                                    name="regular-times"
                                 />
                                 <sw-icon
                                     v-else-if="noEntityError.includes(seoUrlTemplate.id)"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview',0,{entity:seoUrlTemplate.entityName})"
-                                    name="default-badge-warning"
+                                    name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
                                     v-else-if="!seoUrlTemplate.template"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate',1,{entity:seoUrlTemplate.entityName})"
-                                    name="default-badge-warning"
+                                    name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
                                     v-else
                                     v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')"
-                                    name="default-basic-checkmark-line"
+                                    name="regular-checkmark"
                                 />
                                 {% endblock %}
                             </template>

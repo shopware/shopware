@@ -32,7 +32,7 @@ Component.register('sw-internal-link', {
         icon: {
             type: String,
             required: false,
-            default: 'default-arrow-simple-right',
+            default: 'regular-long-arrow-right',
         },
 
         inline: {

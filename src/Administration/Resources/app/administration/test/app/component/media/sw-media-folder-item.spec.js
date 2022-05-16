@@ -5,9 +5,9 @@ const { Module } = Shopware;
 
 // mocking modules
 const modulesToCreate = new Map();
-modulesToCreate.set('sw-product', { icon: 'default-symbol-products', entity: 'product' });
-modulesToCreate.set('sw-mail-template', { icon: 'default-action-settings', entity: 'mail_template' });
-modulesToCreate.set('sw-cms', { icon: 'default-symbol-content', entity: 'cms_page' });
+modulesToCreate.set('sw-product', { icon: 'regular-products', entity: 'product' });
+modulesToCreate.set('sw-mail-template', { icon: 'regular-cog', entity: 'mail_template' });
+modulesToCreate.set('sw-cms', { icon: 'regular-content', entity: 'cms_page' });
 
 Array.from(modulesToCreate.keys()).forEach(moduleName => {
     const currentModuleValues = modulesToCreate.get(moduleName);

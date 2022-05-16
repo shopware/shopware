@@ -55,15 +55,15 @@ Component.register('sw-media-folder-item', {
 
         iconName() {
             switch (this.iconConfig.name) {
-                case 'default-package-closed':
+                case 'regular-box':
                     return 'multicolor-folder-thumbnail--green';
-                case 'default-symbol-products':
+                case 'regular-products':
                     return 'multicolor-folder-thumbnail--green';
-                case 'default-device-database':
+                case 'regular-database':
                     return 'multicolor-folder-thumbnail--grey';
-                case 'default-symbol-content':
+                case 'regular-content':
                     return 'multicolor-folder-thumbnail--pink';
-                case 'default-action-settings':
+                case 'regular-cog':
                     return 'multicolor-folder-thumbnail--grey';
                 default:
                     return 'multicolor-folder-thumbnail';

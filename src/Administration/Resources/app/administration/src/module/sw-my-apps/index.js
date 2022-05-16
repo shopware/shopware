@@ -8,7 +8,7 @@ Module.register('sw-my-apps', {
     name: 'sw-my-apps',
     title: 'sw-my-apps.general.mainMenuItemGeneral',
     description: 'sw-my-apps.general.moduleDescription',
-    icon: 'default-view-grid',
+    icon: 'regular-view-grid',
     color: '#9AA8B5',
     routePrefixPath: 'my-apps',
 
@@ -31,7 +31,7 @@ Module.register('sw-my-apps', {
     navigation: [{
         id: 'sw-my-apps',
         label: 'sw-my-apps.general.mainMenuItemGeneral',
-        icon: 'default-view-grid',
+        icon: 'regular-view-grid',
         color: '#9AA8B5',
         position: 100,
     }],

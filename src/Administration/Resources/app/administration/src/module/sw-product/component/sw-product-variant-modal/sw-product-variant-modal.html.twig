@@ -37,7 +37,7 @@
                         @click="toggleFilterMenu"
                     >
                         {{ $tc('sw-product.variations.generatedFilterList') }}
-                        <sw-icon name="default-action-filter" />
+                        <sw-icon name="regular-filter" />
                     </sw-button>
                     {% endblock %}
 
@@ -210,13 +210,13 @@
                         <sw-icon
                             v-if="item.active === true"
                             class="sw-icon--product-status is--active"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             small
                         />
                         <sw-icon
                             v-else-if="item.active === false"
                             class="sw-icon--product-status is--inactive"
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             small
                         />
                         <sw-icon
@@ -384,7 +384,7 @@
                     {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
                     <sw-icon
                         v-if="item.active === true"
-                        name="small-default-checkmark-line-medium"
+                        name="regular-checkmark-xs"
                         small
                         class="sw-icon--product-status is--active"
                     />
@@ -393,7 +393,7 @@
                     {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
                     <sw-icon
                         v-else-if="item.active === false"
-                        name="small-default-x-line-medium"
+                        name="regular-times-s"
                         small
                         class="sw-icon--product-status is--inactive"
                     />

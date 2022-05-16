@@ -11,7 +11,7 @@ Module.register('sw-settings-document', {
     title: 'sw-settings-document.general.mainMenuItemGeneral',
     description: 'sw-settings-document.general.description',
     color: '#9AA8B5',
-    icon: 'default-documentation-file',
+    icon: 'regular-file-text',
     favicon: 'icon-module-settings.png',
     entity: 'document',
 
@@ -49,6 +49,6 @@ Module.register('sw-settings-document', {
         group: 'shop',
         to: 'sw.settings.document.index',
         privilege: 'document.viewer',
-        icon: 'default-documentation-file',
+        icon: 'regular-file-text',
     },
 });

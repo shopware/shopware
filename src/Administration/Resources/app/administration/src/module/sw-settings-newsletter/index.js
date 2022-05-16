@@ -10,7 +10,7 @@ Module.register('sw-settings-newsletter', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-communication-inbox',
+    icon: 'regular-inbox',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -27,7 +27,7 @@ Module.register('sw-settings-newsletter', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.newsletter.index',
-        icon: 'default-communication-inbox',
+        icon: 'regular-inbox',
         privilege: 'system.system_config',
     },
 });

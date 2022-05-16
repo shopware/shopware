@@ -10,7 +10,7 @@ Module.register('sw-settings-address', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
@@ -28,7 +28,7 @@ Module.register('sw-settings-address', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.address.index',
-        icon: 'default-object-address',
+        icon: 'regular-book-user',
         privilege: 'system.system_config',
     },
 });

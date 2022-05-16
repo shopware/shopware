@@ -80,7 +80,7 @@ describe('Seo: Test crud operations on templates', () => {
                     .parentsUntil('.sw-seo-url-template-card__seo-url')
                     .parent().within(() => {
                     // /... assert that the preview works correctly
-                        cy.get('.icon--default-basic-checkmark-line');
+                        cy.get('.icon--regular-checkmark');
                         // Seo Urls cannot contain spaces (as opposed to error messages)
                         cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
 
@@ -122,7 +122,7 @@ describe('Seo: Test crud operations on templates', () => {
                         cy.get('.sw-inheritance-switch').click();
                         cy.get('input').should('not.be.disabled');
                         // ... and that the preview works
-                        cy.get('.icon--default-basic-checkmark-line');
+                        cy.get('.icon--regular-checkmark');
                         // Seo Urls cannot contain spaces (as opposed to error messages)
                         cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
                     });

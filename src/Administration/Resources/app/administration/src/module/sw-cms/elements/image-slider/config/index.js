@@ -57,7 +57,7 @@ Component.register('sw-cms-el-config-image-slider', {
                     return configElement.mediaId;
                 });
 
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds(mediaIds);
 
                 const searchResult = await this.mediaRepository.search(criteria);

@@ -130,7 +130,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
     it('should emit `filter-reset` event when click Reset button', async () => {
         const wrapper = createWrapper();
 
-        const entityCollection = new EntityCollection(null, null, null, new Criteria(), [
+        const entityCollection = new EntityCollection(null, null, null, new Criteria(1, 25), [
             { id: 'id1', name: 'item1' },
             { id: 'id2', name: 'item2' }
         ]);

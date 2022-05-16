@@ -91,7 +91,7 @@ Component.register('sw-bulk-edit-product', {
         },
 
         currencyCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 
@@ -103,7 +103,7 @@ Component.register('sw-bulk-edit-product', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.getAssociation('media')
                 .addSorting(Criteria.sort('position', 'ASC'));

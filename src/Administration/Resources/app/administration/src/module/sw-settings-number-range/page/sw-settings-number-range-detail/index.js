@@ -67,7 +67,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('type');
             criteria.addAssociation('numberRangeSalesChannels');
@@ -80,7 +80,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeTypeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('global', false),
@@ -94,7 +94,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         numberRangeTypeCriteriaGlobal() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('global', true),
@@ -108,7 +108,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.multi(
@@ -145,7 +145,7 @@ Component.register('sw-settings-number-range-detail', {
          * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
          */
         numberRangeStateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('numberRangeId', this.numberRangeId),

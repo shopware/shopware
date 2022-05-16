@@ -44,7 +44,7 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         variantCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('product.parentId', this.product.id));
             criteria.addAssociation('options.group');
 

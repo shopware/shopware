@@ -72,12 +72,12 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         snippetSetCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 
         salesChannelFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria
                 .addAssociation('salesChannels')
@@ -87,7 +87,7 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         currencyCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 
@@ -183,7 +183,7 @@ Component.register('sw-sales-channel-detail-domains', {
 
         async domainExistsInDatabase(url) {
             const globalDomainRepository = this.repositoryFactory.create(this.salesChannel.domains.entity);
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('url', url));
 
             const items = await globalDomainRepository.search(criteria);

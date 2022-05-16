@@ -53,7 +53,7 @@ Component.register('sw-order-create-address-modal', {
 
     computed: {
         addressCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('salutation');
             criteria.addAssociation('country');
             criteria.addAssociation('countryState');

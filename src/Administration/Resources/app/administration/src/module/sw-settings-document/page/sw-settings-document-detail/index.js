@@ -289,7 +289,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         documentBaseConfigCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria
                 .addAssociation('documentType')
@@ -436,7 +436,7 @@ Component.register('sw-settings-document-detail', {
             }
 
             this.createSalesChannelSelectOptions();
-            const documentSalesChannelCriteria = new Criteria();
+            const documentSalesChannelCriteria = new Criteria(1, 25);
             documentSalesChannelCriteria.addFilter(
                 Criteria.equals('documentTypeId', documentType.id),
             );

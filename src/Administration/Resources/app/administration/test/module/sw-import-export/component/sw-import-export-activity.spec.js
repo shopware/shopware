@@ -154,7 +154,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     create: () => {
                         return {
                             search: () => {
-                                return new EntityCollection(null, null, null, new Criteria(), options.logData);
+                                return new EntityCollection(null, null, null, new Criteria(1, 25), options.logData);
                             }
                         };
                     }

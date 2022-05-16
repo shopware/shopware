@@ -34,7 +34,7 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
@@ -109,7 +109,7 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         loadSetGroups() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('promotionId', this.promotion.id),
             );

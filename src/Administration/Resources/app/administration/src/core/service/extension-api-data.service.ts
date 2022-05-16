@@ -1,5 +1,5 @@
 import type Vue from 'vue';
-import { updateSubscriber, register } from '@shopware-ag/admin-extension-sdk/es/data';
+import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
 import { get } from 'lodash';
 
 type publishOptions = {
@@ -27,6 +27,15 @@ type vueWithUid = Partial<Vue> & { _uid: number };
 
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
+
+handleGet((data) => {
+    const registeredDataSet = publishedDataSets.find(s => s.id === data.id);
+    if (!registeredDataSet) {
+        return null;
+    }
+
+    return registeredDataSet.data;
+});
 
 /**
  * Splits an object path like "foo.bar.buz" to "{ pathToLastSegment: 'foo.bar', lastSegment: 'buz' }".
@@ -181,6 +190,9 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
         unwatch();
     });
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    register({ id: id, data: get(scope, path) }).catch(() => {});
 }
 
 export function getPublishedDataSets(): dataset[] {

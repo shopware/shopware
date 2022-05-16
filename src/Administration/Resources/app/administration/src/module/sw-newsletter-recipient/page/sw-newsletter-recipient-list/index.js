@@ -56,7 +56,7 @@ Component.register('sw-newsletter-recipient-list', {
 
     methods: {
         createdComponent() {
-            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria());
+            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
 
             const criteria = new Criteria(1, 100);
             this.repositoryFactory.create('language').search(criteria, Shopware.Context.api).then((items) => {

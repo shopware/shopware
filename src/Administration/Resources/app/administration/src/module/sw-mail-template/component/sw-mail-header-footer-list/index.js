@@ -153,7 +153,7 @@ Component.register('sw-mail-header-footer-list', {
         },
 
         getMailHeaderFooterCriteria(mailHeaderFooter) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equalsAny('id', mailHeaderFooter),

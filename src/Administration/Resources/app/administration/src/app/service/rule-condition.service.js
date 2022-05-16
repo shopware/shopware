@@ -423,7 +423,7 @@ export default function createConditionService() {
         }
 
         const ruleRepository = Shopware.Service('repositoryFactory').create('rule');
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addFilter(Criteria.multi(
             'OR',
             restrictions,

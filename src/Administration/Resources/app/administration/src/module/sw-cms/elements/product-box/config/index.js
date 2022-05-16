@@ -26,7 +26,7 @@ Component.register('sw-cms-el-config-product-box', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -48,7 +48,7 @@ Component.register('sw-cms-el-config-product-box', {
                 this.$set(this.element.data, 'productId', null);
                 this.$set(this.element.data, 'product', null);
             } else {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('cover');
                 criteria.addAssociation('options.group');
 

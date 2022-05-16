@@ -79,7 +79,7 @@ Component.register('sw-order-general-info', {
         },
 
         lastChangedByCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds([this.order.id]);
 
             criteria

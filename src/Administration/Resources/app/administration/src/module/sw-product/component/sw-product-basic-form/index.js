@@ -110,7 +110,7 @@ Component.register('sw-product-basic-form', {
         },
 
         numberRangeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
             criteria.addFilter(Criteria.equals('global', true));

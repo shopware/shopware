@@ -25,7 +25,7 @@ const mockItem = {
     salesChannel: {
         name: 'Test'
     },
-    transactions: new EntityCollection(null, null, null, new Criteria(), [
+    transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
         {
             stateMachineState: {
                 technicalName: 'open',
@@ -174,7 +174,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -193,7 +193,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should not get search ranking fields when term is null', async () => {
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -216,7 +216,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -254,7 +254,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should show correct label for payment status', async () => {
-        mockItem.transactions = new EntityCollection(null, null, null, new Criteria(), [
+        mockItem.transactions = new EntityCollection(null, null, null, new Criteria(1, 25), [
             {
                 stateMachineState: {
                     technicalName: 'cancelled',

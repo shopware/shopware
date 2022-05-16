@@ -43,11 +43,11 @@ Component.register('sw-settings-listing-option-base', {
         },
 
         customFieldCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         productSortingEntityCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         isSaveButtonDisabled() {

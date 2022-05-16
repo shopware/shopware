@@ -14,7 +14,7 @@ export default class AppAclService {
     }
 
     getAppPermissions() {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addFilter(Criteria.equals('app.active', true));
         const dependencies = [];
 

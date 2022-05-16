@@ -353,7 +353,7 @@ Component.register('sw-flow-sequence-action', {
         },
 
         getAppFlowAction() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('app');
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;

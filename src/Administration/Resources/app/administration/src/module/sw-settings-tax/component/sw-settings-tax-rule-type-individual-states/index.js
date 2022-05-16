@@ -23,7 +23,7 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
 
     computed: {
         exclusionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('countryId', this.taxRule.countryId));
 
             return criteria;
@@ -50,7 +50,7 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
                     Context.api,
                 );
             } else {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds(this.taxRule.data.states);
 
                 this.stateRepository.search(criteria, Context.api).then(collection => {

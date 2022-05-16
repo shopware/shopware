@@ -41,9 +41,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         profileCriteria() {
-            const criteria = new Criteria();
-
-            criteria.setPage(1);
+            const criteria = new Criteria(1, 25);
             criteria.setTerm(this.searchTerm);
             criteria.addAssociation('importExportLogs');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
@@ -152,7 +150,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             };
 
             return this.profileRepository.clone(item.id, Shopware.Context.api, behavior).then((clone) => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds([clone.id]);
                 return this.profileRepository.search(criteria);
             }).then((profiles) => {

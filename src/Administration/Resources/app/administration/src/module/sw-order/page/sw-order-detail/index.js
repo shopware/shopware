@@ -75,7 +75,7 @@ Component.register('sw-order-detail', {
         },
 
         orderCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria
                 .addAssociation('currency')

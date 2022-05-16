@@ -110,7 +110,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         productVariantCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.paginationPage, this.paginationLimit);
 
             // this is the id of the main product.
             const productEntityId = this.productEntity.id;
@@ -144,9 +144,6 @@ Component.register('sw-product-variant-modal', {
             }
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, true));
-
-            criteria.setPage(this.paginationPage);
-            criteria.setLimit(this.paginationLimit);
 
             return criteria;
         },
@@ -205,7 +202,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         canBeDeletedCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const variantIds = this.toBeDeletedVariants.map(variant => variant.id);
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
@@ -213,12 +210,7 @@ Component.register('sw-product-variant-modal', {
         },
 
         groupCriteria() {
-            const criteria = new Criteria();
-            criteria
-                .setLimit(100)
-                .setPage(1);
-
-            return criteria;
+            return new Criteria(1, 100);
         },
 
         selectedGroups() {

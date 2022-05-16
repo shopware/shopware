@@ -90,12 +90,10 @@ Component.register('sw-custom-field-list', {
         loadCustomFields() {
             this.isLoading = true;
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
             criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -176,7 +174,7 @@ Component.register('sw-custom-field-list', {
 
         isCustomFieldNameUnique(customField) {
             // Search the server for the customField name
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', customField.name));
             return this.globalCustomFieldRepository.search(criteria).then((res) => {
                 return res.length === 0;

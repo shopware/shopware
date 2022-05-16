@@ -59,7 +59,7 @@ Component.extend('sw-condition-line-item-taxation', 'sw-condition-base-line-item
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.taxIds);
 
             return this.taxRepository.search(criteria, Context.api).then((taxes) => {

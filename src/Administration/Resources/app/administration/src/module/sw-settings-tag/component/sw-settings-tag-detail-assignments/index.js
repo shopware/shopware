@@ -317,7 +317,7 @@ Component.register('sw-settings-tag-detail-assignments', {
             let deletedPromise = Promise.resolve();
 
             if (toBeAdded.length) {
-                const inheritedAddedCriteria = new Criteria();
+                const inheritedAddedCriteria = new Criteria(1, 25);
                 inheritedAddedCriteria.addFilter(Criteria.multi('AND', [
                     Criteria.equals('tags.id', null),
                     Criteria.equalsAny('parentId', toBeAdded),
@@ -338,7 +338,7 @@ Component.register('sw-settings-tag-detail-assignments', {
             }
 
             if (toBeDeleted.length) {
-                const inheritedDeletedCriteria = new Criteria();
+                const inheritedDeletedCriteria = new Criteria(1, 25);
                 inheritedDeletedCriteria.addFilter(Criteria.equals('tags.id', null));
                 inheritedDeletedCriteria.addFilter(Criteria.equalsAny('parentId', toBeDeleted));
                 if (toBeAdded.length) {

@@ -555,7 +555,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -574,7 +574,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     it('should not get search ranking fields when term is null', async () => {
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -597,7 +597,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {

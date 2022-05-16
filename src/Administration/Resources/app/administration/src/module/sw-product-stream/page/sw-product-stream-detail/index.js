@@ -181,7 +181,7 @@ Component.register('sw-product-stream-detail', {
 
         loadFilters(collection = null) {
             if (collection === null) {
-                const filterCriteria = new Criteria();
+                const filterCriteria = new Criteria(1, 25);
                 filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
 
                 return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
@@ -321,7 +321,7 @@ Component.register('sw-product-stream-detail', {
         },
 
         getProductCustomFields() {
-            const customFieldsCriteria = new Criteria();
+            const customFieldsCriteria = new Criteria(1, 25);
             customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
                 .addAssociation('customFields')
                 .addAssociation('relations');

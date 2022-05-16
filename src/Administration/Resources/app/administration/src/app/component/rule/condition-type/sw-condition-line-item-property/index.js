@@ -51,7 +51,7 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item
         },
 
         optionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.identifiers);
             criteria.addAssociation('group');
 

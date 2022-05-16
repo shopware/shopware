@@ -4,7 +4,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
 function createInitialConditionsCollection() {
-    return new EntityCollection(null, 'rule_condition', null, new Criteria(), [
+    return new EntityCollection(null, 'rule_condition', null, new Criteria(1, 25), [
         {
             apiAlias: null,
             children: [],

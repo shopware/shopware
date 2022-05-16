@@ -112,7 +112,7 @@ Component.register('sw-search-bar', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('type');
 
             return criteria;
@@ -153,8 +153,7 @@ Component.register('sw-search-bar', {
 
         criteriaCollection() {
             return {
-                // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
-                product: new Criteria().setLimit(this.searchLimit + 1).addAssociation('options.group'),
+                product: new Criteria(1, this.searchLimit + 1).addAssociation('options.group'),
             };
         },
 
@@ -511,7 +510,7 @@ Component.register('sw-search-bar', {
 
             let criteria = this.criteriaCollection.hasOwnProperty(entityName)
                 ? this.criteriaCollection[entityName]
-                : new Criteria();
+                : new Criteria(1, this.searchLimit + 1);
 
             criteria.setTerm(searchTerm);
             // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
@@ -793,7 +792,7 @@ Component.register('sw-search-bar', {
         loadSalesChannelType() {
             return new Promise(resolve => {
                 this.salesChannelTypeRepository
-                    .search(new Criteria())
+                    .search(new Criteria(1, 25))
                     .then((response) => {
                         this.salesChannelTypes = response;
                         resolve(response);
@@ -943,7 +942,7 @@ Component.register('sw-search-bar', {
                     if (!queries.hasOwnProperty(item.entity)) {
                         queries[item.entity] = this.criteriaCollection.hasOwnProperty(item.entity)
                             ? cloneDeep(this.criteriaCollection[item.entity])
-                            : new Criteria();
+                            : new Criteria(1, 25);
                     }
 
                     const ids = [item.id, ...queries[item.entity].ids];

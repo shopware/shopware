@@ -58,14 +58,14 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('customFieldSetId', this.setId));
 
             return criteria;
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('relations');
 

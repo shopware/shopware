@@ -43,7 +43,7 @@ Component.register('sw-order-send-document-modal', {
         },
 
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(
                 Criteria.equalsAny(
@@ -61,7 +61,7 @@ Component.register('sw-order-send-document-modal', {
         },
 
         mailTemplateSendCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;

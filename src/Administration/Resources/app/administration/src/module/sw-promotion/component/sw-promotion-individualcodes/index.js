@@ -326,10 +326,8 @@ Component.register('sw-promotion-individualcodes', {
         // this function refreshes our grid data source
         // by loading the data for the current page
         refreshGridDataSource() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.gridCurrentPageNr, this.gridPageLimit);
             criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
-            criteria.setPage(this.gridCurrentPageNr);
-            criteria.setLimit(this.gridPageLimit);
             criteria.setTotalCountMode(1);
 
             // load all our individual codes of our promotion

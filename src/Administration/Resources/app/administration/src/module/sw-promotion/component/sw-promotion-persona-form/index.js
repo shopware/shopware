@@ -41,7 +41,7 @@ Component.register('sw-promotion-persona-form', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi('AND', [
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
                 Criteria.equalsAny('conditions.type', [
@@ -82,7 +82,7 @@ Component.register('sw-promotion-persona-form', {
         },
 
         customerCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         isEditingDisabled() {

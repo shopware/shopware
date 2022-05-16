@@ -70,7 +70,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.countryIds);
 
             return this.countryRepository.search(criteria, Context.api).then((countries) => {

@@ -92,7 +92,7 @@ Component.register('sw-media-modal-folder-settings', {
             );
 
             this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository
-                .search(new Criteria(), Context.api);
+                .search(new Criteria(1, 25), Context.api);
 
             if (this.folder.parentId !== null) {
                 this.parent = await this.mediaFolderRepository.get(this.folder.parentId, Context.api);
@@ -108,9 +108,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         async getThumbnailSizes() {
-            const criteria = new Criteria()
-                .setLimit(50)
-                .setPage(1)
+            const criteria = new Criteria(1, 50)
                 .addSorting(Criteria.sort('width'));
 
             this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(criteria, Context.api);
@@ -263,7 +261,7 @@ Component.register('sw-media-modal-folder-settings', {
         },
 
         async ensureUniqueDefaultFolder(folderId, defaultFolderId) {
-            const criteria = new Criteria()
+            const criteria = new Criteria(1, 25)
                 .addFilter(
                     Criteria.multi('and', [
                         Criteria.equals('defaultFolderId', defaultFolderId),

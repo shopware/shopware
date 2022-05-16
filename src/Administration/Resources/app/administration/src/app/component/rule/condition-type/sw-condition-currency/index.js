@@ -67,7 +67,7 @@ Component.extend('sw-condition-currency', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.currencyIds);
 
             return this.currencyRepository.search(criteria, Context.api).then((currencies) => {

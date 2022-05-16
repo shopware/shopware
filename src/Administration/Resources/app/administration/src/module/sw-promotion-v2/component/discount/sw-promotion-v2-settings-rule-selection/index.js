@@ -19,7 +19,7 @@ Component.register('sw-promotion-v2-settings-rule-selection', {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC', false));
         },
     },

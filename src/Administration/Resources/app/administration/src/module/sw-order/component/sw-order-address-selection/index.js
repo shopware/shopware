@@ -78,7 +78,7 @@ Component.register('sw-order-address-selection', {
         },
 
         customerCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('addresses');
 
             return criteria;
@@ -89,7 +89,7 @@ Component.register('sw-order-address-selection', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 

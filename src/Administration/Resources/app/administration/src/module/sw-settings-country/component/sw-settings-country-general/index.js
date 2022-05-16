@@ -78,7 +78,7 @@ Component.register('sw-settings-country-general', {
         },
 
         loadCurrencies() {
-            return this.currencyRepository.search(new Criteria(), Shopware.Context.api).then(currencies => {
+            return this.currencyRepository.search(new Criteria(1, 25), Shopware.Context.api).then(currencies => {
                 this.currencies = currencies;
             });
         },

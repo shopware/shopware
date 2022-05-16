@@ -117,13 +117,13 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         storefrontSalesChannelDomainCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },
 
         storefrontSalesChannelCurrencyCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('salesChannels');
 
@@ -131,7 +131,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('position', 'ASC'));
 
@@ -139,7 +139,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         countryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
@@ -373,21 +373,21 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         mainCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.navigationCategoryId || null));
 
             return criteria;
         },
 
         footerCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.footerCategoryId || null));
 
             return criteria;
         },
 
         serviceCategoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.salesChannel.serviceCategoryId || null));
 
             return criteria;
@@ -472,7 +472,7 @@ Component.register('sw-sales-channel-detail-base', {
                 return;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
             this.salesChannelRepository
@@ -539,7 +539,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         loadStorefrontDomains(storefrontSalesChannelId) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('salesChannelId', storefrontSalesChannelId));
 

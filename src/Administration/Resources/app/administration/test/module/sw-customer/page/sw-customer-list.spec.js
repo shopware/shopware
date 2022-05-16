@@ -190,7 +190,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -210,7 +210,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -234,7 +234,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {

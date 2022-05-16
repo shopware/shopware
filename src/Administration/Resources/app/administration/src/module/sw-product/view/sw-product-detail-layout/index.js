@@ -44,7 +44,7 @@ Component.register('sw-product-detail-layout', {
         ]),
 
         cmsPageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));

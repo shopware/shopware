@@ -26,14 +26,14 @@ Component.register('sw-cms-el-config-buy-box', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         selectedProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('deliveryTime');
 
             return criteria;

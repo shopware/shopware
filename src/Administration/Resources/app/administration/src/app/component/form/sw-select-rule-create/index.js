@@ -42,7 +42,7 @@ Component.register('sw-select-rule-create', {
             type: Object,
             required: false,
             default() {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addSorting(Criteria.sort('name', 'ASC', false));
                 if (this.feature.isActive('FEATURE_NEXT_18215')) {
                     criteria.addAssociation('conditions');

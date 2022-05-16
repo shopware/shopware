@@ -60,10 +60,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         productStreamCriteria() {
-            const criteria = new Criteria();
-
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.term) {
                 criteria.setTerm(this.term);

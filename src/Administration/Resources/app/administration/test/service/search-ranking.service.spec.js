@@ -111,7 +111,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria())
+            (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
         ],
@@ -121,7 +121,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria()).setTerm('o')
+            (new Criteria(1, 25)).setTerm('o')
         ],
         [
             'term has just two words with both have more than 1 character',
@@ -129,7 +129,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria())
+            (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order category'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'order category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
@@ -144,7 +144,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria())
+            (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
@@ -157,7 +157,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria())
+            (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
 
@@ -168,7 +168,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria())
+            (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
                 .addQuery(Criteria.equals('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
@@ -180,7 +180,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria()).setTerm(undefined)
+            (new Criteria(1, 25)).setTerm(undefined)
         ],
         [
             'term has only spaces',
@@ -188,7 +188,7 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            (new Criteria()).setTerm('       ')
+            (new Criteria(1, 25)).setTerm('       ')
         ]
     ];
 
@@ -380,7 +380,7 @@ describe('app/service/search-ranking.service.js', () => {
     it.each(buildingCriteriaScoreQueryCase)('Should building search query for entity when %', (testName, term, queryScores, newCriteria) => {
         const service = new SearchRankingService();
 
-        const criteria = service.buildSearchQueriesForEntity(queryScores, term, (new Criteria().setTerm(term)));
+        const criteria = service.buildSearchQueriesForEntity(queryScores, term, (new Criteria(1, 25).setTerm(term)));
         expect(criteria.parse()).toEqual(newCriteria.parse());
     });
 

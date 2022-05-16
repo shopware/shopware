@@ -188,8 +188,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
      * We only need the additional "total" meta data from the result.
      */
     async getTotalDatabaseCount() {
-        const criteria = new Criteria();
-        criteria.setLimit(1);
+        const criteria = new Criteria(1, 1);
         criteria.addFilter(Criteria.equals('promotionId', this.promotionId));
         criteria.setTotalCountMode(1);
 

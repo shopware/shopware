@@ -87,7 +87,7 @@ Component.register('sw-app-actions', {
         },
 
         userConfigCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('key', IFRAME_KEY));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));

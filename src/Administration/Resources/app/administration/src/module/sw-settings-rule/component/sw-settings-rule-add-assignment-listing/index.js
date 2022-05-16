@@ -34,9 +34,7 @@ Component.register('sw-settings-rule-add-assignment-listing', {
 
     computed: {
         criteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(this.limit);
-            criteria.setPage(this.page);
+            const criteria = new Criteria(this.page, this.limit);
 
             if (this.entityContext.addContext.association) {
                 criteria.addAssociation(this.entityContext.addContext.association);

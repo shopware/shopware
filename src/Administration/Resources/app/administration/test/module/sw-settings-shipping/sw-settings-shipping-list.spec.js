@@ -129,7 +129,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -149,7 +149,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -173,7 +173,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
-            return new Criteria();
+            return new Criteria(1, 25);
         });
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {

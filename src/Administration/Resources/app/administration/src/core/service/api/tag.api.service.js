@@ -58,9 +58,7 @@ export default class TagApiService extends ApiService {
             const repository = this.getRepository(property.entity);
 
             do {
-                const criteria = new Criteria();
-                criteria.setLimit(limit);
-                criteria.setPage(page);
+                const criteria = new Criteria(page, limit);
                 criteria.addFilter(Criteria.equalsAny('tags.id', ids));
 
                 // eslint-disable-next-line

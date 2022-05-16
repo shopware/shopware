@@ -23,7 +23,7 @@ Component.register('sw-promotion-order-condition-form', {
 
     computed: {
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.multi('AND', [
                 Criteria.equalsAny('conditions.type', [

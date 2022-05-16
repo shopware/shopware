@@ -88,7 +88,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [

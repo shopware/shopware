@@ -319,7 +319,7 @@ Component.register('sw-order-list', {
         },
 
         productCriteria() {
-            const productCriteria = new Criteria();
+            const productCriteria = new Criteria(1, 25);
             productCriteria.addAssociation('options.group');
 
             return productCriteria;
@@ -563,7 +563,7 @@ Component.register('sw-order-list', {
         },
 
         getStatusCriteria(value) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('stateMachine.technicalName', value));
 

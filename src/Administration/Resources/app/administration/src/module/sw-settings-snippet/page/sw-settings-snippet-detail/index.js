@@ -58,7 +58,7 @@ Component.register('sw-settings-snippet-detail', {
         },
 
         snippetSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 

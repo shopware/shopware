@@ -82,7 +82,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         userCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('accessKeys');
             criteria.addAssociation('locale');
@@ -92,7 +92,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         aclRoleCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             // Roles created by apps should not be assignable in the admin
             criteria.addFilter(Criteria.equals('app.id', null));
@@ -106,12 +106,11 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         languageCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 500);
 
             criteria.addAssociation('locale');
             criteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             criteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
-            criteria.limit = 500;
 
             return criteria;
         },

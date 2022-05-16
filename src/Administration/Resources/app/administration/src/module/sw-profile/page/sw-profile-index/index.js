@@ -192,12 +192,11 @@ Component.register('sw-profile-index', {
             const localeFactory = factoryContainer.locale;
             const registeredLocales = Array.from(localeFactory.getLocaleRegistry().keys());
 
-            const languageCriteria = new Criteria();
+            const languageCriteria = new Criteria(1, 500);
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.addFilter(Criteria.equalsAny('locale.code', registeredLocales));
-            languageCriteria.limit = 500;
 
             return this.languageRepository.search(languageCriteria).then((result) => {
                 this.languages = [];

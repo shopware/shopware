@@ -22,7 +22,7 @@ Component.register('sw-sales-channel-detail-hreflang', {
 
     computed: {
         domainCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('salesChannelId', this.salesChannel.id));
 
             return criteria;

@@ -180,7 +180,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         loadEntityData() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('mailTemplateType');
             criteria.addAssociation('media.media');

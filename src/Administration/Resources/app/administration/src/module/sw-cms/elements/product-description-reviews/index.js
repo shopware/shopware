@@ -3,7 +3,7 @@ import './config';
 import './preview';
 
 const Criteria = Shopware.Data.Criteria;
-const criteria = new Criteria();
+const criteria = new Criteria(1, 25);
 criteria.addAssociation('properties');
 
 Shopware.Service('cmsService').registerCmsElement({
@@ -54,7 +54,7 @@ Shopware.Service('cmsService').registerCmsElement({
             const entityData = {
                 value: [configValue],
                 key: configKey,
-                searchCriteria: configEntity.criteria ? configEntity.criteria : new Criteria(),
+                searchCriteria: configEntity.criteria ? configEntity.criteria : new Criteria(1, 25),
                 ...configEntity,
             };
 

@@ -26,14 +26,14 @@ Component.register('sw-cms-el-config-cross-selling', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         selectedProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('crossSellings.assignedProducts.product');
 
             return criteria;

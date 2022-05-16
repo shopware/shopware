@@ -126,7 +126,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         canBeDeletedCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
@@ -147,7 +147,7 @@ Component.register('sw-product-variants-overview', {
                 Shopware.State.commit('swProductDetail/setLoading', ['variants', true]);
 
                 // Get criteria for search and for option sorting
-                const searchCriteria = new Criteria();
+                const searchCriteria = new Criteria(1, 25);
 
                 // Criteria for Search
                 searchCriteria.setTotalCountMode(1);

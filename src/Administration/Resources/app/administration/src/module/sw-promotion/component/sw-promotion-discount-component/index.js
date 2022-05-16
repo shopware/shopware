@@ -71,7 +71,7 @@ Component.register('sw-promotion-discount-component', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
 
@@ -332,7 +332,7 @@ Component.register('sw-promotion-discount-component', {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria()).then((response) => {
+            this.currencyRepository.search(new Criteria(1, 25)).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
@@ -498,7 +498,7 @@ Component.register('sw-promotion-discount-component', {
         },
 
         async loadSetGroups() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('promotionId', this.promotion.id),
             );

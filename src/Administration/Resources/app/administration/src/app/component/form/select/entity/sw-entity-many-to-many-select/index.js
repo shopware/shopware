@@ -222,7 +222,7 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         findAssignedEntities(ids, searchResult) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(ids);
 
             return this.repository.searchIds(criteria, this.entityCollection.context).then((assigned) => {

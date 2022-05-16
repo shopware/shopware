@@ -67,7 +67,7 @@ Component.extend('sw-condition-customer-group', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.customerGroupIds);
 
             return this.customerGroupRepository.search(criteria, Context.api).then((customerGroups) => {

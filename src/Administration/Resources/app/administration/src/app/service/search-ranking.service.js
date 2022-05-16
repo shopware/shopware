@@ -78,7 +78,7 @@ export default function createSearchRankingService() {
 
             const queryScores = _buildQueryScores(fields, searchTerm);
 
-            const criteria = criteriaCollection[entity] ?? new Criteria().setLimit(defaultLimit);
+            const criteria = criteriaCollection[entity] ?? new Criteria(1, defaultLimit);
             criteria.setTotalCountMode(defaultTotalCountMode);
 
             query[entity] = _addSearchQueries(queryScores, criteria).parse();

@@ -78,7 +78,7 @@ Component.register('sw-product-category-form', {
                 '/sales-channel',
                 'sales_channel',
                 Shopware.Context.api,
-                new Criteria(),
+                new Criteria(1, 25),
             );
         },
 
@@ -149,7 +149,7 @@ Component.register('sw-product-category-form', {
 
         // @deprecated tag:v6.5.0 - Will be removed
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', ids));
 

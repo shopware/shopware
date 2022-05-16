@@ -100,7 +100,8 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
             }
 
             if (fieldClone.type === 'entity' && fieldClone.config.entity === 'product') {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
+
                 criteria.addAssociation('options.group');
 
                 fieldClone.config.criteria = criteria;

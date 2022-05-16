@@ -132,7 +132,7 @@ export default class Repository {
      * Short hand to fetch a single entity from the server
      */
     get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity | null> {
-        criteria = criteria || new Criteria();
+        criteria = criteria || new Criteria(1, 1);
         criteria.setIds([id]);
 
         return this.search(criteria, context).then((result) => {

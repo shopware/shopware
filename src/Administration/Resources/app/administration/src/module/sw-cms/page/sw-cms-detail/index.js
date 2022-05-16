@@ -268,7 +268,7 @@ Component.register('sw-cms-detail', {
         },
 
         demoProductCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('media');
             criteria.addAssociation('deliveryTime');
             criteria.addAssociation('manufacturer.media');
@@ -329,7 +329,7 @@ Component.register('sw-cms-detail', {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addFilter(
                     Criteria.equals('typeId', defaultStorefrontId),
                 );
@@ -470,7 +470,7 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.cmsPageState.currentMappingEntity === 'category') {
                 criteria.addAssociation('media');
@@ -502,7 +502,7 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria()).then((response) => {
+            return this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
                 const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
@@ -530,7 +530,7 @@ Component.register('sw-cms-detail', {
                 : Shopware.Context.api;
 
             const demoCriteria = this.cmsPageState.currentMappingEntity === 'product'
-                ? this.demoProductCriteria : new Criteria();
+                ? this.demoProductCriteria : new Criteria(1, 25);
 
             this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
                 if (!entity) {

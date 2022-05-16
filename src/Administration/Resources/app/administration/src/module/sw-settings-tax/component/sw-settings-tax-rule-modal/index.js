@@ -44,7 +44,7 @@ Component.register('sw-settings-tax-rule-modal', {
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}`];
         },
         taxRuleTypeCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;

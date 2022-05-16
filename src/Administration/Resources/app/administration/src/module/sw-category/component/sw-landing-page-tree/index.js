@@ -65,8 +65,7 @@ Component.register('sw-landing-page-tree', {
         ]),
 
         cmsLandingPageCriteria() {
-            const criteria = new Criteria();
-            criteria.limit = 500;
+            const criteria = new Criteria(1, 500);
             criteria.addSorting(Criteria.sort('name'));
 
             return criteria;
@@ -215,7 +214,7 @@ Component.register('sw-landing-page-tree', {
             };
 
             this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.setIds([clone.id]);
                 this.landingPageRepository.search(criteria).then((landingPages) => {
                     landingPages.forEach(element => {
@@ -250,7 +249,7 @@ Component.register('sw-landing-page-tree', {
 
             newLandingPage.save = () => {
                 return this.landingPageRepository.save(newLandingPage).then(() => {
-                    const criteria = new Criteria();
+                    const criteria = new Criteria(1, 25);
                     criteria.setIds([newLandingPage.id].filter((id) => id !== null));
                     this.landingPageRepository.search(criteria).then((landingPages) => {
                         this.addLandingPages(landingPages);

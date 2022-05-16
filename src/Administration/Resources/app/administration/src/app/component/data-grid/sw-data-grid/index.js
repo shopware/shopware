@@ -292,7 +292,7 @@ Component.register('sw-data-grid', {
         },
 
         userGridSettingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const configurationKey = `grid.setting.${this.identifier}`;
             criteria.addFilter(Criteria.equals('key', configurationKey));
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));

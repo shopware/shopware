@@ -118,13 +118,12 @@ Component.register('sw-first-run-wizard-data-import', {
 
         getInstalledPlugins() {
             const pluginNames = Object.values(this.plugins).map(plugin => plugin.name);
-            const pluginCriteria = new Criteria();
+            const pluginCriteria = new Criteria(1, 5);
 
             pluginCriteria
                 .addFilter(
                     Criteria.equalsAny('plugin.name', pluginNames),
-                )
-                .setLimit(5);
+                );
 
             this.pluginRepository.search(pluginCriteria)
                 .then((result) => {

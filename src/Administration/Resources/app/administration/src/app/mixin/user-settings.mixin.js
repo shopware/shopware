@@ -110,7 +110,7 @@ Mixin.register('user-settings', {
                 userId = this.currentUser?.id;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('key', identifier));
             criteria.addFilter(Criteria.equals('userId', userId));
 

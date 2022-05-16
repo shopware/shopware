@@ -51,14 +51,14 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         resultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -86,7 +86,7 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
             criteria.setIds(this.productIds);
 

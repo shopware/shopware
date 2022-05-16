@@ -50,7 +50,7 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
                 return;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.taxRule.data.states);
 
             this.stateRepository.search(criteria, Context.api).then(states => {

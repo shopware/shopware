@@ -28,14 +28,14 @@ function getCollection() {
         '/test-entity',
         'testEntity',
         { isShopwareContext: true },
-        new Criteria(),
+        new Criteria(1, 25),
         fixture,
         fixture.length,
         null
     );
 }
 
-const criteria = new Criteria();
+const criteria = new Criteria(1, 25);
 criteria.addSorting(Criteria.sort('entity.name', 'DESC'));
 criteria.addFilter(Criteria.equals('entity.key', 'value'));
 

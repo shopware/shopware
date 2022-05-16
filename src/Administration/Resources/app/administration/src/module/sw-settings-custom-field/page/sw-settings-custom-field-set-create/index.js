@@ -30,7 +30,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
         },
         onSave() {
             // Check if a set with the same name exists
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
             return this.customFieldSetRepository.search(criteria).then((res) => {

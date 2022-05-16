@@ -50,7 +50,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
@@ -60,7 +60,7 @@ Component.register('sw-order-create-details-footer', {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));

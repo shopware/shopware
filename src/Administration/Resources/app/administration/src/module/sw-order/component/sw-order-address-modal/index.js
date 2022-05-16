@@ -52,7 +52,7 @@ Component.register('sw-order-address-modal', {
 
     computed: {
         customerCriteria() {
-            const criteria = new Criteria({ page: 1, limit: 1 });
+            const criteria = new Criteria(1, 1);
             criteria.setIds([this.orderCustomer.customerId]);
             criteria.addAssociation('addresses');
 

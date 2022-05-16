@@ -29,7 +29,7 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
          * @returns {Object.Criteria}
          */
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
             criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'customer'));
             criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
@@ -43,7 +43,7 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
          * @returns {Object.Criteria}
          */
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
             return criteria;
         },

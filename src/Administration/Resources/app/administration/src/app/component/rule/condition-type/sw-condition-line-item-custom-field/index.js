@@ -21,7 +21,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
          * @returns {Object.Criteria}
          */
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
             criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
             criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
@@ -35,7 +35,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
          * @returns {Object.Criteria}
          */
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
             return criteria;
         },

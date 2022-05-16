@@ -65,7 +65,7 @@ Component.register('sw-settings-rule-detail', {
         },
 
         ruleCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('tags');
 
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {
@@ -288,7 +288,7 @@ Component.register('sw-settings-rule-detail', {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(1, 25), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }

@@ -3,7 +3,7 @@ import './config';
 import './preview';
 
 const Criteria = Shopware.Data.Criteria;
-const criteria = new Criteria();
+const criteria = new Criteria(1, 25);
 criteria.addAssociation('crossSellings.assignedProducts.product');
 
 Shopware.Service('cmsService').registerCmsElement({
@@ -55,7 +55,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 const entityData = {
                     value: [elem.config[configKey].value],
                     key: configKey,
-                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(),
+                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(1, 25),
                     ...entity,
                 };
 

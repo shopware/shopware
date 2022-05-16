@@ -144,7 +144,7 @@ Component.register('sw-settings-currency-detail', {
         },
 
         currencyCountryRoundingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('country');
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);

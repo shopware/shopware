@@ -368,8 +368,7 @@ Component.register('sw-media-upload-v2', {
         },
 
         async getDefaultFolderId() {
-            const criteria = new Criteria()
-                .setLimit(1)
+            const criteria = new Criteria(1, 1)
                 .addFilter(Criteria.equals('entity', this.defaultFolder));
 
             const items = await this.defaultFolderRepository.search(criteria, Context.api);

@@ -65,10 +65,8 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.groupPage, 10);
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.setPage(this.groupPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
 
             return criteria;
@@ -82,10 +80,8 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupOptionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.optionPage, 10);
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
-            criteria.setPage(this.optionPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
             criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
@@ -97,7 +93,7 @@ Component.register('sw-property-search', {
          * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
          */
         propertyGroupOptionSearchCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.optionPage, 10);
 
             const terms = this.searchTerm.split(' ');
             terms.forEach((term) => {
@@ -106,8 +102,6 @@ Component.register('sw-property-search', {
                 criteria.addQuery(Criteria.equals('property_group_option.group.name', term), 100);
             });
 
-            criteria.setPage(this.optionPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
             criteria.addAssociation('group');
 

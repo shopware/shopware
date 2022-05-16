@@ -81,7 +81,7 @@ Component.register('sw-category-entry-point-card', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.hasExistingNavigation) {
                 criteria.addFilter(Criteria.not('or', [

@@ -72,7 +72,7 @@ Component.register('sw-settings-product-feature-sets-values-card', {
         },
 
         productFeatureSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('product_feature_set.id', this.productFeatureSet.id));
 
             return criteria;

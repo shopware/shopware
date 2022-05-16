@@ -88,21 +88,21 @@ Component.register('sw-category-link-settings', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         categoryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('type', 'page'));
 
             return criteria;
         },
 
         internalLinkCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('id', this.category.internalLink));
 
             return criteria;

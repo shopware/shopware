@@ -144,8 +144,7 @@ Component.register('sw-seo-url', {
         },
 
         initSalesChannelCollection() {
-            const salesChannelCriteria = new Criteria();
-            salesChannelCriteria.setIds([]);
+            const salesChannelCriteria = new Criteria(1, 25);
             salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
@@ -159,7 +158,7 @@ Component.register('sw-seo-url', {
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria(),
+                new Criteria(1, 25),
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {

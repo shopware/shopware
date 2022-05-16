@@ -39,7 +39,7 @@ Component.register('sw-event-action-deprecated-alert', {
         },
 
         userSettingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const configurationKey = this.showAtTop
                 ? 'deprecatedAlert.businessEvent.atTop'
                 : 'deprecatedAlert.businessEvent.atBottom';

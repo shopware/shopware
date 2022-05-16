@@ -93,8 +93,6 @@ class MediaFolderIndexer extends EntityIndexer
             return null;
         }
 
-        $updates = array_merge($updates, $this->fetchChildren($updates));
-
         $idsWithChangedParentIds = [];
         foreach ($mediaFolderEvent->getWriteResults() as $result) {
             $payload = $result->getPayload();
@@ -111,7 +109,9 @@ class MediaFolderIndexer extends EntityIndexer
             );
         }
 
-        return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
+        $updates = array_values(array_merge($updates, $this->fetchChildren($updates), $this->getParentIds($updates)));
+
+        return new MediaIndexingMessage($updates, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -201,5 +201,20 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         return $childIds;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getParentIds(array $ids): array
+    {
+        /** @var string[] $parentIds */
+        $parentIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        return array_unique(array_filter($parentIds));
     }
 }

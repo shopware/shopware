@@ -87,7 +87,7 @@ class IndexerQueuer
             }
         }
 
-        $indexerList[$name] = isset($indexerList[$name]) ? array_merge($indexerList[$name], $requiredIndexers) : $requiredIndexers;
+        $indexerList[$name] = isset($indexerList[$name]) ? array_unique(array_merge($indexerList[$name], $requiredIndexers)) : $requiredIndexers;
 
         self::upsert($connection, $id, $indexerList);
     }

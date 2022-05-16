@@ -41,6 +41,7 @@ Lighthouse (Storefront):
         APP_ENV: prod
         DD_API_KEY: "$DATADOG_API_KEY"
     rules:
+        - allow_failure: true
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
         # always execute in merge train. PHP could in theory affect the admin jest tests.

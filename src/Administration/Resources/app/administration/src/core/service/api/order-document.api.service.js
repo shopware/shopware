@@ -25,4 +25,13 @@ export default class OrderDocumentApiService extends ApiService {
             headers: this.getBasicHeaders(additionalHeaders),
         });
     }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    extendingDeprecatedService(additionalHeaders = {}) {
+        return this.httpClient.get('/_action/document/extending-deprecated-service', {
+            headers: this.getBasicHeaders(additionalHeaders),
+        });
+    }
 }

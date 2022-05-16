@@ -301,6 +301,7 @@
       },
       "documents": {
         "cardTitle": "Dokumente",
+        "warning": "Die Mehrfachänderung verwendet jetzt eine verbesserte Dokumentenerstellung. Eine oder mehrere Erweiterungen auf Deinem System könnten jedoch abweichende Ergebnisse mit der neuen Dokumentenerstellung erzeugen.\nÜberprüfe daher bitte, ob Deine Dokumente mit und ohne Verwendung der Mehrfachänderung Unterschiede aufweisen.",
         "generateInvoice": {
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",

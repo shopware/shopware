@@ -242,6 +242,11 @@ function createWrapper(isResponseError = false) {
                 download: () => {
                     return Promise.resolve();
                 },
+                extendingDeprecatedService: () => {
+                    return Promise.resolve({
+                        showWarning: false,
+                    });
+                },
             },
             shortcutService: {
                 startEventListener: () => {},
@@ -255,7 +260,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
 
     beforeEach(() => {
-        jest.spyOn(console, 'log').mockImplementation(() => {});
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -355,6 +359,33 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+    });
+
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    it('should show documents warning alert', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoadedData: true,
+            showBulkEditDocumentWarning: false,
+            customFieldSets: [],
+        });
+
+        let warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
+
+        expect(warning.exists()).toBeFalsy();
+
+        await wrapper.setData({
+            showBulkEditDocumentWarning: true
+        });
+
+        warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
+
+        expect(warning.exists()).toBeTruthy();
+
+        expect(warning.text()).toBe('sw-bulk-edit.order.documents.warning');
     });
 
     it('should open confirm modal', async () => {
@@ -497,6 +528,35 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    it('should call check using deprecated method on creating component', async () => {
+        const activeFeatureFlags = global.activeFeatureFlags;
+
+        global.activeFeatureFlags = ['v6.5.0.0'];
+
+        wrapper = createWrapper();
+
+        const shouldShowBulkEditDocumentWarningCall = jest.spyOn(wrapper.vm, 'shouldShowBulkEditDocumentWarning');
+
+        await wrapper.vm.createdComponent();
+
+        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(0);
+
+        global.activeFeatureFlags = [];
+
+        await wrapper.vm.createdComponent();
+
+        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(1);
+
+        await wrapper.setData({
+            isLoadedData: false,
+        });
+
+        global.activeFeatureFlags = activeFeatureFlags;
+    });
+
     it('should not be able to create document', async () => {
         wrapper = createWrapper();
         wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.reject());
@@ -575,7 +635,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).toContain('sw-button--disabled');
 
         await wrapper.setData({
             isLoading: false,
@@ -594,6 +657,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).not.toContain('sw-button--disabled');
     });
 });

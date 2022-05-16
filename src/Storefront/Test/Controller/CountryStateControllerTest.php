@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 class CountryStateControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private Connection $connection;
 
@@ -75,7 +76,10 @@ class CountryStateControllerTest extends TestCase
 
             $response = $this->countryStateController->getCountryData(new Request([], ['countryId' => $this->countryIdDE]), $this->salesChannelContext);
 
-            static::assertTrue(\json_decode((string) $response->getContent(), true)['stateRequired']);
+            $data = \json_decode((string) $response->getContent(), true);
+            static::assertArrayHasKey('zipcodeRequired', $data);
+            static::assertArrayHasKey('stateRequired', $data);
+            static::assertTrue($data['stateRequired']);
         }
 
         // Check empty CountryId
@@ -85,7 +89,11 @@ class CountryStateControllerTest extends TestCase
         $response = $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
 
         if (!Feature::isActive('v6.5.0.0')) {
-            static::assertTrue(\json_decode((string) $response->getContent(), true)['stateRequired']);
+            $data = \json_decode((string) $response->getContent(), true);
+            static::assertArrayHasKey('zipcodeRequired', $data);
+            static::assertArrayHasKey('stateRequired', $data);
+            static::assertArrayNotHasKey('states', $data);
+            static::assertTrue($data['stateRequired']);
         }
     }
 

@@ -247,11 +247,16 @@ class CustomerZipCodeValidator extends ConstraintValidator
         }
 
         $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
-        if (!preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches)) {
-            $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ iso }}', $this->formatValue($iso))
-                ->setCode(CustomerZipCode::ZIP_CODE_INVALID)
-                ->addViolation();
+
+        try {
+            if (!preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches)) {
+                $this->context->buildViolation($constraint->message)
+                    ->setParameter('{{ iso }}', $this->formatValue($iso))
+                    ->setCode(CustomerZipCode::ZIP_CODE_INVALID)
+                    ->addViolation();
+            }
+        } catch (\Exception $e) {
+            return;
         }
     }
 

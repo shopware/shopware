@@ -12,6 +12,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         initialCountryStateAttribute: 'initial-country-state-id',
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
+        zipcodeFieldInput: '[data-input-name="zipcodeInput"]',
+        zipCodeRequiredLabel: '#zipcodeRequiredLabel',
         vatIdRequired: 'vat-id-required',
         stateRequired: 'state-required',
     };
@@ -106,13 +108,16 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 }
 
-function updateStateSelect({ stateRequired, states}, countryStateId, rootElement, options) {
-    const { countryStateSelectSelector, countryStatePlaceholderSelector } = options;
+function updateStateSelect({ stateRequired, zipcodeRequired, states}, countryStateId, rootElement, options) {
+    const { countryStateSelectSelector, countryStatePlaceholderSelector, zipCodeRequiredLabel, zipcodeFieldInput } = options;
     const countryStateSelect = DomAccess.querySelector(rootElement, countryStateSelectSelector);
+    const zipcodeRequiredLabelElement = document.querySelector(zipCodeRequiredLabel);
+    const addressZipcodeField = document.querySelector(zipcodeFieldInput);
 
     removeOldOptions(countryStateSelect, `option:not(${countryStatePlaceholderSelector})`);
     addNewStates(countryStateSelect, states, countryStateId);
     updateRequiredState(countryStateSelect, stateRequired, `option${countryStatePlaceholderSelector}`);
+    updateRequiredZipcode(zipcodeRequiredLabelElement, addressZipcodeField, zipcodeRequired);
 }
 
 function removeOldOptions(el, optionQuery) {
@@ -162,10 +167,15 @@ function updateRequiredState(countryStateSelect, stateRequired, placeholderQuery
         return;
     }
 
-    if (label.innerText.substr(-1, 1) === '*') {
+    if (label.innerText && label.innerText.substr(-1, 1) === '*') {
         label.innerText = label.innerText.substr(0, label.innerText.length -1);
     }
 
     placeholder.removeAttribute('disabled');
     countryStateSelect.removeAttribute('required');
+}
+
+function updateRequiredZipcode(zipcodeRequiredLabelElement, addressZipcodeField, zipcodeRequired) {
+    zipcodeRequiredLabelElement.className = zipcodeRequired ? '' : 'd-none';
+    addressZipcodeField.required = zipcodeRequired;
 }

@@ -134,6 +134,17 @@ class CustomerZipcodeValidatorTest extends TestCase
         ], $this->validation);
     }
 
+    public function testStillValidZipcodeWhenUserInputWrongPatternFormat(): void
+    {
+        $this->upsertCountryAddressHandlingConfig($this->getValidCountryId(), [
+            'checkAdvancedPostalCodePattern' => true,
+            'advancedPostalCodePattern' => '[ahihi',
+        ]);
+        $this->validator->validate([
+            'zipcode' => '12345',
+        ], $this->validation);
+    }
+
     public function testInvalidZipcodeWithAdvancedValidationPattern(): void
     {
         $this->upsertCountryAddressHandlingConfig($this->getValidCountryId(), [

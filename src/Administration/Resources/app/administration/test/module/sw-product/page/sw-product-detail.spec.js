@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-product/page/sw-product-detail';
 import 'src/module/sw-product/component/sw-product-settings-mode';
+import flushPromises from 'flush-promises';
 
 const advancedModeSettings = {
     value: {
@@ -45,8 +46,14 @@ const advancedModeSettings = {
     }
 };
 
+const defaultSalesChannelData = {
+    'core.defaultSalesChannel.active': false,
+    'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
+    'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
+};
+
 describe('module/sw-product/page/sw-product-detail', () => {
-    function createWrapper(searchFunction = () => Promise.resolve({})) {
+    function createWrapper(searchFunction = () => Promise.resolve({}), productId = '1234') {
         const localVue = createLocalVue();
         localVue.use(Vuex);
         localVue.directive('tooltip', {
@@ -61,17 +68,28 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: '1234'
+                        id: productId
                     }
-                }
+                },
             },
             provide: {
-                numberRangeService: {},
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1 })
+                },
                 seoUrlService: {},
                 mediaService: {},
                 repositoryFactory: {
-                    create: () => ({
+                    create: (entity) => ({
                         create: () => {
+                            if (entity === 'product') {
+                                return {
+                                    id: '1',
+                                    parentId: '1',
+                                    properties: [],
+                                    visibilities: [],
+                                    isNew: () => true
+                                };
+                            }
                             return {};
                         },
                         search: searchFunction,
@@ -79,13 +97,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             return Promise.resolve({
                                 variation: []
                             });
-                        }
+                        },
+                        hasChanges: () => false,
+                        save: () => Promise.resolve({}),
                     })
                 },
                 systemConfigApiService: {
                     getConfig: () => Promise.resolve({
                         'core.tax.defaultTaxRate': ''
-                    })
+                    }),
+                    getValues: () => Promise.resolve(defaultSalesChannelData)
                 }
             },
             stubs: {
@@ -123,7 +144,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'router-link': true
             },
             propsData: {
-                productId: '1234'
+                productId
             }
         });
     }
@@ -318,5 +339,20 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 regulationPrice: null
             }
         ]);
+        await flushPromises();
+    });
+
+    it('should show correct config when there is system config data', async () => {
+        if (wrapper) wrapper.destroy();
+        wrapper = await createWrapper(
+            () => Promise.resolve([{
+                id: '98432def39fc4624b33213a56b8c944d',
+                name: 'Headless'
+            }]),
+            null
+        );
+
+        await flushPromises();
+        expect(wrapper.vm.product.visibilities.length).toBe(1);
     });
 });

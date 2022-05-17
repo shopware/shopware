@@ -80,6 +80,8 @@ class ProductBuilder
 
     protected array $crossSellings = [];
 
+    protected array $tags = [];
+
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
@@ -460,6 +462,13 @@ class ProductBuilder
         }
 
         $this->crossSellings[] = $crossSelling;
+
+        return $this;
+    }
+
+    public function tag(string $key): self
+    {
+        $this->tags[$key] = ['id' => $this->ids->get($key), 'name' => $key];
 
         return $this;
     }

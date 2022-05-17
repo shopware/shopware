@@ -108,6 +108,17 @@ class IdSearchResult extends Struct
         return null;
     }
 
+    public function getScore(string $id): float
+    {
+        $score = $this->getDataFieldOfId($id, '_score');
+
+        if ($score === null) {
+            throw new \RuntimeException('No score available for id ' . $id);
+        }
+
+        return (float) $score;
+    }
+
     /**
      * @param string|array $primaryKey
      */

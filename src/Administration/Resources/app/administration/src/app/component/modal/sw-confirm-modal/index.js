@@ -24,25 +24,19 @@ Component.register('sw-confirm-modal', {
         title: {
             type: String,
             required: false,
-            default() {
-                return '';
-            },
+            default: '',
         },
 
         text: {
             type: String,
             required: false,
-            default() {
-                return '';
-            },
+            default: '',
         },
 
         variant: {
             type: String,
             required: false,
-            default() {
-                return 'small';
-            },
+            default: 'small',
             validValues: ['default', 'small', 'large', 'full'],
             validator(value) {
                 if (!value.length) {
@@ -55,9 +49,7 @@ Component.register('sw-confirm-modal', {
         type: {
             type: String,
             required: false,
-            default() {
-                return 'confirm';
-            },
+            default: 'confirm',
             validValues: ['confirm', 'delete', 'yesno', 'discard'],
             validator(value) {
                 if (!value.length) {
@@ -104,6 +96,16 @@ Component.register('sw-confirm-modal', {
             }
 
             return this.$tc('global.default.cancel');
+        },
+
+        confirmButtonVariant() {
+            switch (this.type) {
+                case 'delete':
+                case 'discard':
+                    return 'danger';
+                default:
+                    return 'primary';
+            }
         },
     },
 });

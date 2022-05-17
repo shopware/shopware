@@ -172,8 +172,14 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        checkInheritance(value, { fieldName }) {
-            return this.currentThemeConfig[fieldName].isInherited;
+        /** @deprecated tag:v6.5.0 method will be removed */
+        checkInheritance(value) {
+            return !value;
+        },
+
+        checkInheritanceFunction(fieldName) {
+            return (value) => this.currentThemeConfig[fieldName].isInherited;
+
         },
 
         handleInheritanceInput(value, fieldName) {

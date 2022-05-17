@@ -122,6 +122,15 @@ describe('Theme: Test Inheritance', () => {
             .contains('Inherited Theme')
             .click();
 
+        //remove media
+        cy.contains('.sw-card__title', 'Media').scrollIntoView();
+        cy.get('.sw-inherit-wrapper__inheritance-label')
+            .contains('Desktop')
+            .parent()
+            .parent()
+            .find('.sw-media-upload-v2__remove-icon')
+            .click();
+
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#b2b2b2');
 
         // change of parent theme compiles child theme
@@ -142,6 +151,21 @@ describe('Theme: Test Inheritance', () => {
 
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
+
+        cy.get('.smart-bar__back-btn').click();
+
+        cy.get('.sw-theme-list-item')
+            .get('.sw-theme-list-item__title')
+            .contains('Inherited Theme')
+            .click();
+
+        cy.contains('.sw-card__title', 'Media').scrollIntoView();
+
+        cy.get('.sw-inherit-wrapper__inheritance-label')
+            .contains('Desktop')
+            .parent()
+            .parent()
+            .find('.sw-inheritance-switch--is-not-inherited');
 
         cy.get('.smart-bar__back-btn').click();
 

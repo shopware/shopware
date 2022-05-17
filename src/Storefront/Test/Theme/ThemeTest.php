@@ -320,8 +320,8 @@ class ThemeTest extends TestCase
         ];
 
         $themeInheritedConfig['fields']['some-custom'] = $someCustom;
-        $themeInheritedConfig['currentFields']['some-custom'] = ['value' => null];
-        $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null];
+        $themeInheritedConfig['currentFields']['some-custom'] = ['value' => null, 'isInherited' => false];
+        $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
@@ -367,6 +367,11 @@ class ThemeTest extends TestCase
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demostoreLogoId);
+
+        $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
+        $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
+
+        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#008490';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -487,8 +492,7 @@ class ThemeTest extends TestCase
     public function testCompileTheme(): void
     {
         static::markTestSkipped('theme compile is not possible cause app.js does not exists');
-        /* @phpstan-ignore-next-line  */
-        $criteria = new Criteria();
+        $criteria = new Criteria(); /** @phpstan-ignore-line  */
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         /** @var ThemeEntity $baseTheme */
@@ -546,8 +550,7 @@ class ThemeTest extends TestCase
                     return $value === $_expectedTheme;
                 }),
                 new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
-                    /* @phpstan-ignore-next-line  */
-                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor; /** @phpstan-ignore-line  */
                 })
             );
 
@@ -576,8 +579,7 @@ class ThemeTest extends TestCase
                 return $bundles;
             }
 
-            /* @phpstan-ignore-next-line  */
-            public function getBundle($name)
+            public function getBundle($name) /* @phpstan-ignore-line  */
             {
                 return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
             }
@@ -592,32 +594,27 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line  */
-            public function registerContainerConfiguration(LoaderInterface $loader)
+            public function registerContainerConfiguration(LoaderInterface $loader) /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line  */
-            public function boot()
+            public function boot() /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line  */
-            public function shutdown()
+            public function shutdown() /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line */
-            public function locateResource($name)
+            public function locateResource($name) /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line  */
-            public function getName()
+            public function getName() /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -632,8 +629,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line */
-            public function getRootDir()
+            public function getRootDir() /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
@@ -668,8 +664,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
-            /* @phpstan-ignore-next-line */
-            public function __call($name, $arguments)
+            public function __call($name, $arguments) /* @phpstan-ignore-line  */
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }

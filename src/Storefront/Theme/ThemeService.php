@@ -270,7 +270,7 @@ class ThemeService
 
             if ($isInherited) {
                 $themeConfig['baseThemeFields'][$field]['value'] = null;
-            } elseif (\array_key_exists('value', $item)) {
+            } elseif (\array_key_exists('value', $item) && isset($baseThemeConfig['fields'][$field]['value'])) {
                 $themeConfig['baseThemeFields'][$field]['value'] = $baseThemeConfig['fields'][$field]['value'];
             }
         }

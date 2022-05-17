@@ -14,21 +14,8 @@ $sw-field--radio-color-border: $color-gray-300;
         grid-column-gap: 8px;
         margin-bottom: 12px;
 
-        &:hover, &:hover >* {
-            cursor: pointer;
-        }
-
         &.is--disabled {
             background-color: $color-gray-50;
-
-            &:hover {
-                cursor: not-allowed;
-                border-color: $color-gray-300;
-
-                > * {
-                    cursor: not-allowed;
-                }
-            }
         }
 
         label {
@@ -39,6 +26,16 @@ $sw-field--radio-color-border: $color-gray-300;
             .sw-help-text {
                 margin-left: 5px;
             }
+        }
+
+        &:hover,
+        &:hover > * {
+            cursor: pointer;
+        }
+
+        &.is--disabled:hover,
+        &.is--disabled:hover > * {
+            cursor: not-allowed;
         }
     }
 
@@ -137,7 +134,7 @@ $sw-field--radio-color-border: $color-gray-300;
             border-radius: $border-radius-default;
             padding: 12px 19px;
 
-            &:hover  {
+            &:not(.is--disabled):hover {
                 border-color: $color-shopware-brand-500;
             }
         }
@@ -153,7 +150,7 @@ $sw-field--radio-color-border: $color-gray-300;
             margin-top: 5px;
         }
 
-        .sw-field__radio-option.sw-field__radio-option-checked {
+        .sw-field__radio-option.sw-field__radio-option-checked:not(.is--disabled) {
             background: rgba($color-shopware-brand-500, 0.05);
             border: 1px solid $color-shopware-brand-500;
         }

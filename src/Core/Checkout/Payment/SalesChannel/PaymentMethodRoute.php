@@ -84,7 +84,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $result->getEntities();
 
-        if ($request->query->getBoolean('onlyAvailable', false)) {
+        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 

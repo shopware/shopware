@@ -33,10 +33,11 @@ describe('Dynamic product group: Test product visibilities filter', () => {
         const search = 'Storefront: Product name';
 
         cy.get('.sw-product-stream-filter').as('productStreamFilterWithSingleSelect');
+
         page.fillFilterWithEntitySelect(
             '@productStreamFilterWithSingleSelect',
             {
-                field: 'Visibilities',
+                field: 'Visibility.Product in Sales Channel',
                 operator: 'Is equal to',
                 value: 'Storefront'
             }
@@ -53,7 +54,7 @@ describe('Dynamic product group: Test product visibilities filter', () => {
         page.fillFilterWithEntityMultiSelect(
             '@productStreamFilterWithMultiSelect',
             {
-                field: 'Visibilities',
+                field: 'Visibility.Sales Channel',
                 operator: 'Is equal to any of',
                 value: ['Storefront']
             }

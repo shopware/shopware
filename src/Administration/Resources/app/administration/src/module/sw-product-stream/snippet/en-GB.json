@@ -105,7 +105,7 @@
         "type": "Type",
         "unit": "Unit",
         "variations": "Variants",
-        "visibilities": "Visibilities",
+        "visibilities": "Visibility",
         "visibility": "Visibility",
         "visible": "Visibility",
         "weight": "Weight",
@@ -117,6 +117,7 @@
         "property_group": "Group",
         "property_group_option": "Property value",
         "product_manufacturer": "Manufacturer",
+        "product_visibility": "Product in Sales Channel",
         "percentage": "Percentage ratio price/list price"
       }
     },

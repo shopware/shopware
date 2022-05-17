@@ -261,7 +261,7 @@
 
             {% block sw_product_stream_value_entity_multi_value_visibilities %}
             <sw-entity-multi-id-select
-                v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equalsAny'"
+                v-else-if="definition.entity === 'product_visibility' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
                 v-model="multiValue"
                 size="medium"
                 :repository="repository"

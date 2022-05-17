@@ -96,7 +96,7 @@
         "releaseDate": "Erscheinungsdatum",
         "restockTime": "Dauer der Wiederauffüllung",
         "sales": "Verkäufe",
-        "salesChannel": "Shop",
+        "salesChannel": "Verkaufskanal",
         "shippingFree": "Versandkostenfrei",
         "stock": "Lagerbestand",
         "tags": "Tags",
@@ -105,7 +105,7 @@
         "type": "Typ",
         "unit": "Einheit",
         "variations": "Varianten",
-        "visibilities": "Sichtbarkeiten",
+        "visibilities": "Sichtbarkeit",
         "visibility": "Sichtbar",
         "visible": "Sichtbar",
         "weight": "Gewicht",
@@ -117,6 +117,7 @@
         "property_group": "Gruppe",
         "property_group_option": "Eigenschafts-Ausprägung",
         "product_manufacturer": "Hersteller",
+        "product_visibility": "Produkt in Verkaufskanal",
         "percentage": "Prozentuales Verhältnis Preis/Streichpreis"
       }
     },

@@ -161,7 +161,7 @@ class DocumentGeneratorController extends AbstractController
     }
 
     /**
-     * @Since("6.4.11.0")
+     * @Since("6.4.12.0")
      * @OA\Post(
      *     path="_action/order/document/{documentTypeName}/create",
      *     summary="Create documents for orders",

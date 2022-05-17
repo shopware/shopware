@@ -28,15 +28,15 @@ class RemoveCustomerTagActionTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Document\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
@@ -39,8 +38,6 @@ class DocumentMergerTest extends TestCase
 
     private Context $context;
 
-    private Connection $connection;
-
     private DocumentGenerator $documentGenerator;
 
     private EntityRepositoryInterface $documentRepository;
@@ -54,8 +51,6 @@ class DocumentMergerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -77,7 +72,7 @@ class DocumentMergerTest extends TestCase
         $this->documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
             Context::createDefaultContext()
-        )->firstId();
+        )->firstId() ?? '';
 
         $cart = $this->generateDemoCart(2);
         $this->orderId = $this->persistCart($cart);

@@ -100,6 +100,8 @@ class DocumentControllerTest extends TestCase
             $context,
         )->first();
 
+        static::assertNotNull($document);
+
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 

@@ -121,10 +121,10 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode([$document])
+            json_encode([$document]) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true)[0];
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true)[0];
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
@@ -139,11 +139,11 @@ class DocumentGeneratorControllerTest extends TestCase
             $expectedFileContent
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode());
 
         static::assertEquals($expectedFileContent, $response->getContent());
         static::assertEquals($expectedContentType, $response->headers->get('content-type'));
@@ -212,12 +212,12 @@ class DocumentGeneratorControllerTest extends TestCase
                 [],
                 [],
                 [],
-                json_encode($payload)
+                json_encode($payload) ?: ''
             );
 
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(200, $response->getStatusCode(), $response->getContent());
-            $response = json_decode($response->getContent(), true);
+            static::assertEquals(200, $response->getStatusCode());
+            $response = json_decode($response->getContent() ?: '', true);
             static::assertNotEmpty($response);
             static::assertCount(2, $response);
 
@@ -246,10 +246,10 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode($content)
+            json_encode($content) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
@@ -265,10 +265,10 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode([])
+            json_encode([]) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
@@ -293,12 +293,12 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode($content)
+            json_encode($content) ?: ''
         );
 
         $response = $this->getBrowser()->getResponse();
 
-        $response = json_decode($response->getContent(), true);
+        $response = json_decode($response->getContent() ?: '', true);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
@@ -312,11 +312,11 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode([])
+            json_encode([]) ?: ''
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -330,11 +330,11 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             json_encode([
                 'documentIds' => [Uuid::randomHex()],
-            ])
+            ]) ?: ''
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNull($response);
@@ -355,7 +355,9 @@ class DocumentGeneratorControllerTest extends TestCase
             ],
         ];
 
-        $documentId = $this->createDocuments($order->getId(), $documentTypes, $context)->first()->getId();
+        $document = $this->createDocuments($order->getId(), $documentTypes, $context)->first();
+        static::assertNotNull($document);
+        $documentId = $document->getId();
 
         $this->getBrowser()->request(
             'POST',
@@ -365,7 +367,7 @@ class DocumentGeneratorControllerTest extends TestCase
             [],
             json_encode([
                 'documentIds' => [$documentId],
-            ])
+            ]) ?: ''
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -434,7 +436,7 @@ class DocumentGeneratorControllerTest extends TestCase
         return $order->first();
     }
 
-    private function getDocumentIds($data): array
+    private function getDocumentIds(array $data): array
     {
         $ids = [];
         foreach ($data as $value) {
@@ -467,9 +469,10 @@ class DocumentGeneratorControllerTest extends TestCase
             $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
             $operations[$orderId] = $operation;
 
-            $result = $this->documentGenerator->generate($documentType, $operations, $context);
+            $result = $this->documentGenerator->generate($documentType, $operations, $context)->first();
 
-            $collection->add($result->first());
+            static::assertNotNull($result);
+            $collection->add($result);
         }
 
         return $collection;

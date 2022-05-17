@@ -14,9 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
-use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -35,9 +33,11 @@ class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private ?EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    private ?AbstractFlowLoader $flowLoader;
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -59,8 +59,6 @@ class SetOrderStateActionTest extends TestCase
 
         // all business event should be inactive.
         $this->connection->executeStatement('DELETE FROM event_action;');
-
-        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
     }
 
     public function testSetAvailableOrderState(): void
@@ -441,7 +439,7 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
@@ -455,6 +453,6 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('technicalName', $state))
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
     }
 }

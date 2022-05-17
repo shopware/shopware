@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
@@ -42,8 +41,6 @@ class InvoiceRendererTest extends TestCase
     private InvoiceRenderer $invoiceRenderer;
 
     private CartService $cartService;
-
-    private DocumentGenerator $documentGenerator;
 
     private CurrencyFormatter $currencyFormatter;
 
@@ -92,10 +89,13 @@ class InvoiceRendererTest extends TestCase
 
         $rendered = $processedTemplate[$orderId];
 
+        static::assertNotNull($lineItems = $order->getLineItems());
+        static::assertNotNull($firstLineItem = $lineItems->first());
+        static::assertNotNull($lastLineItem = $lineItems->last());
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
-        static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $rendered->getHtml());
-        static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $rendered->getHtml());
+        static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
+        static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
 
         $assertionCallback($rendered, $order);
     }
@@ -108,6 +108,7 @@ class InvoiceRendererTest extends TestCase
             [7],
             null,
             function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertNotNull($order->getCurrency());
                 static::assertStringContainsString(
                     $this->currencyFormatter->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
@@ -129,14 +130,15 @@ class InvoiceRendererTest extends TestCase
                 ]], $this->context);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertNotNull($order->getCurrency());
                 static::assertStringContainsString(
                     preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
                         $order->getCurrency()->getIsoCode(),
                         $this->deLanguageId,
                         $this->context
-                    )),
-                    preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml())
+                    )) ?? '',
+                    preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
             },
         ];
@@ -193,7 +195,10 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+                static::assertNotNull($orderDeliveries = $order->getDeliveries());
+                static::assertNotNull($shippingAddresses = $orderDeliveries->getShippingAddress());
+                $shippingAddress = $shippingAddresses->first();
+                static::assertNotNull($shippingAddress);
 
                 static::assertInstanceOf(RenderedDocument::class, $rendered);
 
@@ -232,7 +237,6 @@ class InvoiceRendererTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
         $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
         $this->deLanguageId = $this->getDeDeLanguageId();
     }

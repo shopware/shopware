@@ -1042,11 +1042,13 @@ class OrderRouteTest extends TestCase
             ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
 
-        $doc = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+        $doccument = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+
+        static::assertNotNull($doccument);
 
         $documentRepository->update([
             [
-                'id' => $doc->getId(),
+                'id' => $doccument->getId(),
                 'sent' => $sent,
             ],
         ], $this->context);

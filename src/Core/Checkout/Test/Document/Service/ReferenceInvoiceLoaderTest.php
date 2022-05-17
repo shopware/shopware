@@ -5,14 +5,13 @@ namespace Shopware\Core\Checkout\Test\Document\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 class ReferenceInvoiceLoaderTest extends TestCase
@@ -21,18 +20,16 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
     private ReferenceInvoiceLoader $referenceInvoiceLoader;
 
-    private DocumentGenerator $documentGenerator;
-
     private Context $context;
+
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->referenceInvoiceLoader = $this->getContainer()->get(ReferenceInvoiceLoader::class);
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection($this->context);
         $customerId = $this->createCustomer();
 
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
@@ -63,7 +60,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         // Create two documents, the latest invoice will be returned
         $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
         $invoiceStruct = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
-
+        static::assertNotNull($invoiceStruct);
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
         static::assertNotEmpty($invoice['id']);
@@ -77,6 +74,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
         // Create two documents, the one with passed referenceInvoiceId will be returned
         $invoiceStruct = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        static::assertNotNull($invoiceStruct);
         $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
 
         $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId());

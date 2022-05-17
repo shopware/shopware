@@ -41,6 +41,8 @@ class AttachmentLoaderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    private Context $context;
+
     protected function setUp(): void
     {
         $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
@@ -95,6 +97,7 @@ class AttachmentLoaderTest extends TestCase
         $actualDocument = $this->getContainer()->get('document.repository')->search($criteria, $this->context)->first();
 
         static::assertNotNull($actualDocument);
+        static::assertNotNull($actualDocument->getDocumentMediaFileId());
         static::assertNotNull($actualDocument->getDocumentMediaFile());
 
         $content = $this->getContainer()->get(MediaService::class)->loadFile($actualDocument->getDocumentMediaFileId(), $this->context);

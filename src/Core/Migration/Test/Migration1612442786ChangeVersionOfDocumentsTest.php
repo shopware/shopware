@@ -123,6 +123,7 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             );
         }
 
+        static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         // Set Document to Live Version

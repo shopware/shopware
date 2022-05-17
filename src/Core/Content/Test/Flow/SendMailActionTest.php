@@ -715,13 +715,15 @@ class SendMailActionTest extends TestCase
         return $orderId;
     }
 
-    private function createDocumentWithFile(string $orderId, Context $context, ?string $documentType = InvoiceRenderer::TYPE): string
+    private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
         if (Feature::isActive('v6.5.0.0')) {
             $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
 
             $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
             $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->first();
+
+            static::assertNotNull($document);
 
             return $document->getId();
         }

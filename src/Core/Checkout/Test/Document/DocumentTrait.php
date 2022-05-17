@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -145,10 +146,10 @@ trait DocumentTrait
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
         $operations[$orderId] = $operation;
 
-        return $this->documentGenerator->generate($documentType, $operations, $context);
+        return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context);
     }
 
-    private function upsertBaseConfig($config, string $documentType, ?string $salesChannelId = null): void
+    private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 

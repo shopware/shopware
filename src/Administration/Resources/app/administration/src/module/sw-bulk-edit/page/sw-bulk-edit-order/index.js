@@ -287,8 +287,8 @@ Component.register('sw-bulk-edit-order', {
         async shouldShowBulkEditDocumentWarning() {
             const response = await this.orderDocumentApiService.extendingDeprecatedService();
 
-            this.showBulkEditDocumentWarning = response && response.hasOwnProperty('showWarning')
-                ? response.showWarning
+            this.showBulkEditDocumentWarning = response?.data && response.data.hasOwnProperty('showWarning')
+                ? response.data.showWarning
                 : false;
         },
 

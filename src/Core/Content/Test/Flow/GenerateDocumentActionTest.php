@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -65,17 +64,15 @@ class GenerateDocumentActionTest extends TestCase
     use AdminApiTestBehaviour;
     use ImportTranslationsTrait;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    private ?DocumentService $documentService;
+    private DocumentService $documentService;
 
-    private ?DocumentGenerator $documentGenerator;
+    private DocumentGenerator $documentGenerator;
 
-    private ?NumberRangeValueGeneratorInterface $numberRange;
-
-    private ?LoggerInterface $logger;
+    private NumberRangeValueGeneratorInterface $numberRange;
 
     protected function setUp(): void
     {
@@ -84,7 +81,6 @@ class GenerateDocumentActionTest extends TestCase
         $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->numberRange = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
-        $this->logger = $this->getContainer()->get(LoggerInterface::class);
     }
 
     /**
@@ -100,7 +96,7 @@ class GenerateDocumentActionTest extends TestCase
         $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->numberRange, $this->connection);
 
         if ($multipleDoc) {
-            $config = array_filter([
+            $config = [
                 'documentTypes' => [
                     [
                         'documentType' => $documentType,
@@ -112,15 +108,15 @@ class GenerateDocumentActionTest extends TestCase
                         'documentRangerType' => 'document_delivery_note',
                     ],
                 ],
-            ]);
+            ];
         } else {
-            $config = array_filter([
+            $config = [
                 'documentType' => $documentType,
                 'documentRangerType' => $documentRangerType,
                 'custom' => [
                     'invoiceNumber' => '1100',
                 ],
-            ]);
+            ];
         }
 
         static::assertEmpty($this->getDocumentId($order->getId()));
@@ -184,13 +180,13 @@ class GenerateDocumentActionTest extends TestCase
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
         $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->numberRange, $this->connection);
 
-        $config = array_filter([
+        $config = [
             'documentType' => 'customDoc',
             'documentRangerType' => 'document_example',
             'custom' => [
                 'invoiceNumber' => '1100',
             ],
-        ]);
+        ];
 
         $this->insertCustomDocument();
         $this->insertRange();
@@ -313,11 +309,12 @@ class GenerateDocumentActionTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            json_encode($data)
+            json_encode($data) ?: ''
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertEmpty($response->getContent());
 
         // read versioned order
         $criteria = new Criteria([$orderId]);
@@ -338,8 +335,8 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        $content = json_decode($response->getContent(), true);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $content = json_decode($response->getContent() ?: '', true);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);

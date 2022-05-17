@@ -33,7 +33,7 @@ class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
-     * @Since("6.4.11.0")
+     * @Since("6.4.12.0")
      * @Entity("document")
      * @OA\Post(
      *      path="/document/download",

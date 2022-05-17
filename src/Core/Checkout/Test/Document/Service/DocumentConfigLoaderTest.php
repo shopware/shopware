@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Document\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
@@ -24,15 +23,11 @@ class DocumentConfigLoaderTest extends TestCase
 
     private Context $context;
 
-    private Connection $connection;
-
     private DocumentConfigLoader $documentConfigLoader;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 

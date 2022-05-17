@@ -79,8 +79,9 @@ class StornoRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
 
-        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context);
-        $invoiceId = $result->first()->getId();
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        static::assertNotNull($result);
+        $invoiceId = $result->getId();
 
         $config = [
             'displayLineItems' => true,

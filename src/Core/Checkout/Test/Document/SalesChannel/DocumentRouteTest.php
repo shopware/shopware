@@ -62,7 +62,7 @@ class DocumentRouteTest extends TestCase
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
         $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], $this->ids->context)->first();
-
+        static::assertNotNull($document);
         $deepLinkCode = '';
 
         if ($withValidDeepLinkCode !== null) {
@@ -108,7 +108,7 @@ class DocumentRouteTest extends TestCase
             false,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                $response = json_decode($response->getContent(), true);
+                $response = json_decode($response->getContent() ?: '', true);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
             },
@@ -118,7 +118,7 @@ class DocumentRouteTest extends TestCase
             null,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-                $response = json_decode($response->getContent(), true);
+                $response = json_decode($response->getContent() ?: '', true);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
             },
@@ -140,7 +140,7 @@ class DocumentRouteTest extends TestCase
             false,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                $response = json_decode($response->getContent(), true);
+                $response = json_decode($response->getContent() ?: '', true);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
             },

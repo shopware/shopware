@@ -21,9 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-/**
- * @deprecated tag:v6.5.0 - Will be removed
- */
 class DocumentServiceDeprecationControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

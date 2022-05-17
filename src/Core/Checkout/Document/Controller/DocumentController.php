@@ -218,7 +218,7 @@ class DocumentController extends AbstractController
     }
 
     /**
-     * @Since("6.4.11.0")
+     * @Since("6.4.12.0")
      * @OA\Get(
      *     path="/_action/order/document/download",
      *     summary="Download a documents",

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Document\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -31,8 +30,6 @@ class PdfRendererTest extends TestCase
 
     private DeliveryNoteRenderer $deliveryNoteRenderer;
 
-    private CartService $cartService;
-
     private DocumentGenerator $documentGenerator;
 
     private PdfRenderer $pdfRenderer;
@@ -54,7 +51,6 @@ class PdfRendererTest extends TestCase
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
         $this->deliveryNoteRenderer = $this->getContainer()->get(DeliveryNoteRenderer::class);
-        $this->cartService = $this->getContainer()->get(CartService::class);
         $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->pdfRenderer = $this->getContainer()->get(PdfRenderer::class);
     }
@@ -72,8 +68,9 @@ class PdfRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
 
-        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context);
-        $invoiceId = $result->first()->getId();
+        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        static::assertNotNull($invoice);
+        $invoiceId = $invoice->getId();
 
         $operation = new DocumentGenerateOperation(
             $orderId,

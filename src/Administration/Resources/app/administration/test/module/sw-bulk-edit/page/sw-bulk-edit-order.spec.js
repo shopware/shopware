@@ -244,7 +244,9 @@ function createWrapper(isResponseError = false) {
                 },
                 extendingDeprecatedService: () => {
                     return Promise.resolve({
-                        showWarning: false,
+                        data: {
+                            showWarning: false,
+                        },
                     });
                 },
             },

@@ -100,7 +100,7 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('product-');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-more-results__link').contains('Show all 11 matching results in products...');
+        cy.get('.sw-search-more-results__link').contains('Show all matching results in products...');
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('product-')

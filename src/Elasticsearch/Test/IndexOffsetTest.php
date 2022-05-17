@@ -16,6 +16,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -38,7 +39,7 @@ class IndexOffsetTest extends TestCase
         ]);
 
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), new CashRounding(), $this->createMock(PriceFieldSerializer::class)),
+            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), new CashRounding(), $this->createMock(PriceFieldSerializer::class), [], new EventDispatcher()),
             new MockElasticsearchDefinition(new EntityMapper()),
         ];
 

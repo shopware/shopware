@@ -14,6 +14,9 @@
                 },
                 "storefront": {
                     "$ref": "#/definitions/storefront"
+                },
+                "elasticsearch": {
+                    "$ref": "#/definitions/elasticsearch"
                 }
             },
             "title": "Root"
@@ -760,6 +763,105 @@
                 }
             },
             "title": "Storefront bundle configuration"
+        },
+        "elasticsearch": {
+            "title": "Elasticsearch",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": ["string", "boolean"],
+                    "description": "Enable Elasticsearch Searching",
+                    "default": false
+                },
+                "indexing_enabled": {
+                    "type": ["string", "boolean"],
+                    "description": "Enable Elasticsearch Indexing",
+                    "default": false
+                },
+                "indexing_batch_size": {
+                    "type": ["string", "integer"],
+                    "description": "Elasticsearch Batch Size",
+                    "default": 100
+                },
+                "hosts": {
+                    "type": "string",
+                    "description": "Elasticsearch Hosts",
+                    "default": "localhost:9200"
+                },
+                "index_prefix": {
+                    "type": "string",
+                    "description": "Elasticsearch Index Prefix",
+                    "default": "sw"
+                },
+                "throw_exception": {
+                    "type": ["string", "boolean"],
+                    "description": "Throw exception when Elasticsearch queries failing",
+                    "default": false
+                },
+                "product": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "custom_fields_mapping": {
+                            "type": ["object", "null"],
+                            "title": "Custom Field Mapping of Product"
+                        }
+                    }
+                },
+                "ssl": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "verify_server_cert": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "cert_path": {
+                            "type": ["boolean", "string"],
+                            "default": false
+                        },
+                        "cert_key_path": {
+                            "type": ["boolean", "string"],
+                            "default": false
+                        }
+                    }
+                },
+                "index_settings": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "number_of_shards": {
+                            "type": "integer",
+                            "default": 3
+                        },
+                        "number_of_replicas": {
+                            "type": "integer",
+                            "default": 3
+                        },
+                        "mapping.total_fields.limit": {
+                            "type": "integer",
+                            "default": 50000
+                        },
+                        "mapping.nested_fields.limit": {
+                            "type": "integer",
+                            "default": 500
+                        },
+                        "mapping.nested_objects.limit": {
+                            "type": "integer",
+                            "default": 1000000
+                        }
+                    }
+                },
+                "analysis": {
+                    "type": "object",
+                    "title": "Analysis Config"
+                },
+                "dynamic_templates": {
+                    "type": "array",
+                    "title": "Dynamic Templates Config"
+                }
+            }
         }
     }
 }

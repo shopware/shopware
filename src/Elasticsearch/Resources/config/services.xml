@@ -156,6 +156,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer"/>
+            <argument>%elasticsearch.product.custom_fields_mapping%</argument>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.es.definition"/>
         </service>

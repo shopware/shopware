@@ -74,4 +74,25 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         static::assertCount(2, $detector->get());
         static::assertCount(4, $detector->getAllUsedIndices());
     }
+
+    public function testDoesNothingWithoutIndices(): void
+    {
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices
+            ->expects(static::exactly(0))
+            ->method('get')
+            ->willReturnCallback(function () {
+                return [];
+            });
+
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $repository = $this->createMock(EntityRepository::class);
+        $esHelper = $this->createMock(ElasticsearchHelper::class);
+
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
+        static::assertEmpty($detector->get());
+    }
 }

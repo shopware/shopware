@@ -61,6 +61,9 @@ PHP coverage:
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: redis
             alias: redis
+        -   name: elasticsearch:7.8.0
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
@@ -96,7 +99,7 @@ PHP coverage:
     parallel:
         matrix:
             - TESTSUITE: ["framework", "storefront,administration,system,elasticsearch,profiling,maintenance,docs", "migration"]
-            - TESTSUITE: ["content", "checkout"]
+            - TESTSUITE: ["content", "checkout", "elasticsearch"]
               RUNNER_INSTANCE_TYPE: m5.large
 
 PHP Full:

@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- * @group skip-paratest
  */
 class CustomFieldUpdaterTest extends TestCase
 {

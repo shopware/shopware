@@ -214,6 +214,11 @@ class AppEntity extends Entity
      */
     protected $flowActions;
 
+    /**
+     * @var int
+     */
+    protected $templateLoadPriority;
+
     public function getId(): string
     {
         return $this->id;
@@ -621,5 +626,18 @@ class AppEntity extends Entity
     public function setAllowDisable(bool $allowDisable): void
     {
         $this->allowDisable = $allowDisable;
+    }
+
+    public function getTemplateLoadPriority(): int
+    {
+        return $this->templateLoadPriority;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function setTemplateLoadPriority(int $templateLoadPriority): void
+    {
+        $this->templateLoadPriority = $templateLoadPriority;
     }
 }

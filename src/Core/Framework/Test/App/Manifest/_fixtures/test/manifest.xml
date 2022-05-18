@@ -74,6 +74,9 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
         <read>order</read>
         <permission>user_change_me</permission>
     </permissions>
+    <storefront>
+        <template-load-priority>100</template-load-priority>
+    </storefront>
     <custom-fields>
         <custom-field-set global="true">
             <name>custom_field_test</name>

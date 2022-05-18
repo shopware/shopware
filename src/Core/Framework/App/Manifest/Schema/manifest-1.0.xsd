@@ -43,6 +43,13 @@
                         <xs:field xpath="@name"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="storefront" type="storefront" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Configuration for Storefront
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
                 <xs:element name="permissions" type="permissions" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -159,6 +166,11 @@
             <xs:element name="module" maxOccurs="unbounded" minOccurs="0" type="module"/>
             <xs:element name="main-module" maxOccurs="1" minOccurs="0" type="main-module"/>
             <xs:element name="base-app-url" maxOccurs="1" minOccurs="0" type="xs:anyURI"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="storefront">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="template-load-priority" maxOccurs="1" minOccurs="0" type="xs:int"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="permissions">

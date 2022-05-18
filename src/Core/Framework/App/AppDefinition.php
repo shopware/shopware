@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -68,6 +69,7 @@ class AppDefinition extends EntityDefinition
             'modules' => [],
             'cookies' => [],
             'allowedHosts' => [],
+            'templateLoadPriority' => 0,
         ];
     }
 
@@ -78,7 +80,7 @@ class AppDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('path', 'path'))->addFlags(new Required()),
@@ -98,6 +100,7 @@ class AppDefinition extends EntityDefinition
             (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required()),
             new StringField('base_app_url', 'baseAppUrl', 1024),
             (new ListField('allowed_hosts', 'allowedHosts', StringField::class))->setStrict(true),
+            new IntField('template_load_priority', 'templateLoadPriority'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),
@@ -121,7 +124,5 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
-
-        return $fields;
     }
 }

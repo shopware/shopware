@@ -9271,161 +9271,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-
-			message: "#^Cannot call method getAclRoleId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getAdmin\\(\\) on Shopware\\\\Core\\\\System\\\\Integration\\\\IntegrationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getAllowDisable\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getBaseAppUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getBlock\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\CmsBlock\\\\AppCmsBlockEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getConstraints\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getCookies\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getDescription\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSetRelation\\\\CustomFieldSetRelationCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getIcon\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 24
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getIdentifier\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getIntegration\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getLabel\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\CmsBlock\\\\AppCmsBlockEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getMainModule\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getModules\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\CmsBlock\\\\AppCmsBlockEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 16
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getPrivacyPolicyExtensions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getRelations\\(\\) on Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getScriptConditions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getStyles\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\CmsBlock\\\\AppCmsBlockEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getTemplate\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\CmsBlock\\\\AppCmsBlockEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getVersion\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getWebhooks\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method isConfigurable\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method isGlobal\\(\\) on Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\Lifecycle\\\\AppLifecycleTest\\:\\:createAclRole\\(\\) has parameter \\$aclRoleId with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
@@ -9461,16 +9306,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$app of method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\Lifecycle\\\\AppLifecycleTest\\:\\:assertDefaultHosts\\(\\) expects Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity, Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$app of method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\Lifecycle\\\\AppLifecycleTest\\:\\:assertDefaultModules\\(\\) expects Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity, Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$appId of method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\Lifecycle\\\\AppLifecycleTest\\:\\:getAppFlowActions\\(\\) expects string, string\\|null given\\.$#"
 			count: 5
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
@@ -9481,11 +9316,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$actualJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonFile\\(\\) expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
@@ -9493,11 +9323,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$appId of method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\Persister\\\\FlowActionPersister\\:\\:updateActions\\(\\) expects string, string\\|null given\\.$#"
 			count: 3
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|string\\|null given\\.$#"
-			count: 14
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-
@@ -9517,17 +9342,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\|null given\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
+			count: 4
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
 
 		-

@@ -86,6 +86,11 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    public function getTemplatePriority(): int
+    {
+        return 0;
+    }
+
     /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *

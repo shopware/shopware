@@ -8,6 +8,7 @@ use Danger\Platform\Gitlab\Gitlab;
 use Danger\Rule\CommitRegex;
 use Danger\Rule\Condition;
 use Danger\Rule\DisallowRepeatedCommits;
+use Danger\Struct\Gitlab\File as GitlabFile;
 
 
 return (new Config())
@@ -32,6 +33,44 @@ return (new Config())
                     $context->failure('GitHub PRs are not allowed to be squashed');
                 }
              }
+        ]
+    ))
+    ->useRule(new Condition(
+        function(Context $context) {
+            $labels = array_map('strtolower', $context->platform->pullRequest->labels);
+
+            return $context->platform instanceof Gitlab && !\in_array('github', $labels, true);
+        },
+        [
+            function (Context $context) {
+                $files = $context->platform->pullRequest->getFiles();
+
+                /** @var Gitlab $gitlab */
+                $gitlab = $context->platform;
+
+                $phpstanBaseline = new GitlabFile(
+                    $gitlab->client,
+                    $_SERVER['CI_PROJECT_ID'],
+                    'phpstan-baseline.neon',
+                    $gitlab->raw['sha']
+                );
+
+                $fileNames = $files->map(fn (File $f) => $f->name);
+
+                $filesWithIgnoredErrors = [];
+                foreach ($fileNames as $fileName) {
+                    if (str_contains($phpstanBaseline->getContent(), 'path: ' . $fileName)) {
+                        $filesWithIgnoredErrors[] = $fileName;
+                    }
+                }
+
+                if ($filesWithIgnoredErrors) {
+                    $context->failure(
+                        'Some files you touched in your MR contain ignored phpstan errors. Please be nice and fix all ignored errors for the following files:<br>'
+                        . implode('<br>', $filesWithIgnoredErrors)
+                    );
+                }
+            }
         ]
     ))
     ->useRule(function (Context $context) {

@@ -272,8 +272,8 @@
           "placeholder": "Zahlungsstatus auswählen ..."
         },
         "shipping": {
-          "label": "Ändern: Versandstatus",
-          "placeholder": "Versandstatus auswählen ..."
+          "label": "Ändern: Lieferstatus",
+          "placeholder": "Lieferstatus auswählen ..."
         },
         "order": {
           "label": "Ändern: Bestellstatus",
@@ -285,7 +285,7 @@
         },
         "documents": {
           "label": "Verschicken: Dokumente",
-          "helpText": "Option verfügbar, wenn \"Versende: Status-E-Mails\" angehakt ist.",
+          "helpText": "Vorhandene Belege können als Anhang mit den Status E-Mails versandt werden. Es wird immer der aktuellste Beleg verwendet. Sollten Belege über diese Mehrfachänderung generiert werden, werden diese verwendet.",
           "options": {
             "newest": "Neueste",
             "all": "Alle"
@@ -315,7 +315,7 @@
           "changeSubLabel": "Die aktuell letzte Referenzrechnungsnummer wird verwendet."
         },
         "generateDeliveryNote": {
-          "label": "Erstellen: Versandbestätigung",
+          "label": "Erstellen: Lieferschein",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDeliveryDatePicker": "Lieferdatum"
         },
@@ -326,7 +326,7 @@
         },
         "downloadDocuments": {
           "label": "Herunterladen: Dokumente",
-          "helpText": "Alle ausgewählten Dokumente werden in einer Datei zusammegefügt, die heruntergeladen werden kann, nachdem die Mehrfachbearbeitung abgeschlossen ist."
+          "helpText": "Mit dieser Option werden die aktuellsten, zur Verfügung stehenden Belege zum Download angeboten. Mehrere Belege werden in derselben Datei zusammengeführt. Der Download steht nach Abschluss der Mehrfachänderung zur Verfügung"
         }
       },
       "customFields": {

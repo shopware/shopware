@@ -272,8 +272,8 @@
           "placeholder": "Select payment status..."
         },
         "shipping": {
-          "label": "Change: Shipping status",
-          "placeholder": "Select shipping status..."
+          "label": "Change: Delivery status",
+          "placeholder": "Select Delivery status..."
         },
         "order": {
           "label": "Change: Order status",
@@ -285,7 +285,7 @@
         },
         "documents": {
           "label": "Send: Documents",
-          "helpText": "Available only if \"Send: Status emails\" is checked.",
+          "helpText": "Existing documents can be sent as attachments with the status mails. The most recent document is always used. If documents are generated via this bulk edit, they are used.",
           "options": {
             "newest": "Newest",
             "all": "All"
@@ -310,7 +310,7 @@
           "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
-          "label": "Generate: Cancellation invoice",
+          "label": "Generate: Storno bill",
           "helpText": "This action increases the value of the corresponding number range.",
           "changeSubLabel": "The latest reference invoice number will  be used."
         },
@@ -326,7 +326,7 @@
         },
         "downloadDocuments": {
           "label": "Download: Documents",
-          "helpText": "All selected documents will be merged into one file and can be downloaded after the bulk edit has finished."
+          "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
         }
       },
       "customFields": {

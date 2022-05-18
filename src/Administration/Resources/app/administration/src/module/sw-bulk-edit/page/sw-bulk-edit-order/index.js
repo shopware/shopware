@@ -331,7 +331,7 @@ Component.register('sw-bulk-edit-order', {
 
             this.order.documents = {
                 documentType: {},
-                skipSentDocuments: null,
+                skipSentDocuments: true,
             };
         },
 

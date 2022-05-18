@@ -137,7 +137,6 @@ export default class ShopwareExtensionService {
     public isVariantDiscounted(variant: ExtensionVariant): boolean {
         if (!variant || !variant.discountCampaign
             || typeof variant.discountCampaign.discountedPrice !== 'number'
-            || variant.discountCampaign.discountedPrice !== 0.0
             || variant.discountCampaign.discountedPrice === variant.netPrice
         ) {
             return false;

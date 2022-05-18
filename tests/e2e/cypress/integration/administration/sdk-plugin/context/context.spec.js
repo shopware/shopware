@@ -29,7 +29,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Go to extension page')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
@@ -56,7 +59,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Change the language of the current user')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.get('.navigation-list-item__sw-order-index')
@@ -91,7 +97,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Go to extension page')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
@@ -115,7 +124,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Go to extension page')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
@@ -179,7 +191,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Go to extension page')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
@@ -204,7 +219,10 @@ describe('SDK Tests: Context', ()=> {
 
         cy.log('Go to extension page')
 
-        cy.get('.sw-admin-menu__item--sw-order')
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
             .click();
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')

@@ -14,11 +14,11 @@ describe('SDK Tests: Location', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             })
             .then(() => {
-                cy.log('Open example product')
+                cy.log('Open example product');
 
                 cy.get('.smart-bar__content')
                     .should('be.visible');
-                cy.contains('.smart-bar__content', 'Products')
+                cy.contains('.smart-bar__content', 'Products');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -44,12 +44,12 @@ describe('SDK Tests: Location', ()=> {
     it('@sdk: update the height of the location iFrame', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to specifications tab')
+        cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
-            .click()
+            .click();
 
-        cy.contains('.sw-card__title', 'Location tests')
+        cy.contains('.sw-card__title', 'Location tests');
 
         cy.log('Update the iFrame height manually');
 
@@ -64,35 +64,35 @@ describe('SDK Tests: Location', ()=> {
         cy.getSDKiFrame('location-index')
             .find('input')
             .clear()
-            .type('456')
+            .type('456');
 
         cy.getSDKiFrame('location-index')
             .contains('button', 'Update height manually')
             .click();
 
         cy.get(`iframe[src*="location-id=location-index"]`)
-            .should('have.attr', 'height', '456px')
+            .should('have.attr', 'height', '456px');
     })
 
     it('@sdk: start auto resizing of the iFrame height', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to specifications tab')
+        cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
-            .click()
+            .click();
 
-        cy.contains('.sw-card__title', 'Location tests')
+        cy.contains('.sw-card__title', 'Location tests');
 
         cy.log('Update the iFrame height automatically');
 
         cy.getSDKiFrame('location-index')
-            .contains('Auto-Resize: On')
+            .contains('Auto-Resize: On');
 
         cy.getSDKiFrame('location-index')
             .find('input')
             .clear()
-            .type('700')
+            .type('700');
 
         cy.getSDKiFrame('location-index')
             .contains('button', 'Update height using auto resizing')
@@ -103,6 +103,6 @@ describe('SDK Tests: Location', ()=> {
          * are also considered in automatic height
          */
         cy.get(`iframe[src*="location-id=location-index"]`)
-            .should('have.attr', 'height', '724px')
+            .should('have.attr', 'height', '724px');
     })
 })

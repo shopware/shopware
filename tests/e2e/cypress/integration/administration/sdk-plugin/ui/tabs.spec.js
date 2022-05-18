@@ -22,15 +22,6 @@ describe('Category: SDK Test', ()=> {
 
         const Page = new ProductPageObject();
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
-        }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
-        }).as('calculatePrice');
-
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             Page.elements.contextMenuButton,

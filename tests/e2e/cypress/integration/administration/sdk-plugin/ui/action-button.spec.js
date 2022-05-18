@@ -22,15 +22,6 @@ describe('Category: SDK Test', ()=> {
 
         const Page = new ProductPageObject();
 
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
-        }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
-        }).as('calculatePrice');
-
         cy.contains('.smart-bar__content', 'Products')
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

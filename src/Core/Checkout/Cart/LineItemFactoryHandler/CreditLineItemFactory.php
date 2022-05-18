@@ -52,7 +52,7 @@ class CreditLineItemFactory implements LineItemFactoryInterface
 
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
-        if (!$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+        if (isset($data['priceDefinition']) && !$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             throw new InsufficientPermissionException();
         }
 

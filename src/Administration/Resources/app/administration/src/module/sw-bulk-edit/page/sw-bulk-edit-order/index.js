@@ -434,17 +434,20 @@ Component.register('sw-bulk-edit-order', {
                     };
 
                     if (dataPush.includes(key)) {
-                        const documentTypes = this.order.documents.documentType;
-                        const selectedDocumentTypes = [];
-                        Object.keys(documentTypes).forEach(documentTypeName => {
-                            if (documentTypes[documentTypeName] === true) {
-                                selectedDocumentTypes.push(documentTypeName);
+                        const documentTypes = this.order?.documents?.documentType;
+
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                documentTypeName => documentTypes[documentTypeName] === true,
+                            );
+
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                             }
-                        });
+                        }
 
                         payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                        payload.documentTypes = selectedDocumentTypes;
-                        payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                         payload.value = this.order?.[key];
                         data.statusData.push(payload);
                     } else if (key !== 'documents' && key !== 'statusMails') {

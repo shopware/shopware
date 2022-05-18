@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\DocumentGeneratorController;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,6 +25,11 @@ class DocumentServiceDeprecationControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
+
+    protected function setup(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
 
     /**
      * @dataProvider checkDataProvider

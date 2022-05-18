@@ -3,6 +3,7 @@ import './sw-bulk-edit-save-modal-success.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { chunk: chunkArray } = Shopware.Utils.array;
 
 Component.register('sw-bulk-edit-save-modal-success', {
     template,
@@ -105,6 +106,10 @@ Component.register('sw-bulk-edit-save-modal-success', {
                 ? this.$tc('sw-bulk-edit.modal.success.instruction')
                 : this.$tc('sw-bulk-edit.modal.success.description');
         },
+
+        requestsPerPayload() {
+            return 10;
+        },
     },
 
     watch: {
@@ -202,9 +207,11 @@ Component.register('sw-bulk-edit-save-modal-success', {
                 return;
             }
 
-            const percentages = 100 / payload.length;
-            payload.forEach(async (item) => {
-                await this.orderDocumentApiService.create(documentType, [item]).then(() => {
+            const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
+            const percentages = 100 / chunkedPayload.length;
+
+            chunkedPayload.forEach(async (item) => {
+                await this.orderDocumentApiService.create(documentType, item).then(() => {
                     this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
                 });
             });

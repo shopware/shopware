@@ -2,17 +2,23 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Test\Flow\FlowActionTestSubscriber;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,7 +32,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     private ?EntityRepositoryInterface $customerRepository;
 
@@ -83,6 +89,126 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+    }
+
+    /**
+     * @dataProvider registerCustomerProvider
+     */
+    public function testTriggerCustomerRegister(string $expectTagId, string $salesChannelId, string $trueId, string $falseId): void
+    {
+        $context = Context::createDefaultContext();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->executeStatement('
+            INSERT INTO `tag` (`id`, `name`, `created_at`) VALUES (:trueId, :trueName, :createdAt), (:falseId, :falseName, :createdAt)', [
+            'trueId' => Uuid::fromHexToBytes($trueId),
+            'falseId' => Uuid::fromHexToBytes($falseId),
+            'trueName' => 'True case',
+            'falseName' => 'False case',
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $this->createFlowTriggerRegisterCustomer(
+            $salesChannelId,
+            TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            [$trueId => 'True case'],
+            [$falseId => 'False case']
+        );
+
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($context, $customerId);
+
+        $tagIds = $connection->fetchOne(
+            '
+            SELECT tag_ids FROM customer WHERE `id` = :id',
+            [
+                'id' => Uuid::fromHexToBytes($customerId),
+            ]
+        );
+
+        static::assertTrue(\in_array($expectTagId, \json_decode($tagIds, true), true));
+    }
+
+    public function registerCustomerProvider(): array
+    {
+        $trueId = Uuid::randomHex();
+        $falseId = Uuid::randomHex();
+
+        return [
+            'True case' => [$trueId, TestDefaults::SALES_CHANNEL, $trueId, $falseId],
+            'False case' => [$falseId, Uuid::randomHex(), $trueId, $falseId],
+        ];
+    }
+
+    private function createFlowTriggerRegisterCustomer(
+        string $salesChannelId,
+        string $customerGroupId,
+        array $trueCase,
+        array $falseCase
+    ): void {
+        $sequenceId = Uuid::randomHex();
+
+        $this->flowRepository->create([[
+            'name' => 'Create Order',
+            'eventName' => CustomerRegisterEvent::EVENT_NAME,
+            'priority' => 10,
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => $sequenceId,
+                    'parentId' => null,
+                    'ruleId' => $this->ids->create('ruleId'),
+                    'actionName' => null,
+                    'config' => [],
+                    'position' => 1,
+                    'rule' => [
+                        'id' => $this->ids->create('ruleId'),
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            [
+                                'type' => (new CustomerGroupRule())->getName(),
+                                'value' => [
+                                    'customerGroupIds' => [$customerGroupId],
+                                    'operator' => Rule::OPERATOR_EQ,
+                                ],
+                            ],
+                            [
+                                'type' => (new SalesChannelRule())->getName(),
+                                'value' => [
+                                    'salesChannelIds' => [$salesChannelId],
+                                    'operator' => Rule::OPERATOR_EQ,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => AddCustomerTagAction::getName(),
+                    'config' => [
+                        'tagIds' => $trueCase,
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => AddCustomerTagAction::getName(),
+                    'config' => [
+                        'tagIds' => $falseCase,
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 2,
+                    'trueCase' => false,
+                ],
+            ],
+        ],
+        ], Context::createDefaultContext());
     }
 
     private function createFlow(?string $eventName = null): void
@@ -144,9 +270,9 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    private function createCustomer(Context $context): string
+    private function createCustomer(Context $context, ?string $customerId = null): string
     {
-        $customerId = Uuid::randomHex();
+        $customerId = $customerId ?? Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         $customer = [

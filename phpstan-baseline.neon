@@ -1626,11 +1626,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerChangePasswordSubscriberTest.php
 
 		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerFlowEventsSubscriberTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Subscriber\\\\CustomerFlowEventsSubscriberTest\\:\\:\\$customerRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerFlowEventsSubscriberTest.php

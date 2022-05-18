@@ -60,7 +60,7 @@ Component.register('sw-mail-header-footer-detail', {
         },
 
         mailHeaderFooterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('salesChannels');
 
@@ -213,7 +213,7 @@ Component.register('sw-mail-header-footer-detail', {
         },
 
         async findAlreadyAssignedSalesChannels() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const salesChannelIds = [];
 
             this.mailHeaderFooter.salesChannels.forEach(salesChannel => {

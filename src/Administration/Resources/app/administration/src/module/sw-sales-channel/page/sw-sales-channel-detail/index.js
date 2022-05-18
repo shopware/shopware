@@ -112,7 +112,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         storefrontSalesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
         },
@@ -192,7 +192,7 @@ Component.register('sw-sales-channel-detail', {
         },
 
         getLoadSalesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');

@@ -188,7 +188,7 @@ Component.register('sw-settings-search-searchable-content', {
         },
 
         productSearchFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('searchConfigId', this.searchConfigId));
             criteria.addSorting(Criteria.sort('field', 'ESC'));

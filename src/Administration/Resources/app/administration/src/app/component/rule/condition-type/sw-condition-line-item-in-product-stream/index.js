@@ -62,7 +62,7 @@ Component.extend('sw-condition-line-item-in-product-stream', 'sw-condition-base-
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.streamIds);
 
             return this.streamRepository.search(criteria, Context.api).then((streams) => {

@@ -266,3 +266,8 @@ shopware:
         major: true
         description: "Remove composite search api"
         # issue: NEXT_18762
+      - name: FEATURE_NEXT_21547
+        default: false
+        major: true
+        description: "Change admin criteria defaults"
+        # issue: NEXT_21547

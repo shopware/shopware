@@ -70,7 +70,7 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         seoUrlCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.customerGroup?.registrationSalesChannels.length) {
                 const salesChannelIds = this.customerGroup.registrationSalesChannels?.getIds();
@@ -174,7 +174,7 @@ Component.register('sw-settings-customer-group-detail', {
             if (this.customerGroupId) {
                 this.loadSeoUrls();
                 this.loadCustomFieldSets();
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('registrationSalesChannels');
 
                 this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria)

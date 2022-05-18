@@ -40,7 +40,7 @@ Component.register('sw-settings-document-list', {
             };
         },
         listingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.term) {
                 criteria.setTerm(this.term);

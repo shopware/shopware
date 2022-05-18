@@ -231,9 +231,8 @@ Component.register('sw-settings-rule-detail-assignments', {
                 return Promise.resolve(true);
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 1);
             criteria.addFilter(Criteria.not('AND', item.criteria().filters));
-            criteria.setLimit(1);
 
             this.isLoading = true;
             return item.repository.search(criteria, api).then((notAssignedDataResult) => {

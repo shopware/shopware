@@ -118,7 +118,7 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -135,7 +135,7 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         shippingMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('prices');
             criteria.addAssociation('tags');
             criteria.getAssociation('prices').addAssociation('calculationRule');

@@ -325,7 +325,7 @@ Component.register('sw-bulk-edit-order', {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
 
             const requests = payloadChunks.map(ids => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addFilter(Criteria.equalsAny(field, ids));
 
                 return this.stateMachineStateRepository.searchIds(criteria);
@@ -383,7 +383,7 @@ Component.register('sw-bulk-edit-order', {
         },
 
         toStateMachineStatesCriteria(states) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', states));
             criteria.addAssociation('fromStateMachineTransitions.toStateMachineState');

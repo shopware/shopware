@@ -31,7 +31,7 @@ Component.register('sw-event-action-deprecated-modal', {
         },
 
         userSettingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             const configurationKey = 'deprecatedModal.businessEvent';
             criteria.addFilter(Criteria.equals('key', configurationKey));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));

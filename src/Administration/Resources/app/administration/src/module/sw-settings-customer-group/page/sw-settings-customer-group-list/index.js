@@ -97,7 +97,7 @@ Component.register('sw-settings-customer-group-list', {
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups),

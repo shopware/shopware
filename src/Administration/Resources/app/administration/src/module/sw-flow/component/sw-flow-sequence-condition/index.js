@@ -48,7 +48,7 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         ruleCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         showHelpElement() {

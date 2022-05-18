@@ -57,7 +57,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('customFieldSetId', this.customFieldSetId),
             );
@@ -70,7 +70,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                 return null;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('relations.entityName', this.convertToEntityTechnicalName(this.entity)),
             );

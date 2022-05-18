@@ -136,7 +136,7 @@ Component.register('sw-order-detail-details', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.order.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
@@ -146,7 +146,7 @@ Component.register('sw-order-detail-details', {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.order.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));

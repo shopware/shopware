@@ -23,7 +23,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
         }
 
         const customerRepository = Service('repositoryFactory').create('customer');
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addAssociation('requestedGroup');
         criteria.addFilter(Criteria.not('AND', [Criteria.equals('requestedGroupId', null)]));
 

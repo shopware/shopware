@@ -287,14 +287,14 @@ Component.register('sw-product-stream-value', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;
         },
 
         propertyCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.definition.entity === 'property_group_option') {
                 criteria.addAssociation('group');
@@ -308,7 +308,7 @@ Component.register('sw-product-stream-value', {
         },
 
         visibilitiesCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('product');
 
@@ -321,7 +321,7 @@ Component.register('sw-product-stream-value', {
         },
 
         resultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
 
             return criteria;

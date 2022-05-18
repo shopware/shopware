@@ -114,7 +114,7 @@ function getEntityData(element, configKey) {
         };
     }
 
-    entityData.searchCriteria = entity.criteria ? entity.criteria : new Criteria();
+    entityData.searchCriteria = entity.criteria ? entity.criteria : new Criteria(1, 25);
 
     return entityData;
 }

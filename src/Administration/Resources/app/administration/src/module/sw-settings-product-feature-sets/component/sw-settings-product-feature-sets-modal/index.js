@@ -102,11 +102,11 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         productFeatureSetCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -118,7 +118,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         propertyGroupCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             const featureIds = this.getFeaturesIds('property');
             if (featureIds.length > 0) {

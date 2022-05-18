@@ -37,7 +37,7 @@ Shopware.Component.register('sw-import-export-importer', {
 
     computed: {
         profileCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('label'));
 
             if (this.sourceEntity.length > 0) {
@@ -66,7 +66,7 @@ Shopware.Component.register('sw-import-export-importer', {
         },
 
         logCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('invalidRecordsLog');
             criteria.addAssociation('file');

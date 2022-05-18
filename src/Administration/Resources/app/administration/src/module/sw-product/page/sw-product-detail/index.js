@@ -153,7 +153,7 @@ Component.register('sw-product-detail', {
         },
 
         userModeSettingsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
 
@@ -161,7 +161,7 @@ Component.register('sw-product-detail', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.getAssociation('media')
                 .addSorting(Criteria.sort('position', 'ASC'));
@@ -711,7 +711,7 @@ Component.register('sw-product-detail', {
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', ids));
 

@@ -39,7 +39,7 @@ Component.register('sw-customer-detail-base', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria
                 .addFilter(Criteria.equals('relations.entityName', 'customer'));

@@ -60,7 +60,7 @@ Component.register('sw-settings-listing-visibility-detail', {
 
         fetchSalesChannels() {
             const salesChannelIds = this.config.map(config => config.id);
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
 

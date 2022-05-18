@@ -62,7 +62,7 @@ Component.register('sw-text-editor-link-menu', {
         },
 
         entityFilter(): CriteriaType {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
@@ -107,7 +107,7 @@ Component.register('sw-text-editor-link-menu', {
         },
 
         getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
-            const categoryCriteria = (new Criteria()).addFilter(Criteria.equals('id', categoryId));
+            const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
 

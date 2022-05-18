@@ -36,7 +36,7 @@ Component.register('sw-flow-mail-send-modal', {
 
     computed: {
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;

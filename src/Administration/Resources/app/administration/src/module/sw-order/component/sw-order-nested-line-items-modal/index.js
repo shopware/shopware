@@ -74,7 +74,7 @@ Component.register('sw-order-nested-line-items-modal', {
             }
 
             const parentIds = nestedLineItems.map(lineItem => lineItem.id);
-            const criteria = (new Criteria())
+            const criteria = (new Criteria(1, 25))
                 .addFilter(Criteria.equalsAny('parentId', parentIds));
 
             criteria

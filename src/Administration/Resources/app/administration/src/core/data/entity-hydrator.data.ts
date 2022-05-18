@@ -232,7 +232,8 @@ export default class EntityHydrator {
         if (criteria.hasAssociation(property)) {
             return criteria.getAssociation(property);
         }
-        return new Criteria();
+
+        return new Criteria(1, 25);
     }
 
     /**

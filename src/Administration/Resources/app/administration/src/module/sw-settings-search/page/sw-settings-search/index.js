@@ -52,14 +52,14 @@ Component.register('sw-settings-search', {
         },
 
         productSearchConfigsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
             return criteria;
         },
 
         productDefaultConfigsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.systemLanguageId));
             return criteria;
@@ -218,7 +218,7 @@ Component.register('sw-settings-search', {
         },
 
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria()).then((response) => {
+            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
             });
         },

@@ -42,10 +42,8 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
             }

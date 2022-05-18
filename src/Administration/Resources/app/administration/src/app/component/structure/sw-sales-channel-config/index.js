@@ -24,7 +24,7 @@ Component.register('sw-sales-channel-config', {
             type: Object,
             required: false,
             default: () => {
-                return new Criteria();
+                return new Criteria(1, 25);
             },
         },
     },

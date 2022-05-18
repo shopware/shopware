@@ -187,7 +187,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 name: 'My custom layout',
                 type: 'product_list',
-                categories: new EntityCollection(null, null, null, new Criteria()),
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25)),
                 sections: [
                     {
                         name: 'Section 1',
@@ -232,7 +232,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 name: 'My custom layout',
                 type: 'product_list',
-                categories: new EntityCollection(null, null, null, new Criteria()),
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25)),
                 sections: [
                     {
                         name: 'Section 1',
@@ -276,7 +276,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 name: 'My custom layout',
                 type: 'product_list',
-                categories: new EntityCollection(null, null, null, new Criteria()),
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25)),
                 sections: [
                     {
                         name: 'Section 1',

@@ -22,6 +22,7 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
+    'sw-core-rules/require-criteria-constructor-arguments': 'error',
 };
 
 module.exports = {

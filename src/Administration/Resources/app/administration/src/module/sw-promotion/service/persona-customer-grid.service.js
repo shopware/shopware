@@ -32,7 +32,7 @@ export default class PersonaCustomerGridService {
     }
 
     async reloadCustomers() {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         // search all customer persona entries and load them
         // into our customer list which will be shown using our vue grid.

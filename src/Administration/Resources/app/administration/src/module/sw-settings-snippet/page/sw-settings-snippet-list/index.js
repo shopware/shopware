@@ -72,7 +72,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         snippetSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];

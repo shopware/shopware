@@ -67,9 +67,7 @@ Component.register('sw-manufacturer-detail', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
-            criteria.setPage(1);
-            criteria.setLimit(100);
+            const criteria = new Criteria(1, 100);
             criteria.addFilter(
                 Criteria.equals('relations.entityName', 'product_manufacturer'),
             );

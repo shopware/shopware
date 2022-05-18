@@ -117,7 +117,7 @@ Component.register('sw-product-detail-variants', {
 
         loadOptions() {
             return new Promise((resolve) => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
 
                 criteria.addAssociation('configuratorSettings.option');
                 criteria.addAssociation('prices');
@@ -133,7 +133,7 @@ Component.register('sw-product-detail-variants', {
         loadGroups() {
             return new Promise((resolve) => {
                 this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria();
+                    const groupCriteria = new Criteria(1, 25);
                     groupCriteria
                         .setLimit(100)
                         .setPage(1);

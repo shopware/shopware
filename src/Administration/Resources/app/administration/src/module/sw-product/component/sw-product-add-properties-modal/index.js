@@ -89,10 +89,8 @@ Component.register('sw-product-add-properties-modal', {
          * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
          */
         propertyGroupCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.propertiesPage, this.propertiesLimit);
 
-            criteria.setPage(this.propertiesPage);
-            criteria.setLimit(this.propertiesLimit);
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             if (this.searchTerm) {
@@ -116,10 +114,8 @@ Component.register('sw-product-add-properties-modal', {
          * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
          */
         propertyGroupOptionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.propertyValuesPage, this.propertyValuesLimit);
 
-            criteria.setPage(this.propertyValuesPage);
-            criteria.setLimit(this.propertyValuesLimit);
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.searchTerm) {

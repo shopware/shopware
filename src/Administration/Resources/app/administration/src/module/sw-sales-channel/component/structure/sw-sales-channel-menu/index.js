@@ -27,12 +27,11 @@ Component.register('sw-sales-channel-menu', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
             criteria.addAssociation('domains');
-            criteria.setLimit(25);
 
             if (this.salesChannelFavorites.length) {
                 criteria.addFilter(Criteria.equalsAny('id', this.salesChannelFavorites));

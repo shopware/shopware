@@ -42,7 +42,7 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         },
 
         ruleFilter() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {
                 criteria.addFilter(
@@ -121,7 +121,7 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         },
 
         loadSetGroups() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(
                 Criteria.equals('promotionId', this.promotion.id),
             );

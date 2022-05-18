@@ -43,7 +43,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(
@@ -61,7 +61,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldsRelationsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('entityName', 'product'));
 
@@ -380,7 +380,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         customFieldCriteriaSingleSelect(customField) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.customFieldSetIDs) {
                 criteria.addFilter(

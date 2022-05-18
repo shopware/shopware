@@ -96,7 +96,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     getProducts() {
         const productRepository = Service('repositoryFactory').create('product');
 
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.setIds(this.entityIds);
 
         return productRepository.search(criteria, Shopware.Context.api).then((products) => {

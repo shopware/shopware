@@ -73,7 +73,7 @@ Component.register('sw-event-action-detail', {
         },
 
         eventActionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('salesChannels');
             criteria.addAssociation('rules');
 
@@ -81,7 +81,7 @@ Component.register('sw-event-action-detail', {
         },
 
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;

@@ -44,10 +44,8 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
 
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             criteria.setTotalCountMode(1);
 
             criteria.addAssociation('visibilities.salesChannel');

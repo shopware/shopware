@@ -25,7 +25,7 @@ function getCollection() {
         '/test-entity',
         'testEntity',
         null,
-        new Criteria(),
+        new Criteria(1, 25),
         fixture,
         fixture.length,
         null
@@ -84,7 +84,7 @@ describe('components/sw-entity-multi-select', () => {
     });
 
     it('should use the provided associations in the criteria', async () => {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addAssociation('testAssociation');
         const entityCollection = getCollection();
         entityCollection.context = 'test';

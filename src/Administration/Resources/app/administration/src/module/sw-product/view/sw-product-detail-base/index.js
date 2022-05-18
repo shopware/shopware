@@ -353,10 +353,8 @@ Component.register('sw-product-detail-base', {
             if (!this.product || !this.product.id) {
                 return;
             }
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('productId', this.product.id));
-            criteria.setPage(this.page);
-            criteria.setLimit(this.limit);
             criteria.setTotalCountMode(1);
 
             // load all our individual codes of our promotion

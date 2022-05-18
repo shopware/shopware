@@ -94,7 +94,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
         },
 
         currencyCriteria() {
-            return (new Criteria())
+            return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 

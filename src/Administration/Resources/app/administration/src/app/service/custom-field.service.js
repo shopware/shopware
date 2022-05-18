@@ -167,7 +167,7 @@ export default function createCustomFieldService() {
     }
 
     function customFieldSetCriteria(entityName) {
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('relations.entityName', entityName));
         criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition'));

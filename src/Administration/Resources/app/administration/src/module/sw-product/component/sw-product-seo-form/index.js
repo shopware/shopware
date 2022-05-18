@@ -50,7 +50,7 @@ Component.register('sw-product-seo-form', {
         },
 
         variantCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('options.group');
 

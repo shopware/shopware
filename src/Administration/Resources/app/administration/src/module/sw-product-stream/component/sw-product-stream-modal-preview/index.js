@@ -47,17 +47,14 @@ Component.register('sw-product-stream-modal-preview', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(1);
+            const criteria = new Criteria(1, 1);
             criteria.addSorting(Criteria.sort('type.iconName', 'ASC'));
 
             return criteria;
         },
 
         previewCriteria() {
-            const criteria = new Criteria();
-            criteria.setLimit(this.limit);
-            criteria.setPage(this.page);
+            const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.searchTerm);
 
             return criteria;

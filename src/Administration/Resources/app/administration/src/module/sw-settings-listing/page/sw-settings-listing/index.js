@@ -78,11 +78,7 @@ Component.register('sw-settings-listing', {
         },
 
         productSortingsOptionsCriteria() {
-            const criteria = new Criteria();
-
-            criteria
-                .setLimit(this.sortingOptionsGridLimit)
-                .setPage(this.sortingOptionsGridPage);
+            const criteria = new Criteria(this.sortingOptionsGridPage, this.sortingOptionsGridLimit);
 
             criteria.addSorting(
                 Criteria.sort('priority', 'DESC'),
@@ -96,7 +92,7 @@ Component.register('sw-settings-listing', {
         },
 
         productSortingOptionsSearchCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.contains('label', this.productSortingOptionsSearchTerm),
@@ -110,7 +106,7 @@ Component.register('sw-settings-listing', {
         },
 
         customFieldCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         productSortingOptionColumns() {

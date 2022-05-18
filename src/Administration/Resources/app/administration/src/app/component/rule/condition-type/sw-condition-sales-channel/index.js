@@ -65,7 +65,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.salesChannelIds);
 
             return this.salesChannelRepository.search(criteria, Context.api).then((salesChannels) => {

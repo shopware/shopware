@@ -42,7 +42,7 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         productSortingsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('key', [...Object.keys(this.productSortingsConfigValue)]));
             criteria.addSorting(Criteria.sort('priority', 'desc'));
@@ -51,18 +51,16 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         propertyCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, 6);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equals('filterable', true));
-            criteria.setLimit(6);
-            criteria.setPage(this.page);
 
             return criteria;
         },
 
         allProductSortingsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('locked', false));
 
@@ -70,7 +68,7 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         excludedDefaultSortingCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             if (this.defaultSorting.id) {
                 criteria.addFilter(Criteria.not(
@@ -235,7 +233,7 @@ Component.register('sw-cms-el-config-product-listing', {
         initDefaultSorting() {
             const defaultSortingKey = this.element.config.defaultSorting.value;
             if (defaultSortingKey !== '') {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
 
                 criteria.addFilter(Criteria.equals('key', defaultSortingKey));
 

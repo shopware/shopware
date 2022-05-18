@@ -134,7 +134,7 @@ class SalesChannelFavoritesService {
     }
 
     private getCriteria(): CriteriaInterface {
-        const criteria = <CriteriaInterface><unknown> new Criteria();
+        const criteria = <CriteriaInterface><unknown> new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', SalesChannelFavoritesService.USER_CONFIG_KEY));
         criteria.addFilter(Criteria.equals('userId', this.currentUserId));

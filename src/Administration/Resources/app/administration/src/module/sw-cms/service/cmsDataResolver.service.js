@@ -164,7 +164,7 @@ function fetchByIdentifier(directReads) {
 
     Object.entries(directReads).forEach(([entityName, entityIds]) => {
         if (entityIds.length > 0) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(entityIds);
 
             const repo = getRepository(entityName);

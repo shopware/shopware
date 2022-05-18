@@ -61,9 +61,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         snippetCriteria() {
-            const snippetCriteria = new Criteria();
-            snippetCriteria.setLimit(10);
-            return snippetCriteria;
+            return new Criteria(1, 10);
         },
     },
 
@@ -265,11 +263,10 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         getLanguageCriteria() {
-            const languageCriteria = new Criteria();
+            const languageCriteria = new Criteria(1, null);
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
-            languageCriteria.limit = null;
 
             return languageCriteria;
         },

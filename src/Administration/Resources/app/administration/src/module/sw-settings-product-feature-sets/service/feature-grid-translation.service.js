@@ -50,7 +50,7 @@ export default class FeatureGridTranslationService {
             return Promise.resolve();
         }
 
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equalsAny(
             filterBy,

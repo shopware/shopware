@@ -11,7 +11,7 @@ describe('app/service/filter.service.js', () => {
         Shopware.Application.view = {
             router: new VueRouter()
         };
-        filterData = new EntityCollection(null, null, null, new Criteria(), [{
+        filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [{
             key: 'test',
             userId: '123',
             value: {
@@ -81,7 +81,7 @@ describe('app/service/filter.service.js', () => {
     });
 
     it('getStoredFilters when there is no data from database, has data from url', async () => {
-        filterData = new EntityCollection(null, null, null, new Criteria(), []);
+        filterData = new EntityCollection(null, null, null, new Criteria(1, 25), []);
         const urlEncodedValue = encodeURIComponent(JSON.stringify({
             'stock-filter': {
                 value: null,
@@ -161,7 +161,7 @@ describe('app/service/filter.service.js', () => {
 
     it('mergeWithStoredFilters when there is no cache data', async () => {
         filterService.getStoredFilters = jest.fn().mockImplementation(() => Promise.resolve({}));
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
         criteria.addFilter({
             type: 'equalsAny',
             field: 'salutation.id',

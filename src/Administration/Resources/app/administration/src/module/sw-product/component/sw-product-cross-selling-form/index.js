@@ -84,7 +84,7 @@ Component.register('sw-product-cross-selling-form', {
         },
 
         productStreamFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
                 Criteria.equals('productStreamId', this.crossSelling.productStreamId),

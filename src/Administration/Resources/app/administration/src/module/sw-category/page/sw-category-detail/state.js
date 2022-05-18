@@ -54,7 +54,7 @@ export default {
             }
 
             if (!criteria) {
-                criteria = new Criteria();
+                criteria = new Criteria(1, 25);
             }
 
             return repository.get(id, apiContext, criteria).then((landingPage) => {
@@ -68,13 +68,13 @@ export default {
 
         loadActiveCategory({ commit }, { repository, id, apiContext, criteria }) {
             if (!criteria) {
-                criteria = new Criteria();
+                criteria = new Criteria(1, 25);
             }
 
             return repository.get(id, apiContext, criteria).then((category) => {
                 category.isColumn = false;
                 if (category.parentId !== null) {
-                    const parentCriteria = new Criteria();
+                    const parentCriteria = new Criteria(1, 25);
                     parentCriteria.addAssociation('footerSalesChannels');
 
                     return repository.get(category.parentId, apiContext, parentCriteria).then((parent) => {

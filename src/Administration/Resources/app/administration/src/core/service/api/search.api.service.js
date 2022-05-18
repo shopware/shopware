@@ -18,10 +18,8 @@ class SearchApiService extends ApiService {
     search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        const criteria = new Criteria();
+        const criteria = new Criteria(page, limit);
         criteria.setTerm(term);
-        criteria.setLimit(limit);
-        criteria.setPage(page);
 
         const entities = [
             'landing_page',

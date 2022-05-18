@@ -65,7 +65,7 @@ Component.extend('sw-condition-shipping-method', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.shippingMethodIds);
 
             return this.shippingMethodRepository.search(criteria, Context.api).then((shippingMethods) => {

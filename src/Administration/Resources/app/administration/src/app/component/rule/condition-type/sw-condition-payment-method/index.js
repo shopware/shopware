@@ -65,7 +65,7 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.paymentMethodIds);
 
             return this.paymentMethodRepository.search(criteria, Context.api).then((paymentMethods) => {

@@ -62,7 +62,7 @@ Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base-li
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.manufacturerIds);
 
             return this.manufacturerRepository.search(criteria, Context.api).then((manufacturers) => {

@@ -54,7 +54,7 @@ Component.register('sw-settings-shipping-tax-cost', {
         },
 
         taxCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('position'));
 
             return criteria;

@@ -48,7 +48,7 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
         },
 
         parentProfileCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
             criteria.addFilter(Criteria.equals('systemDefault', true));
 

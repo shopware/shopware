@@ -37,7 +37,7 @@ function createWrapper(propsData = {}) {
             columns: [
                 { property: 'name', label: 'Name' }
             ],
-            items: new EntityCollection(null, null, null, new Criteria(), [
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' }
             ]),
@@ -111,7 +111,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     it('should have context menu with edit entry', async () => {
         const wrapper = createWrapper({
             allowEdit: true,
-            items: new EntityCollection(null, null, null, new Criteria(), [
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' }
@@ -129,7 +129,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = createWrapper({
             allowEdit: false,
             allowView: true,
-            items: new EntityCollection(null, null, null, new Criteria(), [
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' }
@@ -147,7 +147,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = createWrapper({
             allowEdit: false,
             allowView: false,
-            items: new EntityCollection(null, null, null, new Criteria(), [
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
                 { id: 'id3', name: 'item3' }

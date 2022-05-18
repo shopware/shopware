@@ -309,7 +309,7 @@ Component.register('sw-media-library', {
         async nextFolders() {
             this.pageFolder += 1;
 
-            const criteria = new Criteria(this.pageFolder)
+            const criteria = new Criteria(this.pageFolder, 25)
                 .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
                 .setTerm(this.term);
 

@@ -50,7 +50,8 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
+
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -81,7 +82,7 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
             criteria.setIds(this.identifiers);
 

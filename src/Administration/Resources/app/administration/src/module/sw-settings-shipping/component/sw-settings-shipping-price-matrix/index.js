@@ -166,7 +166,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         ruleFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [
@@ -185,7 +185,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         shippingRuleFilterCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [

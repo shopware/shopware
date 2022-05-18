@@ -106,7 +106,7 @@ export default class FilterService {
 
     _getUserConfigCriteria(storeKey) {
         const currentUser = Shopware.State.get('session').currentUser;
-        const criteria = new Criteria();
+        const criteria = new Criteria(1, 25);
 
         criteria.addFilter(Criteria.equals('key', storeKey));
         criteria.addFilter(Criteria.equals('userId', currentUser?.id));

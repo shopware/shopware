@@ -61,7 +61,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
         },
 
         customFieldFilteredCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
 
             if (!this.searchConfigs) {
@@ -89,7 +89,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('customFieldSet');
 
             return criteria;

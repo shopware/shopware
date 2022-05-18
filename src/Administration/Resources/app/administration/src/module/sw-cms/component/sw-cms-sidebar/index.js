@@ -103,13 +103,13 @@ Component.register('sw-cms-sidebar', {
 
         demoCriteria() {
             if (this.demoEntity === 'product') {
-                const criteria = new Criteria();
+                const criteria = new Criteria(1, 25);
                 criteria.addAssociation('options.group');
 
                 return criteria;
             }
 
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         demoContext() {

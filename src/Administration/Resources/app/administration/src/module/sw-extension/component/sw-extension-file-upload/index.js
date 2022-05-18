@@ -35,7 +35,7 @@ Component.register('sw-extension-file-upload', {
         },
 
         userConfigCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('key', USER_CONFIG_KEY));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));

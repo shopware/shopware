@@ -116,7 +116,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         userConfigCriteria() {
-            return new Criteria().addFilter(Criteria.multi(
+            return new Criteria(1, 25).addFilter(Criteria.multi(
                 'AND',
                 [
                     Criteria.equals('userId', this.currentUserId),

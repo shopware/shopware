@@ -90,7 +90,7 @@ Component.register('sw-customer-address-form', {
         },
 
         countryCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('position', 'ASC'));
             return criteria;
         },
@@ -100,13 +100,13 @@ Component.register('sw-customer-address-form', {
                 return null;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('countryId', this.countryId));
             return criteria;
         },
 
         salutationCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('or', [
                 Criteria.equals('id', Defaults.defaultSalutationId),

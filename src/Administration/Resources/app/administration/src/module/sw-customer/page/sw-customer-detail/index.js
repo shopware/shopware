@@ -76,7 +76,7 @@ Component.register('sw-customer-detail', {
         },
 
         defaultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
                 .addAssociation('group')

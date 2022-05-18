@@ -46,14 +46,14 @@ Component.register('sw-event-action-list', {
         },
 
         mailTemplateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
 
             return criteria;
         },
 
         eventActionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.setTerm(null);
             if (this.term) {

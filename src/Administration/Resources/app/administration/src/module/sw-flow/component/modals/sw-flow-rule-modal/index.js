@@ -121,7 +121,7 @@ Component.register('sw-flow-rule-modal', {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(1, 25), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }

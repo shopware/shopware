@@ -62,7 +62,7 @@ Component.register('sw-flow-detail', {
         },
 
         flowCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('sequences.rule');
             criteria.getAssociation('sequences')
@@ -97,7 +97,7 @@ Component.register('sw-flow-detail', {
         },
 
         mailTemplateIdsCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
             return criteria;
@@ -118,7 +118,7 @@ Component.register('sw-flow-detail', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
@@ -132,13 +132,13 @@ Component.register('sw-flow-detail', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldSetIds));
             return criteria;
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equalsAny('id', this.customFieldIds));
             return criteria;
         },

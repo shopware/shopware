@@ -75,9 +75,9 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
         localVue,
         propsData: {
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), mockCategories),
-                products: new EntityCollection(null, null, null, new Criteria(), mockProducts),
-                landingPages: new EntityCollection(null, null, null, new Criteria(), mockLandingPages),
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), mockCategories),
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), mockProducts),
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), mockLandingPages),
                 type: layoutType,
                 id: 'uuid007'
             }
@@ -217,7 +217,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), [
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockCategories,
                     {
                         name: 'New category',
@@ -248,7 +248,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), [
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockCategories,
                     {
                         name: 'New category',
@@ -303,7 +303,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), [
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
                         id: 'uuid1'
@@ -341,7 +341,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), [
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
                         id: 'uuid1'
@@ -380,7 +380,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                categories: new EntityCollection(null, null, null, new Criteria(), [
+                categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
                         id: 'uuid1'
@@ -712,7 +712,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             page: {
-                products: new EntityCollection(null, null, null, new Criteria(), [
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockProducts,
                     {
                         name: 'New product',
@@ -743,7 +743,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             page: {
-                products: new EntityCollection(null, null, null, new Criteria(), [
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockProducts,
                     {
                         name: 'New product',
@@ -798,7 +798,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             page: {
-                products: new EntityCollection(null, null, null, new Criteria(), [
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
                         id: 'uuid1'
@@ -836,7 +836,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             page: {
-                products: new EntityCollection(null, null, null, new Criteria(), [
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
                         id: 'uuid1'
@@ -872,7 +872,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         await wrapper.setData({
             page: {
-                products: new EntityCollection(null, null, null, new Criteria(), [
+                products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
                         id: 'uuid1'
@@ -938,7 +938,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
                     newPage
                 ])
@@ -975,7 +975,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
                     newPage1,
                     newPage2
@@ -1013,7 +1013,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
                         id: 'uuid1'
@@ -1051,7 +1051,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
                         id: 'uuid1'
@@ -1098,7 +1098,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         wrapper.setData({
             page: {
-                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     page1,
                     page2
                 ])

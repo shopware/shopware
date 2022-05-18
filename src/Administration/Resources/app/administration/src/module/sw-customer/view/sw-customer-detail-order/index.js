@@ -82,7 +82,7 @@ Component.register('sw-customer-detail-order', {
         },
 
         refreshList() {
-            let criteria = new Criteria();
+            let criteria = new Criteria(1, 25);
             if (!this.orders || !this.orders.criteria) {
                 criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.customer.id));
             } else {

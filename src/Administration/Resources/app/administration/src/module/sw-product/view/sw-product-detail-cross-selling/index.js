@@ -71,7 +71,7 @@ Component.register('sw-product-detail-cross-selling', {
                 crossSelling.assignedProducts.source,
             );
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('crossSellingId', crossSelling.id))
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('product');

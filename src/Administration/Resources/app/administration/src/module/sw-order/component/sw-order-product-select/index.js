@@ -58,7 +58,7 @@ Component.register('sw-order-product-select', {
         },
 
         productCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('options.group');
 

@@ -111,12 +111,13 @@ Component.register('sw-customer-detail-addresses', {
                 });
                 return;
             }
+
             if (!this.activeCustomer.id) {
                 this.$router.push({ name: 'sw.customer.detail.base', params: { id: this.$route.params.id } });
                 return;
             }
 
-            const customFieldSetCriteria = new Criteria();
+            const customFieldSetCriteria = new Criteria(1, 25);
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 

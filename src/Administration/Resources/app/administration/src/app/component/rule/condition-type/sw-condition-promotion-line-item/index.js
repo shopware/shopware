@@ -51,11 +51,11 @@ Component.extend('sw-condition-promotion-line-item', 'sw-condition-base-line-ite
         },
 
         promotionCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         resultCriteria() {
-            return new Criteria();
+            return new Criteria(1, 25);
         },
 
         promotionContext() {
@@ -80,7 +80,7 @@ Component.extend('sw-condition-promotion-line-item', 'sw-condition-base-line-ite
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.promotionIds);
 
             return this.promotionRepository.search(criteria, Shopware.Context.api).then((promotions) => {

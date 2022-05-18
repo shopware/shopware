@@ -69,7 +69,7 @@ Component.extend('sw-condition-line-item-tag', 'sw-condition-base-line-item', {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria.setIds(this.identifiers);
 
             return this.tagRepository.search(criteria, Context.api).then((tags) => {

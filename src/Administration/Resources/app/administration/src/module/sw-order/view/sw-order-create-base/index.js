@@ -48,7 +48,7 @@ Component.register('sw-order-create-base', {
         },
 
         customerAddressCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('salutation');
             criteria.addAssociation('country');
@@ -58,7 +58,7 @@ Component.register('sw-order-create-base', {
         },
 
         defaultCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
                 .addAssociation('group')

@@ -134,6 +134,9 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-import-export-activity-log-info-modal__description-list').should('be.visible');
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
 
+        cy.changeElementText('.sw-import-export-activity-log-info-modal__item-file-name', 'Default product_20180101-000000.csv');
+        cy.changeElementText('.sw-import-export-activity-log-info-modal__item-date', '01 Jan 2018, 00:00');
+
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
@@ -212,6 +215,8 @@ describe('Import/Export:  Visual tests', () => {
 
         cy.get('.sw-import-export-activity-result-modal').should('be.visible');
         cy.get('.sw-import-export-activity-result-modal__info').should('be.visible');
+
+        cy.changeElementText('.sw-import-export-activity-result-modal__log-info-date', '01 Jan 2018, 00:00');
 
         // Take snapshot for visual testing
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');

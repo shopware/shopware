@@ -48,9 +48,28 @@ class LanguageLocaleCodeProvider implements ResetInterface
     private function getLanguages(): array
     {
         if (\count($this->languages) === 0) {
-            $this->languages = $this->languageLoader->loadLanguages();
+            $this->languages = $this->resolveParentLanguages(
+                $this->languageLoader->loadLanguages()
+            );
         }
 
         return $this->languages;
+    }
+
+    /**
+     * resolves the inherited languages codes, so we have a guaranteed language code for each language id
+     * we can't do it in the language loader as other places (e.g. DAL writes) expect that the translation code is unique
+     */
+    private function resolveParentLanguages(array $languages): array
+    {
+        foreach ($languages as &$language) {
+            if ($language['code'] !== null || $language['parentId'] === null) {
+                continue;
+            }
+
+            $language['code'] = $languages[$language['parentId']]['code'] ?? null;
+        }
+
+        return $languages;
     }
 }

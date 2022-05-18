@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLan
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -40,35 +42,19 @@ class TranslationTest extends TestCase
     use IntegrationTestBehaviour;
     use ArraySubsetAsserts;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyRepository;
+    private EntityRepositoryInterface $currencyRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private IdsCollection $ids;
+
+    private string $deLanguageId;
 
     protected function setUp(): void
     {
@@ -77,6 +63,7 @@ class TranslationTest extends TestCase
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
 
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
@@ -983,5 +970,124 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         /** @var CategoryTranslationEntity $deTranslation */
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testWriteWithInheritedTranslationCode(): void
+    {
+        $this->languageRepository->upsert([
+            [
+                'id' => $this->ids->get('language-parent'),
+                'name' => 'parent',
+                'locale' => [
+                    'id' => $this->ids->get('language-locale'),
+                    'code' => 'language-locale',
+                    'name' => 'language-locale',
+                    'territory' => 'language-locale',
+                ],
+                'translationCodeId' => $this->ids->get('language-locale'),
+            ],
+            [
+                'id' => $this->ids->get('language-child'),
+                'name' => 'child',
+                'parentId' => $this->ids->get('language-parent'),
+                'localeId' => $this->ids->get('language-locale'),
+                'translationCodeId' => null,
+            ],
+        ], $this->context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+                'language-locale' => 'parent language',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $this->context)->first();
+
+        /** @var CategoryTranslationCollection $translations */
+        $translations = $category->getTranslations();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
+        static::assertEquals('parent language', $childTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
+        static::assertNull($childTranslation->getName());
+    }
+
+    public function testWriteWithInheritedTranslationCodeAndChildLanguage(): void
+    {
+        $this->languageRepository->upsert([
+            [
+                'id' => $this->ids->get('language-parent'),
+                'name' => 'parent',
+                'locale' => [
+                    'id' => $this->ids->get('language-locale'),
+                    'code' => 'language-locale',
+                    'name' => 'language-locale',
+                    'territory' => 'language-locale',
+                ],
+                'translationCodeId' => $this->ids->get('language-locale'),
+            ],
+            [
+                'id' => $this->ids->get('language-child'),
+                'name' => 'child',
+                'parentId' => $this->ids->get('language-parent'),
+                'localeId' => $this->ids->get('language-locale'),
+                'translationCodeId' => null,
+            ],
+        ], $this->context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+                'language-locale' => 'parent language',
+                $this->ids->get('language-child') => 'child language',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $this->context)->first();
+
+        /** @var CategoryTranslationCollection $translations */
+        $translations = $category->getTranslations();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
+        static::assertEquals('parent language', $childTranslation->getName());
+
+        /** @var CategoryTranslationEntity $childTranslation */
+        $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
+        static::assertEquals('child language', $childTranslation->getName());
     }
 }

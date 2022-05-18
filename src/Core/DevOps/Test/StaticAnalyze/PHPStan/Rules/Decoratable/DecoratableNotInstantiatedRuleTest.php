@@ -20,7 +20,7 @@ class DecoratableNotInstantiatedRuleTest extends RuleTestCase
         ], [
             [
                 'The service "' . DecoratableClass::class . '" is marked as "@Decoratable", but is instantiated, use constructor injection via the DIC instead.',
-                9,
+                12,
             ],
         ]);
     }

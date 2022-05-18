@@ -84,7 +84,7 @@ PHP coverage:
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit phpunit.junit.xml
-            --exclude-group=skip-paratest,needsWebserver
+            --exclude-group=needsWebserver
             --testsuite "$TESTSUITE"
             --coverage-text
             --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines

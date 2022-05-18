@@ -20,7 +20,7 @@ class DecoratableDoesNotCallOwnPublicMethodRuleTest extends RuleTestCase
         ], [
             [
                 'The service "' . DecoratableDoesCallOwnPublicMethod::class . '" is marked as "@Decoratable", but calls it\'s own public method "build", which breaks decoration.',
-                14,
+                15,
             ],
         ]);
     }

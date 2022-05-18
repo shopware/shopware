@@ -21,7 +21,7 @@ class DecoratableImplementsInterfaceRuleTest extends RuleTestCase
         ], [
             [
                 'The service "' . DecoratableDoesNotImplementInterface::class . '" is marked as "@Decoratable", but does not implement an interface.',
-                10,
+                11,
             ],
         ]);
     }

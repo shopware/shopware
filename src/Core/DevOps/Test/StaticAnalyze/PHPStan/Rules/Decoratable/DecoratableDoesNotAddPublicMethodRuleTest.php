@@ -20,7 +20,7 @@ class DecoratableDoesNotAddPublicMethodRuleTest extends RuleTestCase
         ], [
             [
                 'The service "' . DecoratableAddPublicMethod::class . '" is marked as "@Decoratable", but adds public method "build", that is not defined by any Interface.',
-                20,
+                21,
             ],
         ]);
     }

@@ -214,10 +214,11 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return sprintf(
-            '%s/var/cache/%s_h%s',
+            '%s/var/cache/%s_h%s%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
-            $this->getCacheHash()
+            $this->getCacheHash(),
+            EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
         );
     }
 

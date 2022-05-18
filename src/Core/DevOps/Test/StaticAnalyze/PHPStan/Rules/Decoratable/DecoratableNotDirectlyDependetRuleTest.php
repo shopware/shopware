@@ -23,15 +23,15 @@ class DecoratableNotDirectlyDependetRuleTest extends RuleTestCase
         ], [
             [
                 self::ERROR_MSG,
-                10,
+                13,
             ],
             [
                 self::ERROR_MSG,
-                17,
+                20,
             ],
             [
                 self::ERROR_MSG,
-                23,
+                26,
             ],
         ]);
     }

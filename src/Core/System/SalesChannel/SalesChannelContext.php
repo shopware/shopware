@@ -201,9 +201,12 @@ class SalesChannelContext extends Struct
         }
 
         if ($tax->getRules()->first() !== null) {
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
             return new TaxRuleCollection([
                 new TaxRule($tax->getRules()->first()->getTaxRate(), 100),
             ]);
+            // @codeCoverageIgnoreEnd
         }
 
         return new TaxRuleCollection([

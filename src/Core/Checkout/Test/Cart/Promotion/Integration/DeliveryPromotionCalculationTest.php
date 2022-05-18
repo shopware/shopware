@@ -456,6 +456,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      *
+     * NEXT-21735 - Sometimes has a $reduceValue of 0
+     * @group not-deterministic
+     *
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException

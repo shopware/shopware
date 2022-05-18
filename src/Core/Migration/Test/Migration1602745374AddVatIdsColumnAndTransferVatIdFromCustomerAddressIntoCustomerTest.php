@@ -4,8 +4,11 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -232,6 +235,12 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
             'company' => 'Test Company',
         ];
         $insertData = array_merge_recursive($data, $additionalData);
-        $this->getContainer()->get('customer.repository')->create([$insertData], $this->ids->context);
+        $this->getContainer()
+            ->get(EntityWriter::class)
+            ->insert(
+                $this->getContainer()->get(CustomerDefinition::class),
+                [$insertData],
+                WriteContext::createFromContext($this->ids->context)
+            );
     }
 }

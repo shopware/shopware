@@ -19,6 +19,8 @@ use Shopware\Core\System\StateMachine\Transition;
 
 /**
  * @internal
+ * NEXT-21735
+ * @group not-deterministic
  */
 class Migration1625505190AddOrderTotalAmountToCustomerTableTest extends TestCase
 {

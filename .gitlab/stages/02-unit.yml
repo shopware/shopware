@@ -84,8 +84,9 @@ PHP coverage:
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit phpunit.junit.xml
-            --exclude-group=needsWebserver,skip-paratest
+            --exclude-group=needsWebserver,skip-paratest,not-deterministic
             --testsuite "$TESTSUITE"
+            --order-by default
             --coverage-text
             --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
@@ -98,7 +99,7 @@ PHP coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,elasticsearch,profiling,maintenance,docs", "migration"]
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]
             - TESTSUITE: ["content", "checkout", "elasticsearch"]
               RUNNER_INSTANCE_TYPE: m5.large
 

@@ -140,6 +140,11 @@ class SitemapExporterTest extends TestCase
         static::assertTrue($result->isFinish());
     }
 
+    /**
+     * NEXT-21735
+     *
+     * @group not-deterministic
+     */
     public function testWriteWithMulitpleSchemesAndSameLanguage(): void
     {
         $salesChannel = $this->salesChannelRepository->search(

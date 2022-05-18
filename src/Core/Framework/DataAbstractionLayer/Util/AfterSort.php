@@ -12,6 +12,9 @@ class AfterSort
             return $elements;
         }
 
+        // NEXT-21735 - This is covered randomly
+        // @codeCoverageIgnoreStart
+
         // pre-sort elements to pull elements without an after id parent to the front
         uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {
             $aValue = $a->$propertyName;
@@ -30,6 +33,7 @@ class AfterSort
 
             return 0;
         });
+        // @codeCoverageIgnoreEnd
 
         // add first element to sorted list as this will be the absolute first item
         $first = array_shift($elements);

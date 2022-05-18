@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -34,7 +35,7 @@ trait BasicTestDataBehaviour
 
     abstract protected function getContainer(): ContainerInterface;
 
-    protected function getValidPaymentMethodId(): string
+    protected function getValidPaymentMethodId(?string $salesChannelId = null): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
@@ -43,13 +44,17 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
+
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         return $id;
     }
 
-    protected function getInactivePaymentMethodId(): string
+    protected function getInactivePaymentMethodId(?string $salesChannelId = null): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
@@ -58,13 +63,17 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', false));
 
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
+
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         return $id;
     }
 
-    protected function getAvailablePaymentMethod(): PaymentMethodEntity
+    protected function getAvailablePaymentMethod(?string $salesChannelId = null): PaymentMethodEntity
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
@@ -73,6 +82,10 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('availabilityRuleId', null));
+
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
 
         $paymentMethod = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
@@ -83,14 +96,19 @@ trait BasicTestDataBehaviour
         return $paymentMethod;
     }
 
-    protected function getValidShippingMethodId(): string
+    protected function getValidShippingMethodId(?string $salesChannelId = null): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $criteria = (new Criteria())
             ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('name'));
+
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
@@ -98,18 +116,22 @@ trait BasicTestDataBehaviour
         return $id;
     }
 
-    protected function getAvailableShippingMethod(): ShippingMethodEntity
+    protected function getAvailableShippingMethod(?string $salesChannelId = null): ShippingMethodEntity
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
-        $shippingMethods = $repository->search(
-            (new Criteria())
-                ->addAssociation('prices')
-                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 1))
-                ->addFilter(new EqualsFilter('active', true)),
-            Context::createDefaultContext()
-        )->getEntities();
+        $criteria = (new Criteria())
+            ->addAssociation('prices')
+            ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 1))
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('name'));
+
+        if ($salesChannelId) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
+
+        $shippingMethods = $repository->search($criteria, Context::createDefaultContext())->getEntities();
 
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
@@ -126,7 +148,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('salutation.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addSorting(new FieldSorting('salutationKey'));
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
@@ -168,11 +192,14 @@ trait BasicTestDataBehaviour
         $criteria = (new Criteria())->setLimit(1)
             ->addFilter(new EqualsFilter('taxFree', 0))
             ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('shippingAvailable', true));
+            ->addFilter(new EqualsFilter('shippingAvailable', true))
+            ->addSorting(new FieldSorting('iso'));
 
         if ($salesChannelId !== null) {
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
+
+        $result = $repository->search($criteria, Context::createDefaultContext());
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
@@ -185,7 +212,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addSorting(new FieldSorting('level'), new FieldSorting('name'));
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
@@ -198,7 +227,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('tax.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addSorting(new FieldSorting('name'));
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
@@ -211,7 +242,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('document_type.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addSorting(new FieldSorting('technicalName'));
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();

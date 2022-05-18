@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
@@ -612,7 +613,11 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext([], [SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodIdNoExits]);
 
-        static::assertSame($this->getValidShippingMethodId(), $salesChannelContext->getSalesChannel()->getShippingMethodId());
+        $repository = $this->getContainer()->get('sales_channel.repository');
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $repository->search(new Criteria([$salesChannelContext->getSalesChannelId()]), $salesChannelContext->getContext())->first();
+
+        static::assertSame($salesChannel->getShippingMethodId(), $salesChannelContext->getSalesChannel()->getShippingMethodId());
         static::assertNotSame($shippingMethodIdNoExits, $salesChannelContext->getSalesChannel()->getShippingMethodId());
     }
 

@@ -192,6 +192,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return new TaxCollection($taxes);
     }
 
+    /**
+     * @group not-deterministic
+     * NEXT-21735 - This is covered randomly
+     * @codeCoverageIgnore
+     */
     private function getPaymentMethod(array $options, BaseContext $context, ?CustomerEntity $customer): PaymentMethodEntity
     {
         if ($customer === null || isset($options[SalesChannelContextService::PAYMENT_METHOD_ID])) {
@@ -200,6 +205,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $id = $customer->getLastPaymentMethodId() ?? $customer->getDefaultPaymentMethodId();
         if ($id === $context->getPaymentMethod()->getId()) {
+            // NEXT-21735 - does not execute on every test run
             return $context->getPaymentMethod();
         }
 
@@ -266,6 +272,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     /**
      * @return CashRoundingConfig[]
+     *
+     * @group not-deterministic
+     * NEXT-21735 - This is covered randomly
+     * @codeCoverageIgnore
      */
     private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array
     {

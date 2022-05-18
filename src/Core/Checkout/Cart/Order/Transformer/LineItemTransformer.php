@@ -107,7 +107,10 @@ class LineItemTransformer
                     continue;
                 }
 
+                // NEXT-21735 - This is covered randomly
+                // @codeCoverageIgnoreStart
                 $index[$lineItem->getParentId()] = self::createLineItem($parentItem);
+                // @codeCoverageIgnoreEnd
             }
 
             $index[$lineItem->getParentId()]->addChild($currentLineItem);

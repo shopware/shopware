@@ -41,11 +41,14 @@ class DeliveryDate extends Struct
                     self::create('P' . $deliveryTime->getMax() . 'D')
                 );
 
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
             case 'week':
                 return new self(
                     self::create('P' . $deliveryTime->getMin() . 'W'),
                     self::create('P' . $deliveryTime->getMax() . 'W')
                 );
+            // @codeCoverageIgnoreEnd
 
             case 'month':
                 return new self(

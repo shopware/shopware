@@ -11,8 +11,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
@@ -33,6 +37,20 @@ trait OrderFixture
         $customerId = Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
 
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $salesChannelRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('id', TestDefaults::SALES_CHANNEL)),
+            Context::createDefaultContext()
+        )->first();
+
+        $paymentMethodId = $salesChannel->getPaymentMethodId();
+        $shippingMethodId = $salesChannel->getShippingMethodId();
+        $salutationId = $this->getValidSalutationId();
+        $countryId = $this->getValidCountryId(TestDefaults::SALES_CHANNEL);
+
         $order = [
             [
                 'id' => $orderId,
@@ -41,7 +59,7 @@ trait OrderFixture
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'versionId' => Defaults::LIVE_VERSION,
-                'paymentMethodId' => $this->getValidPaymentMethodId(),
+                'paymentMethodId' => $paymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -49,12 +67,12 @@ trait OrderFixture
                 'deliveries' => [
                     [
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
-                        'shippingMethodId' => $this->getValidShippingMethodId(),
+                        'shippingMethodId' => $shippingMethodId,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(\DATE_ISO8601),
                         'shippingDateLatest' => date(\DATE_ISO8601),
                         'shippingOrderAddress' => [
-                            'salutationId' => $this->getValidSalutationId(),
+                            'salutationId' => $salutationId,
                             'firstName' => 'Floy',
                             'lastName' => 'Glover',
                             'zipcode' => '59438-0403',
@@ -62,7 +80,7 @@ trait OrderFixture
                             'street' => 'street',
                             'country' => [
                                 'name' => 'kasachstan',
-                                'id' => $this->getValidCountryId(),
+                                'id' => $countryId,
                             ],
                         ],
                         'positions' => [
@@ -93,7 +111,7 @@ trait OrderFixture
                     'email' => 'test@example.com',
                     'firstName' => 'Noe',
                     'lastName' => 'Hill',
-                    'salutationId' => $this->getValidSalutationId(),
+                    'salutationId' => $salutationId,
                     'title' => 'Doc',
                     'customerNumber' => 'Test',
                     'orderVersionId' => Defaults::LIVE_VERSION,
@@ -102,19 +120,19 @@ trait OrderFixture
                         'email' => 'test@example.com',
                         'firstName' => 'Noe',
                         'lastName' => 'Hill',
-                        'salutationId' => $this->getValidSalutationId(),
+                        'salutationId' => $salutationId,
                         'title' => 'Doc',
                         'customerNumber' => 'Test',
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
-                        'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                        'defaultPaymentMethodId' => $paymentMethodId,
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [
                             [
                                 'id' => $addressId,
-                                'salutationId' => $this->getValidSalutationId(),
+                                'salutationId' => $salutationId,
                                 'firstName' => 'Floy',
                                 'lastName' => 'Glover',
                                 'zipcode' => '59438-0403',
@@ -123,7 +141,7 @@ trait OrderFixture
                                 'countryStateId' => $countryStateId,
                                 'country' => [
                                     'name' => 'kasachstan',
-                                    'id' => $this->getValidCountryId(),
+                                    'id' => $countryId,
                                     'states' => [
                                         [
                                             'id' => $countryStateId,
@@ -139,13 +157,13 @@ trait OrderFixture
                 'billingAddressId' => $addressId,
                 'addresses' => [
                     [
-                        'salutationId' => $this->getValidSalutationId(),
+                        'salutationId' => $salutationId,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
                         'zipcode' => '59438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
-                        'countryId' => $this->getValidCountryId(),
+                        'countryId' => $countryId,
                         'id' => $addressId,
                     ],
                 ],

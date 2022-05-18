@@ -2,6 +2,7 @@ import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
 const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
  * @private
@@ -19,6 +20,10 @@ Component.register('sw-extension-my-extensions-listing', {
     },
 
     computed: {
+        ...mapState('context', {
+            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
+        }),
+
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
 

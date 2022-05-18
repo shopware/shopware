@@ -226,6 +226,7 @@ class InfoController extends AbstractController
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
                 'appUrlReachable' => $appUrlReachable,
+                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl($context),
             ],
         ]);
     }

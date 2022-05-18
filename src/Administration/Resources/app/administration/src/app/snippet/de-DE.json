@@ -1323,6 +1323,15 @@
         "cancellation": "Abbrechen",
         "success": "Domain Änderung erfolgreich durchgeführt.",
         "error": "Keine Änderung durchgeführt."
+      },
+      "sw-app-wrong-app-url-modal": {
+        "title": "Fehlerhaft konfigurierte APP_URL",
+        "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
+        "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
+        "textGetSupport": "Kontaktiere deinen Hoster um Hilfe zu bekommen.",
+        "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
+        "labelLearnMoreButton": "Lerne mehr",
+        "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }
     }
   },

@@ -39,6 +39,15 @@ Component.register('sw-media-field', {
             required: false,
             default: null,
         },
+
+        defaultFolder: {
+            type: String,
+            required: false,
+            validator(value) {
+                return value.length > 0;
+            },
+            default: null,
+        },
     },
 
     data() {
@@ -125,6 +134,10 @@ Component.register('sw-media-field', {
                         Criteria.contains('fileExtension', this.searchTerm),
                     ],
                 ));
+            }
+
+            if (this.defaultFolder) {
+                criteria.addFilter(Criteria.equals('mediaFolder.defaultFolder.entity', this.defaultFolder));
             }
 
             try {

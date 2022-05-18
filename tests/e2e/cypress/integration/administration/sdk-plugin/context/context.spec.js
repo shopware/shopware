@@ -45,7 +45,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('Get current language')
             .click();
 
-        cy.log('Check the current language')
+        cy.log('Check the current language');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`system-language-ID: ${DEFAULT_LANGUAGE_ID}`);
@@ -57,7 +57,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: subscribe on language changes', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Change the language of the current user')
+        cy.log('Change the language of the current user');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -73,18 +73,18 @@ describe('SDK Tests: Context', ()=> {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-language-switch input')
-            .click()
+            .click();
 
         cy.contains('.sw-select-result', 'Deutsch')
             .click();
 
-        cy.log('Check if subscription of language works')
+        cy.log('Check if subscription of language works');
 
         cy.get('.sw-alert__title')
             .should('be.visible');
 
         cy.get('.sw-alert__title')
-            .contains('Language changes')
+            .contains('Language changes');
 
         cy.get('.sw-alert__message')
             .contains('languageId: '); // ID changes everytime therefore no check
@@ -95,7 +95,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: get current environment', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -106,14 +106,14 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Get the current environment')
+        cy.log('Get the current environment');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')
             .contains('Get current environment')
             .click();
 
-        cy.log('Check the current environment')
+        cy.log('Check the current environment');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`Environment: production`);
@@ -122,7 +122,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: get current locale', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -140,7 +140,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('Get current locale')
             .click();
 
-        cy.log('Check the current locale')
+        cy.log('Check the current locale');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains(`Locale: ${LOCALE}`);
@@ -152,7 +152,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: subscribe on locale changes', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Change the locale of the current user')
+        cy.log('Change the locale of the current user');
 
         cy.get('.sw-admin-menu__user-name')
             .click();
@@ -172,13 +172,13 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('button', 'Confirm')
             .click();
 
-        cy.log('Check if subscription of locale works')
+        cy.log('Check if subscription of locale works');
 
         cy.get('.sw-alert__title')
             .should('be.visible');
 
         cy.get('.sw-alert__title')
-            .contains('Locale changes')
+            .contains('Locale changes');
 
         cy.get('.sw-alert__message')
             .contains('locale: de-DE');
@@ -189,7 +189,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: get current shopware version', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -200,14 +200,14 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Get the current Shopware version')
+        cy.log('Get the current Shopware version');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')
             .contains('Get current Shopware version')
             .click();
 
-        cy.log('Check the current Shopware version')
+        cy.log('Check the current Shopware version');
 
         // Only check if the version starts with 6. to avoid adjustments for each version
         cy.getSDKiFrame('ui-main-module-add-main-module')
@@ -217,7 +217,7 @@ describe('SDK Tests: Context', ()=> {
     it('@sdk: get app information', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to extension page')
+        cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -228,7 +228,7 @@ describe('SDK Tests: Context', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Get the app information')
+        cy.log('Get the app information');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')

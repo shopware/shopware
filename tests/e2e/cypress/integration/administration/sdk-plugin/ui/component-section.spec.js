@@ -14,7 +14,7 @@ describe('SDK Tests: Component section', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             })
             .then(() => {
-                cy.log('Open example product')
+                cy.log('Open example product');
 
                 cy.get('.smart-bar__content')
                     .should('be.visible');
@@ -44,15 +44,15 @@ describe('SDK Tests: Component section', ()=> {
     it('@sdk: add a component section', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.log('Go to specifications tab')
+        cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
-            .click()
+            .click();
 
-        cy.contains('.sw-card__title', 'Location tests')
+        cy.contains('.sw-card__title', 'Location tests');
         cy.contains('.sw-card__subtitle', 'Testing if the location methods work correctly')
 
         cy.getSDKiFrame('location-index')
-            .should('be.visible')
+            .should('be.visible');
     })
 })

@@ -59,7 +59,7 @@ describe('SDK Tests: Location', ()=> {
 
         // location / stop auto resizing of iFrame height
         cy.getSDKiFrame('location-index')
-            .contains('Auto-Resize: Off')
+            .contains('Auto-Resize: Off');
 
         cy.getSDKiFrame('location-index')
             .find('input')

@@ -43,16 +43,16 @@ describe('Category: SDK Test', ()=> {
             .click();
 
         cy.get('.sw-context-menu__content')
-            .should('be.visible')
+            .should('be.visible');
 
         cy.get('.sw-context-menu__content')
             .contains('Test action')
             .click();
 
         cy.get('.sw-alert__title')
-            .contains('Action button click')
+            .contains('Action button click');
 
         cy.get('.sw-alert__message')
-            .contains('The action button in the product detail page was clicked')
+            .contains('The action button in the product detail page was clicked');
     })
 })

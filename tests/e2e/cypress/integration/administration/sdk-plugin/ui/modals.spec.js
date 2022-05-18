@@ -22,7 +22,7 @@ describe('Category: SDK Test', ()=> {
 
         const Page = new ProductPageObject();
 
-        cy.contains('.smart-bar__content', 'Products')
+        cy.contains('.smart-bar__content', 'Products');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -56,11 +56,11 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible')
             .contains('Hello from the plugin');
         cy.getSDKiFrame('ui-modals-modal-content')
-            .should('be.visible')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .contains('Hello from the plugin ');
         cy.getSDKiFrame('ui-modals-modal-content')
-            .should('be.visible')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .contains('Close modal')
             .click();
@@ -79,7 +79,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-modal__header')
             .should('not.exist');
         cy.getSDKiFrame('ui-modals-modal-content')
-            .should('be.visible')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .contains('Hello from the plugin ');
         cy.get('.sw-modal__dialog > .sw-modal__footer > .sw-button').last()
@@ -93,7 +93,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-modal--small')
             .should('exist');
         cy.getSDKiFrame('ui-modals-modal-content')
-            .should('be.visible')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .contains('Hello from the plugin ');
         cy.get('.sw-modal__dialog > .sw-modal__footer > .sw-button').last()
@@ -105,7 +105,7 @@ describe('Category: SDK Test', ()=> {
             .contains('Open none closable')
             .click();
         cy.getSDKiFrame('ui-modals-modal-content')
-            .should('be.visible')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .contains('Hello from the plugin ');
         cy.get('.sw-modal__close')

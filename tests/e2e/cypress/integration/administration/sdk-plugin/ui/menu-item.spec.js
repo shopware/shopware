@@ -4,18 +4,30 @@ describe('Category: SDK Test', ()=> {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
+
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
                 cy.onlyOnFeature('FEATURE_NEXT_17950');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
             });
     });
     it('@sdk: add menu item', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
-        cy.get('.sw-dashboard-index__welcome-title')
+        cy.get('.sw-dashboard-statistics__card-headline')
+            .scrollIntoView();
+
+        cy.get('.sw-dashboard-statistics__card-headline')
             .should('be.visible');
 
         cy.get('.sw-card-view__content')
@@ -47,9 +59,12 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
+        cy.get('.sw-dashboard-statistics__card-headline')
+            .scrollIntoView();
 
-        cy.get('.sw-dashboard-index__welcome-title')
+        cy.get('.sw-dashboard-statistics__card-headline')
             .should('be.visible');
+
         cy.get('.sw-loader')
             .should('not.exist');
         cy.get('.sw-skeleton')

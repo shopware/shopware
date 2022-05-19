@@ -73,6 +73,28 @@ export default Vue.extend({
             </div>
 
             <div>
+                <h3>Context - Get module information</h3>
+                <button @click="getModuleInformation">Get module information</button>
+
+                <p v-for="moduleInformation in moduleInformations">
+                    Id: {{ moduleInformation.id }}
+                    <br>
+                    Display search bar: {{ moduleInformation.displaySearchBar }}
+                    <br>
+                    Heading: {{ moduleInformation.heading }}
+                    <br>
+                    LocationId: {{ moduleInformation.locationId }}
+                </p>
+            </div>
+
+            <div>
+                <h3>Window - Router Push</h3>
+                <button @click="pushRoute">Push route</button>
+                <br>
+                <textarea cols="30" rows="10" v-model="routeInformation"></textarea>
+            </div>
+
+            <div>
                 <h3>Notification - Dispatch a notification</h3>
 
                 <button @click="dispatchNotification">Dispatch a notification</button>
@@ -105,6 +127,12 @@ export default Vue.extend({
             appName: '',
             appType: '',
             appVersion: '',
+            moduleInformations: [],
+            routeInformation:  `
+{
+    "name": "sw.dashboard.index",
+    "params": {}
+}`,
             apiLanguageEntity: null,
         }
     },
@@ -150,6 +178,30 @@ export default Vue.extend({
                 this.appVersion = version;
                 this.appType = type;
             })
+        },
+
+        // context / get module information
+        getModuleInformation() {
+            context.getModuleInformation().then(({ modules }) => {
+                // @ts-ignore
+                this.moduleInformations = modules;
+            })
+        },
+
+        // window / router push
+        pushRoute() {
+            let routeObject = {};
+
+            try {
+                routeObject = JSON.parse(this.routeInformation);
+            } catch (e){
+                notification.dispatch({
+                    title: 'Push route',
+                    message: 'The content of the textarea could not be parsed'
+                })
+            }
+
+            void window.routerPush(routeObject);
         },
 
         dispatchNotification() {

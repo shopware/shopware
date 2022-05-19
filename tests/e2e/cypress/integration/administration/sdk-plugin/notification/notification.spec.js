@@ -13,6 +13,11 @@ describe('SDK Tests: Notification', ()=> {
             .then(() => {
                 cy.onlyOnFeature('FEATURE_NEXT_17950');
 
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
+
                 cy.get('.sw-dashboard-statistics__card-headline')
                     .should('be.visible');
 
@@ -21,6 +26,10 @@ describe('SDK Tests: Notification', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
             })
     });
 

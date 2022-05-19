@@ -1,3 +1,5 @@
+/* Is covered by E2E tests */
+/* istanbul ignore file */
 import type { Module } from 'vuex';
 
 export type ExtensionSdkModule = {
@@ -36,6 +38,12 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
             });
 
             return Promise.resolve(id);
+        },
+    },
+
+    getters: {
+        getRegisteredModuleInformation: (state) => (baseUrl: string): ExtensionSdkModule[] => {
+            return state.modules.filter((module) => module.baseUrl.startsWith(baseUrl));
         },
     },
 };

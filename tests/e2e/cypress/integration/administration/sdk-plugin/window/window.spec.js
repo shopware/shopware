@@ -13,6 +13,11 @@ describe('SDK Tests: Window', ()=> {
             .then(() => {
                 cy.onlyOnFeature('FEATURE_NEXT_17950');
 
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
+
                 cy.get('.sw-dashboard-statistics__card-headline')
                     .should('be.visible');
 
@@ -21,6 +26,10 @@ describe('SDK Tests: Window', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
             })
     });
 
@@ -50,5 +59,52 @@ describe('SDK Tests: Window', ()=> {
             .click();
 
         cy.get('@Open').should('have.been.calledOnceWith', 'https://www.shopware.com')
+    })
+
+    it('@sdk: reload page', ()=> {
+        cy.onlyOnFeature('FEATURE_NEXT_17950');
+
+        cy.log('Go to extension page')
+
+        cy.get('.sw-admin-menu__item--sw-order')
+            .click();
+
+        cy.contains('.sw-admin-menu__navigation-link', 'Test item')
+            .click();
+
+        cy.log('Reload page URL')
+
+        cy.window().then(win => {
+            win.beforeReload = true;
+        })
+
+        cy.window().should('have.prop', 'beforeReload', true)
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .find('button')
+            .contains('Reload page')
+            .click();
+
+        cy.window().should('not.have.prop', 'beforeReload', true)
+    })
+
+    it('@sdk: push router', ()=> {
+        cy.onlyOnFeature('FEATURE_NEXT_17950');
+
+        cy.log('Go to extension page')
+
+        cy.get('.sw-admin-menu__item--sw-order')
+            .click();
+
+        cy.contains('.sw-admin-menu__navigation-link', 'Test item')
+            .click();
+
+        cy.log('Push to dashboard')
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .find('button')
+            .contains('Push route')
+            .click();
+
     })
 })

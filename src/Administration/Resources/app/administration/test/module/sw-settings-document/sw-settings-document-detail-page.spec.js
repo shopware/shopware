@@ -375,4 +375,18 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
         expect(wrapper.vm.documentConfig.config.deliveryCountries.length).toEqual(2);
     });
+
+    it('should have assignment card at the top of the page', async () => {
+        const wrapper = createWrapper(
+            { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
+            ['document.editor']
+        );
+
+        await flushPromises();
+
+        const swCardComponents = wrapper.findAll('sw-card-stub');
+
+        expect(swCardComponents.length).toBeGreaterThan(0);
+        expect(swCardComponents.at(0).attributes()['position-identifier']).toBe('sw-settings-document-detail-assignment');
+    });
 });

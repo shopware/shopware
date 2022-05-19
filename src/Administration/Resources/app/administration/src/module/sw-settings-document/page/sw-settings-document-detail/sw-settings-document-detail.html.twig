@@ -56,6 +56,89 @@
         </template>
 
         <template v-else>
+            {% block sw_settings_document_detail_assignment_card %}
+            <sw-card
+                position-identifier="sw-settings-document-detail-assignment"
+                :title="$tc('sw-settings-document.detail.assignmentCard')"
+                :is-loading="isLoading || typeIsLoading"
+            >
+                <sw-container
+                    columns="repeat(auto-fit, minmax(100%, 1fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_document_detail_base_general_input_type %}
+                    <sw-entity-single-select
+                        id="documentConfigTypes"
+                        v-model="documentConfig.documentTypeId"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-settings-document.detail.disabledTypeSelect'),
+                            disabled: !documentConfig.global || !acl.can('document.editor')
+                        }"
+                        required
+                        show-clearable-button
+                        :error="documentBaseConfigDocumentTypeIdError"
+                        entity="document_type"
+                        :label="$tc('sw-settings-document.detail.labelType')"
+                        class="sw-settings-document-detail__select-type"
+                        :disabled="documentConfig.global || !acl.can('document.editor')"
+                        @change="(id, type) => onChangeType(type)"
+                    />
+                    {% endblock %}
+                    {% block sw_document_detail_base_general_input_sales_channel %}
+                    <sw-multi-select
+                        v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
+                        id="documentSalesChannel"
+                        v-model="documentConfigSalesChannels"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
+                            disabled: !!documentConfig.documentType
+                        }"
+                        required
+                        label-property="name"
+                        value-property="id"
+                        :options="documentConfigSalesChannelOptionsCollection"
+                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
+                        :disabled="!documentConfig.documentType || !acl.can('document.editor')"
+                        class="sw-document-detail__select-type"
+                    >
+                        {% block sw_document_detail_base_general_input_sales_channel_label %}
+                        <template #selection-label-property="{ item }">
+                            {{ item.salesChannel.translated.name }}
+                        </template>
+                        {% endblock %}
+                        {% block sw_document_detail_base_general_input_sales_channel_result_item %}
+                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                            <li
+                                is="sw-select-result"
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $tc('sw-settings-document.detail.disabledSalesChannel'),
+                                    disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
+                                }"
+                                :selected="isSelected(item)"
+                                :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
+                                v-bind="{ item, index }"
+                                @item-select="addItem"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="item.salesChannel.translated.name"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ item.salesChannel.translated.name }}
+                                </template>
+                            </li>
+                        </template>
+                        {% endblock %}
+                    </sw-multi-select>
+                    {% endblock %}
+                </sw-container>
+            </sw-card>
+            {% endblock %}
+
             {% block sw_settings_document_detail_content_card %}
             <sw-card
                 position-identifier="sw-settings-document-detail-content"
@@ -195,89 +278,6 @@
                             {% endblock %}
                         </template>
                     </template>
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_settings_document_detail_assignment_card %}
-            <sw-card
-                position-identifier="sw-settings-document-detail-assignment"
-                :title="$tc('sw-settings-document.detail.assignmentCard')"
-                :is-loading="isLoading || typeIsLoading"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(100%, 1fr))"
-                    gap="0px 30px"
-                >
-                    {% block sw_document_detail_base_general_input_type %}
-                    <sw-entity-single-select
-                        id="documentConfigTypes"
-                        v-model="documentConfig.documentTypeId"
-                        v-tooltip="{
-                            showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledTypeSelect'),
-                            disabled: !documentConfig.global || !acl.can('document.editor')
-                        }"
-                        required
-                        show-clearable-button
-                        :error="documentBaseConfigDocumentTypeIdError"
-                        entity="document_type"
-                        :label="$tc('sw-settings-document.detail.labelType')"
-                        class="sw-settings-document-detail__select-type"
-                        :disabled="documentConfig.global || !acl.can('document.editor')"
-                        @change="(id, type) => onChangeType(type)"
-                    />
-                    {% endblock %}
-                    {% block sw_document_detail_base_general_input_sales_channel %}
-                    <sw-multi-select
-                        v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)"
-                        id="documentSalesChannel"
-                        v-model="documentConfigSalesChannels"
-                        v-tooltip="{
-                            showDelay: 300,
-                            message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),
-                            disabled: !!documentConfig.documentType
-                        }"
-                        required
-                        label-property="name"
-                        value-property="id"
-                        :options="documentConfigSalesChannelOptionsCollection"
-                        :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                        :disabled="!documentConfig.documentType || !acl.can('document.editor')"
-                        class="sw-document-detail__select-type"
-                    >
-                        {% block sw_document_detail_base_general_input_sales_channel_label %}
-                        <template #selection-label-property="{ item }">
-                            {{ item.salesChannel.translated.name }}
-                        </template>
-                        {% endblock %}
-                        {% block sw_document_detail_base_general_input_sales_channel_result_item %}
-                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                            <li
-                                is="sw-select-result"
-                                v-tooltip="{
-                                    showDelay: 300,
-                                    message: $tc('sw-settings-document.detail.disabledSalesChannel'),
-                                    disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
-                                }"
-                                :selected="isSelected(item)"
-                                :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
-                                v-bind="{ item, index }"
-                                @item-select="addItem"
-                            >
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="item.salesChannel.translated.name"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ item.salesChannel.translated.name }}
-                                </template>
-                            </li>
-                        </template>
-                        {% endblock %}
-                    </sw-multi-select>
                     {% endblock %}
                 </sw-container>
             </sw-card>

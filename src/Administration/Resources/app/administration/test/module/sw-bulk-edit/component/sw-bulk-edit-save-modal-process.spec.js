@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
 
 const swBulkEditState = {
     namespaced: true,
@@ -45,25 +45,15 @@ const swBulkEditState = {
 };
 
 function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-save-modal-success'), {
+    return shallowMount(Shopware.Component.build('sw-bulk-edit-save-modal-process'), {
         stubs: {
-            'sw-label': true,
+            'sw-alert': true,
             'sw-icon': true,
-            'sw-button': true,
+            'sw-label': true,
         },
         provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve([]),
-                    };
-                },
-            },
             orderDocumentApiService: {
                 create: () => {
-                    return Promise.resolve();
-                },
-                download: () => {
                     return Promise.resolve();
                 },
             },
@@ -71,7 +61,7 @@ function createWrapper() {
     });
 }
 
-describe('sw-bulk-edit-save-modal-success', () => {
+describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
     beforeAll(() => {
@@ -90,40 +80,31 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should get latest documents when component created', async () => {
-        wrapper.vm.getLatestDocuments = jest.fn();
+    it('should create documents when component created', async () => {
+        wrapper.vm.createDocuments = jest.fn();
 
         await wrapper.vm.createdComponent();
 
-        expect(wrapper.vm.getLatestDocuments).toHaveBeenCalled();
-        wrapper.vm.getLatestDocuments.mockRestore();
+        expect(wrapper.vm.createDocuments).toHaveBeenCalled();
+        wrapper.vm.createDocuments.mockRestore();
     });
 
-    it('should be able to download documents', async () => {
-        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
+    it('should create documents successful', async () => {
+        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({
-            latestDocuments: {
-                invoice: {
-                    foo: 'bar',
-                }
-            }
-        });
-        await wrapper.vm.downloadDocument('invoice');
+        await wrapper.vm.createDocument('invoice', [
+            {
+                config: {
+                    documentDate: 'documentDate',
+                    documentComment: 'documentComment',
+                },
+                fileType: 'pdf',
+                orderId: 'orderId',
+                type: 'invoice',
+            },
+        ]);
 
-        expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
-        wrapper.vm.orderDocumentApiService.download.mockRestore();
-    });
-
-    it('should not be able to download documents', async () => {
-        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
-
-        await wrapper.setData({
-            latestDocuments: {}
-        });
-        await wrapper.vm.downloadDocument('invoice');
-
-        expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
-        wrapper.vm.orderDocumentApiService.download.mockRestore();
+        expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
 });

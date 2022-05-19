@@ -248,7 +248,7 @@
       "success": {
         "title": "Mehrfachänderung - Erfolg",
         "description": "Mehrfachänderung abgeschlossen.",
-        "instruction": "Mehrfachänderung erfolgreich abgeschlossen.<br>Dokumente werden hierunter generiert.",
+        "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "Keine Dokumente vorhanden"
       },

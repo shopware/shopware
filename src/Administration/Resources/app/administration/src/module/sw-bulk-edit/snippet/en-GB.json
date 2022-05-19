@@ -248,7 +248,7 @@
       "success": {
         "title": "Bulk edit - Success",
         "description": "Bulk edit finished.",
-        "instruction": "The bulk edit has been finished successfully.<br>Below the documents are being generated.",
+        "instruction": "The bulk edit has been finished successfully.",
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "No documents found"
       },

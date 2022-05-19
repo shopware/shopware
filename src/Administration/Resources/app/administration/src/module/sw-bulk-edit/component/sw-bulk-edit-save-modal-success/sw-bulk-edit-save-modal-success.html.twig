@@ -21,48 +21,28 @@
     </p>
     {% endblock %}
 
-    {% block sw_bulk_edit_save_modal_success_download_order_documents %}
+    {% block sw_bulk_edit_save_modal_success_download_document %}
     <ul
         v-if="selectedDocumentTypes.length > 0"
-        class="sw-bulk-edit-save-modal-success__download-order-documents"
+        class="sw-bulk-edit-save-modal-success__download-document-container"
     >
-        {% block sw_bulk_edit_save_modal_success_download_order_document %}
         <li
             v-for="selectedDocumentType in selectedDocumentTypes"
             :key="selectedDocumentType.id"
-            class="sw-bulk-edit-save-modal-success__download-order-document"
+            class="sw-bulk-edit-save-modal-success__download-document"
         >
-            {% block sw_bulk_edit_save_modal_success_download_order_document_progress %}
-            <div class="progress">
-                {% block sw_bulk_edit_save_modal_success_download_order_document_progress_label %}
-                <div class="progress__label">
-                    <span>{{ selectedDocumentType.translated.name }}</span>
-                    <span>{{ `${document[selectedDocumentType.technicalName].isReached}%` }}</span>
-                </div>
-                {% endblock %}
-                {% block sw_bulk_edit_save_modal_success_download_order_document_progress_bar %}
-                <div class="progress__bar">
-                    <div
-                        class="progress__bar-fill"
-                        :style="{ width: `${document[selectedDocumentType.technicalName].isReached}%` }"
-                    >
-                    </div>
-                </div>
-                {% endblock %}
-            </div>
-            {% endblock %}
-            {% block sw_bulk_edit_save_modal_success_download_order_document_action %}
+            <span class="label">
+                {{ selectedDocumentType.translated.name }}
+            </span>
             <sw-button
                 class="action"
                 size="small"
-                :disabled="document[selectedDocumentType.technicalName].isCreating || document[selectedDocumentType.technicalName].isDownloading"
-                @click="downloadDocuments(selectedDocumentType.technicalName)"
+                :disabled="document[selectedDocumentType.technicalName].isDownloading"
+                @click="downloadDocument(selectedDocumentType.technicalName)"
             >
                 {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
             </sw-button>
-            {% endblock %}
         </li>
-        {% endblock %}
     </ul>
     {% endblock %}
 </div>

@@ -405,6 +405,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         footerRight.find('button').trigger('click');
 
         expect(wrapper.vm.$route.path).toEqual('/process');
+        await flushPromises();
     });
 
     it('should open success modal', async () => {
@@ -448,6 +449,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/process');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.$route.path).toEqual('/error');

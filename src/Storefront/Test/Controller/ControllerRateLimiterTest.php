@@ -232,7 +232,7 @@ class ControllerRateLimiterTest extends TestCase
         $response = $controller->sendContactForm(new RequestDataBag([
         ]), $this->salesChannelContext);
 
-        $content = \json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $content);
         static::assertArrayHasKey('type', $content[0]);

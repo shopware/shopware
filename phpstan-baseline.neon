@@ -14430,31 +14430,6 @@ parameters:
 			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
 
 		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:\\$customerId has no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
 			message: "#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
@@ -14603,11 +14578,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/BasicCaptcha/BasicCaptchaGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/BasicCaptchaTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:getCaptchas\\(\\) has no return type specified\\.$#"
@@ -14838,11 +14808,6 @@ parameters:
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Twig/TwigDateFormatTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:getProductSearchConfigId\\(\\) should return string but returns string\\|null\\.$#"

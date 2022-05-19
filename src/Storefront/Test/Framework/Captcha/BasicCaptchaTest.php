@@ -86,6 +86,6 @@ class BasicCaptchaTest extends TestCase
 
     private static function getRequest(array $data = []): Request
     {
-        return new Request([], $data, [], [], [], [], []);
+        return new Request([], $data, [], [], [], [], null);
     }
 }

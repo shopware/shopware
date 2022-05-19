@@ -39,7 +39,7 @@ class WishlistControllerTest extends TestCase
     use StorefrontControllerTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private $customerId;
+    private string $customerId;
 
     public function setUp(): void
     {
@@ -154,8 +154,8 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
-        static::assertEmpty(json_decode($response->getContent()));
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertEmpty(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testAjaxAdd(): void
@@ -168,9 +168,9 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
@@ -184,7 +184,7 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testAjaxRemove(): void
@@ -197,15 +197,15 @@ class WishlistControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/remove/' . $productId, $this->tokenize('frontend.wishlist.product.remove', []));
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
@@ -245,7 +245,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/wishlist', []);
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -355,12 +355,14 @@ class WishlistControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }
@@ -389,12 +391,14 @@ class WishlistControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }

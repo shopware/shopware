@@ -24,7 +24,7 @@ class CsrfRouteListenerTest extends TestCase
         $client = $this->createSalesChannelBrowser($this->getKernel(), true);
         $client->request('POST', 'http://localhost/widgets/account/newsletter');
         $statusCode = $client->getResponse()->getStatusCode();
-        static::assertSame(Response::HTTP_FORBIDDEN, $statusCode, $client->getResponse()->getContent());
+        static::assertSame(Response::HTTP_FORBIDDEN, $statusCode, (string) $client->getResponse()->getContent());
         $session = $this->getSession();
         static::assertInstanceOf(Session::class, $session);
 

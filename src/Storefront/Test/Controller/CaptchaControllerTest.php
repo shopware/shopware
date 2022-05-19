@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Controller\CaptchaController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPagelet;
@@ -62,7 +61,7 @@ class CaptchaControllerTest extends TestCase
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
-        static::assertArrayHasKey('session', json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR));
+        static::assertArrayHasKey('session', json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
 
         // BasicCaptcha Invalid
         $this->getSession()->set($formId . 'basic_captcha_session', 'invalid');
@@ -70,6 +69,6 @@ class CaptchaControllerTest extends TestCase
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
-        static::assertArrayHasKey('error', json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)[0]);
+        static::assertArrayHasKey('error', json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)[0]);
     }
 }

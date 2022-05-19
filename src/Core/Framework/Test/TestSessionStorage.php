@@ -88,28 +88,33 @@ class TestSessionStorage implements SessionStorageInterface
              */
             $oldBag = self::$data[$bag->getName()];
             if ($oldBag instanceof SessionBagProxy) {
-                $oldBag = $oldBag->getBag();
+                $oldBagInner = $oldBag->getBag();
+            } else {
+                $oldBagInner = $oldBag;
             }
 
-            if ($oldBag instanceof AttributeBag) {
-                $f = \Closure::bind(static function (AttributeBag $attributeBag) use ($bag): void {
+            if ($oldBagInner instanceof AttributeBag) {
+                $f = \Closure::bind(static function (AttributeBag $attributeBag) use ($bag, $oldBag): void {
                     $bag->initialize($attributeBag->attributes);
+                    $oldBag->initialize($attributeBag->attributes);
                 }, null, AttributeBag::class);
-                $f($oldBag);
+                $f($oldBagInner);
             }
 
-            if ($oldBag instanceof MetadataBag) {
-                $f = \Closure::bind(static function (MetadataBag $attributeBag) use ($bag): void {
+            if ($oldBagInner instanceof MetadataBag) {
+                $f = \Closure::bind(static function (MetadataBag $attributeBag) use ($bag, $oldBag): void {
                     $bag->initialize($attributeBag->meta);
+                    $oldBag->initialize($attributeBag->meta);
                 }, null, MetadataBag::class);
-                $f($oldBag);
+                $f($oldBagInner);
             }
 
-            if ($oldBag instanceof FlashBag) {
-                $f = \Closure::bind(static function (FlashBag $attributeBag) use ($bag): void {
+            if ($oldBagInner instanceof FlashBag) {
+                $f = \Closure::bind(static function (FlashBag $attributeBag) use ($bag, $oldBag): void {
                     $bag->initialize($attributeBag->flashes);
+                    $oldBag->initialize($attributeBag->flashes);
                 }, null, FlashBag::class);
-                $f($oldBag);
+                $f($oldBagInner);
             }
 
             return;

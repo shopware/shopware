@@ -32,11 +32,6 @@ class PromotionIndexerTest extends TestCase
      */
     private $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
@@ -59,6 +54,8 @@ class PromotionIndexerTest extends TestCase
         $writtenEvent = $this->createPromotion($voucherA, $voucherA, $promotionRepository, $salesChannelContext);
         $promotionEvent = $writtenEvent->getEventByEntityName(PromotionDefinition::ENTITY_NAME);
 
+        static::assertNotNull($promotionEvent);
+        static::assertNotEmpty($promotionEvent->getWriteResults()[0]);
         $promotionId = $promotionEvent->getWriteResults()[0]->getPayload()['id'];
 
         $userId = Uuid::randomHex();

@@ -49,8 +49,8 @@ class DocumentPageTest extends TestCase
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 
@@ -92,8 +92,8 @@ class DocumentPageTest extends TestCase
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 

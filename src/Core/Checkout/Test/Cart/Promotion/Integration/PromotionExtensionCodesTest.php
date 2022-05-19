@@ -34,25 +34,11 @@ class PromotionExtensionCodesTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
-
-    /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
-     */
-    private $context;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
@@ -481,6 +467,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addProduct($productExpensive, 1, $cart, $this->cartService, $this->context);
 
         static::assertCount(2, $cart->getLineItems());
+        static::assertNotNull($cart->getLineItems()->last());
         static::assertSame('Promo 1', $cart->getLineItems()->last()->getLabel());
 
         // add promotion to cart
@@ -488,6 +475,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
         static::assertCount(2, $cart->getLineItems());
+        static::assertNotNull($cart->getLineItems()->last());
         static::assertSame('Promo 1', $cart->getLineItems()->last()->getLabel());
 
         // now remove item again and make sure promotion is gone
@@ -499,6 +487,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addProduct($productCheap, 1, $cart, $this->cartService, $this->context);
 
         static::assertCount(2, $cart->getLineItems());
+        static::assertNotNull($cart->getLineItems()->last());
         static::assertSame('Promo 2', $cart->getLineItems()->last()->getLabel());
 
         $cart = $this->addProduct($productExpensive, 1, $cart, $this->cartService, $this->context);

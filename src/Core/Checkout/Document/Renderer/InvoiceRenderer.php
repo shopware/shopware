@@ -16,7 +16,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class InvoiceRenderer extends AbstractDocumentRenderer
+final class InvoiceRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'invoice';
 

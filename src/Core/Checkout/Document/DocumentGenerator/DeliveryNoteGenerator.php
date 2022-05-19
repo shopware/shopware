@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
@@ -68,6 +70,11 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
             $deliveries = $order->getDeliveries()->first();
         }
 
+        /** @var LanguageEntity $language */
+        $language = $order->getLanguage();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
+
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
             [
@@ -80,7 +87,7 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
-            $order->getLanguage()->getLocale()->getCode()
+            $locale->getCode()
         );
 
         return $documentString;

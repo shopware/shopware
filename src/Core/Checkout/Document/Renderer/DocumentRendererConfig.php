@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-class DocumentRendererConfig
+final class DocumentRendererConfig
 {
     public string $deepLinkCode = '';
 }

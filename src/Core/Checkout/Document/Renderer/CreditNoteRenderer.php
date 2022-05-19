@@ -21,7 +21,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CreditNoteRenderer extends AbstractDocumentRenderer
+final class CreditNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'credit_note';
 

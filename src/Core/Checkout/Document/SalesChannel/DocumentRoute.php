@@ -18,10 +18,13 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
-class DocumentRoute extends AbstractDocumentRoute
+final class DocumentRoute extends AbstractDocumentRoute
 {
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentGenerator $documentGenerator)
     {
         $this->documentGenerator = $documentGenerator;

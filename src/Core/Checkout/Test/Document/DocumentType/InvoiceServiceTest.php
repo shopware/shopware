@@ -58,7 +58,7 @@ class InvoiceServiceTest extends TestCase
     private $context;
 
     /**
-     * @var Connection|object
+     * @var Connection
      */
     private $connection;
 
@@ -126,10 +126,14 @@ class InvoiceServiceTest extends TestCase
             $context
         );
 
+        static::assertNotNull($order->getCurrency());
+        static::assertNotNull($lineItems = $order->getLineItems());
+        static::assertNotNull($firstLineItem = $lineItems->first());
+        static::assertNotNull($lastLineItem = $lineItems->last());
         static::assertStringContainsString('<html>', $processedTemplate);
         static::assertStringContainsString('</html>', $processedTemplate);
-        static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $processedTemplate);
-        static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $processedTemplate);
+        static::assertStringContainsString($firstLineItem->getLabel(), $processedTemplate);
+        static::assertStringContainsString($lastLineItem->getLabel(), $processedTemplate);
         static::assertStringContainsString(
             $this->currencyFormatter->formatCurrencyByLanguage(
                 $order->getAmountTotal(),
@@ -164,14 +168,15 @@ class InvoiceServiceTest extends TestCase
             $context
         );
 
+        static::assertNotNull($order->getCurrency());
         static::assertStringContainsString(
             preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
                 $order->getAmountTotal(),
                 $order->getCurrency()->getIsoCode(),
                 $deLanguageId,
                 $context
-            )),
-            preg_replace('/\xc2\xa0/', ' ', $processedTemplate)
+            )) ?: '',
+            preg_replace('/\xc2\xa0/', ' ', $processedTemplate) ?: ''
         );
     }
 
@@ -204,12 +209,16 @@ class InvoiceServiceTest extends TestCase
             $context
         );
 
+        static::assertNotNull($order->getCurrency());
+        static::assertNotNull($lineItems = $order->getLineItems());
+        static::assertNotNull($firstLineItem = $lineItems->first());
+        static::assertNotNull($lastLineItem = $lineItems->last());
         static::assertLessThanOrEqual(0, $order->getPrice()->getTotalPrice());
         static::assertLessThanOrEqual(0, $order->getPrice()->getRawTotal());
         static::assertStringContainsString('<html>', $processedTemplate);
         static::assertStringContainsString('</html>', $processedTemplate);
-        static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $processedTemplate);
-        static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $processedTemplate);
+        static::assertStringContainsString($firstLineItem->getLabel(), $processedTemplate);
+        static::assertStringContainsString($lastLineItem->getLabel(), $processedTemplate);
         static::assertStringContainsString(
             $this->currencyFormatter->formatCurrencyByLanguage(
                 $order->getAmountTotal(),
@@ -244,12 +253,17 @@ class InvoiceServiceTest extends TestCase
         //generates one line item for each tax
         $cart = $this->generateDemoCart($possibleTaxes);
         $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
         $order = $this->getOrderById($orderId);
-        $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
+        static::assertNotNull($order);
+        static::assertNotNull($deliveries = $order->getDeliveries());
+        static::assertNotNull($shippingAddresses = $deliveries->getShippingAddress());
+        static::assertNotNull($countries = $shippingAddresses->getCountries());
+        static::assertNotNull($country = $countries->first());
         $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
         $companyPhone = '123123123';
         $vatIds = ['VAT-123123'];
+
+        static::assertNotNull($order->getOrderCustomer());
         $order->getOrderCustomer()->setVatIds($vatIds);
 
         $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
@@ -276,8 +290,9 @@ class InvoiceServiceTest extends TestCase
             $context
         );
 
-        $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
-
+        static::assertNotNull($orderDeliveries = $order->getDeliveries());
+        static::assertNotNull($shippingAddresses = $orderDeliveries->getShippingAddress());
+        static::assertNotNull($shippingAddress = $shippingAddresses->first());
         static::assertStringContainsString('Shipping address', $processedTemplate);
         static::assertStringContainsString($shippingAddress->getStreet(), $processedTemplate);
         static::assertStringContainsString($shippingAddress->getCity(), $processedTemplate);

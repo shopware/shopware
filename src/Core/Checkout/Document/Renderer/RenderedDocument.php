@@ -3,8 +3,9 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Framework\Struct\Struct;
 
-class RenderedDocument
+final class RenderedDocument extends Struct
 {
     private string $number;
 
@@ -14,7 +15,7 @@ class RenderedDocument
 
     private string $content;
 
-    private string $extension;
+    private string $fileExtension;
 
     private ?string $contentType;
 
@@ -24,14 +25,14 @@ class RenderedDocument
         string $html = '',
         string $number = '',
         string $name = '',
-        string $extension = FileTypes::PDF,
+        string $fileExtension = FileTypes::PDF,
         array $config = [],
         ?string $contentType = 'application/pdf'
     ) {
         $this->html = $html;
         $this->number = $number;
         $this->name = $name;
-        $this->extension = $extension;
+        $this->fileExtension = $fileExtension;
         $this->contentType = $contentType;
         $this->config = $config;
     }
@@ -71,9 +72,9 @@ class RenderedDocument
         $this->contentType = $contentType;
     }
 
-    public function getExtension(): string
+    public function getFileExtension(): string
     {
-        return $this->extension;
+        return $this->fileExtension;
     }
 
     public function getPageOrientation(): string

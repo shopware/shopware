@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
@@ -65,6 +67,11 @@ class StornoGenerator implements DocumentGeneratorInterface
 
         $order = $this->handlePrices($order);
 
+        /** @var LanguageEntity $language */
+        $language = $order->getLanguage();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
+
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
             [
@@ -76,7 +83,7 @@ class StornoGenerator implements DocumentGeneratorInterface
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
-            $order->getLanguage()->getLocale()->getCode()
+            $locale->getCode()
         );
 
         return $documentString;
@@ -92,9 +99,9 @@ class StornoGenerator implements DocumentGeneratorInterface
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 
-    private function handlePrices(OrderEntity $order)
+    private function handlePrices(OrderEntity $order): OrderEntity
     {
-        foreach ($order->getLineItems() as $lineItem) {
+        foreach ($order->getLineItems() ?? [] as $lineItem) {
             $lineItem->setUnitPrice($lineItem->getUnitPrice() / -1);
             $lineItem->setTotalPrice($lineItem->getTotalPrice() / -1);
         }

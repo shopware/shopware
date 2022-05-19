@@ -48,7 +48,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      */
     private $customerRepository;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     private FlowActionTestSubscriber $flowActionTestSubscriber;
 
@@ -71,7 +71,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser->request('POST', '/api/_action/customer-group-registration/accept', [
             'customerIds' => [Uuid::randomHex()],
         ]);
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('Cannot find Customers', $json['errors'][0]['detail']);
     }
@@ -81,7 +81,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
 
         $browser->request('POST', '/api/_action/customer-group-registration/accept');
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('customerId or customerIds parameter are missing', $json['errors'][0]['detail']);
     }
@@ -94,7 +94,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser->request('POST', '/api/_action/customer-group-registration/accept', [
             'customerIds' => [$customer],
         ]);
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('User ' . $customer . ' dont have approval', $json['errors'][0]['detail']);
     }
@@ -115,6 +115,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerEntity = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customerEntity->getRequestedGroupId());
+        static::assertNotNull($customerEntity->getGroup());
         static::assertSame('foo', $customerEntity->getGroup()->getName());
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -162,6 +163,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerEntity = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customerEntity->getRequestedGroupId());
+        static::assertNotNull($customerEntity->getGroup());
         static::assertSame('foo', $customerEntity->getGroup()->getName());
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -187,6 +189,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         /** @var CustomerEntity $customerEntity */
         foreach ($customerEntities as $customerEntity) {
             static::assertNull($customerEntity->getRequestedGroupId());
+            static::assertNotNull($customerEntity->getGroup());
             static::assertSame('foo', $customerEntity->getGroup()->getName());
 
             static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -209,6 +212,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerEntity = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customerEntity->getRequestedGroupId());
+        static::assertNotNull($customerEntity->getGroup());
         static::assertNotSame('foo', $customerEntity->getGroup()->getName());
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -234,6 +238,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         /** @var CustomerEntity $customerEntity */
         foreach ($customerEntities as $customerEntity) {
             static::assertNull($customerEntity->getRequestedGroupId());
+            static::assertNotNull($customerEntity->getGroup());
             static::assertNotSame('foo', $customerEntity->getGroup()->getName());
 
             static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -252,7 +257,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             'customerIds' => $customerIds,
         ]);
 
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode());
         static::assertSame('User ' . $customerB . ' dont have approval', $json['errors'][0]['detail']);
@@ -271,6 +276,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerEntity = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->get($customerA);
 
         static::assertNull($customerEntity->getRequestedGroupId());
+        static::assertNotNull($customerEntity->getGroup());
         static::assertSame('foo', $customerEntity->getGroup()->getName());
     }
 
@@ -286,7 +292,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
             'customerIds' => $customerIds,
         ]);
 
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode());
         static::assertSame('User ' . $customerB . ' dont have approval', $json['errors'][0]['detail']);

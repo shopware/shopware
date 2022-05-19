@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Feature;
 class DocumentGeneratorRegistry
 {
     /**
-     * @var DocumentGeneratorInterface[]
+     * @var iterable<DocumentGeneratorInterface>
      */
     protected $documentGenerators;
 

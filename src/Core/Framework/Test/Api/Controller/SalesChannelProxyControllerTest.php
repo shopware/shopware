@@ -51,24 +51,9 @@ class SalesChannelProxyControllerTest extends TestCase
     protected $promotionRepository;
 
     /**
-     * @var string
-     */
-    private $taxId;
-
-    /**
-     * @var string
-     */
-    private $manufacturerId;
-
-    /**
      * @var Context
      */
     private $context;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
 
     /**
      * @var EntityRepositoryInterface
@@ -98,10 +83,7 @@ class SalesChannelProxyControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
-        $this->taxId = Uuid::randomHex();
-        $this->manufacturerId = Uuid::randomHex();
         $this->context = Context::createDefaultContext();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -115,7 +97,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
@@ -128,7 +110,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl($salesChannel['id'], '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayNotHasKey('errors', $response);
     }
@@ -257,7 +239,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -276,7 +258,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -292,7 +274,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
@@ -308,7 +290,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -336,8 +318,9 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertEquals($browser->getServerParameter($contextTokenHeaderName), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
+        static::assertIsString($salesChannel['id']);
         //assert customer is updated in database
-        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $salesChannel['id']);
+        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
@@ -346,6 +329,7 @@ class SalesChannelProxyControllerTest extends TestCase
     public function testSwitchCustomerWithPermissions(): void
     {
         $salesChannel = $this->createSalesChannel();
+        static::assertIsString($salesChannel['id']);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -374,7 +358,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         //assert permissions exist in payload
-        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $salesChannel['id']);
+        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertIsArray($payload);
         static::assertArrayHasKey('permissions', $payload);
         static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
@@ -390,7 +374,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
@@ -407,7 +391,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -429,7 +413,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -458,7 +442,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'totalPrice' => 20,
                 ],
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            ])
+            ]) ?: ''
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -487,7 +471,7 @@ class SalesChannelProxyControllerTest extends TestCase
             [],
             json_encode([
                 'shippingMethodId' => $shippingMethodId,
-            ])
+            ]) ?: ''
         );
 
         //assert response format
@@ -576,7 +560,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'totalPrice' => 0,
                 ],
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            ])
+            ]) ?: ''
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -1041,7 +1025,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('POST', $this->getCreateOrderApiUrl(Uuid::randomHex()));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = json_decode($response ?: '', true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
@@ -1120,7 +1104,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
 
                 $response = $browser->getResponse()->getContent();
-                $response = json_decode($response, true);
+                $response = json_decode($response ?: '', true);
 
                 static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
@@ -1138,7 +1122,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
             $response = $browser->getResponse();
 
-            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         } finally {
             $this->resetBrowser();
         }
@@ -1188,10 +1172,10 @@ class SalesChannelProxyControllerTest extends TestCase
             $categoryData['id'] = Uuid::randomHex();
         }
 
-        $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData));
+        $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData) ?: '');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(204, $response->getStatusCode());
 
         $this->assertEntityExists($this->getBrowser(), 'category', $categoryData['id']);
 
@@ -1203,13 +1187,13 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl($salesChannelId, '/category/' . $categoryData['id']), [], [], $headers);
 
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        $responseData = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $responseData = json_decode($response->getContent() ?: '', true);
 
         static::assertArraySubset($expectedTranslations, $responseData);
     }
 
-    private function createLanguage(string $langId, string $salesChannelId, $fallbackId = null): void
+    private function createLanguage(string $langId, string $salesChannelId, ?string $fallbackId = null): void
     {
         $baseUrl = '/api';
 
@@ -1226,7 +1210,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'translationCodeId' => $fallbackLocaleId,
             ];
-            $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData));
+            $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData) ?: '');
             static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         }
 
@@ -1247,8 +1231,8 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData));
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData) ?: '');
+        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $this->getBrowser()->request('GET', $baseUrl . '/language/' . $langId);
     }
@@ -1330,10 +1314,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode());
 
         $browser = clone $this->getBrowser();
-        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?: '');
 
         return $browser;
     }
@@ -1354,7 +1338,7 @@ class SalesChannelProxyControllerTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ])
+            ]) ?: ''
         );
     }
 
@@ -1368,7 +1352,7 @@ class SalesChannelProxyControllerTest extends TestCase
             [
                 'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
             ],
-            json_encode(['items' => [$payload]])
+            json_encode(['items' => [$payload]]) ?: ''
         );
     }
 
@@ -1388,7 +1372,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'totalPrice' => $price,
                 ],
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            ])
+            ]) ?: ''
         );
     }
 
@@ -1404,7 +1388,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
             json_encode([
                 'ids' => $ids,
-            ])
+            ]) ?: ''
         );
     }
 
@@ -1427,7 +1411,7 @@ class SalesChannelProxyControllerTest extends TestCase
                         'quantity' => $quantity,
                     ],
                 ],
-            ])
+            ]) ?: ''
         );
     }
 
@@ -1435,7 +1419,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
 
-        $cart = json_decode($browser->getResponse()->getContent(), true);
+        $cart = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         return $cart;
     }
@@ -1446,7 +1430,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
         ]);
 
-        $cart = json_decode($browser->getResponse()->getContent(), true);
+        $cart = json_decode($browser->getResponse()->getContent() ?: '', true);
 
         return $cart['data'] ?? $cart;
     }
@@ -1466,7 +1450,7 @@ class SalesChannelProxyControllerTest extends TestCase
                         'referencedId' => $code,
                     ],
                 ],
-            ])
+            ]) ?: ''
         );
     }
 

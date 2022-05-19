@@ -297,7 +297,7 @@ class DocumentGenerator
         return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($document): string {
             return $this->mediaService->saveFile(
                 $this->pdfRenderer->render($document),
-                $document->getExtension(),
+                $document->getFileExtension(),
                 $this->pdfRenderer->getContentType(),
                 $document->getName(),
                 $context,

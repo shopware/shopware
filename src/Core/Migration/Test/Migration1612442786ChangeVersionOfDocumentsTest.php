@@ -25,7 +25,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -281,15 +280,5 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             );
 
         return $customerId;
-    }
-
-    private function getValidSalutationId(): string
-    {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('salutation.repository');
-
-        $criteria = (new Criteria())->setLimit(1);
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

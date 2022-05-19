@@ -18,7 +18,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class StornoRenderer extends AbstractDocumentRenderer
+final class StornoRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'storno';
 

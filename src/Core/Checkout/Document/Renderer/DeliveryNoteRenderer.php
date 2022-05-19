@@ -16,7 +16,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class DeliveryNoteRenderer extends AbstractDocumentRenderer
+final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'delivery_note';
 

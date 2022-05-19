@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Framework\Context;
 
-class DocumentRendererRegistry
+final class DocumentRendererRegistry
 {
     /**
      * @var iterable|AbstractDocumentRenderer[]

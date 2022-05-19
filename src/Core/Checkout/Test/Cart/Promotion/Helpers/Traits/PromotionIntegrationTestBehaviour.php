@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 trait PromotionIntegrationTestBehaviour
 {
-    private $context;
+    private SalesChannelContext $context;
 
     /**
      * Gets a faked sales channel context
@@ -26,9 +26,7 @@ trait PromotionIntegrationTestBehaviour
      */
     public function getContext(): SalesChannelContext
     {
-        if ($this->context === null) {
-            $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        }
+        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         return $this->context;
     }

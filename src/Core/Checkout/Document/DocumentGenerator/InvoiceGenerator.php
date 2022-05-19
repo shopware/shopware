@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
@@ -69,6 +71,11 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
         $config['intraCommunityDelivery'] = $this->isAllowIntraCommunityDelivery($config, $order);
 
+        /** @var LanguageEntity $language */
+        $language = $order->getLanguage();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
+
         return $this->documentTemplateRenderer->render(
             $templatePath,
             [
@@ -80,7 +87,7 @@ class InvoiceGenerator implements DocumentGeneratorInterface
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
-            $order->getLanguage()->getLocale()->getCode()
+            $locale->getCode()
         );
     }
 

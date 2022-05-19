@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -51,16 +50,9 @@ class DocumentControllerTest extends TestCase
      */
     private $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -108,8 +100,8 @@ class DocumentControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 
@@ -129,7 +121,7 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode());
         static::assertEquals($expectedFileContent, $response->getContent());
         static::assertEquals($expectedContentType, $response->headers->get('content-type'));
 
@@ -155,7 +147,7 @@ class DocumentControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode());
 
         return $browser;
     }

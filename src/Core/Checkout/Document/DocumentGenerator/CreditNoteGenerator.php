@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
 /**
@@ -120,6 +122,11 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         $order->setPrice($price);
         $order->setAmountNet($price->getNetPrice());
 
+        /** @var LanguageEntity $language */
+        $language = $order->getLanguage();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
+
         return $this->documentTemplateRenderer->render(
             $templatePath,
             [
@@ -134,7 +141,7 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
-            $order->getLanguage()->getLocale()->getCode()
+            $locale->getCode()
         );
     }
 }

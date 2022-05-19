@@ -115,7 +115,19 @@ class StoreClient
         $this->storeService->updateStoreToken($context, $accessTokenStruct);
 
         $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
-        $this->configService->set('core.store.shopwareId', $shopwareId);
+    }
+
+    public function userInfo(Context $context): array
+    {
+        $response = $this->client->get(
+            $this->endpoints['user_info'],
+            [
+                'query' => $this->getQueries($context),
+                'headers' => $this->getHeaders($context),
+            ]
+        );
+
+        return \json_decode($response->getBody()->getContents(), true);
     }
 
     /**

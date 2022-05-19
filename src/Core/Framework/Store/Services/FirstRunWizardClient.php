@@ -43,8 +43,6 @@ final class FirstRunWizardClient
     private const TRACKING_EVENT_FRW_STARTED = 'First Run Wizard started';
     private const TRACKING_EVENT_FRW_FINISHED = 'First Run Wizard finished';
 
-    private const SYSTEM_CONFIG_KEY_SHOPWARE_ID = 'core.store.shopwareId';
-
     private const FRW_MAX_FAILURES = 3;
 
     private Client $client;
@@ -114,8 +112,6 @@ final class FirstRunWizardClient
                 'query' => $this->optionsProvider->getDefaultQueryParameters($context),
             ]
         );
-
-        $this->configService->set(self::SYSTEM_CONFIG_KEY_SHOPWARE_ID, $shopwareId);
 
         $data = \json_decode($response->getBody()->getContents(), true);
 
@@ -345,9 +341,9 @@ final class FirstRunWizardClient
         $failedAt = null;
         $failureCount = null;
 
-        if ($newState->isCompleted()) {
+        if ($newState->isCompleted() && $newState->getCompletedAt()) {
             $completedAt = $newState->getCompletedAt()->format(\DateTimeImmutable::ATOM);
-        } elseif ($newState->isFailed()) {
+        } elseif ($newState->isFailed() && $newState->getFailedAt()) {
             $failedAt = $newState->getFailedAt()->format(\DateTimeImmutable::ATOM);
             $failureCount = $currentState->getFailureCount() + 1;
         }

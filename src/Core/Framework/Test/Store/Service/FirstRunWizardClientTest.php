@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -60,6 +63,7 @@ class FirstRunWizardClientTest extends TestCase
         $frwClient->startFrw($this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
@@ -92,6 +96,7 @@ class FirstRunWizardClientTest extends TestCase
         $frwClient->startFrw($this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
@@ -125,6 +130,7 @@ class FirstRunWizardClientTest extends TestCase
         $frwClient->startFrw($this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
@@ -149,7 +155,7 @@ class FirstRunWizardClientTest extends TestCase
                 'token' => 'updatedToken',
                 'expirationDate' => (new \DateTimeImmutable())->format(\DateTime::ATOM),
             ],
-        ])));
+        ], \JSON_THROW_ON_ERROR)));
 
         $this->getSystemFwrClient()->frwLogin('1', 'shopware', $this->storeContext);
 
@@ -157,6 +163,7 @@ class FirstRunWizardClientTest extends TestCase
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
 
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('POST', $lastRequest->getMethod());
         static::assertEquals('/swplatform/firstrunwizard/login', $lastRequest->getUri()->getPath());
 
@@ -170,8 +177,6 @@ class FirstRunWizardClientTest extends TestCase
             'shopwareId' => '1',
             'password' => 'shopware',
         ], \json_decode($lastRequest->getBody()->getContents(), true));
-
-        static::assertEquals('1', $this->systemConfigService->get('core.store.shopwareId'));
     }
 
     public function testUpgradeAccessToken(): void
@@ -185,15 +190,16 @@ class FirstRunWizardClientTest extends TestCase
                     'expirationDate' => (new \DateTimeImmutable())->format(\DateTime::ATOM),
                 ],
                 'shopSecret' => 'this-shop-is-secret',
-            ]))
+            ], \JSON_THROW_ON_ERROR))
         );
 
         $this->getSystemFwrClient()->upgradeAccessToken($this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals([
-            'shopwareUserId' => $this->storeContext->getSource()->getUserId(),
+            'shopwareUserId' => $this->getStoreContextSource()->getUserId(),
         ], \json_decode($lastRequest->getBody()->getContents(), true));
 
         static::assertEquals('this-shop-is-secret', $this->systemConfigService->get('core.store.shopSecret'));
@@ -220,6 +226,7 @@ class FirstRunWizardClientTest extends TestCase
         $frwClient->finishFrw(false, $this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
         static::assertEquals(
             [
@@ -309,7 +316,7 @@ class FirstRunWizardClientTest extends TestCase
     public function testGetLanguagePlugins(): void
     {
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/languagePluginsResponse.json'))
+            new Response(200, [], $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/languagePluginsResponse.json'))
         );
 
         $plugins = $this->getSystemFwrClient()->getLanguagePlugins(new PluginCollection(), $this->storeContext);
@@ -323,14 +330,14 @@ class FirstRunWizardClientTest extends TestCase
         static::assertFalse($languagePackPlugin->isActive());
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
-
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/firstrunwizard/localizations', $lastRequest->getUri()->getPath());
     }
 
     public function testGetDemoDataPlugins(): void
     {
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/demoDataPluginsResponse.json'))
+            new Response(200, [], $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/demoDataPluginsResponse.json'))
         );
 
         $plugins = $this->getSystemFwrClient()->getDemoDataPlugins(new PluginCollection(), $this->storeContext);
@@ -344,21 +351,21 @@ class FirstRunWizardClientTest extends TestCase
         static::assertFalse($languagePackPlugin->isActive());
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
-
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/firstrunwizard/demodataplugins', $lastRequest->getUri()->getPath());
     }
 
     public function testGetRecommendationRegions(): void
     {
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationRegionsResponse.json'))
+            new Response(200, [], $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationRegionsResponse.json'))
         );
 
         $regions = $this->getSystemFwrClient()->getRecommendationRegions($this->storeContext);
 
         static::assertCount(1, $regions);
 
-        $regionsAsArray = \json_decode(\json_encode($regions), true);
+        $regionsAsArray = \json_decode(\json_encode($regions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals([
             [
@@ -383,7 +390,7 @@ class FirstRunWizardClientTest extends TestCase
     public function testGetRecommendation(): void
     {
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationResponse.json'))
+            new Response(200, [], $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationResponse.json'))
         );
 
         $frwClient = $this->getSystemFwrClient();
@@ -397,11 +404,12 @@ class FirstRunWizardClientTest extends TestCase
         static::assertCount(1, $recommendations);
 
         $exampleRecommendation = $recommendations->first();
+        static::assertInstanceOf(StorePluginStruct::class, $exampleRecommendation);
 
         static::assertEquals('SendcloudShipping', $exampleRecommendation->getName());
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
-
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/firstrunwizard/plugins', $lastRequest->getUri()->getPath());
         static::assertEquals([
             'shopwareVersion' => $this->instanceService->getShopwareVersion(),
@@ -421,7 +429,7 @@ class FirstRunWizardClientTest extends TestCase
         $frwUserToken = $this->getFrwUserTokenFromContext($this->storeContext);
 
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json'))
+            new Response(200, [], $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json'))
         );
 
         $domains = $this->getSystemFwrClient()->getLicenseDomains($this->storeContext);
@@ -441,10 +449,10 @@ class FirstRunWizardClientTest extends TestCase
                 'active' => false,
                 'extensions' => [],
             ],
-        ], \json_decode(\json_encode($domains), true));
+        ], \json_decode(\json_encode($domains, \JSON_THROW_ON_ERROR), true));
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
-
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
         static::assertEquals('/swplatform/firstrunwizard/shops', $lastRequest->getUri()->getPath());
         static::assertEquals($frwUserToken, $lastRequest->getHeader('X-Shopware-Token')[0]);
     }
@@ -454,14 +462,16 @@ class FirstRunWizardClientTest extends TestCase
         $shopDomain = 'http://new-shop';
 
         $this->systemConfigService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $shopDomain);
-        $verificationResponse = \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/verificationResponse.json');
+        $verificationResponse = $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/verificationResponse.json');
         $verificationData = \json_decode($verificationResponse, true);
 
-        $licenses = \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json');
+        $licenses = $this->getFileContents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json');
 
-        $verifiedShops = \json_decode($licenses, true);
+        $verifiedShops = \json_decode($licenses, true, 512, \JSON_THROW_ON_ERROR);
         $verifiedShops[1]['verified'] = true;
-        $verifiedShops = \json_encode($verifiedShops);
+        $verifiedShops = \json_encode($verifiedShops, \JSON_THROW_ON_ERROR);
+
+        static::assertIsString($verifiedShops);
 
         $this->getRequestHandler()->append(
             new Response(200, [], $licenses),
@@ -527,5 +537,23 @@ class FirstRunWizardClientTest extends TestCase
     private function getSystemFwrClient(): FirstRunWizardClient
     {
         return $this->getContainer()->get(FirstRunWizardClient::class);
+    }
+
+    private function getStoreContextSource(): AdminApiSource
+    {
+        $contextSource = $this->storeContext->getSource();
+
+        static::assertInstanceOf(AdminApiSource::class, $contextSource);
+
+        return $contextSource;
+    }
+
+    private function getFileContents(string $fileName): string
+    {
+        $fileContents = \file_get_contents($fileName);
+
+        static::assertIsString($fileContents);
+
+        return $fileContents;
     }
 }

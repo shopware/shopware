@@ -1,11 +1,17 @@
-function StoreError(title, message) {
-    return {
-        title,
-        message,
-    };
+type MappedError = {
+    title: string,
+    message: string,
+    parameters?: {
+        documentationLink: string,
+    }
 }
 
-const errorCodes = {
+class StoreError {
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public readonly title: string, public readonly message: string) {}
+}
+
+const errorCodes: { [key: string]: StoreError} = {
     FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP: new StoreError(
         'global.default.error',
         'sw-extension.errors.messageUploadFailureNoPluginFoundInZipFile',
@@ -40,7 +46,7 @@ const errorCodes = {
     ),
 };
 
-function getNotification(error) {
+function getNotification(error: StoreApiException): MappedError {
     if (error.code === 'FRAMEWORK__STORE_ERROR') {
         return mapErrorWithDocsLink(error);
     }
@@ -58,7 +64,7 @@ function getNotification(error) {
     };
 }
 
-function mapErrorWithDocsLink({ title, detail: message, meta }) {
+function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiException): MappedError {
     if (meta && typeof meta.documentationLink === 'string') {
         return {
             title,
@@ -75,10 +81,14 @@ function mapErrorWithDocsLink({ title, detail: message, meta }) {
     };
 }
 
-function mapErrors(errors) {
+function mapErrors(errors: StoreApiException[]) {
     return errors.map(getNotification);
 }
 
 export default {
     mapErrors,
+};
+
+export type {
+    MappedError,
 };

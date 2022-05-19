@@ -8046,11 +8046,6 @@ parameters:
 			path: src/Core/Framework/ShopwareHttpException.php
 
 		-
-			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Store/Services/FirstRunWizardClient.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:getKeyResource\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
@@ -11510,26 +11505,6 @@ parameters:
 			path: src/Core/Framework/Test/Store/Api/ExtensionStoreDataControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Api\\\\StoreControllerTest\\:\\:getPluginLifecycleServiceMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Api\\\\StoreControllerTest\\:\\:getPluginManagementServiceMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Api\\\\StoreControllerTest\\:\\:getPluginRepositoryMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Api\\\\StoreControllerTest\\:\\:getStoreClientMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Authentication/FrwRequestOptionsProviderTest.php
@@ -11705,79 +11680,9 @@ parameters:
 			path: src/Core/Framework/Test/Store/Service/ExtensionStoreLicensesServiceTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Cannot call method getBody\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Cannot call method getHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Cannot call method getMethod\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\StorePluginStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Cannot call method getUri\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 11
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 10
-			path: src/Core/Framework/Test/Store/Service/FirstRunWizardClientTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\StoreClientFactoryTest\\:\\:\\$originalStoreUri \\(string\\|null\\) does not accept array\\|bool\\|float\\|int\\|string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/StoreClientFactoryTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
-
-		-
-			message: "#^Cannot call method getBody\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
-
-		-
-			message: "#^Cannot call method getHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
-
-		-
-			message: "#^Cannot call method getUri\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
-
-		-
-			message: "#^Cannot call method hasHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Store/Service/StoreClientTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\Api\\\\Context\\\\ContextSource\\:\\:getUserId\\(\\)\\.$#"
@@ -15678,4 +15583,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-

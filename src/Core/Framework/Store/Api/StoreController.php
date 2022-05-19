@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
@@ -103,17 +102,20 @@ class StoreController extends AbstractController
      */
     public function checkLogin(Context $context): Response
     {
-        $tokenExists = false;
-
         try {
-            $storeToken = $this->getUserStoreToken($context);
-            if ($storeToken !== '') {
-                $tokenExists = true;
-            }
-        } catch (StoreTokenMissingException $storeTokenMissingException) {
-        }
+            // Throws StoreTokenMissingException if no token is present
+            $this->getUserStoreToken($context);
 
-        return new JsonResponse(['storeTokenExists' => $tokenExists]);
+            $userInfo = $this->storeClient->userInfo($context);
+
+            return new JsonResponse([
+                'userInfo' => $userInfo,
+            ]);
+        } catch (StoreTokenMissingException|ClientException $exception) {
+            return new JsonResponse([
+                'userInfo' => null,
+            ]);
+        }
     }
 
     /**

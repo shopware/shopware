@@ -187,6 +187,30 @@ declare global {
     type apiContext = ContextState['api'];
 
     type appContext = ContextState['app'];
+
+    /**
+     * @see Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
+     */
+    interface ShopwareHttpError {
+        code: string,
+        status: string,
+        title: string,
+        detail: string,
+        meta?: {
+            file: string,
+            line: string,
+            trace?: { [key: string]: string },
+            parameters?: object,
+            previous?: ShopwareHttpError,
+        },
+        trace?: { [key: string]: string },
+    }
+
+    interface StoreApiException extends ShopwareHttpError {
+        meta?: ShopwareHttpError['meta'] & {
+            documentationLink?: string,
+        }
+    }
 }
 
 /**

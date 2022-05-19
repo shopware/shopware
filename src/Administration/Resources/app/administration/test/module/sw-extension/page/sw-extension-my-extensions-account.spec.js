@@ -3,10 +3,13 @@ import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
 import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-button';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 import flushPromises from 'flush-promises';
 
-let isLoggedIn = false;
+const userInfo = {
+    avatarUrl: 'https://avatar.url',
+    email: 'max@muster.com',
+    name: 'Max Muster'
+};
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -34,16 +37,40 @@ function createWrapper() {
             'sw-skeleton': true,
         },
         provide: {
-            shopwareExtensionService: new ShopwareExtensionService(),
+            shopwareExtensionService: {
+                checkLogin: () => {
+                    return Promise.resolve({
+                        userInfo
+                    });
+                }
+            },
             systemConfigApiService: {
                 getValues: () => {
                     return Promise.resolve({
                         'core.store.apiUri': 'https://api.shopware.com',
                         'core.store.licenseHost': 'sw6.test.shopware.in',
                         'core.store.shopSecret': 'very.s3cret',
-                        'core.store.shopwareId': 'max@muster.com'
                     });
                 }
+            },
+            storeService: {
+                login: (shopwareId, password) => {
+                    if (shopwareId !== 'max@muster.com') {
+                        return Promise.reject();
+                    }
+                    if (password !== 'v3ryS3cret') {
+                        return Promise.reject();
+                    }
+
+                    Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+
+                    return Promise.resolve();
+                },
+                logout: () => {
+                    Shopware.State.get('shopwareExtensions').userInfo = null;
+
+                    return Promise.resolve();
+                },
             }
         }
     });
@@ -55,37 +82,12 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
     beforeAll(async () => {
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
-        Shopware.Service().register('storeService', () => {
-            return {
-                login: (shopwareId, password) => {
-                    if (shopwareId !== 'max@muster.com') {
-                        return Promise.reject();
-                    }
-                    if (password !== 'v3ryS3cret') {
-                        return Promise.reject();
-                    }
-
-                    isLoggedIn = true;
-
-                    return Promise.resolve();
-                },
-                logout: () => {
-                    isLoggedIn = false;
-
-                    return Promise.resolve();
-                },
-                checkLogin() {
-                    return Promise.resolve({
-                        storeTokenExists: isLoggedIn
-                    });
-                }
-            };
-        });
     });
 
     beforeEach(async () => {
-        isLoggedIn = false;
         wrapper = await createWrapper();
+
+        Shopware.State.get('shopwareExtensions').userInfo = null;
     });
 
     afterEach(async () => {
@@ -132,8 +134,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should show the logged in view when logged in ', async () => {
-        // set logged in to true
-        isLoggedIn = true;
+        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         wrapper = await createWrapper();
@@ -147,8 +148,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should logout when user clicks logout button ', async () => {
-        // set logged in to true
-        isLoggedIn = true;
+        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
         wrapper = await createWrapper();

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
@@ -44,6 +46,7 @@ class StoreClientTest extends TestCase
         static::assertEquals('signed', $this->storeClient->signPayloadWithAppSecret('[this can be anything]', 'testApp'));
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals('/swplatform/generatesignature', $lastRequest->getUri()->getPath());
 
@@ -61,13 +64,17 @@ class StoreClientTest extends TestCase
 
     public function testItUpdatesUserTokenAfterLogin(): void
     {
+        $responseBody = \file_get_contents(__DIR__ . '/../_fixtures/responses/login.json');
+        static::assertIsString($responseBody);
+
         $this->getRequestHandler()->append(
-            new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/login.json'))
+            new Response(200, [], $responseBody)
         );
 
         $this->storeClient->loginWithShopwareId('shopwareId', 'password', $this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals([
             'shopwareVersion' => $this->getShopwareVersion(),
@@ -75,10 +82,13 @@ class StoreClientTest extends TestCase
             'domain' => 'shopware-test',
         ], Query::parse($lastRequest->getUri()->getQuery()));
 
+        $contextSource = $this->storeContext->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $contextSource);
+
         static::assertEquals([
             'shopwareId' => 'shopwareId',
             'password' => 'password',
-            'shopwareUserId' => $this->storeContext->getSource()->getUserId(),
+            'shopwareUserId' => $contextSource->getUserId(),
         ], \json_decode($lastRequest->getBody()->getContents(), true));
 
         // token from login.json
@@ -92,11 +102,6 @@ class StoreClientTest extends TestCase
             'shop.secret',
             $this->configService->get('core.store.shopSecret')
         );
-
-        static::assertEquals(
-            'shopwareId',
-            $this->configService->get('core.store.shopwareId')
-        );
     }
 
     public function testItRequestsUpdatesForLoggedInUser(): void
@@ -109,13 +114,14 @@ class StoreClientTest extends TestCase
 
         $this->getRequestHandler()->append(new Response(200, [], \json_encode([
             'data' => [],
-        ])));
+        ], \JSON_THROW_ON_ERROR)));
 
         $updateList = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
         static::assertEquals([], $updateList);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals(
             $this->getStoreTokenFromContext($this->storeContext),
@@ -125,9 +131,12 @@ class StoreClientTest extends TestCase
 
     public function testItRequestsUpdateForNotLoggedInUser(): void
     {
+        $contextSource = $this->storeContext->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $contextSource);
+
         $this->getUserRepository()->update([
             [
-                'id' => $this->storeContext->getSource()->getUserId(),
+                'id' => $contextSource->getUserId(),
                 'storeToken' => null,
             ],
         ], Context::createDefaultContext());
@@ -145,7 +154,7 @@ class StoreClientTest extends TestCase
                     'version' => '1.1.0',
                 ],
             ],
-        ])));
+        ], \JSON_THROW_ON_ERROR)));
 
         $updateList = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
@@ -154,7 +163,28 @@ class StoreClientTest extends TestCase
         static::assertEquals('1.1.0', $updateList[0]->getVersion());
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertFalse($lastRequest->hasHeader('X-Shopware-Platform-Token'));
+    }
+
+    public function testItReturnsUserInfo(): void
+    {
+        $userInfo = [
+            'name' => 'John Doe',
+            'email' => 'john.doe@shopware.com',
+            'avatarUrl' => 'https://avatar.shopware.com/john-doe.png',
+        ];
+
+        $this->getRequestHandler()->append(new Response(200, [], \json_encode($userInfo, \JSON_THROW_ON_ERROR)));
+
+        $returnedUserInfo = $this->storeClient->userInfo($this->storeContext);
+
+        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $lastRequest);
+
+        static::assertEquals('/swplatform/userinfo', $lastRequest->getUri()->getPath());
+        static::assertEquals('GET', $lastRequest->getMethod());
+        static::assertEquals($userInfo, $returnedUserInfo);
     }
 }

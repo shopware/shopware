@@ -1671,11 +1671,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerRemoteAddressSubscriberTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\CustomerValidationFactory\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
@@ -3273,11 +3268,6 @@ parameters:
 		-
 			message: "#^Cannot call method getTree\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\|null\\.$#"
 			count: 12
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\NavigationLoader\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
 
 		-
@@ -5326,11 +5316,6 @@ parameters:
 			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileUrlValidator\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
@@ -5419,11 +5404,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
 			count: 10
 			path: src/Core/Content/Test/Media/File/FileSaverTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileUrlValidator\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileUrlValidatorTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$connection is never read, only written\\.$#"
@@ -6739,36 +6719,6 @@ parameters:
 			message: "#^Strict comparison using \\=\\=\\= between Psr\\\\Cache\\\\CacheItemInterface and null will always evaluate to false\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Service/SitemapExporterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableDoesNotAddPublicMethod\\\\DecoratableAddPublicMethod\\:\\:test\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableDoesNotAddPublicMethod/DecoratableAddPublicMethod.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableDoesNotAddPublicMethod\\\\DecoratableAddPublicMethod\" is marked as \"@Decoratable\", but adds public method \"build\", that is not defined by any Interface\\.$#"
-			count: 1
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableDoesNotAddPublicMethod/DecoratableAddPublicMethod.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableDoesNotCallOwnPublicMethod\\\\DecoratableDoesCallOwnPublicMethod\" is marked as \"@Decoratable\", but calls it's own public method \"build\", which breaks decoration\\.$#"
-			count: 1
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableDoesNotCallOwnPublicMethod/DecoratableDoesCallOwnPublicMethod.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableImplementsInterface\\\\DecoratableDoesNotImplementInterface\" is marked as \"@Decoratable\", but does not implement an interface\\.$#"
-			count: 1
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableImplementsInterface/DecoratableDoesNotImplementInterface.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableNotDirectlyDependet\\\\Test\" has a direct dependency on decoratable service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableNotDirectlyDependet\\\\DecoratableClass\", but must only depend on it's interface\\.$#"
-			count: 3
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableNotDirectlyDependet/Test.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\DevOps\\\\Test\\\\StaticAnalyze\\\\PHPStan\\\\Rules\\\\Decoratable\\\\_fixtures\\\\DecoratableNotInstantiated\\\\DecoratableClass\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
-			path: src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/DecoratableNotInstantiated/Test.php
 
 		-
 			message: "#^Parameter \\#1 \\$baseUrls of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FallbackUrlPackage\\:\\:applyFallback\\(\\) expects array, array\\<string\\>\\|string given\\.$#"
@@ -13690,16 +13640,6 @@ parameters:
 			path: src/Core/System/Test/Salutation/SalesChannel/SalutationRouteTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileLoader\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Files/AppSnippetFileLoaderTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Files\\\\AppSnippetFileLoaderTest\" has a direct dependency on decoratable service \"Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileLoader\", but must only depend on it's interface\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Files/AppSnippetFileLoaderTest.php
-
-		-
 			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/Test/Snippet/Files/SnippetFileCollectionTest.php
@@ -13708,11 +13648,6 @@ parameters:
 			message: "#^Cannot call method getIso\\(\\) on Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileInterface\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/Snippet/Files/SnippetFileCollectionTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileLoader\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 4
-			path: src/Core/System/Test/Snippet/Files/SnippetFileLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Filter\\\\SnippetFilterFactoryTest\\:\\:testGetFilter\\(\\) has parameter \\$expectException with no type specified\\.$#"
@@ -15155,11 +15090,6 @@ parameters:
 			path: src/Storefront/Test/Page/NavigationPageTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Test\\\\Page\\\\NavigationPageTest\" has a direct dependency on decoratable service \"Shopware\\\\Storefront\\\\Page\\\\Navigation\\\\NavigationPageLoader\", but must only depend on it's interface\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$groupIds has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
@@ -15275,27 +15205,12 @@ parameters:
 			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\" has a direct dependency on decoratable service \"Shopware\\\\Storefront\\\\Page\\\\GenericPageLoader\", but must only depend on it's interface\\.$#"
-			count: 1
-			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeChangeCommandTest\" has a direct dependency on decoratable service \"Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginRegistry\", but must only depend on it's interface\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeChangeCommandTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
 			count: 3
 			path: src/Storefront/Test/Theme/Command/ThemeCreateCommandTest.php
 
 		-
 			message: "#^Offset 0 does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Command\\\\ThemeDumpCommandTest\" has a direct dependency on decoratable service \"Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginRegistry\", but must only depend on it's interface\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Command/ThemeDumpCommandTest.php
 
@@ -15395,11 +15310,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Theme\\\\ThemeFileImporter\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
-
-		-
 			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
@@ -15417,11 +15327,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringNotContainsString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Theme\\\\ThemeFileImporter\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 5
 			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
 
 		-
@@ -15622,11 +15527,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$arr1 of function array_merge_recursive expects array, array\\|null given\\.$#"
 			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^The service \"Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginRegistry\" is marked as \"@Decoratable\", but is instantiated, use constructor injection via the DIC instead\\.$#"
-			count: 2
 			path: src/Storefront/Test/Theme/ThemeTest.php
 
 		-

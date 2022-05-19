@@ -117,5 +117,19 @@
         {% endblock %}
     </template>
     {% endblock %}
+
+    {% block sw_settings_logging_list_sidebar %}
+    <template #sidebar>
+        <sw-sidebar class="sw-settings-logging-list__sidebar">
+            {% block sw_settings_logging_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="default-arrow-360-left"
+                :title="$tc('sw-settings-logging.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
+    {% endblock %}
 </sw-page>
 {% endblock %}

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -37,6 +39,8 @@ class FileLoader
      */
     private $mediaRepository;
 
+    private StreamFactoryInterface $streamFactory;
+
     /**
      * @internal
      */
@@ -44,25 +48,38 @@ class FileLoader
         FilesystemInterface $filesystemPublic,
         FilesystemInterface $filesystemPrivate,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        StreamFactoryInterface $streamFactory
     ) {
         $this->filesystemPublic = $filesystemPublic;
         $this->filesystemPrivate = $filesystemPrivate;
         $this->urlGenerator = $urlGenerator;
         $this->fileNameValidator = new FileNameValidator();
         $this->mediaRepository = $mediaRepository;
+        $this->streamFactory = $streamFactory;
     }
 
     public function loadMediaFile(string $mediaId, Context $context): string
     {
         $media = $this->findMediaById($mediaId, $context);
 
+        return $this->getFileSystem($media)->read($this->getFilePath($media));
+    }
+
+    public function loadMediaFileStream(string $mediaId, Context $context): StreamInterface
+    {
+        $media = $this->findMediaById($mediaId, $context);
+
+        return $this->streamFactory->createStreamFromResource(
+            $this->getFileSystem($media)->readStream($this->getFilePath($media))
+        );
+    }
+
+    private function getFilePath(MediaEntity $media): string
+    {
         $this->fileNameValidator->validateFileName($media->getFileName());
-        $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
-        $fileContents = $this->getFileSystem($media)->read($path);
-
-        return $fileContents;
+        return $this->urlGenerator->getRelativeMediaUrl($media);
     }
 
     private function getFileSystem(MediaEntity $media): FilesystemInterface

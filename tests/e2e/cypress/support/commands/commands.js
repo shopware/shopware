@@ -659,3 +659,17 @@ Cypress.Commands.add('changeElementText', (selector, text) => {
         .invoke('text', text)
         .should('contain', text);
 });
+
+/**
+ * checks iframe content for sdk test
+ * @memberOf Cypress.Chainable#
+ * @name getSDKiFrame
+ * @param {strong} iframe - String of custom url to select iframe
+ * @function
+ */
+Cypress.Commands.add('getSDKiFrame', (locationId) => {
+    cy.get(`iframe[src*="location-id=${locationId}"]`)
+        .its('0.contentDocument.body')
+        .should('not.be.empty')
+        .then(cy.wrap);
+});

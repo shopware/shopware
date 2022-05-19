@@ -13,6 +13,7 @@
   "useShopwareTheme": true,
   "theme": "dark",
   "screenshotsFolder": "./../../var/log/e2e/screenshots",
+  "modifyObstructiveCode": false,
   "env": {
     "user": "admin",
     "pass": "shopware",

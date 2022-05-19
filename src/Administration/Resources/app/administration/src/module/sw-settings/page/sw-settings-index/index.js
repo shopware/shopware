@@ -27,7 +27,12 @@ Component.register('sw-settings-index', {
 
                         return this.acl.can(setting.privilege);
                     })
-                    .sort((a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label))));
+                    .sort((a, b) => {
+                        const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
+                        const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
+
+                        return this.$tc(labelA).localeCompare(this.$tc(labelB));
+                    });
 
                 if (group.length > 0) {
                     acc[groupName] = group;

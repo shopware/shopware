@@ -26,6 +26,7 @@ E2E:
                     - "cypress/integration/administration/settings/**/*"
                     - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
                     - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/administration/sdk-plugin/**/*"
                     - "cypress/integration/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "major"]

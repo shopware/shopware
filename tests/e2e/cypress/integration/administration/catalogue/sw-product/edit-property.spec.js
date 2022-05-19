@@ -218,6 +218,7 @@ describe('Product: Edit property assignment', () => {
         cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
             .should('be.visible')
             .click();
+        cy.get('.sw-product-properties__card').scrollIntoView();
         cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--2', 'red').should('be.visible');
         cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--2 input').click();
         cy.get('.sw-product-add-properties-modal__button-save').click();
@@ -225,6 +226,7 @@ describe('Product: Edit property assignment', () => {
         // assert new properties have added successful
         cy.get('.sw-product-add-properties-modal').should('not.exist');
         cy.get(page.elements.productSaveAction).click();
+        cy.get('.sw-product-properties__card').scrollIntoView();
         cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });

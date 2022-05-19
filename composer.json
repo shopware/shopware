@@ -229,6 +229,20 @@
         "npm:e2e:recovery": "@npm:e2e:recovery:bin npm",
         "npm:e2e:storefront:bin": "@npm:e2e:bin ",
         "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
+        "e2e:sdk-plugin:fixture-to-plugin": [
+            "rm -rf $PWD/custom/plugins/TestPlugin;",
+            "cp -a $PWD/tests/e2e/cypress/fixtures/TestPlugin/. $PWD/custom/plugins/TestPlugin/"
+        ],
+        "e2e:sdk-plugin:plugin-to-fixture": [
+            "rm -rf $PWD/tests/e2e/cypress/fixtures/TestPlugin;",
+            "cp -a $PWD/custom/plugins/TestPlugin/. $PWD/tests/e2e/cypress/fixtures/TestPlugin/"
+        ],
+        "e2e:sdk-plugin:prepare-plugin": [
+            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install;",
+            "bin/console plugin:refresh;",
+            "bin/console plugin:install --activate TestPlugin;",
+            "@build:js:admin"
+        ],
         "build:js:admin": [
             "@php bin/console bundle:dump",
             "@npm:admin run build",
@@ -303,9 +317,12 @@
             "@setup",
             "@e2e:prepare"
         ],
+
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
+            "@e2e:sdk-plugin:fixture-to-plugin",
+            "@e2e:sdk-plugin:prepare-plugin",
             "@php bin/console e2e:dump-db"
         ],
 

@@ -37,7 +37,7 @@ Shopware.Component.register('sw-iframe-renderer', {
     created() {
         this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
-                this.locationHeight = height ?? null;
+                this.locationHeight = Number(height) ?? null;
             }
         });
     },

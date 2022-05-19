@@ -127,6 +127,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Nyholm\Psr7\Factory\Psr17Factory"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileNameProvider" class="Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider">

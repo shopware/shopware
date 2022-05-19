@@ -3,7 +3,10 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
+use Shopware\Core\Content\Media\Exception\StreamNotReadableException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -12,30 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class FileLoader
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemPublic;
+    private FilesystemInterface $filesystemPublic;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemPrivate;
+    private FilesystemInterface $filesystemPrivate;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var FileNameValidator
-     */
-    private $fileNameValidator;
+    private FileNameValidator $fileNameValidator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
+
+    private StreamFactoryInterface $streamFactory;
 
     /**
      * @internal
@@ -44,25 +34,40 @@ class FileLoader
         FilesystemInterface $filesystemPublic,
         FilesystemInterface $filesystemPrivate,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        StreamFactoryInterface $streamFactory
     ) {
         $this->filesystemPublic = $filesystemPublic;
         $this->filesystemPrivate = $filesystemPrivate;
         $this->urlGenerator = $urlGenerator;
         $this->fileNameValidator = new FileNameValidator();
         $this->mediaRepository = $mediaRepository;
+        $this->streamFactory = $streamFactory;
     }
 
     public function loadMediaFile(string $mediaId, Context $context): string
     {
         $media = $this->findMediaById($mediaId, $context);
 
+        return $this->getFileSystem($media)->read($this->getFilePath($media));
+    }
+
+    public function loadMediaFileStream(string $mediaId, Context $context): StreamInterface
+    {
+        $media = $this->findMediaById($mediaId, $context);
+        $resource = $this->getFileSystem($media)->readStream($this->getFilePath($media));
+        if ($resource === false) {
+            throw new StreamNotReadableException($this->getFilePath($media));
+        }
+
+        return $this->streamFactory->createStreamFromResource($resource);
+    }
+
+    private function getFilePath(MediaEntity $media): string
+    {
         $this->fileNameValidator->validateFileName($media->getFileName());
-        $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
-        $fileContents = $this->getFileSystem($media)->read($path);
-
-        return $fileContents;
+        return $this->urlGenerator->getRelativeMediaUrl($media);
     }
 
     private function getFileSystem(MediaEntity $media): FilesystemInterface

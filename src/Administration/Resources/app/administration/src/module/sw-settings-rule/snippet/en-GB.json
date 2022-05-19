@@ -11,6 +11,7 @@
       "columnName": "Rule",
       "columnDescription": "Description",
       "columnDateCreated": "Creation date",
+      "columnDateUpdated": "Updated at",
       "columnPriority": "Priority",
       "columnStatus": "Status",
       "contextMenuDuplicate": "Duplicate",

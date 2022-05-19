@@ -259,9 +259,9 @@ class ExtensionLoader
 
         $data = [
             'localId' => $app->getId(),
-            'description' => $app->getDescription(),
+            'description' => $app->getTranslation('description'),
             'name' => $app->getName(),
-            'label' => $app->getLabel(),
+            'label' => $app->getTranslation('label'),
             'producerName' => $app->getAuthor(),
             'license' => $app->getLicense(),
             'version' => $app->getVersion(),

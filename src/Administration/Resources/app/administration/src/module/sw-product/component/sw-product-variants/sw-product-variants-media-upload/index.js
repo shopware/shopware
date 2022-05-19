@@ -69,6 +69,14 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
             return this.product.media.find(media => media.id === coverId);
         },
+
+        coverImageSource() {
+            if (this.cover) {
+                return this.cover.media ?? this.cover.mediaId;
+            }
+
+            return this.product?.cover?.mediaId ?? this.product?.cover?.media;
+        },
     },
 
     created() {

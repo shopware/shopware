@@ -80,6 +80,33 @@ class MediaFolderIndexerTest extends TestCase
         static::assertEquals($expectedPathChildZero, $pathChildZeroAfterUpdate);
     }
 
+    public function testChildCountIsUpdatedCorrectly(): void
+    {
+        $parentId = Uuid::randomHex();
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'parent',
+                'configurationId' => Uuid::randomHex(),
+            ],
+        ], $this->context);
+
+        $this->mediaFolderRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+                'name' => 'child',
+                'configurationId' => Uuid::randomHex(),
+                'parentId' => $parentId,
+            ],
+        ], $this->context);
+
+        /** @var MediaFolderEntity $folder */
+        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->first();
+
+        static::assertEquals(1, $folder->getChildCount());
+    }
+
     private function assertCorrectPathWithOneSubFolderForEachParent(array $data, array $ids, int $depth): void
     {
         // expect parent path to be null

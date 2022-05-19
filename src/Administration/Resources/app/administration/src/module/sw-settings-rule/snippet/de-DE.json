@@ -11,6 +11,7 @@
       "columnName": "Regel",
       "columnDescription": "Beschreibung",
       "columnDateCreated": "Erstelldatum",
+      "columnDateUpdated": "Zuletzt bearbeitet",
       "columnPriority": "Priorität",
       "columnStatus": "Status",
       "contextMenuDuplicate": "Duplizieren",

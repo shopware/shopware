@@ -99,12 +99,11 @@
                 </template>
 
                 <template #column-updatedAt="{item}">
-                    <template v-if="item.updatedAt">
-                        {{ item.updatedAt|date }}
-                    </template>
-                    <template v-else>
-                        {{ item.createdAt|date }}
-                    </template>
+                    {{ item.updatedAt|date }}
+                </template>
+
+                <template #column-createdAt="{item}">
+                    {{ item.createdAt|date }}
                 </template>
 
                 {% block sw_settings_rule_list_grid_columns_actions %}

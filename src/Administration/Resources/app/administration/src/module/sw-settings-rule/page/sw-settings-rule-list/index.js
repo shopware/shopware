@@ -42,7 +42,7 @@ Component.register('sw-settings-rule-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
-            const naturalSort = this.sortBy === 'createdAt';
+            const naturalSort = ['createdAt', 'updatedAt'].includes(this.sortBy);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
             this.ruleRepository.search(criteria).then((items) => {
@@ -119,6 +119,11 @@ Component.register('sw-settings-rule-list', {
                 allowResize: true,
             }, {
                 property: 'updatedAt',
+                label: 'sw-settings-rule.list.columnDateUpdated',
+                align: 'right',
+                allowResize: true,
+            }, {
+                property: 'createdAt',
                 label: 'sw-settings-rule.list.columnDateCreated',
                 align: 'right',
                 allowResize: true,

@@ -14,4 +14,9 @@
         margin-left: 8px;
         font-size: $font-size-small;
     }
+
+    .sw-field--checkbox__content .sw-field .sw-field__label label {
+        flex-grow: inherit;
+        margin-right: 10px;
+    }
 }

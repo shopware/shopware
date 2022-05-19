@@ -190,8 +190,27 @@
     }
 
     &__disabled {
-        pointer-events: none;
-        opacity: 0.6;
+        cursor: not-allowed;
+
+        img {
+            opacity: 0.6;
+        }
+
+        h3 {
+            color: $color-gray-500;
+        }
+
+        .sw-flow-sequence-action__action-description {
+            color: $color-gray-500;
+        }
+
+        .sw-highlight-text {
+            color: $color-gray-500;
+        }
+
+        &.sw-select-result {
+            cursor: not-allowed;
+        }
     }
 
     &__popover {

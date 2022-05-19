@@ -13,7 +13,7 @@ const { Utils } = Shopware;
 enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-category-form', () => {
-    let defaultSalesChannelData = {};
+    const defaultSalesChannelData = {};
 
     function createWrapper(productEntityOverride, parentProductOverride) {
         const productEntity =
@@ -148,26 +148,5 @@ describe('module/sw-product/component/sw-product-category-form', () => {
         structureFieldsClassName.forEach(item => {
             expect(wrapper.find(item).exists()).toBe(false);
         });
-    });
-
-    // Skipped because deprecated. Will be fixed with NEXT-21344
-    it.skip('should show correct config when there is system config data', async () => {
-        defaultSalesChannelData = {
-            'core.defaultSalesChannel.active': false,
-            'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
-            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
-        };
-
-        wrapper = await createWrapper({
-            active: true,
-            visibilities: [],
-            isNew: () => true
-        });
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.product.visibilities.length).toBe(1);
-        expect(wrapper.find('.sw-product-category-form .sw-field--switch input').element.checked).toBeFalsy();
-        expect(wrapper.find('.sw-product-category-form .advanced-visibility').exists()).toBeTruthy();
     });
 });

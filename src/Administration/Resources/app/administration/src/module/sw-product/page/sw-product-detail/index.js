@@ -127,7 +127,7 @@ Component.register('sw-product-detail', {
         },
 
         productVisibilityRepository() {
-            return this.repositoryFactory.create(this.product.visibilities.entity);
+            return this.repositoryFactory.create('product_visibility');
         },
 
         mediaRepository() {

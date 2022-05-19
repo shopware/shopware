@@ -195,26 +195,6 @@ parameters:
 
 services:
     -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableDoesNotAddPublicMethodRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableDoesNotCallOwnPublicMethodRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotDirectlyDependetRule
-        tags:
-            - phpstan.rules.rule
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
-        tags:
-            - phpstan.rules.rule
-    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         tags:
             - phpstan.rules.rule

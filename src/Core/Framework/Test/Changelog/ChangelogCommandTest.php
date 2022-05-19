@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Changelog;
+namespace Shopware\Core\Framework\Test\Changelog;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand;
@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogValidator;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\Changelog\ChangelogTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -19,6 +18,7 @@ use function file_get_contents;
 
 /**
  * @internal
+ * @group skip-paratest
  */
 class ChangelogCommandTest extends TestCase
 {
@@ -165,6 +165,8 @@ class ChangelogCommandTest extends TestCase
 
     /**
      * @dataProvider provideChangeCommandFixtures
+     *
+     * @param class-string<\Throwable>|null $expectedException
      */
     public function testChangelogChangeCommand(string $path, ?string $expectedException, array $expectedOutputSnippets): void
     {
@@ -188,6 +190,8 @@ class ChangelogCommandTest extends TestCase
 
     /**
      * @dataProvider provideReleaseCommandFixtures
+     *
+     * @param class-string<\Throwable>|null $expectedException
      */
     public function testChangelogReleaseCommand(string $path, string $version, ?string $expectedException, array $expectedFileContents): void
     {
@@ -204,7 +208,7 @@ class ChangelogCommandTest extends TestCase
 
         foreach ($expectedFileContents as $fileName => $expectedFileContent) {
             static::assertFileExists($fileName);
-            $fileContents = file_get_contents($fileName);
+            $fileContents = (string) file_get_contents($fileName);
 
             foreach ($expectedFileContent as $line) {
                 static::assertStringContainsString($line, $fileContents);
@@ -230,7 +234,7 @@ class ChangelogCommandTest extends TestCase
         $cmd->run(new StringInput('12.13.14.15'), new NullOutput());
 
         static::assertFileExists(__DIR__ . '/_fixture/stage/command-valid-flag/CHANGELOG.md');
-        $content = file_get_contents(__DIR__ . '/_fixture/stage/command-valid-flag/CHANGELOG.md');
+        $content = (string) file_get_contents(__DIR__ . '/_fixture/stage/command-valid-flag/CHANGELOG.md');
 
         static::assertStringContainsString('/changelog/release-12-13-14-15/1977-12-10-a-full-change.md', $content);
         static::assertStringContainsString('/changelog/release-12-13-14-15/1977-12-11-flag-active', $content);

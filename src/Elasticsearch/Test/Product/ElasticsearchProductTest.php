@@ -42,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -87,6 +88,7 @@ use function array_combine;
 
 /**
  * @internal
+ * @group skip-paratest
  */
 class ElasticsearchProductTest extends TestCase
 {
@@ -220,8 +222,8 @@ class ElasticsearchProductTest extends TestCase
                     'decimalPrecision' => 2,
                     'shortName' => 'A',
                     'isoCode' => 'A',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 ],
                 [
                     'id' => $this->anotherCurrencyId,
@@ -231,8 +233,8 @@ class ElasticsearchProductTest extends TestCase
                     'decimalPrecision' => 2,
                     'shortName' => 'B',
                     'isoCode' => 'B',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 ],
             ];
 
@@ -252,6 +254,7 @@ class ElasticsearchProductTest extends TestCase
             $languages = $this->languageRepository->searchIds($criteria, $context);
 
             foreach ($languages->getIds() as $languageId) {
+                \assert(\is_string($languageId));
                 $index = $this->helper->getIndexName($this->productDefinition, $languageId);
 
                 $exists = $this->client->indices()->exists(['index' => $index]);
@@ -467,6 +470,9 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      * @dataProvider multiFilterWithOneToManyRelationProvider
+     *
+     * @param string[] $expectedProducts
+     * @param Filter $filter
      */
     public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
     {
@@ -827,12 +833,15 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
         } catch (\Exception $e) {
             static::tearDown();
@@ -873,6 +882,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
 
             /** @var AvgResult $price */
@@ -881,12 +891,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(50, $price->getAvg());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertEquals(150, $price->getAvg());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
 
             $price = $bucket->getResult();
@@ -928,12 +940,15 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
         } catch (\Exception $e) {
             static::tearDown();
@@ -1003,6 +1018,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
             /** @var SumResult $price */
             $price = $bucket->getResult();
@@ -1010,12 +1026,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(50, $price->getSum());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
             static::assertEquals(450, $price->getSum());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
@@ -1088,6 +1106,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
             /** @var MaxResult $price */
             $price = $bucket->getResult();
@@ -1095,12 +1114,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(50, $price->getMax());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
             static::assertEquals(200, $price->getMax());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
@@ -1173,6 +1194,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
             /** @var MinResult $price */
             $price = $bucket->getResult();
@@ -1180,12 +1202,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(50, $price->getMin());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $price);
             static::assertEquals(100, $price->getMin());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $price);
@@ -1258,6 +1282,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
             /** @var CountResult $price */
             $price = $bucket->getResult();
@@ -1265,12 +1290,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(1, $price->getCount());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $price);
             static::assertEquals(3, $price->getCount());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $price);
@@ -1346,6 +1373,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m3'), $result->getKeys());
 
             $bucket = $result->get($data->get('m1'));
+            static::assertNotNull($bucket);
             static::assertEquals(1, $bucket->getCount());
             /** @var StatsResult $price */
             $price = $bucket->getResult();
@@ -1356,6 +1384,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(50, $price->getAvg());
 
             $bucket = $result->get($data->get('m2'));
+            static::assertNotNull($bucket);
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
@@ -1365,6 +1394,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(150, $price->getAvg());
 
             $bucket = $result->get($data->get('m3'));
+            static::assertNotNull($bucket);
             static::assertEquals(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
@@ -1732,6 +1762,7 @@ class ElasticsearchProductTest extends TestCase
             foreach ($case->getBuckets() as $key => $count) {
                 static::assertTrue($histogram->has($key));
                 $bucket = $histogram->get($key);
+                static::assertNotNull($bucket);
                 static::assertSame($count, $bucket->getCount());
             }
         } catch (\Exception $e) {
@@ -1741,7 +1772,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    public function dateHistogramProvider()
+    public function dateHistogramProvider(): array
     {
         return [
             [
@@ -2308,7 +2339,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(CustomFieldUpdater::getTypeFromCustomFieldType(CustomFieldTypes::BOOL), $mapping['properties']['customFields']['properties']['test']);
     }
 
-    public function providerCheapestPriceFilter()
+    public function providerCheapestPriceFilter(): iterable
     {
         yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
@@ -2381,7 +2412,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    public function providerCheapestPriceSorting()
+    public function providerCheapestPriceSorting(): iterable
     {
         yield 'Test sorting without rules' => [
             'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
@@ -2885,7 +2916,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    private function providerCheapestPriceAggregation()
+    private function providerCheapestPriceAggregation(): iterable
     {
         yield 'With no rules' => ['min' => 60, 'max' => 190, 'rules' => []];
         yield 'With rule a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a']];

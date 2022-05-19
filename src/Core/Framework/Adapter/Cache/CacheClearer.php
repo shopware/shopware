@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\PruneableInterface;
@@ -112,6 +113,9 @@ class CacheClearer extends AbstractMessageHandler
         }
     }
 
+    /**
+     * @param object $message
+     */
     public function handle($message): void
     {
         $this->cleanupOldCacheDirectories();
@@ -126,6 +130,11 @@ class CacheClearer extends AbstractMessageHandler
 
     private function cleanupOldCacheDirectories(): void
     {
+        // Don't delete other folders while paratest is running
+        if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
+            return;
+        }
+
         $finder = (new Finder())
             ->directories()
             ->name($this->environment . '*')

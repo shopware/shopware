@@ -14,7 +14,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
             if ($object instanceof Entity) {
                 FieldVisibility::$isInTwigRenderingContext = true;
 
-                $getter = 'get' . ucfirst($item);
+                $getter = 'get' . $item;
 
                 return $object->$getter();
             }

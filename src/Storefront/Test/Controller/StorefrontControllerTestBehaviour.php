@@ -18,11 +18,6 @@ trait StorefrontControllerTestBehaviour
 {
     public function request(string $method, string $path, array $data): Response
     {
-        /** @var Session $session */
-        $session = KernelLifecycleManager::getKernel()->getContainer()->get('session');
-        // Init the session service for csrf processing
-        $session->all();
-
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
 
@@ -34,7 +29,7 @@ trait StorefrontControllerTestBehaviour
         $requestStack = new RequestStack();
         $request = new Request();
         /** @var Session $session */
-        $session = $this->getContainer()->get('session');
+        $session = $this->getSession();
         $request->setSession($session);
         $requestStack->push($request);
 

@@ -28,6 +28,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -225,8 +226,9 @@ class WishlistControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashBag */
-        $flashBag = $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($successFlash = $flashBag->get('success'));
         static::assertEquals('You have successfully added the product to your wishlist.', $successFlash[0]);
@@ -450,6 +452,12 @@ class WishlistControllerTest extends TestCase
 
     private function getFlashBag(): FlashBagInterface
     {
-        return $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+
+        if (!method_exists($session, 'getFlashBag')) {
+            throw new \RuntimeException('session does not have flashbag');
+        }
+
+        return $session->getFlashBag();
     }
 }

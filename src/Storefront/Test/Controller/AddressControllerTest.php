@@ -105,15 +105,17 @@ class AddressControllerTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         $this->getContainer()->get('request_stack')->push($request);
 
-        $oldBillingAddressId = $context->getCustomer()->getDefaultBillingAddressId();
-        $oldShippingAddressId = $context->getCustomer()->getDefaultShippingAddressId();
+        $customer1 = $context->getCustomer();
+        static::assertNotNull($customer1);
+        $oldBillingAddressId = $customer1->getDefaultBillingAddressId();
+        $oldShippingAddressId = $customer1->getDefaultShippingAddressId();
 
         $dataBag = $this->getDataBag('billing');
-        $controller->addressBook($request, $dataBag, $context, $context->getCustomer());
+        $controller->addressBook($request, $dataBag, $context, $customer1);
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
 
         static::assertNotSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
@@ -139,15 +141,17 @@ class AddressControllerTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         $this->getContainer()->get('request_stack')->push($request);
 
-        $oldBillingAddressId = $context->getCustomer()->getDefaultBillingAddressId();
-        $oldShippingAddressId = $context->getCustomer()->getDefaultShippingAddressId();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+        $oldBillingAddressId = $customer->getDefaultBillingAddressId();
+        $oldShippingAddressId = $customer->getDefaultShippingAddressId();
 
         $dataBag = $this->getDataBag('shipping');
-        $controller->addressBook($request, $dataBag, $context, $context->getCustomer());
+        $controller->addressBook($request, $dataBag, $context, $customer);
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
 
         static::assertNotSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
@@ -275,12 +279,14 @@ class AddressControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }
@@ -421,6 +427,6 @@ class AddressControllerTest extends TestCase
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        return (string) $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -23,11 +24,6 @@ class AccountProfileControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
-
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
 
     public function testDeleteCustomerProfile(): void
     {
@@ -42,7 +38,7 @@ class AccountProfileControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
-        static::assertTrue($response->isRedirect(), $response->getContent());
+        static::assertTrue($response->isRedirect(), (string) $response->getContent());
     }
 
     public function testAccountOverviewPageLoadedScriptsAreExecuted(): void
@@ -91,7 +87,7 @@ class AccountProfileControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         return $browser;
     }
@@ -136,6 +132,10 @@ class AccountProfileControllerTest extends TestCase
 
     private function getFlashBag(): FlashBagInterface
     {
-        return $this->getContainer()->get('session')->getFlashBag();
+        $session = $this->getSession();
+
+        static::assertInstanceOf(Session::class, $session);
+
+        return $session->getFlashBag();
     }
 }

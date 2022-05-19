@@ -69,7 +69,7 @@ class ErrorControllerTest extends TestCase
         $apiRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
         $response = $this->controller->onCaptchaFailure($violations, $apiRequest);
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = json_decode((string) $responseContent, false, 512, JSON_THROW_ON_ERROR);
         $type = $content[0]->type;
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -80,7 +80,7 @@ class ErrorControllerTest extends TestCase
     private function createRequest(): Request
     {
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         $session = $request->getSession();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));

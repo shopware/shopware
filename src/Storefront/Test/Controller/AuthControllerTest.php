@@ -31,6 +31,7 @@ use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -56,11 +57,11 @@ class AuthControllerTest extends TestCase
 
         $browser->request('GET', '/account/logout', []);
         $response = $browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $session = $browser->getRequest()->getSession();
 
@@ -133,14 +134,15 @@ class AuthControllerTest extends TestCase
         $browser = $this->login();
 
         $sessionCookie = $browser->getCookieJar()->get('session-');
+        static::assertNotNull($sessionCookie);
 
         $browser->request('GET', '/account/logout', []);
         $response = $browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         $session = $browser->getRequest()->getSession();
 
         if ($session->isStarted()) {
@@ -162,7 +164,7 @@ class AuthControllerTest extends TestCase
         static::assertSame($session->getId(), $sessionCookie->getValue());
 
         // Expect a redirect response, since the old session should be destroyed
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testRedirectToAccountPageAfterLogin(): void
@@ -172,7 +174,7 @@ class AuthControllerTest extends TestCase
         $browser->request('GET', '/account/login', []);
         $response = $browser->getResponse();
 
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/account', $response->getTargetUrl());
     }
@@ -187,11 +189,11 @@ class AuthControllerTest extends TestCase
 
         $browser->request('GET', '/account/logout', []);
         $response = $browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $session = $browser->getRequest()->getSession();
 
@@ -216,11 +218,11 @@ class AuthControllerTest extends TestCase
         $browser->request('GET', '/account/logout', []);
 
         $response = $browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request(
             'POST',
@@ -274,7 +276,9 @@ class AuthControllerTest extends TestCase
         ]], $context);
 
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $request->setSession($session);
         $this->getContainer()->get('request_stack')->push($request);
 
         $requestDataBag = new RequestDataBag();
@@ -287,7 +291,7 @@ class AuthControllerTest extends TestCase
         );
 
         $this->getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
-        $flashBag = $this->getContainer()->get('session')->getFlashBag();
+        $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($infoFlash = $flashBag->get('warning'));
         static::assertEquals($this->getContainer()->get('translator')->trans('checkout.product-not-found', ['%s%' => 'Test product']), $infoFlash[0]);
@@ -311,7 +315,7 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    private function createProductOnDatabase(string $productId, string $productNumber, $context): void
+    private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
     {
         $taxId = Uuid::randomHex();
 
@@ -352,12 +356,14 @@ class AuthControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $salesChannelContext = $response->getContext();
+        static::assertNotNull($salesChannelContext);
+        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }

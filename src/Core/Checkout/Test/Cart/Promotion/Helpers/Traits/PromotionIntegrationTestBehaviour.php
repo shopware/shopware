@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 trait PromotionIntegrationTestBehaviour
 {
@@ -85,8 +86,9 @@ trait PromotionIntegrationTestBehaviour
      */
     public function getSessionCodes(): array
     {
-        /** @var Session $session */
-        $session = $this->getContainer()->get('session');
+        /** @var SessionStorageInterface $mockFileSessionStorage */
+        $mockFileSessionStorage = $this->getContainer()->get('session.storage.mock_file');
+        $session = new Session($mockFileSessionStorage);
 
         if (!$session->has(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES)) {
             return [];

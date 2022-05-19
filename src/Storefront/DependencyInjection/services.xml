@@ -199,6 +199,7 @@
             <argument type="service" id="translator"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">

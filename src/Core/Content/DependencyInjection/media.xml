@@ -88,10 +88,6 @@
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" decorates="media_thumbnail.repository">
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator" decorates="media_folder.repository">
@@ -331,6 +327,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater"/>
 
             <tag name="shopware.entity_indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaDeletionSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
         </service>
     </services>
 </container>

@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -84,7 +84,7 @@ class ThumbnailService
         }
 
         if (!empty($delete)) {
-            $context->addState(MediaThumbnailRepositoryDecorator::SYNCHRONE_FILE_DELETE);
+            $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
             $this->thumbnailRepository->delete($delete, $context);
         }
 

@@ -7,13 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
-use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -24,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -452,25 +449,27 @@ class ThumbnailServiceTest extends TestCase
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $mockBus = $this->createMock(MessageBusInterface::class);
-        $mockBus->expects(static::never())->method('dispatch');
+//        $mockBus = $this->createMock(MessageBusInterface::class);
+//        $mockBus->expects(static::never())->method('dispatch');
+//
+//        $mockDeleteFile = $this->createMock(DeleteFileHandler::class);
+//        $mockDeleteFile->expects(static::once())->method('handle');
 
-        $mockDeleteFile = $this->createMock(DeleteFileHandler::class);
-        $mockDeleteFile->expects(static::once())->method('handle');
+//        $thumbnailService = new ThumbnailService(
+//            new MediaThumbnailRepositoryDecorator(
+//                $this->getContainer()->get('Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner'),
+//                $this->getContainer()->get('event_dispatcher'),
+//                $this->getContainer()->get(UrlGeneratorInterface::class),
+//                $mockBus,
+//                $mockDeleteFile
+//            ),
+//            $this->getContainer()->get('shopware.filesystem.public'),
+//            $this->getContainer()->get('shopware.filesystem.private'),
+//            $this->getContainer()->get(UrlGeneratorInterface::class),
+//            $this->getContainer()->get('media_folder.repository')
+//        );
 
-        $thumbnailService = new ThumbnailService(
-            new MediaThumbnailRepositoryDecorator(
-                $this->getContainer()->get('Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner'),
-                $this->getContainer()->get('event_dispatcher'),
-                $this->getContainer()->get(UrlGeneratorInterface::class),
-                $mockBus,
-                $mockDeleteFile
-            ),
-            $this->getContainer()->get('shopware.filesystem.public'),
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->get(UrlGeneratorInterface::class),
-            $this->getContainer()->get('media_folder.repository')
-        );
+        $thumbnailService = $this->getContainer()->get(ThumbnailService::class);
 
         $thumbnailService->generate(new MediaCollection([$media]), $this->context);
 

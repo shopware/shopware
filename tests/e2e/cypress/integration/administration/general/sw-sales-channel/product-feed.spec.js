@@ -59,22 +59,22 @@ describe('Sales Channel: Test product comparison', () => {
         cy.wait('@saveProductsData').its('response.statusCode').should('equal', 200);
 
         // Open sales channel creation
-        cy.get('.sw-admin-menu__headline').contains('Sales Channel');
+        cy.contains('.sw-admin-menu__headline', 'Sales Channel');
 
         cy.get('.sw-admin-menu__headline-action').click();
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Add Sales Channel');
-        cy.get(`${page.elements.gridRow}--1 .sw-sales-channel-modal-grid__item-name`)
-            .contains('Product comparison');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Add Sales Channel');
+        cy.contains(`${page.elements.gridRow}--1 .sw-sales-channel-modal-grid__item-name`,
+            'Product comparison');
         cy.get(`${page.elements.gridRow}--1 .sw-sales-channel-modal-grid__item-name`).click();
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Product comparison - details');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Product comparison - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
         // Fill in form and save new sales channel
         cy.get('#sw-field--templateName').select('Google Shopping (XML)');
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('If you apply the template, existing data in this Sales Channel will be overwritten');
+        cy.contains('.sw-modal__body',
+            'If you apply the template, existing data in this Sales Channel will be overwritten');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
         cy.awaitAndCheckNotification('Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes.');
 
@@ -99,7 +99,7 @@ describe('Sales Channel: Test product comparison', () => {
         cy.get(page.elements.salesChannelNameInput).should('have.value', 'A great Product comparison');
         cy.get('a[title="Template"]').should('be.visible');
         cy.get('a[title="Template"]').click();
-        cy.get('.sw-card__title').contains('Template');
+        cy.contains('.sw-card__title', 'Template');
 
         cy.get('.sw-sales-channel-detail-product-comparison__test-action').scrollIntoView();
         cy.get('.sw-sales-channel-detail-product-comparison__test-action').should('be.visible');

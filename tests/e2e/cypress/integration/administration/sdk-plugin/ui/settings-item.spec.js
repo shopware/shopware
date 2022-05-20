@@ -9,20 +9,18 @@ describe('Category: SDK Test', ()=> {
             });
     });
     it('@sdk: add settings without searchbar', () => {
-        cy.get('.sw-settings__content-header')
-            .contains('Settings');
+        cy.contains('.sw-settings__content-header', 'Settings');
         cy.get('.sw-loader')
             .should('not.exist');
         cy.get('.sw-skeleton')
             .should('not.exist');
 
-        cy.get('#ui-menu-item-add-menu-item')
-            .should('exist')
-            .contains('Without searchbar')
+        cy.contains('#ui-menu-item-add-menu-item', 'Without searchbar')
+            .should('exist');
+        cy.contains('#ui-menu-item-add-menu-item', 'Without searchbar')
             .click();
 
-        cy.get('.smart-bar__content')
-            .contains('Without searchbar');
+        cy.contains('.smart-bar__content', 'Without searchbar');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item')
             .should('be.visible');
@@ -39,8 +37,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-settings__tab-plugins')
             .click();
 
-        cy.get('.sw-settings__content-header')
-            .contains('Settings');
+        cy.contains('.sw-settings__content-header', 'Settings');
         cy.get('.sw-loader')
             .should('not.exist');
         cy.get('.sw-skeleton')
@@ -51,8 +48,7 @@ describe('Category: SDK Test', ()=> {
             .contains('App Settings')
             .click();
 
-        cy.get('.smart-bar__content')
-            .contains('App Settings');
+        cy.contains('.smart-bar__content', 'App Settings');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item-with-searchbar')
             .should('be.visible');

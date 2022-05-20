@@ -20,8 +20,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__saleschannels-select')
@@ -51,8 +50,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__saleschannels-select')
@@ -84,8 +82,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: can remove unsaved sales-channel from default theme', () => {
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__saleschannels-select')
@@ -118,8 +115,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__context-button').click();
@@ -168,8 +164,7 @@ describe('Theme: Test sales channel assignment', () => {
     it('@content: shows warning in modal when sales-channel is re-assigned', () => {
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__context-button').click();
@@ -189,8 +184,8 @@ describe('Theme: Test sales channel assignment', () => {
             .click();
 
         cy.get('.sw_theme_manager_detail__save-action').click();
-        cy.get('.sw-alert__message').contains('This Sales Channel is already assigned').should('be.visible');
-        cy.get('.sw-alert__message').contains('Shopware default theme (Storefront)').should('be.visible');
+        cy.contains('.sw-alert__message', 'This Sales Channel is already assigned').should('be.visible');
+        cy.contains('.sw-alert__message', 'Shopware default theme (Storefront)').should('be.visible');
     });
 
     it('@content: shows warning in modal when sales-channel is removed from non-default theme', () => {
@@ -201,8 +196,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__context-button').click();
@@ -238,8 +232,8 @@ describe('Theme: Test sales channel assignment', () => {
             .click();
 
         cy.get('.sw_theme_manager_detail__save-action').click();
-        cy.get('.sw-alert__message').contains('You have removed a theme assignment').should('be.visible');
-        cy.get('.sw-alert__message').contains('New theme (Channel No 9)').should('be.visible');
+        cy.contains('.sw-alert__message', 'You have removed a theme assignment').should('be.visible');
+        cy.contains('.sw-alert__message', 'New theme (Channel No 9)').should('be.visible');
     });
 
     it('@content: removing sales-channel from non-default theme will assign it to default theme', () => {
@@ -250,8 +244,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__context-button').click();
@@ -296,8 +289,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-theme-list-item')
             .last()
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);

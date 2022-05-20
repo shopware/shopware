@@ -44,7 +44,7 @@ describe('Order: Test order state', () => {
             method: 'POST'
         }).as('findOrder');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -52,7 +52,7 @@ describe('Order: Test order state', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
@@ -98,7 +98,7 @@ describe('Order: Test order state', () => {
         cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -110,14 +110,13 @@ describe('Order: Test order state', () => {
         });
 
         cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
-        cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('Invoice');
+        cy.contains(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`, 'Invoice')
+            .should('be.visible');
 
         cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0 .sw-data-grid__cell--actions .sw-context-button`)
             .click();
 
-        cy.get('.sw-context-menu-item').contains('Download');
+        cy.contains('.sw-context-menu-item', 'Download');
     });
 
     it('@base @order: add document to order with existing invoice number', () => {
@@ -141,7 +140,7 @@ describe('Order: Test order state', () => {
             method: 'GET'
         }).as('reserveDocumentNumberRange');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -149,7 +148,7 @@ describe('Order: Test order state', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {

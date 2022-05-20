@@ -28,7 +28,7 @@ describe('Order: Read order', () => {
     it('@package @order: read order', () => {
         const page = new OrderPageObject();
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -36,20 +36,16 @@ describe('Order: Read order', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`)
-                .contains('Max Mustermann');
-            cy.get('.sw-order-user-card__metadata-price').contains('49.98');
-            cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            cy.contains('.sw-order-user-card__metadata-price', '49.98');
+            cy.contains('.sw-order-base__label-sales-channel', 'Storefront');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
             cy.get(page.elements.tabs.general.generalInfoCard).should('exist');
-            cy.get(page.elements.tabs.general.summaryMainHeader)
-                .contains(' - Max Mustermann (max.mustermann@example.com)');
-            cy.get(page.elements.tabs.general.summaryMainTotal)
-                .contains('49.98');
-            cy.get(page.elements.tabs.general.summarySubDescription)
-                .contains(`with Cash on delivery and`);
+            cy.contains(page.elements.tabs.general.summaryMainHeader, ' - Max Mustermann (max.mustermann@example.com)');
+            cy.contains(page.elements.tabs.general.summaryMainTotal, '49.98');
+            cy.contains(page.elements.tabs.general.summarySubDescription, `with Cash on delivery and`);
 
             cy.get(page.elements.tabs.general.summaryStateSelects)
                 .should('exist')
@@ -69,14 +65,14 @@ describe('Order: Read order', () => {
         });
 
         cy.get('.sw-order-detail__summary').scrollIntoView();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('49.98');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('19 %');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0`, '49.98');
+        cy.contains(`${page.elements.dataGridRow}--0`, '19 %');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-detail__summary').scrollIntoView();
-            cy.get('.sw-address__headline').contains('Shipping address');
-            cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
+            cy.contains('.sw-address__headline', 'Shipping address');
+            cy.contains('.sw-order-delivery-metadata .sw-address__location', 'Bielefeld');
 
             cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
 
@@ -97,6 +93,6 @@ describe('Order: Read order', () => {
                 'Show product'
             );
         });
-        cy.get(page.elements.smartBarHeader).contains('Product name');
+        cy.contains(page.elements.smartBarHeader, 'Product name');
     });
 });

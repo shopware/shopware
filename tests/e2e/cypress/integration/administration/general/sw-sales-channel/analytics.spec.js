@@ -14,7 +14,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
-        cy.get('.sw-tabs-item').contains('Analytics').click();
+        cy.contains('.sw-tabs-item', 'Analytics').click();
 
         cy.get('.sw-sales-channel-detail-analytics__headline-text').should('exist');
     });
@@ -23,7 +23,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Headless', 0);
-        cy.get('.sw-tabs-item').contains('Analytics').should('not.exist');
+        cy.contains('.sw-tabs-item', 'Analytics').should('not.exist');
     });
 
     it('@general: save analytics data', () => {
@@ -36,7 +36,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         }).as('saveData');
 
         page.openSalesChannel('Storefront', 1);
-        cy.get('.sw-tabs-item').contains('Analytics').click();
+        cy.contains('.sw-tabs-item', 'Analytics').click();
 
         cy.get('input[name=trackingId]').typeAndCheck('Example analytics ID');
         cy.get('input[name=analyticsActive]').click();

@@ -61,8 +61,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-extension')
             .click();
 
-        cy.get('.sw-admin-menu__navigation-list-item')
-            .contains('Store');
+        cy.contains('.sw-admin-menu__navigation-list-item', 'Store');
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test with searchbar')
             .click();

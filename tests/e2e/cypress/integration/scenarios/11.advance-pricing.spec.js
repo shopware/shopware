@@ -70,6 +70,7 @@ describe('Add an advance pricing rule and make an order', () => {
             .typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Check the standard product with advance pricing from the store front
@@ -84,16 +85,16 @@ describe('Add an advance pricing rule and make an order', () => {
                 .should('be.visible')
                 .type('Test Product');
             cy.contains('.search-suggest-product-name', 'Test Product').click();
-            cy.get(':nth-child(1) > .product-block-prices-cell-thin').contains('To 5');
-            cy.get(':nth-child(2) > .product-block-prices-cell-thin').contains('From 6');
-            cy.get('.product-detail-name').contains('Test Product');
+            cy.contains(':nth-child(1) > .product-block-prices-cell-thin', 'To 5');
+            cy.contains(':nth-child(2) > .product-block-prices-cell-thin', 'From 6');
+            cy.contains('.product-detail-name', 'Test Product');
             cy.get('tr:nth-of-type(1)  div').should('include.text', productPrice);
             cy.get('tr:nth-of-type(2)  div').should('include.text', advancePriceStandard);
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas, verify test product price is 60€
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
             // Verify test product price is 300€ with 5 products

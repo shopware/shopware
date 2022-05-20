@@ -22,9 +22,9 @@ describe('CMS: check validation of product detail page', () => {
         cy.contains('Create new layout').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Product page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Choose a section type to start with.');
+        cy.contains('.sw-cms-create-wizard__title', 'Choose a section type to start with.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
-        cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
+        cy.contains('.sw-cms-create-wizard__title', 'How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('PDP Layout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');

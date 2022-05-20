@@ -43,7 +43,7 @@ describe('Cache module', () => {
             .find('input[type="checkbox"]').should('be.checked');
         cy.get('.sw-select-result-list__item-list').contains('category.child-count').parents('.sw-field--checkbox')
             .find('input[type="checkbox"]').should('be.checked').should('be.disabled');
-        cy.get('.sw-label').contains('category.indexer').should('be.visible');
+        cy.contains('.sw-label', 'category.indexer').should('be.visible');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();
         cy.awaitAndCheckNotification('Building indexes.');

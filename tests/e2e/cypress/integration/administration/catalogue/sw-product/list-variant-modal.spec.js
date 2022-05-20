@@ -95,8 +95,8 @@ describe('Product: Test variants', () => {
             .should('be.visible');
 
         // check modal description
-        cy.get('.sw-product-variant-modal__delete-modal  .sw-modal__body p')
-            .contains('Are your sure you want to delete the variant "Parent Product (Size: L)"?');
+        cy.contains('.sw-product-variant-modal__delete-modal  .sw-modal__body p',
+            'Are your sure you want to delete the variant "Parent Product (Size: L)"?');
 
         cy.get('.sw-button-process')
             .should('be.visible')
@@ -114,7 +114,6 @@ describe('Product: Test variants', () => {
         cy.get('.sw-empty-state')
             .should('be.visible');
 
-        cy.get('.sw-empty-state__description-content')
-            .contains('No variants were found.');
+        cy.contains('.sw-empty-state__description-content', 'No variants were found.');
     });
 });

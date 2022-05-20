@@ -45,8 +45,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Go to mapping page and add description mapping
         cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
 
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button')
-            .contains('Skip CSV upload')
+        cy.contains('.sw-import-export-new-profile-wizard__footer-right-button-group button', 'Skip CSV upload')
             .click();
 
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action')
@@ -110,9 +109,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             .should('be.visible')
             .and('have.value', 'id')
 
-        cy.get('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text')
-            .should('be.visible')
-            .contains('id');
+        cy.contains('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text', 'id')
+            .should('be.visible');
 
         // Fill in all required mappings (add mapping button should be enabled now)
         cy.get(page.elements.importExportAddMappingButton).should('be.enabled');

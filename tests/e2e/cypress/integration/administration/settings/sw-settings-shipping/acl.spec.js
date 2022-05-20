@@ -24,11 +24,11 @@ describe('Shipping: Test acl privileges', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
 
         // open shipping
-        cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
+        cy.contains('.sw-data-grid__cell-value', 'Luftpost').click();
 
         // verify fields
         cy.get('#sw-field--shippingMethod-name').should('have.value', 'Luftpost');
-        cy.get('.sw-settings-shipping-detail__top-rule').contains('Cart >= 0 (Payment)');
+        cy.contains('.sw-settings-shipping-detail__top-rule', 'Cart >= 0 (Payment)');
     });
 
     it('@settings: edit shipping method', () => {
@@ -54,7 +54,7 @@ describe('Shipping: Test acl privileges', () => {
         }).as('saveData');
 
         // open shipping
-        cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
+        cy.contains('.sw-data-grid__cell-value', 'Luftpost').click();
 
         // edit fields
         cy.get('#sw-field--shippingMethod-name').clearTypeAndCheck('Schiffspost');
@@ -105,8 +105,8 @@ describe('Shipping: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click({ force: true });
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Automated test shipping');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Automated test shipping')
+            .should('be.visible');
     });
 
     it('@settings: delete shipping method', () => {
@@ -142,8 +142,7 @@ describe('Shipping: Test acl privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you really want to delete the shipping method "Luftpost"?');
+        cy.contains('.sw-modal__body', 'Are you sure you really want to delete the shipping method "Luftpost"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

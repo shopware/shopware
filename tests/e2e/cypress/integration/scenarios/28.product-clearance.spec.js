@@ -89,12 +89,12 @@ describe('Hide products after clearance & free shipping.', () => {
                 .should('be.visible')
                 .type('Test Product');
             cy.contains('.search-suggest-product-name', 'Test Product').click();
-            cy.get('.delivery-information').contains('Free shipping');
+            cy.contains('.delivery-information', 'Free shipping');
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
 
             // Guest check out
             cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
@@ -114,9 +114,9 @@ describe('Hide products after clearance & free shipping.', () => {
             // Go to cart
             cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
             cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.get('#confirmFormSubmit').scrollIntoView().click();
-            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 
             // after purchase verify 'add to shopping cart' button is not available
             cy.visit('/');

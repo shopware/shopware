@@ -89,7 +89,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-detail-context-prices__toolbar').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('#rule').contains('All customers');
+        cy.contains('#rule', 'All customers');
 
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
@@ -170,8 +170,7 @@ describe('Product: Visual tests', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Product name')
+        cy.contains('.search-suggest-product-name', 'Product name')
             .click();
 
         // Take snapshot for visual testing
@@ -247,12 +246,12 @@ describe('Product: Visual tests', () => {
         cy.visit('/');
         cy.contains('Original product').click();
         cy.get('.product-detail-content').should('be.visible');
-        cy.get('.product-detail-name').contains('Original product');
+        cy.contains('.product-detail-name', 'Original product');
 
         cy.get('.product-cross-selling-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
+        cy.contains('.product-detail-tab-navigation-link.active', 'Kunden kauften auch');
         cy.get('.product-slider-item .product-name[title="Second product"]')
             .should('be.visible');
         cy.get('.product-slider-item .product-name[title="Third product"]')

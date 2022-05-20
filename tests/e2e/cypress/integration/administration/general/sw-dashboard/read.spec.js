@@ -44,19 +44,19 @@ describe('Dashboard: Test first sight of the Administration', () => {
 
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').should('be.visible');
-            cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains('1');
-            cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
+            cy.contains('.sw-dashboard-index__intro-stats-today-single-stat-number-value', '1');
+            cy.contains('.sw-dashboard-index__intro-stats-today-single-stat-number-value', product.price[0].gross);
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').should('be.visible');
-            cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains('1');
-            cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
+            cy.contains('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value', '1');
+            cy.contains('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value', product.price[0].gross);
         });
 
         // check today orders
         cy.get('.sw-data-grid__row--0').should('be.visible');
-        cy.get('.sw-data-grid__row--0').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
+        cy.contains('.sw-data-grid__row--0', `${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
 
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__title').contains('Turnover');
@@ -80,7 +80,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-user-card__metadata-user-name').should('be.visible');
-            cy.get('.sw-order-user-card__metadata-user-name').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
+            cy.contains('.sw-order-user-card__metadata-user-name', `${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
         });
     });
 });

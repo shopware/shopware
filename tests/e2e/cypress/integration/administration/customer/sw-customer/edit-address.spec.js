@@ -47,8 +47,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
@@ -78,8 +78,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
@@ -95,7 +95,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--1`
         );
-        cy.get(`${page.elements.modal} p`).contains(
+        cy.contains(`${page.elements.modal} p`,
             'Are you sure you want to delete this address?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
@@ -120,8 +120,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Go to addresses tab
         cy.get('.sw-customer-detail__tab-addresses').click();
@@ -148,7 +148,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--1`
         );
-        cy.get(`${page.elements.modal} p`).contains(
+        cy.contains(`${page.elements.modal} p`,
             'Are you sure you want to delete this address?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
@@ -178,7 +178,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get('.icon--small-arrow-small-up').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains(customer.lastName);
+        cy.contains(`${page.elements.dataGridRow}--0`, customer.lastName);
         cy.get('.icon--default-shopping-cart').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
             .click();
@@ -209,8 +209,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
@@ -251,8 +251,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Go to addresses tab
         cy.get('.sw-customer-detail__tab-addresses').click();

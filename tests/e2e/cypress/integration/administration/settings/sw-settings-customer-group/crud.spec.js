@@ -36,8 +36,8 @@ describe('Customer group: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('E2E Merchant');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'E2E Merchant')
+            .should('be.visible');
 
         // Check usage of customer group in customer
         cy.clickMainMenuItem({
@@ -82,8 +82,8 @@ describe('Customer group: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('E2E Merchant');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'E2E Merchant')
+            .should('be.visible');
     });
 
     it('@settings: delete customer group', () => {
@@ -104,8 +104,7 @@ describe('Customer group: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
@@ -130,8 +129,7 @@ describe('Customer group: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

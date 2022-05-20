@@ -111,6 +111,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -133,6 +136,9 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -195,6 +201,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -217,6 +226,9 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -265,6 +277,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('#salesChannelSelect')
             .scrollIntoView()
             .typeSingleSelectAndCheck(
@@ -303,6 +318,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -325,6 +343,9 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -386,7 +407,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('#salesChannelSelect')
             .scrollIntoView()
             .typeSingleSelectAndCheck(

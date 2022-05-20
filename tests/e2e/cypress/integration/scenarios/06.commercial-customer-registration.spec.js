@@ -47,8 +47,9 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan');
+        cy.contains('.sw-button-process__content', 'Opslaan');
 
         // Login/registration settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
@@ -56,6 +57,7 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.get('.sw-system-config--field-core-login-registration-show-account-type-selection [type]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Country settings
@@ -68,6 +70,7 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Register as commercial customer
@@ -100,30 +103,30 @@ describe('Product creation via API and commercial customer registration', () => 
             cy.contains('.search-suggest-product-name', 'Product name').click();
             cy.get('.product-detail-buy .btn-buy').click();
             cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product name').should('be.visible');
+            cy.contains(`${lineItemSelector}-label`, 'Product name').should('be.visible');
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').should('be.visible').click();
-            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name').should('be.visible');
-            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('49,98').should('be.visible');
-            cy.get('.col-5.checkout-aside-summary-total').contains('59,98').should('be.visible');
+            cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name').should('be.visible');
+            cy.contains(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`, '49,98').should('be.visible');
+            cy.contains('.col-5.checkout-aside-summary-total', '59,98').should('be.visible');
             cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
-            cy.get('.confirm-address').contains('Test Tester').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product name').should('be.visible');
+            cy.contains('.confirm-address', 'Test Tester').should('be.visible');
+            cy.contains(`${lineItemSelector}-label`, 'Product name').should('be.visible');
             cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
-            cy.get(`${lineItemSelector}-total-price`).contains('49,98').should('be.visible');
-            cy.get('.col-5.checkout-aside-summary-total').contains('59,98').should('be.visible');
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy').should('be.visible');
+            cy.contains(`${lineItemSelector}-total-price`, '49,98').should('be.visible');
+            cy.contains('.col-5.checkout-aside-summary-total', '59,98').should('be.visible');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy').should('be.visible');
             cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
             cy.get('.confirm-tos .custom-checkbox label').should('be.visible').click(1, 1);
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`).should('be.visible');
+            cy.contains('.finish-header', `Thank you for your order with E2E install test!`).should('be.visible');
 
             // Verify order
             cy.visit('/account/order');
-            cy.get('.order-item-header').contains('10000');
+            cy.contains('.order-item-header', '10000');
             cy.contains('View').click();
-            cy.get('.order-item-total-value').contains('49,98');
-            cy.get('.order-item-detail-summary').contains('59,98');
+            cy.contains('.order-item-total-value', '49,98');
+            cy.contains('.order-item-detail-summary', '59,98');
         });
     });
 });

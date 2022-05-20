@@ -101,14 +101,18 @@ describe('Create a variant product using default customer and buy it via cash on
         cy.get('.sw-product-variants-overview').should('be.visible');
 
         // Get green variant
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-simple-search-field--form input').should('be.visible');
         cy.wait('@getPropertyGroup')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-simple-search-field--form input').clearTypeAndCheck('Green');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__row--2').should('not.exist');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Green');
 
         // Find variant to set surcharge on
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
@@ -141,6 +145,7 @@ describe('Create a variant product using default customer and buy it via cash on
 
             // Add reduced price variant product (Green, S) to shopping cart
             cy.contains('Green').click({force: true});
+            cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
             cy.get('label[title="S"]').click({force: true});
             cy.get('.product-detail-price').should('include.text', '8,00');
@@ -148,10 +153,10 @@ describe('Create a variant product using default customer and buy it via cash on
 
             // Off canvas
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
 
             // Total: product price
-            cy.get('.col-5.summary-value').contains('8,00');
+            cy.contains('.col-5.summary-value', '8,00');
             cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
             cy.url().should('include', '/checkout/register');
 
@@ -169,24 +174,24 @@ describe('Create a variant product using default customer and buy it via cash on
             cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
             // Verify the variant price
-            cy.get('.confirm-address').contains('Wolf Kurt');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains('.confirm-address', 'Wolf Kurt');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.get(`${lineItemSelector}-total-price`).scrollIntoView().contains('8,00');
-            cy.get('.col-5.checkout-aside-summary-total').contains('8,00');
+            cy.contains('.col-5.checkout-aside-summary-total', '8,00');
 
             // Finish checkout
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
             cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
             cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
             cy.get('#confirmFormSubmit').scrollIntoView().click();
-            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 
             // Verify the order from the storefront
             cy.visit('/account/login');
             cy.get('.account-welcome h1').should((element) => {
                 expect(element).to.contain('Overview');
             });
-            cy.get('.account-overview-profile > .card > .card-body').contains('wolf@kurt.com');
+            cy.contains('.account-overview-profile > .card > .card-body', 'wolf@kurt.com');
             cy.get('.order-table-header-heading').should('be.visible')
                 .and('include.text', 'Order');
         });

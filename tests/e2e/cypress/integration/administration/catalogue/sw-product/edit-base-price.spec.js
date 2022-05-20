@@ -55,20 +55,19 @@ describe('Product: Base price', () => {
             /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-total-price` instead */
             const lineItemTotalPriceSelector = win.features['v6.5.0.0'] ? '.line-item-total-price' : '.cart-item-price';
 
-            cy.get('.product-price-unit').contains('Content: 50 Gramm (€99.96* / 100 Gramm)');
+            cy.contains('.product-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
 
             cy.get('input[name=search]').type('Product name');
             cy.get('.search-suggest-container').should('be.visible');
-            cy.get('.search-suggest-product-name')
-                .contains('Product name')
+            cy.contains('.search-suggest-product-name', 'Product name')
                 .click();
 
-            cy.get('.product-detail-price-unit').contains('Content: 50 Gramm (€99.96* / 100 Gramm)');
-            cy.get('.product-detail-price').contains('49.98');
+            cy.contains('.product-detail-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
+            cy.contains('.product-detail-price', '49.98');
 
             cy.get('.btn-buy').click();
-            cy.get(`${lineItemTotalPriceSelector}`).contains('€49.98*');
-            cy.get(`${lineItemSelector}-reference-price`).contains('€99.96* / 100 Gramm');
+            cy.contains(`${lineItemTotalPriceSelector}`, '€49.98*');
+            cy.contains(`${lineItemSelector}-reference-price`, '€99.96* / 100 Gramm');
         });
     });
 });

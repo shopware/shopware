@@ -34,8 +34,7 @@ describe('Theme: Visual tests', () => {
         cy.takeSnapshot('[Theme] Listing', '.sw-theme-list__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
         cy.get('.sw-colorpicker').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');

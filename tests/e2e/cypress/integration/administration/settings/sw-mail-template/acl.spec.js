@@ -131,8 +131,8 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
-        cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
-            .contains('Default description');
+        cy.contains(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`,
+            'Default description');
 
         cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
         cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
@@ -162,8 +162,8 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
-            .contains('Edited description');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`,
+            'Edited description');
     });
 
     it('@settings: create email template', () => {
@@ -281,8 +281,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.get(page.elements.modal).should('not.exist');
@@ -307,8 +306,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.get(page.elements.modal).should('not.exist');
@@ -416,9 +414,9 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Default email footer');
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Default email footer');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`,
+            'Default email footer');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`,
+            'Default email footer');
     });
 });

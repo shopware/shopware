@@ -43,13 +43,13 @@ describe('Dynamic product group: Test product has cover image filter with and wi
         );
 
         // open preview
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
         // should only preview one product with cover image
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product with image');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product with image');
             cy.get('.sw-modal__close').click();
         });
 
@@ -64,13 +64,13 @@ describe('Dynamic product group: Test product has cover image filter with and wi
         );
 
         // open preview
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
         // should only preview one product with cover image
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product without image');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product without image');
             cy.get('.sw-modal__close').click();
         });
     });

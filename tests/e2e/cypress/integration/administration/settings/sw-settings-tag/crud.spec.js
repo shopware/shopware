@@ -75,8 +75,7 @@ describe('Tag: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the tag "Example tag"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the tag "Example tag"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);

@@ -32,17 +32,16 @@ describe('Product: Test variants', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.cardTitle).contains('Basic information');
+        cy.contains(page.elements.cardTitle, 'Basic information');
 
         // Switch language to Deutsch
-        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.contains('.sw-language-switch__select .sw-entity-single-select__selection-text', 'English');
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         // poor assertion to check if there is more than 1 language
         cy.get('.sw-select-result-list__item-list .sw-select-result')
             .should('have.length.greaterThan', 1);
-        cy.get('.sw-select-result-list__item-list .sw-select-result')
-            .contains('Deutsch').click();
+        cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Deutsch').click();
 
         // Edit and update property option's name for Deutsch
         cy.get('.sw-property-option-list').scrollIntoView();
@@ -72,27 +71,27 @@ describe('Product: Test variants', () => {
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Rot');
-        cy.get('.sw-data-grid__body').contains('Grün');
+        cy.contains('.sw-data-grid__body', 'Rot');
+        cy.contains('.sw-data-grid__body', 'Grün');
 
         // Switch to English
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
+        cy.contains('.sw-select-result-list__item-list .sw-select-option--1', 'English');
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Green');
 
         cy.reload();
 
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Green');
     });
 
     it('@base @catalogue: add multidimensional variant to product', () => {
@@ -127,10 +126,9 @@ describe('Product: Test variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Variant product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Variant product name')
+        cy.contains('.search-suggest-product-name', 'Variant product name')
             .click();
-        cy.get('.product-detail-name').contains('Variant product name');
+        cy.contains('.product-detail-name', 'Variant product name');
         cy.get('.product-detail-configurator-option-label[title="Red"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Green"]')
@@ -232,8 +230,8 @@ describe('Product: Test variants', () => {
         // Verify in storefront
         cy.visit('/');
         cy.get('.product-box').its('length').should('be.gt', 5);
-        cy.get('.product-variant-characteristics').contains('Color: Red | Size: S');
-        cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
+        cy.contains('.product-variant-characteristics', 'Color: Red | Size: S');
+        cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
     // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards
@@ -288,8 +286,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-configurator-restrictions__modal .sw-button--primary').click();
 
         cy.get('.sw-data-grid__row--0').should('be.visible');
-        cy.get('.sw-label:nth-of-type(1)').contains('Red');
-        cy.get('.sw-label:nth-of-type(2)').contains('M');
+        cy.contains('.sw-label:nth-of-type(1)', 'Red');
+        cy.contains('.sw-label:nth-of-type(2)', 'M');
         cy.get('.sw-product-variant-generation__generate-action').click();
     });
 
@@ -329,20 +327,19 @@ describe('Product: Test variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Variant product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Variant product name')
+        cy.contains('.search-suggest-product-name', 'Variant product name')
             .click();
 
         cy.get('.product-detail-configurator-option-label[title="L"]').should('be.visible').click();
         cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-        cy.get('.product-detail-price').contains( '74');
+        cy.contains('.product-detail-price', '74');
 
         cy.get('.product-detail-configurator-option-label[title="M"]').should('be.visible').click();
         cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-        cy.get('.product-detail-price').contains( '64');
+        cy.contains('.product-detail-price', '64');
 
         cy.get('.product-detail-configurator-option-label[title="S"]').should('be.visible').click();
         cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-        cy.get('.product-detail-price').contains( '54');
+        cy.contains('.product-detail-price', '54');
     });
 });

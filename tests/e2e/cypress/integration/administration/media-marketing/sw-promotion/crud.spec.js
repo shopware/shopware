@@ -55,8 +55,7 @@ describe('Promotion: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Funicular prices');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Funicular prices');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name a`)
             .click();
 
@@ -85,8 +84,7 @@ describe('Promotion: Test crud operations', () => {
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Funicular prices');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Funicular prices');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--active .is--active`)
             .should('be.visible');
 
@@ -103,9 +101,9 @@ describe('Promotion: Test crud operations', () => {
             cy.get('.product-box').should('be.visible');
             cy.get('.btn-buy').click();
             cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Funicular prices');
-            cy.get(`${lineItemSelector}-promotion ${lineItemTotalPriceSelector}`).contains('-€10.00*');
-            cy.get('.summary-total').contains('39.98');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-label`, 'Funicular prices');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemTotalPriceSelector}`, '-€10.00*');
+            cy.contains('.summary-total', '39.98');
 
             // Order product with promotion
             cy.get('a[title="Proceed to checkout"]').click();
@@ -116,19 +114,18 @@ describe('Promotion: Test crud operations', () => {
             cy.contains('Login').click();
 
             // Finish order
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
             cy.get('.checkout-confirm-tos-label').scrollIntoView();
             cy.get('.checkout-confirm-tos-label').click(1, 1);
             cy.get('.checkout-confirm-tos-label').scrollIntoView();
-            cy.get(`${lineItemSelector}-promotion`).contains('Funicular prices');
-            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-total-price`).contains('-€10.00');
-            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-tax-price`).contains('-€1.60');
-            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total')
-                .contains('€39.98');
+            cy.contains(`${lineItemSelector}-promotion`, 'Funicular prices');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-total-price`, '-€10.00');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-tax-price`, '-€1.60');
+            cy.contains('.checkout-aside-summary-value.checkout-aside-summary-total', '€39.98');
 
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.contains('.finish-header', 'Thank you for your order with Demostore!');
         });
     });
 
@@ -147,7 +144,7 @@ describe('Promotion: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

@@ -43,8 +43,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants__generate-action').should('be.visible');
 
         // Check field inheritance in variant
-        cy.get('.sw-product-variants-overview__single-variation').contains('Red').click();
-        cy.get('.sw-product-variant-info__product-name').contains('Variant product name');
+        cy.contains('.sw-product-variants-overview__single-variation', 'Red').click();
+        cy.contains('.sw-product-variant-info__product-name', 'Variant product name');
 
         cy.get('.sw-product-basic-form__inheritance-wrapper-description')
             .find('.sw-inheritance-switch--is-inherited')
@@ -65,15 +65,15 @@ describe('Product: Test variants', () => {
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
-        cy.get('.sw-text-editor__content-editor').contains('This is not an inherited variant text.');
+        cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');
 
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
 
         // Verify inheritance config in listing
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Variant product name');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Variant product name');
 
 
         // Duplicate product by using context menu option
@@ -121,8 +121,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants__generate-action').should('be.visible');
 
         // Check field inheritance in variant
-        cy.get('.sw-product-variants-overview__single-variation').contains('Red').click();
-        cy.get('.sw-product-variant-info__product-name').contains('Variant product name');
+        cy.contains('.sw-product-variants-overview__single-variation', 'Red').click();
+        cy.contains('.sw-product-variant-info__product-name', 'Variant product name');
 
         cy.get('.sw-product-basic-form__inheritance-wrapper-description')
             .find('.sw-inheritance-switch--is-inherited')
@@ -143,15 +143,15 @@ describe('Product: Test variants', () => {
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
-        cy.get('.sw-text-editor__content-editor').contains('This is not an inherited variant text.');
+        cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');
 
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
 
         // Verify inheritance config in listing
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Variant product name');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Variant product name');
 
         // Open product to duplicate
         cy.clickContextMenuItem(

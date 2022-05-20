@@ -71,19 +71,19 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Product with file upload image');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Product with file upload image');
 
         // Verify in storefront
         cy.visit('/');
         cy.get('input[name=search]').type('Product with file upload image');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Product with file upload image')
+        cy.contains('.search-suggest-product-name',
+            'Product with file upload image')
             .click();
 
-        cy.get('.product-detail-name').contains('Product with file upload image');
-        cy.get('.product-detail-price').contains('10.00');
+        cy.contains('.product-detail-name', 'Product with file upload image');
+        cy.contains('.product-detail-price', '10.00');
     });
 
     it('@base @catalogue: update and read product', () => {
@@ -109,8 +109,8 @@ describe('Product: Test crud operations', () => {
         // Verify updated product
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('What remains of Edith Finch');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'What remains of Edith Finch');
     });
 
     it('@base @catalogue: delete product', () => {
@@ -128,7 +128,7 @@ describe('Product: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

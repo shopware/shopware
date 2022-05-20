@@ -21,13 +21,16 @@ describe('Snippets: Test crud operations', () => {
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.editSetAction).should('be.enabled');
 
         cy.get(page.elements.editSetAction).click();
-        cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
+        cy.contains(page.elements.smartBarHeader, 'Snippets of "BASE en-GB"');
 
         // Create snippet': (browser) => {
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.primaryButton).click();
 
         page.createSnippet('a.Woodech', {
@@ -37,15 +40,19 @@ describe('Snippets: Test crud operations', () => {
 
         // Open all snippet sets
         cy.get(page.elements.smartBarBack).click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-snippet-list__content').should('exist');
         cy.get(page.elements.smartBarBack).click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         page.openAllSnippetSets();
 
         // Filter for and verify snippet to be deleted
         cy.get('.sw-search-bar__input').type('a.Woodech');
         page.filterSnippets('a.Woodech');
+
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
         // Delete snippet
         cy.clickContextMenuItem(
@@ -53,10 +60,12 @@ describe('Snippets: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete the snippets');
+        cy.contains(`${page.elements.modal}__body`, 'Are you sure you want to delete the snippets');
 
         cy.get(`${page.elements.modalFooter} button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
@@ -66,19 +75,25 @@ describe('Snippets: Test crud operations', () => {
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.editSetAction).should('be.enabled');
 
         cy.get(page.elements.editSetAction).click();
-        cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).contains('aWonderful.customSnip');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains(page.elements.smartBarHeader, 'Snippets of "BASE en-GB"');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`, 'aWonderful.customSnip');
 
         // Edit snippet
         cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({
             scrollBehavior: false
         });
         cy.get('.sw-settings-snippet-list__edit-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.get(page.elements.smartBarHeader).contains('aWonderful.customSnip');
+        cy.contains(page.elements.smartBarHeader, 'aWonderful.customSnip');
         // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .should('not.have.value', '');
@@ -87,12 +102,15 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]').clear()
             .type('Mine yours theirs');
         cy.get(page.elements.snippetSaveAction).click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check if it was saved
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mine yours theirs');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mine yours theirs');
     });
 
     it('@settings: update, read, reset snippets', () => {
@@ -100,10 +118,14 @@ describe('Snippets: Test crud operations', () => {
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.editSetAction).should('be.enabled');
 
         cy.get(page.elements.editSetAction).click();
-        cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains(page.elements.smartBarHeader, 'Snippets of "BASE en-GB"');
 
         // Search for snippet
         cy.log('Search for snippet');
@@ -119,18 +141,19 @@ describe('Snippets: Test crud operations', () => {
             .its('response.statusCode').should('equal', 200);
         cy.url().should('include', encodeURI('account.addressCreateBtn'));
 
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Edit snippet
         cy.log('Edit snippet');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('account.addressCreateBtn');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'account.addressCreateBtn');
 
         cy.clickContextMenuItem(
             '.sw-settings-snippet-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(page.elements.smartBarHeader).contains('account.addressCreateBtn');
+        cy.contains(page.elements.smartBarHeader, 'account.addressCreateBtn');
         // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .should('not.have.value', '');
@@ -139,19 +162,22 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .type('Mine yours theirs');
         cy.get(page.elements.snippetSaveAction).click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
         cy.get(page.elements.smartBarBack).click();
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
 
         // Reset snippet
         cy.log('Reset snippet');
         page.openAllSnippetSets();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('account.addressCreateBtn');
-        cy.get('.sw-data-grid-skeleton').should('exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mine yours theirs');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mine yours theirs');
 
 
         cy.clickContextMenuItem(
@@ -166,8 +192,8 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-button--danger > .sw-button__content').click();
 
         // Check that it got reset
-        cy.get('.sw-data-grid-skeleton').should('exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('not.contain', 'Mine yours theirs');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Add address');

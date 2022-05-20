@@ -101,12 +101,12 @@ describe('Product: Check cross selling integration', () => {
         cy.visit('/');
         cy.contains('Original product').click();
         cy.get('.product-detail-content').should('be.visible');
-        cy.get('.product-detail-name').contains('Original product');
+        cy.contains('.product-detail-name', 'Original product');
 
         cy.get('.product-cross-selling-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
+        cy.contains('.product-detail-tab-navigation-link.active', 'Kunden kauften auch');
         cy.get('.product-slider-item .product-name[title="Second product"]')
             .should('be.visible');
         cy.get('.product-slider-item .product-name[title="Third product"]')
@@ -162,7 +162,7 @@ describe('Product: Check cross selling integration', () => {
         cy.contains('.sw-select-option--0', 'Second product').click();
         cy.get('.sw-card__title').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Second product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Second product');
 
         // Add more products to cross selling
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Third');
@@ -171,15 +171,15 @@ describe('Product: Check cross selling integration', () => {
         cy.contains('.sw-select-option--0', 'Third product').click();
         cy.get('.sw-card__title').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Third product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Third product');
 
         // Swap positions
         cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').should('be.visible');
         cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').should('not.be.disabled');
         cy.get('.sw-data-grid__row--1 .sw-data-grid-column-position__arrow.arrow_up').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-data-grid__row--0').contains('Third product');
-        cy.get('.sw-data-grid__row--1').contains('Second product');
+        cy.contains('.sw-data-grid__row--0', 'Third product');
+        cy.contains('.sw-data-grid__row--1', 'Second product');
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
@@ -192,14 +192,14 @@ describe('Product: Check cross selling integration', () => {
         cy.visit('/');
         cy.contains('Original product').click();
         cy.get('.product-detail-content').should('be.visible');
-        cy.get('.product-detail-name').contains('Original product');
+        cy.contains('.product-detail-name', 'Original product');
 
         cy.get('.product-cross-selling-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
-        cy.get('#tns1-item1 .product-name').contains('Second product');
-        cy.get('#tns1-item0 .product-name').contains('Third product');
+        cy.contains('.product-detail-tab-navigation-link.active', 'Kunden kauften auch');
+        cy.contains('#tns1-item1 .product-name', 'Second product');
+        cy.contains('#tns1-item0 .product-name', 'Third product');
     });
 
     it('@catalogue @package: should handle required fields', () => {

@@ -42,8 +42,7 @@ describe('Language: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`)
-            .contains('Japanese');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Japanese');
 
         // Check if language can be selected as translation
         cy.clickMainMenuItem({
@@ -59,7 +58,7 @@ describe('Language: Test crud operations', () => {
 
         productPage.changeTranslation('Japanese', 2);
 
-        cy.get('.sw-language-info').contains('"Product name" displayed in the content language "Japanese".');
+        cy.contains('.sw-language-info', '"Product name" displayed in the content language "Japanese".');
     });
 
     it('@settings: update and read language', () => {
@@ -84,8 +83,7 @@ describe('Language: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Kyoto Japanese');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Kyoto Japanese').should('be.visible');
     });
 
     it('@settings: delete language', () => {
@@ -105,7 +103,7 @@ describe('Language: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body').contains('Are you sure you want to delete the language "Philippine English"? This will delete all content in this language and can not be undone!');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the language "Philippine English"? This will delete all content in this language and can not be undone!');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

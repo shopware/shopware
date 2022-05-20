@@ -20,13 +20,13 @@ describe('Sales Channel: Test crud operations', () => {
         }).as('saveData');
 
         // Open sales channel creation
-        cy.get('.sw-admin-menu__headline').contains('Sales Channel');
+        cy.contains('.sw-admin-menu__headline', 'Sales Channel');
 
         cy.get('.sw-admin-menu__headline-action').click();
 
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Add Sales Channel');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Add Sales Channel');
         cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Storefront - details');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
         // Fill in form and save new sales channel
@@ -40,7 +40,7 @@ describe('Sales Channel: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
         cy.get('.sw-admin-menu__sales-channel-item').should('have.length', 3);
-        cy.get('.sw-admin-menu__sales-channel-item--0').contains('1st Epic Sales Channel');
+        cy.contains('.sw-admin-menu__sales-channel-item--0', '1st Epic Sales Channel');
 
         // Check if the sales channel can be used in other modules
         cy.clickMainMenuItem({

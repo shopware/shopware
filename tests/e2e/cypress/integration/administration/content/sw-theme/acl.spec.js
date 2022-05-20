@@ -23,7 +23,7 @@ describe('Theme: Test ACL privileges', () => {
 
         // open property without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-property-list').should('not.exist');
 
         // see menu without theme menu item
@@ -60,7 +60,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-theme-list__actions-mode').click();
 
         // Ensure theme name and click actions menu manually
-        cy.get(`${elements.dataGridRow}--0`).contains('Shopware default theme');
+        cy.contains(`${elements.dataGridRow}--0`, 'Shopware default theme');
         cy.get(`${elements.dataGridRow}--0 ${elements.contextMenuButton}`).click();
 
         // Ensure all edit actions are disabled and close menu afterwards
@@ -75,7 +75,7 @@ describe('Theme: Test ACL privileges', () => {
             `${elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-theme-manager-detail__info-name').contains('Shopware default theme');
+        cy.contains('.sw-theme-manager-detail__info-name', 'Shopware default theme');
 
         // Inputs should be visible but disabled
         cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.attr', 'disabled');
@@ -163,7 +163,7 @@ describe('Theme: Test ACL privileges', () => {
 
         // Verify new theme data
         cy.wait('@duplicateTheme').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-theme-manager-detail__info-name').contains('New Theme');
+        cy.contains('.sw-theme-manager-detail__info-name', 'New Theme');
         cy.get('.sw-theme-manager-detail__inheritance').should('be.visible');
     });
 

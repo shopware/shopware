@@ -98,7 +98,7 @@ describe('Promotion: Test promotion with individual codes', () => {
             cy.get('#addPromotionOffcanvasCartInput').type('code-0');
             cy.get('#addPromotionOffcanvasCart').click();
             cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Thunder Tuesday');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-label`, 'Thunder Tuesday');
         });
     });
 

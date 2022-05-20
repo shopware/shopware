@@ -60,6 +60,6 @@ describe('Product: Edit manufacturer', () => {
         // Verify manufacturer's creation in sw-manufacturer
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
         cy.get('.sw-loader').should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Instant Manufacturer LLC');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Instant Manufacturer LLC');
     });
 });

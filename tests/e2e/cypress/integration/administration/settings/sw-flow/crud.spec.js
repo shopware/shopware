@@ -22,7 +22,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -36,13 +36,16 @@ describe('Flow builder: Test crud operations', () => {
         // Save
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify successful save
-        cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.smart-bar__header h2').contains('Order placed v1');
+        cy.contains('.smart-bar__header h2', 'Order placed v1');
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click({force: true});
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v1');
     });
@@ -57,13 +60,15 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Click save without entering any data
         cy.get('.sw-flow-detail__save').click();
 
         // Verify 400 Bad request
         cy.wait('@saveEmptyData').its('response.statusCode').should('equal', 400);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Automatically jump to tab Flow and check if name field has error message
         cy.get('.sw-flow-detail-general__general-name .sw-field__error')
@@ -80,6 +85,8 @@ describe('Flow builder: Test crud operations', () => {
 
         // Verify 400 Bad request
         cy.wait('@saveEmptyData').its('response.statusCode').should('equal', 400);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Check if trigger event field ha error message
         cy.get('.sw-flow-trigger__search-field .sw-field__error')
@@ -104,7 +111,8 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-flow-list').should('be.visible');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed');
@@ -118,9 +126,11 @@ describe('Flow builder: Test crud operations', () => {
         );
 
         // Verify correct detail page
-        cy.get('.smart-bar__header h2').contains('Order placed');
+        cy.contains('.smart-bar__header h2', 'Order placed');
 
         cy.get('#sw-field--flow-name').clearTypeAndCheck('Order placed v2');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-flow-detail__tab-flow').click();
 
         cy.get('.sw-flow-sequence-action__add-button').click();
@@ -137,11 +147,16 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.wait('@getFlow').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         // Verify updated element
         cy.get(page.elements.smartBarBack).click({force: true});
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v2');
     });
@@ -157,6 +172,8 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-flow-list').should('be.visible');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
@@ -170,12 +187,13 @@ describe('Flow builder: Test crud operations', () => {
             true
         );
 
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Order placed').should('not.exist');

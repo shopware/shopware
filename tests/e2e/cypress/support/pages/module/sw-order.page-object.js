@@ -138,7 +138,7 @@ export default class OrderPageObject {
             cy.get('.sw-order-state-card').scrollIntoView();
             cy.get('.sw-order-state-card').should('be.visible');
             cy.get(`${item} ${currentStatusIcon}`).should('be.visible');
-            cy.get(item).contains(stateTitle);
+            cy.contains(item, stateTitle);
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {

@@ -59,7 +59,7 @@ describe('Customer:  Visual test', () => {
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
-        cy.get('.sw-select__selection').contains('English');
+        cy.contains('.sw-select__selection', 'English');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Customer] Create', '.sw-customer-create', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -97,7 +97,7 @@ describe('Customer:  Visual test', () => {
         cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.get('.sw-card-section--secondary').contains('English');
+        cy.contains('.sw-card-section--secondary', 'English');
         cy.contains('Account').click();
         cy.get('.sw-tooltip').should('not.exist');
         cy.prepareAdminForScreenshot();
@@ -144,8 +144,8 @@ describe('Customer:  Visual test', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Open and edit existing customer
 

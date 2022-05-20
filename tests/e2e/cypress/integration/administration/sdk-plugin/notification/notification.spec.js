@@ -43,17 +43,15 @@ describe('SDK Tests: Notification', ()=> {
         cy.contains('.sw-admin-menu__navigation-link', 'Test item')
             .click();
 
-        cy.log('Trigger a notification')
+        cy.log('Trigger a notification');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .find('button')
             .contains('Dispatch a notification')
             .click();
 
-        cy.get('.sw-alert__title')
-            .contains('Your title')
+        cy.contains('.sw-alert__title', 'Your title');
 
-        cy.get('.sw-alert__message')
-            .contains('Your message')
+        cy.contains('.sw-alert__message', 'Your message');
     })
 })

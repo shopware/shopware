@@ -35,8 +35,8 @@ describe('User: Test acl privileges', () => {
 
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
-        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username')
-            .contains('maxmuster');
+        cy.contains('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username',
+            'maxmuster');
 
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username a')
             .click();
@@ -78,8 +78,8 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
 
-        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username')
-            .contains('maxmuster');
+        cy.contains('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username',
+            'maxmuster');
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username a')
             .click();
 
@@ -97,8 +97,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -172,8 +171,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -259,8 +257,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -350,8 +347,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -383,8 +379,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Warning');
+        cy.contains('.sw-modal__title', 'Warning');
 
         cy.get('.sw-modal__footer > .sw-button--danger')
             .should('be.disabled');

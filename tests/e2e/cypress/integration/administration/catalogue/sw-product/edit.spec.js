@@ -33,9 +33,9 @@ describe('Product: Edit in various ways', () => {
 
         page.changeTranslation('Deutsch', 0);
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw_language-info__info').contains('"Product name" displayed in the content language');
+        cy.contains('.sw_language-info__info', '"Product name" displayed in the content language');
         cy.get('.sw_language-info__info').contains('span', '"Deutsch"');
-        cy.get('.sw_language-info__info').contains('Fallback is the system default language');
+        cy.contains('.sw_language-info__info', 'Fallback is the system default language');
         cy.get('input[name=sw-field--product-name]').type('Sauerkraut');
         cy.get(page.elements.productSaveAction).click();
 
@@ -44,7 +44,7 @@ describe('Product: Edit in various ways', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Sauerkraut');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Sauerkraut');
     });
 
     it('@catalogue: edit product via inline edit', () => {
@@ -69,7 +69,7 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
+        cy.contains('.sw-data-grid__cell--name', 'That\'s not my name');
     });
 
     it('@base @catalogue: edit a product\'s custom field translation', () => {
@@ -115,8 +115,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body > p')
-            .contains('There are unsaved changes in the current language. Do you want to save them now?');
+        cy.contains('.sw-modal__body > p',
+            'There are unsaved changes in the current language. Do you want to save them now?');
         cy.get('#sw-language-switch-save-changes-button').click();
         cy.get('.sw_modal').should('not.exist');
         cy.get(page.elements.loader).should('not.exist');

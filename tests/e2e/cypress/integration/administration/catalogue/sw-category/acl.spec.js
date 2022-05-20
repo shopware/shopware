@@ -36,7 +36,7 @@ describe('Category: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         });
 
-        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.contains('.sw-empty-state__title', 'No category selected');
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
 
@@ -99,7 +99,7 @@ describe('Category: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         });
 
-        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.contains('.sw-empty-state__title', 'No category selected');
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
 
         cy.intercept({
@@ -108,8 +108,7 @@ describe('Category: Test ACL privileges', () => {
         }).as('saveData');
 
         // Select a category
-        cy.get('.sw-tree-item__label')
-            .contains('Home')
+        cy.contains('.sw-tree-item__label', 'Home')
             .click();
 
         // Edit the category
@@ -173,7 +172,7 @@ describe('Category: Test ACL privileges', () => {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(2)`).contains('Categorian');
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(2)`, 'Categorian');
     });
 
     it('@catalogue: can delete category', () => {
@@ -214,8 +213,7 @@ describe('Category: Test ACL privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw_tree__confirm-delete-text')
-            .contains('ParentCategory');
+        cy.contains('.sw_tree__confirm-delete-text', 'ParentCategory');
 
         cy.get('.sw-modal__footer > .sw-button--danger > .sw-button__content')
             .should('not.be.disabled')

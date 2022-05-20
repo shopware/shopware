@@ -25,7 +25,7 @@ describe('Custom fields: Test ACL privileges', () => {
 
         // open custom field without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-settings-custom-field-set-list__card').should('not.exist');
     });
 
@@ -109,7 +109,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.contains('.sw-select-result', 'Products').click({ force: true });
         cy.get('h2').click();
         cy.get('.sw-select__results-list').should('not.exist');
-        cy.get('.sw-label').contains('Products');
+        cy.contains('.sw-label', 'Products');
 
         cy.get('.sw-empty-state').should('exist');
 
@@ -148,7 +148,7 @@ describe('Custom fields: Test ACL privileges', () => {
         );
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal__body').contains('Do you really want to delete the set "My custom field" ?');
+        cy.contains('.sw-modal__body', 'Do you really want to delete the set "My custom field" ?');
         cy.get('.sw-button--danger').click();
 
         // Verify deletion
@@ -156,6 +156,6 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get('.sw-empty-state').should('exist');
-        cy.get('.sw-empty-state__title').contains('No custom fields yet.');
+        cy.contains('.sw-empty-state__title', 'No custom fields yet.');
     });
 });

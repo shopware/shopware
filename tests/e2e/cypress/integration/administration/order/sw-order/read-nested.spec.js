@@ -96,7 +96,7 @@ describe('Order: Read order with nested line items', () => {
     it('@base @order: can open and view nested line items in its modal', () => {
         const page = new OrderPageObject();
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -104,12 +104,9 @@ describe('Order: Read order with nested line items', () => {
         );
 
         // Check if the labels are rendered correctly
-        cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-label`)
-            .contains('LineItem 1');
-        cy.get(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-label`)
-            .contains('LineItem 2');
-        cy.get(`${page.elements.dataGridRow}--2 .sw-order-line-items-grid__item-label`)
-            .contains('LineItem 3');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-label`, 'LineItem 1');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-label`, 'LineItem 2');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-order-line-items-grid__item-label`, 'LineItem 3');
 
         // Check if items with children have a button to toggle the nested line items modal
         cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-product`)
@@ -126,54 +123,43 @@ describe('Order: Read order with nested line items', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-nested-indicator`).click();
 
         // Check correct amount in each nesting level
-        cy.get(page.elements.modalTitle).contains('Item: LineItem 1 - €0.01');
+        cy.contains(page.elements.modalTitle, 'Item: LineItem 1 - €0.01');
         cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '8');
 
         // Check the contents of the first row completely
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__label-content')
-            .contains('LineItem 1.1');
+            .contains('.sw-order-nested-line-items-row__label-content', 'LineItem 1.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__unit-price')
-            .contains('€0.088');
+            .contains('.sw-order-nested-line-items-row__unit-price', '€0.088');
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__quantity')
-            .contains('110');
+            .contains('.sw-order-nested-line-items-row__quantity', '110');
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__total-price')
-            .contains('€0.11');
+            .contains('.sw-order-nested-line-items-row__total-price', '€0.11');
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__tax')
-            .contains('20 %');
+            .contains('.sw-order-nested-line-items-row__tax', '20 %');
 
         // Check the contents of the third row with some values
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__label-content')
-            .contains('LineItem 1.1.1.1');
+            .contains('.sw-order-nested-line-items-row__label-content', 'LineItem 1.1.1.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__quantity')
-            .contains('11110');
+            .contains('.sw-order-nested-line-items-row__quantity', '11110');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__total-price')
-            .contains('€11.11');
+            .contains('.sw-order-nested-line-items-row__total-price', '€11.11');
 
         // Close modal and check the second
         cy.get(page.elements.modalClose).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-nested-indicator`).click();
 
         // Check correct amount in each nesting level
-        cy.get(page.elements.modalTitle).contains('Item: LineItem 2 - €0.02');
+        cy.contains(page.elements.modalTitle, 'Item: LineItem 2 - €0.02');
         cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '1');
 
         // Check the contents of the third row with some values
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__label-content')
-            .contains('LineItem 2.2.1');
+            .contains('.sw-order-nested-line-items-row__label-content', 'LineItem 2.2.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__quantity')
-            .contains('2210');
+            .contains('.sw-order-nested-line-items-row__quantity', '2210');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__total-price')
-            .contains('€2.21');
+            .contains('.sw-order-nested-line-items-row__total-price', '€2.21');
     });
 });

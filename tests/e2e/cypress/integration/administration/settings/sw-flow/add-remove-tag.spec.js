@@ -24,7 +24,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v2');
@@ -46,10 +46,10 @@ describe('Flow builder: Add remove tag testing', () => {
         // Agg tag "New Customer" for Order
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('New Customer');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Add "New Customer"');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Add "New Customer"');
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('{enter}');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('New Customer');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'New Customer');
         cy.get('.sw-flow-tag-modal__tags-field input').type('{esc}');
 
         cy.get('.sw-flow-tag-modal__save-button').click();
@@ -73,10 +73,10 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('Not USA Customer');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Add "Not USA Customer"');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Add "Not USA Customer"');
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('{enter}');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Not USA Customer');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Not USA Customer');
         cy.get('.sw-flow-tag-modal__tags-field input').type('{esc}');
         cy.get('.sw-flow-tag-modal__save-button').click();
         cy.get('.sw-flow-tag-modal').should('not.exist');
@@ -99,10 +99,10 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('USA Customer');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Add "USA Customer"');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Add "USA Customer"');
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('{enter}');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('USA Customer');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'USA Customer');
         cy.get('.sw-flow-tag-modal__tags-field input').type('{esc}');
         cy.get('.sw-flow-tag-modal__save-button').click();
         cy.get('.sw-flow-tag-modal').should('not.exist');
@@ -125,9 +125,9 @@ describe('Flow builder: Add remove tag testing', () => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.contains('.btn-buy', 'Add to shopping ').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -136,21 +136,21 @@ describe('Flow builder: Add remove tag testing', () => {
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-ordernumber').contains('Your order number: #10000');
+            cy.contains('.finish-ordernumber', 'Your order number: #10000');
 
             // Change billing address country to USA
             cy.visit('/account/address');
             cy.get('.address-list .address-card').eq(1).get('.col-auto').contains('Edit')
                 .click();
             cy.get('#addressAddressCountry').select('USA');
-            cy.get('.address-form-submit').contains('Save address').click();
+            cy.contains('.address-form-submit', 'Save address').click();
 
             cy.get('.address-action-set-default-billing').click();
 
             cy.visit('/');
-            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.contains('.btn-buy', 'Add to shopping ').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -159,7 +159,7 @@ describe('Flow builder: Add remove tag testing', () => {
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-ordernumber').contains('Your order number: #10001');
+            cy.contains('.finish-ordernumber', 'Your order number: #10001');
         });
 
         // Clear Storefront cookie
@@ -170,8 +170,8 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('10001');
-            cy.get(`${page.elements.dataGridRow}--1`).contains('10000');
+            cy.contains(`${page.elements.dataGridRow}--0`, '10001');
+            cy.contains(`${page.elements.dataGridRow}--1`, '10000');
         });
 
         cy.clickContextMenuItem(
@@ -184,7 +184,7 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 1);
-            cy.get('.sw-order-user-card__tag-select').contains('USA Customer');
+            cy.contains('.sw-order-user-card__tag-select', 'USA Customer');
 
             cy.get('.smart-bar__back-btn').click();
             cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -197,14 +197,14 @@ describe('Flow builder: Add remove tag testing', () => {
 
             cy.get('.sw-loader').should('not.exist');
             cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 2);
-            cy.get('.sw-order-user-card__tag-select').contains('New Customer');
-            cy.get('.sw-order-user-card__tag-select').contains('Not USA Customer');
+            cy.contains('.sw-order-user-card__tag-select', 'New Customer');
+            cy.contains('.sw-order-user-card__tag-select', 'Not USA Customer');
         });
 
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 1);
-            cy.get('.sw-order-detail-base__general-info__order-tags').contains('USA Customer');
+            cy.contains('.sw-order-detail-base__general-info__order-tags', 'USA Customer');
 
             cy.get('.smart-bar__back-btn').click();
             cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -217,8 +217,8 @@ describe('Flow builder: Add remove tag testing', () => {
 
             cy.get('.sw-loader').should('not.exist');
             cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 2);
-            cy.get('.sw-order-detail-base__general-info__order-tags').contains('New Customer');
-            cy.get('.sw-order-detail-base__general-info__order-tags').contains('Not USA Customer');
+            cy.contains('.sw-order-detail-base__general-info__order-tags', 'New Customer');
+            cy.contains('.sw-order-detail-base__general-info__order-tags', 'Not USA Customer');
         });
     });
 });

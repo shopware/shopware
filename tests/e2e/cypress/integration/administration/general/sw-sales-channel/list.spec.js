@@ -50,22 +50,21 @@ describe('Sales Channel: Test list', () => {
 
     it('@base @general: open listing page', () => {
         // check if listing works correctly
-        cy.get('.sw-page__smart-bar-amount').contains('6');
+        cy.contains('.sw-page__smart-bar-amount', '6');
 
         // open sales channel
         cy.get('.sw-data-grid__row--0')
             .find('.sw-context-button__button')
             .click();
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-context-menu-item')
-            .contains('Edit')
+        cy.contains('.sw-context-menu-item', 'Edit')
             .click();
         cy.get('.sw-skeleton').should('not.exist');
 
         // check if sales channel was opened correctly
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.smart-bar__header').contains('Headless');
+        cy.contains('.smart-bar__header', 'Headless');
     });
 
     it('@general: Should show six sales-channels and 8 columns', () => {
@@ -81,18 +80,18 @@ describe('Sales Channel: Test list', () => {
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Sales Channel').click('left');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Headless');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--name').contains('SalesChannel #3');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--name').contains('Storefront');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Headless');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--name', 'SalesChannel #3');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--name', 'Storefront');
     });
 
     it('@general: Type should be sortable', () => {
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Type').click('left');
         cy.get('.sw-skeleton').should('not.exist');
 
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--type-name').contains('Headless');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--type-name').contains('Storefront');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--type-name').contains('Storefront');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--type-name', 'Headless');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--type-name', 'Storefront');
+        cy.contains('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--type-name', 'Storefront');
     });
 
     it('@general: Column should be hidable', () => {

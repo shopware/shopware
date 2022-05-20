@@ -31,7 +31,7 @@ describe('Customer:  Edit in various ways', () => {
 
         // Verify updated customer
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-data-grid__cell--firstName').contains('Ech, Woody');
+        cy.contains('.sw-data-grid__cell--firstName', 'Ech, Woody');
     });
 
     it('@customer: edit customer via detail page', () => {
@@ -69,8 +69,8 @@ describe('Customer:  Edit in various ways', () => {
         cy.awaitAndCheckNotification('Customer "Woody Ech" has been saved.');
 
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-customer-card__metadata-customer-name').contains('Mr. Woody Ech - shopware AG');
-        cy.get('.sw-customer-base__label-default-payment-method').contains('Direct Debit');
-        cy.get('.sw-customer-base__label-language').contains('Deutsch');
+        cy.contains('.sw-customer-card__metadata-customer-name', 'Mr. Woody Ech - shopware AG');
+        cy.contains('.sw-customer-base__label-default-payment-method', 'Direct Debit');
+        cy.contains('.sw-customer-base__label-language', 'Deutsch');
     });
 });

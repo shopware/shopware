@@ -55,7 +55,7 @@ describe('Bulk Edit - Products', () => {
         // Make changes on both product
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
-        cy.get('.smart-bar__header').contains('Bulk edit: 2 products');
+        cy.contains('.smart-bar__header', 'Bulk edit: 2 products');
         cy.get('.sw-bulk-edit-change-field-description [type]').click();
         cy.get('.sw-text-editor__content-editor').clear().type('Bulk edit test');
 
@@ -90,13 +90,13 @@ describe('Bulk Edit - Products', () => {
         // Save and apply changes
         cy.get('.sw-bulk-edit-product__save-action').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Success');
-        cy.get('.footer-right .sw-button--primary').contains('Sluiten');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.footer-right .sw-button--primary', 'Sluiten');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');
 
@@ -112,7 +112,7 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();
         cy.get('#sw-field--product-restock-time').should('have.value', '30');
         cy.get('.sw-product-deliverability__min-purchase [type]').should('have.value', '10');
-        cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');
+        cy.contains('.sw-product-category-form__visibility_field', 'E2E install test');
 
         cy.contains('specificaties').click();
         cy.get('.sw-product-properties__card .sw-card__title').scrollIntoView();
@@ -136,7 +136,7 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();
         cy.get('#sw-field--product-restock-time').should('have.value', '30');
         cy.get('.sw-product-deliverability__min-purchase [type]').should('have.value', '10');
-        cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');
+        cy.contains('.sw-product-category-form__visibility_field', 'E2E install test');
 
         cy.contains('specificaties').scrollIntoView();
         cy.contains('specificaties').click();

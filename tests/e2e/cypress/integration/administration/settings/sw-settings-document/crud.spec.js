@@ -24,15 +24,14 @@ describe('Documents: Test crud operations', () => {
             cy.get('.sw-settings-document-detail__select-type')
                 .scrollIntoView()
                 .click();
-            cy.get('.sw-select-result-list__item-list li .sw-highlight-text')
-                .contains('Invoice')
+            cy.contains('.sw-select-result-list__item-list li .sw-highlight-text', 'Invoice')
                 .click();
 
             // scroll the checkbox for the option "Display header" into view
             cy.get('.sw-field--checkbox__content:nth(8)').scrollIntoView()
 
             // check that the correct element is selected and check the checkbox
-            cy.get('.sw-field--checkbox__content:nth(8)').contains('Display "intra-Community delivery" label')
+            cy.contains('.sw-field--checkbox__content:nth(8)', 'Display "intra-Community delivery" label')
             cy.get('.sw-field--checkbox__content:nth(8) input[type=checkbox]').check()
 
             // scroll the country select into view
@@ -48,11 +47,9 @@ describe('Documents: Test crud operations', () => {
 
             // back to documents list and check exists invoice which was created successfully.
             cy.get('.smart-bar__back-btn').click();
-            cy.get('.sw-settings-document-list-grid .sw-grid-row .sw-grid__cell-content a')
-                .contains('Invoice Name')
+            cy.contains('.sw-settings-document-list-grid .sw-grid-row .sw-grid__cell-content a', 'Invoice Name')
                 .should('be.visible');
-            cy.get('.sw-settings-document-list-grid .sw-grid-row .sw-document-list__column-type .sw-grid__cell-content')
-                .contains('Invoice')
+            cy.contains('.sw-settings-document-list-grid .sw-grid-row .sw-document-list__column-type .sw-grid__cell-content', 'Invoice')
                 .should('be.visible');
         });
     });

@@ -45,14 +45,13 @@ describe('Product Search: Test crud operations', () => {
         }).as('saveData');
 
         // Switch language to Deutsch
-        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.contains('.sw-language-switch__select .sw-entity-single-select__selection-text', 'English');
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         // poor assertion to check if there is more than 1 language
         cy.get('.sw-select-result-list__item-list .sw-select-result')
             .should('have.length.greaterThan', 1);
-        cy.get('.sw-select-result-list__item-list .sw-select-result')
-            .contains('Deutsch').click();
+        cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Deutsch').click();
 
         // change value of Minimal search term length
         cy.get('.sw-settings-search__search-behaviour-term-length input').clear().type('19');

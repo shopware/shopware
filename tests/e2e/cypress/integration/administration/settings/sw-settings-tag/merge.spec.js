@@ -68,9 +68,9 @@ describe('Tag: Test bulk merge', () => {
         cy.get('.sw-data-grid__bulk').should('exist');
         cy.get('.sw-data-grid__bulk .link:not(.link-danger)').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal .sw-label').contains('Example tag 1');
-        cy.get('.sw-modal .sw-label').contains('Example tag 2');
-        cy.get('.sw-modal .sw-label').contains('Example tag 3');
+        cy.contains('.sw-modal .sw-label', 'Example tag 1');
+        cy.contains('.sw-modal .sw-label', 'Example tag 2');
+        cy.contains('.sw-modal .sw-label', 'Example tag 3');
 
         // Enter new name and start merge
         cy.get('#sw-field--duplicateName').typeAndCheck('Merged tag');

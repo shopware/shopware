@@ -40,15 +40,14 @@ describe('Promotion: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
         });
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Thunder Tuesday');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Thunder Tuesday');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.smartBarHeader)
-            .contains('Thunder Tuesday');
+        cy.contains(page.elements.smartBarHeader, 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('have.value', 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('be.disabled');
 
@@ -80,15 +79,14 @@ describe('Promotion: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
         });
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Thunder Tuesday');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Thunder Tuesday');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.smartBarHeader)
-            .contains('Thunder Tuesday');
+        cy.contains(page.elements.smartBarHeader, 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('be.visible');
         cy.get('#sw-field--promotion-name').should('have.value', 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('not.be.disabled');
@@ -118,8 +116,7 @@ describe('Promotion: Test ACL privileges', () => {
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('New promotion name');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'New promotion name');
     });
 
     it('@acl: can delete promotion', () => {
@@ -154,7 +151,7 @@ describe('Promotion: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

@@ -30,7 +30,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(2)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Edit headline
         cy.get('.sw-text-editor__content-editor').should('be.visible');
@@ -42,18 +42,18 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory')
@@ -61,7 +61,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block').contains('Chocolate cake dragée');
+        cy.contains('.cms-block', 'Chocolate cake dragée');
     });
 
     it('@base @content: edit text block settings', () => {
@@ -140,18 +140,18 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory')
@@ -159,8 +159,8 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block .col-md-4:nth-of-type(1) .cms-element-text').contains('Chocolate cake');
-        cy.get('.cms-block .col-md-4:nth-of-type(2) .cms-element-text').contains('Croissant marshmallow');
-        cy.get('.cms-block .col-md-4:nth-of-type(3) .cms-element-text').contains('Macaroon cheesecake');
+        cy.contains('.cms-block .col-md-4:nth-of-type(1) .cms-element-text', 'Chocolate cake');
+        cy.contains('.cms-block .col-md-4:nth-of-type(2) .cms-element-text', 'Croissant marshmallow');
+        cy.contains('.cms-block .col-md-4:nth-of-type(3) .cms-element-text', 'Macaroon cheesecake');
     });
 });

@@ -25,7 +25,7 @@ describe('Payment: Test ACL privileges', () => {
 
         // open settings-payment without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-settings-payment-list').should('not.exist');
     });
 
@@ -78,8 +78,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.wait('@savePayment').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`)
-            .contains('My description');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`, 'My description');
     });
 
     it('@settings: can create payment', () => {
@@ -144,7 +143,7 @@ describe('Payment: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-settings-payment-list__confirm-delete-text`)
-            .contains('Are you sure you want to delete the payment method');
+        cy.contains(`${page.elements.modal} .sw-settings-payment-list__confirm-delete-text`,
+            'Are you sure you want to delete the payment method');
     });
 });

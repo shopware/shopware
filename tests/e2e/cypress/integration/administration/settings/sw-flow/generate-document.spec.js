@@ -25,7 +25,7 @@ describe('Flow builder: generate document testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -67,9 +67,9 @@ describe('Flow builder: generate document testing', () => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.contains('.btn-buy', 'Add to shopping ').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-price`).contains(49.98);
+            cy.contains(`${lineItemSelector}-price`, 49.98);
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -78,7 +78,7 @@ describe('Flow builder: generate document testing', () => {
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-ordernumber').contains('Your order number: #10000');
+            cy.contains('.finish-ordernumber', 'Your order number: #10000');
         });
 
         // Clear Storefront cookie
@@ -89,7 +89,7 @@ describe('Flow builder: generate document testing', () => {
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('10000');
+            cy.contains(`${page.elements.dataGridRow}--0`, '10000');
         });
 
         cy.clickContextMenuItem(
@@ -103,8 +103,7 @@ describe('Flow builder: generate document testing', () => {
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
                 cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
-                    .contains('Invoice');
+                cy.contains('.sw-order-detail-base__document-grid .sw-data-grid__row--0', 'Invoice');
             });
         });
 
@@ -113,7 +112,7 @@ describe('Flow builder: generate document testing', () => {
             cy.get('.sw-loader').should('not.exist');
 
             cy.get('.sw-data-grid__row--0').should('be.visible');
-            cy.get('.sw-data-grid__row--0').contains('Invoice');
+            cy.contains('.sw-data-grid__row--0', 'Invoice');
         });
     });
 });

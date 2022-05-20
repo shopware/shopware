@@ -75,11 +75,11 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('Special order');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Add "Special order"');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Add "Special order"');
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('{enter}');
         cy.wait('@setTag').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Special order');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Special order');
         cy.get('.sw-flow-tag-modal__tags-field input').type('{esc}');
 
         cy.wait('@getTag').its('response.statusCode').should('equal', 200);

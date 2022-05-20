@@ -37,8 +37,7 @@ describe('Payment: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click();
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Bar bei Abholung');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Bar bei Abholung').should('be.visible');
     });
 
     it('@base @settings: update and read payment method', () => {
@@ -68,8 +67,7 @@ describe('Payment: Test crud operations', () => {
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('In Schokoladentafeln');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'In Schokoladentafeln').should('be.visible');
     });
 
     it('@base @settings: delete payment method', () => {
@@ -91,8 +89,7 @@ describe('Payment: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the payment method "CredStick"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the payment method "CredStick"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify and check usage of payment-method

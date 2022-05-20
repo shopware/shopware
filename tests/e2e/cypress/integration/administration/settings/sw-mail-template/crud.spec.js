@@ -60,12 +60,12 @@ describe('Mail templates: Test crud privileges', () => {
             .should('have.length', 2);
 
         // verify correct mail template type of newly created template
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--mailTemplateType-name`)
-            .contains('Contact form');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--mailTemplateType-name`,
+            'Contact form');
 
         // verify correct description type of newly created template
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--description`)
-            .contains('Get feedback');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--description`,
+            'Get feedback');
     });
 
     it('@settings: edit email template', () => {
@@ -162,8 +162,9 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
 
         // wait for filtered mail templates to be loaded
-        cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200); cy.get(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
-            .contains('Contact form received');
+        cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`,
+            'Contact form received');
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.clickContextMenuItem(
@@ -173,8 +174,8 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body',
+            'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.get(page.elements.modal).should('not.exist');
@@ -236,8 +237,8 @@ describe('Mail templates: Test crud privileges', () => {
             .should('have.length', 2);
 
         // check description of duplicated mail template
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.mailTemplateColumnDescription}`)
-            .contains('Duplicated description');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.mailTemplateColumnDescription}`,
+            'Duplicated description');
     });
 
     it('@settings: create and read email header footer', () => {
@@ -283,12 +284,12 @@ describe('Mail templates: Test crud privileges', () => {
 
         // verify fields
         // eslint-disable-next-line max-len
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Storefront template');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`,
+            'Storefront template');
 
         // eslint-disable-next-line max-len
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
-            .contains('Default description');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`,
+            'Default description');
     });
 
     it('@settings: edit email header footer', () => {
@@ -345,8 +346,8 @@ describe('Mail templates: Test crud privileges', () => {
             .contains('Edited description');
 
         // eslint-disable-next-line max-len
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnSalesChannel}`)
-            .contains('Storefront');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnSalesChannel}`,
+            'Storefront');
     });
 
     it('@settings: delete email header footer', () => {
@@ -379,8 +380,7 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.get(page.elements.modal).should('not.exist');
@@ -436,11 +436,11 @@ describe('Mail templates: Test crud privileges', () => {
 
         // verify fields
         // eslint-disable-next-line max-len
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Default email footer');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`,
+            'Default email footer');
 
         // eslint-disable-next-line max-len
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`)
-            .contains('Default email footer');
+        cy.contains(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`,
+            'Default email footer');
     });
 });

@@ -123,9 +123,8 @@ describe('Shipping: Edit in various ways', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Wasserpost');
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--position`).should('be.visible')
-            .contains('99');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`, 'Wasserpost')
+            .should('be.visible');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--position`, '99').should('be.visible');
     });
 });

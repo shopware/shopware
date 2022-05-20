@@ -46,7 +46,7 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.get('#sw-field--currentCustomField-config-customFieldType').select(typeOfTheCustom);
         cy.get('.sw-custom-field-type-base .sw-field--default:nth-of-type(1) [type]').type(typeOfTheCustom);
         cy.get('.sw-button.sw-custom-field-detail__footer-save').click();
-        cy.get('.sw-custom-field-list__custom-field-label').contains(typeOfTheCustom).should('be.visible');
+        cy.contains('.sw-custom-field-list__custom-field-label', typeOfTheCustom).should('be.visible');
         cy.get('.sw-settings-set-detail__save-action').click();
 
         // check custom text field from the categories
@@ -108,9 +108,9 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.contains('.sw-select-result', 'Categorieën').click({ force: true });
         cy.contains('.sw-select-result', 'Klanten').click({ force: true });
 
-        cy.get('.sw-label').contains('Producten');
-        cy.get('.sw-label').contains('Categorieën');
-        cy.get('.sw-label').contains('Klanten');
+        cy.contains('.sw-label', 'Producten');
+        cy.contains('.sw-label', 'Categorieën');
+        cy.contains('.sw-label', 'Klanten');
         cy.get('.sw-empty-state').should('exist');
 
         // saving custom field
@@ -121,7 +121,7 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.get('#sw-field--currentCustomField-config-customFieldType').select(typeOfTheCustom);
         cy.get('.sw-custom-field-type-base .sw-field--default:nth-of-type(1) [type]').type(typeOfTheCustom);
         cy.get('.sw-button.sw-custom-field-detail__footer-save').click();
-        cy.get('.sw-custom-field-list__custom-field-label').contains(typeOfTheCustom).should('be.visible');
+        cy.contains('.sw-custom-field-list__custom-field-label', typeOfTheCustom).should('be.visible');
         cy.get('.sw-settings-set-detail__save-action').click();
 
         // check custom fields from the categories

@@ -101,7 +101,7 @@ describe('Dynamic product group: Test various filters', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         page.fillFilterWithSelect(
@@ -130,7 +130,7 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('.sw-product-stream-filter').should(($productStreamFilter) => {
             expect($productStreamFilter).to.have.length(1);
         });
-        cy.get('button.sw-button').contains('Save').click();
+        cy.contains('button.sw-button', 'Save').click();
         cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
@@ -149,7 +149,7 @@ describe('Dynamic product group: Test various filters', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 
@@ -196,7 +196,7 @@ describe('Dynamic product group: Test various filters', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('productStreamFilterWithMultiSelect');
         page.fillFilterWithEntityMultiSelect(
@@ -220,13 +220,12 @@ describe('Dynamic product group: Test various filters', () => {
 
         cy.get('.sw-product-stream-modal-preview .sw-data-grid__body .sw-data-grid__row')
             .children()
-            .get('.sw-product-variant-info__product-name')
-            .contains('Product Manufacturer');
+            .contains('.sw-product-variant-info__product-name', 'Product Manufacturer');
 
         cy.get('.sw-product-stream-modal-preview .sw-button--primary').click();
         cy.get('.sw-product-stream-modal-preview').should('not.exist');
 
-        cy.get('button.sw-button').contains('Save').click();
+        cy.contains('button.sw-button', 'Save').click();
         cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
@@ -243,7 +242,7 @@ describe('Dynamic product group: Test various filters', () => {
                         `${page.elements.dataGridRow}--0`
                     );
                     cy.get(page.elements.loader).should('not.exist');
-                    cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+                    cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
                     cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 
@@ -277,7 +276,7 @@ describe('Dynamic product group: Test various filters', () => {
                         `${page.elements.dataGridRow}--0`
                     );
                     cy.get(page.elements.loader).should('not.exist');
-                    cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+                    cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
                     cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 
@@ -316,7 +315,7 @@ describe('Dynamic product group: Test various filters', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 

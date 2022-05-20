@@ -41,8 +41,8 @@ describe('Product: Test variants', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Green');
 
         // Get green variant
         cy.get('.sw-loader').should('not.exist');
@@ -53,7 +53,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-simple-search-field--form input').type('Green');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Green');
 
         // Find variant to set surcharge on
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
@@ -89,12 +89,11 @@ describe('Product: Test variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Variant product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Variant product name')
+        cy.contains('.search-suggest-product-name', 'Variant product name')
             .click();
 
         // Verify in storefront
-        cy.get('.product-detail-name').contains('Variant product name');
+        cy.contains('.product-detail-name', 'Variant product name');
         cy.get('.product-detail-configurator-option-label[title="Red"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Green"]')
@@ -110,10 +109,10 @@ describe('Product: Test variants', () => {
                     cy.contains('Green').click();
 
                     cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-                    cy.get('.product-detail-price').contains('100.00');
+                    cy.contains('.product-detail-price', '100.00');
                 } else {
                     cy.log('Variant "Green" is already open.');
-                    cy.get('.product-detail-price').contains('100.00');
+                    cy.contains('.product-detail-price', '100.00');
                 }
             });
         });
@@ -122,6 +121,6 @@ describe('Product: Test variants', () => {
         cy.contains('Red').click();
 
         cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-        cy.get('.product-detail-price').contains('64.00');
+        cy.contains('.product-detail-price', '64.00');
     });
 });

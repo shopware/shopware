@@ -22,9 +22,9 @@ describe('CMS: check validation of product list page', () => {
         cy.contains('Create new layout').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Listing page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Choose a section type to start with.');
+        cy.contains('.sw-cms-create-wizard__title', 'Choose a section type to start with.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
-        cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
+        cy.contains('.sw-cms-create-wizard__title', 'How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
@@ -47,6 +47,6 @@ describe('CMS: check validation of product list page', () => {
         cy.get('.sw-cms-detail__save-action').click();
 
         cy.awaitAndCheckNotification('Errors occured. Please check the error list in the editor.');
-        cy.get('.sw-alert__message').contains('This listing page does not contain a product listing block.');
+        cy.contains('.sw-alert__message', 'This listing page does not contain a product listing block.');
     });
 });

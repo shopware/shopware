@@ -63,19 +63,19 @@ export default class SalesChannelPageObject {
     }
 
     openSalesChannel(salesChannelName, position = 0) {
-        cy.get(`${this.elements.salesChannelMenuName}--${position} > a`).contains(salesChannelName);
+        cy.contains(`${this.elements.salesChannelMenuName}--${position} > a`, salesChannelName);
         cy.get(`${this.elements.salesChannelMenuName}--${position}`).click();
-        cy.get(this.elements.smartBarHeader).contains(salesChannelName);
+        cy.contains(this.elements.smartBarHeader, salesChannelName);
     }
 
     deleteSingleSalesChannel(salesChannelName) {
         cy.get(this.elements.dangerButton).scrollIntoView();
         cy.get(this.elements.dangerButton).click();
         cy.get(this.elements.modal).should('be.visible');
-        cy.get(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-confirm-text`)
-            .contains('Are you sure you want to delete this Sales Channel?');
-        cy.get(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-name`)
-            .contains(salesChannelName);
+        cy.contains(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-confirm-text`,
+            'Are you sure you want to delete this Sales Channel?');
+        cy.contains(`${this.elements.modal}__body .sw-sales-channel-detail-base__delete-modal-name`,
+            salesChannelName);
 
         cy.get(`${this.elements.modal}__footer button${this.elements.dangerButton}`).click();
         cy.get(this.elements.modal).should('not.exist');
@@ -84,8 +84,8 @@ export default class SalesChannelPageObject {
     addExampleDomain(clickAddButton) {
         clickAddButton = clickAddButton === undefined ? true : clickAddButton;
 
-        cy.get('button').contains('Add domain').click();
-        cy.get('.sw-modal__title').contains('Create domain');
+        cy.contains('button', 'Add domain').click();
+        cy.contains('.sw-modal__title', 'Create domain');
 
         cy.get('#sw-field--currentDomain-url').type('example.org');
 

@@ -6,9 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -155,37 +152,5 @@ class PostWriteValidationEventTest extends TestCase
                 'not-found' => [],
             ],
         ];
-    }
-}
-
-class FakeDelete extends DeleteCommand
-{
-    private string $entity;
-
-    public function __construct(EntityDefinition $definition, string $entity, array $primaryKey)
-    {
-        parent::__construct($definition, $primaryKey, new EntityExistence('', [], false, false, false, []));
-        $this->entity = $entity;
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entity;
-    }
-}
-
-class FakeInsert extends InsertCommand
-{
-    private string $entity;
-
-    public function __construct(EntityDefinition $definition, string $entity, array $primaryKey)
-    {
-        parent::__construct($definition, [], $primaryKey, new EntityExistence('', [], false, false, false, []), '');
-        $this->entity = $entity;
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entity;
     }
 }

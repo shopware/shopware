@@ -6,6 +6,33 @@ import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';
 
+const categoryID = 'TEST-CATEGORY-ID';
+const productID = 'TEST-PRODUCT-ID';
+const mediaID = 'TEST-MEDIA-ID';
+
+const defaultRepository = {
+    search: () => Promise.resolve([{ name: 'defaultRepository' }]),
+    get: () => Promise.resolve({
+        sections: [{}]
+    }),
+    save: jest.fn(() => Promise.resolve()),
+    clone: jest.fn(() => Promise.resolve())
+};
+
+const categoryRepository = {
+    search: () => Promise.resolve([{ id: categoryID, products: { entity: 'product', source: 'source' } }]),
+};
+
+const productRepository = {
+    search: () => Promise.resolve([{ id: productID }])
+
+};
+
+const mediaRepository = {
+    get: () => Promise.resolve({ id: mediaID })
+};
+
+
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
@@ -36,17 +63,17 @@ function createWrapper() {
         },
         provide: {
             repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve([{}]),
-                        get: () => Promise.resolve({
-                            sections: [
-                                {}
-                            ]
-                        }),
-                        save: jest.fn(() => Promise.resolve()),
-                        clone: jest.fn(() => Promise.resolve())
-                    };
+                create: (name) => {
+                    switch (name) {
+                        case 'category':
+                            return categoryRepository;
+                        case 'product':
+                            return productRepository;
+                        case 'media':
+                            return mediaRepository;
+                        default:
+                            return defaultRepository;
+                    }
                 }
             },
             entityFactory: {},
@@ -66,11 +93,8 @@ function createWrapper() {
 }
 
 describe('module/sw-cms/page/sw-cms-detail', () => {
-    let cmsPageStateBackup;
+    const cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
 
-    beforeAll(() => {
-        cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
-    });
 
     beforeEach(() => {
         Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
@@ -355,5 +379,83 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(wrapper.vm.validationWarnings).toEqual([]);
         expect(wrapper.vm.showMissingElementModal).toBe(false);
         expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeFalsy();
+    });
+
+    it('should get preview entity for categories', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.createNotificationError = () => {};
+
+        await wrapper.setData({
+            page: {
+                type: 'product_list',
+
+            }
+        });
+
+        const State = Shopware.State._store.state.cmsPageState;
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.loadFirstDemoEntity();
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(State.currentDemoEntity).toMatchObject({
+            id: categoryID,
+            media: {
+                id: mediaID
+            }
+        });
+        expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
+
+        wrapper.vm.onDemoEntityChange('TEST-ID');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(State.currentDemoEntity).toMatchObject({
+            id: categoryID,
+            media: {
+                id: mediaID
+            }
+        });
+        expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
+    });
+
+    it('should get preview entity for products', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.createNotificationError = () => {};
+
+        await wrapper.setData({
+            page: {
+                type: 'product_detail',
+
+            }
+        });
+
+        const State = Shopware.State._store.state.cmsPageState;
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.loadFirstDemoEntity();
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(State.currentDemoEntity).toEqual(null);
+        expect(State.currentDemoProducts).toEqual([]);
+
+        wrapper.vm.onDemoEntityChange('TEST-ID');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(State.currentDemoEntity).toMatchObject({ id: productID });
+        expect(State.currentDemoProducts).toEqual([]);
     });
 });

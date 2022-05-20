@@ -8,7 +8,7 @@ const { ShopwareError } = Shopware.Classes;
 const { debounce } = Shopware.Utils;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
-const Criteria = Shopware.Data.Criteria;
+const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
 
 Component.register('sw-cms-detail', {
@@ -163,12 +163,17 @@ Component.register('sw-cms-detail', {
             return this.cmsService.getCmsBlockRegistry();
         },
 
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
         cmsStageClasses() {
             return [
                 `is--${this.currentDeviceView}`,
             ];
         },
 
+        /** @deprecated tag:v6.5.0 - Will be removed, use CMS.TYPE_MAPPING_ENTITIES instead */
         cmsTypeMappingEntities() {
             return {
                 product_detail: {
@@ -192,8 +197,10 @@ Component.register('sw-cms-detail', {
         },
 
         cmsPageTypeSettings() {
-            if (this.cmsTypeMappingEntities[this.page.type]) {
-                return this.cmsTypeMappingEntities[this.page.type];
+            const mappingEntity = CMS.TYPE_MAPPING_ENTITIES;
+
+            if (mappingEntity.hasOwnProperty(this.page.type)) {
+                return mappingEntity[this.page.type];
             }
 
             return {
@@ -263,10 +270,6 @@ Component.register('sw-cms-detail', {
             return criteria;
         },
 
-        currentDeviceView() {
-            return this.cmsPageState.currentCmsDeviceView;
-        },
-
         demoProductCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('media');
@@ -275,6 +278,11 @@ Component.register('sw-cms-detail', {
 
             return criteria;
         },
+
+        currentDeviceView() {
+            return this.cmsPageState.currentCmsDeviceView;
+        },
+
 
         isProductPage() {
             return this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL;
@@ -444,6 +452,7 @@ Component.register('sw-cms-detail', {
                 Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');
                 Shopware.State.commit('cmsPageState/removeCurrentMappingTypes');
                 Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+                Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityRepo = null;
@@ -463,23 +472,6 @@ Component.register('sw-cms-detail', {
 
                 this.loadFirstDemoEntity();
             }
-        },
-
-        loadFirstDemoEntity() {
-            if (this.cmsPageState.currentMappingEntity === 'product') {
-                return;
-            }
-
-            const criteria = new Criteria(1, 25);
-
-            if (this.cmsPageState.currentMappingEntity === 'category') {
-                criteria.addAssociation('media');
-            }
-
-            this.currentMappingEntityRepo.search(criteria).then((response) => {
-                this.demoEntityId = response[0].id;
-                Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
-            });
         },
 
         onDeviceViewChange(view) {
@@ -518,34 +510,81 @@ Component.register('sw-cms-detail', {
             return this.onSave();
         },
 
-        onDemoEntityChange(demoEntityId) {
-            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+        async loadDemoProduct(entityId) {
+            const criteria = Criteria.fromCriteria(this.demoProductCriteria);
+            criteria.setLimit(1);
 
-            if (!demoEntityId) {
+            if (entityId) {
+                criteria.setIds([entityId]);
+            }
+
+            const context = { ...Shopware.Context.api, inheritance: true };
+
+            const response = await this.productRepository.search(criteria, context);
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
+        },
+
+        async loadDemoCategory(entityId) {
+            const criteria = new Criteria(1, 1);
+
+            if (entityId) {
+                criteria.setIds([entityId]);
+            }
+
+            const response = await this.repositoryFactory.create('category').search(criteria);
+            const category = response[0];
+
+            this.demoEntityId = category.id;
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
+
+            this.loadDemoCategoryProducts(category);
+            this.loadDemoCategoryMedia(category);
+        },
+
+        async loadDemoCategoryProducts(entity) {
+            const productCriteria = Criteria.fromCriteria(this.demoProductCriteria);
+
+            productCriteria.setLimit(8);
+
+            const products = await this.repositoryFactory.create(
+                entity.products.entity,
+                entity.products.source,
+            ).search(productCriteria);
+
+            Shopware.State.commit('cmsPageState/setCurrentDemoProducts', products);
+        },
+
+        async loadDemoCategoryMedia(entity) {
+            const media = await this.repositoryFactory.create('media').get(entity.mediaId);
+
+            entity.media = media;
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
+        },
+
+        loadFirstDemoEntity() {
+            const demoMappingType = this.cmsPageTypeSettings?.entity;
+
+            if (demoMappingType === 'category') {
+                this.loadDemoCategory();
+            }
+        },
+
+        onDemoEntityChange(demoEntityId) {
+            const demoMappingType = this.cmsPageTypeSettings?.entity;
+
+            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
+            Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
+
+            if (demoMappingType === 'product') {
+                if (demoEntityId) {
+                    this.loadDemoProduct(demoEntityId);
+                }
                 return;
             }
 
-            const demoContext = this.cmsPageState.currentMappingEntity === 'product'
-                ? { ...Shopware.Context.api, inheritance: true }
-                : Shopware.Context.api;
-
-            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product'
-                ? this.demoProductCriteria : new Criteria(1, 25);
-
-            this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
-                if (!entity) {
-                    return;
-                }
-
-                if (this.cmsPageState.currentMappingEntity === 'category' && entity.mediaId !== null) {
-                    this.repositoryFactory.create('media').get(entity.mediaId).then((media) => {
-                        entity.media = media;
-                        Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
-                    });
-                } else {
-                    Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
-                }
-            });
+            if (demoMappingType === 'category') {
+                this.loadDemoCategory(demoEntityId);
+            }
         },
 
         addFirstSection(type, index) {

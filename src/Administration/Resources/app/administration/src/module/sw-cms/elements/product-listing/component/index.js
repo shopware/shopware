@@ -6,8 +6,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-product-listing', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('cms-element'),
     ],
@@ -19,6 +17,10 @@ Component.register('sw-cms-el-product-listing', {
     },
 
     computed: {
+        currentDemoProducts() {
+            return Shopware.State.get('cmsPageState').currentDemoProducts;
+        },
+
         demoProductElement() {
             return {
                 config: {
@@ -52,9 +54,23 @@ Component.register('sw-cms-el-product-listing', {
         mountedComponent() {
             const section = this.$el.closest('.sw-cms-section');
 
+            if (!this.$el?.closest?.classList?.contains) {
+                return;
+            }
+
             if (section.classList.contains('is--sidebar')) {
                 this.demoProductCount = 6;
             }
+        },
+
+        getProduct(index) {
+            const product = this.currentDemoProducts?.at(index - 1);
+
+            if (product) {
+                return { ...this.demoProductElement, data: { product } };
+            }
+
+            return this.demoProductElement;
         },
     },
 });

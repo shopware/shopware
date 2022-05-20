@@ -3,6 +3,7 @@ import 'src/module/sw-settings-country/component/sw-settings-country-address-han
 import 'src/app/component/base/sw-card';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
+import { FORMAT_ADDRESS_TEMPLATE } from 'src/module/sw-settings-country/constant/address.constant';
 
 function createWrapper(privileges = [], customPropsData = {}) {
     const localVue = createLocalVue();
@@ -40,6 +41,7 @@ function createWrapper(privileges = [], customPropsData = {}) {
                     return privileges.includes(identifier);
                 }
             },
+            userInputSanitizeService: {},
             feature: {
                 isActive: () => true
             }
@@ -74,7 +76,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be able to show the address handling', async () => {
+    it('should be able to edit the address handling tab', async () => {
         const wrapper = await createWrapper([
             'country.editor'
         ],);
@@ -110,7 +112,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(countryAddressFormatPlain.attributes().disabled).toBeUndefined();
     });
 
-    it('should not able to show the address handling', async () => {
+    it('should not able to edit the address handling tab', async () => {
         const wrapper = createWrapper([], {
             checkAdvancedPostalCodePattern: true,
         });
@@ -160,14 +162,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
+        expect(wrapper.find('.advanced-postal-code .is--disabled').exists()).toBeTruthy();
+
         const checkAdvancedPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(3);
         await checkAdvancedPostalCodePatternField
             .find('.sw-field--switch__input input')
             .trigger('click');
 
         expect(wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelAdvancedPostalCodePattern"]'
-        ).exists()).toBeTruthy();
+            '.advanced-postal-code .is--disabled'
+        ).exists()).toBeFalsy();
     });
 
     it('should be not able to open advanced postal code pattern', async () => {
@@ -182,11 +186,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
-        const labelAdvancedPostalCodePattern = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-country.detail.labelAdvancedPostalCodePattern"]'
-        );
-
-        expect(labelAdvancedPostalCodePattern.exists()).toBeTruthy();
+        expect(wrapper.find(
+            '.advanced-postal-code .is--disabled'
+        ).exists()).toBeFalsy();
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(2);
 
@@ -194,12 +196,64 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             .find('.sw-field--switch__input input')
             .trigger('click');
 
-        expect(labelAdvancedPostalCodePattern.exists()).toBeFalsy();
+        expect(wrapper.find('.advanced-postal-code .is--disabled').exists()).toBeTruthy();
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
             'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
         );
 
         expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to revert address format to default', async () => {
+        const wrapper = createWrapper(['country.editor']);
+
+        await wrapper.setProps({
+            country: {
+                ...wrapper.vm.country,
+                useDefaultAddressFormat: true
+            }
+        });
+
+        expect(wrapper.vm.addressFormat).toEqual(FORMAT_ADDRESS_TEMPLATE);
+
+        const useDefaultAddressFormatField = wrapper.findAll('.sw-field--switch').at(4);
+        await useDefaultAddressFormatField
+            .find('.sw-field--switch__input input')
+            .trigger('click');
+
+        await wrapper.find('sw-code-editor-stub')
+            .vm
+            .$emit('input', '{{ company }} - {{ department }}');
+
+        expect(wrapper.vm.addressFormat).toEqual('{{ company }} - {{ department }}');
+
+        await useDefaultAddressFormatField
+            .find('.sw-field--switch__input input')
+            .trigger('click');
+
+        expect(wrapper.vm.addressFormat).toEqual(FORMAT_ADDRESS_TEMPLATE);
+    });
+
+    it('should set advanced postal code pattern is null when to disabled Advanced validation rules', async () => {
+        const wrapper = createWrapper(['country.editor']);
+
+        await wrapper.setProps({
+            country: {
+                checkPostalCodePattern: true,
+                checkAdvancedPostalCodePattern: true,
+                advancedPostalCodePattern: '/^\\d{5}(?:[- ]?\\d{4})?$/',
+            }
+        });
+
+        expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
+
+        const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(2);
+
+        await checkPostalCodePatternField
+            .find('.sw-field--switch__input input')
+            .trigger('click');
+
+        expect(wrapper.vm.country.advancedPostalCodePattern).toBeNull();
     });
 });

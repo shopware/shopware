@@ -63,6 +63,7 @@
       "labelCheckPostalCodePattern": "Postleitzahl validieren",
       "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
       "labelAdvancedPostalCodePattern": "Postleitzahl-Schema",
+      "placeholderAdvancedPostalCodePattern": "Gib Postleitzahl-Schema...",
       "labelCheckDefaultAddressFormat": "Standard-Adressformat nutzen",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Formatting",

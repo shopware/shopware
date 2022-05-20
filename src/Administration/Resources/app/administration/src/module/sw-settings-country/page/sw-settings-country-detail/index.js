@@ -128,10 +128,6 @@ Component.register('sw-settings-country-detail', {
             ));
         },
 
-        showSidebar() {
-            return this.$route.name === 'sw.settings.country.detail.address-handling';
-        },
-
         ...mapPropertyErrors('country', ['name']),
 
         showCustomFields() {

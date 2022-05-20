@@ -70,6 +70,28 @@ Component.register('sw-settings-country-address-handling', {
 
             this.$set(this.country, 'advancedAddressFormatPlain', value);
         },
+
+        'country.useDefaultAddressFormat'(value) {
+            if (value) {
+                this.addressFormat = FORMAT_ADDRESS_TEMPLATE;
+                this.$set(this.country, 'advancedAddressFormatPlain', null);
+                return;
+            }
+
+            if (this.country.advancedAddressFormatPlain) {
+                return;
+            }
+
+            this.$set(this.country, 'advancedAddressFormatPlain', FORMAT_ADDRESS_TEMPLATE);
+        },
+
+        'country.checkAdvancedPostalCodePattern'(value) {
+            if (value) {
+                return;
+            }
+
+            this.$set(this.country, 'advancedPostalCodePattern', null);
+        },
     },
 
     created() {

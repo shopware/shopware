@@ -63,6 +63,7 @@
       "labelCheckPostalCodePattern": "Postal code validation",
       "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
       "labelAdvancedPostalCodePattern": "Postal code pattern",
+      "placeholderAdvancedPostalCodePattern": "Enter postal code pattern...",
       "labelCheckDefaultAddressFormat": "Use default address format",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Formatting",

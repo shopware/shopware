@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -51,7 +54,7 @@ class PostWriteValidationEventTest extends TestCase
         $ids = new IdsCollection();
 
         yield 'Test single delete' => [
-            new PostWriteValidationEvent($context, [new FakeDelete($definition, 'product', ['id' => $ids->get('p1')])]),
+            new PostWriteValidationEvent($context, [$this->delete('product', ['id' => $ids->get('p1')])]),
             [
                 'product' => [['id' => $ids->get('p1')]],
             ],
@@ -59,21 +62,21 @@ class PostWriteValidationEventTest extends TestCase
 
         yield 'Test multi insert' => [
             new PostWriteValidationEvent($context, [
-                new FakeInsert($definition, 'product', ['id' => $ids->get('p1')]),
-                new FakeDelete($definition, 'product', ['id' => $ids->get('p2')]),
-                new FakeDelete($definition, 'product', ['id' => $ids->get('p3')]),
+                $this->insert('product', ['id' => $ids->get('p1')]),
+                $this->delete('product', ['id' => $ids->get('p2')]),
+                $this->delete('product', ['id' => $ids->get('p3')]),
 
-                new FakeInsert($definition, 'category', ['id' => $ids->get('c1')]),
-                new FakeDelete($definition, 'category', ['id' => $ids->get('c2')]),
-                new FakeDelete($definition, 'category', ['id' => $ids->get('c3')]),
+                $this->insert('category', ['id' => $ids->get('c1')]),
+                $this->delete('category', ['id' => $ids->get('c2')]),
+                $this->delete('category', ['id' => $ids->get('c3')]),
 
-                new FakeDelete($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
-                new FakeInsert($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
-                new FakeDelete($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
+                $this->delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
+                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
+                $this->delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
 
-                new FakeInsert($definition, 'foo', ['id' => $ids->get('f1')]),
-                new FakeDelete($definition, 'foo', ['id' => $ids->get('f2')]),
-                new FakeInsert($definition, 'foo', ['id' => $ids->get('f3')]),
+                $this->insert('foo', ['id' => $ids->get('f1')]),
+                $this->delete('foo', ['id' => $ids->get('f2')]),
+                $this->insert('foo', ['id' => $ids->get('f3')]),
             ]),
             [
                 'product' => [
@@ -100,33 +103,31 @@ class PostWriteValidationEventTest extends TestCase
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $definition = $this->createMock(EntityDefinition::class);
-
         $ids = new IdsCollection();
 
         yield 'Test single insert' => [
-            new PostWriteValidationEvent($context, [new FakeInsert($definition, 'product', ['id' => $ids->get('p1')])]),
+            new PostWriteValidationEvent($context, [$this->insert('product', ['id' => $ids->get('p1')])]),
             [
                 'product' => [['id' => $ids->get('p1')]],
             ],
         ];
         yield 'Test multi insert' => [
             new PostWriteValidationEvent($context, [
-                new FakeInsert($definition, 'product', ['id' => $ids->get('p1')]),
-                new FakeInsert($definition, 'product', ['id' => $ids->get('p2')]),
-                new FakeInsert($definition, 'product', ['id' => $ids->get('p3')]),
+                $this->insert('product', ['id' => $ids->get('p1')]),
+                $this->insert('product', ['id' => $ids->get('p2')]),
+                $this->insert('product', ['id' => $ids->get('p3')]),
 
-                new FakeInsert($definition, 'category', ['id' => $ids->get('c1')]),
-                new FakeInsert($definition, 'category', ['id' => $ids->get('c2')]),
-                new FakeInsert($definition, 'category', ['id' => $ids->get('c3')]),
+                $this->insert('category', ['id' => $ids->get('c1')]),
+                $this->insert('category', ['id' => $ids->get('c2')]),
+                $this->insert('category', ['id' => $ids->get('c3')]),
 
-                new FakeInsert($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
-                new FakeInsert($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
-                new FakeInsert($definition, 'translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
+                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
+                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
+                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
 
-                new FakeDelete($definition, 'foo', ['id' => $ids->get('f1')]),
-                new FakeDelete($definition, 'foo', ['id' => $ids->get('f2')]),
-                new FakeDelete($definition, 'foo', ['id' => $ids->get('f3')]),
+                $this->delete('foo', ['id' => $ids->get('f1')]),
+                $this->delete('foo', ['id' => $ids->get('f2')]),
+                $this->delete('foo', ['id' => $ids->get('f3')]),
             ]),
             [
                 'product' => [
@@ -152,5 +153,27 @@ class PostWriteValidationEventTest extends TestCase
                 'not-found' => [],
             ],
         ];
+    }
+
+    private function insert(string $entity, array $primaryKey): InsertCommand
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->expects(static::any())
+            ->method('getEntityName')
+            ->willReturn($entity);
+
+        $existence = new EntityExistence('', [], false, false, false, []);
+
+        return new InsertCommand($definition, [], $primaryKey, $existence, '');
+    }
+
+    private function delete(string $entity, array $primaryKey): DeleteCommand
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->expects(static::any())
+            ->method('getEntityName')
+            ->willReturn($entity);
+
+        return new DeleteCommand($definition, $primaryKey, new EntityExistence('', [], false, false, false, []));
     }
 }

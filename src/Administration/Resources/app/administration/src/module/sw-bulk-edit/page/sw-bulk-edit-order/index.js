@@ -489,12 +489,38 @@ Component.register('sw-bulk-edit-order', {
             return Promise.all(requests)
                 .then(() => {
                     this.processStatus = 'success';
-                }).catch((e) => {
-                    console.error(e);
+                })
+                .catch(() => {
                     this.processStatus = 'fail';
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
+                    this.getLatestOrderStatus().finally(() => {
+                        this.isLoading = false;
+                    });
                 });
+        },
+
+        getLatestOrderStatus() {
+            const promises = [];
+
+            if (this.bulkEditData.orderTransactions.isChanged) {
+                promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
+            }
+            if (this.bulkEditData.orderDeliveries.isChanged) {
+                promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
+            }
+            if (this.bulkEditData.orders.isChanged) {
+                promises.push(this.fetchStatusOptions('orders.id'));
+            }
+
+            if (promises.length === 0) {
+                return Promise.resolve();
+            }
+
+            this.isLoading = true;
+
+            return Promise.all(promises);
         },
 
         loadCustomFieldSets() {

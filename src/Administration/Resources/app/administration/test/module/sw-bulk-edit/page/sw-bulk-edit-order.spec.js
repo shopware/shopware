@@ -623,4 +623,34 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
         expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).not.toContain('sw-button--disabled');
     });
+
+    it('should get latest order status correctly', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.fetchStatusOptions = jest.fn();
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                orders: {
+                    isChanged: true,
+                },
+                orderTransactions: {
+                    isChanged: true,
+                },
+                orderDeliveries: {
+                    isChanged: true,
+                },
+                statusMails: {
+                    isChanged: false,
+                },
+            },
+        });
+
+        wrapper.vm.getLatestOrderStatus();
+
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
+        wrapper.vm.fetchStatusOptions.mockRestore();
+    });
 });

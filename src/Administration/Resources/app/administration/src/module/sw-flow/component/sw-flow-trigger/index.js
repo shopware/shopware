@@ -514,6 +514,7 @@ Component.register('sw-flow-trigger', {
                 const { id } = item.data;
 
                 State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
+                State.dispatch('swFlowState/setRestrictedRules', id);
                 this.$emit('option-select', id);
             } else {
                 this.showConfirmModal = this.flow.eventName !== item.id;
@@ -523,6 +524,7 @@ Component.register('sw-flow-trigger', {
 
         onConfirm() {
             State.commit('swFlowState/setTriggerEvent', this.triggerSelect);
+            State.dispatch('swFlowState/setRestrictedRules', this.triggerSelect.name);
             this.$emit('option-select', this.triggerSelect.name);
         },
 
@@ -539,6 +541,7 @@ Component.register('sw-flow-trigger', {
                 .then(events => {
                     this.events = events;
                     State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
+                    State.dispatch('swFlowState/setRestrictedRules', this.eventName);
                 }).finally(() => {
                     this.isLoading = false;
                 });
@@ -648,6 +651,7 @@ Component.register('sw-flow-trigger', {
             if (this.isSequenceEmpty) {
                 this.$emit('option-select', item.name);
                 State.commit('swFlowState/setTriggerEvent', item);
+                State.dispatch('swFlowState/setRestrictedRules', item.name);
             } else {
                 this.showConfirmModal = true;
                 this.triggerSelect = item;

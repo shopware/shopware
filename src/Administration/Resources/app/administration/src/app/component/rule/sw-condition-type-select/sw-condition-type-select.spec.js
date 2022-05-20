@@ -14,7 +14,13 @@ async function createWrapper(customProps = {}, customOptions = {}) {
             restrictedConditions: {},
         },
         propsData: {
-            condition: {},
+            condition: {
+                promotionAssociation: [
+                    {
+                        id: 'random-promotion-id'
+                    }
+                ]
+            },
             availableTypes: [],
             ...customProps
         },
@@ -86,5 +92,73 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
             type: 'customerEmail',
         });
         expect(tooltipConfig.disabled).toBeTruthy();
+    });
+
+    it('should remove node from tree if condition has an child association field', async () => {
+        const wrapper = await createWrapper({}, {
+            provide: {
+                removeNodeFromTree: jest.fn(),
+                conditionDataProviderService: {},
+                restrictedConditions: {},
+            }
+        });
+
+        // mocking childAssociationField
+        wrapper.vm.childAssociationField = 'promotionAssociation';
+
+        await wrapper.vm.changeType('customer');
+
+        expect(wrapper.vm.removeNodeFromTree).toHaveBeenCalledTimes(1);
+    });
+
+    it('should get groupAssignments with flow triggers', async () => {
+        const wrapper = await createWrapper({}, {
+            provide: {
+                removeNodeFromTree: () => {
+                },
+                conditionDataProviderService: {},
+                restrictedConditions: {
+                    someRestriction: [
+                        {
+                            associationName: 'flowTrigger.testingFlow'
+                        }
+                    ]
+                }
+            },
+        });
+
+        expect(wrapper.vm.groupAssignments({
+            type: 'someRestriction'
+        })).toEqual(' sw-restricted-rules.restrictedConditions.relation.flowTrigger');
+    });
+
+    it('should get groupAssignments with promotions', async () => {
+        const wrapper = await createWrapper({}, {
+            provide: {
+                removeNodeFromTree: () => {
+                },
+                conditionDataProviderService: {},
+                restrictedConditions: {
+                    someRestriction: [
+                        {
+                            associationName: 'promotion'
+                        },
+                        {
+                            associationName: 'flowTrigger.someFlow'
+                        },
+                        {
+                            associationName: 'flowTrigger.anotherFlow'
+                        },
+                        {
+                            associationName: 'flowTrigger.moreFlows'
+                        },
+                    ]
+                }
+            },
+        });
+
+        expect(wrapper.vm.groupAssignments({
+            type: 'someRestriction'
+        })).toEqual(' sw-restricted-rules.restrictedConditions.relation.promotion </br> sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger<br />sw-restricted-rules.restrictedConditions.relation.flowTrigger');
     });
 });

@@ -21,6 +21,10 @@ describe('Rule builder: Test crud operations', () => {
             {
                 key: 'rule',
                 role: 'viewer'
+            },
+            {
+                key: 'flow',
+                role: 'viewer'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
@@ -55,6 +59,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
+                role: 'viewer'
+            },
+            {
+                key: 'flow',
                 role: 'viewer'
             },
             {
@@ -131,6 +139,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
+                role: 'viewer'
+            },
+            {
+                key: 'flow',
                 role: 'viewer'
             },
             {
@@ -223,6 +235,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
+                role: 'viewer'
+            },
+            {
+                key: 'flow',
                 role: 'viewer'
             },
             {

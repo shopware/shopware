@@ -24,6 +24,10 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             {
                 key: 'rule',
                 role: 'editor'
+            },
+            {
+                key: 'flow',
+                role: 'viewer'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
@@ -84,6 +88,10 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             {
                 key: 'rule',
                 role: 'editor'
+            },
+            {
+                key: 'flow',
+                role: 'viewer'
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);

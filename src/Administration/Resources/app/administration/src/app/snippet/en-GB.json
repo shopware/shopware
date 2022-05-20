@@ -1382,7 +1382,7 @@
   },
   "sw-restricted-rules": {
     "restrictedAssignment": {
-      "general": "This rule uses condition types that are not allowed for assignment to {relation}.",
+      "general": "This rule uses conditions that are not allowed for assignment to {relation}.",
       "productPrices": "pricing rules",
       "shippingMethodPrices": "pricing rules",
       "shippingMethodPriceCalculations": "shipping cost calculation rules",
@@ -1398,7 +1398,11 @@
       "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to assign it to {entityLabel}: {conditions}."
     },
     "restrictedConditions": {
-      "restrictedPromotionConditionTooltip": "The current rule is assigned to a promotion as {assignments}. The use of this condition is therefore not allowed in this context."
+      "restrictedConditionTooltip": "This rule is assigned to:<br/><br/>{assignments}</br></br>The use of this condition is not allowed in this context.",
+      "relation": {
+        "flowTrigger": "Flows with trigger: {assignments}",
+        "promotion": "Promotions as {assignments}"
+      }
     },
     "and": "and",
     "or": "or"

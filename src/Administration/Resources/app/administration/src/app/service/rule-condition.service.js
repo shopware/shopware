@@ -204,6 +204,7 @@ export default function createConditionService() {
         getRestrictedRuleTooltipConfig,
         /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted,
+        getRestrictionsByGroup,
     };
 
     function getByType(type) {
@@ -443,6 +444,29 @@ export default function createConditionService() {
             }
         });
 
+        if (!rule.flowSequences?.length > 0) {
+            return conditions;
+        }
+
+        rule.flowSequences.forEach(sequence => {
+            const eventName = `flowTrigger.${sequence.flow.eventName}`;
+            const currentEntry = awarenessConfiguration[eventName];
+
+            if (!currentEntry?.notEquals) {
+                return;
+            }
+
+            currentEntry.notEquals.forEach(condition => {
+                if (!conditions[condition]) {
+                    conditions[condition] = [];
+                }
+                conditions[condition].push({
+                    associationName: eventName,
+                    snippet: currentEntry.snippet,
+                });
+            });
+        });
+
         return conditions;
     }
 
@@ -673,5 +697,18 @@ export default function createConditionService() {
         );
 
         return restrictionConfig.isRestricted;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_18215)
+     */
+    function getRestrictionsByGroup(...wantedGroups) {
+        const entries = Object.entries($store);
+
+        return entries.reduce((accumulator, [restrictionName, condition]) => {
+            const inGroup = wantedGroups.includes(condition.group);
+
+            return inGroup ? [...accumulator, restrictionName] : accumulator;
+        }, []);
     }
 }

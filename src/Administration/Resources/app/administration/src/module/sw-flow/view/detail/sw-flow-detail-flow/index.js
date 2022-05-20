@@ -10,7 +10,12 @@ const { mapGetters, mapState } = Component.getComponentHelper();
 Component.register('sw-flow-detail-flow', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'flowActionService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'flowActionService',
+        'ruleConditionDataProviderService',
+    ],
 
     props: {
         isLoading: {

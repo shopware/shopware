@@ -1,8 +1,8 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 0.5);
-$sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
+$sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 50%);
+$sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 50%);
 
 .sw-text-editor-toolbar-button {
     position: relative;
@@ -51,7 +51,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     z-index: 260;
 
     &::before {
-        content: '';
+        content: "";
         position: absolute;
         top: -5px;
         left: var(--arrow-position, 10px);
@@ -88,7 +88,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         border-radius: $border-radius-default;
 
         &-content {
-            @include truncate();
+            @include truncate;
 
             width: 100%;
         }

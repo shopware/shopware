@@ -1,7 +1,9 @@
+@use "sass:math";
 @import "~scss/variables";
 @import "~scss/mixins";
 @import "sw-label-variant";
-$sw-label-border-radius: $border-radius-default / 2;
+
+$sw-label-border-radius: math.div($border-radius-default, 2);
 $sw-label-pill-border-radius: 50px;
 
 .sw-label {
@@ -21,7 +23,7 @@ $sw-label-pill-border-radius: 50px;
     cursor: default;
 
     .sw-label__caption {
-        @include truncate();
+        @include truncate;
 
         display: inline-block;
         width: 100%;
@@ -118,7 +120,7 @@ $sw-label-pill-border-radius: 50px;
         }
 
         &.sw-label--small::before {
-            content: '';
+            content: "";
             display: block;
             height: 6px;
             width: 6px;

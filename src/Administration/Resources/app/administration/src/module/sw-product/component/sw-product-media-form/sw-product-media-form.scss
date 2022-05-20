@@ -27,7 +27,7 @@
 
     .sw-product-media-form__upload-button {
         display: block;
-        margin: 0 auto 20px auto;
+        margin: 0 auto 20px;
     }
 
     .sw-product-media-form__grid {
@@ -87,7 +87,7 @@
         }
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             z-index: 10;
             top: 0;

@@ -31,7 +31,7 @@
 
         &-footer {
             background: $color-gray-100;
-            margin: 32px -8px -8px -8px;
+            margin: 32px -8px -8px;
             padding: 20px 24px;
             text-align: right;
             border-bottom-left-radius: 4px;
@@ -98,7 +98,7 @@
 
     &__bulk-merge-progress {
         text-align: center;
-        padding: 50px 0 30px 0;
+        padding: 50px 0 30px;
         color: $color-shopware-brand-500;
     }
 

@@ -17,7 +17,7 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
     z-index: 250;
 
     &::before {
-        content: '';
+        content: "";
         position: absolute;
         bottom: -5px;
         left: var(--left);

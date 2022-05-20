@@ -1,23 +1,23 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-base-item-color:                   $color-darkgray-200;
-$sw-media-base-item-border-radius:           $border-radius-default;
-$sw-media-base-item-small-font-size:         $font-size-small;
-$sw-media-base-item-color-border:            $color-gray-300;
+$sw-media-base-item-color: $color-darkgray-200;
+$sw-media-base-item-border-radius: $border-radius-default;
+$sw-media-base-item-small-font-size: $font-size-small;
+$sw-media-base-item-color-border: $color-gray-300;
 $sw-media-base-item-color-text-inline-input: $color-darkgray-200;
-$sw-media-base-item-color-context-button:    $color-white;
+$sw-media-base-item-color-context-button: $color-white;
 $sw-media-base-item-color-loading-indicator: $color-darkgray-200;
-$sw-media-base-item-color-hover:             $color-shopware-brand-50;
-$sw-media-base-item-color-metadata:          lighten($color-darkgray-200, 30);
-$sw-media-base-item-pseudo-padding:          33px;
-$sw-media-base-item-color-input-background:  $color-white;
-$sw-media-base-item-color-input-border:      $color-gray-300;
-$sw-media-base-item-border-radius-input:     $border-radius-default;
-$sw-media-base-item-color-selected:          $color-shopware-brand-500;
-$sw-media-base-item-color-checkmark:         $color-white;
-$sw-media-base-item-color-input:             $color-black;
-$sw-media-base-item-preview-background:      $color-white;
+$sw-media-base-item-color-hover: $color-shopware-brand-50;
+$sw-media-base-item-color-metadata: lighten($color-darkgray-200, 30);
+$sw-media-base-item-pseudo-padding: 33px;
+$sw-media-base-item-color-input-background: $color-white;
+$sw-media-base-item-color-input-border: $color-gray-300;
+$sw-media-base-item-border-radius-input: $border-radius-default;
+$sw-media-base-item-color-selected: $color-shopware-brand-500;
+$sw-media-base-item-color-checkmark: $color-white;
+$sw-media-base-item-color-input: $color-black;
+$sw-media-base-item-preview-background: $color-white;
 
 .sw-media-base-item {
     position: relative;
@@ -118,7 +118,7 @@ $sw-media-base-item-preview-background:      $color-white;
         font-size: $sw-media-base-item-small-font-size;
 
         .sw-media-base-item__name {
-            @include truncate();
+            @include truncate;
 
             border: 1px solid transparent;
             line-height: 27px;
@@ -203,7 +203,7 @@ $sw-media-base-item-preview-background:      $color-white;
 
         .sw-media-base-item__metadata-container {
             display: block;
-            margin: -5px 0 0 0;
+            margin: -5px 0 0;
             text-align: left;
             color: $sw-media-base-item-color-metadata;
             font-size: $font-size-small;

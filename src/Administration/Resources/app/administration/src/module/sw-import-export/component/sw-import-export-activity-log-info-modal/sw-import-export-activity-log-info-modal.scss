@@ -29,6 +29,6 @@
     }
 
     &__item-state--processing dd {
-        @include animated-truncate();
+        @include animated-truncate;
     }
 }

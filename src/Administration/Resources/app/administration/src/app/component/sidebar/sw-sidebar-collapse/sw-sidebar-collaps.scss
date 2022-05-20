@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-sidebar-collapse-color-divider:   $color-gray-300;
-$sw-sidebar-collapse-color-title:     $color-darkgray-200;
+$sw-sidebar-collapse-color-divider: $color-gray-300;
+$sw-sidebar-collapse-color-title: $color-darkgray-200;
 $sw-sidebar-collapse-font-size-title: $font-size-default;
 
 .sw-collapse {
@@ -18,7 +18,7 @@ $sw-sidebar-collapse-font-size-title: $font-size-default;
     .sw-sidebar-collapse__title {
         font-size: $sw-sidebar-collapse-font-size-title;
         font-weight: $font-weight-regular;
-        margin: 0 25px 0;
+        margin: 0 25px;
     }
 
     .sw-sidebar-collapse__button {

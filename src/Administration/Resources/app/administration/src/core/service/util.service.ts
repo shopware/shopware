@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 import flow from 'lodash/flow';
 import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
-import uuidV4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
 import uniqBy from 'lodash/uniqBy';
@@ -140,5 +140,5 @@ export default {
 function createId(): string {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-    return uuidV4().replace(/-/g, '');
+    return uuidv4().replace(/-/g, '');
 }

@@ -48,7 +48,7 @@
     }
 
     .sw-data-grid__cell-content {
-        @include truncate();
+        @include truncate;
 
         min-width: 0;
         padding: 20px;
@@ -179,7 +179,6 @@
 
     .sw-data-grid__cell--header {
         position: sticky;
-        position: -webkit-sticky;
         top: 0;
         background-clip: padding-box;
         box-shadow: inset 0 -1px 0 $color-gray-300;
@@ -226,7 +225,6 @@
 
     .sw-data-grid__cell--selection {
         position: sticky;
-        position: -webkit-sticky;
         left: 0;
         width: 88px;
         min-width: 88px;
@@ -329,7 +327,6 @@
 
     .sw-data-grid__cell--actions {
         position: sticky;
-        position: -webkit-sticky;
         right: 0;
         width: 88px;
         min-width: 88px;
@@ -416,8 +413,8 @@
             pointer-events: none;
             width: 8px;
             display: block;
-            content: '';
-            background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1));
+            content: "";
+            background: linear-gradient(to right, transparent, rgba(0, 0, 0, 10%));
             position: absolute;
             top: 0;
             bottom: 0;
@@ -428,8 +425,8 @@
             pointer-events: none;
             width: 8px;
             display: block;
-            content: '';
-            background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.1));
+            content: "";
+            background: linear-gradient(to left, transparent, rgba(0, 0, 0, 10%));
             position: absolute;
             top: 0;
             bottom: 0;

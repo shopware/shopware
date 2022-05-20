@@ -1,15 +1,15 @@
 @import "~scss/variables";
 
-$sw-meteor-card-background: rgba(235, 235, 235, 0.1);
+$sw-meteor-card-background: rgba(235, 235, 235, 10%);
 
 .sw-meteor-card {
     max-width: 960px;
-    margin: 0 auto 40px auto;
+    margin: 0 auto 40px;
     position: relative;
     color: $color-darkgray-200;
     border-radius: $border-radius-default;
     background: $color-white;
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 10%);
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {
@@ -106,7 +106,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         }
 
         .sw-tabs {
-            border-width: 0 0 1px 0;
+            border-width: 0 0 1px;
             border-bottom-right-radius: 0;
             border-bottom-left-radius: 0;
             margin-bottom: 0;
@@ -196,19 +196,19 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             .sw-tabs__arrow {
                 top: 53%;
                 transform: translate(0, -50%);
-                padding: 0 12px 0 12px;
+                padding: 0 12px;
             }
         }
 
         .sw-tabs-item {
-            padding: 19px 0 15px 0;
+            padding: 19px 0 15px;
             margin-right: 14px;
             font-weight: $font-weight-regular;
             border-color: transparent;
             font-size: $font-size-small;
 
             @media screen and (max-width: 960px) {
-                padding: 15px 0 10px 0;
+                padding: 15px 0 10px;
             }
 
             &:last-of-type {

@@ -1,11 +1,10 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-field: '.sw-field';
-$sw-order-user-card: '.sw-order-user-card';
-$sw-highlight-text: '.sw-highlight-text';
+$sw-field: ".sw-field";
+$sw-order-user-card: ".sw-order-user-card";
+$sw-highlight-text: ".sw-highlight-text";
 $font-weight-semi-bold: 600;
-
 $select-result-customer-item-last-width: 40px;
 $select-result-customer-item-gutter: 10px;
 
@@ -123,7 +122,7 @@ $select-result-customer-item-gutter: 10px;
 }
 
 .sw-order-create-summary {
-    grid-template-areas: 'empty summary';
+    grid-template-areas: "empty summary";
 
     .sw-order-create-summary__data {
         grid-area: summary;

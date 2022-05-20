@@ -1,11 +1,11 @@
 // eslint-disable
+import Twig from 'twig';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
+
 /**
  * @module core/factory/async-template
  * @private
  */
-import Twig from 'twig';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
-
 export default {
     registerComponentTemplate,
     extendComponentTemplate,

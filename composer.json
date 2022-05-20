@@ -220,7 +220,8 @@
         "npm:admin": "@npm:admin:bin npm",
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront": "@npm:storefront:bin npm",
-
+        "npm:component-library:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/build/nuxt-component-library; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:component-library": "@npm:component-library:bin npm",
         "npm:e2e:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
         "npm:e2e": "@npm:e2e:bin npm",
         "npm:e2e:admin:bin": "@npm:e2e:bin ",
@@ -247,6 +248,9 @@
             "@php bin/console bundle:dump",
             "@npm:admin run build",
             "@php bin/console assets:install"
+        ],
+        "build:js:component-library": [
+            "@npm:component-library run generate"
         ],
         "build:js:storefront": [
             "@php bin/console feature:dump",

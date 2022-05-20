@@ -198,7 +198,7 @@ $color-module-green-900: #2cc077;
 
 $color-white: #fff;
 $color-black: #000;
-$color-drag-select-box: rgba(0, 162, 255, 0.4);
+$color-drag-select-box: rgba(0, 162, 255, 40%);
 
 /* ------------------------------------
  * 5. Gradients
@@ -210,12 +210,11 @@ $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
  * 6. Typography
  * ------------------------------------ */
 
-$font-family-default: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+$font-family-default: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 $font-size-default: 16px;
 $font-size-large: 18px;
 $font-size-small: 14px;
 $font-size-extra-small: 12px;
-
 $font-weight-light: 300;
 $font-weight-regular: 400;
 $font-weight-semi-bold: 600;
@@ -231,8 +230,8 @@ $border-radius-md: 6px;
 $border-radius-lg: 8px;
 $border-radius-xl: 8px;
 $border-radius-pill: 100vh;
-$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
-$asset-base-url: '/administration/static/';
+$transparent-background-url: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC");
+$asset-base-url: "/administration/static/";
 
 /* ------------------------------------
  * 8. z-index

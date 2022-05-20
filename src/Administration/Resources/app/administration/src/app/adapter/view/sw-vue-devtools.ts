@@ -24,6 +24,7 @@ export default function setupShopwareDevtools(app: App): void {
         // Options
         id: 'sw-admin-extension-plugin',
         label: 'Shopware Admin extensions plugin',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         app,
     }, (api) => {
         // Add CSS for highlighting elements
@@ -92,7 +93,6 @@ export default function setupShopwareDevtools(app: App): void {
             payload.rootNodes = [];
             extensionComponentCollection = [];
 
-            // @ts-expect-error
             componentIterator(payload.app as Component, (component) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (component.$options.extensionApiDevtoolInformation) {

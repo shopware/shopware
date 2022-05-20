@@ -37,7 +37,7 @@
         padding: 0;
 
         .tree-items {
-            padding: 16px 16px 0 16px;
+            padding: 16px 16px 0;
             width: max-content;
             min-width: 100%;
         }
@@ -51,7 +51,7 @@
             border-left: none !important;
 
             &::before {
-                content: '';
+                content: "";
                 background: $color-gray-300;
                 position: absolute;
                 left: 16px;

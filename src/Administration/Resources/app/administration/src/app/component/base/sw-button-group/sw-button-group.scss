@@ -1,4 +1,4 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-button-group {
     display: inline-flex;
@@ -73,7 +73,7 @@
             &.sw-button--primary,
             &.sw-button--danger,
             &.sw-button--contrast {
-                border-left: 1px solid rgba(0, 0, 0, 0.2);
+                border-left: 1px solid rgba(0, 0, 0, 20%);
             }
         }
     }

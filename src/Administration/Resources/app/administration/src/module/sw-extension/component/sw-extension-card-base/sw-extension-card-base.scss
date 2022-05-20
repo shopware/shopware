@@ -11,7 +11,7 @@
     }
 
     &.deactivate-prevented {
-        .sw-field--switch .sw-field--switch__input input[type=checkbox]:checked:disabled ~ .sw-field__switch-state {
+        .sw-field--switch .sw-field--switch__input input[type="checkbox"]:checked:disabled ~ .sw-field__switch-state {
             background: $color-shopware-brand-500;
             opacity: 0.5;
 
@@ -47,7 +47,7 @@
         padding: 10px 32px;
         border: none;
         border-radius: 8px;
-        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 10%);
     }
 
     .sw-extension-card-base__icon {
@@ -61,7 +61,7 @@
         font-size: $font-size-extra-small;
 
         .sw-extension-card-base__info-name {
-            @include truncate();
+            @include truncate;
 
             font-size: $font-size-small;
             color: $color-darkgray-200;
@@ -73,7 +73,7 @@
         }
 
         .sw-extension-card-base__info-description {
-            @include truncate();
+            @include truncate;
 
             color: $color-gray-500;
         }

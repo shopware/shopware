@@ -21,7 +21,7 @@
         &::before {
             @include circle(26px);
 
-            content: '';
+            content: "";
             margin-right: 4px;
             background: $color-gray-100;
         }

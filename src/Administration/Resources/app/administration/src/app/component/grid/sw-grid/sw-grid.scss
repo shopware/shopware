@@ -1,19 +1,19 @@
 @import "~scss/variables";
 
-$sw-grid-item-color-border:               $color-gray-300;
-$sw-grid-item-color-background:           $color-gray-100;
-$sw-grid-item-even-color-background:      $color-white;
-$sw-grid-item-color-background-deleted:   $color-crimson-500;
-$sw-grid-item-color-background-new:       $color-emerald-500;
-$sw-grid-item-active-color-border:        $color-shopware-brand-500;
-$sw-grid-item-active-color-background:    $color-shopware-brand-50;
-$sw-grid-item-active-color-text:          $color-black;
-$sw-grid-header-color-background:         $color-white;
-$sw-grid-header-color-border:             $color-gray-300;
-$sw-grid-header-color-text:               $color-darkgray-200;
-$sw-grid-actions-icon-color:              $color-darkgray-200;
-$sw-grid-actions-icon-hover-color:        $color-shopware-brand-500;
-$sw-grid-table-row-color-background:      $color-white;
+$sw-grid-item-color-border: $color-gray-300;
+$sw-grid-item-color-background: $color-gray-100;
+$sw-grid-item-even-color-background: $color-white;
+$sw-grid-item-color-background-deleted: $color-crimson-500;
+$sw-grid-item-color-background-new: $color-emerald-500;
+$sw-grid-item-active-color-border: $color-shopware-brand-500;
+$sw-grid-item-active-color-background: $color-shopware-brand-50;
+$sw-grid-item-active-color-text: $color-black;
+$sw-grid-header-color-background: $color-white;
+$sw-grid-header-color-border: $color-gray-300;
+$sw-grid-header-color-text: $color-darkgray-200;
+$sw-grid-actions-icon-color: $color-darkgray-200;
+$sw-grid-actions-icon-hover-color: $color-shopware-brand-500;
+$sw-grid-table-row-color-background: $color-white;
 
 .sw-grid {
     display: grid;

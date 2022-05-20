@@ -18,7 +18,7 @@
         grid-template-columns: min-content 1fr min-content;
 
         &::before {
-            content: '';
+            content: "";
             display: block;
             width: 8px;
             height: 8px;
@@ -80,7 +80,7 @@
     .sw-notification-center-item__actions {
         display: flex;
         flex-wrap: wrap;
-        margin: 0 -10px -10px -10px;
+        margin: 0 -10px -10px;
     }
 
     .sw-notification-center-item__actions-item-container {

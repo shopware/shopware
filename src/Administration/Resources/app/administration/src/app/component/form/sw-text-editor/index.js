@@ -268,6 +268,7 @@ Component.register('sw-text-editor', {
             hasSelection: false,
             selection: null,
             currentSelection: null,
+            isShiftPressed: false,
             toolbar: null,
             textLength: 0,
             content: '',
@@ -417,17 +418,9 @@ Component.register('sw-text-editor', {
             document.addEventListener('mouseup', this.onSelectionChange);
             document.addEventListener('mousedown', this.onSelectionChange);
             document.addEventListener('keydown', this.onSelectionChange);
-        },
 
-        toggleCodeEditor(buttonConf) {
-            this.isCodeEdit = !this.isCodeEdit;
-            buttonConf.expanded = !buttonConf.expanded;
-        },
-
-        handleInsertDataMapping({ name }) {
-            this.onTextStyleChange('insertText', `{{ ${name} }}`);
-
-            this.selection = document.getSelection();
+            document.addEventListener('keydown', this.keyListener);
+            document.addEventListener('keyup', this.keyListener);
         },
 
         mountedComponent() {
@@ -444,6 +437,13 @@ Component.register('sw-text-editor', {
             document.removeEventListener('mouseup', this.onSelectionChange);
             document.removeEventListener('mousedown', this.onSelectionChange);
             document.removeEventListener('keydown', this.onSelectionChange);
+
+            document.removeEventListener('keydown', this.keyListener);
+            document.removeEventListener('keyup', this.keyListener);
+        },
+
+        keyListener(event) {
+            this.isShiftPressed = event.shiftKey;
         },
 
         onSelectionChange(event) {
@@ -490,6 +490,17 @@ Component.register('sw-text-editor', {
             }
 
             return path;
+        },
+
+        toggleCodeEditor(buttonConf) {
+            this.isCodeEdit = !this.isCodeEdit;
+            buttonConf.expanded = !buttonConf.expanded;
+        },
+
+        handleInsertDataMapping({ name }) {
+            this.onTextStyleChange('insertText', `{{ ${name} }}`);
+
+            this.selection = document.getSelection();
         },
 
         resetForeColor() {
@@ -814,14 +825,14 @@ Component.register('sw-text-editor', {
                 element = element.parentNode;
             }
 
-            const formatedSting = nodes.map(node => node.tagName.toLowerCase())
+            const formattedSting = nodes.map(node => node.tagName.toLowerCase())
                 .filter(nodeName => nodeName !== 'p')
                 .reduce((previousValue, currentElement) => {
                     return `<${currentElement}>${previousValue}</${currentElement}>`;
                 }, this.selection.toString());
 
-            event.clipboardData.setData('text/html', formatedSting);
             event.clipboardData.setData('text/plain', this.selection.toString());
+            event.clipboardData.setData('text/html', formattedSting);
         },
 
         onPaste(event) {
@@ -834,8 +845,16 @@ Component.register('sw-text-editor', {
             };
 
             const clipboardData = event.clipboardData;
-            const clipboardText = this.$sanitize(clipboardData.getData('text/plain'), settings);
-            const clipboardHTML = this.$sanitize(clipboardData.getData('text/html'), settings);
+
+            const textData = clipboardData.getData('text/plain');
+            const htmlData = clipboardData.getData('text/html');
+
+            let insertableNode;
+            if (htmlData && !this.isShiftPressed) {
+                insertableNode = document.createRange().createContextualFragment(this.$sanitize(htmlData, settings));
+            } else {
+                insertableNode = document.createTextNode(this.$sanitize(textData));
+            }
 
             const selection = window.getSelection();
 
@@ -846,9 +865,7 @@ Component.register('sw-text-editor', {
 
             selection.deleteFromDocument();
 
-            selection.getRangeAt(0).insertNode(clipboardHTML ?
-                document.createRange().createContextualFragment(clipboardHTML) :
-                document.createTextNode(clipboardText));
+            selection.getRangeAt(0).insertNode(insertableNode);
         },
 
         emitContent() {

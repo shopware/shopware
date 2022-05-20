@@ -748,7 +748,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         );
     });
 
-    it('should paste html styled text into the wysiwyg editor', async () => {
+    it('should paste html styled text if the shift key is not pressed', async () => {
         wrapper = createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
@@ -770,10 +770,44 @@ describe('src/app/component/form/sw-text-editor', () => {
             }
         });
 
+        // release shift
+        wrapper.vm.keyListener({ shiftKey: false });
+
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
         expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\"><strike><u><bold>test</bold></u></strike></span>');
+    });
+
+    it('should paste text instead of html when the shift key is pressed', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        // select "ware"
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // prepare getData mock
+        const getData = jest.fn().mockImplementation((type) => {
+            switch (type) {
+                case 'text/plain':
+                    return 'test';
+                case 'text/html':
+                    return '<strike><u><bold>test</bold></u></strike>';
+                default:
+                    throw new Error(`The mime type ${type} is not supported`);
+            }
+        });
+
+        // press shift
+        wrapper.vm.keyListener({ shiftKey: true });
+
+        // paste styled 'test' over 'ware'
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
     });
 
     it('should fall back to pasteing text into the wysiwyg editor if html isn\'t available', async () => {

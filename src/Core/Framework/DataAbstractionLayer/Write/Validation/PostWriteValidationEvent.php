@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -48,5 +49,36 @@ class PostWriteValidationEvent extends Event implements ShopwareEvent
     public function getExceptions(): WriteException
     {
         return $this->writeContext->getExceptions();
+    }
+
+    public function getPrimaryKeys(string $entity): array
+    {
+        return $this->findPrimaryKeys($entity);
+    }
+
+    public function getDeletedPrimaryKeys(string $entity): array
+    {
+        return $this->findPrimaryKeys($entity, function (WriteCommand $command) {
+            return $command instanceof DeleteCommand;
+        });
+    }
+
+    private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array
+    {
+        $ids = [];
+
+        foreach ($this->commands as $command) {
+            if ($command->getEntityName() !== $entity) {
+                continue;
+            }
+
+            if ($closure instanceof \Closure && !$closure($command)) {
+                continue;
+            }
+
+            $ids[] = $command->getPrimaryKey();
+        }
+
+        return $ids;
     }
 }

@@ -31,7 +31,7 @@ Component.register('sw-settings-country-sidebar', {
 
     computed: {
         customerCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria
                 .addAssociation('salutation')
                 .addAssociation('defaultBillingAddress.country')

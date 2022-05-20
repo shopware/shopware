@@ -92,7 +92,6 @@
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator" decorates="media_folder.repository">
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator.inner"/>
-            <argument type="service" id="media.repository"/>
         </service>
 
         <!--File Services-->
@@ -336,6 +335,8 @@
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="media.repository"/>
         </service>
     </services>
 </container>

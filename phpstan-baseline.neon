@@ -2201,11 +2201,6 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:getRawIds\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php

@@ -124,7 +124,10 @@ class DocumentGeneratorControllerTest extends TestCase
             json_encode([$document]) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true)[0];
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        static::assertNotEmpty($response);
+        static::assertNotEmpty($data = $response['data']);
+        static::assertNotEmpty($item = $data[0]);
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
@@ -132,7 +135,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            $baseResource . '_action/document/' . $response['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
+            $baseResource . '_action/document/' . $item['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
             [],
             [],
             ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],
@@ -141,6 +144,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
+        static::assertNotEmpty($response['documentMediaId']);
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
@@ -219,9 +223,10 @@ class DocumentGeneratorControllerTest extends TestCase
             static::assertEquals(200, $response->getStatusCode());
             $response = json_decode($response->getContent() ?: '', true);
             static::assertNotEmpty($response);
-            static::assertCount(2, $response);
+            static::assertNotEmpty($data = $response['data']);
+            static::assertCount(2, $data);
 
-            $documentIds = array_merge($documentIds, $this->getDocumentIds($response));
+            $documentIds = array_merge($documentIds, $this->getDocumentIds($data));
         }
 
         $documents = $this->getDocumentByDocumentIds($documentIds);
@@ -299,9 +304,11 @@ class DocumentGeneratorControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         $response = json_decode($response->getContent() ?: '', true);
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
+        static::assertArrayHasKey($order->getId(), $response['errors']);
+        $error = $response['errors'][$order->getId()][0];
+        static::assertEquals('Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: ' . $order->getId(), $error['detail']);
     }
 
     public function testDownloadNoDocuments(): void
@@ -469,7 +476,7 @@ class DocumentGeneratorControllerTest extends TestCase
             $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
             $operations[$orderId] = $operation;
 
-            $result = $this->documentGenerator->generate($documentType, $operations, $context)->first();
+            $result = $this->documentGenerator->generate($documentType, $operations, $context)->getSuccess()->first();
 
             static::assertNotNull($result);
             $collection->add($result);

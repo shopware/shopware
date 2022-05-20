@@ -721,7 +721,7 @@ class SendMailActionTest extends TestCase
             $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
 
             $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
-            $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->first();
+            $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
 
             static::assertNotNull($document);
 

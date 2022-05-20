@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -79,7 +81,7 @@ class StornoRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
 
-        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
 
@@ -118,20 +120,37 @@ class StornoRendererTest extends TestCase
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
-
-        if (empty($processedTemplate)) {
-            $assertionCallback();
-
-            return;
-        }
-
-        $rendered = $processedTemplate[$orderId];
+        static::assertInstanceOf(RendererResult::class, $processedTemplate);
+        static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
+        $rendered = $processedTemplate->getSuccess()[$orderId];
         static::assertInstanceOf(RenderedDocument::class, $rendered);
-        static::assertArrayHasKey($orderId, $processedTemplate);
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
         $assertionCallback($rendered);
+    }
+
+    public function testRenderWithoutInvoice(): void
+    {
+        $cart = $this->generateDemoCart([7, 13]);
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $processedTemplate = $this->stornoRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertEmpty($processedTemplate->getSuccess());
+        static::assertNotEmpty($errors = $processedTemplate->getErrors());
+        static::assertArrayHasKey($orderId, $errors);
+        static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
+        static::assertEquals(
+            "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
+            ($errors[$orderId]->getMessage())
+        );
     }
 
     public function stornoNoteRendererDataProvider(): \Generator

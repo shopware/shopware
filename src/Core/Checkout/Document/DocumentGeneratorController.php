@@ -211,21 +211,6 @@ class DocumentGeneratorController extends AbstractController
      *      @OA\Response(
      *          response="200",
      *          description="Documents created successfully. The `api/_action/order/document/create` route can be used to download the document.",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="documentId",
-     *                      description="Identifier of the document.",
-     *                      type="string",
-     *                      pattern="^[0-9a-f]{32}$"),
-     *                  @OA\Property(
-     *                      property="documentDeepLink",
-     *                      description="A unique hash code which is required to open the document.",
-     *                      type="string"),
-     *              )
-     *          )
      *     )
      * )
      *
@@ -264,14 +249,7 @@ class DocumentGeneratorController extends AbstractController
             );
         }
 
-        $responseData = $this->documentGenerator->generate($documentTypeName, $operations, $context);
-
-        return new JsonResponse($responseData->map(function (DocumentIdStruct $documentIdStruct) {
-            return [
-                'documentId' => $documentIdStruct->getId(),
-                'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-            ];
-        }));
+        return new JsonResponse($this->documentGenerator->generate($documentTypeName, $operations, $context));
     }
 
     /**
@@ -360,6 +338,7 @@ To use file upload via url, the content type has to be `application/json` and th
         return new JsonResponse(
             [
                 'documentId' => $documentIdStruct->getId(),
+                'documentMediaId' => $documentIdStruct->getMediaId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
             ]
         );

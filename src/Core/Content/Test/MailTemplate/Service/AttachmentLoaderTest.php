@@ -81,7 +81,7 @@ class AttachmentLoaderTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId);
 
-        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($document);
 

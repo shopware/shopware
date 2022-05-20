@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
@@ -85,19 +87,24 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
+        static::assertInstanceOf(RendererResult::class, $processedTemplate);
+        if (!empty($processedTemplate->getSuccess())) {
+            static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
-        $rendered = $processedTemplate[$orderId];
+            $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertNotNull($lineItems = $order->getLineItems());
-        static::assertNotNull($firstLineItem = $lineItems->first());
-        static::assertNotNull($lastLineItem = $lineItems->last());
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-        static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
-        static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
+            static::assertNotNull($lineItems = $order->getLineItems());
+            static::assertNotNull($firstLineItem = $lineItems->first());
+            static::assertNotNull($lastLineItem = $lineItems->last());
+            static::assertStringContainsString('<html>', $rendered->getHtml());
+            static::assertStringContainsString('</html>', $rendered->getHtml());
+            static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
+            static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
 
-        $assertionCallback($rendered, $order);
+            $assertionCallback($rendered, $order);
+        } else {
+            $assertionCallback($order->getId(), $processedTemplate->getErrors());
+        }
     }
 
     public function invoiceDataProvider(): \Generator
@@ -140,6 +147,28 @@ class InvoiceRendererTest extends TestCase
                     )) ?? '',
                     preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
+            },
+        ];
+
+        yield 'render with syntax error' => [
+            [7, 19, 22],
+            function (): void {
+                $this->addEventListener(
+                    $this->getContainer()->get('event_dispatcher'),
+                    DocumentTemplateRendererParameterEvent::class,
+                    function (DocumentTemplateRendererParameterEvent $event): void {
+                        throw new \RuntimeException('Errors happened while rendering');
+                    }
+                );
+            },
+            function (string $orderId, array $errors): void {
+                static::assertNotEmpty($errors);
+                static::assertArrayHasKey($orderId, $errors);
+                static::assertEquals(
+                    'Errors happened while rendering',
+                    ($errors[$orderId]->getMessage())
+                );
+                $this->resetEventDispatcher();
             },
         ];
 

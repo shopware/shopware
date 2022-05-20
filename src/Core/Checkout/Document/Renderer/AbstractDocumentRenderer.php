@@ -11,10 +11,8 @@ abstract class AbstractDocumentRenderer
 
     /**
      * @param DocumentGenerateOperation[] $operations
-     *
-     * @return RenderedDocument[]
      */
-    abstract public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array;
+    abstract public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult;
 
     abstract public function getDecorated(): AbstractDocumentRenderer;
 }

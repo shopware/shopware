@@ -108,7 +108,7 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
         if (Feature::isActive('v6.5.0.0')) {
             $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
             $operation = new DocumentGenerateOperation($orderId);
-            $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context);
+            $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess();
 
             $documentStruct = $result->first();
         } else {

@@ -56,8 +56,10 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         return self::TYPE;
     }
 
-    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
+        $result = new RendererResult();
+
         $template = '@Framework/documents/invoice.html.twig';
 
         $ids = \array_map(function (DocumentGenerateOperation $operation) {
@@ -65,7 +67,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         }, $operations);
 
         if (empty($ids)) {
-            return [];
+            return $result;
         }
 
         $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
@@ -77,67 +79,72 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
         $this->eventDispatcher->dispatch(new InvoiceOrdersEvent($orders, $context));
 
-        $rendered = [];
-
         foreach ($orders as $order) {
-            if (!\array_key_exists($order->getId(), $operations)) {
-                continue;
+            $orderId = $order->getId();
+
+            try {
+                if (!\array_key_exists($orderId, $operations)) {
+                    continue;
+                }
+
+                /** @var DocumentGenerateOperation $operation */
+                $operation = $operations[$orderId];
+
+                $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
+
+                $config->merge($operation->getConfig());
+
+                $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+                $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+                $config->merge([
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+                    'documentNumber' => $number,
+                    'custom' => [
+                        'invoiceNumber' => $number,
+                    ],
+                ]);
+
+                if ($operation->isStatic()) {
+                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $result->addSuccess($orderId, $doc);
+
+                    continue;
+                }
+
+                /** @var LocaleEntity $locale */
+                $locale = $order->getLanguage()->getLocale();
+
+                $html = $this->documentTemplateRenderer->render(
+                    $template,
+                    [
+                        'order' => $order,
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode()
+                );
+
+                $doc = new RenderedDocument(
+                    $html,
+                    $number,
+                    $config->buildName(),
+                    $operation->getFileType(),
+                    $config->jsonSerialize(),
+                );
+
+                $result->addSuccess($orderId, $doc);
+            } catch (\Throwable $exception) {
+                $result->addError($orderId, $exception);
             }
-
-            /** @var DocumentGenerateOperation $operation */
-            $operation = $operations[$order->getId()];
-
-            $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
-
-            $config->merge($operation->getConfig());
-
-            $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
-
-            $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-            $config->merge([
-                'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
-                'documentNumber' => $number,
-                'custom' => [
-                    'invoiceNumber' => $number,
-                ],
-            ]);
-
-            if ($operation->isStatic()) {
-                $rendered[$order->getId()] = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
-
-                continue;
-            }
-
-            /** @var LocaleEntity $locale */
-            $locale = $order->getLanguage()->getLocale();
-
-            $html = $this->documentTemplateRenderer->render(
-                $template,
-                [
-                    'order' => $order,
-                    'config' => $config,
-                    'rootDir' => $this->rootDir,
-                    'context' => $context,
-                ],
-                $context,
-                $order->getSalesChannelId(),
-                $order->getLanguageId(),
-                $locale->getCode()
-            );
-
-            $doc = new RenderedDocument(
-                $html,
-                $number,
-                $config->buildName(),
-                $operation->getFileType(),
-                $config->jsonSerialize(),
-            );
-
-            $rendered[$order->getId()] = $doc;
         }
 
-        return $rendered;
+        return $result;
     }
 
     public function getDecorated(): AbstractDocumentRenderer

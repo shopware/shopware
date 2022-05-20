@@ -61,7 +61,7 @@ class DocumentRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $token);
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
-        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], $this->ids->context)->first();
+        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], $this->ids->context)->getSuccess()->first();
         static::assertNotNull($document);
         $deepLinkCode = '';
 

@@ -20,7 +20,7 @@ final class DocumentRendererRegistry
         $this->documentRenderers = $documentRenderers;
     }
 
-    public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
+    public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
         foreach ($this->documentRenderers as $documentRenderer) {
             if ($documentRenderer->supports() !== $documentType) {

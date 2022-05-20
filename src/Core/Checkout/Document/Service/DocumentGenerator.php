@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentIdCollection;
+use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
@@ -107,7 +107,7 @@ class DocumentGenerator
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
-        $document = $rendered[$operation->getOrderId()];
+        $document = $rendered->getSuccess()[$operation->getOrderId()];
 
         $document->setContent($this->pdfRenderer->render($document));
 
@@ -117,7 +117,7 @@ class DocumentGenerator
     /**
      * @param DocumentGenerateOperation[] $operations
      */
-    public function generate(string $documentType, array $operations, Context $context): DocumentIdCollection
+    public function generate(string $documentType, array $operations, Context $context): DocumentGenerationResult
     {
         $documentTypeId = $this->getDocumentTypeByName($documentType);
 
@@ -127,36 +127,47 @@ class DocumentGenerator
 
         $rendered = $this->rendererRegistry->render($documentType, $operations, $context, new DocumentRendererConfig());
 
-        $result = new DocumentIdCollection();
+        $result = new DocumentGenerationResult();
+
+        foreach ($rendered->getErrors() as $orderId => $error) {
+            $result->addError($orderId, $error);
+        }
+
         $records = [];
 
+        $success = $rendered->getSuccess();
+
         foreach ($operations as $orderId => $operation) {
-            $document = $rendered[$orderId] ?? null;
+            try {
+                $document = $success[$orderId] ?? null;
 
-            if ($document === null) {
-                continue;
+                if ($document === null) {
+                    continue;
+                }
+
+                $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $context, $operation->getDocumentId());
+
+                $deepLinkCode = Random::getAlphanumericString(32);
+                $id = $operation->getDocumentId() ?? Uuid::randomHex();
+
+                $mediaId = $this->resolveMediaId($operation, $context, $document);
+
+                $records[] = [
+                    'id' => $id,
+                    'documentTypeId' => $documentTypeId,
+                    'fileType' => $operation->getFileType(),
+                    'orderId' => $orderId,
+                    'static' => $operation->isStatic(),
+                    'documentMediaFileId' => $mediaId,
+                    'config' => $document->getConfig(),
+                    'deepLinkCode' => $deepLinkCode,
+                    'referencedDocumentId' => $operation->getReferencedDocumentId(),
+                ];
+
+                $result->addSuccess(new DocumentIdStruct($id, $deepLinkCode, $mediaId));
+            } catch (\Throwable $exception) {
+                $result->addError($orderId, $exception);
             }
-
-            $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $context, $operation->getDocumentId());
-
-            $deepLinkCode = Random::getAlphanumericString(32);
-            $id = $operation->getDocumentId() ?? Uuid::randomHex();
-
-            $mediaId = $this->resolveMediaId($operation, $context, $document);
-
-            $records[] = [
-                'id' => $id,
-                'documentTypeId' => $documentTypeId,
-                'fileType' => $operation->getFileType(),
-                'orderId' => $orderId,
-                'static' => $operation->isStatic(),
-                'documentMediaFileId' => $mediaId,
-                'config' => $document->getConfig(),
-                'deepLinkCode' => $deepLinkCode,
-                'referencedDocumentId' => $operation->getReferencedDocumentId(),
-            ];
-
-            $result->add(new DocumentIdStruct($id, $deepLinkCode, $mediaId));
         }
 
         $this->writeRecords($records, $context);
@@ -270,7 +281,7 @@ class DocumentGenerator
             $documentType->getTechnicalName(),
             [$document->getOrderId() => $operation],
             $context
-        )->first();
+        )->getSuccess()->first();
 
         if ($documentStruct === null) {
             return $document;

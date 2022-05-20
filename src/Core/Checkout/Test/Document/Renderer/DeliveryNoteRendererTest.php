@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Framework\Context;
@@ -80,24 +81,15 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertInstanceOf(DeliveryNoteOrdersEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getOrders());
-        $rendered = $processedTemplate[$orderId];
+        static::assertInstanceOf(RendererResult::class, $processedTemplate);
+        static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
+        $rendered = $processedTemplate->getSuccess()[$orderId];
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
         static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-        if (empty($processedTemplate)) {
-            $assertionCallback();
-
-            return;
-        }
-
         static::assertInstanceOf(DeliveryNoteOrdersEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getOrders());
-
-        $rendered = $processedTemplate[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
-        static::assertArrayHasKey($orderId, $processedTemplate);
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
@@ -108,8 +100,7 @@ class DeliveryNoteRendererTest extends TestCase
     {
         yield 'render delivery_note successfully' => [
             '2000',
-            function (string $deliveryNoteNumber, ?string $orderNumber = null, ?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (string $deliveryNoteNumber, ?string $orderNumber = null, RenderedDocument $rendered): void {
                 $html = $rendered->getHtml();
                 static::assertStringContainsString('<html>', $html);
                 static::assertStringContainsString('</html>', $html);
@@ -121,8 +112,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
-            function (string $deliveryNoteNumber, ?string $orderNumber = null, ?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (string $deliveryNoteNumber, ?string $orderNumber = null, RenderedDocument $rendered): void {
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
             },

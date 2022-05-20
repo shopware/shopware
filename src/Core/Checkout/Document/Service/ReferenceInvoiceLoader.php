@@ -29,7 +29,8 @@ final class ReferenceInvoiceLoader
 
         $builder->select([
             'LOWER(HEX(`document`.`id`)) as `id`',
-            'LOWER(HEX(`document`.`order_version_id`)) as `order_version_id`',
+            'LOWER(HEX(`document`.`order_id`)) as `orderId`',
+            'LOWER(HEX(`document`.`order_version_id`)) as `orderVersionId`',
             '`document`.`config` as `config`',
         ]);
 

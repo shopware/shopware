@@ -48,18 +48,29 @@ class DocumentApiService extends ApiService {
                     headers,
                 })
                 .then((response) => {
-                    const responseDoc = response.data[0];
+                    const responseDoc = response.data?.data;
 
-                    if (file && file instanceof File && responseDoc?.documentId) {
+                    if (file && file instanceof File && responseDoc && responseDoc[0]?.documentId) {
+                        const documentId = responseDoc[0]?.documentId;
                         const fileName = file.name.split('.').shift();
                         const fileExtension = file.name.split('.').pop();
                         // eslint-disable-next-line max-len
-                        route = `/_action/document/${responseDoc.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
+                        route = `/_action/document/${documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
                         headers['Content-Type'] = file.type;
                         this.httpClient.post(route, file, {
                             additionalParams,
                             headers,
                         });
+                    }
+
+                    const errors = response.data?.errors;
+
+                    if (errors && errors.hasOwnProperty(orderId)) {
+                        this.$listener(
+                            this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, errors[orderId].pop()),
+                        );
+
+                        return;
                     }
 
                     this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));

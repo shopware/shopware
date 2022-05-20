@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -43,10 +44,12 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
     public function testLoadWithoutDocument(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM document');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `document`');
 
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
+
+        $result = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `document`');
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
         static::assertEmpty($invoice);
@@ -80,5 +83,8 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId());
 
         static::assertEquals($invoiceStruct->getId(), $invoice['id']);
+        static::assertEquals($orderId, $invoice['orderId']);
+        static::assertEquals(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
+        static::assertNotEmpty($invoice['config']);
     }
 }

@@ -1037,7 +1037,7 @@ class OrderRouteTest extends TestCase
             ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
 
-        $doccument = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->first();
+        $doccument = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], Context::createDefaultContext())->getSuccess()->first();
 
         static::assertNotNull($doccument);
 

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -91,7 +90,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId);
 
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
@@ -112,7 +111,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateEmpty(): void
     {
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [], $this->context);
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [], $this->context)->getSuccess();
 
         static::assertCount(0, $documentStruct);
 
@@ -120,7 +119,7 @@ class DocumentGeneratorTest extends TestCase
 
         $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [
             $invalidOrderId => new DocumentGenerateOperation($invalidOrderId),
-        ], $this->context);
+        ], $this->context)->getSuccess();
 
         static::assertCount(0, $documentStruct);
     }
@@ -150,7 +149,7 @@ class DocumentGeneratorTest extends TestCase
         if ($preGenerateDoc) {
             $operation = new DocumentGenerateOperation($this->orderId);
 
-            $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context);
+            $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess();
             $document = $documents->first();
 
             static::assertNotNull($document);
@@ -233,7 +232,7 @@ class DocumentGeneratorTest extends TestCase
         $comment = 'this is a comment';
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, ['documentComment' => $comment]);
 
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
@@ -263,7 +262,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId);
 
-        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($invoiceStruct);
         static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
@@ -274,7 +273,7 @@ class DocumentGeneratorTest extends TestCase
         //create a storno bill which references the invoice
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], $invoice->getId());
 
-        $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($stornoStruct);
         static::assertTrue(Uuid::isValid($stornoStruct->getId()));
@@ -395,7 +394,7 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation($this->orderId);
 
-        $documentId = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentId = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($documentId);
 
         /** @var DocumentEntity $document */
@@ -435,7 +434,7 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $overrides);
 
-        $documentIdWithOverride = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+        $documentIdWithOverride = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($documentIdWithOverride);
 
         $document = $this->documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
@@ -457,7 +456,7 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
 
-        $documentInvoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentInvoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentInvoice);
         static::assertTrue(Uuid::isValid($documentInvoice->getId()));
@@ -492,12 +491,12 @@ class DocumentGeneratorTest extends TestCase
         $operationDelivery = new DocumentGenerateOperation($orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
 
         $documentIds = [];
-        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
 
         static::assertNotNull($invoice);
         $documentIds[] = $invoice->getId();
 
-        $delivery = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operationDelivery], $this->context)->first();
+        $delivery = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operationDelivery], $this->context)->getSuccess()->first();
 
         static::assertNotNull($delivery);
         $documentIds[] = $delivery->getId();
@@ -532,16 +531,32 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame(FileTypes::PDF, $deliveryDoc->getFileType());
     }
 
+    public function testGenerateDuplicatedDocumentNumber(): void
+    {
+        $documentConfiguration = new DocumentConfiguration();
+        $documentConfiguration->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
+
+        static::assertEmpty($result->getErrors());
+        static::assertNotEmpty($result->getSuccess()->getElements());
+
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operationInvoice], $this->context);
+        static::assertEmpty($result->getSuccess()->getElements());
+        static::assertNotEmpty($result->getErrors());
+        static::assertArrayHasKey($this->orderId, $result->getErrors());
+        static::assertEquals('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
+    }
+
     public function testCreateInvoiceIsExistingNumberPdf(): void
     {
-        $this->expectException(DocumentNumberAlreadyExistsException::class);
-
         $documentInvoiceConfiguration = new DocumentConfiguration();
         $documentInvoiceConfiguration->setDocumentNumber('1002');
 
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $documentInvoiceConfiguration->jsonSerialize());
 
-        $documentInvoice = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentInvoice = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentInvoice);
         static::assertTrue(Uuid::isValid($documentInvoice->getId()));
@@ -565,14 +580,17 @@ class DocumentGeneratorTest extends TestCase
             $documentInvoiceConfiguration->jsonSerialize()
         );
 
-        $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
+        static::assertNotEmpty($errors);
+        static::assertArrayHasKey($this->orderId, $errors);
+        static::assertSame(($errors[$this->orderId])->getMessage(), 'Document number 1002 has already been allocated.');
     }
 
     public function testGenerateStaticDocument(): void
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, true);
 
-        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
         static::assertNotNull($generatedDocument->getId());
@@ -584,7 +602,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, false);
 
-        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
         static::assertNotNull($generatedDocument->getId());
@@ -596,7 +614,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF);
 
-        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($invoiceStruct);
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
 
@@ -624,7 +642,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, true);
 
-        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($invoiceStruct);
 
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
@@ -676,7 +694,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
 
-        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
         static::assertNotNull($invoiceStruct);
         $documentMediaFileId = $invoiceStruct->getMediaId();
         $documentId = $invoiceStruct->getId();
@@ -777,7 +795,7 @@ class DocumentGeneratorTest extends TestCase
     private function createDocumentWithFile(): DocumentEntity
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF);
-        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));

@@ -68,7 +68,7 @@ class PdfRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
 
-        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($invoice);
         $invoiceId = $invoice->getId();
 
@@ -90,15 +90,15 @@ class PdfRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
-        static::assertArrayHasKey($orderId, $processedTemplate);
+        static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
+        static::assertInstanceOf(RenderedDocument::class, $processedTemplate->getSuccess()[$orderId]);
 
-        $rendered = $processedTemplate[$orderId]->getHtml();
+        $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertStringContainsString('<html>', $rendered);
-        static::assertStringContainsString('</html>', $rendered);
+        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('</html>', $rendered->getHtml());
 
-        $generatorOutput = $this->pdfRenderer->render($processedTemplate[$orderId]);
+        $generatorOutput = $this->pdfRenderer->render($rendered);
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);

@@ -65,8 +65,10 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         return self::TYPE;
     }
 
-    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
+        $result = new RendererResult();
+
         $template = '@Framework/documents/credit_note.html.twig';
 
         $ids = \array_map(function (DocumentGenerateOperation $operation) {
@@ -74,7 +76,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         }, $operations);
 
         if (empty($ids)) {
-            return [];
+            return $result;
         }
 
         $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
@@ -86,83 +88,90 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $this->eventDispatcher->dispatch(new CreditNoteOrdersEvent($orders, $context));
 
-        $rendered = [];
-
         foreach ($orders as $order) {
-            $operation = $operations[$order->getId()] ?? null;
+            $orderId = $order->getId();
 
-            if ($operation === null) {
-                continue;
+            try {
+                $operation = $operations[$orderId] ?? null;
+
+                if ($operation === null) {
+                    continue;
+                }
+
+                $lineItems = $order->getLineItems();
+                $creditItems = new OrderLineItemCollection();
+
+                if ($lineItems) {
+                    $creditItems = $lineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
+                }
+
+                if ($creditItems->count() === 0) {
+                    throw new DocumentGenerationException(
+                        'Can not generate credit note document because no credit line items exists. OrderId: ' . $operation->getOrderId()
+                    );
+                }
+
+                $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
+
+                $config->merge($operation->getConfig());
+
+                $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+                $referenceDocumentNumber = $this->getReferenceDocumentNumber($operation);
+
+                $config->merge([
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'documentNumber' => $number,
+                    'custom' => [
+                        'creditNoteNumber' => $number,
+                        'invoiceNumber' => $referenceDocumentNumber,
+                    ],
+                ]);
+
+                if ($operation->isStatic()) {
+                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $result->addSuccess($orderId, $doc);
+
+                    continue;
+                }
+
+                $price = $this->calculatePrice($creditItems, $order);
+
+                /** @var LocaleEntity $locale */
+                $locale = $order->getLanguage()->getLocale();
+
+                $html = $this->documentTemplateRenderer->render(
+                    $template,
+                    [
+                        'order' => $order,
+                        'creditItems' => $creditItems,
+                        'price' => $price->getTotalPrice() * -1,
+                        'amountTax' => $price->getCalculatedTaxes()->getAmount(),
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode()
+                );
+
+                $doc = new RenderedDocument(
+                    $html,
+                    $number,
+                    $config->buildName(),
+                    $operation->getFileType(),
+                    $config->jsonSerialize(),
+                );
+
+                $result->addSuccess($orderId, $doc);
+            } catch (\Throwable $exception) {
+                $result->addError($orderId, $exception);
             }
-
-            $lineItems = $order->getLineItems();
-            $creditItems = new OrderLineItemCollection();
-
-            if ($lineItems) {
-                $creditItems = $lineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
-            }
-
-            if ($creditItems->count() === 0) {
-                continue;
-            }
-
-            $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
-
-            $config->merge($operation->getConfig());
-
-            $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
-
-            $referenceDocumentNumber = $this->getReferenceDocumentNumber($operation);
-
-            $config->merge([
-                'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'documentNumber' => $number,
-                'custom' => [
-                    'creditNoteNumber' => $number,
-                    'invoiceNumber' => $referenceDocumentNumber,
-                ],
-            ]);
-
-            if ($operation->isStatic()) {
-                $rendered[$order->getId()] = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
-
-                continue;
-            }
-
-            $price = $this->calculatePrice($creditItems, $order);
-
-            /** @var LocaleEntity $locale */
-            $locale = $order->getLanguage()->getLocale();
-
-            $html = $this->documentTemplateRenderer->render(
-                $template,
-                [
-                    'order' => $order,
-                    'creditItems' => $creditItems,
-                    'price' => $price->getTotalPrice() * -1,
-                    'amountTax' => $price->getCalculatedTaxes()->getAmount(),
-                    'config' => $config,
-                    'rootDir' => $this->rootDir,
-                    'context' => $context,
-                ],
-                $context,
-                $order->getSalesChannelId(),
-                $order->getLanguageId(),
-                $locale->getCode()
-            );
-
-            $doc = new RenderedDocument(
-                $html,
-                $number,
-                $config->buildName(),
-                $operation->getFileType(),
-                $config->jsonSerialize(),
-            );
-
-            $rendered[$order->getId()] = $doc;
         }
 
-        return $rendered;
+        return $result;
     }
 
     public function getDecorated(): AbstractDocumentRenderer
@@ -179,7 +188,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $invoice = $this->referenceInvoiceLoader->load($operation->getOrderId(), $operation->getReferencedDocumentId());
 
         if (empty($invoice)) {
-            throw new DocumentGenerationException('Can not generate credit note because no invoice document exists. OrderId: ' . $operation->getOrderId());
+            throw new DocumentGenerationException('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());
         }
 
         $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);

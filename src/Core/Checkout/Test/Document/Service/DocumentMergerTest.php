@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Document\Service;
 
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
-use Shopware\Core\Checkout\Document\DocumentIdCollection;
+use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -131,7 +131,7 @@ class DocumentMergerTest extends TestCase
     public function testMergeWithoutStaticMedia(): void
     {
         $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
-        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentIdCollection());
+        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
@@ -167,7 +167,7 @@ class DocumentMergerTest extends TestCase
 
         for ($i = 0; $i < $numDocs; ++$i) {
             $deliveryOperation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
-            $result = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $deliveryOperation], $this->context)->first();
+            $result = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $deliveryOperation], $this->context)->getSuccess()->first();
             static::assertNotNull($result);
             $docIds[] = $result->getId();
 

@@ -146,7 +146,7 @@ trait DocumentTrait
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
         $operations[$orderId] = $operation;
 
-        return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context);
+        return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context)->getSuccess();
     }
 
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void

@@ -147,7 +147,7 @@ class DocumentMerger
             $documentType->getTechnicalName(),
             [$document->getOrderId() => $operation],
             $context
-        )->first();
+        )->getSuccess()->first();
 
         if ($documentStruct === null) {
             return null;

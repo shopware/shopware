@@ -253,7 +253,14 @@ describe('Order: Test order state', () => {
                     .click();
 
                     // Verify second invoice and check error notification
-                    cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 400);
+                    if (isActive) {
+                        cy.wait('@createDocumentCall').its('response').then(response => {
+                            expect(response.statusCode).to.equal(200);
+                            expect(Object.values(response.body.errors)[0][0].detail).to.equal(`Document number ${invoiceNumber} has already been allocated.`);
+                        });
+                    } else {
+                        cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 400);
+                    }
 
                     cy.awaitAndCheckNotification(`Document number ${invoiceNumber} has already been allocated.`);
                 });

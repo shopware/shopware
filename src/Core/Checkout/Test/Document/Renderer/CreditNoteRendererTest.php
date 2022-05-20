@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
@@ -81,8 +83,13 @@ class CreditNoteRendererTest extends TestCase
     /**
      * @dataProvider creditNoteRendererDataProvider
      */
-    public function testRender(array $possibleTaxes, array $creditPrices, \Closure $assertionCallback, array $additionalConfig = []): void
-    {
+    public function testRender(
+        array $possibleTaxes,
+        array $creditPrices,
+        ?\Closure $successCallback = null,
+        ?\Closure $errorCallback = null,
+        array $additionalConfig = []
+    ): void {
         $cart = $this->generateDemoCart($possibleTaxes);
         $cart = $this->generateCreditItems($cart, $creditPrices);
 
@@ -93,7 +100,7 @@ class CreditNoteRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
 
-        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
 
@@ -132,20 +139,48 @@ class CreditNoteRendererTest extends TestCase
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
+        static::assertInstanceOf(RendererResult::class, $processedTemplate);
 
-        if (empty($processedTemplate)) {
-            $assertionCallback();
+        if ($errorCallback) {
+            $errorCallback($orderId, $processedTemplate->getErrors());
+        } else {
+            static::assertNotEmpty($processedTemplate->getSuccess());
+            static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
+            $rendered = $processedTemplate->getSuccess()[$orderId];
+            static::assertInstanceOf(RenderedDocument::class, $rendered);
+            static::assertStringContainsString('<html>', $rendered->getHtml());
+            static::assertStringContainsString('</html>', $rendered->getHtml());
 
-            return;
+            if ($successCallback) {
+                $successCallback($rendered);
+            }
+
+            static::assertEmpty($processedTemplate->getErrors());
         }
+    }
 
-        $rendered = $processedTemplate[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
-        static::assertArrayHasKey($orderId, $processedTemplate);
-        static::assertStringContainsString('<html>', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
+    public function testRenderWithoutInvoice(): void
+    {
+        $cart = $this->generateDemoCart([7, 13]);
+        $cart = $this->generateCreditItems($cart, [100, 200]);
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
-        $assertionCallback($rendered);
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $processedTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertEmpty($processedTemplate->getSuccess());
+        static::assertNotEmpty($errors = $processedTemplate->getErrors());
+        static::assertArrayHasKey($orderId, $errors);
+        static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
+        static::assertEquals(
+            "Unable to generate document. Can not generate credit note document because no invoice document exists. OrderId: $orderId",
+            ($errors[$orderId]->getMessage())
+        );
     }
 
     public function creditNoteRendererDataProvider(): \Generator
@@ -153,9 +188,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note successfully' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
-
+            function (RenderedDocument $rendered): void {
                 foreach ([-100, -200, -300] as $price) {
                     static::assertStringContainsString('credit' . $price, $rendered->getHtml());
                 }
@@ -172,24 +205,31 @@ class CreditNoteRendererTest extends TestCase
                     $rendered->getHtml()
                 );
             },
+            null,
         ];
 
         yield 'render credit_note without credit items' => [
             [7, 19, 22],
             [],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNull($rendered);
+            null,
+            function (string $orderId, array $errors): void {
+                static::assertNotEmpty($errors);
+                static::assertArrayHasKey($orderId, $errors);
+                static::assertEquals(
+                    "Unable to generate document. Can not generate credit note document because no credit line items exists. OrderId: $orderId",
+                    ($errors[$orderId]->getMessage())
+                );
             },
         ];
 
         yield 'render credit_note with document number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (RenderedDocument $rendered): void {
                 static::assertEquals('CREDIT_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('credit_note_CREDIT_NOTE_9999', $rendered->getName());
             },
+            null,
             [
                 'documentNumber' => 'CREDIT_NOTE_9999',
             ],
@@ -198,8 +238,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (RenderedDocument $rendered): void {
                 static::assertEquals('1000', $rendered->getNumber());
                 static::assertEquals('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -207,6 +246,7 @@ class CreditNoteRendererTest extends TestCase
                 static::assertArrayHasKey('invoiceNumber', $config['custom']);
                 static::assertEquals('INVOICE_9999', $config['custom']['invoiceNumber']);
             },
+            null,
             [
                 'custom' => [
                     'invoiceNumber' => 'INVOICE_9999',
@@ -217,8 +257,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note without invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
+            function (RenderedDocument $rendered): void {
                 static::assertEquals('1000', $rendered->getNumber());
                 static::assertEquals('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();

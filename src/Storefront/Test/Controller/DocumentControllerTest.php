@@ -90,7 +90,7 @@ class DocumentControllerTest extends TestCase
             InvoiceRenderer::TYPE,
             [$operation->getOrderId() => $operation],
             $context,
-        )->first();
+        )->getSuccess()->first();
 
         static::assertNotNull($document);
 

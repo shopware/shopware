@@ -56,8 +56,10 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         return self::TYPE;
     }
 
-    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
+        $result = new RendererResult();
+
         $template = '@Framework/documents/delivery_note.html.twig';
 
         $ids = \array_map(function (DocumentGenerateOperation $operation) {
@@ -65,7 +67,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         }, $operations);
 
         if (empty($ids)) {
-            return [];
+            return $result;
         }
 
         $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
@@ -77,76 +79,81 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context));
 
-        $rendered = [];
-
         foreach ($orders as $order) {
-            if (!\array_key_exists($order->getId(), $operations)) {
-                continue;
+            $orderId = $order->getId();
+
+            try {
+                if (!\array_key_exists($order->getId(), $operations)) {
+                    continue;
+                }
+
+                /** @var DocumentGenerateOperation $operation */
+                $operation = $operations[$order->getId()];
+
+                $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
+
+                $config->merge($operation->getConfig());
+
+                $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+                $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                $customConfig = $operation->getConfig()['custom'] ?? [];
+
+                $config->merge([
+                    'documentNumber' => $number,
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+                    'custom' => [
+                        'deliveryNoteNumber' => $number,
+                        'deliveryDate' => $customConfig['deliveryDate'] ?? $now,
+                        'deliveryNoteDate' => $customConfig['deliveryNoteDate'] ?? $now,
+                    ],
+                ]);
+
+                if ($operation->isStatic()) {
+                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    $result->addSuccess($orderId, $doc);
+
+                    continue;
+                }
+
+                $deliveries = null;
+                if ($order->getDeliveries()) {
+                    $deliveries = $order->getDeliveries()->first();
+                }
+
+                /** @var LocaleEntity $locale */
+                $locale = $order->getLanguage()->getLocale();
+
+                $html = $this->documentTemplateRenderer->render(
+                    $template,
+                    [
+                        'order' => $order,
+                        'orderDelivery' => $deliveries,
+                        'config' => $config,
+                        'rootDir' => $this->rootDir,
+                        'context' => $context,
+                    ],
+                    $context,
+                    $order->getSalesChannelId(),
+                    $order->getLanguageId(),
+                    $locale->getCode()
+                );
+
+                $doc = new RenderedDocument(
+                    $html,
+                    $number,
+                    $config->buildName(),
+                    $operation->getFileType(),
+                    $config->jsonSerialize(),
+                );
+
+                $result->addSuccess($orderId, $doc);
+            } catch (\Throwable $exception) {
+                $result->addError($orderId, $exception);
             }
-
-            /** @var DocumentGenerateOperation $operation */
-            $operation = $operations[$order->getId()];
-
-            $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
-
-            $config->merge($operation->getConfig());
-
-            $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
-
-            $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $customConfig = $operation->getConfig()['custom'] ?? [];
-
-            $config->merge([
-                'documentNumber' => $number,
-                'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
-                'custom' => [
-                    'deliveryNoteNumber' => $number,
-                    'deliveryDate' => $customConfig['deliveryDate'] ?? $now,
-                    'deliveryNoteDate' => $customConfig['deliveryNoteDate'] ?? $now,
-                ],
-            ]);
-
-            if ($operation->isStatic()) {
-                $rendered[$order->getId()] = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
-
-                continue;
-            }
-
-            $deliveries = null;
-            if ($order->getDeliveries()) {
-                $deliveries = $order->getDeliveries()->first();
-            }
-
-            /** @var LocaleEntity $locale */
-            $locale = $order->getLanguage()->getLocale();
-
-            $html = $this->documentTemplateRenderer->render(
-                $template,
-                [
-                    'order' => $order,
-                    'orderDelivery' => $deliveries,
-                    'config' => $config,
-                    'rootDir' => $this->rootDir,
-                    'context' => $context,
-                ],
-                $context,
-                $order->getSalesChannelId(),
-                $order->getLanguageId(),
-                $locale->getCode()
-            );
-
-            $doc = new RenderedDocument(
-                $html,
-                $number,
-                $config->buildName(),
-                $operation->getFileType(),
-                $config->jsonSerialize(),
-            );
-
-            $rendered[$order->getId()] = $doc;
         }
 
-        return $rendered;
+        return $result;
     }
 
     public function getDecorated(): AbstractDocumentRenderer

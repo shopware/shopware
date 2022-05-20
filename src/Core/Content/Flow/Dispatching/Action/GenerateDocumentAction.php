@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
@@ -41,6 +42,8 @@ class GenerateDocumentAction extends FlowAction
      */
     private NumberRangeValueGeneratorInterface $valueGenerator;
 
+    private LoggerInterface $logger;
+
     /**
      * @internal
      */
@@ -48,12 +51,14 @@ class GenerateDocumentAction extends FlowAction
         DocumentService $documentService,
         DocumentGenerator $documentGenerator,
         NumberRangeValueGeneratorInterface $valueGenerator,
-        Connection $connection
+        Connection $connection,
+        LoggerInterface $logger
     ) {
         $this->documentService = $documentService;
         $this->documentGenerator = $documentGenerator;
         $this->connection = $connection;
         $this->valueGenerator = $valueGenerator;
+        $this->logger = $logger;
     }
 
     public static function getName(): string
@@ -129,7 +134,13 @@ class GenerateDocumentAction extends FlowAction
 
             $operation = new DocumentGenerateOperation($baseEvent->getOrderId(), $fileType, $config, null, $static);
 
-            $this->documentGenerator->generate($documentType, [$baseEvent->getOrderId() => $operation], $baseEvent->getContext())->first();
+            $result = $this->documentGenerator->generate($documentType, [$baseEvent->getOrderId() => $operation], $baseEvent->getContext());
+
+            if (!empty($result->getErrors())) {
+                foreach ($result->getErrors() as $error) {
+                    $this->logger->error($error->getMessage());
+                }
+            }
 
             return;
         }

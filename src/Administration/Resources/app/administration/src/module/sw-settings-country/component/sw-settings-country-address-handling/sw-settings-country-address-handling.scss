@@ -59,4 +59,28 @@
     &__button-reset.sw-button {
         margin: 38px 0 28px;
     }
+
+    .advanced-postal-code {
+        position: relative;
+
+        .sw-field--switch {
+            width: 100%;
+            padding: 0 16px;
+            margin: 0;
+            position: absolute;
+        }
+
+        .sw-field--text {
+            min-height: 48px;
+            margin-bottom: 0;
+        }
+
+        .sw-field--text > div {
+            margin-top: 26px;
+        }
+
+        .sw-field--text.is--disabled > div {
+            display: none;
+        }
+    }
 }

@@ -73,6 +73,9 @@ class BillingCountryRule extends Rule
         return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

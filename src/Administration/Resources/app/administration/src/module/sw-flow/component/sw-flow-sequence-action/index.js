@@ -1,7 +1,7 @@
 import orderBy from 'lodash/orderBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
-import { ACTION } from '../../constant/flow.constant';
+import { ACTION, ACTION_GROUP, GENERAL_GROUP } from '../../constant/flow.constant';
 
 const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -62,6 +62,28 @@ Component.register('sw-flow-sequence-action', {
             });
 
             return this.sortActionOptions(actions);
+        },
+
+        groups() {
+            const groups = this.actionGroups.map(group => {
+                return {
+                    id: group,
+                    label: this.$tc(`sw-flow.actions.group.${group}`),
+                };
+            });
+
+            if (this.appFlowActions.length) {
+                const action = this.appFlowActions[0];
+                const appGroup = this.actionGroups.find(group => group === action?.app?.name);
+                if (!appGroup) {
+                    groups.unshift({
+                        id: action?.app?.name,
+                        label: action?.app?.label,
+                    });
+                }
+            }
+
+            return groups;
         },
 
         sequenceData() {
@@ -138,7 +160,7 @@ Component.register('sw-flow-sequence-action', {
                 'customFields',
                 'triggerEvent',
             ]),
-        ...mapGetters('swFlowState', ['availableActions']),
+        ...mapGetters('swFlowState', ['availableActions', 'actionGroups']),
     },
 
     watch: {
@@ -342,6 +364,7 @@ Component.register('sw-flow-sequence-action', {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
+                    group: appAction.app?.name,
                 };
             }
 
@@ -349,6 +372,7 @@ Component.register('sw-flow-sequence-action', {
             return {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
+                group: ACTION_GROUP[actionName] || GENERAL_GROUP,
             };
         },
 
@@ -632,10 +656,19 @@ Component.register('sw-flow-sequence-action', {
 
         sortActionOptions(actions) {
             const stopAction = actions.pop();
-            const ordered = orderBy(actions, ['label']);
-            ordered.push(stopAction);
+            actions = orderBy(actions, ['group', 'label']);
 
-            return ordered;
+            actions.forEach((action) => {
+                if (action.group && action.group !== GENERAL_GROUP) return;
+
+                action.group = action.group || GENERAL_GROUP;
+
+                actions.push(actions.splice(actions.findIndex(el => el.group === GENERAL_GROUP), 1)[0]);
+            });
+
+            actions.push(stopAction);
+
+            return actions;
         },
     },
 });

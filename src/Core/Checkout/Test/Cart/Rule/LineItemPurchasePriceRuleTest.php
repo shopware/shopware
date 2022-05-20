@@ -10,9 +10,16 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -21,6 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class LineItemPurchasePriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
+    use IntegrationTestBehaviour;
 
     private LineItemPurchasePriceRule $rule;
 
@@ -39,7 +47,39 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $ruleConstraints = $this->rule->getConstraints();
 
         static::assertArrayHasKey('amount', $ruleConstraints, 'Rule Constraint amount is not defined');
+        static::assertArrayHasKey('isNet', $ruleConstraints, 'Rule Constraint isNet is not defined');
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
+    }
+
+    public function testValidateWithInvalidValue(): void
+    {
+        try {
+            $this->getContainer()->get('rule_condition.repository')->create([
+                [
+                    'type' => $this->rule->getName(),
+                    'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'operator' => '===',
+                        'amount' => 'foobar',
+                    ],
+                ],
+            ], Context::createDefaultContext());
+            static::fail('Exception was not thrown');
+        } catch (WriteException $stackException) {
+            static::assertGreaterThan(0, \count($stackException->getExceptions()));
+            $exceptions = iterator_to_array($stackException->getErrors());
+
+            static::assertCount(3, $exceptions);
+
+            static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
+            static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
+
+            static::assertSame('/0/value/isNet', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotNull::IS_NULL_ERROR, $exceptions[1]['code']);
+
+            static::assertSame('/0/value/amount', $exceptions[2]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[2]['code']);
+        }
     }
 
     /**

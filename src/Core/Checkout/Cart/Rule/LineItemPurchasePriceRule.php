@@ -58,9 +58,8 @@ class LineItemPurchasePriceRule extends Rule
     {
         $constraints = [
             'operator' => RuleConstraints::numericOperators(),
+            'isNet' => RuleConstraints::bool(true),
         ];
-
-        $constraints['operator']['isNet'] = RuleConstraints::bool();
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;

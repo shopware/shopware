@@ -13145,31 +13145,6 @@ parameters:
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
 
 		-
-			message: "#^Cannot access offset 'query' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^Offset 'path' does not exist on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StoreApiProxyControllerTest\\:\\:\\$customerRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StoreApiProxyControllerTest\\:\\:\\$ids is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StoreApiProxyControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\TestController\\:\\:addFlash\\(\\) has parameter \\$message with no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/StorefrontControllerTest.php

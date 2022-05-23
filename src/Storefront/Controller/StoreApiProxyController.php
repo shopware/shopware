@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
  *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @deprecated tag:v6.5.0 - will be removed
  */
 class StoreApiProxyController
 {
@@ -52,9 +53,16 @@ class StoreApiProxyController
     /**
      * @Since("6.3.2.0")
      * @Route("/_proxy/store-api", name="frontend.store-api.proxy", defaults={"XmlHttpRequest"=true})
+     *
+     * @deprecated tag:v6.5.0 - will be removed, use a custom controller instead
      */
     public function proxy(Request $request, SalesChannelContext $context): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'The storefront API-Route "/_proxy/store-api" is deprecated and will be removed in v6.5.0.0. Please write a custom controller that uses the store-api internally.'
+        );
+
         $storeApiRequest = $this->setupStoreApiRequest($request, $context);
 
         return $this->wrapInStoreApiRoute($storeApiRequest, function () use ($storeApiRequest): Response {

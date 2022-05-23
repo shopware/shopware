@@ -10,8 +10,15 @@ describe('Category: SDK Test', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
             });
     });
+
     it('@sdk: add main module', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 
@@ -34,6 +41,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.smart-bar__content')
             .contains('My App');
     });
+
     it('@sdk: check main module with searchbar', ()=> {
         cy.onlyOnFeature('FEATURE_NEXT_17950');
 

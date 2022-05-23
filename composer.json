@@ -145,7 +145,7 @@
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
         "twig/twig": "~3.3.8",
-        "zircote/swagger-php": "3.3.2",
+        "zircote/swagger-php": "~3.3.6",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },
     "require-dev": {
@@ -414,7 +414,7 @@
              "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
              "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
              "Shopware\\Docs\\Test\\": "src/Docs/Test",
-            "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
+             "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
              "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
              "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
              "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",

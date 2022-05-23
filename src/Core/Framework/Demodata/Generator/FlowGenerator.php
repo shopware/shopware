@@ -295,7 +295,7 @@ class FlowGenerator implements DemodataGeneratorInterface
 
         for ($i = 0; $i < 10; ++$i) {
             $payload[] = [
-                'name' => $this->faker->word,
+                'name' => $this->faker->word(),
             ];
         }
 

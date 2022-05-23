@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\System\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use const PHP_EOL;
 
 class SyncComposerVersionCommand extends Command
 {
@@ -40,7 +41,7 @@ class SyncComposerVersionCommand extends Command
                     }
                 }
             }
-            file_put_contents($bundleJsonPath, json_encode($bundleJson, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+            file_put_contents($bundleJsonPath, json_encode($bundleJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . PHP_EOL);
         }
 
         return self::SUCCESS;

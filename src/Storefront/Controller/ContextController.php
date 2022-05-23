@@ -120,7 +120,7 @@ class ContextController extends StorefrontController
             $route = 'frontend.home.page';
         }
 
-        $params = $request->request->get('redirectParameters', json_encode([]));
+        $params = $request->request->get('redirectParameters', []);
 
         if (\is_string($params)) {
             $params = json_decode($params, true);

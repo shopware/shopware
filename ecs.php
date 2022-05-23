@@ -53,6 +53,7 @@ use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionS
 return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->sets([
         SetList::SYMFONY,
+        SetList::SYMFONY_RISKY,
         SetList::ARRAY,
         SetList::CONTROL_STRUCTURES,
         SetList::STRICT,

@@ -19,6 +19,12 @@ describe('Category: SDK Test', ()=> {
                 cy.wait('@searchLocale')
                     .its('response.statusCode')
                     .should('equal', 200);
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
             });
     });
     it('@sdk: add menu item', ()=> {

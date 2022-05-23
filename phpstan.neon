@@ -55,8 +55,6 @@ parameters:
             message: '#Service ".*" is private#'
             path: src/**/*Test.php
 
-        # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
-        - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # Method gets always an EntityCollection
         -
             message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'

@@ -9,7 +9,7 @@
     "homepage": "http://www.shopware.com",
     "license": "MIT",
     "autoload": {
-        "files":[
+        "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
             "Framework/Adapter/Twig/functions.php"
         ],
@@ -132,7 +132,7 @@
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
         "twig/twig": "~3.3.8",
-        "zircote/swagger-php": "3.3.2",
+        "zircote/swagger-php": "~3.3.6",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },
     "require-dev": {

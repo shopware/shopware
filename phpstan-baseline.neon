@@ -7806,41 +7806,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CategoryGenerator\\:\\:getRootCategoryId\\(\\) should return string but returns array\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CategoryGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CategoryGenerator\\:\\:randomDepartment\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CategoryGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CustomFieldGenerator\\:\\:generateCustomFields\\(\\) has parameter \\$count with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CustomFieldGenerator\\:\\:generateCustomFields\\(\\) has parameter \\$entityName with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CustomFieldGenerator\\:\\:randomCustomFieldValue\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
-
-		-
-			message: "#^Offset 'attributes' does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$max of method Symfony\\\\Component\\\\Console\\\\Style\\\\SymfonyStyle\\:\\:progressStart\\(\\) expects int, float\\|int\\<1, max\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php

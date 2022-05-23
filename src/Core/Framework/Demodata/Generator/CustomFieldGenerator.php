@@ -38,9 +38,12 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         return CustomFieldSetDefinition::class;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
+     */
     public function getRandomSet(): ?array
     {
-        return $this->attributeSets ? $this->attributeSets[array_rand($this->attributeSets)] : null;
+        return $this->attributeSets[array_rand($this->attributeSets)];
     }
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
@@ -57,7 +60,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $console->progressFinish();
 
         $relations = $options['relations'];
-        $sum = array_sum($relations);
+        $sum = (int) array_sum($relations);
         if ($sum <= 0) {
             return;
         }
@@ -72,7 +75,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
             $console->comment('\nSet attributes for ' . $count . ' ' . $relation . ' entities');
 
             $rndSet = $this->getRandomSet();
-            $this->generateCustomFields($relation, $count, $rndSet['attributes'], $context);
+            if ($rndSet !== null) {
+                $this->generateCustomFields($relation, $count, $rndSet['attributes'], $context);
+            }
 
             $console->progressAdvance($count);
         }
@@ -180,14 +185,14 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     private function generateCustomFieldSet(array $options, DemodataContext $context): void
     {
         $relationNames = array_keys($options['relations']);
-        $relations = array_map(function ($rel) {
+        $relations = array_map(static function ($rel) {
             return ['id' => Uuid::randomHex(), 'entityName' => $rel];
         }, $relationNames);
 
         $attributeCount = random_int(1, 5);
         $attributes = [];
 
-        $setName = $context->getFaker()->unique()->category;
+        $setName = $context->getFaker()->unique()->format('category');
         $prefix = 'custom_';
 
         for ($j = 0; $j < $attributeCount; ++$j) {
@@ -209,7 +214,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $this->attributeSetRepository->upsert([$set], $context->getContext());
     }
 
-    private function generateCustomFields($entityName, $count, array $attributes, DemodataContext $context): void
+    private function generateCustomFields(string $entityName, int $count, array $attributes, DemodataContext $context): void
     {
         $repo = $this->definitionRegistry->getRepository($entityName);
 
@@ -232,6 +237,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         }
     }
 
+    /**
+     * @return mixed
+     */
     private function randomCustomFieldValue(string $type, Generator $faker)
     {
         switch ($type) {
@@ -245,7 +253,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                 return random_int(-1000000, 1000000);
 
             case CustomFieldTypes::DATETIME:
-                return $faker->dateTime;
+                return $faker->dateTime();
 
             case CustomFieldTypes::TEXT:
             default:

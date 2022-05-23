@@ -36,7 +36,6 @@ describe('Flow builder: Test crud operations', () => {
         // Save
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
 
         // Verify successful save
         cy.get('.sw-loader__element').should('not.exist');
@@ -44,8 +43,6 @@ describe('Flow builder: Test crud operations', () => {
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click({force: true});
-        cy.get('.sw-flow-leave-page-modal').should('be.visible');
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v1');
     });
@@ -122,7 +119,6 @@ describe('Flow builder: Test crud operations', () => {
 
         // Verify correct detail page
         cy.get('.smart-bar__header h2').contains('Order placed');
-
 
         cy.get('#sw-field--flow-name').clearTypeAndCheck('Order placed v2');
         cy.get('.sw-flow-detail__tab-flow').click();

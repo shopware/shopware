@@ -2,6 +2,7 @@ import { ACTION, GROUPS } from '../constant/flow.constant';
 
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
+const { types } = Shopware.Utils;
 
 export default {
     namespaced: true,
@@ -11,6 +12,7 @@ export default {
             eventName: '',
             sequences: [],
         },
+        originFlow: {},
         triggerEvent: {},
         triggerActions: [],
         invalidSequences: [],
@@ -25,6 +27,13 @@ export default {
     mutations: {
         setFlow(state, flow) {
             state.flow = flow;
+        },
+
+        setOriginFlow(state, flow) {
+            state.originFlow = {
+                ...flow,
+                sequences: Array.from(flow.sequences).map(item => Object.assign(item, {})),
+            };
         },
 
         setTriggerActions(state, actions) {
@@ -129,6 +138,21 @@ export default {
     getters: {
         sequences(state) {
             return state.flow.sequences;
+        },
+
+        hasFlowChanged(state) {
+            const flow = {
+                ...state.flow,
+                sequences: Array.from(state.flow.sequences).filter(item => {
+                    if (item.actionName || item.ruleId) {
+                        return Object.assign(item, {});
+                    }
+
+                    return false;
+                }),
+            };
+
+            return !types.isEqual(state.originFlow, flow);
         },
 
         isSequenceEmpty(state) {

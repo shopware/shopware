@@ -149,7 +149,6 @@ describe('Flow builder: Test acl privilege', () => {
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click({force: true});
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v1');
     });

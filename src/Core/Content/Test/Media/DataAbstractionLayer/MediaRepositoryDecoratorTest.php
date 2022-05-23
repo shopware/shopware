@@ -14,18 +14,21 @@ use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -56,11 +59,6 @@ class MediaRepositoryDecoratorTest extends TestCase
     private $orderRepository;
 
     /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    /**
      * @var Context
      */
     private $context;
@@ -71,7 +69,6 @@ class MediaRepositoryDecoratorTest extends TestCase
         $this->documentRepository = $this->getContainer()->get('document.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testPrivateMediaNotReadable(): void
@@ -100,6 +97,57 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         static::assertNotNull($media);
         static::assertEquals(0, $media->count());
+    }
+
+    public function testDeletePrivateMedia(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $ids->get('media'),
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $ids->get('media') . '-' . (new \DateTime())->getTimestamp(),
+                    'private' => true,
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 200,
+                            'highDpi' => false,
+                        ],
+                    ],
+                ],
+            ],
+            $context
+        );
+
+        $media = $this->getContainer()->get('media.repository')
+            ->search(new Criteria([$ids->get('media')]), $context)
+            ->first();
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+
+        $path = $urlGenerator->getRelativeMediaUrl($media);
+        // simulate file
+        $fileSystem->write($path, 'foo');
+
+        // ensure that file system knows the file
+        static::assertTrue($fileSystem->has($path));
+
+        $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+        $this->getContainer()->get('media.repository')
+            ->delete([['id' => $ids->get('media')]], $context);
+
+        // after deleting the entity, the file should be deleted too
+        static::assertFalse($fileSystem->has($path));
     }
 
     public function testPrivateMediaReadableThroughAssociation(): void
@@ -155,12 +203,11 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        /** @var EntitySearchResult|null $media */
-        $media = null;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository): void {
-            $media = $mediaRepository->search(new Criteria([$mediaId]), $context);
+        $media = $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, $mediaRepository) {
+            return $mediaRepository->search(new Criteria([$mediaId]), $context);
         });
 
+        static::assertInstanceOf(EntitySearchResult::class, $media);
         static::assertEquals(0, $media->count());
 
         $documentRepository = $this->documentRepository;
@@ -223,7 +270,10 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($mediaPath, $resource);
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -261,8 +311,14 @@ class MediaRepositoryDecoratorTest extends TestCase
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($mediaPath, $resource);
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($thumbnailPath, $resource);
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -313,8 +369,15 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($firstPath, $resource);
+
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($secondPath, $resource);
 
         $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
@@ -358,7 +421,10 @@ class MediaRepositoryDecoratorTest extends TestCase
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($secondPath, $resource);
 
         static::assertTrue($this->getPublicFilesystem()->has($secondPath));
 
@@ -387,8 +453,10 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->runWorker();
 
-        static::assertCount(1, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds());
-        static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
+        $media = $event->getEventByEntityName(MediaDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $media);
+        static::assertCount(1, $media->getIds());
+        static::assertEquals($firstId, $media->getIds()[0]);
     }
 
     public function testDeleteWithAlreadyDeletedFile(): void
@@ -412,8 +480,10 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->runWorker();
 
-        static::assertCount(1, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds());
-        static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
+        $media = $event->getEventByEntityName(MediaDefinition::ENTITY_NAME);
+        static::assertInstanceOf(EntityWrittenEvent::class, $media);
+        static::assertCount(1, $media->getIds());
+        static::assertEquals($firstId, $media->getIds()[0]);
     }
 
     public function testItDoesNotDeleteFilesIfMediaHasDeleteRestrictions(): void
@@ -441,7 +511,10 @@ class MediaRepositoryDecoratorTest extends TestCase
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaUrl, fopen(self::FIXTURE_FILE, 'rb'));
+        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        static::assertNotFalse($resource);
+
+        $this->getPublicFilesystem()->putStream($mediaUrl, $resource);
 
         try {
             $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
@@ -477,6 +550,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $event = $this->mediaRepository->delete([['id' => $mediaId]], $this->context)->getEventByEntityName(OrderLineItemDefinition::ENTITY_NAME);
 
+        static::assertInstanceOf(EntityWrittenEvent::class, $event);
         $this->runWorker();
 
         $payload = $event->getPayloads()[0];

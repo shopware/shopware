@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use EntityRepository type hint instead
+ */
 interface EntityRepositoryInterface
 {
     public function getDefinition(): EntityDefinition;

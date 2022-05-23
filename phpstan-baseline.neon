@@ -2201,16 +2201,6 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecorator\\:\\:getRawIds\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaRepositoryDecorator.php
-
-		-
 			message: "#^Cannot call method getConfiguration\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DeleteNotUsedMediaService.php
@@ -2334,66 +2324,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Subscriber/MediaLoadedSubscriber.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createNewImage\\(\\) should return resource but returns resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#1 \\$dst_im of function imagecopyresampled expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#1 \\$im of function imagealphablending expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#1 \\$im of function imagecolorallocate expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#1 \\$im of function imagefill expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#1 \\$im of function imagesavealpha expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:put\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#2 \\$contents of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:update\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Parameter \\#2 \\$type of method Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\:\\:createNewImage\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType, Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
 			message: "#^Parameter \\#1 \\$character of function ord expects string, string\\|false given\\.$#"
@@ -4816,51 +4746,6 @@ parameters:
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaFolderRepositoryDecoratorTest.php
 
 		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getPayloads\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 7
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\MediaRepositoryDecoratorTest\\:\\:\\$stateMachineRegistry is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaThumbnailRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\MediaThumbnailRepositoryTest\\:\\:createThumbnailFile\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaThumbnailRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaThumbnailRepositoryTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
@@ -5099,101 +4984,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<int\\|string, array\\<int\\|string, int\\|string\\>\\|int\\|string\\>\\|string given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method addFlag\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method deleteThumbnails\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method filter\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method generate\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getConfiguration\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getMediaThumbnailSizes\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getRelativeMediaUrl\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGeneratorInterface\\|null\\.$#"
-			count: 9
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method getRelativeThumbnailUrl\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGeneratorInterface\\|null\\.$#"
-			count: 7
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 14
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method setMediaThumbnailSizes\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method setThumbnailQuality\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot call method updateThumbnails\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\\|null\\.$#"
-			count: 9
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Cannot use array destructuring on array\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of function getimagesizefromstring expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 7
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
@@ -6854,11 +6644,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:getUsage\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Only iterables can be unpacked, Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null given in argument \\#1\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityTranslationDefinition\\:\\:getParentDefinition\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"

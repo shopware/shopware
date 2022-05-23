@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
 
+/**
+ * @internal
+ */
 class PreWriteValidationEventTest extends TestCase
 {
     /**

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Media\DataAbstractionLayer;
+namespace Shopware\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\AdapterInterface;
@@ -44,6 +44,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         UrlGeneratorInterface $urlGenerator,
         EventDispatcherInterface $dispatcher,
@@ -115,9 +118,12 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
     private function handleMediaDeletion(array $affected, Context $context): void
     {
-        $media = $this->mediaRepository->search(new Criteria($affected), $context);
+        $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($affected) {
+            return $this->mediaRepository->search(new Criteria($affected), $context);
+        });
 
-        $files = [];
+        $privatePaths = [];
+        $publicPaths = [];
         $thumbnails = [];
 
         /** @var MediaEntity $mediaEntity */
@@ -125,16 +131,24 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
             if (!$mediaEntity->hasFile()) {
                 continue;
             }
-            $files[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+
+            if ($mediaEntity->isPrivate()) {
+                $privatePaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+            } else {
+                $publicPaths[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+            }
+
+            if (!$mediaEntity->getThumbnails()) {
+                continue;
+            }
 
             foreach ($mediaEntity->getThumbnails()->getIds() as $id) {
-                $thumbnails[] = $id;
+                $thumbnails[] = ['id' => $id];
             }
         }
 
-        $deleteMsg = new DeleteFileMessage();
-        $deleteMsg->setFiles($files);
-        $this->messageBus->dispatch($deleteMsg);
+        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
+        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
 
         $this->thumbnailRepository->delete($thumbnails, $context);
     }

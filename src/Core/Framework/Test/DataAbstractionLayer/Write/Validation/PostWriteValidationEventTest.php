@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValid
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
 
+/**
+ * @internal
+ */
 class PostWriteValidationEventTest extends TestCase
 {
     /**

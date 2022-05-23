@@ -323,7 +323,7 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaDeletionSubscriber">
+        <service id="Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="event_dispatcher"/>

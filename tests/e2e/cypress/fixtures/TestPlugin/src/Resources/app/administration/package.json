@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@shopware-ag/admin-extension-sdk": "0.0.52",
+    "@shopware-ag/admin-extension-sdk": "2.1.0",
     "regenerator-runtime": "^0.13.9",
     "vue": "^2.6.14",
     "vue-router": "^3.5.3"

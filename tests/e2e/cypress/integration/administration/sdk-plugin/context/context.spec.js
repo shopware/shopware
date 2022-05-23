@@ -13,6 +13,11 @@ describe('SDK Tests: Context', ()=> {
             .then(() => {
                 cy.onlyOnFeature('FEATURE_NEXT_17950');
 
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
+
                 cy.get('.sw-dashboard-statistics__card-headline')
                     .should('be.visible');
 
@@ -21,6 +26,10 @@ describe('SDK Tests: Context', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
             })
     });
 
@@ -242,5 +251,41 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('App type: plugin');
+    })
+
+    it('@sdk: get module information', ()=> {
+        cy.onlyOnFeature('FEATURE_NEXT_17950');
+
+        cy.log('Go to extension page');
+
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
+            .click();
+
+        cy.contains('.sw-admin-menu__navigation-link', 'Test item')
+            .click();
+
+        cy.log('Get the module information');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .find('button')
+            .contains('Get module information')
+            .click();
+
+        cy.log('Check the module information')
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Id:');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Display search bar: true');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Heading: App Settings');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('LocationId: ui-menu-item-add-menu-item-with-searchbar');
     })
 })

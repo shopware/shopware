@@ -22,6 +22,11 @@ describe('Rule builder: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/rule`,
+            method: 'POST'
+        }).as('searchRule');
+
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         // save with empty data
@@ -62,6 +67,9 @@ describe('Rule builder: Test crud operations', () => {
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        // wait for rule to be fetched so that the unsaved changes modal won't appear
+        cy.wait('@searchRule').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');

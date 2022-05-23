@@ -101,8 +101,13 @@ PHP analysis:
     extends: .base-no-setup
     variables:
         GIT_DEPTH: 0
+        FEATURE_ALL: "major" # execute all destructive migrations
     stage: lint
     image: shopware/development:7.4-composer-2
+    services:
+        -   name: mariadb:10.4
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -116,6 +121,7 @@ PHP analysis:
               - '**/*.php'
     before_script:
         - composer install --quiet --no-interaction
+        - composer run init:db
     script:
         - composer run ecs -- src --no-progress-bar
         - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
@@ -125,7 +131,6 @@ PHP analysis:
     artifacts:
         reports:
             codequality: phpstan-report.json
-
 
 NPM CI:
     extends: .base-no-setup

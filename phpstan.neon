@@ -14,6 +14,7 @@ parameters:
         - src
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - vendor/composer/InstalledVersions.php # somehow we are affected by this https://github.com/phpstan/phpstan/issues/4482
     # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false

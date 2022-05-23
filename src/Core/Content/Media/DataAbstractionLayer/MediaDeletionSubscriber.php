@@ -8,6 +8,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
 use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -70,20 +72,26 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
     public function securePrivateFolders(EntitySearchedEvent $event): void
     {
-        if ($event->getDefinition()->getEntityName() !== MediaFolderDefinition::ENTITY_NAME) {
-            return;
-        }
-
         if ($event->getContext()->getScope() === Context::SYSTEM_SCOPE) {
             return;
         }
 
-        $event->getCriteria()->addFilter(
-            new MultiFilter('OR', [
-                new EqualsFilter('media_folder.configuration.private', false),
-                new EqualsFilter('media_folder.configuration.private', null),
-            ])
-        );
+        if ($event->getDefinition()->getEntityName() === MediaFolderDefinition::ENTITY_NAME) {
+            $event->getCriteria()->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('media_folder.configuration.private', false),
+                    new EqualsFilter('media_folder.configuration.private', null),
+                ])
+            );
+
+            return;
+        }
+
+        if ($event->getDefinition()->getEntityName() === MediaDefinition::ENTITY_NAME) {
+            $event->getCriteria()->addFilter(new EqualsFilter('private', false));
+
+            return;
+        }
     }
 
     public function beforeDelete(BeforeDeleteEvent $event): void
@@ -98,6 +106,37 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         if (!empty($affected)) {
             $this->handleFolderDeletion($affected, $event->getContext());
         }
+
+        $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
+        if (!empty($affected)) {
+            $this->handleMediaDeletion($affected, $event->getContext());
+        }
+    }
+
+    private function handleMediaDeletion(array $affected, Context $context): void
+    {
+        $media = $this->mediaRepository->search(new Criteria($affected), $context);
+
+        $files = [];
+        $thumbnails = [];
+
+        /** @var MediaEntity $mediaEntity */
+        foreach ($media as $mediaEntity) {
+            if (!$mediaEntity->hasFile()) {
+                continue;
+            }
+            $files[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
+
+            foreach ($mediaEntity->getThumbnails()->getIds() as $id) {
+                $thumbnails[] = $id;
+            }
+        }
+
+        $deleteMsg = new DeleteFileMessage();
+        $deleteMsg->setFiles($files);
+        $this->messageBus->dispatch($deleteMsg);
+
+        $this->thumbnailRepository->delete($thumbnails, $context);
     }
 
     private function handleFolderDeletion(array $affected, Context $context): void

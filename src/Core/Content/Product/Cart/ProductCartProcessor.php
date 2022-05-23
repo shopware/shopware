@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
@@ -326,21 +328,24 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             );
         }
 
-        $quantityInformation = new QuantityInformation();
+        //prevent quantity informations from being overwritten
+        if ($lineItem->getQuantityInformation() === null) {
+            $quantityInformation = new QuantityInformation();
 
-        $quantityInformation->setMinPurchase(
-            $product->getMinPurchase() ?? 1
-        );
+            $quantityInformation->setMinPurchase(
+                $product->getMinPurchase() ?? 1
+            );
 
-        $quantityInformation->setMaxPurchase(
-            $product->getCalculatedMaxPurchase()
-        );
+            $quantityInformation->setMaxPurchase(
+                $product->getCalculatedMaxPurchase()
+            );
 
-        $quantityInformation->setPurchaseSteps(
-            $product->getPurchaseSteps() ?? 1
-        );
+            $quantityInformation->setPurchaseSteps(
+                $product->getPurchaseSteps() ?? 1
+            );
 
-        $lineItem->setQuantityInformation($quantityInformation);
+            $lineItem->setQuantityInformation($quantityInformation);
+        }
 
         $purchasePrices = null;
         $purchasePricesCollection = $product->getPurchasePrices();
@@ -504,14 +509,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function shouldPriceBeRecalculated(LineItem $lineItem, CartBehavior $behavior): bool
     {
-        if ($lineItem->getPriceDefinition() !== null
+        if (
+            $lineItem->getPriceDefinition() !== null
             && $lineItem->hasExtension(self::CUSTOM_PRICE)
-            && $behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+            && $behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)
+        ) {
             return false;
         }
 
-        if ($lineItem->getPriceDefinition() !== null
-            && $behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)) {
+        if (
+            $lineItem->getPriceDefinition() !== null
+            && $behavior->hasPermission(self::SKIP_PRODUCT_RECALCULATION)
+        ) {
             return false;
         }
 

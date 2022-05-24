@@ -14045,61 +14045,6 @@ parameters:
 			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
 
 		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountProfileControllerTest\\:\\:\\$browser is unused\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Cannot call method getDefaultBillingAddressId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Cannot call method getDefaultShippingAddressId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:getValidCountryId\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$customer of method Shopware\\\\Storefront\\\\Controller\\\\AddressController\\:\\:addressBook\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$expectedJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
@@ -14108,91 +14053,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$actualJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
-
-		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Cannot call method getValue\\(\\) on Symfony\\\\Component\\\\BrowserKit\\\\Cookie\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerTest\\:\\:createProductOnDatabase\\(\\) has parameter \\$context with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$cookie of method Symfony\\\\Component\\\\BrowserKit\\\\CookieJar\\:\\:set\\(\\) expects Symfony\\\\Component\\\\BrowserKit\\\\Cookie, Symfony\\\\Component\\\\BrowserKit\\\\Cookie\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 11
-			path: src/Storefront/Test/Controller/AuthControllerTest.php
-
-		-
-			message: "#^Cannot call method set\\(\\) on object\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:\\$controller is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
-			message: "#^Cannot call method getLastName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertLessThan\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
 
 		-
 			message: "#^Cannot call method getContext\\(\\) on object\\|null\\.$#"
@@ -14208,51 +14068,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ContextControllerTest\\:\\:\\$lastRouteContext is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ContextControllerTest.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\:\\:getFlashBag\\(\\)\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Cannot call method getDeepLinkCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Cannot call method trans\\(\\) on Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\|null\\.$#"
-			count: 6
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:createCustomerWithOrder\\(\\) never returns null so it can be removed from the return type\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$content of method Symfony\\\\Component\\\\DomCrawler\\\\Crawler\\:\\:addHtmlContent\\(\\) expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$encoded_string of function parse_str expects string, string\\|false\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"
@@ -14278,31 +14093,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\DocumentControllerTest\\:\\:\\$connection is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ErrorControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ErrorControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/FormControllerTest.php
 
 		-
 			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
@@ -14338,26 +14128,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\RegisterControllerTest\\:\\:\\$accountService is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Variable \\$flashbag in PHPDoc tag @var does not match assigned variable \\$flashBag\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -14423,36 +14193,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
 			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
-
-		-
-			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:\\$customerId has no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
 
 		-
 			message: "#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#"
@@ -14605,16 +14345,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Captcha/BasicCaptcha/BasicCaptchaGeneratorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$session of method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:setSession\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface, object\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/BasicCaptchaTest.php
-
-		-
-			message: "#^Parameter \\#7 \\$content of class Symfony\\\\Component\\\\HttpFoundation\\\\Request constructor expects resource\\|string\\|null, array given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/BasicCaptchaTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:getCaptchas\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
@@ -14735,26 +14465,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Routing/StorefrontRoutingTest.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/StorefrontSubscriberTest.php
-
-		-
-			message: "#^Cannot call method has\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/StorefrontSubscriberTest.php
-
-		-
-			message: "#^Cannot call method set\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/StorefrontSubscriberTest.php
-
-		-
-			message: "#^Cannot call method start\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/StorefrontSubscriberTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 8
 			path: src/Storefront/Test/Framework/Seo/Api/SeoActionControllerTest.php
@@ -14863,16 +14573,6 @@ parameters:
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Twig/TwigDateFormatTest.php
-
-		-
-			message: "#^Cannot call method getFlashBag\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:getProductSearchConfigId\\(\\) should return string but returns string\\|null\\.$#"

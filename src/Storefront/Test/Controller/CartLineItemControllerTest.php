@@ -109,7 +109,7 @@ class CartLineItemControllerTest extends TestCase
         $flashBag = $this->getFlashBag()->all();
         static::assertArrayHasKey('danger', $flashBag);
         static::assertSame($this->getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags($code)]), $flashBag['danger'][0]);
-        static::assertSame(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->count());
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
     private function getLineItemAddPayload(string $productId): array
@@ -186,7 +186,7 @@ class CartLineItemControllerTest extends TestCase
     private function createRequest(array $request = []): Request
     {
         $request = new Request([], $request);
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         return $request;
     }

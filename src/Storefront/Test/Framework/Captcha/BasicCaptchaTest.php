@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
@@ -19,16 +21,13 @@ class BasicCaptchaTest extends TestCase
     private const IS_INVALID = false;
     private const BASIC_CAPTCHA_SESSION = 'kyln';
 
-    /**
-     * @var BasicCaptcha
-     */
-    private $captcha;
+    private BasicCaptcha $captcha;
 
     public function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptcha::class);
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession(new Session(new MockArraySessionStorage()));
         $this->getContainer()->get('request_stack')->push($request);
 
         $request->getSession()->set('basic_captcha_session', self::BASIC_CAPTCHA_SESSION);
@@ -87,6 +86,6 @@ class BasicCaptchaTest extends TestCase
 
     private static function getRequest(array $data = []): Request
     {
-        return new Request([], $data, [], [], [], [], []);
+        return new Request([], $data, [], [], [], [], null);
     }
 }

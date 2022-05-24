@@ -14,9 +14,10 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class CsrfRouteListener implements EventSubscriberInterface
+class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 {
     /**
      * @var bool
@@ -124,5 +125,10 @@ class CsrfRouteListener implements EventSubscriberInterface
 
             throw new InvalidCsrfTokenException();
         }
+    }
+
+    public function reset(): void
+    {
+        $this->csrfChecked = false;
     }
 }

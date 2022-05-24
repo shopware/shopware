@@ -67,7 +67,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $browser = $this->createCustomSalesChannelBrowser(['id' => $id]);
 
-        $session = $this->getContainer()->get('session');
+        $session = $this->getSession();
 
         $session->start();
 

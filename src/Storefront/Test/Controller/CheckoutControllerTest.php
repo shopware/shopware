@@ -112,7 +112,9 @@ class CheckoutControllerTest extends TestCase
         $order = $this->performOrder('');
 
         static::assertSame(self::PRODUCT_PRICE, $order->getPrice()->getTotalPrice());
-        static::assertSame(self::CUSTOMER_NAME, $order->getOrderCustomer()->getLastName());
+        $orderCustomerEntity = $order->getOrderCustomer();
+        static::assertNotNull($orderCustomerEntity);
+        static::assertSame(self::CUSTOMER_NAME, $orderCustomerEntity->getLastName());
     }
 
     public function testOrderWithInactivePaymentMethod(): void
@@ -188,7 +190,7 @@ class CheckoutControllerTest extends TestCase
         );
 
         $response = $browser->getResponse();
-        static::assertLessThan(400, $response->getStatusCode(), $response->getContent());
+        static::assertLessThan(400, $response->getStatusCode(), (string) $response->getContent());
     }
 
     /**
@@ -203,7 +205,7 @@ class CheckoutControllerTest extends TestCase
 
         // Clear flashback from login and/or register
         /** @var Session $session */
-        $session = $this->getContainer()->get('session');
+        $session = $this->getSession();
         $session->getFlashBag()->clear();
 
         $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
@@ -477,7 +479,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringContainsString((string) $cart->getPrice()->getTotalPrice(), $response->getContent());
+        static::assertStringContainsString((string) $cart->getPrice()->getTotalPrice(), (string) $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(CheckoutInfoWidgetLoadedHook::HOOK_NAME, $traces);
@@ -786,7 +788,7 @@ class CheckoutControllerTest extends TestCase
     private function createRequest(?SalesChannelContext $context = null): Request
     {
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
 
         $request->attributes->add([
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),

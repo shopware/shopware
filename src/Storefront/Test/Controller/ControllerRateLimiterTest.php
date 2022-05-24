@@ -47,6 +47,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -70,7 +71,7 @@ class ControllerRateLimiterTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ?TranslatorInterface $translator;
+    private TranslatorInterface $translator;
 
     public static function setUpBeforeClass(): void
     {
@@ -99,7 +100,9 @@ class ControllerRateLimiterTest extends TestCase
 
         $this->clearCache();
 
-        $this->getContainer()->get('session')->getFlashBag()->clear();
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $session->getFlashBag()->clear();
 
         $this->translator = $this->getContainer()->get('translator');
     }
@@ -130,7 +133,9 @@ class ControllerRateLimiterTest extends TestCase
             ],
         ]), $this->salesChannelContext);
 
-        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag();
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($flash = $flashBag->get('info'));
         static::assertEquals($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 10]), $flash[0]);
@@ -164,7 +169,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $contentReturn = $response->getContent();
         $crawler = new Crawler();
-        $crawler->addHtmlContent($contentReturn);
+        $crawler->addHtmlContent((string) $contentReturn);
 
         $errorContent = $crawler->filterXPath('//div[@class="flashbags container"]//div[@class="alert-content"]')->text();
 
@@ -204,7 +209,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $contentReturn = $response->getContent();
         $crawler = new Crawler();
-        $crawler->addHtmlContent($contentReturn);
+        $crawler->addHtmlContent((string) $contentReturn);
 
         $errorContent = $crawler->filterXPath('//form[@class="login-form"]//div[@class="alert-content"]')->text();
 
@@ -227,7 +232,7 @@ class ControllerRateLimiterTest extends TestCase
         $response = $controller->sendContactForm(new RequestDataBag([
         ]), $this->salesChannelContext);
 
-        $content = \json_decode($response->getContent(), true);
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $content);
         static::assertArrayHasKey('type', $content[0]);
@@ -297,7 +302,7 @@ class ControllerRateLimiterTest extends TestCase
 
             $contentReturn = $targetResponse->getContent();
             $crawler = new Crawler();
-            $crawler->addHtmlContent($contentReturn);
+            $crawler->addHtmlContent((string) $contentReturn);
 
             $errorContent = $crawler->filterXPath('//div[@class="flashbags container"]//div[@class="alert-content"]')->text();
 
@@ -313,7 +318,7 @@ class ControllerRateLimiterTest extends TestCase
     {
         $request = new Request();
         $request->query->add($params);
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
         $request->attributes->add([
             '_route' => $route,
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
@@ -325,7 +330,7 @@ class ControllerRateLimiterTest extends TestCase
         return $request;
     }
 
-    private function createCustomerWithOrder(): ?OrderEntity
+    private function createCustomerWithOrder(): OrderEntity
     {
         $orderId = Uuid::randomHex();
         $customerId = $this->createCustomer('shopware', 'orderTest@example.com', true);
@@ -357,6 +362,7 @@ class ControllerRateLimiterTest extends TestCase
     private function queryFromString(string $url, string $param): string
     {
         $rawParams = \parse_url($url, \PHP_URL_QUERY);
+        static::assertIsString($rawParams);
 
         \parse_str($rawParams, $params);
 

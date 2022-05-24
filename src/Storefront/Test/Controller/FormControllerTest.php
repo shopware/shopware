@@ -36,10 +36,9 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        $responseContent = $response->getContent();
-        $content = json_decode($responseContent, true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -62,7 +61,7 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -103,7 +102,7 @@ class FormControllerTest extends TestCase
         ];
 
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
         $this->getContainer()->get('request_stack')->push($request);
 
         $token = $this->tokenize('frontend.form.contact.send', $data);
@@ -116,7 +115,7 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = json_decode($responseContent, true);
+        $content = json_decode((string) $responseContent, true, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -144,7 +143,7 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = (array) json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]->type;
         $messageCount = mb_substr_count($content[0]->alert, '<li>');
 

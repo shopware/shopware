@@ -1,6 +1,6 @@
 import template from './sw-promotion-v2-detail-base.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-promotion-v2-detail-base', {
@@ -13,7 +13,7 @@ Component.register('sw-promotion-v2-detail-base', {
     ],
 
     mixins: [
-        'placeholder',
+        Mixin.getByName('placeholder'),
     ],
 
     props: {

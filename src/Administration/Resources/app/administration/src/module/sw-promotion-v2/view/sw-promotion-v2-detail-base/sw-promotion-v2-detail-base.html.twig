@@ -21,6 +21,7 @@
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
                 :error="promotionNameError"
+                :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.detail.main.general.placeholderName'))"
             />
 
             <sw-number-field

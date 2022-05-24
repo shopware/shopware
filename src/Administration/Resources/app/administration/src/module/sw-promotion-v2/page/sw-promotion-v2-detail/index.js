@@ -131,6 +131,11 @@ Component.register('sw-promotion-v2-detail', {
             this.isLoading = true;
 
             if (!this.promotionId) {
+                // set language to system language
+                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                    Shopware.State.commit('context/resetLanguageToDefault');
+                }
+
                 this.promotion = this.promotionRepository.create();
                 this.isLoading = false;
 

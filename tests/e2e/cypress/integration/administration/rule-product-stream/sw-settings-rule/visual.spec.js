@@ -29,13 +29,11 @@ describe('Rule builder: Visual tests', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-rule-list__content').should('exist');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-data-grid__cell--updatedAt',
-            'color: #fff'
-        );
-        cy.get('.sw-data-grid__cell--updatedAt')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--updatedAt', '01 Jan 2018, 00:01');
+
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--createdAt', '01 Jan 2018, 00:00');
 
         // Take snapshot for visual testing
         cy.get(page.elements.loader).should('not.exist');

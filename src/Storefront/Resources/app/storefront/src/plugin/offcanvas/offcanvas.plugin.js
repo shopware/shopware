@@ -146,7 +146,7 @@ class OffCanvasSingleton {
      * @private
      */
     _registerEvents(closable, delay) {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         if (closable) {
             const onBackdropClick = () => {

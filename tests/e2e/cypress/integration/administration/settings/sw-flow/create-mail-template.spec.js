@@ -81,8 +81,6 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
-        cy.get('.sw-flow-leave-page-modal').should('be.visible');
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

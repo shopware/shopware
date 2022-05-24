@@ -45,8 +45,8 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $payload[] = [
                 'id' => Uuid::randomHex(),
-                'name' => $context->getFaker()->company,
-                'link' => $context->getFaker()->url,
+                'name' => $context->getFaker()->format('company'),
+                'link' => $context->getFaker()->format('url'),
             ];
         }
 

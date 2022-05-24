@@ -72,7 +72,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
 
             $payload[] = [
                 'id' => Uuid::randomHex(),
-                'name' => $faker->productName,
+                'name' => $faker->format('productName'),
                 'description' => $faker->text(),
                 'filters' => [['type' => 'multi', 'operator' => 'OR', 'queries' => $filters]],
             ];

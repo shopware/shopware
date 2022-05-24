@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
+/**
+ * @internal
+ */
 class CriteriaParserTest extends TestCase
 {
     use KernelTestBehaviour;

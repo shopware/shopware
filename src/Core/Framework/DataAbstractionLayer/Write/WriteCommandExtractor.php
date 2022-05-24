@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -55,6 +56,9 @@ class WriteCommandExtractor
 
     private array $fieldsForPrimaryKeyMapping = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWriteGatewayInterface $entityExistenceGateway,
         DefinitionInstanceRegistry $definitionRegistry
@@ -227,10 +231,27 @@ class WriteCommandExtractor
         return $pkData;
     }
 
+    /**
+     * @param array $data
+     *
+     * @deprecated tag:v6.5.0 - parameter $data will be natively typed to type array
+     */
     public function extractJsonUpdate($data, EntityExistence $existence, WriteParameterBag $parameters): void
     {
+        if (!\is_array($data)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'The first parameter of method "WriteCommandExtractor::extractJsonUpdate()" will be typed natively to type "array" in v6.5.0.0.'
+            );
+        }
+
         foreach ($data as $storageName => $attributes) {
-            $definition = $this->definitionRegistry->getByEntityName($existence->getEntityName());
+            $entityName = $existence->getEntityName();
+            if (!$entityName) {
+                continue;
+            }
+
+            $definition = $this->definitionRegistry->getByEntityName($entityName);
 
             $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
             $jsonUpdateCommand = new JsonUpdateCommand(

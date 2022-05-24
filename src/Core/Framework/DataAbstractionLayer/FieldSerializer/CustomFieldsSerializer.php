@@ -29,6 +29,9 @@ class CustomFieldsSerializer extends JsonFieldSerializer
      */
     private $attributeService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,

@@ -37,6 +37,9 @@ class SqlQueryParser
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityDefinitionQueryHelper $queryHelper, Connection $connection)
     {
         $this->queryHelper = $queryHelper;

@@ -44,7 +44,7 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
-        return new Response('', 200, '');
+        return new Response();
     }
 
     /**
@@ -65,7 +65,7 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      */
     public function loadPost(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
-        return new Response('', 200, '');
+        return new Response();
     }
 
     /**
@@ -88,6 +88,6 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      */
     public function loadNoFlag(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
-        return new Response('', 200, '');
+        return new Response();
     }
 }

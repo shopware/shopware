@@ -9,10 +9,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 class ExtensionRegistry
 {
     /**
-     * @var EntityExtension[]
+     * @var EntityExtension[]|iterable
      */
     private $extensions;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $extensions)
     {
         $this->extensions = $extensions;

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Elasticsearch\Framework\ClientFactory;
 
+/**
+ * @internal
+ */
 class ClientFactoryTest extends TestCase
 {
     public function testBuildClient(): void

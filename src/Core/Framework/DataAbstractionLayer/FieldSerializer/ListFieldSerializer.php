@@ -20,6 +20,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class ListFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry

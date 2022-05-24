@@ -47,6 +47,9 @@ class EntityWriter implements EntityWriterInterface
 
     private EntityWriteResultFactory $factory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         WriteCommandExtractor $writeResource,
         EntityForeignKeyResolver $foreignKeyResolver,

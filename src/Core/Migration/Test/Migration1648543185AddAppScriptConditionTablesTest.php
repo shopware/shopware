@@ -11,6 +11,9 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScrip
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1648543185AddAppScriptConditionTables;
 
+/**
+ * @internal
+ */
 class Migration1648543185AddAppScriptConditionTablesTest extends TestCase
 {
     use KernelTestBehaviour;

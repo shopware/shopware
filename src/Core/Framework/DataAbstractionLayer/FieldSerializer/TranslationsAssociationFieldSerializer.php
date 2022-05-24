@@ -27,6 +27,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
+    /**
+     * @internal
+     */
     public function __construct(
         WriteCommandExtractor $writeExtractor
     ) {
@@ -61,6 +64,16 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
+        if ($languageField === null) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Could not find language field "%s" in definition "%s"',
+                    $field->getLanguageField(),
+                    \get_class($referenceDefinition)
+                )
+            );
+        }
+
         $languagePropName = $languageField->getPropertyName();
 
         foreach ($value as $identifier => $fields) {

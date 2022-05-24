@@ -7138,47 +7138,12 @@ parameters:
 		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
 			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:createClass\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:mergeJson\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
 
 		-
 			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:resolveField\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Parameter \\#1 \\$attributeName of method Shopware\\\\Core\\\\System\\\\CustomField\\\\CustomFieldService\\:\\:getCustomField\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/CustomFieldsAccessorBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$storageName of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/CustomFieldsAccessorBuilder.php
-
-		-
-			message: "#^Parameter \\#2 \\$propertyName of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/CustomFieldsAccessorBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_strlen expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php
 
 		-
 			message: "#^Call to an undefined method object\\:\\:getEntityClass\\(\\)\\.$#"
@@ -7311,11 +7276,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Exception/QueryLimitExceededException.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\ExtensionRegistry\\:\\:\\$extensions \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityExtension\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/ExtensionRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CustomFields\\:\\:__construct\\(\\) has parameter \\$propertyName with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/CustomFields.php
@@ -7339,26 +7299,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$entityName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:getByEntityName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:encodeJson\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:encodeJson\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:handle\\(\\) has parameter \\$message with no type specified\\.$#"
@@ -7676,16 +7616,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/DataStack/KeyValuePair.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriteResultFactory.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
-			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriteResultFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:insert\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriterInterface.php
@@ -7699,16 +7629,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\Validator\\:\\:addConstraint\\(\\) has parameter \\$propertyValue with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/Validator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteCommandExtractor\\:\\:extractJsonUpdate\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
-
-		-
-			message: "#^Parameter \\#1 \\$entityName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:getByEntityName\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:get\\(\\) has no return type specified\\.$#"
@@ -8257,11 +8177,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#3 \\$headers of class Symfony\\\\Component\\\\BrowserKit\\\\Response constructor expects array, string given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Api/ApiDefinition/ApiRoute/StoreApiTestOtherRoute.php
-
-		-
-			message: "#^Parameter \\#3 \\$headers of class Symfony\\\\Component\\\\BrowserKit\\\\Response constructor expects array, string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/ApiDefinition/ApiRoute/StoreApiTestRoute.php
 
@@ -8269,11 +8184,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Framework/Test/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilderTest.php
-
-		-
-			message: "#^Unsafe call to private method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3GeneratorTest\\:\\:isFeatureAllTrue\\(\\) through static\\:\\:\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/ApiDefinition/Generator/OpenApi3GeneratorTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -10978,16 +10888,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentMethodCollection\\|null given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Rule/PaymentMethodRuleAccessibleTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ScriptRuleTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppScriptCondition\\\\AppScriptConditionEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Rule/ScriptRuleTest.php
 
 		-
 			message: "#^Call to an undefined method Symfony\\\\Component\\\\Messenger\\\\MessageBusInterface\\:\\:expects\\(\\)\\.$#"

@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Session\SessionBagProxy;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
+/**
+ * @internal
+ */
 class TestSessionStorage implements SessionStorageInterface
 {
     private static array $data = [];

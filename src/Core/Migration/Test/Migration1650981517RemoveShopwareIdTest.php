@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1650981517RemoveShopwareId;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class Migration1650981517RemoveShopwareIdTest extends TestCase
 {
     use IntegrationTestBehaviour;

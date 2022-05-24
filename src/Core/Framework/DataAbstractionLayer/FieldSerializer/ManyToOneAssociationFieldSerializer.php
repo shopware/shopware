@@ -21,6 +21,9 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
     protected WriteCommandExtractor $writeExtractor;
 
+    /**
+     * @internal
+     */
     public function __construct(WriteCommandExtractor $writeExtractor)
     {
         $this->writeExtractor = $writeExtractor;

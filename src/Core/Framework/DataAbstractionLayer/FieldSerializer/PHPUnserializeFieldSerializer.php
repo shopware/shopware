@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
  */
 class PHPUnserializeFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
     public function __construct()
     {
     }

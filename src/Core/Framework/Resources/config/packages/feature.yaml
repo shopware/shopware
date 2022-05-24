@@ -60,11 +60,6 @@ shopware:
         major: false
         description: "Replace wrong displayed characters in number format"
         # issue: NEXT-15053
-      - name: FEATURE_NEXT_17950
-        default: false
-        major: false
-        description: "Admin Extension API"
-        # issue: NEXT-17950
       - name: FEATURE_NEXT_14114
         default: false
         major: true

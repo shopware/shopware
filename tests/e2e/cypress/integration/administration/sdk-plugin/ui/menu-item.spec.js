@@ -11,8 +11,6 @@ describe('Category: SDK Test', ()=> {
 
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
 
@@ -28,14 +26,6 @@ describe('Category: SDK Test', ()=> {
             });
     });
     it('@sdk: add menu item', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
-        cy.get('.sw-dashboard-statistics__card-headline')
-            .scrollIntoView();
-
-        cy.get('.sw-dashboard-statistics__card-headline')
-            .should('be.visible');
-
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
@@ -60,16 +50,8 @@ describe('Category: SDK Test', ()=> {
             .should('not.exist');
     });
     it('@sdk: check menu position', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
-
-        cy.get('.sw-dashboard-statistics__card-headline')
-            .scrollIntoView();
-
-        cy.get('.sw-dashboard-statistics__card-headline')
-            .should('be.visible');
 
         cy.get('.sw-loader')
             .should('not.exist');

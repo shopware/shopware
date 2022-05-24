@@ -1,7 +1,6 @@
 ---
 title: Added BaseAppUrl to apps and plugins as entry point for AdminExtensionAPI
 issue: NEXT-18117
-flag: FEATURE_NEXT_17950
 ---
 # Core
 * Added `<base-app-url>` field to admin section of `manifest-1.0.xsd`, to specify the entry point url for the AdminExtensionAPI.

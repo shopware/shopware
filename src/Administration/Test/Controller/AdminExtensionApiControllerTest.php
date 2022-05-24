@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,8 +56,6 @@ class AdminExtensionApiControllerTest extends TestCase
      */
     public function testRunAction(string $appName, ?string $targetUrl = null, ?array $hosts = []): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
-
         $this->appRepository->create([
             [
                 'name' => self::EXISTING_APP_NAME,

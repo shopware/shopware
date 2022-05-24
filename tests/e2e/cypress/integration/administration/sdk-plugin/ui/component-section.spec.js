@@ -34,16 +34,12 @@ describe('SDK Tests: Component section', ()=> {
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             })
     });
 
     it('@sdk: add a component section', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')

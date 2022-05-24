@@ -38,13 +38,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
@@ -144,9 +144,8 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($integrationEntity);
         static::assertFalse($integrationEntity->getAdmin());
         static::assertSame(100, $appEntity->getTemplateLoadPriority());
-        if (Feature::isActive('FEATURE_NEXT_17950')) {
-            static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
-        }
+        static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
+
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
@@ -243,7 +242,10 @@ class AppLifecycleTest extends TestCase
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertCount(0, $appEntity->getModules());
-        static::assertCount(0, $appEntity->getWebhooks());
+
+        $webhookCollection = $appEntity->getWebhooks();
+        static::assertInstanceOf(WebhookCollection::class, $webhookCollection);
+        static::assertCount(0, $webhookCollection);
     }
 
     public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
@@ -337,8 +339,14 @@ class AppLifecycleTest extends TestCase
         $constraints = $appScriptConditionEntity->getConstraints();
         static::assertIsArray($constraints);
         static::assertArrayHasKey('number', $constraints);
-        static::assertCount(1, $appScriptConditionEntity->getConfig() ?? []);
-        static::assertEquals('int', $appScriptConditionEntity->getConfig()[0]['type']);
+
+        $config = $appScriptConditionEntity->getConfig();
+        static::assertIsArray($config);
+        static::assertCount(1, $config);
+        static::assertArrayHasKey(0, $config);
+        static::assertIsArray($config[0]);
+        static::assertArrayHasKey('type', $config[0]);
+        static::assertEquals('int', $config[0]['type']);
     }
 
     public function testInstallThrowsIfAppIsAlreadyInstalled(): void
@@ -654,9 +662,7 @@ class AppLifecycleTest extends TestCase
             $appEntity->getIcon()
         );
         static::assertEquals('1.0.0', $appEntity->getVersion());
-        if (Feature::isActive('FEATURE_NEXT_17950')) {
-            static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
-        }
+        static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
         static::assertNotEquals('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
@@ -1137,6 +1143,7 @@ class AppLifecycleTest extends TestCase
             WHERE `id` = :aclRoleId
         ', ['aclRoleId' => Uuid::fromHexToBytes($aclRoleId)]);
 
+        static::assertIsString($privileges);
         $privileges = json_decode($privileges, true);
 
         static::assertContains('app.' . $appEntity->getName(), $privileges);
@@ -1173,8 +1180,6 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallWithAllowedHosts(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
-
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withAllowedHosts/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
@@ -1185,9 +1190,12 @@ class AppLifecycleTest extends TestCase
         $app = $apps->first();
         static::assertNotNull($app);
         static::assertEquals('withAllowedHosts', $app->getName());
-        static::assertCount(2, $app->getAllowedHosts());
-        static::assertTrue(\in_array('shopware.com', $app->getAllowedHosts(), true));
-        static::assertTrue(\in_array('example.com', $app->getAllowedHosts(), true));
+
+        $allowedHosts = $app->getAllowedHosts();
+        static::assertIsArray($allowedHosts);
+        static::assertCount(2, $allowedHosts);
+        static::assertTrue(\in_array('shopware.com', $allowedHosts, true));
+        static::assertTrue(\in_array('example.com', $allowedHosts, true));
     }
 
     public function testUpdateFlowActionApp(): void
@@ -1195,7 +1203,10 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
         $appFlowActions = $this->getAppFlowActions($app->getId());
+        static::assertIsArray($appFlowActions);
+        static::assertArrayHasKey(0, $appFlowActions);
 
         $newManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest1_1_0.xml');
         $this->appLifecycle->update(
@@ -1211,6 +1222,9 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('1.1.0', $newVersion->getVersion());
 
         $newAppFlowActions = $this->getAppFlowActions($app->getId());
+        static::assertIsArray($newAppFlowActions);
+        static::assertArrayHasKey(0, $newAppFlowActions);
+
         static::assertEquals($appFlowActions[0], $newAppFlowActions[0]);
     }
 
@@ -1219,14 +1233,19 @@ class AppLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
+
         $appId = $this->getAppId();
+        static::assertIsString($appId);
+
         $flowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($flowActions);
 
         $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v2.xml');
         $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-        $newFlowActions = $this->getAppFlowActions($appId);
 
+        $newFlowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($newFlowActions);
         static::assertCount(2, $newFlowActions);
         foreach ($flowActions as $action) {
             static::assertTrue(\in_array($action['id'], array_column($newFlowActions, 'id'), true));
@@ -1238,14 +1257,19 @@ class AppLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
+
         $appId = $this->getAppId();
+        static::assertIsString($appId);
+
         $flowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($flowActions);
 
         $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v3.xml');
         $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-        $newFlowActions = $this->getAppFlowActions($appId);
 
+        $newFlowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($newFlowActions);
         static::assertCount(1, $newFlowActions);
         foreach ($flowActions as $action) {
             static::assertFalse(\in_array($action['id'], array_column($newFlowActions, 'id'), true));
@@ -1257,8 +1281,15 @@ class AppLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
+
         $appId = $this->getAppId();
+        static::assertIsString($appId);
+
         $flowActions = $this->getAppFlowActions($appId);
+        static::assertIsArray($flowActions);
+        static::assertArrayHasKey(0, $flowActions);
+        static::assertIsArray($flowActions[0]);
+        static::assertArrayHasKey('id', $flowActions[0]);
 
         $flowId = Uuid::randomHex();
         $this->createFlow($flowId);
@@ -1418,7 +1449,7 @@ class AppLifecycleTest extends TestCase
         $customFieldSet = $customFieldSets->first();
         static::assertNotNull($customFieldSet);
         static::assertEquals('custom_field_test', $customFieldSet->getName());
-        static::assertCount(2, $customFieldSet->getRelations());
+        static::assertCount(2, $customFieldSet->getRelations() ?? []);
 
         $relations = $customFieldSet->getRelations();
         static::assertNotNull($relations);
@@ -1582,10 +1613,9 @@ class AppLifecycleTest extends TestCase
         $firstCmsBlock = $cmsBlocks->filterByProperty('name', 'my-first-block')->first();
         static::assertEquals('my-first-block', $firstCmsBlock->getName());
         static::assertEquals('First block from app', $firstCmsBlock->getLabel());
-        static::assertJsonStringEqualsJsonFile(
-            __DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json',
-            json_encode($firstCmsBlock->getBlock())
-        );
+        $firstBlockJson = json_encode($firstCmsBlock->getBlock());
+        static::assertIsString($firstBlockJson);
+        static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json', $firstBlockJson);
         static::assertEquals(
             file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html'),
             $firstCmsBlock->getTemplate()
@@ -1599,10 +1629,9 @@ class AppLifecycleTest extends TestCase
         $secondCmsBlock = $cmsBlocks->filterByProperty('name', 'my-second-block')->first();
         static::assertEquals('my-second-block', $secondCmsBlock->getName());
         static::assertEquals('Second block from app', $secondCmsBlock->getLabel());
-        static::assertJsonStringEqualsJsonFile(
-            __DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json',
-            json_encode($secondCmsBlock->getBlock())
-        );
+        $cmsBlockJson = json_encode($secondCmsBlock->getBlock());
+        static::assertIsString($cmsBlockJson);
+        static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json', $cmsBlockJson);
         static::assertEquals(
             $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html')),
             $this->stripWhitespace($secondCmsBlock->getTemplate())
@@ -1636,7 +1665,7 @@ class AppLifecycleTest extends TestCase
         );
     }
 
-    private function getIsoId(string $iso)
+    private function getIsoId(string $iso): string
     {
         /** @var EntityRepository $localeRepository */
         $localeRepository = $this->getContainer()->get('locale.repository');
@@ -1645,12 +1674,10 @@ class AppLifecycleTest extends TestCase
 
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        $isoId = $localeRepository->search($criteria, Context::createDefaultContext())->first()->getId();
-
-        return $isoId;
+        return $localeRepository->search($criteria, Context::createDefaultContext())->first()->getId();
     }
 
-    private function createUser($userId): void
+    private function createUser(string $userId): void
     {
         $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::fromHexToBytes($userId),
@@ -1666,7 +1693,7 @@ class AppLifecycleTest extends TestCase
         ]);
     }
 
-    private function createAclRole($aclRoleId, $privileges): void
+    private function createAclRole(string $aclRoleId, array $privileges): void
     {
         $this->getContainer()->get(Connection::class)->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
@@ -1676,7 +1703,7 @@ class AppLifecycleTest extends TestCase
         ]);
     }
 
-    private function createAclUserRole($userId, $aclRoleId): void
+    private function createAclUserRole(string $userId, string $aclRoleId): void
     {
         $this->getContainer()->get(Connection::class)->insert('acl_user_role', [
             'user_id' => Uuid::fromHexToBytes($userId),
@@ -1700,72 +1727,124 @@ class AppLifecycleTest extends TestCase
         switch ($scriptCondition->getIdentifier()) {
             case 'app\withRuleConditions_testcondition0':
                 static::assertArrayHasKey('operator', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition1':
                 static::assertArrayHasKey('customerGroupIds', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition2':
                 static::assertArrayHasKey('firstName', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition3':
                 static::assertArrayHasKey('number', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('int', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition4':
                 static::assertArrayHasKey('number', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('float', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition5':
                 static::assertArrayHasKey('productId', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition6':
                 static::assertArrayHasKey('expected', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('bool', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition7':
                 static::assertArrayHasKey('datetime', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('datetime', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition8':
                 static::assertArrayHasKey('colorcode', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition9':
                 static::assertArrayHasKey('mediaId', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition10':
                 static::assertArrayHasKey('price', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('price', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition11':
                 static::assertArrayHasKey('firstName', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('html', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition12':
                 static::assertArrayHasKey('multiselection', $constraints);
+                static::assertIsArray($scriptCondition->getConfig());
+                static::assertArrayHasKey(0, $scriptCondition->getConfig());
+                static::assertIsArray($scriptCondition->getConfig()[0]);
+                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
                 static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition13':
                 static::assertCount(0, $constraints);
-                static::assertCount(0, $scriptCondition->getConfig());
+                static::assertCount(0, $scriptCondition->getConfig() ?? []);
 
                 break;
             default:
@@ -1781,52 +1860,76 @@ class AppLifecycleTest extends TestCase
                 'id' => Uuid::fromHexToBytes($appId),
             ])->fetchAssociative();
 
+        static::assertIsArray($appFlowAction);
         static::assertEquals($appFlowAction['name'], 'telegram.send.message');
         static::assertEquals($appFlowAction['badge'], 'Telegram');
         static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
         static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
-        static::assertEquals(json_decode($appFlowAction['parameters'], true), [
+        $parameters = json_decode($appFlowAction['parameters'], true);
+        static::assertNotFalse($parameters);
+        static::assertEquals(
             [
-                'name' => 'message',
-                'type' => 'string',
-                'value' => 'string message',
-                'extensions' => [],
+                [
+                    'name' => 'message',
+                    'type' => 'string',
+                    'value' => 'string message',
+                    'extensions' => [],
+                ],
             ],
-        ]);
-        static::assertEquals(json_decode($appFlowAction['config'], true), [
+            $parameters
+        );
+
+        $config = json_decode($appFlowAction['config'], true);
+        static::assertNotFalse($config);
+        static::assertEquals(
             [
-                'name' => 'text',
-                'type' => 'text',
-                'label' => [
-                    'de-DE' => 'Text DE',
-                    'en-GB' => 'Text',
+                [
+                    'name' => 'text',
+                    'type' => 'text',
+                    'label' => [
+                        'de-DE' => 'Text DE',
+                        'en-GB' => 'Text',
+                    ],
+                    'options' => [],
+                    'helpText' => [
+                        'de-DE' => 'Help DE',
+                        'en-GB' => 'Help Text',
+                    ],
+                    'required' => true,
+                    'extensions' => [],
+                    'placeHolder' => [
+                        'de-DE' => 'Enter Text DE...',
+                        'en-GB' => 'Enter Text...',
+                    ],
+                    'defaultValue' => 'Hello',
                 ],
-                'options' => [],
-                'helpText' => [
-                    'de-DE' => 'Help DE',
-                    'en-GB' => 'Help Text',
-                ],
-                'required' => true,
-                'extensions' => [],
-                'placeHolder' => [
-                    'de-DE' => 'Enter Text DE...',
-                    'en-GB' => 'Enter Text...',
-                ],
-                'defaultValue' => 'Hello',
             ],
-        ]);
-        static::assertEquals(json_decode($appFlowAction['headers'], true), [
+            $config
+        );
+
+        $headers = json_decode($appFlowAction['headers'], true);
+        static::assertNotFalse($headers);
+        static::assertEquals(
             [
-                'name' => 'content-type',
-                'type' => 'string',
-                'value' => 'application/json',
-                'extensions' => [],
+                [
+                    'name' => 'content-type',
+                    'type' => 'string',
+                    'value' => 'application/json',
+                    'extensions' => [],
+                ],
             ],
-        ]);
-        static::assertEquals(json_decode($appFlowAction['requirements'], true), [
-            'orderAware',
-            'customerAware',
-        ]);
+            $headers
+        );
+
+        $requirements = json_decode($appFlowAction['requirements'], true);
+        static::assertNotFalse($requirements);
+        static::assertEquals(
+            [
+                'orderAware',
+                'customerAware',
+            ],
+            $requirements
+        );
     }
 
     private function assertDefaultHosts(AppEntity $app): void

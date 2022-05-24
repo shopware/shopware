@@ -58,23 +58,23 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $decodedResponse = json_decode($client->getResponse()->getContent(), true);
+        $decodedResponse = json_decode($content, true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(array_keys($expected), array_keys($decodedResponse));
 
         unset($expected['settings']);
-        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+        $expectedJson = json_encode($expected);
+        static::assertIsString($expectedJson);
+        static::assertStringStartsWith(mb_substr($expectedJson, 0, -3), $content);
     }
 
     public function testGetConfigWithPermissions(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_17950')) {
-            static::markTestSkipped('Only available with flag FEATURE_NEXT_17950');
-        }
-
         $ids = new IdsCollection();
         $appRepository = $this->getContainer()->get('app.repository');
         $appRepository->create([
@@ -138,9 +138,11 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $decodedResponse = json_decode($client->getResponse()->getContent(), true);
+        $decodedResponse = json_decode($content, true);
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(array_keys($expected), array_keys($decodedResponse));
 
@@ -161,9 +163,13 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+        $expectedJson = json_encode($expected);
+        static::assertIsString($expectedJson);
+        static::assertStringStartsWith(mb_substr($expectedJson, 0, -3), $content);
     }
 
     public function testGetShopwareVersionOldVersion(): void
@@ -176,9 +182,13 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+        $expectedJson = json_encode($expected);
+        static::assertIsString($expectedJson);
+        static::assertStringStartsWith(mb_substr($expectedJson, 0, -3), $content);
     }
 
     public function testBusinessEventRoute(): void
@@ -187,9 +197,11 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($content, true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -321,7 +333,9 @@ class InfoControllerTest extends TestCase
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/fixtures/InfoController')]);
 
-        $config = json_decode($infoController->config(Context::createDefaultContext())->getContent(), true);
+        $content = $infoController->config(Context::createDefaultContext())->getContent();
+        static::assertNotFalse($content);
+        $config = json_decode($content, true);
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
 
         $jsFilePath = explode('?', $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
@@ -333,8 +347,6 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
-
         $this->loadAppsFromDir(__DIR__ . '/fixtures/AdminExtensionApiApp');
 
         $kernelMock = $this->createMock(Kernel::class);
@@ -367,7 +379,9 @@ class InfoControllerTest extends TestCase
                 new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
             ]);
 
-        $config = json_decode($infoController->config(Context::createDefaultContext())->getContent(), true);
+        $content = $infoController->config(Context::createDefaultContext())->getContent();
+        static::assertNotFalse($content);
+        $config = json_decode($content, true);
         static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
@@ -392,9 +406,11 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($content, true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -443,9 +459,11 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($content, true);
 
         $expected = [
             [
@@ -473,9 +491,11 @@ class InfoControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        static::assertJson($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = json_decode($content, true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -536,7 +556,7 @@ class InfoControllerTest extends TestCase
         return $integrationId;
     }
 
-    private function createAclRole($aclRoleId): void
+    private function createAclRole(string $aclRoleId): void
     {
         $this->getContainer()->get(Connection::class)->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),

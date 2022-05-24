@@ -410,7 +410,7 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
 
-            this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
+            return this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
 
@@ -434,6 +434,12 @@ Component.register('sw-cms-detail', {
                             }
                         });
                     }
+
+                    Shopware.ExtensionAPI.publishData({
+                        id: 'sw-cms-detail__page',
+                        path: 'page',
+                        scope: this,
+                    });
 
                     this.isLoading = false;
                 }).catch((exception) => {

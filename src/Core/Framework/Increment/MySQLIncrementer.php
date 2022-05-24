@@ -88,8 +88,6 @@ class MySQLIncrementer extends AbstractIncrementer
         $payload = [
             'pool' => $this->poolName,
             'cluster' => $cluster,
-            'limit' => $limit,
-            'offset' => $offset,
         ];
 
         $types = [];

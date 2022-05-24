@@ -170,6 +170,7 @@
         "phpunit/php-code-coverage": "~9.2.14",
         "phpunit/phpunit": "~9.5.17",
         "smalot/pdfparser": "~0.14.0",
+        "staabm/phpstan-dba": "~0.2.29",
         "symfony/browser-kit": "~5.4.0",
         "symfony/css-selector": "~5.4.0",
         "symfony/dom-crawler": "~5.4.0",
@@ -198,7 +199,7 @@
             "ln -sf $PWD/bin/pre-push .git/hooks/pre-push"
         ],
         "init:db": [
-            "@php bin/console system:install --drop-database --basic-setup --force"
+            "@php bin/console system:install --drop-database --basic-setup --force --no-assign-theme"
         ],
         "init:js": [
             "@npm:admin clean-install",

@@ -3,8 +3,12 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
+use staabm\PHPStanDba\QueryReflection\PdoQueryReflector;
+use staabm\PHPStanDba\QueryReflection\QueryReflection;
+use staabm\PHPStanDba\QueryReflection\RuntimeConfiguration;
 use Symfony\Component\Dotenv\Dotenv;
 
 if (!\defined('TEST_PROJECT_DIR')) {
@@ -39,6 +43,16 @@ $classLoader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
 if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.php') || file_exists(TEST_PROJECT_DIR . '/.env') || file_exists(TEST_PROJECT_DIR . '/.env.dist'))) {
     (new Dotenv())->usePutenv()->bootEnv(TEST_PROJECT_DIR . '/.env');
 }
+
+$config = new RuntimeConfiguration();
+$config->stringifyTypes(true);
+
+/** @var \PDO $pdo */
+$pdo = MySQLFactory::create()->getWrappedConnection();
+QueryReflection::setupReflector(
+    new PdoQueryReflector($pdo),
+    $config
+);
 
 $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
 $pluginLoader = new StaticKernelPluginLoader($classLoader);

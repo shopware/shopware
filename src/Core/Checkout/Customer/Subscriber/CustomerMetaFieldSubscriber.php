@@ -84,7 +84,22 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $whereOrder = $isDelete ? 'AND `order`.id NOT IN (:exceptOrderIds)' : '';
+        $parameters = [
+            'customerIds' => Uuid::fromHexToBytesList($customerIds),
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'state' => OrderStates::STATE_COMPLETED,
+        ];
+        $types = [
+            'customerIds' => Connection::PARAM_STR_ARRAY,
+        ];
+
+        $whereOrder = '';
+        if ($isDelete) {
+            $whereOrder = 'AND `order`.id NOT IN (:exceptOrderIds)';
+            $parameters['exceptOrderIds'] = Uuid::fromHexToBytesList($orderIds);
+            $types['exceptOrderIds'] = Connection::PARAM_STR_ARRAY;
+        }
+
         $select = '
             SELECT `order_customer`.customer_id as id,
                    COUNT(`order`.id) as order_count,
@@ -107,15 +122,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             GROUP BY `order_customer`.customer_id
         ';
 
-        $data = $this->connection->fetchAllAssociative($select, [
-            'customerIds' => Uuid::fromHexToBytesList($customerIds),
-            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            'state' => OrderStates::STATE_COMPLETED,
-            'exceptOrderIds' => Uuid::fromHexToBytesList($orderIds),
-        ], [
-            'customerIds' => Connection::PARAM_STR_ARRAY,
-            'exceptOrderIds' => Connection::PARAM_STR_ARRAY,
-        ]);
+        $data = $this->connection->fetchAllAssociative($select, $parameters, $types);
 
         if (empty($data)) {
             foreach ($customerIds as $customerId) {

@@ -46,7 +46,7 @@ if (empty($salesChannel)) {
             INNER JOIN sales_channel_domain ON(sales_channel_domain.sales_channel_id = sales_channel.id)
 
         WHERE sales_channel.type_id = :type
-        GROUP BY sales_channel.id
+        GROUP BY sales_channel.id, sales_channel_domain.url
         ORDER BY LENGTH(url) ASC
         LIMIT 1
         ',

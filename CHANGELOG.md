@@ -96,6 +96,11 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21613 - Remove category external link from sitemap](/changelog/release-6-4-12-0/2022-05-14-remove-category-external-link-from-sitemap.md) ([Marcin Kaczor](https://github.com/CodeproSpace))
 *  [NEXT-20300 - Fix media folder child count](/changelog/release-6-4-12-0/2022-05-16-fix-media-folder-child-count.md)
 *  [NEXT-21559 - Provide SDK capability for module information and router push](/changelog/release-6-4-12-0/2022-05-21-provide-sdk-capability-for-module-information-and-router-push.md)
+*  [NEXT-21565 - Fix button behind off-canvas still clickable on mobile](/changelog/release-6-4-12-0/2022-05-12-fix-button-behind-offcanvas-still-clickable-on-mobile.md)
+*  [NEXT-18117 - Added BaseAppUrl to apps and plugins as entry point for AdminExtensionAPI](/changelog/release-6-4-12-0/2021-11-30-add-base-app-url.md)
+*  [NEXT-19247 - Auto-detect local AdminExtensionAPI entry points in plugins](/changelog/release-6-4-12-0/2021-12-14-auto-detect-local-admin-api-entry-points.md)
+*  [NEXT-18126 - Add permissions to extensions](/changelog/release-6-4-12-0/2022-01-05-add-permissions-to-extensions.md)
+*  [NEXT-21237 - Add allowed hosts to apps](/changelog/release-6-4-12-0/2022-04-25-add-allowed-hosts-to-apps.md)
 
 ## 6.4.11.1
 *  [NEXT-21458 - Filter inactive root categories](/changelog/release-6-4-11-1/2022-05-05-filter-inactive-root-categories.md)

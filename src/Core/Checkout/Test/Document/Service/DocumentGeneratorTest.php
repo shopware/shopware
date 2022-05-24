@@ -681,7 +681,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document->getDocumentMediaFileId();
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaResource($mediaId, $context);
+            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
         });
 
         static::assertNotNull($media);
@@ -770,7 +770,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document->getDocumentMediaFileId();
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaResource($mediaId, $context);
+            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
         });
 
         static::assertNotNull($media);

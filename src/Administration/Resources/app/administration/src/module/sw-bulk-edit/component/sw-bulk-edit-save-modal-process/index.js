@@ -146,33 +146,24 @@ Component.register('sw-bulk-edit-save-modal-process', {
         },
 
         async createDocument(documentType, payload) {
-            if (payload.length <= 5) {
+            if (payload.length <= this.requestsPerPayload) {
                 await this.orderDocumentApiService.create(documentType, payload);
                 this.$set(this.document[documentType], 'isReached', 100);
 
-                return;
+                return Promise.resolve();
             }
 
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
-            const chunkedSize = chunkedPayload.length;
-            const percentages = Math.round(100 / chunkedSize);
+            const percentages = Math.round(100 / chunkedPayload.length);
 
-            // eslint-disable-next-line no-plusplus
-            for (let i = 0; i < chunkedSize; i++) {
-                // eslint-disable-next-line no-await-in-loop
-                await this.orderDocumentApiService.create(documentType, chunkedPayload[i]);
-
-                if (i === chunkedSize - 1) {
+            return Promise
+                .all(chunkedPayload.map(async (item) => {
+                    await this.orderDocumentApiService.create(documentType, item);
+                    this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
+                }))
+                .then(() => {
                     this.$set(this.document[documentType], 'isReached', 100);
-                    break;
-                }
-
-                this.$set(
-                    this.document[documentType],
-                    'isReached',
-                    this.document[documentType].isReached + percentages,
-                );
-            }
+                });
         },
     },
 });

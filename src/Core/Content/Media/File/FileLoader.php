@@ -49,7 +49,7 @@ class FileLoader
     {
         $media = $this->findMediaById($mediaId, $context);
 
-        return $this->getFileSystem($media)->read($this->getFilePath($media));
+        return $this->getFileSystem($media)->read($this->getFilePath($media)) ?: '';
     }
 
     public function loadMediaFileStream(string $mediaId, Context $context): StreamInterface
@@ -65,7 +65,7 @@ class FileLoader
 
     private function getFilePath(MediaEntity $media): string
     {
-        $this->fileNameValidator->validateFileName($media->getFileName());
+        $this->fileNameValidator->validateFileName($media->getFileName() ?: '');
 
         return $this->urlGenerator->getRelativeMediaUrl($media);
     }

@@ -4,6 +4,7 @@ import swBulkEditState from '../../state/sw-bulk-edit.state';
 
 const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
 Component.register('sw-bulk-edit-order', {
@@ -73,7 +74,11 @@ Component.register('sw-bulk-edit-order', {
         },
 
         hasChanges() {
-            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
         statusFormFields() {
@@ -122,6 +127,7 @@ Component.register('sw-bulk-edit-order', {
                     config: {
                         componentName: 'sw-bulk-edit-order-documents',
                         changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                        documents: this.bulkEditData?.documents,
                     },
                 },
             ];

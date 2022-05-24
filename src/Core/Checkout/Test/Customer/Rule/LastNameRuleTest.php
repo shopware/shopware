@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -195,5 +196,18 @@ class LastNameRuleTest extends TestCase
             'operator_empty / not match / last name' => [Rule::OPERATOR_NEQ, false, 'ky'],
             'operator_empty / match / last name' => [Rule::OPERATOR_EMPTY, true, ' '],
         ];
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        try {
+            $rule = new LastNameRule();
+            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
+            $rule->match(new CheckoutRuleScope($salesChannelContext));
+            static::fail('Exception was not thrown');
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        }
     }
 }

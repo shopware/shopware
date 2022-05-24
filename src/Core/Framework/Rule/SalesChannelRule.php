@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule;
 class SalesChannelRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $salesChannelIds;
 

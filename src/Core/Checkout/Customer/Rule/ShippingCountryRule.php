@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class ShippingCountryRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $countryIds;
 

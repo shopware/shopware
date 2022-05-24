@@ -241,66 +241,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Password/LegacyPasswordVerifier.php
 
 		-
-			message: "#^Cannot call method getCountry\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingCountryRule.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingCountryRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\BillingCountryRule\\:\\:\\$countryIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingCountryRule.php
-
-		-
-			message: "#^Cannot call method getStreet\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingStreetRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\BillingStreetRule\\:\\:\\$streetName \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingStreetRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerGroupRule\\:\\:\\$customerGroupIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerGroupRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerNumberRule\\:\\:\\$numbers \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerNumberRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerTagRule\\:\\:\\$identifiers \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/CustomerTagRule.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Customer/Rule/DifferentAddressesRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\LastNameRule\\:\\:\\$lastName \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/LastNameRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\ShippingCountryRule\\:\\:\\$countryIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/ShippingCountryRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\ShippingStreetRule\\:\\:\\$streetName \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/ShippingStreetRule.php
-
-		-
 			message: "#^Parameter \\#2 \\$hash of function password_verify expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
@@ -8011,11 +7951,6 @@ parameters:
 			path: src/Core/Framework/Routing/RouteScopeRegistry.php
 
 		-
-			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Container/NotRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:has\\(\\) has parameter \\$class with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleCollection.php
@@ -8029,11 +7964,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:set\\(\\) has parameter \\$rule with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\SalesChannelRule\\:\\:\\$salesChannelIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/SalesChannelRule.php
 
 		-
 			message: "#^Method \"init\" of class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
@@ -13053,11 +12983,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Currency/CurrencyFormatter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Currency\\\\Rule\\\\CurrencyRule\\:\\:\\$currencyIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Currency/Rule/CurrencyRule.php
 
 		-
 			message: "#^Parameter \\#1 \\$id of class Symfony\\\\Component\\\\DependencyInjection\\\\Reference constructor expects string, string\\|null given\\.$#"

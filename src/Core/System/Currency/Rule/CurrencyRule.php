@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CurrencyRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $currencyIds;
 

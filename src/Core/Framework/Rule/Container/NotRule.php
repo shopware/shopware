@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -27,6 +28,10 @@ class NotRule extends Container
         $rules = $this->rules;
 
         $rule = array_shift($rules);
+
+        if (!$rule instanceof Rule) {
+            throw new UnsupportedValueException(\gettype($rule), self::class);
+        }
 
         return !$rule->match($scope);
     }

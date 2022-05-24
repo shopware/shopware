@@ -192,6 +192,26 @@ class BillingCountryRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $countryIds[1]);
     }
 
+    public function testRuleNotMatchingWithoutCountry(): void
+    {
+        $this->rule->assign(['countryIds' => ['foo'], 'operator' => Rule::OPERATOR_EQ]);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customer = new CustomerEntity();
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customerAddress = $this->createMock(CustomerAddressEntity::class);
+        $customerAddress->method('getCountry')->willReturn(null);
+        $customer->setActiveBillingAddress($customerAddress);
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
+    }
+
     /**
      * @dataProvider getMatchValues
      */

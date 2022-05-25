@@ -2,7 +2,6 @@
     <flow-action>
         <meta>
             <name>telegram.send.message</name>
-            <badge>Telegram</badge>
             <label>Telegram send message</label>
             <label lang="de-DE">Telegram send message DE</label>
             <label lang="nl-NL">Telegram send message NL</label>

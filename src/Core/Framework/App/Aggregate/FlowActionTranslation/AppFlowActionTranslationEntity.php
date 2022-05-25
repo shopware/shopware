@@ -14,6 +14,8 @@ class AppFlowActionTranslationEntity extends TranslationEntity
 
     protected ?string $description;
 
+    protected ?string $headline;
+
     protected string $appFlowActionId;
 
     protected ?AppFlowActionEntity $appFlowAction = null;
@@ -36,6 +38,16 @@ class AppFlowActionTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getHeadline(): ?string
+    {
+        return $this->headline;
+    }
+
+    public function setHeadline(?string $headline): void
+    {
+        $this->headline = $headline;
     }
 
     public function getAppFlowActionId(): string

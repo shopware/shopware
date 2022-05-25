@@ -40,6 +40,16 @@ Component.register('sw-flow-app-action-modal', {
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
         },
+
+        headline() {
+            return this.sequence?.propsAppFlowAction?.translated?.headline
+                || this.sequence?.propsAppFlowAction?.headline;
+        },
+
+        paragraph() {
+            return this.sequence?.propsAppFlowAction?.translated?.description
+                || this.sequence?.propsAppFlowAction?.description;
+        },
     },
 
     created() {

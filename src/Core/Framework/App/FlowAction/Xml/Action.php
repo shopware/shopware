@@ -50,7 +50,6 @@ class Action extends XmlElement
 
         return array_merge($data, [
             'name' => $this->meta->getName(),
-            'badge' => $this->meta->getBadge(),
             'swIcon' => $this->meta->getSwIcon(),
             'url' => $this->meta->getUrl(),
             'parameters' => $this->normalizeParameters(),
@@ -63,6 +62,7 @@ class Action extends XmlElement
             'requirements' => $this->meta->getRequirements(),
             'label' => $this->meta->getLabel(),
             'description' => $this->meta->getDescription(),
+            'headline' => $this->meta->getHeadline(),
         ]);
     }
 

@@ -6,6 +6,8 @@
             <badge>abc</badge>
             <label>First action app</label>
             <label lang="de-DE">First action app DE</label>
+            <headline>Headline for action</headline>
+            <headline lang="de-DE">Überschrift für Aktion</headline>
             <description>First action app description</description>
             <description lang="de-DE">First action app description DE</description>
             <url>https://example.xyz</url>

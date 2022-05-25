@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -93,7 +94,8 @@ class StornoGenerator implements DocumentGeneratorInterface
 
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
-            $parameters            $context,
+            $parameters,
+            $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
             $locale->getCode()
@@ -114,7 +116,9 @@ class StornoGenerator implements DocumentGeneratorInterface
 
     private function handlePrices(OrderEntity $order): OrderEntity
     {
-        foreach ($order->getLineItems() ?? [] as $lineItem) {
+        /** @var OrderLineItemCollection */
+        $lineItems = $order->getLineItems();
+        foreach ($lineItems as $lineItem) {
             $lineItem->setUnitPrice($lineItem->getUnitPrice() / -1);
             $lineItem->setTotalPrice($lineItem->getTotalPrice() / -1);
         }

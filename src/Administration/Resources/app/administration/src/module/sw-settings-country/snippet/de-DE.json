@@ -3,7 +3,7 @@
     "page": {
       "generalTab": "Einstellungen",
       "stateTab": "Länder/Regionen",
-      "addressHandlingTab": "Address handling"
+      "addressHandlingTab": "Adress-Verwaltung"
     },
     "general": {
       "mainMenuItemGeneral": "Länder",
@@ -59,21 +59,21 @@
       "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
       "titleOptions": "Optionen",
       "currencyDependentValues": "Währungsabhängige Werte",
-      "labelPostalCodeRequired": "Postal code required",
-      "labelCheckPostalCodePattern": "Validation postal code",
-      "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
-      "labelAdvancedPostalCodePattern": "Postal code pattern",
-      "labelCheckDefaultAddressFormat": "Use default address format",
+      "labelPostalCodeRequired": "Postleitzahl ist Pflichtfeld",
+      "labelCheckPostalCodePattern": "Postleitzahl validieren",
+      "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
+      "labelAdvancedPostalCodePattern": "Postleitzahl-Schema",
+      "labelCheckDefaultAddressFormat": "Standard-Adressformat nutzen",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Formatting",
-      "helpTextCheckPostalCodePattern": "Validates postal code for focus countries",
+      "helpTextCheckPostalCodePattern": "Erlaubt die Validierung von Postleitzahlen für eine Auswahl an Ländern",
       "previewModalTitle": "Vorschau",
       "sidebar": {
         "titleShowAvailableVariables": "Variablen",
         "titleShowPreview": "Vorschau anzeigen",
         "copyTooltip": "In die Zwischenablage kopieren.",
         "labelCustomer": "Kunde",
-        "placeholderSelectCustomer": "Select a customer...",
+        "placeholderSelectCustomer": "Kunden auswählen ...",
         "buttonPreview": "Vorschau"
       }
     }

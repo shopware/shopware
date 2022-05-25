@@ -22,18 +22,14 @@ class ScriptPersister
 
     private EntityRepositoryInterface $appRepository;
 
-    private string $projectDir;
-
     public function __construct(
         ScriptFileReaderInterface $scriptReader,
         EntityRepositoryInterface $scriptRepository,
-        EntityRepositoryInterface $appRepository,
-        string $projectDir
+        EntityRepositoryInterface $appRepository
     ) {
         $this->scriptReader = $scriptReader;
         $this->scriptRepository = $scriptRepository;
         $this->appRepository = $appRepository;
-        $this->projectDir = $projectDir;
     }
 
     public function updateScripts(string $appPath, string $appId, Context $context): void
@@ -122,7 +118,7 @@ class ScriptPersister
 
         /** @var AppEntity $app */
         foreach ($apps as $app) {
-            $this->updateScripts(rtrim($this->projectDir, '/') . '/' . $app->getPath(), $app->getId(), Context::createDefaultContext());
+            $this->updateScripts($app->getPath(), $app->getId(), Context::createDefaultContext());
         }
     }
 

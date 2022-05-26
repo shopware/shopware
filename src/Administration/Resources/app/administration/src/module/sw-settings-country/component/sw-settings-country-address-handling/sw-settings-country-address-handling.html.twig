@@ -81,7 +81,7 @@
         {% block sw_settings_country_address_handling_formatting_card_field_address_format_plain %}
         <sw-code-editor
             ref="plainEditor"
-            v-model="addressFormat"
+            v-model="country.advancedAddressFormatPlain"
             name="format_plain"
             completion-mode="entity"
             :class="{'is--disabled': country.useDefaultAddressFormat}"

@@ -29,6 +29,7 @@ Component.register('sw-settings-country-address-handling', {
                 enableBasicAutocompletion: true,
             },
             addressFormat: null,
+            advancedPostalCodePattern: null,
         };
     },
 
@@ -62,34 +63,30 @@ Component.register('sw-settings-country-address-handling', {
             this.$set(this.country, 'checkAdvancedPostalCodePattern', false);
         },
 
-        addressFormat(value) {
-            if (this.country.useDefaultAddressFormat) {
-                this.$set(this.country, 'advancedAddressFormatPlain', null);
-                return;
-            }
+        'country.useDefaultAddressFormat': {
+            handler(value) {
+                if (value) {
+                    this.addressFormat = this.country.advancedAddressFormatPlain;
+                    this.$set(this.country, 'advancedAddressFormatPlain', FORMAT_ADDRESS_TEMPLATE);
+                    return;
+                }
 
-            this.$set(this.country, 'advancedAddressFormatPlain', value);
-        },
-
-        'country.useDefaultAddressFormat'(value) {
-            if (value) {
-                this.addressFormat = FORMAT_ADDRESS_TEMPLATE;
-                this.$set(this.country, 'advancedAddressFormatPlain', null);
-                return;
-            }
-
-            if (this.country.advancedAddressFormatPlain) {
-                return;
-            }
-
-            this.$set(this.country, 'advancedAddressFormatPlain', FORMAT_ADDRESS_TEMPLATE);
+                this.$set(this.country, 'advancedAddressFormatPlain', this.addressFormat);
+            },
+            immediate: true,
         },
 
         'country.checkAdvancedPostalCodePattern'(value) {
             if (value) {
+                if (this.country.advancedPostalCodePattern && !this.advancedPostalCodePattern) {
+                    return;
+                }
+
+                this.$set(this.country, 'advancedPostalCodePattern', this.advancedPostalCodePattern);
                 return;
             }
 
+            this.advancedPostalCodePattern = this.country.advancedPostalCodePattern;
             this.$set(this.country, 'advancedPostalCodePattern', null);
         },
     },
@@ -103,6 +100,8 @@ Component.register('sw-settings-country-address-handling', {
             this.addressFormat = this.country.useDefaultAddressFormat
                 ? FORMAT_ADDRESS_TEMPLATE
                 : this.country.advancedAddressFormatPlain;
+
+            this.advancedPostalCodePattern = this.country.advancedPostalCodePattern;
         },
     },
 });

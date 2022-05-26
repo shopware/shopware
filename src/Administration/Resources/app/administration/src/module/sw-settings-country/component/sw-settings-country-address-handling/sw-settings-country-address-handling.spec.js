@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-settings-country/component/sw-settings-country-address-handling';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/form/sw-switch-field';
@@ -64,6 +64,8 @@ function createWrapper(privileges = [], customPropsData = {}) {
         }
     });
 }
+
+enableAutoDestroy(afterEach);
 
 describe('module/sw-settings-country/component/sw-settings-country-address-handling', () => {
     beforeAll(() => {
@@ -151,7 +153,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(countryAddressFormatPlain.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to open advanced postal code pattern', async () => {
+    it('should be able to toggle advanced postal code pattern', async () => {
         const wrapper = createWrapper([
             'country.editor'
         ]);
@@ -174,7 +176,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         ).exists()).toBeFalsy();
     });
 
-    it('should be not able to open advanced postal code pattern', async () => {
+    it('should be not able to toggle advanced postal code pattern', async () => {
         const wrapper = createWrapper([
             'country.editor'
         ]);
@@ -215,7 +217,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
-        expect(wrapper.vm.addressFormat).toEqual(FORMAT_ADDRESS_TEMPLATE);
+        expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual(FORMAT_ADDRESS_TEMPLATE);
 
         const useDefaultAddressFormatField = wrapper.findAll('.sw-field--switch').at(4);
         await useDefaultAddressFormatField
@@ -226,16 +228,18 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             .vm
             .$emit('input', '{{ company }} - {{ department }}');
 
-        expect(wrapper.vm.addressFormat).toEqual('{{ company }} - {{ department }}');
+        expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual('{{ company }} - {{ department }}');
 
         await useDefaultAddressFormatField
             .find('.sw-field--switch__input input')
             .trigger('click');
 
-        expect(wrapper.vm.addressFormat).toEqual(FORMAT_ADDRESS_TEMPLATE);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual(FORMAT_ADDRESS_TEMPLATE);
     });
 
-    it('should set advanced postal code pattern is null when to disabled Advanced validation rules', async () => {
+    it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {
         const wrapper = createWrapper(['country.editor']);
 
         await wrapper.setProps({
@@ -246,7 +250,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
-        expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(2);
 
@@ -255,5 +258,17 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             .trigger('click');
 
         expect(wrapper.vm.country.advancedPostalCodePattern).toBeNull();
+
+        await checkPostalCodePatternField
+            .find('.sw-field--switch__input input')
+            .trigger('click');
+
+        const checkAdvancedPostalCodePattern = wrapper.findAll('.sw-field--switch').at(3);
+
+        await checkAdvancedPostalCodePattern
+            .find('.sw-field--switch__input input')
+            .trigger('click');
+
+        expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
     });
 });

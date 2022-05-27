@@ -65,6 +65,10 @@ class Feature
         self::isActive($flagName) && $closure();
     }
 
+    /**
+     * @param object $object
+     * @param mixed[] $arguments
+     */
     public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
     {
         $closure = function () use ($object, $methodName, $arguments): void {
@@ -112,7 +116,10 @@ class Feature
         $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
 
         if (self::isActive($flag) || !self::has($flag)) {
-            ScriptTraces::addDeprecationNotice(sprintf($message, ...$args));
+            if (\PHP_SAPI !== 'cli') {
+                ScriptTraces::addDeprecationNotice(sprintf($message, ...$args));
+            }
+
             trigger_deprecation('shopware/core', $sinceVersion, $message, $args);
         }
     }
@@ -123,7 +130,9 @@ class Feature
             throw new \RuntimeException($message);
         }
 
-        ScriptTraces::addDeprecationNotice($message);
+        if (\PHP_SAPI !== 'cli') {
+            ScriptTraces::addDeprecationNotice($message);
+        }
     }
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
@@ -132,7 +141,10 @@ class Feature
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 
-        ScriptTraces::addDeprecationNotice($message);
+        if (\PHP_SAPI !== 'cli') {
+            ScriptTraces::addDeprecationNotice($message);
+        }
+
         trigger_deprecation('shopware/core', '', $message);
     }
 

@@ -7816,16 +7816,6 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:ifActiveCall\\(\\) has parameter \\$arguments with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:ifActiveCall\\(\\) has parameter \\$object with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Framework\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Framework.php

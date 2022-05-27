@@ -21,6 +21,7 @@
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Elasticsearch</directory>
+            <directory suffix=".php">src/Core/Migration</directory>
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -54,7 +55,7 @@
             <directory suffix=".php">src/Core/Checkout/Test</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
-            <directory suffix=".php">src/Core/Migration</directory>
+            <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Profiling/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
 
@@ -62,6 +63,8 @@
 
             <directory suffix=".php">src/Administration/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">./vendor</directory>
+            <directory suffix=".php">./var</directory>
         </exclude>
       </coverage>
     <php>

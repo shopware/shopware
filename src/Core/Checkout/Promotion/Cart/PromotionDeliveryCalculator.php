@@ -208,6 +208,8 @@ class PromotionDeliveryCalculator
                 throw new InvalidPriceDefinitionException($discountB->getLabel(), $discountB->getReferencedId());
             }
 
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
             if ($priceDefA->getPrice() === $priceDefB->getPrice()) {
                 return 0;
             }
@@ -219,6 +221,7 @@ class PromotionDeliveryCalculator
             }
 
             return 1;
+            // @codeCoverageIgnoreEnd
         });
 
         // now we return a collection with the first price discountLineItem

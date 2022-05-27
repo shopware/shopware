@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
@@ -23,6 +24,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -37,6 +40,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
+ * @group not-deterministic
  */
 class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 {
@@ -250,7 +255,13 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
+        $this->getContainer()
+            ->get(EntityWriter::class)
+            ->upsert(
+                $this->getContainer()->get(CustomerDefinition::class),
+                [$customer],
+                WriteContext::createFromContext($this->context)
+            );
 
         return $customerId;
     }

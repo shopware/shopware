@@ -112,6 +112,9 @@ class TaxRuleEntity extends Entity
         $this->type = $type;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTaxRate(): float
     {
         return $this->taxRate;

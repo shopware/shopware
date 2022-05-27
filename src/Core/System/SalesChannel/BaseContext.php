@@ -125,11 +125,17 @@ class BaseContext
         return 'base_channel_context';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTotalRounding(): CashRoundingConfig
     {
         return $this->totalRounding;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;

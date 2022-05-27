@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
@@ -36,11 +38,23 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
      */
     private $repository;
 
+    /**
+     * @var EntityWriter
+     */
+    private $writer;
+
+    /**
+     * @var CustomerDefinition
+     */
+    private $customerDefinition;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);
 
+        $this->writer = $this->getContainer()->get(EntityWriter::class);
+        $this->customerDefinition = $this->getContainer()->get(CustomerDefinition::class);
         $this->repository = $this->getContainer()->get('customer.repository');
 
         $this->connection->rollBack();
@@ -108,7 +122,8 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $this->repository->search((new Criteria()), Context::createDefaultContext())->first();
 
-        $this->repository->update(
+        $this->writer->update(
+            $this->customerDefinition,
             [
                 [
                     'id' => $customer->getId(),
@@ -117,7 +132,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
                     'doubleOptInConfirmDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             ],
-            Context::createDefaultContext()
+            WriteContext::createFromContext(Context::createDefaultContext())
         );
 
         $sql = '
@@ -179,7 +194,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'doubleOptInConfirmDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->repository->create([$customer], Context::createDefaultContext());
+        $this->writer->insert($this->customerDefinition, [$customer], WriteContext::createFromContext(Context::createDefaultContext()));
     }
 
     private function getSalutationId(): ?string

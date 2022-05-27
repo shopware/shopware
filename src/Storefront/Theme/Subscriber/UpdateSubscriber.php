@@ -65,9 +65,13 @@ class UpdateSubscriber implements EventSubscriberInterface
             }
 
             foreach ($themes as $theme) {
+                // NEXT-21735 - his is covered randomly
+                // @codeCoverageIgnoreStart
                 if (\in_array($theme->getId(), $alreadyCompiled, true) !== false) {
                     continue;
                 }
+                // @codeCoverageIgnoreEnd
+
                 $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
             }
         }

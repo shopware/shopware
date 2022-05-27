@@ -9,8 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,8 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CachedProductDetailRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
+    use IntegrationTestBehaviour;
 
     private const ALL_TAG = 'test-tag';
 

@@ -61,6 +61,8 @@ class CheapestPriceContainer extends Struct
 
         $hasRange = (bool) $cheapest['is_ranged'];
 
+        // NEXT-21735 - This is covered randomly
+        // @codeCoverageIgnoreStart
         foreach ($prices as $price) {
             $current = $this->getPriceValue($price, $context);
 
@@ -77,6 +79,7 @@ class CheapestPriceContainer extends Struct
                 $cheapest = $price;
             }
         }
+        // @codeCoverageIgnoreEnd
 
         $object = new CheapestPrice();
         $object->setRuleId($cheapest['rule_id']);

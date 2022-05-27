@@ -54,9 +54,13 @@ QueryReflection::setupReflector(
     $config
 );
 
+$databaseUrl = $_SERVER['DATABASE_URL'];
+
 $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
 $pluginLoader = new StaticKernelPluginLoader($classLoader);
 $kernel = new StaticAnalyzeKernel('phpstan_dev', true, $pluginLoader, 'phpstan-test-cache-id');
 $kernel->boot();
+
+$_SERVER['DATABASE_URL'] = $databaseUrl;
 
 return $classLoader;

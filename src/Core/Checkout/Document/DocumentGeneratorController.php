@@ -57,7 +57,7 @@ class DocumentGeneratorController extends AbstractController
      *             ),
      *             @OA\Property(
      *                 property="referenced_document_id",
-     *                 description="Identifier of the reverenced document.",
+     *                 description="Identifier of the referenced document.",
      *                 @OA\Schema(type="string", pattern="^[0-9a-f]{32}$", default="null")
      *             ),
      *             @OA\Property(
@@ -138,7 +138,7 @@ class DocumentGeneratorController extends AbstractController
      * @OA\Post(
      *     path="/_action/document/{documentId}/upload",
      *     summary="Upload a file for a document",
-     *     description="Uploads a file for a document. This prevents the document from beeing dynamically generated and delivers the uploaded file instead, when the document is downloaded.
+     *     description="Uploads a file for a document. This prevents the document from being dynamically generated and delivers the uploaded file instead, when the document is downloaded.
 
 Note:
 * The document is required to be `static`

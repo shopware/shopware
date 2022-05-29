@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -71,12 +73,21 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         foreach ($definitions as $definition) {
             $entity = $definition->getEntityName();
 
-            $schema[$entity] = $this->getEntitySchema($definition);
+            $entitySchema = $this->getEntitySchema($definition);
+
+            if ($entitySchema['write-protected'] && $entitySchema['read-protected']) {
+                continue;
+            }
+
+            $schema[$entity] = $entitySchema;
         }
 
         return $schema;
     }
 
+    /**
+     * @return array{entity: string, properties: array, write-protected: bool, read-protected: bool}
+     */
     private function getEntitySchema(EntityDefinition $definition): array
     {
         $fields = $definition->getFields();
@@ -89,6 +100,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return [
             'entity' => $definition->getEntityName(),
             'properties' => $properties,
+            'write-protected' => $definition->getProtections()->get(WriteProtection::class) !== null,
+            'read-protected' => $definition->getProtections()->get(ReadProtection::class) !== null,
         ];
     }
 

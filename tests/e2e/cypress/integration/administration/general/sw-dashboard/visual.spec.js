@@ -46,9 +46,14 @@ describe('Dashboard:  Visual tests', () => {
         });
 
         cy.get('#sw-field--statisticDateRanges-value').select('14Days');
-        cy.get('.apexcharts-series-markers-wrap').should('be.visible');
+        //select command again to reload data within the card
+        cy.get('#sw-field--statisticDateRanges-value').select('14Days');
         cy.get('.sw-skeleton__detail').should('not.exist');
-
+        cy.get('.apexcharts-series-markers').should('be.visible');
+        cy.changeElementStyling(
+            '.apexcharts-xaxis-label',
+            'display: none;'
+        );
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

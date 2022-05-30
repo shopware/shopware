@@ -24,6 +24,18 @@ class CheckoutConfirmPage extends Page
      */
     protected $shippingMethods;
 
+    protected array $formattingCustomerAddresses = [];
+
+    public function getFormattingCustomerAddresses(): array
+    {
+        return $this->formattingCustomerAddresses;
+    }
+
+    public function setFormattingCustomerAddresses(array $formattingCustomerAddresses): ?array
+    {
+        return $this->formattingCustomerAddresses = $formattingCustomerAddresses;
+    }
+
     public function getCart(): Cart
     {
         return $this->cart;

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry;
 
+/**
+ * @internal
+ */
 class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
@@ -17,6 +18,8 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\Country\Service\CountryAddressFormattingService;
+use Shopware\Core\System\Country\Struct\CountryAddress;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -39,6 +42,8 @@ class CheckoutConfirmPageLoader
 
     private DataValidator $validator;
 
+    private CountryAddressFormattingService $countryAddressFormattingService;
+
     /**
      * @internal
      */
@@ -49,7 +54,8 @@ class CheckoutConfirmPageLoader
         AbstractPaymentMethodRoute $paymentMethodRoute,
         GenericPageLoaderInterface $genericPageLoader,
         DataValidationFactoryInterface $addressValidationFactory,
-        DataValidator $validator
+        DataValidator $validator,
+        CountryAddressFormattingService $countryAddressFormattingService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
@@ -58,6 +64,7 @@ class CheckoutConfirmPageLoader
         $this->genericPageLoader = $genericPageLoader;
         $this->addressValidationFactory = $addressValidationFactory;
         $this->validator = $validator;
+        $this->countryAddressFormattingService = $countryAddressFormattingService;
     }
 
     /**
@@ -67,6 +74,8 @@ class CheckoutConfirmPageLoader
     public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
     {
         $page = $this->genericPageLoader->load($request, $context);
+
+        /** @var CheckoutConfirmPage */
         $page = CheckoutConfirmPage::createFrom($page);
 
         if ($page->getMetaInformation()) {
@@ -79,6 +88,8 @@ class CheckoutConfirmPageLoader
         $cart = $this->cartService->get($context->getToken(), $context);
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
+
+        $page->setFormattingCustomerAddresses($this->renderCustomerAddressFormatting($context));
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request)
@@ -162,5 +173,32 @@ class CheckoutConfirmPageLoader
         if ($violations->count() > 0) {
             $cart->getErrors()->add(new AddressValidationError(false, $violations));
         }
+    }
+
+    private function renderCustomerAddressFormatting(SalesChannelContext $context): array
+    {
+        $customer = $context->getCustomer();
+        if (empty($customer)) {
+            return [];
+        }
+        $billingAddress = $customer->getActiveBillingAddress();
+        $shippingAddress = $customer->getActiveShippingAddress();
+
+        $customerAddressCollection = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
+
+        $formattingCustomerAddresses = [];
+        foreach ($customerAddressCollection->getElements() as $customerAddress) {
+            if (!$customerAddress->getCountry() || $customerAddress->getCountry()->getUseDefaultAddressFormat()) {
+                continue;
+            }
+
+            $formattingCustomerAddresses[$customerAddress->getId()] = $this->countryAddressFormattingService->render(
+                CountryAddress::createFromEntity($customerAddress),
+                $customerAddress->getCountry()->getAdvancedAddressFormatPlain(),
+                $context->getContext(),
+            );
+        }
+
+        return $formattingCustomerAddresses;
     }
 }

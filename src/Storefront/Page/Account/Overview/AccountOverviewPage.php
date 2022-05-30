@@ -19,10 +19,22 @@ class AccountOverviewPage extends Page
      */
     protected $customer;
 
+    protected array $formattingCustomerAddresses = [];
+
     /**
      * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
      */
     protected NewsletterAccountPagelet $newsletterAccountPagelet;
+
+    public function getFormattingCustomerAddresses(): array
+    {
+        return $this->formattingCustomerAddresses;
+    }
+
+    public function setFormattingCustomerAddresses(array $formattingCustomerAddresses): ?array
+    {
+        return $this->formattingCustomerAddresses = $formattingCustomerAddresses;
+    }
 
     public function setNewestOrder(OrderEntity $order): void
     {

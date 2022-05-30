@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable;
 
+/**
+ * @internal
+ */
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullableTest extends TestCase
 {
     use KernelTestBehaviour;

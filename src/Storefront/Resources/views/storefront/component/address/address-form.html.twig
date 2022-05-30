@@ -178,6 +178,7 @@
 
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
+                {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
                     {% if formViolations.getViolations("/zipcode") is not empty %}
                         {% set violationPath = "/zipcode" %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
@@ -199,7 +200,7 @@
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
-                               value="{{ data.get('zipcode') }}"
+                               value="{{ zipcodeValue }}"
                                data-input-name="zipcodeInput"
                         >
                     {% endblock %}

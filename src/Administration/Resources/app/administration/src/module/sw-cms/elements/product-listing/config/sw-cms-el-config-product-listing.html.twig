@@ -192,7 +192,7 @@
                 {% endblock %}
 
                 {% block sw_cms_element_product_listing_config_filter_properties_wrapper %}
-                <div v-if="showPropertySelection">
+                <div>
 
                     {% block sw_cms_element_product_listing_config_filter_spacer %}
                     <hr class="spacer">
@@ -226,33 +226,62 @@
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_property_grid %}
-                    <template v-if="displayedProperties.length > 0">
-                        <sw-cms-el-config-product-listing-config-filter-properties-grid
-                            :disabled="showFilterGrid"
-                            :properties="displayedProperties"
-                            @property-status-changed="propertyStatusChanged"
-                            @page-change="onPageChange"
-                        />
-                    </template>
+                    <div
+                        v-if="showPropertySelection"
+                        class="sw-cms-el-config-product-listing-property-grid"
+                        :class="gridClasses"
+                    >
+                        <sw-data-grid
+                            :data-source="properties"
+                            :columns="gridColumns"
+                            :compact-mode="true"
+                            :allow-inline-edit="false"
+                            :show-actions="false"
+                            :show-selection="false"
+                            plain-appearance
+                        >
+
+                            <template #column-status="{ item, column }">
+                                {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
+                                <sw-switch-field
+                                    :disabled="column.disabled"
+                                    :value="item.active"
+                                    @change="propertyStatusChanged(item.id)"
+                                />
+                            {% endblock %}
+                            </template>
+
+                            <template #pagination>
+                                {% block sw_cms_element_product_listing_config_filter_property_grid_pagination %}
+                                <sw-pagination
+                                    v-if="!disabled"
+                                    :page="propertiesPage"
+                                    :limit="propertiesLimit"
+                                    :total="propertiesTotal"
+                                    :auto-hide="false"
+                                    :steps="[]"
+                                    @page-change="onPropertiesPageChange"
+                                />
+                            {% endblock %}
+                            </template>
+                        </sw-data-grid>
+                    </div>
                     {% endblock %}
 
                     {% block sw_cms_element_product_listing_config_filter_empty_state %}
-                    <template v-if="displayedProperties.length < 1">
-                        <div class="sw-cms-element-product-listing-config-filter__empty-state">
+                    <sw-empty-state
+                        v-else
+                        :absolute="false"
+                        :title="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
+                        :subline="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
+                    >
+                        <template #icon>
                             <img
                                 :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                                alt=""
+                                alt="$tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                             >
-
-                            <div class="sw-cms-element-product-listing-config-filter__empty-state--label">
-                                <p></p><p>{{ $tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel') }}</p>
-                            </div>
-
-                            <div class="sw-cms-element-product-listing-config-filter__empty-state--hint">
-                                <p>{{ $tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint') }}</p>
-                            </div>
-                        </div>
-                    </template>
+                        </template>
+                    </sw-empty-state>
                     {% endblock %}
                 </div>
                 {% endblock %}

@@ -73,7 +73,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="script.repository"/>
             <argument type="service" id="app.repository"/>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">

@@ -39,8 +39,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     public function testCreateIndices(): void
     {
-        $this->client->indices()->delete(['index' => '_all']);
-        $this->client->indices()->refresh(['index' => '_all']);
+        $this->clearElasticsearch();
 
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -149,8 +148,7 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertArrayHasKey('test_later_created_field_text', $properties);
         static::assertSame('text', $properties['test_later_created_field_text']['type']);
 
-        $this->client->indices()->delete(['index' => '_all']);
-        $this->client->indices()->refresh(['index' => '_all']);
+        $this->clearElasticsearch();
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 

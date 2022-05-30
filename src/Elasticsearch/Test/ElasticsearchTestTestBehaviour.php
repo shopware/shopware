@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
@@ -12,6 +13,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -94,4 +96,21 @@ trait ElasticsearchTestTestBehaviour
     abstract protected function getDiContainer(): ContainerInterface;
 
     abstract protected function runWorker(): void;
+
+    protected function clearElasticsearch(): void
+    {
+        $c = $this->getDiContainer();
+
+        $client = $c->get(Client::class);
+        $detector = $c->get(ElasticsearchOutdatedIndexDetector::class);
+
+        $indices = $detector->getAllUsedIndices();
+
+        foreach ($indices as $index) {
+            $client->indices()->delete(['index' => $index]);
+        }
+
+        $connection = $c->get(Connection::class);
+        $connection->executeStatement('DELETE FROM elasticsearch_index_task');
+    }
 }

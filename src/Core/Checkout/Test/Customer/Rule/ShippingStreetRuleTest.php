@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -198,5 +199,20 @@ class ShippingStreetRuleTest extends TestCase
             'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
             'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '],
         ];
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        try {
+            $rule = new ShippingStreetRule();
+            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $location = $this->createMock(ShippingLocation::class);
+            $location->method('getAddress')->willReturn(new CustomerAddressEntity());
+            $salesChannelContext->method('getShippingLocation')->willReturn($location);
+            $rule->match(new CheckoutRuleScope($salesChannelContext));
+            static::fail('Exception was not thrown');
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        }
     }
 }

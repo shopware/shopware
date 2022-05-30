@@ -34,11 +34,19 @@ class DifferentAddressesRule extends Rule
             return false;
         }
 
-        if ($this->isDifferent) {
-            return $customer->getActiveBillingAddress()->getId() !== $customer->getActiveShippingAddress()->getId();
+        if (!$billingAddress = $customer->getActiveBillingAddress()) {
+            return false;
         }
 
-        return $customer->getActiveBillingAddress()->getId() === $customer->getActiveShippingAddress()->getId();
+        if (!$shippingAddress = $customer->getActiveShippingAddress()) {
+            return false;
+        }
+
+        if ($this->isDifferent) {
+            return $billingAddress->getId() !== $shippingAddress->getId();
+        }
+
+        return $billingAddress->getId() === $shippingAddress->getId();
     }
 
     public function getConstraints(): array

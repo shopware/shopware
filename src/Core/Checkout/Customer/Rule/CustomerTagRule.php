@@ -17,7 +17,7 @@ class CustomerTagRule extends Rule
     protected $operator;
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $identifiers;
 

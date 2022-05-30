@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -162,6 +163,34 @@ class BillingStreetRuleTest extends TestCase
         $streetName = $ruleConstraints['streetName'];
         static::assertEquals(new NotBlank(), $streetName[0]);
         static::assertEquals(new Type('string'), $streetName[1]);
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        try {
+            $rule = new BillingStreetRule();
+            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $customer = new CustomerEntity();
+            $customer->setActiveBillingAddress(new CustomerAddressEntity());
+            $salesChannelContext->method('getCustomer')->willReturn($customer);
+            $rule->match(new CheckoutRuleScope($salesChannelContext));
+            static::fail('Exception was not thrown');
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        }
+    }
+
+    public function testRuleNotMatchingWithoutAddress(): void
+    {
+        $this->rule->assign(['streetName' => 'foo', 'operator' => Rule::OPERATOR_EQ]);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customer = new CustomerEntity();
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LastNameRule extends Rule
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $lastName;
 
@@ -38,6 +39,10 @@ class LastNameRule extends Rule
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
             return false;
+        }
+
+        if (!\is_string($this->lastName)) {
+            throw new UnsupportedValueException(\gettype($this->lastName), self::class);
         }
 
         return RuleComparison::string($customer->getLastName(), $this->lastName, $this->operator);

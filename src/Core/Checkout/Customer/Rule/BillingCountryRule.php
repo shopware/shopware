@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class BillingCountryRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $countryIds;
 
@@ -40,7 +40,15 @@ class BillingCountryRule extends Rule
             return false;
         }
 
-        $countryId = $customer->getActiveBillingAddress()->getCountry()->getId();
+        if (!$address = $customer->getActiveBillingAddress()) {
+            return false;
+        }
+
+        if (!$country = $address->getCountry()) {
+            return false;
+        }
+
+        $countryId = $country->getId();
         $parameter = [$countryId];
         if ($countryId === '') {
             $parameter = [];

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CustomerGroupRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
     protected $customerGroupIds;
 

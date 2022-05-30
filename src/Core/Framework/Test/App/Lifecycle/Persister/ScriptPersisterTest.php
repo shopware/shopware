@@ -15,7 +15,8 @@ class ScriptPersisterTest extends TestCase
 
     public function testRefreshDoesNotDeleteExistingScripts(): void
     {
-        $this->installApp(__DIR__ . '/../../Manifest/_fixtures/test');
+        $appPath = __DIR__ . '/../../Manifest/_fixtures/test';
+        $this->installApp($appPath);
 
         static::assertSame(6, $this->fetchAppScriptCount());
 
@@ -24,6 +25,7 @@ class ScriptPersisterTest extends TestCase
         $scriptPersister->refresh();
 
         static::assertSame(6, $this->fetchAppScriptCount());
+        $this->removeApp($appPath);
     }
 
     private function fetchAppScriptCount(): int

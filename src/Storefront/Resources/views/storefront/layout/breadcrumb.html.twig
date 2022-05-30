@@ -32,8 +32,8 @@
                                     itemtype="https://schema.org/ListItem">
                                     {% if breadcrumbCategory.type == 'folder' %}
                                         <div itemprop="item">
-											<div itemprop="name">{{ name }}</div>
-										</div>
+                                            <div itemprop="name">{{ name }}</div>
+                                        </div>
                                     {% else %}
                                         <a href="{{ category_url(breadcrumbCategory) }}"
                                            class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"

@@ -226,18 +226,33 @@
                                                     {% set maxQuantity = config('core.cart.maxQuantity') %}
                                                 {% endif %}
 
+                                                {% set selectQuantityThreshold = 100 %}
                                                 {% block page_product_detail_buy_quantity %}
-                                                    <select name="quantity"
-                                                            class="{{ formSelectClass }} quantity-select">
-
-                                                        {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                                            <option value="{{ quantity }}"
-                                                                {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                                {{ quantity }}
-                                                            </option>
-                                                        {% endfor %}
-
-                                                    </select>
+                                                    {% if quantityInformation.maxPurchase /  lineItem.quantityInformation.purchaseSteps > selectQuantityThreshold %}
+                                                        {% block page_product_detail_buy_quantity_input %}
+                                                            <input
+                                                                type="number"
+                                                                name="quantity"
+                                                                class="form-control js-offcanvas-cart-change-quantity"
+                                                                min="{{ quantityInformation.minPurchase }}"
+                                                                max="{{ maxQuantity }}"
+                                                                step="{{ quantityInformation.purchaseSteps }}"
+                                                                value="{{ lineItem.quantity }}"
+                                                            />
+                                                        {% endblock %}
+                                                    {% else %}
+                                                        {% block page_product_detail_buy_quantity_select %}
+                                                            <select name="quantity"
+                                                                    class="{{ formSelectClass }} quantity-select">
+                                                                {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
+                                                                    <option value="{{ quantity }}"
+                                                                        {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
+                                                                        {{ quantity }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% endblock %}
+                                                    {% endif %}
                                                 {% endblock %}
 
                                             </form>

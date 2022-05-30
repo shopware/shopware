@@ -102,6 +102,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-18126 - Add permissions to extensions](/changelog/release-6-4-12-0/2022-01-05-add-permissions-to-extensions.md)
 *  [NEXT-21237 - Add allowed hosts to apps](/changelog/release-6-4-12-0/2022-04-25-add-allowed-hosts-to-apps.md)
 *  [NEXT-21763 - Pass unmodified app path when updating app scripts](/changelog/release-6-4-12-0/2022-05-25-pass-unmodified-app-path-when-updating-app-scripts.md)
+*  [NEXT-21569 - Revert string field break](/changelog/release-6-4-12-0/2022-05-12-revert-string-field-break.md)
 
 ## 6.4.11.1
 *  [NEXT-21458 - Filter inactive root categories](/changelog/release-6-4-11-1/2022-05-05-filter-inactive-root-categories.md)

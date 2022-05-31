@@ -83,7 +83,39 @@
             {% endblock %}
 
             {% block sw_settings_payment_overview_list %}
-            {# ToDo: NEXT-20936 - Add list here #}
+            <template v-for="card in paymentMethodCards">
+
+                <template v-if="card.hasCustomCard">
+                    {% block sw_settings_payment_overview_list_card_custom_location %}
+                    <sw-extension-component-section
+                        :key="`extension-${card.id}`"
+                        :position-identifier="card.positionId"
+                    />
+                    {% endblock %}
+                </template>
+
+                <template v-if="card.hasCustomCard && card.component">
+                    {% block sw_settings_payment_overview_list_card_custom_card %}
+                    <component
+                        :is="card.component"
+                        :key="`component-${card.id}`"
+                        :payment-methods="card.paymentMethods"
+                        @set-payment-active="togglePaymentMethodActive"
+                    />
+                    {% endblock %}
+                </template>
+
+                <template v-if="!card.hasCustomCard">
+                    {% block sw_settings_payment_overview_list_card_default %}
+                    <sw-payment-card
+                        :key="`default-${card.id}`"
+                        :payment-method="card.paymentMethod"
+                        @set-payment-active="togglePaymentMethodActive"
+                    />
+                    {% endblock %}
+                </template>
+
+            </template>
             {% endblock %}
 
             {% block sw_settings_payment_overview_empty_state %}

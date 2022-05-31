@@ -1,9 +1,11 @@
 import './component/sw-plugin-box';
 import './component/sw-settings-payment-sorting-modal';
+import './component/sw-payment-card';
 import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-overview';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
+import './init';
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 

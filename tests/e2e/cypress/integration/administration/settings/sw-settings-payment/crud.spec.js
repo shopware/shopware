@@ -9,14 +9,13 @@ describe('Payment: Test crud operations', () => {
                 return cy.createDefaultFixture('payment-method');
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
             });
     });
 
-    // ToDo: NEXT-20936 - Find payment method in new list
-    it.skip('@base @settings: create and read payment method', () => {
+    it('@base @settings: create and read payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -39,12 +38,10 @@ describe('Payment: Test crud operations', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
-        cy.contains(`${page.elements.dataGridRow}--0`, 'Bar bei Abholung').should('be.visible');
+        cy.contains('.sw-card__title', 'Bar bei Abholung');
     });
 
-    // ToDo: NEXT-20936 - Find payment method in new list
-    it.skip('@base @settings: update and read payment method', () => {
+    it('@base @settings: update and read payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -53,15 +50,12 @@ describe('Payment: Test crud operations', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.setEntitySearchable('payment_method', 'name');
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('Edit detail')
+            .click();
 
-        // Edit base data
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
-        cy.clickContextMenuItem(
-            '.sw-settings-payment-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
 
         cy.get('#sw-field--paymentMethod-name').clearTypeAndCheck('In Schokoladentafeln');
         cy.get(page.elements.paymentSaveAction).click();
@@ -70,11 +64,12 @@ describe('Payment: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
-        cy.contains(`${page.elements.dataGridRow}--0`, 'In Schokoladentafeln').should('be.visible');
+
+        cy.contains('.sw-card__title', 'In Schokoladentafeln');
     });
 
-    it('@base @settings: delete payment method', () => {
+    // ToDo: NEXT-20936 - We need an opportunity
+    it.skip('@base @settings: delete payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later

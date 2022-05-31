@@ -10,7 +10,15 @@
         "message": "We’ve made it easier to manage your shop’s payment methods. Try out the new design now, the old one will be removed with the next major release of Shopware 6.",
         "link": "Switch to old design"
       },
-      "openSortingModalButton": "Edit display order in checkout"
+      "openSortingModalButton": "Edit display order in checkout",
+      "editDetails": "Edit detail",
+      "missingEditorPermission": "You don't have the permissions, to edit payment methods.",
+      "notification": {
+        "activationSuccess": "{name} successfully activated.",
+        "deactivationSuccess": "{name} successfully deactivated.",
+        "activationError": "{name} could not be activated.",
+        "deactivationError": "{name} could not be deactivated."
+      }
     },
     "deprecated-alert": {
       "message": "We’ve made it easier to manage your shop’s payment methods.",

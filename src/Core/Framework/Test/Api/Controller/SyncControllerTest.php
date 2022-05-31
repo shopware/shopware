@@ -71,10 +71,10 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id1);
         $response = $this->getBrowser()->getResponse();
@@ -126,17 +126,20 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
-        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
         static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testInsertAndLinkEntities(): void
@@ -176,15 +179,16 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
         $this->getBrowser()->request('GET', '/api/product/' . $productId . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = $this->getBrowser()->getResponse();
+        $responseData = json_decode((string) $response->getContent(), true);
 
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $categories = array_column($responseData['data'], 'id');
 
         static::assertContains($categoryId, $categories);
@@ -192,11 +196,11 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('DELETE', '/api/category/' . $categoryId);
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $productId);
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testNestedInsertAndLinkAfter(): void
@@ -238,23 +242,23 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $this->getBrowser()->request('GET', '/api/product/' . $product . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/product/' . $product2 . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
 
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/category/' . $category . '/products/');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         $products = array_column($responseData['data'], 'id');
@@ -295,7 +299,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -315,7 +319,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',
@@ -356,7 +360,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -368,7 +372,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(400, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
 
         foreach ($content['data'][0]['result'] as $result) {
             static::assertEmpty($result['entities']);
@@ -398,7 +402,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -410,7 +414,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true);
 
         foreach ($content['data'][0]['result'] as $result) {
             static::assertEmpty($result['entities']);
@@ -443,7 +447,14 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
         $this->connection->executeUpdate('DELETE FROM `increment`;');
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/sync',
+            [],
+            [],
+            ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE],
+            json_encode($data, \JSON_THROW_ON_ERROR)
+        );
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -488,7 +499,14 @@ class SyncControllerTest extends TestCase
         $keys = $this->gateway->list('message_queue_stats');
         static::assertEmpty($keys);
 
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/sync',
+            [],
+            [],
+            ['HTTP_Fail-On-Error' => 'false'],
+            json_encode($data, \JSON_THROW_ON_ERROR)
+        );
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -526,7 +544,7 @@ class SyncControllerTest extends TestCase
         $headers = [
             'HTTP_' . PlatformRequest::HEADER_INDEXING_SKIP => ProductIndexer::SEARCH_KEYWORD_UPDATER,
         ];
-        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data, \JSON_THROW_ON_ERROR));
 
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 

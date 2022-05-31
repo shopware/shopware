@@ -13,10 +13,7 @@ class NullConnection extends Connection
 {
     public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
 
-    /**
-     * @var Connection
-     */
-    private $originalConnection;
+    private Connection $originalConnection;
 
     /**
      * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
@@ -72,7 +69,7 @@ class NullConnection extends Connection
         return $this->originalConnection->delete($table, $criteria, $types);
     }
 
-    public function setOriginalConnection($originalConnection): void
+    public function setOriginalConnection(Connection $originalConnection): void
     {
         $this->originalConnection = $originalConnection;
     }

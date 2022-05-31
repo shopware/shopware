@@ -776,11 +776,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/CartScopeDiscountPackagerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\Fakes\\\\FakeConnection\\:\\:executeQuery\\(\\) should return Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverResultStatement\\|Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverStatement but returns Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\Fakes\\\\FakeResultStatement\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeConnection.php
-
-		-
 			message: "#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$request \\(Symfony\\\\Component\\\\HttpFoundation\\\\InputBag\\<bool\\|float\\|int\\|string\\>\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeGetRequest.php
@@ -8336,41 +8331,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/AclControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\ApiControllerTest\\:\\:getNonSystemLanguageId\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\ApiControllerTest\\:\\:getSalesChannelData\\(\\) has parameter \\$languageId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 39
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$uri of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 71
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 71
-			path: src/Core/Framework/Test/Api/Controller/ApiControllerTest.php
-
-		-
 			message: "#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#"
 			count: 7
 			path: src/Core/Framework/Test/Api/Controller/AuthControllerTest.php
@@ -8544,21 +8504,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:\\$taxId is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Core/Framework/Test/Api/Controller/SyncControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Api/Controller/SyncControllerTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 11
-			path: src/Core/Framework/Test/Api/Controller/SyncControllerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -12680,11 +12625,6 @@ parameters:
 			path: src/Core/Migration/Test/MigrationForeignDefaultLanguageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:setOriginalConnection\\(\\) has parameter \\$originalConnection with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/NullConnection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueries\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
@@ -13018,61 +12958,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Test/CustomEntity/Api/CustomEntityApiControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with false and 'Expected delete…' will always evaluate to false\\.$#"
-			count: 2
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on object\\|null\\.$#"
-			count: 4
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method delete\\(\\) on object\\|null\\.$#"
-			count: 6
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
-			count: 6
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method getFlags\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method getPrivileges\\(\\) on Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Cannot call method is\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 8
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
-			count: 6
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 6
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Variable \\$events in PHPDoc tag @var does not match assigned variable \\$criteria\\.$#"
-			count: 3
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Language\\\\SalesChannel\\\\CachedLanguageRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"

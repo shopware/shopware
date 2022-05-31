@@ -27,7 +27,7 @@ function registerCmsElement(config) {
         config.collect = function collect(elem) {
             const criteriaList = {};
 
-            Object.keys(elem.config).forEach((configKey) => {
+            Object.keys(elem.config).forEach((configKey, index) => {
                 if (['mapped', 'default'].includes(elem.config[configKey].source)) {
                     return;
                 }
@@ -35,7 +35,7 @@ function registerCmsElement(config) {
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = entity.name;
+                    const entityKey = entity.name + '-' + index;
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
@@ -54,14 +54,14 @@ function registerCmsElement(config) {
                 return;
             }
 
-            Object.keys(elem.config).forEach((configKey) => {
+            Object.keys(elem.config).forEach((configKey, index) => {
                 const entity = elem.config[configKey].entity;
 
                 if (!entity) {
                     return;
                 }
 
-                const entityKey = entity.name;
+                const entityKey = entity.name + '-' + index;
                 if (!data[`entity-${entityKey}`]) {
                     return;
                 }

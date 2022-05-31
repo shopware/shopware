@@ -90,6 +90,7 @@ class ImageTypeDetector implements TypeDetectorInterface
         $fh = fopen($filename, 'rb');
         fread($fh, 12);
         if (fread($fh, 4) === 'VP8X') {
+            fseek($fh, 20);
             $animationByte = fread($fh, 1);
             $result = (\ord($animationByte) >> 1) & 1 ? true : false;
         }

@@ -71,21 +71,21 @@
             ref="tabComponent"
             class="sw-custom-field-set-renderer__card-tabs"
             variant="minimal"
-            :default-item="visibleCustomFieldSets[0].name"
+            :default-item="visibleCustomFieldSets[0].id"
             :position-identifier="'sw-custom-field-set-renderer'"
+            @new-item-active="(tab) => loadCustomFieldSet(tab.name)"
         >
             {% block sw_custom_field_set_renderer_card_tabs %}
-            <template slot-scope="{ active }">
+            <template #default="{ active }">
                 <template v-for="set in visibleCustomFieldSets">
                     <sw-tabs-item
-                        v-if="set.customFields"
                         :key="`sw-tab--${set.id}`"
                         variant="minimal"
-                        :name="set.name"
+                        :name="set.id"
                         :class="'sw-tab--name-' + set.name"
                         :active-tab="active"
                     >
-                        {{ getInlineSnippet(set.config.label) || set.name }}
+                        {{ set.config ? getInlineSnippet(set.config.label) : set.name }}
                     </sw-tabs-item>
                 </template>
             </template>
@@ -98,13 +98,19 @@
             >
                 <template v-for="set in visibleCustomFieldSets">
                     <div
-                        v-if="set.customFields"
-                        v-show="active === set.name"
-                        :key="set.name"
+                        v-show="active === set.id"
+                        :key="set.id"
                         :class="'sw-custom-field-set-renderer-tab-content__' + set.name"
                     >
                         {% block sw_custom_field_set_renderer_card_form_renderer %}
-                        <template v-for="customField in set.customFields">
+                        <sw-skeleton
+                            v-if="!set.customFields || !set.customFields.length"
+                            style="width:100%"
+                        />
+                        <template
+                            v-for="customField in set.customFields"
+                            v-else
+                        >
                             <sw-inherit-wrapper
                                 v-if="entity && customField.config"
                                 :key="customField.name"

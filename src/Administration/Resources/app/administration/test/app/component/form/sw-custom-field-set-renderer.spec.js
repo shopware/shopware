@@ -33,6 +33,8 @@ import 'src/app/component/media/sw-media-media-item';
 import 'src/app/component/media/sw-media-base-item';
 import 'src/app/component/media/sw-media-preview-v2';
 import 'src/app/filter/media-name.filter';
+import 'src/app/component/utils/sw-skeleton';
+import 'src/app/component/utils/sw-skeleton-bar';
 
 
 function createEntityCollection(entities = []) {
@@ -89,7 +91,9 @@ function createWrapper(props) {
             'sw-text-editor': {
                 props: ['value'],
                 template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>'
-            }
+            },
+            'sw-skeleton': Shopware.Component.build('sw-skeleton'),
+            'sw-skeleton-bar': Shopware.Component.build('sw-skeleton-bar'),
         },
         provide: {
             repositoryFactory: {
@@ -133,6 +137,64 @@ function createWrapper(props) {
                                     id: uuid.get('media after')
                                 });
                             }
+                        }
+
+                        if (id === uuid.get('custom_sports')) {
+                            return Promise.resolve({
+                                id: uuid.get('custom_sports'),
+                                name: 'custom_sports',
+                                position: 1,
+                                config: { label: { 'en-GB': 'Sports' } },
+                                customFields: [
+                                    {
+                                        active: true,
+                                        name: 'custom_sports_football',
+                                        type: 'text',
+                                        config: {
+                                            customFieldPosition: 1,
+                                            customFieldType: 'text',
+                                            componentName: 'sw-field',
+                                            type: 'text'
+                                        }
+                                    },
+                                    {
+                                        active: true,
+                                        name: 'custom_sports_score',
+                                        type: 'float',
+                                        config: {
+                                            type: 'number',
+                                            label: { 'en-GB': 'qui et vel' },
+                                            numberType: 'float',
+                                            placeholder: { 'en-GB': 'Type a floating point number...' },
+                                            componentName: 'sw-field',
+                                            customFieldType: 'number',
+                                            customFieldPosition: 1
+                                        }
+                                    }
+                                ]
+                            });
+                        }
+
+                        if (id === uuid.get('custom_clothing')) {
+                            return Promise.resolve({
+                                id: uuid.get('custom_clothing'),
+                                name: 'custom_clothing',
+                                position: 1,
+                                config: { label: { 'en-GB': 'Clothing' } },
+                                customFields: [
+                                    {
+                                        active: true,
+                                        name: 'custom_clothing_name',
+                                        type: 'text',
+                                        config: {
+                                            customFieldPosition: 1,
+                                            customFieldType: 'text',
+                                            componentName: 'sw-field',
+                                            type: 'text'
+                                        }
+                                    }
+                                ]
+                            });
                         }
 
                         return Promise.resolve({});
@@ -850,9 +912,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
             sets: createEntityCollection([{
                 name: 'set1',
+                id: 'set1',
                 position: 2
             }, {
                 name: 'set2',
+                id: 'set2',
                 position: 1
             }]),
             showCustomFieldSetSelection: true
@@ -876,9 +940,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
             sets: createEntityCollection([{
                 name: 'set1',
+                id: 'set1',
                 position: 2
             }, {
                 name: 'set2',
+                id: 'set2',
                 position: 1
             }]),
             showCustomFieldSetSelection: true
@@ -1024,6 +1090,76 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(footballField.isVisible()).toBe(false);
         expect(scoreField.isVisible()).toBe(false);
         expect(soccerField.isVisible()).toBe(true);
+    });
+
+    it('should load the current active tab', async () => {
+        wrapper = await createWrapper({
+            entity: {},
+            parentEntity: {},
+            sets: [
+                {
+                    id: uuid.get('custom_sports'),
+                    name: 'custom_sports',
+                    position: 1,
+                    config: { label: { 'en-GB': 'Sports' } },
+                    customFields: [
+                    ]
+                },
+                {
+                    id: uuid.get('custom_clothing'),
+                    name: 'custom_clothing',
+                    position: 1,
+                    config: { label: { 'en-GB': 'Clothing' } },
+                    customFields: [
+                    ]
+                }
+            ]
+        });
+
+        // get tab contents
+        const tabContentSports = wrapper.find('.sw-custom-field-set-renderer-tab-content__custom_sports');
+        const tabContentClothing = wrapper.find('.sw-custom-field-set-renderer-tab-content__custom_clothing');
+
+        // check if tabs exists
+        expect(tabContentSports.exists()).toBe(true);
+        expect(tabContentClothing.exists()).toBe(true);
+
+        // check if only the content of the active tab is visible
+        expect(tabContentSports.isVisible()).toBe(true);
+        expect(tabContentClothing.isVisible()).toBe(false);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // get fields for sports & clothing tab
+        const footballField = tabContentSports.find('.sw-form-field-renderer-input-field__custom_sports_football');
+        const scoreField = tabContentSports.find('.sw-form-field-renderer-input-field__custom_sports_score');
+        let nameField = tabContentClothing.find('.sw-form-field-renderer-input-field__custom_clothing_name');
+
+        expect(nameField.exists()).toBe(false);
+        expect(footballField.exists()).toBe(true);
+        expect(scoreField.exists()).toBe(true);
+        expect(footballField.isVisible()).toBe(true);
+        expect(scoreField.isVisible()).toBe(true);
+
+        // click on clothing tab
+        await wrapper.find('.sw-tab--name-custom_clothing').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // get fields for clothing tab
+        nameField = tabContentClothing.find('.sw-form-field-renderer-input-field__custom_clothing_name');
+
+        // check if active content changes
+        expect(tabContentSports.isVisible()).toBe(false);
+        expect(tabContentClothing.isVisible()).toBe(true);
+
+        // check if fields are changing
+        expect(footballField.isVisible()).toBe(false);
+        expect(scoreField.isVisible()).toBe(false);
+        expect(nameField.exists()).toBe(true);
+        expect(nameField.isVisible()).toBe(true);
     });
 
     /**

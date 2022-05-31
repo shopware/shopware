@@ -96,7 +96,7 @@
     {% block sw_product_stream_detail_content %}
     <template #content>
         <sw-card-view>
-            <template v-if="isLoading">
+            <template v-if="isLoading || customFieldsLoading">
                 <sw-skeleton variant="detail-bold" />
                 <sw-skeleton />
             </template>

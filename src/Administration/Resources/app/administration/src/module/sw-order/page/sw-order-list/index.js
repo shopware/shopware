@@ -517,8 +517,8 @@ Component.register('sw-order-list', {
             this.filterLoading = true;
 
             return this.orderRepository.search(this.filterSelectCriteria).then(({ aggregations }) => {
-                this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
-                this.availableCampaignCodes = aggregations.campaignCodes.buckets;
+                this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
+                this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
                 this.filterLoading = false;
 
                 return aggregations;

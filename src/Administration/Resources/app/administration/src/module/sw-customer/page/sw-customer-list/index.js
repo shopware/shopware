@@ -348,8 +348,8 @@ Component.register('sw-customer-list', {
 
             return this.customerRepository.search(this.filterSelectCriteria)
                 .then(({ aggregations }) => {
-                    this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
-                    this.availableCampaignCodes = aggregations.campaignCodes.buckets;
+                    this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
+                    this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
                     this.filterLoading = false;
 
                     return aggregations;

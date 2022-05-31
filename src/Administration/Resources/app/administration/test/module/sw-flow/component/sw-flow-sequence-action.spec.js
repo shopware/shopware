@@ -632,4 +632,69 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.tag');
         expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.general');
     });
+
+    it('should have tooltip for disabled actions', async () => {
+        const appFlowResponse = [
+            {
+                label: 'Telegram send message',
+                name: 'telegram.send.message',
+                swIcon: 'default-communication-speech-bubbles',
+                requirements: ['customerAware', 'orderAware'],
+                app: {
+                    active: false,
+                }
+            }
+        ];
+
+        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
+        await wrapper.vm.$nextTick();
+
+        const actionSelect = wrapper.find('.sw-single-select__selection');
+        await actionSelect.trigger('click');
+
+        const disabledAction = wrapper.find('.sw-flow-sequence-action__disabled');
+        expect(disabledAction.attributes()['tooltip-id']).toBeTruthy();
+    });
+
+    it('should correct actions label', async () => {
+        const appFlowResponse = [
+            {
+                label: 'Telegram send message',
+                name: 'telegram.send.message',
+                swIcon: 'default-communication-speech-bubbles',
+                requirements: ['customerAware', 'orderAware'],
+                app: {
+                    active: false,
+                },
+                config: [
+                    {
+                        name: 'message',
+                        label: {
+                            'en-GB': 'Label',
+                        },
+                    }
+                ]
+            }
+        ];
+
+        const wrapper = await createWrapper({
+            sequence: {
+                id: '2',
+                ruleId: null,
+                parentId: '1',
+                position: 1,
+                displayGroup: 1,
+                trueCase: false,
+                config: {
+                    message: 'message'
+                },
+                actionName: 'telegram.send.message'
+            }
+        }, appFlowResponse, 'appFlowAction');
+
+        await wrapper.vm.$nextTick();
+        const description = wrapper.find('.sw-flow-sequence-action__action-description');
+        expect(description.exists()).toBeTruthy();
+        expect(description.text()).toEqual('Label: message');
+    });
 });

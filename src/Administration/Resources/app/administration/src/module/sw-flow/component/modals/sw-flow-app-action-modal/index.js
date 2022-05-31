@@ -34,7 +34,7 @@ Component.register('sw-flow-app-action-modal', {
         },
 
         appBadge() {
-            return this.sequence?.propsAppFlowAction?.badge;
+            return this.sequence?.propsAppFlowAction?.app?.label;
         },
 
         currentLocale() {

@@ -98,6 +98,8 @@
       "placeholderSelectAction": "Aktion auswählen ...",
       "labelAffiliateCode": "Affiliate-Code: {affiliateCode}",
       "labelCampaignCode": "Kampagnen-Code: {campaignCode}",
+      "tooltipActionDisabled": "Diese Aktion wird von einer Erweiterung bereitgestellt, die deaktiviert oder gelöscht wurde. Um diese Aktion nutzen zu können, muss die Erweiterung aktiviert oder neu installiert werden.",
+      "labelCampaignCode": "Kampagnen-Code: {campaignCode}",
       "group": {
         "tag": "Tag",
         "customer": "Kunden",

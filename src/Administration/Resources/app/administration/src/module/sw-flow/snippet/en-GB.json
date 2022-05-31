@@ -98,6 +98,8 @@
       "placeholderSelectAction": "Select action...",
       "labelAffiliateCode": "Affiliate code: {affiliateCode}",
       "labelCampaignCode": "Campaign code: {campaignCode}",
+      "tooltipActionDisabled": "This action is provided by an extension that has been deactivated or deleted. Activate or reinstall the extension in order to be able to use this action.",
+      "labelCampaignCode": "Campaign code: {campaignCode}",
       "group": {
         "tag": "Tag",
         "customer": "Customer",

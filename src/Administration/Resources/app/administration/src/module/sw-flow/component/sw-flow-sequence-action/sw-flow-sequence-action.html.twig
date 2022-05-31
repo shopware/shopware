@@ -66,6 +66,10 @@
                         <li
                             v-for="item in sequenceData"
                             :key="item.id"
+                            v-tooltip="{
+                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                disabled: !item.disabled
+                            }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
                         >
@@ -94,7 +98,7 @@
                                 {% block sw_flow_sequence_action_actions_item_context_button %}
                                 <sw-context-button
                                     class="sw-flow-sequence-action__context-button"
-                                    :disabled="disabled"
+                                    :disabled="disabled || item.disabled"
                                 >
                                     {% block sw_flow_sequence_action_actions_item_button_edit %}
                                     <sw-context-menu-item
@@ -209,6 +213,10 @@
                         <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
                             <li
                                 is="sw-select-result"
+                                v-tooltip="{
+                                    message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                    disabled: !item.disabled
+                                }"
                                 :selected="isSelected(item)"
                                 v-bind="{ item, index }"
                                 :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"

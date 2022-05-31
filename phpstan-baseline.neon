@@ -9441,51 +9441,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityForeignKeyResolverTest.php
 
 		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Cannot call method getWriteContext\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\BeforeDeleteEvent\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'a' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'b' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'c' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'd' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'e' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'f' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Offset 'g' does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\TranslatedVersionsTest\\:\\:assertProductName\\(\\) has parameter \\$name with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TranslatedVersionsTest.php

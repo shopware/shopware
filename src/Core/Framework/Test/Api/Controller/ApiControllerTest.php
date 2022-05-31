@@ -157,12 +157,13 @@ EOF;
 
         $this->getBrowser()->request('POST', '/api/country', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
         static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/country/' . $id);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         $data = [
             'id' => $id,
@@ -172,13 +173,14 @@ EOF;
 
         $this->getBrowser()->request('POST', '/api/country/' . $id . '/states/', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
         static::assertEquals('http://localhost/api/country-state/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/country/' . $id . '/states/');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        $responseData = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertArrayHasKey('data', $responseData);
         static::assertCount(1, $responseData['data'], sprintf('Expected country %s has only one state', $id));

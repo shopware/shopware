@@ -77,16 +77,20 @@ class SyncControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id1);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id2);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id1);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id2);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testInsertAndUpdateSameEntity(): void
@@ -187,10 +191,12 @@ class SyncControllerTest extends TestCase
         static::assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
 
         $this->getBrowser()->request('DELETE', '/api/category/' . $categoryId);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $productId);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
     }
 
     public function testNestedInsertAndLinkAfter(): void

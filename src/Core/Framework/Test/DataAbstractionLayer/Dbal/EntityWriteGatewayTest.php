@@ -287,6 +287,7 @@ class EntityWriteGatewayTest extends TestCase
         /** @var CountryEntity $country */
         $country = $countryRepo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
+        /** @var array $customFields */
         $customFields = $country->getCustomFields();
 
         static::assertIsInt($customFields['a']);
@@ -376,6 +377,7 @@ class EntityWriteGatewayTest extends TestCase
 
         static::assertTrue($successCalled);
         static::assertFalse($errorCalled);
+        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
         static::assertContains($id1, $beforeDeleteEvent->getIds('product'));
 
         $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure);
@@ -414,6 +416,7 @@ class EntityWriteGatewayTest extends TestCase
 
         static::assertTrue($successCalled1);
         static::assertTrue($successCalled2);
+        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent1);
         static::assertEquals($beforeDeleteEvent1, $beforeDeleteEvent2);
         static::assertContains($id, $beforeDeleteEvent1->getIds('product'));
         $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure1);
@@ -491,6 +494,7 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(Exception::class, $exceptionThrown);
         static::assertEquals('test', $exceptionThrown->getMessage());
 
+        static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
         static::assertEquals($exceptionThrown, $beforeDeleteEvent->getWriteContext()->getExceptions()->getExceptions()[0]);
         static::assertTrue($errorCalled);
         static::assertFalse($sucessCalled);

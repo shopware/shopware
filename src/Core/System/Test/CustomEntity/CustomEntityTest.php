@@ -697,64 +697,69 @@ class CustomEntityTest extends TestCase
 
         // create
         $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids)));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertNull($response);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
+        static::assertNull($body);
 
         // update
         $client->request('PATCH', '/api/custom-entity-blog/' . $ids->get('blog-1'), [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['id' => $ids->get('blog-1'), 'title' => 'update']));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertNull($response);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
+        static::assertNull($body);
 
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertArrayHasKey('total', $response);
-        static::assertArrayHasKey('data', $response);
-        static::assertArrayHasKey('aggregations', $response);
-        static::assertCount(1, $response['data']);
-        static::assertEquals(1, $response['total']);
-        static::assertEquals('update', $response['data'][0]['title']);
-        static::assertEquals($ids->get('blog-1'), $response['data'][0]['id']);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+        static::assertArrayHasKey('total', $body);
+        static::assertArrayHasKey('data', $body);
+        static::assertArrayHasKey('aggregations', $body);
+        static::assertCount(1, $body['data']);
+        static::assertEquals(1, $body['total']);
+        static::assertEquals('update', $body['data'][0]['title']);
+        static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
 
         // detail
         $client->request('GET', '/api/custom-entity-blog/' . $ids->get('blog-1'), [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['ids' => [$ids->get('blog-1')]]));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertArrayHasKey('data', $response);
-        static::assertEquals('update', $response['data']['title']);
-        static::assertEquals($ids->get('blog-1'), $response['data']['id']);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+        static::assertArrayHasKey('data', $body);
+        static::assertEquals('update', $body['data']['title']);
+        static::assertEquals($ids->get('blog-1'), $body['data']['id']);
 
         // search
         $client->request('POST', '/api/search/custom-entity-blog', [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['ids' => [$ids->get('blog-1')]]));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertArrayHasKey('total', $response);
-        static::assertArrayHasKey('data', $response);
-        static::assertArrayHasKey('aggregations', $response);
-        static::assertCount(1, $response['data']);
-        static::assertEquals(1, $response['total']);
-        static::assertEquals('update', $response['data'][0]['title']);
-        static::assertEquals($ids->get('blog-1'), $response['data'][0]['id']);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+        static::assertArrayHasKey('total', $body);
+        static::assertArrayHasKey('data', $body);
+        static::assertArrayHasKey('aggregations', $body);
+        static::assertCount(1, $body['data']);
+        static::assertEquals(1, $body['total']);
+        static::assertEquals('update', $body['data'][0]['title']);
+        static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
 
         // search-ids
         $client->request('POST', '/api/search-ids/custom-entity-blog', [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['ids' => [$ids->get('blog-1')]]));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertArrayHasKey('total', $response);
-        static::assertArrayHasKey('data', $response);
-        static::assertCount(1, $response['data']);
-        static::assertEquals(1, $response['total']);
-        static::assertEquals($ids->get('blog-1'), $response['data'][0]);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+        static::assertArrayHasKey('total', $body);
+        static::assertArrayHasKey('data', $body);
+        static::assertCount(1, $body['data']);
+        static::assertEquals(1, $body['total']);
+        static::assertEquals($ids->get('blog-1'), $body['data'][0]);
 
         $client->request('DELETE', '/api/custom-entity-blog/' . $ids->get('blog-1'), [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['ids' => [$ids->get('blog-1')]]));
-        $response = json_decode($client->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertNull($response);
+        $response = $client->getResponse();
+        $body = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($body, true));
+        static::assertNull($body);
     }
 
     private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void

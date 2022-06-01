@@ -1,0 +1,22 @@
+# Unit tests
+
+Unit tests are an essential part of our software. The Shopware product grows and grows, the release cycles become shorter and shorter, more and more developers work with the software.
+
+**Therefore it is important that all functionalities and services are fully unit tested.**
+
+When writing unit tests, the following is important:
+
+- **"100% coverage "** - This does not mean that simply a high code coverage should be generated, but that all use cases of each individual service is tested.
+- **Performance** - As we grow more and more it is advisable to pay attention to the speed of the tests.
+- **Mocking** - Don't be lazy but deal with mock objects to optimize for example database access. So you don't have to persist every storage case before but you can describe it as a Mock.
+- **Readable** - You are not the only one who maintains the code. Therefore, it is important that others can quickly and easily understand your unit tests and extend them with additional cases.
+- **Extensibility** - It is important that when more cases are added or certain cases are not tested that it is easy to extend your unit tests with another case without extending dozens of lines of code.
+- **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
+- **Cleanup** - It is also important that you clean up your artifacts. If you register an event listener dynamically, make sure that it is removed again on `teardown`. If you write data to the database or change the schema, make sure it is rolled back.
+- **Failure** - Don't just test the happy case or success case, test the failure of your services and objects.
+
+Here are some good examples of unit tests:
+- [CriteriaTest](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Framework/Test/DataAbstractionLayer/Search/CriteriaTest.php)
+- [CashRounding](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Checkout/Test/Cart/Price/CashRoundingTest.php)
+- [QuantityPriceCalculator](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Checkout/Test/Cart/Price/QuantityPriceCalculatorTest.php)
+

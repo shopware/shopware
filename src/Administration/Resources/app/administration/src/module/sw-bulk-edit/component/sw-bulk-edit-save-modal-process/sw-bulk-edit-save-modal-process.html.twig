@@ -24,6 +24,7 @@
             v-for="selectedDocumentType in selectedDocumentTypes"
             :key="selectedDocumentType.id"
             class="sw-bulk-edit-save-modal-process__generate-document"
+            :class="`is--${selectedDocumentType.technicalName}`"
         >
             <div class="progress">
                 <div class="progress__label">

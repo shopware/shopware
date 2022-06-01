@@ -10,6 +10,7 @@
         v-model="documentType.selected"
         :label="documentType.translated.name"
         class="sw-bulk-edit-order-documents-download-documents__checkbox"
+        :class="`is--${documentType.technicalName}`"
     />
     {% endblock %}
 </div>

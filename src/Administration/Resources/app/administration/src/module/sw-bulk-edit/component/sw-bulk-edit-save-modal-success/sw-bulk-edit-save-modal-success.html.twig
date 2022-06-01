@@ -30,6 +30,7 @@
             v-for="selectedDocumentType in selectedDocumentTypes"
             :key="selectedDocumentType.id"
             class="sw-bulk-edit-save-modal-success__download-document"
+            :class="`is--${selectedDocumentType.technicalName}`"
         >
             <span class="label">
                 {{ selectedDocumentType.translated.name }}

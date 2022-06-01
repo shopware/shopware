@@ -8998,11 +8998,6 @@ parameters:
 		-
 			message: "#^Cannot call method getActions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Actions\\|null\\.$#"
 			count: 2
-			path: src/Core/Framework/Test/App/FlowAction/Xml/MetadataTest.php
-
-		-
-			message: "#^Cannot call method getActions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\FlowAction\\\\Xml\\\\Actions\\|null\\.$#"
-			count: 2
 			path: src/Core/Framework/Test/App/FlowAction/Xml/ParameterTest.php
 
 		-

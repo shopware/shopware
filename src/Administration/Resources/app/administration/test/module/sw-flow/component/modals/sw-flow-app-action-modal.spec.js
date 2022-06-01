@@ -22,6 +22,8 @@ const sequence = {
                 active: true,
                 label: 'Flow Builder App',
             },
+            headline: 'Headline for action',
+            description: 'Description for action',
             config: [
                 {
                     name: 'content',
@@ -153,5 +155,17 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
 
         const title = wrapper.find('.sw-flow-app-action-modal__app-badge');
         expect(title.text()).toEqual('Flow Builder App');
+    });
+
+    it('should have headline and paragraph', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+
+        const headline = wrapper.find('.sw-flow-app-action-modal__headline');
+        expect(headline.exists()).toBeTruthy();
+
+        const paragraph = wrapper.find('.sw-flow-app-action-modal__paragraph');
+        expect(paragraph.exists()).toBeTruthy();
     });
 });

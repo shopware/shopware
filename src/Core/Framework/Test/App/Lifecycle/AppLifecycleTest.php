@@ -1862,7 +1862,6 @@ class AppLifecycleTest extends TestCase
 
         static::assertIsArray($appFlowAction);
         static::assertEquals($appFlowAction['name'], 'telegram.send.message');
-        static::assertEquals($appFlowAction['badge'], 'Telegram');
         static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
         static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         $parameters = json_decode($appFlowAction['parameters'], true);
@@ -1930,6 +1929,15 @@ class AppLifecycleTest extends TestCase
             ],
             $requirements
         );
+
+        $headlines = $this->getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT `headline` FROM `app_flow_action_translation` WHERE `app_flow_action_id` = :id', [
+                'id' => $appFlowAction['id'],
+            ])->fetchAllAssociativeIndexed();
+
+        static::assertTrue(\in_array('The headline App Flow Action', \array_keys($headlines), true));
+        static::assertTrue(\in_array('Die Überschrift App Flow Action', \array_keys($headlines), true));
     }
 
     private function assertDefaultHosts(AppEntity $app): void

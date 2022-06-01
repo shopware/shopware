@@ -12,6 +12,7 @@ class Metadata extends XmlElement
     public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
+        'headline',
     ];
 
     public const REQUIRED_FIELDS = [
@@ -22,11 +23,9 @@ class Metadata extends XmlElement
 
     protected array $label;
 
-    protected array $description;
+    protected ?array $description = null;
 
     protected string $name;
-
-    protected ?string $badge;
 
     protected string $url;
 
@@ -35,6 +34,8 @@ class Metadata extends XmlElement
     protected ?string $icon = null;
 
     protected ?string $swIcon = null;
+
+    protected ?array $headline = null;
 
     private function __construct(array $data)
     {
@@ -50,7 +51,7 @@ class Metadata extends XmlElement
         return $this->label;
     }
 
-    public function getDescription(): array
+    public function getDescription(): ?array
     {
         return $this->description;
     }
@@ -58,11 +59,6 @@ class Metadata extends XmlElement
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getBadge(): ?string
-    {
-        return $this->badge;
     }
 
     public function getUrl(): string
@@ -83,6 +79,11 @@ class Metadata extends XmlElement
     public function getSwIcon(): ?string
     {
         return $this->swIcon;
+    }
+
+    public function getHeadline(): ?array
+    {
+        return $this->headline;
     }
 
     public static function fromXml(\DOMElement $element): self

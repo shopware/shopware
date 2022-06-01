@@ -15,6 +15,30 @@
     </template>
 
     {% block sw_flow_app_action_modal_content %}
+    {% block sw_flow_app_action_modal_headcontent %}
+    <div
+        v-if="headline || paragraph"
+        class="sw-flow-app-action-modal__headcontent"
+    >
+        {% block sw_flow_app_action_modal_headline %}
+        <div
+            v-if="headline"
+            class="sw-flow-app-action-modal__headline"
+        >
+            {{ headline }}
+        </div>
+        {% endblock %}
+
+        {% block sw_flow_app_action_modal_paragraph %}
+        <div
+            v-if="paragraph"
+            class="sw-flow-app-action-modal__paragraph"
+        >
+            {{ paragraph }}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
     <sw-form-field-renderer
         v-for="field in fields"
         :key="field.name"

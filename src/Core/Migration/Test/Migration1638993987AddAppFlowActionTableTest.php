@@ -52,6 +52,7 @@ class Migration1638993987AddAppFlowActionTableTest extends TestCase
         static::assertContains('language_id', $appFlowActionTranslationColumns);
         static::assertContains('label', $appFlowActionTranslationColumns);
         static::assertContains('description', $appFlowActionTranslationColumns);
+        static::assertContains('headline', $appFlowActionTranslationColumns);
         static::assertContains('custom_fields', $appFlowActionTranslationColumns);
         static::assertContains('created_at', $appFlowActionTranslationColumns);
         static::assertContains('updated_at', $appFlowActionTranslationColumns);

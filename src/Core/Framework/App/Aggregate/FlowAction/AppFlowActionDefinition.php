@@ -69,6 +69,7 @@ class AppFlowActionDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Required()),
             new TranslatedField('label'),
             new TranslatedField('description'),
+            new TranslatedField('headline'),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(AppFlowActionTranslationDefinition::class, 'app_flow_action_id'))->addFlags(new Required()),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class, 'id', false),

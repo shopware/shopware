@@ -1,6 +1,6 @@
 ---
 title: Added og:url meta to Storefront
-issue: <UNASSIGNED>
+issue: NEXT-21846
 author_email: simon.nitzsche@esera.de
 ---
 # Storefront

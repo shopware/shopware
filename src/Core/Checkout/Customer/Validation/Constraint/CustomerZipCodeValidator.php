@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -262,10 +263,8 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
     private function getAddressConfig(string $countryId): CountryEntity
     {
-        $query = $this->connection->createQueryBuilder();
-        $results = $query->select('iso', 'postal_code_required', 'check_postal_code_pattern', 'check_advanced_postal_code_pattern', 'advanced_postal_code_pattern')
-            ->from('country')->where($query->expr()->eq('LOWER(HEX(id))', $query->createPositionalParameter($countryId)))
-            ->execute()->fetchAllAssociative();
+        $sql = 'SELECT iso, postal_code_required, check_postal_code_pattern, check_advanced_postal_code_pattern, advanced_postal_code_pattern FROM country WHERE id=:id';
+        $results = $this->connection->fetchAllAssociative($sql, ['id' => Uuid::fromHexToBytes($countryId)]);
 
         if (empty($results)) {
             throw new ConstraintDefinitionException(sprintf('Invalid country id "%s"', $countryId));

@@ -190,18 +190,11 @@ class CustomerAddressEntity extends Entity
 
     /**
      * @deprecated tag:v6.5.0 - Parameter type of $zipcode will be changed to ?string
+     * @phpstan-ignore-next-line
      */
     public function setZipcode(string $zipcode): void
     {
-        if (empty($zipcode)) {
-            $this->zipcode = null;
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                \sprintf('"%s::%s()" param type of $zipcode will be changed to ?string in v6.5.0.0', __CLASS__, __METHOD__)
-            );
-        }
-
-        $this->zipcode = $zipcode;
+        $this->zipcode = empty($zipcode) ? null : $zipcode;
     }
 
     public function getCity(): string

@@ -64,6 +64,10 @@ class CountryDefinition extends EntityDefinition
 
         return [
             'vatIdRequired' => false,
+            'postalCodeRequired' => false,
+            'checkPostalCodePattern' => false,
+            'checkAdvancedPostalCodePattern' => false,
+            'useDefaultAddressFormat' => true,
             'customerTax' => $defaultTax,
             'companyTax' => $defaultTax,
         ];

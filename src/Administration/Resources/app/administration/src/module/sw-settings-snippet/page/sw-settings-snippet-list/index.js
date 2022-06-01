@@ -94,7 +94,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         metaName() {
-            return this.snippetSets[0].name;
+            return this.snippetSets[0]?.name;
         },
 
         filter() {

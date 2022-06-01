@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -115,6 +116,11 @@ class MediaService
     public function loadFile(string $mediaId, Context $context): string
     {
         return $this->fileLoader->loadMediaFile($mediaId, $context);
+    }
+
+    public function loadFileStream(string $mediaId, Context $context): StreamInterface
+    {
+        return $this->fileLoader->loadMediaFileStream($mediaId, $context);
     }
 
     public function fetchFile(Request $request, ?string $tempFile = null): MediaFile

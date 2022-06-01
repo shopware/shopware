@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
-use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -22,6 +21,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
@@ -63,16 +63,9 @@ class DocumentServiceTest extends TestCase
      */
     private $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -232,7 +225,9 @@ class DocumentServiceTest extends TestCase
         /** @var UrlGenerator $urlGenerator */
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $mediaFile = $document->getDocumentMediaFile();
+        static::assertNotNull($mediaFile);
+        $filePath = $urlGenerator->getRelativeMediaUrl($mediaFile);
 
         static::assertTrue($fileSystem->has($filePath));
         $fileSystem->delete($filePath);
@@ -300,7 +295,9 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search($criteria, $this->context)->get($documentId);
 
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
+        $mediaFile = $document->getDocumentMediaFile();
+        static::assertNotNull($mediaFile);
+        $filePath = $urlGenerator->getRelativeMediaUrl($mediaFile);
 
         $fileSystem->put($filePath, 'test123');
 
@@ -480,6 +477,57 @@ class DocumentServiceTest extends TestCase
         );
     }
 
+    public function testGetDocumentsThrowsExceptionIfItHasNoValidFileForStaticDocuments(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+
+        $orderVersionId = $orderRepository->createVersion($orderId, $this->context, DocumentService::VERSION_NAME);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
+
+        /** @var DocumentTypeEntity $documentType */
+        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
+
+        $documentId = Uuid::randomHex();
+        $documentRepository->create(
+            [
+                [
+                    'id' => $documentId,
+                    'documentTypeId' => $documentType->getId(),
+                    'fileType' => FileTypes::PDF,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                    'config' => ['documentNumber' => '1001'],
+                    'deepLinkCode' => 'dfr',
+                    'static' => true,
+                    'documentMediaFile' => [
+                        // this should be null to raise the exception
+                    ],
+                ],
+            ],
+            $this->context
+        );
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $criteria = new Criteria([$documentId]);
+        $criteria->addAssociation('documentMediaFile');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search($criteria, $this->context)->get($documentId);
+
+        static::expectException(DocumentGenerationException::class);
+        $documentService->getDocument($document, $this->context);
+    }
+
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
         /** @var EntityRepositoryInterface $documentTypeRepository */
@@ -504,7 +552,7 @@ class DocumentServiceTest extends TestCase
         return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
-    private function upsertBaseConfig($config, string $documentType, ?string $salesChannelId = null): void
+    private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
@@ -652,7 +700,10 @@ class DocumentServiceTest extends TestCase
 
         $criteria = (new Criteria())->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        static::assertIsString($id);
+
+        return $id;
     }
 
     private function createDocumentWithFile(): DocumentEntity

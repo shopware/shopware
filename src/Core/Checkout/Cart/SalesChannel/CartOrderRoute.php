@@ -131,10 +131,12 @@ If you are using the [prepared payment flow](https://developer.shopware.com/docs
             ->addAssociation('orderCustomer.salutation')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('lineItems.cover')
             ->addAssociation('currency')
             ->addAssociation('addresses.country')
+            ->addAssociation('addresses.countryState')
             ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));

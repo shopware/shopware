@@ -17,8 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
+use Shopware\Storefront\Test\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -158,6 +161,103 @@ class ThemeTest extends TestCase
 
         $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
         static::assertEquals(ThemeFixtures::getThemeStructuredFields(), $theme);
+    }
+
+    public function testChildThemeConfigStructuredFields(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $name = $this->createTheme(
+            $baseTheme,
+            [
+                'fields' => [
+                    'some-custom' => [
+                        'editable' => false,
+                        'section' => 'mainSection',
+                        'tab' => 'mainTab',
+                    ],
+                ],
+                'sections' => [
+                    'mainSection' => [
+                        'label' => [
+                            'en-GB' => 'main section',
+                        ],
+                    ],
+                ],
+                'tabs' => [
+                    'mainTab' => [
+                        'label' => [
+                            'en-GB' => 'main Tab',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        static::assertEquals(
+            'Primary colour',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+        );
+    }
+
+    public function testChildThemeConfigStructuredFieldsInheritance(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $name = $this->createTheme(
+            $baseTheme,
+            [
+                'fields' => [
+                    'some-custom' => [
+                        'editable' => false,
+                    ],
+                ],
+            ],
+            [],
+            'SimpleTheme'
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+
+        $simpleThemeConfig = $factory->createFromBundle(new SimpleThemeConfigInheritance());
+
+        $name = $this->createBundleTheme(
+            $simpleThemeConfig,
+            $childTheme
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+        static::assertEquals(
+            'Primary colour',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+        );
     }
 
     public function testInheritedThemeConfig(): void
@@ -387,6 +487,7 @@ class ThemeTest extends TestCase
     public function testCompileTheme(): void
     {
         static::markTestSkipped('theme compile is not possible cause app.js does not exists');
+        /* @phpstan-ignore-next-line  */
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
@@ -445,6 +546,7 @@ class ThemeTest extends TestCase
                     return $value === $_expectedTheme;
                 }),
                 new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
+                    /* @phpstan-ignore-next-line  */
                     return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
@@ -456,14 +558,14 @@ class ThemeTest extends TestCase
             private $kernel;
 
             /**
-             * @var fixtures\SimpleTheme\SimpleTheme
+             * @var SimpleTheme
              */
             private $simpleTheme;
 
             public function __construct(KernelInterface $kernel)
             {
                 $this->kernel = $kernel;
-                $this->simpleTheme = new fixtures\SimpleTheme\SimpleTheme();
+                $this->simpleTheme = new SimpleTheme();
             }
 
             public function getBundles()
@@ -474,6 +576,7 @@ class ThemeTest extends TestCase
                 return $bundles;
             }
 
+            /* @phpstan-ignore-next-line  */
             public function getBundle($name)
             {
                 return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
@@ -489,26 +592,31 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line  */
             public function registerContainerConfiguration(LoaderInterface $loader)
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line  */
             public function boot()
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line  */
             public function shutdown()
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line */
             public function locateResource($name)
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line  */
             public function getName()
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
@@ -524,6 +632,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line */
             public function getRootDir()
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
@@ -559,6 +668,7 @@ class ThemeTest extends TestCase
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
             }
 
+            /* @phpstan-ignore-next-line */
             public function __call($name, $arguments)
             {
                 return $this->kernel->{__FUNCTION__}(...\func_get_args());
@@ -635,6 +745,95 @@ class ThemeTest extends TestCase
         static::assertNull($themeServiceReturnedConfig['fields']['sw-logo-mobile']['value']);
     }
 
+    public function testThemeServiceUpdate(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+
+        /** @var ThemeEntity $theme */
+        $theme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $theme->setConfigValues(
+            [
+                'test' => [
+                    'value' => true,
+                ],
+            ]
+        );
+
+        $name = $this->createTheme(
+            $theme,
+            [
+                'fields' => [
+                    'some-custom' => [
+                        'editable' => false,
+                    ],
+                ],
+            ],
+            [
+                [
+                    'id' => TestDefaults::SALES_CHANNEL,
+                ],
+            ]
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        try {
+            $this->themeService->updateTheme(
+                $childTheme->getId(),
+                [
+                    'fields' => [
+                        'some-custom' => [
+                            'editable' => true,
+                        ],
+                    ],
+                    'test' => [
+                        'value' => [false],
+                    ],
+                ],
+                $theme->getId(),
+                Context::createDefaultContext()
+            );
+        } catch (ThemeCompileException $e) {
+            //ignore files not found exception
+            if ($e->getMessage() !== 'Unable to compile the theme "Storefront". Unable to load file "src/Storefront/Resources/app/storefront/dist/js/vendor-node.js". Did you forget to build the theme? Try running ./psh.phar storefront:build') {
+                throw $e;
+            }
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        static::assertEquals(
+            [
+                'fields' => [
+                    'some-custom' => [
+                        'editable' => true,
+                    ],
+                ],
+                'test' => [
+                    'value' => [false],
+                ],
+            ],
+            $childTheme->getConfigValues()
+        );
+    }
+
+    public function testThemeServiceUpdateWrongId(): void
+    {
+        $randomId = Uuid::randomHex();
+        static::expectExceptionMessage('Unable to find the theme "' . $randomId . '"');
+        $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
+    }
+
     public function testRefreshPlugin(): void
     {
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
@@ -682,12 +881,9 @@ class ThemeTest extends TestCase
         static::assertNotEmpty($resetTheme->getUpdatedAt());
     }
 
-    /**
-     * @throws \Exception
-     */
-    private function createTheme(ThemeEntity $parentTheme, array $customConfig = []): string
+    private function createBundleTheme(StorefrontPluginConfiguration $config, ThemeEntity $parentTheme, array $saleschannels = []): string
     {
-        $name = 'test' . Uuid::randomHex();
+        $name = $config->getTechnicalName();
 
         $id = Uuid::randomHex();
         $this->themeRepository->create(
@@ -699,13 +895,44 @@ class ThemeTest extends TestCase
                     'technicalName' => $name,
                     'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'configValues' => $parentTheme->getConfigValues(),
-                    'baseConfig' => array_merge_recursive($parentTheme->getBaseConfig(), $customConfig),
+                    'baseConfig' => array_merge($parentTheme->getBaseConfig() ?? [], $config->getThemeConfig() ?? []),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
                     'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
                     'active' => true,
+                    'salesChannels' => $saleschannels,
+                ],
+            ],
+            $this->context
+        );
+
+        return $name;
+    }
+
+    private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleschannels = [], ?string $givenName = null): string
+    {
+        $name = $givenName ?? 'test' . Uuid::randomHex();
+
+        $id = Uuid::randomHex();
+        $this->themeRepository->create(
+            [
+                [
+                    'id' => $id,
+                    'parentThemeId' => $parentTheme->getId(),
+                    'name' => $name,
+                    'technicalName' => $name,
+                    'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'configValues' => $parentTheme->getConfigValues(),
+                    'baseConfig' => array_merge_recursive($parentTheme->getBaseConfig() ?? [], $customConfig),
+                    'description' => $parentTheme->getDescription(),
+                    'author' => $parentTheme->getAuthor(),
+                    'labels' => $parentTheme->getLabels(),
+                    'customFields' => $parentTheme->getCustomFields(),
+                    'previewMediaId' => $parentTheme->getPreviewMediaId(),
+                    'active' => true,
+                    'salesChannels' => $saleschannels,
                 ],
             ],
             $this->context

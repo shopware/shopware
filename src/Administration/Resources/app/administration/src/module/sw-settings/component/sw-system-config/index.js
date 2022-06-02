@@ -47,6 +47,7 @@ Component.register('sw-system-config', {
             config: {},
             actualConfigData: {},
             salesChannelModel: null,
+            hasCssFields: false,
         };
     },
 
@@ -103,6 +104,15 @@ Component.register('sw-system-config', {
         },
         async readConfig() {
             this.config = await this.systemConfigApiService.getConfig(this.domain);
+            this.config.every((card) => {
+                return card?.elements.every((field) => {
+                    if (field?.config?.css) {
+                        this.hasCssFields = true;
+                        return false;
+                    }
+                    return true;
+                });
+            });
         },
         readAll() {
             this.isLoading = true;

@@ -72,7 +72,8 @@ class ThemeService
             $themeId,
             $this->configLoader->load($themeId, $context),
             $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
-            $withAssets
+            $withAssets,
+            $context
         );
     }
 
@@ -95,7 +96,8 @@ class ThemeService
                 $mapping->getThemeId(),
                 $this->configLoader->load($themeId, $context),
                 $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $context
             );
             $compiledThemeIds[] = $mapping->getThemeId();
         }
@@ -347,6 +349,7 @@ class ThemeService
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
+
                 if ($parentTheme->getParentThemeId()) {
                     $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
                 }
@@ -396,7 +399,7 @@ class ThemeService
         }
 
         if ($theme->getBaseConfig() !== null) {
-            $configuredTheme = array_replace_recursive($configuredTheme, $theme->getBaseConfig());
+            $configuredTheme = array_replace_recursive($configuredTheme ?? [], $theme->getBaseConfig());
         }
 
         if ($theme->getConfigValues() !== null) {
@@ -407,10 +410,10 @@ class ThemeService
             }
         }
 
-        return $configuredTheme;
+        return $configuredTheme ?: [];
     }
 
-    private function getTab($fieldConfig): string
+    private function getTab(array $fieldConfig): string
     {
         $tab = 'default';
 
@@ -421,7 +424,7 @@ class ThemeService
         return $tab;
     }
 
-    private function getBlock($fieldConfig): string
+    private function getBlock(array $fieldConfig): string
     {
         $block = 'default';
 
@@ -432,7 +435,7 @@ class ThemeService
         return $block;
     }
 
-    private function getSection($fieldConfig): string
+    private function getSection(array $fieldConfig): string
     {
         $section = 'default';
 
@@ -443,7 +446,7 @@ class ThemeService
         return $section;
     }
 
-    private function getTabLabel(string $tabName, array $translations)
+    private function getTabLabel(string $tabName, array $translations): string
     {
         if ($tabName === 'default') {
             return '';
@@ -452,7 +455,7 @@ class ThemeService
         return $translations['tabs.' . $tabName] ?? $tabName;
     }
 
-    private function getBlockLabel(string $blockName, array $translations)
+    private function getBlockLabel(string $blockName, array $translations): string
     {
         if ($blockName === 'default') {
             return '';
@@ -461,7 +464,7 @@ class ThemeService
         return $translations['blocks.' . $blockName] ?? $blockName;
     }
 
-    private function getSectionLabel(string $sectionName, array $translations)
+    private function getSectionLabel(string $sectionName, array $translations): string
     {
         if ($sectionName === 'default') {
             return '';

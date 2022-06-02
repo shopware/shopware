@@ -54,15 +54,20 @@ class StorefrontPluginRegistryTest extends TestCase
         );
     }
 
-    public function testConfigIsNotAddedIfItsNotATheme(): void
+    public function testConfigIsNotAddedButIdentifiedAsNotThemeIfItsNotATheme(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeNoCss');
 
         $registry = $this->getContainer()
             ->get(StorefrontPluginRegistry::class);
 
-        static::assertNull(
+        static::assertInstanceOf(
+            StorefrontPluginConfiguration::class,
             $registry->getConfigurations()->getByTechnicalName('SwagNoThemeNoCss')
+        );
+
+        static::assertNull(
+            $registry->getConfigurations()->getThemes()->getByTechnicalName('SwagNoThemeNoCss')
         );
     }
 }

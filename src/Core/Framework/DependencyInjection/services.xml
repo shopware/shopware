@@ -30,6 +30,7 @@ script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' http
 base-uri 'self';
             </parameter>
             <parameter key="storefront"/>
+            <parameter key="installer"/>
         </parameter>
     </parameters>
 

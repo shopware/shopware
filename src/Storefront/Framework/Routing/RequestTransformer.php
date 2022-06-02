@@ -84,6 +84,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/_profiler/',
         '/_error/',
         '/payment/finalize-transaction',
+        '/installer'
     ];
 
     /**

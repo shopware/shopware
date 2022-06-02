@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\HttpKernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
@@ -16,11 +17,11 @@ if (\PHP_VERSION_ID < 70403) {
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
 if (!file_exists(dirname(__DIR__) . '/install.lock')) {
-    $basePath = 'recovery/install';
+    $_SERVER['SHOPWARE_INSTALLER'] = true;
     $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
     $baseURL = rtrim($baseURL, '/');
-    $installerURL = $baseURL . '/' . $basePath . '/index.php';
-    if (strpos($_SERVER['REQUEST_URI'], $basePath) === false) {
+    $installerURL = $baseURL . '/installer';
+    if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
         header('Location: ' . $installerURL);
         exit;
     }
@@ -67,7 +68,7 @@ $request = Request::createFromGlobals();
 
 $kernel = new HttpKernel($appEnv, $debug, $classLoader);
 
-if ($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) {
+if (($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) || (!EnvironmentHelper::hasVariable('DATABASE_URL'))) {
     $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
 }
 

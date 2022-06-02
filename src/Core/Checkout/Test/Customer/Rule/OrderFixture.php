@@ -64,6 +64,8 @@ trait OrderFixture
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'orderDateTime' => '2019-04-01 08:36:43.267',
+                'itemRounding' = json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' = json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
                 'deliveries' => [
                     [
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),

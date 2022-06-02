@@ -205,7 +205,7 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true);
+            $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 3) {
                 static::assertArrayHasKey('errors', $response);
@@ -229,7 +229,7 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true);
+            $response = json_decode($this->browser->getResponse()->getContent(), true, \JSON_THROW_ON_ERROR);
 
             if ($i >= 3) {
                 static::assertArrayHasKey('errors', $response);

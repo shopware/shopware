@@ -68,11 +68,11 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             throw new CategoryNotFoundException($category->getId());
         }
 
-        if ($category->getCmsPage()) {
-            $this->loadMetaData($category, $page, $context->getSalesChannel());
+        $this->loadMetaData($category, $page, $context->getSalesChannel());
+        $page->setNavigationId($category->getId());
 
+        if ($category->getCmsPage()) {
             $page->setCmsPage($category->getCmsPage());
-            $page->setNavigationId($category->getId());
         }
 
         $this->eventDispatcher->dispatch(

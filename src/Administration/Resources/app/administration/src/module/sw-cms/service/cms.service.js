@@ -35,7 +35,7 @@ function registerCmsElement(config) {
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = entity.name + '-' + index;
+                    const entityKey = `${entity.name}-${index}`;
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
@@ -61,7 +61,7 @@ function registerCmsElement(config) {
                     return;
                 }
 
-                const entityKey = entity.name + '-' + index;
+                const entityKey = `${entity.name}-${index}`;
                 if (!data[`entity-${entityKey}`]) {
                     return;
                 }

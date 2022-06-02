@@ -1,7 +1,11 @@
 {% block sw_settings_country_sidebar %}
-<sw-sidebar class="sw-settings-country-sidebar">
+<sw-sidebar
+    class="sw-settings-country-sidebar"
+    :class="{'is--disabled': disabled}"
+>
     {% block sw_settings_country_sidebar_inner_variables %}
     <sw-sidebar-item
+        ref="countrySidebar"
         icon="default-text-code"
         class="sw-settings-country-sidebar__show-available-variables"
         :title="$tc('sw-settings-country.detail.sidebar.titleShowAvailableVariables')"
@@ -33,6 +37,7 @@
 
     {% block sw_settings_country_sidebar_inner_preview %}
     <sw-sidebar-item
+        ref="countrySidebar"
         class="sw-settings-country-sidebar__show-preview"
         icon="default-eye-open"
         :title="$tc('sw-settings-country.detail.sidebar.titleShowPreview')"

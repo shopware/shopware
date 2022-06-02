@@ -6,59 +6,62 @@
         :title="$tc('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
     >
-        {% block sw_settings_country_address_handling_options_card_field_force_state_on_registration %}
-        <sw-switch-field
-            v-model="country.forceStateInRegistration"
-            class="sw-settings-country-address-handling__option-items"
-            bordered
-            :disabled="!acl.can('country.editor')"
-            :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
-        />
-        {% endblock %}
-
-        {% block sw_settings_country_address_handling_options_card_field_postal_code_required %}
-        <sw-switch-field
-            v-model="country.postalCodeRequired"
-            class="sw-settings-country-address-handling__option-items"
-            bordered
-            :disabled="!acl.can('country.editor')"
-            :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
-        />
-        {% endblock %}
-
-        {% block sw_settings_country_address_handling_options_card_field_check_postal_code_pattern %}
-        <sw-switch-field
-            v-model="country.checkPostalCodePattern"
-            class="sw-settings-country-address-handling__option-items"
-            bordered
-            :disabled="!acl.can('country.editor')"
-            :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
-            :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
-        />
-        {% endblock %}
-
-        {% block sw_settings_country_address_handling_options_card_field_advanced_postal_code %}
-        <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
-            {% block sw_settings_country_address_handling_options_card_field_check_advanced_postal_code_pattern %}
+        <sw-container class="sw-settings-country-address-handling__options-container">
+            {% block sw_settings_country_address_handling_options_card_field_force_state_on_registration %}
             <sw-switch-field
-                v-model="country.checkAdvancedPostalCodePattern"
+                v-model="country.forceStateInRegistration"
                 class="sw-settings-country-address-handling__option-items"
-                :disabled="!acl.can('country.editor') || !country.checkPostalCodePattern"
-                :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
             />
             {% endblock %}
 
-            {% block  sw_settings_country_address_handling_options_card_field_advanced_postal_code_pattern %}
-            <sw-text-field
-                v-model="country.advancedPostalCodePattern"
-                class="sw-settings-country-address-handling__text-field"
-                :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
+            {% block sw_settings_country_address_handling_options_card_field_postal_code_required %}
+            <sw-switch-field
+                v-model="country.postalCodeRequired"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
                 :disabled="!acl.can('country.editor')"
-                :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
+                :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
             />
             {% endblock %}
-        </div>
-        {% endblock %}
+
+            {% block sw_settings_country_address_handling_options_card_field_check_postal_code_pattern %}
+            <sw-switch-field
+                v-model="country.checkPostalCodePattern"
+                class="sw-settings-country-address-handling__option-items"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
+                :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_country_address_handling_options_card_field_advanced_postal_code %}
+            <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
+                {% block sw_settings_country_address_handling_options_card_field_check_advanced_postal_code_pattern %}
+                <sw-switch-field
+                    v-model="country.checkAdvancedPostalCodePattern"
+                    class="sw-settings-country-address-handling__option-items"
+                    :disabled="!acl.can('country.editor') || !country.checkPostalCodePattern"
+                    :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern')"
+                />
+                {% endblock %}
+
+                {% block  sw_settings_country_address_handling_options_card_field_advanced_postal_code_pattern %}
+                <sw-text-field
+                    v-model="country.advancedPostalCodePattern"
+                    class="sw-settings-country-address-handling__text-field"
+                    :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
+                    :disabled="!acl.can('country.editor')"
+                    :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </sw-container>
     </sw-card>
     {% endblock %}
 
@@ -68,29 +71,31 @@
         :title="$tc('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
     >
-        {% block sw_settings_country_address_handling_formatting_card_field_check_default_address_format %}
-        <sw-switch-field
-            v-model="country.useDefaultAddressFormat"
-            class="sw-settings-country-address-handling__option-items sw-settings-country-address-handling__use-default-address-format"
-            bordered
-            :disabled="!acl.can('country.editor')"
-            :label="$tc('sw-settings-country.detail.labelCheckDefaultAddressFormat')"
-        />
-        {% endblock %}
+        <sw-container class="sw-settings-country-address-handling__options-container">
+            {% block sw_settings_country_address_handling_formatting_card_field_check_default_address_format %}
+            <sw-switch-field
+                v-model="customAddressFormat"
+                class="sw-settings-country-address-handling__option-items sw-settings-country-address-handling__use-default-address-format"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelCheckDefaultAddressFormat')"
+            />
+            {% endblock %}
 
-        {% block sw_settings_country_address_handling_formatting_card_field_address_format_plain %}
-        <sw-code-editor
-            ref="plainEditor"
-            v-model="country.advancedAddressFormatPlain"
-            name="format_plain"
-            completion-mode="entity"
-            :class="{'is--disabled': country.useDefaultAddressFormat}"
-            :completer-function="outerCompleterFunction"
-            :label="$tc('sw-settings-country.detail.labelAddressFormatPlain')"
-            :editor-config="editorConfig"
-            :disabled="!acl.can('country.editor')"
-        />
-        {% endblock %}
+            {% block sw_settings_country_address_handling_formatting_card_field_address_format_plain %}
+            <sw-code-editor
+                ref="plainEditor"
+                v-model="country.advancedAddressFormatPlain"
+                name="format_plain"
+                completion-mode="entity"
+                :class="{'is--disabled': !customAddressFormat}"
+                :completer-function="outerCompleterFunction"
+                :label="$tc('sw-settings-country.detail.labelAddressFormatPlain')"
+                :editor-config="editorConfig"
+                :disabled="!acl.can('country.editor')"
+            />
+            {% endblock %}
+        </sw-container>
     </sw-card>
     {% endblock %}
 </div>

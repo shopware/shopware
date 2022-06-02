@@ -1,6 +1,12 @@
 @import "~scss/variables";
 
 .sw-settings-country-sidebar {
+    &.is--disabled {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
     &__variable-item {
         display: flex;
         font-size: $font-size-small;

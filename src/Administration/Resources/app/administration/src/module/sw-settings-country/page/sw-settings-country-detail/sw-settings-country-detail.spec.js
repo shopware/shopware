@@ -211,5 +211,6 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
         const sidebar = wrapper.find('sw-settings-country-sidebar-stub');
         expect(sidebar.exists()).toBeTruthy();
+        expect(sidebar.attributes().disabled).toBeUndefined();
     });
 });

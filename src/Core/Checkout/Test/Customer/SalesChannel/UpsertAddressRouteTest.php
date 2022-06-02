@@ -236,6 +236,8 @@ class UpsertAddressRouteTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
+        $countryId = Uuid::randomHex();
+
         $addressRepository
             ->method('upsert')
             ->with([
@@ -246,7 +248,7 @@ class UpsertAddressRouteTest extends TestCase
                     'street' => null,
                     'city' => null,
                     'zipcode' => null,
-                    'countryId' => null,
+                    'countryId' => $countryId,
                     'countryStateId' => null,
                     'company' => null,
                     'department' => null,
@@ -280,6 +282,7 @@ class UpsertAddressRouteTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('test');
         $route->upsert('test', new RequestDataBag([
+            'countryId' => $countryId,
             'customFields' => [
                 'bla' => 'bla',
                 'mapped' => 1,

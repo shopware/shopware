@@ -18,6 +18,11 @@ Component.register('sw-settings-country-sidebar', {
             type: Boolean,
             required: true,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -39,6 +44,12 @@ Component.register('sw-settings-country-sidebar', {
                 .addAssociation('defaultBillingAddress.salutation');
 
             return criteria;
+        },
+    },
+
+    watch: {
+        '$route.name'() {
+            this.closeSidebar();
         },
     },
 
@@ -103,6 +114,10 @@ Component.register('sw-settings-country-sidebar', {
                 additionalAddressLine1: defaultBillingAddress?.additionalAddressLine1,
                 additionalAddressLine2: defaultBillingAddress?.additionalAddressLine2,
             };
+        },
+
+        closeSidebar() {
+            this.$refs.countrySidebar.closeContent();
         },
     },
 });

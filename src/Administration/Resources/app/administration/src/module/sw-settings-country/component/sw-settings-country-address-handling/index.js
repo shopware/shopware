@@ -30,6 +30,7 @@ Component.register('sw-settings-country-address-handling', {
             },
             addressFormat: null,
             advancedPostalCodePattern: null,
+            customAddressFormat: false,
         };
     },
 
@@ -63,6 +64,10 @@ Component.register('sw-settings-country-address-handling', {
             this.$set(this.country, 'checkAdvancedPostalCodePattern', false);
         },
 
+        customAddressFormat(value) {
+            this.$set(this.country, 'useDefaultAddressFormat', !value);
+        },
+
         'country.useDefaultAddressFormat': {
             handler(value) {
                 if (value) {
@@ -71,7 +76,9 @@ Component.register('sw-settings-country-address-handling', {
                     return;
                 }
 
-                this.$set(this.country, 'advancedAddressFormatPlain', this.addressFormat);
+                if (this.country.advancedAddressFormatPlain === FORMAT_ADDRESS_TEMPLATE) {
+                    this.$set(this.country, 'advancedAddressFormatPlain', this.addressFormat);
+                }
             },
             immediate: true,
         },
@@ -97,11 +104,10 @@ Component.register('sw-settings-country-address-handling', {
 
     methods: {
         createdComponent() {
-            this.addressFormat = this.country.useDefaultAddressFormat
-                ? FORMAT_ADDRESS_TEMPLATE
-                : this.country.advancedAddressFormatPlain;
+            this.addressFormat = this.country.advancedAddressFormatPlain || FORMAT_ADDRESS_TEMPLATE;
 
             this.advancedPostalCodePattern = this.country.advancedPostalCodePattern;
+            this.customAddressFormat = !this.country.useDefaultAddressFormat;
         },
     },
 });

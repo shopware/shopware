@@ -35,6 +35,8 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
                     this.country.states.entity,
                     this.country.states.source,
                 );
+
+                this.country.useDefaultAddressFormat = true;
             }
         },
 

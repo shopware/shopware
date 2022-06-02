@@ -5,10 +5,8 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\Exception\CountryNotFoundException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
@@ -28,9 +26,6 @@ class CountryStateController extends StorefrontController
 {
     private CountryStateDataPageletLoader $countryStateDataPageletLoader;
 
-    /**
-     * @deprecated tag:v6.5.0 - $countryRoute will be removed
-     */
     private AbstractCountryRoute $countryRoute;
 
     /**
@@ -63,8 +58,11 @@ class CountryStateController extends StorefrontController
 
         $this->hook(new CountryStateDataPageletLoadedHook($countryStateDataPagelet, $context));
 
+        $criteria = new Criteria([$countryId]);
+        $criteria->addAssociation('states');
+
         /** @var CountryEntity|null $country */
-        $country = $this->countryRepository->search($criteria, $context)->getEntities()->get($countryId);
+        $country = $this->countryRoute->load($request, $criteria, $context)->getCountries()->get($countryId);
 
         if (empty($country)) {
             throw new CountryNotFoundException($countryId);

@@ -51,6 +51,7 @@ function createWrapper(privileges = [], customPropsData = {}) {
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot></div>'
             },
+            'sw-container': true,
             'sw-ignore-class': true,
             'sw-text-field': true,
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
@@ -207,36 +208,19 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to revert address format to default', async () => {
-        const wrapper = createWrapper(['country.editor']);
-
-        await wrapper.setProps({
-            country: {
-                ...wrapper.vm.country,
-                useDefaultAddressFormat: true
-            }
+    it('should be able to custom address template', async () => {
+        const wrapper = createWrapper(['country.editor'], {
+            useDefaultAddressFormat: true,
         });
 
         expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual(FORMAT_ADDRESS_TEMPLATE);
 
         const useDefaultAddressFormatField = wrapper.findAll('.sw-field--switch').at(4);
-        await useDefaultAddressFormatField
-            .find('.sw-field--switch__input input')
-            .trigger('click');
-
-        await wrapper.find('sw-code-editor-stub')
-            .vm
+        await useDefaultAddressFormatField.find('.sw-field--switch__input input').setChecked(true);
+        await wrapper.find('sw-code-editor-stub').vm
             .$emit('input', '{{ company }} - {{ department }}');
 
         expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual('{{ company }} - {{ department }}');
-
-        await useDefaultAddressFormatField
-            .find('.sw-field--switch__input input')
-            .trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.country.advancedAddressFormatPlain).toEqual(FORMAT_ADDRESS_TEMPLATE);
     });
 
     it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {

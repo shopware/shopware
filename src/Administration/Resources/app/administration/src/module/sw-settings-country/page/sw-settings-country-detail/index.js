@@ -133,6 +133,10 @@ Component.register('sw-settings-country-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        showSidebar() {
+            return this.$route.name === 'sw.settings.country.detail.address-handling';
+        },
     },
 
     created() {

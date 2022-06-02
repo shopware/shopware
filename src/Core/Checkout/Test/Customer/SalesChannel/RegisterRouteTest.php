@@ -1079,7 +1079,9 @@ class RegisterRouteTest extends TestCase
 
         $data = [
             'email' => 'test@test.de',
-            'billingAddress' => [],
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
             'customFields' => [
                 'test' => 1,
                 'mapped' => 1,

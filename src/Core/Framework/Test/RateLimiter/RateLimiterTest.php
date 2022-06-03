@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\RateLimiter;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
-use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
@@ -49,7 +49,7 @@ class RateLimiterTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private ?AbstractSalesChannelContextFactory $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
     public static function setUpBeforeClass(): void
     {
@@ -100,7 +100,9 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true);
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
             static::assertArrayHasKey('errors', $response);
 
             if ($i >= 10) {
@@ -154,7 +156,9 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true);
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
             static::assertArrayHasKey('errors', $response);
 
             if ($i >= 10) {
@@ -171,10 +175,10 @@ class RateLimiterTest extends TestCase
     {
         $psrFactory = $this->createMock(PsrHttpFactory::class);
         $psrFactory->method('createRequest')->willReturn($this->createMock(ServerRequest::class));
-        $psrFactory->method('createResponse')->willReturn($this->createMock(Response::class));
+        $psrFactory->method('createResponse')->willReturn($this->createMock(ResponseInterface::class));
 
         $authorizationServer = $this->createMock(AuthorizationServer::class);
-        $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new Response());
+        $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new \GuzzleHttp\Psr7\Response());
 
         $controller = new AdminAuthController(
             $authorizationServer,
@@ -205,7 +209,8 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 3) {
                 static::assertArrayHasKey('errors', $response);
@@ -229,9 +234,11 @@ class RateLimiterTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true, \JSON_THROW_ON_ERROR);
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true);
 
             if ($i >= 3) {
+                static::assertIsArray($response);
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals(429, $response['errors'][0]['status']);
                 static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
@@ -262,7 +269,7 @@ class RateLimiterTest extends TestCase
     {
         $rateLimiter = new RateLimiter();
 
-        static::expectException(\RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $rateLimiter->reset('test', 'test-key');
     }
 

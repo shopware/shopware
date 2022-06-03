@@ -10285,16 +10285,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestWithBundle/src/SwagTestWithBundle.php
 
 		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\AbstractSalesChannelContextFactory\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverAppTest\\:\\:getProductData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php

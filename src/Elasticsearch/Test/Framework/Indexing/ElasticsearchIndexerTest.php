@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -164,18 +163,5 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNotNull($localeId);
 
         return $localeId;
-    }
-
-    private function clearElasticsearch(): void
-    {
-        $c = KernelLifecycleManager::getKernel()->getContainer();
-
-        $client = $c->get(Client::class);
-
-        $client->indices()->delete(['index' => '_all']);
-        $client->indices()->refresh(['index' => '_all']);
-
-        $connection = $c->get(Connection::class);
-        $connection->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 }

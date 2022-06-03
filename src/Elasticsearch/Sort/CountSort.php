@@ -15,7 +15,7 @@ class CountSort extends FieldSort
             $params,
             [
                 'mode' => 'sum',
-                'nested_path' => implode('.', $path),
+                'nested' => ['path' => implode('.', $path)],
                 'missing' => 0,
             ]
         );

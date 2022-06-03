@@ -54,6 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
@@ -377,7 +378,7 @@ class CriteriaParser
             $composite->addSource($sorting);
         }
 
-        $histogram = new Bucketing\DateHistogramAggregation(
+        $histogram = new ElasticsearchDateHistogramAggregation(
             $aggregation->getName() . '.key',
             $fieldName,
             $aggregation->getInterval(),

@@ -207,8 +207,7 @@ class ElasticsearchProductTest extends TestCase
             $context = Context::createDefaultContext();
             $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
-            $this->client->indices()->delete(['index' => '_all']);
-            $this->client->indices()->refresh(['index' => '_all']);
+            $this->clearElasticsearch();
 
             $this->ids->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
             $this->ids->set('currency', $this->currencyId);

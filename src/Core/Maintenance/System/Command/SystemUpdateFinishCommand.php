@@ -6,6 +6,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -31,6 +33,17 @@ class SystemUpdateFinishCommand extends Command
     {
         parent::__construct();
         $this->container = $container;
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addOption(
+                'skip-asset-build',
+                null,
+                InputOption::VALUE_NONE,
+                'Use this option to skip asset building'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -70,6 +83,10 @@ class SystemUpdateFinishCommand extends Command
             $this->runMigrations($output);
         } finally {
             $kernel->reboot(null, $pluginLoader);
+        }
+
+        if ($input->getOption('skip-asset-build')) {
+            $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
         /** @var EventDispatcherInterface $eventDispatcher */

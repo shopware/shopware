@@ -18,7 +18,7 @@ variables:
     APP_SECRET: devsecret
     SHOPWARE_ES_HOSTS: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
-    NODE_VERSION: 16
+    NODE_VERSION: "16.14.0"
 
 # for jobs which should run on each MR/Pipeline
 .base:

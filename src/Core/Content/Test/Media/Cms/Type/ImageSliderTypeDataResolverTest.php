@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms\Type;
 
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -43,7 +42,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
     private $imageSliderResolver;
 
     /**
-     * @var FilesystemInterface
+     * @var \League\Flysystem\FilesystemOperator
      */
     private $publicFilesystem;
 
@@ -246,8 +245,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $productMediaCollection = $this->getProductMediaCollection();
         $resolverContext = $this->getResolverContext($productMediaCollection);
 
-        $this->publicFilesystem->put('/bundles/core/assets/default/cms/animated.gif', '');
-        $this->publicFilesystem->put('/bundles/core/assets/default/cms/shopware.jpg', '');
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/animated.gif', '');
+        $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
 
         $medias = [
             ['fileName' => 'core/assets/default/cms/animated.gif'],

@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem;
 
-use League\Flysystem\AdapterInterface;
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem as LeagueFilesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\PluginInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\Visibility;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
@@ -19,49 +19,42 @@ class FilesystemFactory
     /**
      * @var AdapterFactoryInterface[]
      */
-    private $adapterFactories;
-
-    /**
-     * @var PluginInterface[]
-     */
-    private $filesystemPlugins;
+    private iterable $adapterFactories;
 
     /**
      * @internal
      *
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
-     * @param PluginInterface[]|iterable         $filesystemPlugins
      *
      * @throws DuplicateFilesystemFactoryException
      */
-    public function __construct(iterable $adapterFactories, iterable $filesystemPlugins)
+    public function __construct(iterable $adapterFactories)
     {
         $this->checkDuplicates($adapterFactories);
         $this->adapterFactories = $adapterFactories;
-        $this->filesystemPlugins = $filesystemPlugins;
     }
 
-    public function factory(array $config): FilesystemInterface
+    public function factory(array $config): FilesystemOperator
     {
         $config = $this->resolveFilesystemConfig($config);
         $factory = $this->findAdapterFactory($config['type']);
 
         if (isset($config['config']['options']['visibility'])) {
             $config['visibility'] = $config['config']['options']['visibility'];
+            unset($config['config']['options']['visibility']);
+
+            if ($config['config']['options'] === []) {
+                unset($config['config']['options']);
+            }
         }
 
-        $filesystem = new LeagueFilesystem(
+        return new LeagueFilesystem(
             $factory->create($config['config']),
-            ['visibility' => $config['visibility']]
+            [
+                Config::OPTION_VISIBILITY => $config['visibility'],
+                Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
+            ]
         );
-
-        foreach ($this->filesystemPlugins as $plugin) {
-            $plugin = clone $plugin;
-            $plugin->setFilesystem($filesystem);
-            $filesystem->addPlugin($plugin);
-        }
-
-        return $filesystem;
     }
 
     /**
@@ -104,14 +97,14 @@ class FilesystemFactory
         $options->setDefined(['config', 'visibility', 'disable_asserts', 'url']);
 
         $options->setDefault('config', []);
-        $options->setDefault('visibility', AdapterInterface::VISIBILITY_PUBLIC);
+        $options->setDefault('visibility', Visibility::PUBLIC);
         $options->setDefault('disable_asserts', false);
 
         $options->setAllowedTypes('type', 'string');
         $options->setAllowedTypes('config', 'array');
         $options->setAllowedTypes('disable_asserts', 'bool');
 
-        $options->setAllowedValues('visibility', [AdapterInterface::VISIBILITY_PUBLIC, AdapterInterface::VISIBILITY_PRIVATE]);
+        $options->setAllowedValues('visibility', [Visibility::PUBLIC, Visibility::PRIVATE]);
 
         return $options->resolve($config);
     }

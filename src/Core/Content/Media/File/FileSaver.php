@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FileExistsException;
 use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
@@ -36,7 +36,7 @@ class FileSaver
 {
     private EntityRepository $mediaRepository;
 
-    private FilesystemInterface $filesystemPublic;
+    private FilesystemOperator $filesystemPublic;
 
     private UrlGeneratorInterface $urlGenerator;
 
@@ -50,7 +50,7 @@ class FileSaver
 
     private TypeDetector $typeDetector;
 
-    private FilesystemInterface $filesystemPrivate;
+    private FilesystemOperator $filesystemPrivate;
 
     /**
      * @var list<string>
@@ -66,8 +66,8 @@ class FileSaver
      */
     public function __construct(
         EntityRepository $mediaRepository,
-        FilesystemInterface $filesystemPublic,
-        FilesystemInterface $filesystemPrivate,
+        FilesystemOperator $filesystemPublic,
+        FilesystemOperator $filesystemPrivate,
         UrlGeneratorInterface $urlGenerator,
         ThumbnailService $thumbnailService,
         MetadataLoader $metadataLoader,
@@ -265,7 +265,7 @@ class FileSaver
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
-            $this->getFileSystem($media)->putStream($path, $stream);
+            $this->getFileSystem($media)->writeStream($path, $stream);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
@@ -275,7 +275,7 @@ class FileSaver
         }
     }
 
-    private function getFileSystem(MediaEntity $media): FilesystemInterface
+    private function getFileSystem(MediaEntity $media): FilesystemOperator
     {
         if ($media->isPrivate()) {
             return $this->filesystemPrivate;
@@ -326,9 +326,9 @@ class FileSaver
      *
      * @return array<string, string>
      */
-    private function renameFile(string $source, string $destination, FilesystemInterface $filesystem): array
+    private function renameFile(string $source, string $destination, FilesystemOperator $filesystem): array
     {
-        $filesystem->rename($source, $destination);
+        $filesystem->move($source, $destination);
 
         return [$source => $destination];
     }
@@ -343,7 +343,7 @@ class FileSaver
     private function rollbackRenameAction(MediaEntity $oldMedia, array $renamedFiles): void
     {
         foreach ($renamedFiles as $oldFileName => $newFileName) {
-            $this->getFileSystem($oldMedia)->rename($newFileName, $oldFileName);
+            $this->getFileSystem($oldMedia)->move($newFileName, $oldFileName);
         }
 
         throw new CouldNotRenameFileException($oldMedia->getId(), (string) $oldMedia->getFileName());

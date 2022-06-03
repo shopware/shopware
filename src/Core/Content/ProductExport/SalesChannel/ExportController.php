@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
-use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
@@ -37,7 +36,7 @@ class ExportController
     private $productExportService;
 
     /**
-     * @var FilesystemInterface
+     * @var \League\Flysystem\FilesystemOperator
      */
     private $fileSystem;
 
@@ -67,7 +66,7 @@ class ExportController
     public function __construct(
         ProductExporterInterface $productExportService,
         ProductExportFileHandlerInterface $productExportFileHandler,
-        FilesystemInterface $fileSystem,
+        \League\Flysystem\FilesystemOperator $fileSystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $productExportRepository,
         AbstractSalesChannelContextFactory $contextFactory
@@ -108,11 +107,11 @@ class ExportController
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
 
         // if file not present or interval = live
-        if (!$this->fileSystem->has($filePath) || $productExport->getInterval() === 0) {
+        if (!$this->fileSystem->fileExists($filePath) || $productExport->getInterval() === 0) {
             $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         }
 
-        if (!$this->fileSystem->has($filePath)) {
+        if (!$this->fileSystem->fileExists($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);
 

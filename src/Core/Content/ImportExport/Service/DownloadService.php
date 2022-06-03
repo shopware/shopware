@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
@@ -18,11 +18,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class DownloadService
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     private EntityRepository $fileRepository;
 
-    public function __construct(FilesystemInterface $filesystem, EntityRepository $fileRepository)
+    public function __construct(FilesystemOperator $filesystem, EntityRepository $fileRepository)
     {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;
@@ -62,7 +62,7 @@ class DownloadService
                 // only printable ascii
                 preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $entity->getOriginalName())
             ),
-            'Content-Length' => $this->filesystem->getSize($entity->getPath()),
+            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => 'application/octet-stream',
         ];
         $stream = $this->filesystem->readStream($entity->getPath());

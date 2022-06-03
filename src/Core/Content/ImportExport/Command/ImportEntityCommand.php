@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -37,7 +37,7 @@ class ImportEntityCommand extends Command
 
     private Connection $connection;
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     /**
      * @internal
@@ -47,7 +47,7 @@ class ImportEntityCommand extends Command
         EntityRepository $profileRepository,
         ImportExportFactory $importExportFactory,
         Connection $connection,
-        FilesystemInterface $filesystem
+        FilesystemOperator $filesystem
     ) {
         parent::__construct();
         $this->initiationService = $initiationService;
@@ -209,10 +209,6 @@ class ImportEntityCommand extends Command
         $reader = new CsvReader();
         $invalidLogFilePath = $log->getFile()->getPath() . '_invalid';
         $resource = $this->filesystem->readStream($invalidLogFilePath);
-
-        if (!$resource) {
-            return;
-        }
 
         $invalidRows = $reader->read($config, $resource, 0);
 

@@ -85,7 +85,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
         $thumbnailPath = $generator->getRelativeThumbnailUrl($media, $thumbnail);
 
-        $this->getFilesystem($service)->write($thumbnailPath, 'foo');
+        $this->getFilesystem($service)->writeStream($thumbnailPath, 'foo');
 
         return $thumbnailPath;
     }

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\ImportExport\Message;
 
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 /**
@@ -12,14 +12,14 @@ use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 class DeleteFileHandler extends AbstractMessageHandler
 {
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystem;
 
     /**
      * @internal
      */
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(FilesystemOperator $filesystem)
     {
         $this->filesystem = $filesystem;
     }
@@ -32,7 +32,7 @@ class DeleteFileHandler extends AbstractMessageHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->filesystem->delete($file);
-            } catch (FileNotFoundException $e) {
+            } catch (UnableToDeleteFile $e) {
                 //ignore file is already deleted
             }
         }

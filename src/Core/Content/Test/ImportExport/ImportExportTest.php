@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
@@ -110,6 +111,7 @@ class ImportExportTest extends AbstractImportExportTest
 
     public function testImportExport(): void
     {
+        /** @var FilesystemOperator $filesystem */
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
         $productId = Uuid::randomHex();
@@ -128,7 +130,7 @@ class ImportExportTest extends AbstractImportExportTest
         $file = $fileRepository->search(new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()])), Context::createDefaultContext())->first();
 
         static::assertNotNull($file);
-        static::assertSame($filesystem->getSize($file->getPath()), $file->getSize());
+        static::assertSame($filesystem->fileSize($this->getLogEntity($progress->getLogId())->getFile()->getPath()), $file->getSize());
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
         $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');

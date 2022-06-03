@@ -187,7 +187,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
+        $this->getPublicFilesystem()->write($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
 
         $url = sprintf(
             '/api/_action/media/%s/rename',

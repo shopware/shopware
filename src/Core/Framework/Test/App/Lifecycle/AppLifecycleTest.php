@@ -1046,7 +1046,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
 
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
-        static::assertTrue($filesystem->has('bundles/test/asset.txt'));
+        static::assertTrue($filesystem->fileExists('bundles/test/asset.txt'));
 
         $app = [
             'id' => $apps->first()->getId(),
@@ -1058,7 +1058,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        static::assertFalse($filesystem->has('bundles/test/asset.txt'));
+        static::assertFalse($filesystem->fileExists('bundles/test/asset.txt'));
     }
 
     public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void

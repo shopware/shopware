@@ -67,10 +67,10 @@ class DeleteNotUsedMediaServiceTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->deleteMediaService->deleteNotUsedMedia($this->context);
         $this->runWorker();

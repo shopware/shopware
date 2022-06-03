@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
@@ -51,7 +50,7 @@ final class FirstRunWizardClient
 
     private SystemConfigService $configService;
 
-    private FilesystemInterface $filesystem;
+    private \League\Flysystem\FilesystemOperator $filesystem;
 
     private bool $frwAutoRun;
 
@@ -68,7 +67,7 @@ final class FirstRunWizardClient
     public function __construct(
         StoreService $storeService,
         SystemConfigService $configService,
-        FilesystemInterface $filesystem,
+        \League\Flysystem\FilesystemOperator $filesystem,
         bool $frwAutoRun,
         EventDispatcherInterface $eventDispatcher,
         Client $client,
@@ -440,7 +439,7 @@ final class FirstRunWizardClient
     private function storeVerificationSecret(string $domain, DomainVerificationRequestStruct $validationRequest): void
     {
         try {
-            $this->filesystem->put($validationRequest->getFileName(), $validationRequest->getContent());
+            $this->filesystem->write($validationRequest->getFileName(), $validationRequest->getContent());
         } catch (\Exception $e) {
             throw new LicenseDomainVerificationException($domain);
         }

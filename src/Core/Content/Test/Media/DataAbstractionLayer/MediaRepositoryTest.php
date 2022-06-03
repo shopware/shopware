@@ -268,7 +268,7 @@ class MediaRepositoryTest extends TestCase
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, $resource);
+        $this->getPublicFilesystem()->writeStream($mediaPath, $resource);
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -310,11 +310,11 @@ class MediaRepositoryTest extends TestCase
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, $resource);
+        $this->getPublicFilesystem()->writeStream($mediaPath, $resource);
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($thumbnailPath, $resource);
+        $this->getPublicFilesystem()->writeStream($thumbnailPath, $resource);
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -370,12 +370,12 @@ class MediaRepositoryTest extends TestCase
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($firstPath, $resource);
+        $this->getPublicFilesystem()->writeStream($firstPath, $resource);
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($secondPath, $resource);
+        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
 
         $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
@@ -423,7 +423,7 @@ class MediaRepositoryTest extends TestCase
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($secondPath, $resource);
+        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
 
         static::assertTrue($this->getPublicFilesystem()->has($secondPath));
 
@@ -514,7 +514,7 @@ class MediaRepositoryTest extends TestCase
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
 
-        $this->getPublicFilesystem()->putStream($mediaUrl, $resource);
+        $this->getPublicFilesystem()->writeStream($mediaUrl, $resource);
 
         try {
             $this->mediaRepository->delete([['id' => $mediaId]], $this->context);

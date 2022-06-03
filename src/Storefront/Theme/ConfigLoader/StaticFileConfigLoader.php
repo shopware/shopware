@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -12,12 +11,12 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 
 class StaticFileConfigLoader extends AbstractConfigLoader
 {
-    private FilesystemInterface $filesystem;
+    private \League\Flysystem\FilesystemOperator $filesystem;
 
     /**
      * @internal
      */
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(\League\Flysystem\FilesystemOperator $filesystem)
     {
         $this->filesystem = $filesystem;
     }
@@ -31,7 +30,7 @@ class StaticFileConfigLoader extends AbstractConfigLoader
     {
         $path = \sprintf('theme-config/%s.json', $themeId);
 
-        if (!$this->filesystem->has($path)) {
+        if (!$this->filesystem->fileExists($path)) {
             throw new \RuntimeException('Cannot find theme configuration. Did you run bin/console theme:dump');
         }
 

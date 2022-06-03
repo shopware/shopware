@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\Service;
 
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -53,7 +52,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(\League\Flysystem\FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -72,7 +71,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(\League\Flysystem\FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -90,7 +89,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(\League\Flysystem\FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );
@@ -134,7 +133,7 @@ class SitemapExporterTest extends TestCase
             [],
             $cache,
             10,
-            $this->createMock(FilesystemInterface::class),
+            $this->createMock(\League\Flysystem\FilesystemOperator::class),
             $this->createMock(SitemapHandleFactoryInterface::class),
             $this->createMock(EventDispatcher::class)
         );

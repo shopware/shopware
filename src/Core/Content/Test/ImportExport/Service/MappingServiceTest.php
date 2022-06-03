@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -33,7 +32,7 @@ class MappingServiceTest extends TestCase
 
     private EntityRepository $fileRepository;
 
-    private FilesystemInterface $fileSystem;
+    private \League\Flysystem\FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {

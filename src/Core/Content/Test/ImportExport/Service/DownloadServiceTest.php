@@ -20,7 +20,7 @@ class DownloadServiceTest extends TestCase
 
     public function testUtf8Filename(): void
     {
-        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $filesystem = $this->getPrivateFilesystem();
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
@@ -31,7 +31,7 @@ class DownloadServiceTest extends TestCase
             'path' => 'test.csv',
             'expireDate' => new \DateTime(),
         ];
-        $filesystem->put($fileData['path'], $fileData['originalName']);
+        $filesystem->write($fileData['path'], $fileData['originalName']);
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
@@ -47,7 +47,7 @@ class DownloadServiceTest extends TestCase
 
     public function testDownloadWithInvalidAccessToken(): void
     {
-        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $filesystem = $this->getPrivateFilesystem();
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
@@ -59,7 +59,7 @@ class DownloadServiceTest extends TestCase
             'expireDate' => new \DateTime(),
             'accessToken' => 'token',
         ];
-        $filesystem->put($fileData['path'], $fileData['originalName']);
+        $filesystem->write($fileData['path'], $fileData['originalName']);
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
@@ -72,7 +72,7 @@ class DownloadServiceTest extends TestCase
 
     public function testDownloadWithExpiredAccessToken(): void
     {
-        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $filesystem = $this->getPrivateFilesystem();
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
 
         $asciiName = 'Name with non-ascii chars';
@@ -84,7 +84,7 @@ class DownloadServiceTest extends TestCase
             'expireDate' => new \DateTime(),
             'accessToken' => 'token',
         ];
-        $filesystem->put($fileData['path'], $fileData['originalName']);
+        $filesystem->write($fileData['path'], $fileData['originalName']);
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 

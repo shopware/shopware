@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -38,7 +38,7 @@ class ProductExporterTest extends TestCase
 
     private ProductExporterInterface $service;
 
-    private FilesystemInterface $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -63,8 +63,8 @@ class ProductExporterTest extends TestCase
         static::assertIsString($fileContent);
         $csvRows = explode(\PHP_EOL, $fileContent);
 
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->fileExists($filePath));
         static::assertCount(4, $csvRows);
     }
 
@@ -83,8 +83,8 @@ class ProductExporterTest extends TestCase
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
 
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->fileExists($filePath));
         $fileContent = $this->fileSystem->read($filePath);
         static::assertIsString($fileContent);
         static::assertCount(4, explode(\PHP_EOL, $fileContent));

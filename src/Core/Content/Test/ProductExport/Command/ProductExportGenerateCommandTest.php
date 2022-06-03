@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\ProductExport\Command;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
@@ -39,7 +38,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private FilesystemInterface $fileSystem;
+    private \League\Flysystem\FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -71,8 +70,8 @@ class ProductExportGenerateCommandTest extends TestCase
         static::assertIsString($fileContent);
         $csvRows = explode(\PHP_EOL, $fileContent);
 
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->fileExists($filePath));
 
         static::assertCount(4, $csvRows);
     }

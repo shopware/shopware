@@ -10,7 +10,7 @@ class DeleteFileMessage
 
     private string $visibility;
 
-    public function __construct(array $files = [], string $visibility = AdapterInterface::VISIBILITY_PUBLIC)
+    public function __construct(array $files = [], string $visibility = \League\Flysystem\Visibility::PUBLIC)
     {
         $this->files = $files;
         $this->visibility = $visibility;

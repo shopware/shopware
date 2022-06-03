@@ -333,13 +333,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaJpg = $this->getJpgWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
@@ -359,13 +359,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         ], $this->context);
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
     private function getNewMediaEntities(): EntitySearchResult

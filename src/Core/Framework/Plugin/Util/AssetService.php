@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -19,7 +18,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class AssetService
 {
-    private FilesystemInterface $filesystem;
+    private \League\Flysystem\FilesystemOperator $filesystem;
 
     private KernelInterface $kernel;
 
@@ -37,7 +36,7 @@ class AssetService
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystem,
+        \League\Flysystem\FilesystemOperator $filesystem,
         KernelInterface $kernel,
         KernelPluginLoader $pluginLoader,
         CacheInvalidator $cacheInvalidator,
@@ -80,6 +79,8 @@ class AssetService
         $this->removeAssets($bundle->getName());
 
         $targetDirectory = $this->getTargetDirectory($bundle->getName());
+        $this->filesystem->deleteDirectory($targetDirectory);
+
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -96,6 +97,8 @@ class AssetService
         $this->removeAssets($appName);
 
         $targetDirectory = $this->getTargetDirectory($appName);
+        $this->filesystem->deleteDirectory($targetDirectory);
+
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -134,7 +137,7 @@ class AssetService
         }
         // @codeCoverageIgnoreEnd
 
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->filesystem->deleteDirectory($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
     }
@@ -155,7 +158,7 @@ class AssetService
 
     private function copy(string $originDir, string $targetDir): void
     {
-        $this->filesystem->createDir($targetDir);
+        $this->filesystem->createDirectory($targetDir);
 
         $files = Finder::create()
             ->ignoreDotFiles(false)
@@ -172,7 +175,7 @@ class AssetService
             }
             // @codeCoverageIgnoreEnd
 
-            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
+            $this->filesystem->writeStream($targetDir . '/' . $file->getRelativePathname(), $fs);
             fclose($fs);
         }
     }

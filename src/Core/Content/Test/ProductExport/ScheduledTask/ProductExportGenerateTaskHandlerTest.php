@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -38,7 +37,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private Context $context;
 
-    private FilesystemInterface $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -80,8 +79,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $csvRows = explode(\PHP_EOL, (string) $fileContent);
 
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->fileExists($filePath));
         static::assertCount(4, $csvRows);
 
         /** @var ProductExportEntity|null $newExport */
@@ -111,7 +110,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertEquals(0, $response['handledMessages']);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-        static::assertFalse($this->fileSystem->has($filePath));
+        static::assertFalse($this->fileSystem->fileExists($filePath));
 
         /** @var ProductExportEntity|null $newExport */
         $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->first();

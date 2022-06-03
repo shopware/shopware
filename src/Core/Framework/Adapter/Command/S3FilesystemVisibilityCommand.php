@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Command;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -17,27 +18,27 @@ class S3FilesystemVisibilityCommand extends Command
     protected static $defaultName = 's3:set-visibility';
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystemPrivate;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystemPublic;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystemTheme;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystemSitemap;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     private $filesystemAsset;
 
@@ -45,11 +46,11 @@ class S3FilesystemVisibilityCommand extends Command
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystemPrivate,
-        FilesystemInterface $filesystemPublic,
-        FilesystemInterface $filesystemTheme,
-        FilesystemInterface $filesystemSitemap,
-        FilesystemInterface $filesystemAsset
+        FilesystemOperator $filesystemPrivate,
+        FilesystemOperator $filesystemPublic,
+        FilesystemOperator $filesystemTheme,
+        FilesystemOperator $filesystemSitemap,
+        FilesystemOperator $filesystemAsset
     ) {
         parent::__construct();
         $this->filesystemPrivate = $filesystemPrivate;
@@ -95,22 +96,21 @@ class S3FilesystemVisibilityCommand extends Command
         return 0;
     }
 
-    private function setVisibility(FilesystemInterface $filesystem, ShopwareStyle $style, string $visibility): void
+    private function setVisibility(FilesystemOperator $filesystem, ShopwareStyle $style, string $visibility): void
     {
-        $files = array_filter($filesystem->listContents('/', true), function (array $object): bool {
-            return $object['type'] === 'file';
+        $files = array_filter($filesystem->listContents('/', true)->toArray(), function (StorageAttributes $object): bool {
+            return $object->type() === 'file';
         });
         ProgressBar::setFormatDefinition('custom', '[%bar%] %current%/%max% -- %message%');
         $progressBar = new ProgressBar($style, \count($files));
         $progressBar->setFormat('custom');
+        $progressBar->setMessage('');
 
         foreach ($files as $file) {
-            if ($file['type'] === 'file') {
-                $filesystem->setVisibility($file['path'], $visibility);
+            $filesystem->setVisibility($file['path'], $visibility);
 
-                $progressBar->advance();
-                $progressBar->setMessage($file['path']);
-            }
+            $progressBar->advance();
+            $progressBar->setMessage($file['path']);
         }
 
         $progressBar->finish();

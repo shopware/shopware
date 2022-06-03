@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\Filesystem\Adapter;
 
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\Memory\MemoryAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 
 /**
  * @internal
@@ -12,7 +11,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 class MemoryAdapterFactory implements AdapterFactoryInterface
 {
     /**
-     * @var MemoryAdapter[]
+     * @var MemoryFilesystemAdapter[]
      */
     private static $instances;
 
@@ -25,17 +24,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         }
 
         foreach (static::$instances as $memoryAdapter) {
-            foreach ($memoryAdapter->listContents() as $content) {
-                if ($content['type'] === 'dir') {
-                    $memoryAdapter->deleteDir($content['path']);
-
-                    continue;
-                }
-
-                if ($content['type'] === 'file') {
-                    $memoryAdapter->delete($content['path']);
-                }
-            }
+            $memoryAdapter->deleteEverything();
         }
     }
 
@@ -45,9 +34,9 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         static::$instances = [];
     }
 
-    public function create(array $config): AdapterInterface
+    public function create(array $config): \League\Flysystem\FilesystemAdapter
     {
-        $adapter = new MemoryAdapter();
+        $adapter = new MemoryFilesystemAdapter();
         static::addAdapter($adapter);
 
         return $adapter;
@@ -58,7 +47,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         return 'memory';
     }
 
-    private static function addAdapter(MemoryAdapter $adapter): void
+    private static function addAdapter(MemoryFilesystemAdapter $adapter): void
     {
         if (!static::$instances) {
             static::$instances = [];

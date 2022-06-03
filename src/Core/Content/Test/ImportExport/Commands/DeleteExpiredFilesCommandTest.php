@@ -187,7 +187,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $filePath = 'import/' . ImportExportFileEntity::buildPath($uuid);
 
-            $this->filesystem->put($filePath, 'foobar');
+            $this->filesystem->write($filePath, 'foobar');
             static::assertTrue($this->filesystem->has($filePath));
 
             $data[Uuid::fromHexToBytes($uuid)] = [

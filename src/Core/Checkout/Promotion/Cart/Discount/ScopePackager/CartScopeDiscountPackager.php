@@ -3,14 +3,10 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
@@ -20,19 +16,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartScopeDiscountPackager extends DiscountPackager
 {
-    /**
-     * @var LineItemQuantitySplitter
-     */
-    private $lineItemQuantitySplitter;
-
-    /**
-     * @internal
-     */
-    public function __construct(LineItemQuantitySplitter $lineItemQuantitySplitter)
-    {
-        $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
-    }
-
     public function getDecorated(): DiscountPackager
     {
         throw new DecorationPatternException(self::class);
@@ -48,44 +31,34 @@ class CartScopeDiscountPackager extends DiscountPackager
             return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE && $lineItem->isStackable();
         });
 
-        $singleItems = $this->splitQuantities($allItems, $context);
-
-        $foundItems = [];
-
-        foreach ($singleItems as $cartLineItem) {
-            $item = new LineItemQuantity(
-                $cartLineItem->getId(),
-                $cartLineItem->getQuantity()
-            );
-
-            $foundItems[] = $item;
-        }
-
-        if ($foundItems === []) {
+        $discountPackage = $this->getDiscountPackage($allItems);
+        if ($discountPackage === null) {
             return new DiscountPackageCollection([]);
         }
 
-        $package = new DiscountPackage(new LineItemQuantityCollection($foundItems));
-
-        return new DiscountPackageCollection([$package]);
+        return new DiscountPackageCollection([$discountPackage]);
     }
 
-    /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     */
-    private function splitQuantities(LineItemCollection $cartItems, SalesChannelContext $context): LineItemFlatCollection
+    private function getDiscountPackage(LineItemCollection $cartItems): ?DiscountPackage
     {
-        $items = [];
+        $discountItems = [];
+        foreach ($cartItems as $cartLineItem) {
+            for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
+                $item = new LineItemQuantity(
+                    $cartLineItem->getId(),
+                    1
+                );
 
-        foreach ($cartItems as $item) {
-            for ($i = 1; $i <= $item->getQuantity(); ++$i) {
-                $tmpItem = $this->lineItemQuantitySplitter->split($item, 1, $context);
-
-                $items[] = $tmpItem;
+                $discountItems[] = $item;
             }
         }
 
-        return new LineItemFlatCollection($items);
+        if (\count($discountItems) === 0) {
+            return null;
+        }
+
+        return new DiscountPackage(
+            new LineItemQuantityCollection($discountItems)
+        );
     }
 }

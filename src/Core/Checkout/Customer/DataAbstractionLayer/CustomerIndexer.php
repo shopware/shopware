@@ -85,7 +85,12 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+        $indexing = new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+        if ($getIdsWithEmailChange = $event->getPrimaryKeysWithPropertyChange(CustomerDefinition::ENTITY_NAME, ['email'])) {
+            $indexing->setIdsWithEmailChange($getIdsWithEmailChange);
+        }
+
+        return $indexing;
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -93,11 +98,15 @@ class CustomerIndexer extends EntityIndexer
         $ids = $message->getData();
         $ids = array_unique(array_filter($ids));
 
-        if (empty($ids)) {
+        if (empty($ids) || !$message instanceof CustomerIndexingMessage) {
             return;
         }
 
         $context = $message->getContext();
+
+        if (!empty($message->getIdsWithEmailChange())) {
+            $this->customerNewsletterSalesChannelsUpdater->updateCustomerEmailRecipient($message->getIdsWithEmailChange());
+        }
 
         if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
             $this->manyToManyIdFieldUpdater->update(CustomerDefinition::ENTITY_NAME, $ids, $context);

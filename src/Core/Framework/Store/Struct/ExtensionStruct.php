@@ -65,7 +65,7 @@ class ExtensionStruct extends Struct
      *
      * @see AppEntity::$privacy
      */
-    protected ?string $privacyPolicyLink;
+    protected ?string $privacyPolicyLink = null;
 
     /**
      * languages property from store
@@ -135,8 +135,23 @@ class ExtensionStruct extends Struct
 
     protected bool $allowDisable = true;
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     public static function fromArray(array $data): ExtensionStruct
     {
+        if (!isset($data['name'])) {
+            throw new \InvalidArgumentException('Entry "name" in payload missing');
+        }
+
+        if (!isset($data['label'])) {
+            throw new \InvalidArgumentException('Entry "label" in payload missing');
+        }
+
+        if (!isset($data['type'])) {
+            throw new \InvalidArgumentException('Entry "type" in payload missing');
+        }
+
         return (new self())->assign($data);
     }
 

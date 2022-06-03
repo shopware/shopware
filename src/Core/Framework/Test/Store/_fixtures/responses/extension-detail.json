@@ -3,6 +3,7 @@
     "name": "Tes12SWCloudApp1",
     "icon": "https:\/\/Lol.s3.eu-west-1.amazonaws.com\/phpxfdAqs",
     "label": "Tes12SWCloudApp1",
+    "type": "SWCloudApp",
     "shortDescription": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et jus",
     "producerName": "",
     "variants": [

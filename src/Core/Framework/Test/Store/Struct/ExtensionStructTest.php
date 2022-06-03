@@ -11,6 +11,23 @@ use Shopware\Core\Framework\Store\Struct\PermissionCollection;
  */
 class ExtensionStructTest extends TestCase
 {
+    public function testFromArray(): void
+    {
+        $detailData = $this->getDetailFixture();
+        $struct = ExtensionStruct::fromArray($detailData);
+
+        static::assertInstanceOf(ExtensionStruct::class, $struct);
+    }
+
+    /**
+     * @dataProvider badValuesProvider
+     */
+    public function testItThrowsOnMissingData(array $badValues): void
+    {
+        static::expectException(\InvalidArgumentException::class);
+        ExtensionStruct::fromArray($badValues);
+    }
+
     public function testItCategorizesThePermissionCollectionWhenStructIsSerialized(): void
     {
         $detailData = $this->getDetailFixture();
@@ -29,6 +46,15 @@ class ExtensionStructTest extends TestCase
             'promotion',
             'other',
         ], array_keys($categorizedPermissions));
+    }
+
+    public function badValuesProvider(): iterable
+    {
+        yield [[]];
+        yield [['name' => 'foo']];
+        yield [['type' => 'foo']];
+        yield [['name' => 'foo', 'label' => 'bar']];
+        yield [['label' => 'bar', 'type' => 'foobar']];
     }
 
     private function getDetailFixture(): array

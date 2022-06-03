@@ -725,7 +725,7 @@ Component.register('sw-text-editor', {
             });
         },
 
-        onSetLink(value, target, buttonVariant) {
+        onSetLink(value, target, displayAsButton, buttonVariant) {
             if (!this.selection.toString()) {
                 return;
             }
@@ -740,7 +740,7 @@ Component.register('sw-text-editor', {
                 attributes.push('rel="noopener"');
             }
 
-            if (buttonVariant) {
+            if (displayAsButton) {
                 classes.push('btn');
                 classes.push(...buttonVariant.split('-').map(cls => `btn-${cls}`));
             }

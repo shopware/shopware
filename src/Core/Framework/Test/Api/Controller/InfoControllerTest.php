@@ -98,6 +98,7 @@ class InfoControllerTest extends TestCase
                         'user:read',
                         'user:update',
                         'user:delete',
+                        'user_change_me',
                     ],
                 ],
                 'baseAppUrl' => 'https://example.com',
@@ -117,6 +118,7 @@ class InfoControllerTest extends TestCase
                 'read' => ['user'],
                 'update' => ['user'],
                 'delete' => ['user'],
+                'additional' => ['user_change_me'],
             ],
             'version' => '1.0.0',
         ];

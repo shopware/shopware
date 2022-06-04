@@ -21,20 +21,6 @@ export default class FilterBasePlugin extends Plugin {
         );
 
         this.listing.registerFilter(this);
-
-        this._preventDropdownClose();
-    }
-
-    _preventDropdownClose() {
-        const dropdownMenu = DomAccess.querySelector(this.el, this.options.dropdownSelector, false);
-
-        if (!dropdownMenu) {
-            return;
-        }
-
-        dropdownMenu.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
     }
 
     _validateMethods() {

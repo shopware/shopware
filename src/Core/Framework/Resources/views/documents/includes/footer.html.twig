@@ -74,7 +74,7 @@ All blocks of this template are available in the template which renders this tem
                 {% if config.displayPageCount %}
                     <div class="page-count">
                         {% block document_page_count %}
-                            {{ 'document.page'|trans({'%pageNumber%': '<span class="pagenum"></span>'})|sw_sanitize }}
+                            {{ 'document.page'|trans({'%pageNumber%': '<span class="pagenum"></span>'})|sw_sanitize }} / DOMPDF_PAGE_COUNT_PLACEHOLDER
                         {% endblock %}
                     </div>
                 {% endif %}

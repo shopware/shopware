@@ -373,7 +373,8 @@ class DocumentService
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState')
-            ->addAssociation('orderCustomer.customer');
+            ->addAssociation('orderCustomer.customer')
+            ->addAssociation('orderCustomer.salutation');
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));

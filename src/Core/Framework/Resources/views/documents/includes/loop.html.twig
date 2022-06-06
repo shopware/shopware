@@ -20,7 +20,7 @@ All blocks of this template are available in the template which renders this tem
     {{ counter.increment() }}
 
     {#  check if next page should be rendered  #}
-    {% if counter.counter is divisible by(itemsPerPage) %}
+    {% if counter.counter > 1 and (counter.counter - 1) is divisible by(itemsPerPage) %}
         {% block document_loop_page_table_close %}
             {{ block('table_close') }}
         {% endblock %}

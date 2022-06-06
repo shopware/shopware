@@ -76,7 +76,7 @@ class StornoRendererTest extends TestCase
      */
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
     {
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCart([7, 31]);
         $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
         $invoiceConfig = new DocumentConfiguration();
@@ -199,13 +199,17 @@ class StornoRendererTest extends TestCase
             },
         ];
 
-        yield 'render delivery_note without invoice number' => [
-            [],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
-                $config = $rendered->getConfig();
-                static::assertArrayHasKey('custom', $config);
-                static::assertNotEmpty($config['custom']['invoiceNumber']);
+        yield 'render with multiple pages' => [
+            [
+                'itemsPerPage' => 1,
+            ],
+            function (RenderedDocument $rendered): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                $rendered = $rendered->getHtml();
+
+                static::assertStringContainsString('Cancellation 1000 for invoice 1001        (1/2)', $rendered);
+                static::assertStringContainsString('Cancellation 1000 for invoice 1001        (2/2)', $rendered);
             },
         ];
     }

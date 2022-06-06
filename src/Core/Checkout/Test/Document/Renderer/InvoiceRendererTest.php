@@ -248,6 +248,25 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
+        yield 'render with multiple pages' => [
+            [7, 19],
+            function (DocumentGenerateOperation $operation): void {
+                $operation->assign([
+                    'config' => [
+                        'itemsPerPage' => 1,
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                $rendered = $rendered->getHtml();
+
+                static::assertStringContainsString('Invoice 1000        (1/2)', $rendered);
+                static::assertStringContainsString('Invoice 1000        (2/2)', $rendered);
+            },
+        ];
+
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM customer');
     }
 

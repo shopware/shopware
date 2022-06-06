@@ -268,6 +268,40 @@ class CreditNoteRendererTest extends TestCase
                 static::assertNotEmpty($config['custom']['invoiceNumber']);
             },
         ];
+
+        yield 'render with single page' => [
+            [7, 19],
+            [-100, -200],
+            function (RenderedDocument $rendered): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                $rendered = $rendered->getHtml();
+
+                static::assertStringContainsString('Credit note 1000 for invoice no. 1001        (1/1)', $rendered);
+                static::assertStringNotContainsString('Credit note 1000 for invoice no. 1001        (2/1)', $rendered);
+            },
+            null,
+            [
+                'itemsPerPage' => 2,
+            ],
+        ];
+
+        yield 'render with multiple pages' => [
+            [7, 19, 30],
+            [-100, -200, -150],
+            function (RenderedDocument $rendered): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                $rendered = $rendered->getHtml();
+
+                static::assertStringContainsString('Credit note 1000 for invoice no. 1001        (1/2)', $rendered);
+                static::assertStringContainsString('Credit note 1000 for invoice no. 1001        (2/2)', $rendered);
+            },
+            null,
+            [
+                'itemsPerPage' => 2,
+            ],
+        ];
     }
 
     private function generateDemoCart(array $taxes): Cart

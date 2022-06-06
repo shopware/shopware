@@ -126,4 +126,60 @@ describe('sw-bulk-edit-save-modal-process', () => {
         expect(wrapper.vm.document.invoice.isReached).toBe(100);
         wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
+
+    it('should compute selectedDocumentTypes correctly', () => {
+        expect(wrapper.vm.selectedDocumentTypes).toEqual([]);
+
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            type: 'invoice',
+            isChanged: true,
+        });
+
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            type: 'download',
+            isChanged: true,
+        });
+
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+            type: 'invoice',
+            value: {
+                documentDate: 'documentDate',
+                documentComment: 'documentComment',
+            },
+        });
+
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+            type: 'download',
+            value: [],
+        });
+
+        expect(wrapper.vm.selectedDocumentTypes).toStrictEqual([]);
+
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+            type: 'download',
+            value: [
+                {
+                    id: '1',
+                    name: 'Invoice',
+                    selected: true,
+                    technicalName: 'invoice',
+                    translated: {
+                        name: 'Invoice',
+                    },
+                },
+            ],
+        });
+
+        expect(wrapper.vm.selectedDocumentTypes).toStrictEqual([
+            {
+                id: '1',
+                name: 'Invoice',
+                selected: true,
+                technicalName: 'invoice',
+                translated: {
+                    name: 'Invoice',
+                },
+            },
+        ]);
+    });
 });

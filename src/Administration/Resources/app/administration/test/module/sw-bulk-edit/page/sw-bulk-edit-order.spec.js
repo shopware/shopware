@@ -99,6 +99,10 @@ const router = new VueRouter({
     routes
 });
 
+function createEntityCollection(entities = []) {
+    return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
+}
+
 function createWrapper(isResponseError = false) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
@@ -163,6 +167,23 @@ function createWrapper(isResponseError = false) {
             validationService: {},
             repositoryFactory: {
                 create: (entity) => {
+                    if (entity === 'custom_field_set') {
+                        return {
+                            search: () => Promise.resolve(createEntityCollection([{
+                                id: 'field-set-id-1',
+                                name: 'example',
+                                customFields: [{
+                                    name: 'customFieldName',
+                                    type: 'text',
+                                    config: {
+                                        label: 'configFieldLabel'
+                                    }
+                                }]
+                            }])),
+                            get: () => Promise.resolve({ id: '' })
+                        };
+                    }
+
                     if (entity === 'state_machine_state') {
                         return {
                             searchIds: jest.fn()
@@ -349,6 +370,112 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeFalsy();
+    });
+
+    it('should call onCustomFieldsChange when a customField is changed', async () => {
+        wrapper = createWrapper();
+
+        const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+
+        await flushPromises();
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        wrapper.vm.onCustomFieldsChange.mockRestore();
+        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName')
+    });
+
+    it('should call onChangeDocument when a document field changed is changed', async () => {
+        wrapper = createWrapper();
+
+        const spyOnChangeDocument = jest.spyOn(wrapper.vm, 'onChangeDocument');
+
+        await flushPromises();
+
+        wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyOnChangeDocument).toHaveBeenCalledTimes(1);
+        wrapper.vm.onChangeDocument.mockRestore();
+    });
+
+    it('should push selected document types to payload when documents is enabled', async () => {
+        wrapper = createWrapper();
+
+        await flushPromises();
+
+        wrapper.setData({
+            bulkEditData: {
+                ...wrapper.vm.bulkEditData,
+                orderTransactions: {
+                    isChanged: true,
+                    value: '1'
+                },
+                documents: {
+                    isChanged: true,
+                    value: '1'
+                }
+            },
+            order: {
+                documents: {
+                    documentType: {
+                        credit_note: true
+                    }
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const { statusData } = wrapper.vm.onProcessData();
+
+        await wrapper.vm.$nextTick();
+
+        const changeDocumentTypes = statusData[0].documentTypes;
+
+        expect(changeDocumentTypes[0]).toBe('credit_note');
+    });
+
+    it('should not push selected document types to payload when documents is disable', async () => {
+        wrapper = createWrapper();
+
+        await flushPromises();
+
+        wrapper.setData({
+            bulkEditData: {
+                ...wrapper.vm.bulkEditData,
+                orderTransactions: {
+                    isChanged: true,
+                    value: '1'
+                },
+                documents: {
+                    isChanged: false
+                }
+            },
+            order: {
+                documents: {
+                    documentType: {
+                        credit_note: true
+                    }
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const { statusData } = wrapper.vm.onProcessData();
+
+        await wrapper.vm.$nextTick();
+
+        const changeDocumentTypes = statusData[0].documentTypes;
+
+        expect(changeDocumentTypes).toBeUndefined();
     });
 
     it('should show empty state', async () => {

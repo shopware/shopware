@@ -67,6 +67,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
             'documentNumber' => $deliveryNoteNumber,
+            'itemsPerPage' => 2,
         ]);
 
         $caughtEvent = null;
@@ -118,6 +119,9 @@ class DeliveryNoteRendererTest extends TestCase
             function (string $deliveryNoteNumber, ?string $orderNumber = null, RenderedDocument $rendered): void {
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
+
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for order $orderNumber        (1/2)", $rendered->getHtml());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for order $orderNumber        (2/2)", $rendered->getHtml());
             },
         ];
     }

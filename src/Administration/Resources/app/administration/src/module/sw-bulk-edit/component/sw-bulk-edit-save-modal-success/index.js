@@ -167,13 +167,13 @@ Component.register('sw-bulk-edit-save-modal-success', {
                     link.download = filename;
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
-
-                    this.$set(this.document[documentType], 'isDownloading', false);
                 })
                 .catch((error) => {
                     this.createNotificationError({
                         message: error.message,
                     });
+                })
+                .finally(() => {
                     this.$set(this.document[documentType], 'isDownloading', false);
                 });
         },

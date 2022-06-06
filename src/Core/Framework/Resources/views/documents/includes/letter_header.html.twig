@@ -44,7 +44,7 @@ All blocks of this template are available in the template which renders this tem
                     {% endif %}
                     <tr>
                         <td>
-                            {% if config.companyAddress is not empty %}
+                            {% if config.displayCompanyAddress and config.companyAddress is not empty %}
                                 {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
                             {% endif %}
                         </td>

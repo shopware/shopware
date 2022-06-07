@@ -14,7 +14,21 @@
             :entity-collection="propertyCollection"
             :criteria="criteria"
             @change="updateCollection"
-        />
+        >
+            <template
+                v-if="shouldShowActiveState"
+                #result-label-preview="{ item }"
+            >
+                {% block sw_sales_channel_defaults_select_active_state %}
+                <sw-icon
+                    class="sw-sales-channel-defaults-select__active-icon"
+                    size="6"
+                    :color="getActiveIconColor(item)"
+                    name="default-basic-shape-circle-filled"
+                />
+                {% endblock %}
+            </template>
+        </sw-entity-multi-select>
 
         <sw-entity-single-select
             :label-property="labelProperty"

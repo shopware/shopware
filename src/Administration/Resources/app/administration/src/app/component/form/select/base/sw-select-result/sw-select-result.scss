@@ -24,7 +24,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         color: $color-darkgray-200;
     }
 
-    .sw-icon {
+    > .sw-icon {
         color: $sw-select-result-color-icon;
         flex-grow: 0;
         flex-shrink: 0;
@@ -56,10 +56,10 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
     &.has--description {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto auto 1fr auto;
 
         .sw-select-result__result-item-text {
-            order: 1;
+            order: 2;
         }
 
         &.is--active {
@@ -71,13 +71,13 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         .sw-select-result__result-item-description {
             width: 100%;
             color: $color-gray-600;
-            order: 2;
+            order: 3;
             line-height: 14px;
             padding: 0 0 0 8px;
         }
 
         .sw-icon {
-            order: 3;
+            order: 4;
         }
 
         &.is--description-bottom {

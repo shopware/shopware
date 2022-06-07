@@ -147,7 +147,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
         onInput(event) {
             let val = Number.parseFloat(event.target.value);
 
-            if (val !== Number.NaN) {
+            if (!Number.isNaN(val)) {
                 if (this.max && val > this.max) {
                     val = this.max;
                 }

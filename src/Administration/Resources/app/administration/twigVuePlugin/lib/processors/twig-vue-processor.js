@@ -32,10 +32,14 @@ module.exports = {
         'twig-vue': {
             // takes text of the file and filename
             preprocess(text, filename) {
-                const parsedText = twigPreParser(text);
+                /**
+                 * ESLint parses changed text again. To prevent an endless loop we only
+                 * process .twig files which weren't parsed before to a Vue SFC.
+                 */
+                const parsedText = text.startsWith(templateTagBefore) ? text : twigPreParser(text);
 
                 return [
-                    { text: parsedText, filename: filename }
+                    { text: parsedText, filename: filename },
                 ];
             },
 
@@ -59,7 +63,8 @@ module.exports = {
                 const templateTagBeforeLength = templateTagBefore.length;
 
                 finalMessagesFiltered.forEach(m => {
-                    if (!m.fix) {
+                    // No fix available or already processed?
+                    if (!m.fix || m.twigVue) {
                         return;
                     }
 
@@ -67,6 +72,12 @@ module.exports = {
                         m.fix.range[0] - templateTagBeforeLength,
                         m.fix.range[1] - templateTagBeforeLength,
                     ];
+
+                    /**
+                     * Altering messages will cause this postprocess to run again.
+                     * Therefor add an identifier that this given message got altered already.
+                     */
+                    m.twigVue = true;
                 });
 
                 return finalMessagesFiltered;

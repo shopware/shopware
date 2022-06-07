@@ -45,6 +45,7 @@ function createWrapper(propsOverride) {
             ...propsOverride
         },
         stubs: {
+            'sw-dynamic-url-field': true,
             'sw-cms-mapping-field': true,
             'sw-media-upload-v2': true,
             'sw-upload-listener': true,

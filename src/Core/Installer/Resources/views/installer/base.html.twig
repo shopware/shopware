@@ -12,10 +12,10 @@
         <meta name="msapplication-TileColor" content="#189eff">
         <meta name="theme-color" content="#189eff">
 
-        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/reset.css', 'asset') }}?v={{ app.version }}" media="all"/>
-        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/fonts.css', 'asset') }}?v={{ app.version }}" media="all"/>
-        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/icons.css', 'asset') }}?v={{ app.version }}" media="all"/>
-        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/style.css', 'asset') }}?v={{ app.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/reset.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/fonts.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/icons.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
+        <link rel="stylesheet" type="text/css" href="{{ asset('bundles/maintenance/assets/styles/style.css', 'asset') }}?v={{ shopware.version }}" media="all"/>
     </head>
     <body>
         <header class="header-main">
@@ -36,7 +36,7 @@
                 <nav class="navigation--main">
                     <ul class="navigation--list">
                         {% for entry in menu %}
-                            <li class="navigation--entry {% if entry.active %}is--active{% endif %} {% if entry.isComplete %}is--complete{% endif %}">
+                            <li class="navigation--entry {% if entry.active %}is--active{% endif %} {% if entry.isCompleted %}is--complete{% endif %}">
                                 <span class="navigation--link">{{ ("shopware.installer.menuitem_" ~ entry.label)|trans }}</span>
                             </li>
                         {% endfor %}

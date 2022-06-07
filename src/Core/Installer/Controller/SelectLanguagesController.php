@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Controller;
+namespace Shopware\Core\Installer\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +19,6 @@ class SelectLanguagesController extends InstallerController
      */
     public function languageSelection(): Response
     {
-        return $this->renderInstaller('@Maintenance/installer/language-selection.html.twig');
+        return $this->renderInstaller('@Installer/installer/language-selection.html.twig');
     }
 }

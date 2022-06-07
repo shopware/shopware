@@ -106,17 +106,11 @@ class Kernel extends HttpKernel
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
         $instanciatedBundleNames = [];
 
-        $isInstaller = EnvironmentHelper::hasVariable('SHOPWARE_INSTALLER');
         /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 $bundle = new $class();
                 $instanciatedBundleNames[] = $bundle->getName();
-
-                // for the installer we only boot symfony bundles + the maintenance bundle
-                if ($isInstaller && !(str_starts_with($class, 'Symfony\\') || str_starts_with($class, 'Shopware\\Core\\Maintenance'))) {
-                    continue;
-                }
 
                 yield $bundle;
             }

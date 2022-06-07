@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Subscriber;
+namespace Shopware\Core\Installer\Subscriber;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Maintenance\Routing\InstallerRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,18 +33,6 @@ class InstallerLocaleListener implements EventSubscriberInterface
     public function setInstallerLocale(RequestEvent $event): void
     {
         $request = $event->getRequest();
-
-        /** @var RouteScope|array $scopes */
-        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scopes instanceof RouteScope) {
-            $scopes = $scopes->getScopes();
-        }
-
-        // Only check locale if we are in installer scope
-        if (!\in_array(InstallerRouteScope::ID, $scopes, true)) {
-            return;
-        }
 
         $locale = $this->detectLanguage($request);
         $request->attributes->set('_locale', $locale);

@@ -80,15 +80,15 @@ class HttpKernel
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
     {
-//        try {
+        try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
-//        } catch (DBALException $e) {
-//            $connectionParams = self::getConnection()->getParams();
-//
-//            $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
-//
-//            throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
-//        }
+        } catch (DBALException $e) {
+            $connectionParams = self::getConnection()->getParams();
+
+            $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
+
+            throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
+        }
     }
 
     public function getKernel(): KernelInterface

@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Controller;
+namespace Shopware\Core\Installer\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;

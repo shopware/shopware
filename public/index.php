@@ -2,6 +2,7 @@
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\HttpKernel;
+use Shopware\Core\Installer\InstallerKernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,17 +16,6 @@ if (\PHP_VERSION_ID < 70403) {
 }
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
-
-if (!file_exists(dirname(__DIR__) . '/install.lock')) {
-    $_SERVER['SHOPWARE_INSTALLER'] = true;
-    $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
-    $baseURL = rtrim($baseURL, '/');
-    $installerURL = $baseURL . '/installer';
-    if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
-        header('Location: ' . $installerURL);
-        exit;
-    }
-}
 
 if (is_file(dirname(__DIR__) . '/files/update/update.json') || is_dir(dirname(__DIR__) . '/update-assets')) {
     header('Content-type: text/html; charset=utf-8', true, 503);
@@ -66,10 +56,22 @@ if ($trustedHosts) {
 
 $request = Request::createFromGlobals();
 
-$kernel = new HttpKernel($appEnv, $debug, $classLoader);
+if (file_exists(dirname(__DIR__) . '/install.lock')) {
+    $kernel = new HttpKernel($appEnv, $debug, $classLoader);
 
-if (($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) || (!EnvironmentHelper::hasVariable('DATABASE_URL'))) {
-    $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+    if (($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) || (!EnvironmentHelper::hasVariable('DATABASE_URL'))) {
+        $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+    }
+} else {
+    $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
+    $baseURL = rtrim($baseURL, '/');
+    $installerURL = $baseURL . '/installer';
+    if (strpos($_SERVER['REQUEST_URI'], '/installer') === false) {
+        header('Location: ' . $installerURL);
+        exit;
+    }
+
+    $kernel = new InstallerKernel($appEnv, $debug);
 }
 
 $result = $kernel->handle($request);

@@ -378,6 +378,12 @@ class InfoController extends AbstractController
         }
 
         foreach ($aclRole->getPrivileges() as $privilege) {
+            if (substr_count($privilege, ':') !== 1) {
+                $privileges['additional'][] = $privilege;
+
+                continue;
+            }
+
             [ $entity, $key ] = \explode(':', $privilege);
             $privileges[$key][] = $entity;
         }

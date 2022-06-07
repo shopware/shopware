@@ -32,7 +32,7 @@
 
             {% block layout_head_meta_tags_opengraph %}
                 <meta property="og:url"
-                      content="{% block layout_head_meta_tags_url_og %}{{ seoUrl('frontend.navigation.page', { navigationId: page.navigationId }) }}{% endblock %}"/>
+                      content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}"/>
                 <meta property="og:type"
                       content="{% block layout_head_meta_tags_type_og %}website{% endblock %}"/>
                 <meta property="og:site_name"

@@ -229,11 +229,11 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _setInitialState(cookies = null) {
-        cookies = cookies || this._getCookies('all');
+        const availableCookies = cookies || this._getCookies('all');
         const activeCookies = [];
         const inactiveCookies = [];
 
-        cookies.forEach(({ cookie, required }) => {
+        availableCookies.forEach(({ cookie, required }) => {
             const isActive = CookieStorage.getItem(cookie);
             if (isActive || required) {
                 activeCookies.push(cookie);
@@ -492,7 +492,7 @@ export default class CookieConfiguration extends Plugin {
     /**
      * This will set and refresh all registered cookies.
      *
-     * @param {?Document} offCanvas
+     * @param {?(Document|HTMLElement)} offCanvas
      * @private
      */
     _handleAcceptAll(offCanvas = null) {
@@ -518,7 +518,7 @@ export default class CookieConfiguration extends Plugin {
      * Always excludes "required" cookies, since they are assumed to be set separately.
      *
      * @param type
-     * @param {?Document} offCanvas
+     * @param {?(Document|HTMLElement)} offCanvas
      * @returns {Array}
      * @private
      */

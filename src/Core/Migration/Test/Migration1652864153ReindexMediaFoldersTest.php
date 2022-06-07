@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1652864153ReindexMediaFolders;
 
+/**
+ * @internal
+ */
 class Migration1652864153ReindexMediaFoldersTest extends TestCase
 {
     use IntegrationTestBehaviour;

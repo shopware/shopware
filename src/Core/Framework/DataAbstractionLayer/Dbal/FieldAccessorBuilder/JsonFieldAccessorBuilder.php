@@ -23,6 +23,9 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
@@ -79,6 +82,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
     private function getField(string $path, array $fields): ?Field
     {
+        /** @var string $fieldName */
         $fieldName = preg_replace(
             '#^\.("([^"]*)"|([^.]*)).*#',
             '$2$3',

@@ -47,6 +47,9 @@ class EntityHydrator
 
     private ContainerInterface $container;
 
+    /**
+     * @internal
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -69,6 +72,13 @@ class EntityHydrator
         return $collection;
     }
 
+    /**
+     * @template EntityClass
+     *
+     * @param class-string<EntityClass> $class
+     *
+     * @return EntityClass
+     */
     final public static function createClass(string $class)
     {
         return new $class();
@@ -427,7 +437,7 @@ class EntityHydrator
             }
         }
 
-        return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR);
     }
 
     private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context, array $partial = []): Entity

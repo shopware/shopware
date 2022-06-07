@@ -23,25 +23,13 @@ class OpenApi3GeneratorTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var array
-     */
-    private $schema;
+    private array $schema;
 
-    /**
-     * @var string string
-     */
-    private $entityName;
+    private string $entityName;
 
-    /**
-     * @var OpenApi3Generator
-     */
-    private $openApiGenerator;
+    private OpenApi3Generator $openApiGenerator;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
     protected function setUp(): void
     {
@@ -66,7 +54,7 @@ class OpenApi3GeneratorTest extends TestCase
 
     public function testGenerateStoreApiSchemaFeaturedInternalInActive(): void
     {
-        if (static::isFeatureAllTrue()) {
+        if ($this->isFeatureAllTrue()) {
             static::markTestSkipped('skipped because FEATURE_ALL is set');
         }
         Feature::registerFeature('FEATURE_NEXT_12345', ['default' => false]);
@@ -136,7 +124,7 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertTrue($properties['readOnlyField']['readOnly']);
     }
 
-    private static function isFeatureAllTrue(): bool
+    private function isFeatureAllTrue(): bool
     {
         $value = $_SERVER['FEATURE_ALL'] ?? 'false';
 

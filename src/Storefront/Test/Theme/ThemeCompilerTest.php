@@ -871,6 +871,9 @@ PHP_EOL;
     }
 }
 
+/**
+ * @internal
+ */
 class ConfigurationServiceExcepetion extends ConfigurationService
 {
     /**

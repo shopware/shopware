@@ -28,6 +28,9 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtrator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         WriteCommandExtractor $writeExtrator
     ) {

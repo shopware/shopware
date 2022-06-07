@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
+/**
+ * @internal
+ */
 class TestSessionStorageFactory implements SessionStorageFactoryInterface
 {
     public function createStorage(?Request $request): SessionStorageInterface

@@ -318,6 +318,9 @@ class ConfigurationServiceTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class MockedConfigurationsService extends ConfigurationService
 {
     public function getConfiguration(string $domain, Context $context): array

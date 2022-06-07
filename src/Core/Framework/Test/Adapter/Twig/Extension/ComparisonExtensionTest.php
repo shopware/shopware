@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Adapter\Twig\Extension;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 
+/**
+ * @internal
+ */
 class ComparisonExtensionTest extends TestCase
 {
     /**

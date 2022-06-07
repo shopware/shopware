@@ -44,15 +44,20 @@ if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.
     (new Dotenv())->usePutenv()->bootEnv(TEST_PROJECT_DIR . '/.env');
 }
 
-$config = new RuntimeConfiguration();
-$config->stringifyTypes(true);
+try {
+    $config = new RuntimeConfiguration();
+    $config->stringifyTypes(true);
 
-/** @var \PDO $pdo */
-$pdo = MySQLFactory::create()->getWrappedConnection();
-QueryReflection::setupReflector(
-    new PdoQueryReflector($pdo),
-    $config
-);
+    /** @var \PDO $pdo */
+    $pdo = MySQLFactory::create()->getWrappedConnection();
+    QueryReflection::setupReflector(
+        new PdoQueryReflector($pdo),
+        $config
+    );
+} catch (\Exception $e) {
+    // if DB is not set up the phpstan-dba extension won't work
+    // in that case we ignore it and skip the extension, during CI it will run at last
+}
 
 $databaseUrl = $_SERVER['DATABASE_URL'];
 

@@ -17,6 +17,9 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

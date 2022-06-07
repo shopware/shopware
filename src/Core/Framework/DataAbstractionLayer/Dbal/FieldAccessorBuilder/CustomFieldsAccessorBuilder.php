@@ -20,6 +20,9 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
      */
     private $customFieldService;
 
+    /**
+     * @internal
+     */
     public function __construct(CustomFieldService $attributeService, Connection $connection)
     {
         parent::__construct($connection);
@@ -40,6 +43,8 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
          * - propertyName.attribute_name.foo -> attribute_name
          * - propertyName."attribute.name" -> attribute.name
          * - propertyName."attribute.name".foo -> attribute.name
+         *
+         * @var string $attributeName
          */
         $attributeName = preg_replace(
             '#^' . preg_quote($field->getPropertyName(), '#') . '\.("([^"]*)"|([^.]*)).*#',

@@ -8,12 +8,17 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 
 /**
  * @implements Rule<Class_>
  */
 class InternalClassRule implements Rule
 {
+    private const TEST_CLASS_EXCEPTIONS = [
+        StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
+    ];
+
     public function getNodeType(): string
     {
         return Class_::class;
@@ -26,7 +31,7 @@ class InternalClassRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInternal($node)) {
+        if ($this->isInternal($node) || $this->isAnonymous($node)) {
             return [];
         }
 
@@ -44,6 +49,11 @@ class InternalClassRule implements Rule
     private function isTestClass(Class_ $node, Scope $scope): bool
     {
         $namespace = (string) $node->namespacedName;
+
+        if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
+            return false;
+        }
+
         if (\str_contains($namespace, '\\Test\\')) {
             return true;
         }
@@ -68,6 +78,11 @@ class InternalClassRule implements Rule
         }
 
         return \str_contains($doc->getText(), '@internal');
+    }
+
+    private function isAnonymous(Class_ $node): bool
+    {
+        return ((string) $node->namespacedName) === '';
     }
 
     private function isStorefrontController(Scope $scope): bool

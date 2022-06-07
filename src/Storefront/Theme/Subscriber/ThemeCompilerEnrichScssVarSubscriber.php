@@ -14,6 +14,9 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 
     private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ConfigurationService $configurationService,
         StorefrontPluginRegistryInterface $storefrontPluginRegistry

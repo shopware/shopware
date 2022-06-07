@@ -20,6 +20,9 @@ class RedisConnectionFactory
 
     private ?string $prefix;
 
+    /**
+     * @internal
+     */
     public function __construct(?string $prefix = null)
     {
         $this->prefix = $prefix;

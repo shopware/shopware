@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -25,6 +27,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 class ScriptRuleTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -263,7 +268,11 @@ class ScriptRuleTest extends TestCase
 
         $this->appId = $app->getId();
         $this->appStateService->activateApp($this->appId, $this->context);
-        $this->scriptId = $app->getScriptConditions()->first()->getId();
+        $conditions = $app->getScriptConditions();
+        static::assertInstanceOf(AppScriptConditionCollection::class, $conditions);
+        $condition = $conditions->first();
+        static::assertInstanceOf(AppScriptConditionEntity::class, $condition);
+        $this->scriptId = $condition->getId();
     }
 
     private function createSalesChannelContext(): SalesChannelContext

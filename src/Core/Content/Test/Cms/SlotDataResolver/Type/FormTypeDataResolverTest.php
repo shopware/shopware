@@ -20,6 +20,9 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class FormTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

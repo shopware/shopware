@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @internal
+ */
 class DisableExtensionsCompilerPassTest extends TestCase
 {
     use EnvTestBehaviour;

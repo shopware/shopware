@@ -40,7 +40,7 @@
                                  aria-labelledby="cs-{{ id }}-tab">
                                 {% set config = {
                                     'title': {
-                                        'value': item.crossSelling.name
+                                        'value': item.crossSelling.name ?: item.crossSelling.translated.name
                                     },
                                     'border': {
                                         'value': false

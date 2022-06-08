@@ -51,7 +51,7 @@
                                              aria-labelledby="cross-selling-tab-{{ id }}">
                                             {% set config = {
                                                 'title': {
-                                                    'value': crossSelling.name
+                                                    'value': crossSelling.name ?: crossSelling.translated.name
                                                 },
                                                 'border': {
                                                     'value': false

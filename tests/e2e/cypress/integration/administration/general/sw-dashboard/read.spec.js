@@ -58,16 +58,18 @@ describe('Dashboard: Test first sight of the Administration', () => {
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-data-grid__row--0').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
 
-        // check if chart is visible
-        cy.get('.apexcharts-canvas .apexcharts-title-text').should('be.visible');
-        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Orders');
-
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__title').contains('Turnover');
+            // check if chart is visible
+            cy.get('.apexcharts-canvas .apexcharts-title-text').should('be.visible');
+            cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Orders');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
-            cy.get('.sw-dashboard-statistics__title').contains('Turnover');
+            cy.get('.sw-dashboard-statistics .sw-card__title').each((item) => {
+                cy.wrap(item).contains(/Orders|Turnover/g);
+            });
+            cy.get('.apexcharts-canvas').should('be.visible');
         });
 
         // Check link in grid

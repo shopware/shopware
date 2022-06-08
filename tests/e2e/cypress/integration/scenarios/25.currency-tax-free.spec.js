@@ -41,6 +41,10 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             url: `/account/register`,
             method: 'POST'
         }).as('registerCustomer');
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/sales-channel-type`,
+            method: 'POST'
+        }).as('searchSalesChannelType');
 
         // Set tax-free
         cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
@@ -49,7 +53,11 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             '.sw-context-button__button',
             `.sw-data-grid__row--0`
         );
-        cy.get('input#sw-field--currency-taxFreeFrom').clear().typeAndCheck('10');
+
+        cy.wait('@searchSalesChannelType').its('response.statusCode').should('equal', 200);
+        cy.get('input#sw-field--currency-taxFreeFrom').should('be.visible');
+        cy.get('input#sw-field--currency-taxFreeFrom').should('have.value', '0');
+        cy.get('input#sw-field--currency-taxFreeFrom').clearTypeAndCheck('10');
 
         // Set country price rounding
         cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').click();

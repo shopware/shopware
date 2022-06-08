@@ -16,7 +16,7 @@
                 v-for="(option, index) in options"
                 :key="index"
                 class="sw-field__radio-option group-bordered"
-                :class="{ 'sw-field__radio-option-checked': currentIndex === index }"
+                :class="{ 'sw-field__radio-option-checked': currentIndex === index, 'is--disabled': disabled || option.disabled }"
             >
 
                 <div class="sw-field__radio-input">

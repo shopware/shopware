@@ -1,4 +1,5 @@
 import orderBy from 'lodash/orderBy';
+import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import { ACTION, ACTION_GROUP, GENERAL_GROUP } from '../../constant/flow.constant';
@@ -77,13 +78,13 @@ Component.register('sw-flow-sequence-action', {
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: action?.app?.name,
+                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
                         label: action?.app?.label,
                     });
                 }
             }
 
-            return groups;
+            return sortBy(groups, ['label']);
         },
 
         sequenceData() {
@@ -364,7 +365,7 @@ Component.register('sw-flow-sequence-action', {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: appAction.app?.name,
+                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
                 };
             }
 
@@ -650,8 +651,19 @@ Component.register('sw-flow-sequence-action', {
 
         isAppDisabled(appAction) {
             if (!appAction) return false;
-
             return !appAction.app.active;
+        },
+
+        getStopFlowIndex(actions) {
+            const indexes = actions.map((item, index) => {
+                if (item.group === GENERAL_GROUP) {
+                    return index;
+                }
+
+                return false;
+            }).filter(item => item > 0);
+
+            return indexes.pop() || actions.length;
         },
 
         sortActionOptions(actions) {
@@ -666,7 +678,9 @@ Component.register('sw-flow-sequence-action', {
                 actions.push(actions.splice(actions.findIndex(el => el.group === GENERAL_GROUP), 1)[0]);
             });
 
-            actions.push(stopAction);
+            actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
+            const stopFlowIndex = this.getStopFlowIndex(actions) + 1;
+            actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
         },

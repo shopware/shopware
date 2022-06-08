@@ -17,6 +17,11 @@
             <parameter>sv</parameter>
             <parameter>da</parameter>
         </parameter>
+
+        <parameter key="shopware.installer.tosUrls" type="collection">
+            <parameter key="de">https://api.shopware.com/gtc/de_DE.html</parameter>
+            <parameter key="en">https://api.shopware.com/gtc/en_GB.html</parameter>
+        </parameter>
     </parameters>
     <services>
         <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
@@ -54,6 +59,14 @@
             <tag name="shopware.installer.requirement"/>
         </service>
 
+        <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
+
+        <service id="Shopware\Core\Installer\License\LicenseFetcher">
+            <argument type="service" id="shopware.installer.guzzle"/>
+            <argument>%shopware.installer.tosUrls%</argument>
+
+        </service>
+
         <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -65,6 +78,17 @@
 
         <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
             <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\LicenseController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\License\LicenseFetcher"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

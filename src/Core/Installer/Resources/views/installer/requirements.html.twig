@@ -107,7 +107,7 @@
     </div>
 
     <div class="card__footer">
-        <form action="{{ url('installer.requirements') }}" method="get" class="flex-container">
+        <form action="{{ url('installer.requirements') }}" method="post" class="flex-container">
             <a href="{{ url('installer.language-selection') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
             <button type="submit" class="btn btn-primary flex-item flex-right" {% if requirementChecks.hasError %}disabled="disabled"{% endif %}>
                 {{ "shopware.installer.forward"|trans }}

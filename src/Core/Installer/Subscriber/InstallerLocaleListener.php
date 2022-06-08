@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  */
 class InstallerLocaleListener implements EventSubscriberInterface
 {
+    public const FALLBACK_LOCALE = 'en';
+
     /**
      * @var string[]
      */
@@ -69,10 +71,8 @@ class InstallerLocaleListener implements EventSubscriberInterface
             }
         }
 
-        // fallback
-        $fallback = 'en';
-        $session->set('language', $fallback);
+        $session->set('language', self::FALLBACK_LOCALE);
 
-        return $fallback;
+        return self::FALLBACK_LOCALE;
     }
 }

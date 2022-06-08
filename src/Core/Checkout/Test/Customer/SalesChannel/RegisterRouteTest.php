@@ -372,6 +372,7 @@ class RegisterRouteTest extends TestCase
         static::assertArrayNotHasKey('contextToken', $response);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $response['errors'][0]['code']);
+        static::assertSame('401', $response['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
         /** @var CustomerEntity $customer */

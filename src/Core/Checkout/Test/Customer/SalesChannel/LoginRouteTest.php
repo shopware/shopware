@@ -114,6 +114,30 @@ class LoginRouteTest extends TestCase
         static::assertArrayHasKey('contextToken', $response);
     }
 
+    public function testValidLoginWithOneInactive(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        // Inactive user with different password
+        $this->createCustomer($password . 'fooBar', $email, null, false);
+        // Active user with correct password
+        $this->createCustomer($password, $email);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => $password,
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('contextToken', $response);
+    }
+
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
         static::expectException(UnauthorizedHttpException::class);
@@ -278,7 +302,7 @@ class LoginRouteTest extends TestCase
         );
     }
 
-    private function createCustomer(string $password, ?string $email = null, ?string $boundSalesChannelId = null): string
+    private function createCustomer(string $password, ?string $email = null, ?string $boundSalesChannelId = null, bool $active = true): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -330,6 +354,7 @@ class LoginRouteTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
             'boundSalesChannelId' => $boundSalesChannelId,
+            'active' => $active,
         ];
 
         $this->customerRepository->create([$customer], $this->ids->context);

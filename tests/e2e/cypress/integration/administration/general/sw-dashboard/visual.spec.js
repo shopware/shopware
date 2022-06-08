@@ -39,17 +39,25 @@ describe('Dashboard:  Visual tests', () => {
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__card-headline').should('be.visible');
             cy.get('.sw-dashboard-index__title').contains('Turnover');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
-            cy.get('.sw-dashboard-statistics__card-headline').should('be.visible');
-            cy.get('.sw-dashboard-statistics__title').contains('Turnover');
+
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            //select command again to reload data within the card
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            cy.get('.apexcharts-series-markers').should('be.visible');
         });
 
-        cy.get('#sw-field--statisticDateRanges-value').select('14Days');
-        //select command again to reload data within the card
-        cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-statistics .sw-card__title').each((item) => {
+                cy.wrap(item).contains(/Orders|Turnover/g);
+            });
+
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            //select command again to reload data within the card
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            cy.get('.sw-dashboard-statistics__statistics-count .apexcharts-series-markers').should('be.visible');
+        });
+
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.get('.apexcharts-series-markers').should('be.visible');
         cy.changeElementStyling(
             '.apexcharts-xaxis-label',
             'display: none;'

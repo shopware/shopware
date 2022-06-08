@@ -1,0 +1,15 @@
+.sw-chart-card {
+    &__header-right {
+        display: flex;
+        align-items: baseline;
+
+        > a {
+            margin-right: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        > :last-child {
+            margin-left: 1rem;
+        }
+    }
+}

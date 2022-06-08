@@ -142,76 +142,75 @@
         </template>
 
         <template v-if="hasOrderInMonth">
-            {% block sw_dashboard_statistics_headline %}
-            <div class="sw-dashboard-statistics__card-headline">
-                {% block sw_dashboard_index_statistics_headline_title %}
-                <h1>
-                    {{ $tc('sw-dashboard.monthStats.headline') }}
-                    <span class="sw-dashboard-statistics__card-headline-timerange">
-                        ({{ formatChartHeadlineDate(dateAgo) }} - {{ formatChartHeadlineDate(today) }})
-                    </span>
-                </h1>
-                {% endblock %}
 
-                {% block sw_dashboard_statistics_headline_date %}
-                <div class="sw-dashboard-statistics__card-headline-select">
-                    <sw-select-field
-                        v-model="statisticDateRanges.value"
-                        size="small"
-                        @change="getHistoryOrderData"
-                    >
-                        <option
-                            v-for="(value, option) in statisticDateRanges.options"
-                            :key="option"
-                            :value="option"
-                        >
-                            {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
-                        </option>
-                    </sw-select-field>
-                </div>
-                {% endblock %}
-            </div>
+            {# @deprecated tag:v6.5.0 - Will be removed. #}
+            {% block sw_dashboard_statistics_headline %}
+            {# @deprecated tag:v6.5.0 - Will be removed. - Use block `sw_dashboard_statistics_count_title` and `sw_dashboard_statistics_sum_title` instead #}
+            {% block sw_dashboard_index_statistics_headline_title %}
+            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed. - Use block `sw_dashboard_statistics_count_range_select` and `sw_dashboard_statistics_sum_range_select` instead #}
+            {% block sw_dashboard_statistics_headline_date %}
+            {% endblock %}
             {% endblock %}
 
             {% block sw_dashboard_statistics_count %}
-            <sw-card
+            {# @deprecated tag:v6.5.0 - Will be removed. - Use the parent block `sw_dashboard_statistics_count` instead #}
+            {% block sw_dashboard_statistics_count_chart %}
+            <sw-chart-card
                 class="sw-dashboard-statistics__statistics-count"
-                position-identifier="sw-dashboard-statistics-count"
+                :card-subtitle="getCardSubtitle(ordersDateRange)"
+                :series="orderCountSeries"
+                :options="chartOptionsOrderCount"
+                :fill-empty-values="getTimeUnitInterval(ordersDateRange)"
+                type="line"
+                sort
+                @sw-chart-card-range-update="onOrdersRangeUpdate"
             >
-                {% block sw_dashboard_statistics_count_chart %}
-                <sw-chart
-                    type="line"
-                    :series="orderCountSeries"
-                    :options="chartOptionsOrderCount"
-                    :fill-empty-values="getTimeUnitInterval"
-                    sort
-                />
+                {% block sw_dashboard_statistics_count_title %}
+                <template #header-title>
+                    {{ $tc('sw-dashboard.monthStats.orderNumber') }}
+                </template>
                 {% endblock %}
-            </sw-card>
+
+                {% block sw_dashboard_statistics_count_range_select %}
+                <template #range-option="{ range }">
+                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+                </template>
+                {% endblock %}
+            </sw-chart-card>
+            {% endblock %}
             {% endblock %}
 
             {% block sw_dashboard_statistics_sum %}
-            <sw-card
+            {# @deprecated tag:v6.5.0 - Will be removed. - Use the parent block `sw_dashboard_statistics_sum` instead #}
+            {% block sw_dashboard_statistics_sum_chart %}
+            <sw-chart-card
                 class="sw-dashboard-statistics__statistics-sum"
-                position-identifier="sw-dashboard-statistics-sum"
+                :card-subtitle="getCardSubtitle(turnoverDateRange)"
+                :series="orderSumSeries"
+                :options="chartOptionsOrderSum"
+                :fill-empty-values="getTimeUnitInterval(turnoverDateRange)"
+                type="line"
+                sort
+                @sw-chart-card-range-update="onTurnoverRangeUpdate"
             >
-                {% block sw_dashboard_statistics_sum_chart %}
-                <div class="sw-dashboard-statistics__title">
+                {% block sw_dashboard_statistics_sum_title %}
+                <template #header-title>
                     {{ $tc('sw-dashboard.monthStats.turnover') }}
                     <sw-help-text
-                        class="sw-dashboard-statistics__help-text"
+                        class="sw-dashboard-index__help-text"
                         :text="$tc('sw-dashboard.monthStats.helperText')"
                     />
-                </div>
-                <sw-chart
-                    type="line"
-                    :series="orderSumSeries"
-                    :options="chartOptionsOrderSum"
-                    :fill-empty-values="getTimeUnitInterval"
-                    sort
-                />
+                </template>
                 {% endblock %}
-            </sw-card>
+
+                {% block sw_dashboard_statistics_sum_range_select %}
+                <template #range-option="{ range }">
+                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+                </template>
+                {% endblock %}
+            </sw-chart-card>
+            {% endblock %}
             {% endblock %}
         </template>
     </template>

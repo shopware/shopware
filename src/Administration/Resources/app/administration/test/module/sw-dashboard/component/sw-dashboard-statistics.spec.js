@@ -24,6 +24,7 @@ function createWrapper(privileges = [], orderSumToday = null) {
         localVue,
         stubs: {
             'sw-card': true,
+            'sw-chart-card': true,
             'sw-entity-listing': true,
             'sw-chart': true,
             'sw-select-field': true,

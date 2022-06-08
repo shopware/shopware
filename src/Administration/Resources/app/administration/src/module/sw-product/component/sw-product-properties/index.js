@@ -78,13 +78,13 @@ Component.register('sw-product-properties', {
             return [
                 {
                     property: 'name',
-                    label: 'sw-product.properties.columnProperty',
+                    label: this.$tc('sw-product.properties.columnProperty'),
                     sortable: false,
                     routerLink: 'sw.property.detail',
                 },
                 {
                     property: 'values',
-                    label: 'sw-product.properties.columnValue',
+                    label: this.$tc('sw-product.properties.columnValue'),
                     sortable: false,
                 },
             ];

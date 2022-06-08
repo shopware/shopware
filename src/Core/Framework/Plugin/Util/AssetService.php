@@ -51,6 +51,11 @@ class AssetService
     {
         $bundle = $this->getBundle($bundleName);
 
+        $this->copyAssets($bundle);
+    }
+
+    public function copyAssets(BundleInterface $bundle): void
+    {
         $originDir = $bundle->getPath() . '/Resources/public';
         if (!is_dir($originDir)) {
             return;

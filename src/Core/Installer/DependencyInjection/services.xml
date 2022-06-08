@@ -35,7 +35,37 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Composer\Repository\PlatformRepository"/>
+
+        <service id="Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator">
+            <argument type="service" id="Composer\Repository\PlatformRepository"/>
+            <argument type="string">%kernel.project_dir%</argument>
+
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Requirements\FilesystemRequirementsValidator">
+            <argument type="string">%kernel.project_dir%</argument>
+
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
+        <service id="Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator">
+            <tag name="shopware.installer.requirement"/>
+        </service>
+
         <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
+            <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

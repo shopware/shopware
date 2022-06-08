@@ -9,7 +9,7 @@
         <div class="card__body is--align-center">
 
             <div class="welcome-illustration">
-                <img src="/public/bundles/maintenance/assets/images/welcome.svg" alt="">
+                <img src="{{ asset('bundles/installer/assets/images/welcome.svg', 'asset') }}" alt="">
             </div>
 
             <div class="welcome-container">
@@ -28,7 +28,7 @@
 
                 <div class="select-wrapper language">
                     <img class="language-flag"
-                         src="{{ asset('bundles/maintenance/assets/images/flags/' ~ app.request.locale ~ '.png', 'asset') }}"
+                         src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.png', 'asset') }}"
                          alt="{{ app.request.locale }}">
                     <select id="language" name="language" class="language-selection" onchange="this.form.submit();">
                         {% for language in supportedLanguages %}
@@ -42,7 +42,7 @@
         </div>
 
         <div class="card__footer flex-container">
-            <button type="submit" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.forward"|trans }}></button>
+            <a href="{{ url('installer.requirements') }}" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.forward"|trans }}</a>
         </div>
     </form>
 {% endblock %}

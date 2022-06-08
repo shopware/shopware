@@ -1104,7 +1104,7 @@ table .notice-text td p {
     color: var(--color-gray-900);
 }
 
-.requirement-group.open .icon-chevron-down::before {
+details[open] .icon-chevron-down::before {
     content: "\f077"
 }
 

@@ -8,8 +8,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- *
- * @Route(defaults={"_routeScope"={"installer"}})
  */
 class SelectLanguagesController extends InstallerController
 {

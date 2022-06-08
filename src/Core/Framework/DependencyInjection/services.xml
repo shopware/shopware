@@ -225,6 +225,13 @@ base-uri 'self';
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\Subscriber\ActiveRulesDataCollectorSubscriber">
+            <argument type="service" id="rule.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+        </service>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">

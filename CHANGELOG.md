@@ -105,6 +105,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 * [NEXT-21569 - Revert string field break](/changelog/release-6-4-12-0/2022-05-12-revert-string-field-break.md)
 * [NEXT-18634 - Fix display warning alert](/changelog/release-6-4-12-0/2022-05-23-fix-display-warning-alert.md)
 * [NEXT-21868 - Additional privileges InfoController](/changelog/release-6-4-12-0/2022-06-07-additional-privileges-infocontroller.md)
+* [NEXT-21899 - Fix npm peer dependencies](/changelog/release-6-4-12-0/2022-06-07-fix-npm-peer-dependencies.md)
 
 ## 6.4.11.1
 *  [NEXT-21458 - Filter inactive root categories](/changelog/release-6-4-11-1/2022-05-05-filter-inactive-root-categories.md)

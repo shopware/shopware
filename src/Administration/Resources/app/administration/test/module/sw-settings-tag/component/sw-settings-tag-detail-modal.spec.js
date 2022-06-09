@@ -92,4 +92,50 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         const onCancelEvents = wrapper.emitted('close');
         expect(onCancelEvents.length).toBe(1);
     });
+
+    it('should increase and decrease counts from to be added and to be deleted', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            counts: { products: 7 }
+        });
+
+        expect(wrapper.vm.computedCounts.products).toBe(7);
+
+        await wrapper.setData({
+            assignmentsToBeDeleted: {
+                products: { a: {}, b: {} },
+                invalid: { a: {} }
+            },
+            assignmentsToBeAdded: {
+                products: { a: {}, b: {}, c: {}, d: {} },
+                invalid: { a: {} }
+            }
+        });
+
+        expect(wrapper.vm.computedCounts.products).toBe(9);
+    });
+
+    it('should add and remove assignments', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            assignmentsToBeDeleted: {
+                products: { a: { id: 'a' }, b: { id: 'b' } }
+            },
+            assignmentsToBeAdded: {
+                products: { c: { id: 'c' }, d: { id: 'd' } }
+            }
+        });
+
+        wrapper.vm.addAssignment('products', 'b', { id: 'b' });
+        wrapper.vm.addAssignment('products', 'e', { id: 'e' });
+        wrapper.vm.removeAssignment('products', 'd', { id: 'd' });
+        wrapper.vm.removeAssignment('products', 'f', { id: 'f' });
+
+        expect(wrapper.vm.assignmentsToBeDeleted.products).toEqual({ a: { id: 'a' }, f: { id: 'f' } });
+        expect(wrapper.vm.assignmentsToBeAdded.products).toEqual({ c: { id: 'c' }, e: { id: 'e' } });
+    });
 });

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -101,7 +102,7 @@ class FilterTagIdsServiceTest extends TestCase
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('categories.id', null),
         ]));
-        $criteria->addSorting(new FieldSorting('categories', FieldSorting::DESCENDING));
+        $criteria->addSorting(new CountSorting('categories.id', FieldSorting::DESCENDING));
 
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
             new Request(),
@@ -127,7 +128,7 @@ class FilterTagIdsServiceTest extends TestCase
         $versionContext = $this->prepareTestDataWithInheritedAndVersionized();
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('products', FieldSorting::DESCENDING));
+        $criteria->addSorting(new CountSorting('products.id', FieldSorting::DESCENDING));
 
         (Context::createDefaultContext())->enableInheritance(function (Context $context) use ($criteria): void {
             $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
@@ -139,15 +140,15 @@ class FilterTagIdsServiceTest extends TestCase
             static::assertEquals(2, $filteredTagIdsStruct->getTotal());
             static::assertEquals(
                 [
-                    $this->ids->get('b'),
-                    $this->ids->get('a'),
+                    $this->ids->get('g'),
+                    $this->ids->get('f'),
                 ],
                 $filteredTagIdsStruct->getIds()
             );
         });
 
         $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('orders', FieldSorting::DESCENDING));
+        $criteria->addSorting(new CountSorting('orders.id', FieldSorting::ASCENDING));
 
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
             new Request(),
@@ -155,13 +156,44 @@ class FilterTagIdsServiceTest extends TestCase
             $versionContext
         );
 
-        static::assertEquals(1, $filteredTagIdsStruct->getTotal());
+        static::assertEquals(2, $filteredTagIdsStruct->getTotal());
         static::assertEquals(
             [
-                $this->ids->get('b'),
+                $this->ids->get('f'),
+                $this->ids->get('g'),
             ],
             $filteredTagIdsStruct->getIds()
         );
+    }
+
+    public function testFilterIdsWithAssignmentFilter(): void
+    {
+        $this->prepareTestData();
+        $this->prepareTestDataWithInheritedAndVersionized();
+
+        $criteria = new Criteria();
+        $context = Context::createDefaultContext();
+        $request = new Request();
+
+        $request->request->set('assignmentFilter', ['categories']);
+        $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
+
+        static::assertEquals(5, $filteredTagIdsStruct->getTotal());
+
+        $request->request->set('assignmentFilter', ['categories', 'orders']);
+        $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
+
+        static::assertEquals(6, $filteredTagIdsStruct->getTotal());
+
+        $request->request->set('assignmentFilter', ['categories', 'products']);
+        $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
+
+        static::assertEquals(7, $filteredTagIdsStruct->getTotal());
+
+        $request->request->set('assignmentFilter', ['invalid']);
+        $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
+
+        static::assertEquals(9, $filteredTagIdsStruct->getTotal());
     }
 
     private function prepareTestData(): void
@@ -251,14 +283,14 @@ class FilterTagIdsServiceTest extends TestCase
 
         $tags = [
             [
-                'id' => $this->ids->get('a'),
+                'id' => $this->ids->get('f'),
                 'name' => 'foo',
                 'products' => [
                     ['id' => $this->ids->get('p2')],
                 ],
             ],
             [
-                'id' => $this->ids->get('b'),
+                'id' => $this->ids->get('g'),
                 'name' => 'bar',
                 'products' => [
                     ['id' => $this->ids->get('p1')],
@@ -285,7 +317,7 @@ class FilterTagIdsServiceTest extends TestCase
             [
                 'id' => $this->ids->get('o1'),
                 'tags' => [
-                    ['id' => $this->ids->get('b')],
+                    ['id' => $this->ids->get('g')],
                 ],
             ],
         ];

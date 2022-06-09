@@ -158,6 +158,24 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         expect(wrapper.vm.entities).not.toEqual(null);
         expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
+
+        await wrapper.setProps({
+            toBeAdded: { orders: [] },
+            toBeDeleted: { orders: [] }
+        });
+        await wrapper.vm.onAssignmentChange({
+            entity: 'order',
+            assignment: 'orders'
+        });
+
+        await wrapper.vm.onTermChange('');
+        await wrapper.vm.onPageChange({
+            page: 1,
+            limit: 25
+        });
+
+        expect(wrapper.vm.entities).not.toEqual(null);
+        expect(Object.keys(wrapper.vm.preSelected)).toEqual(['0', '2']);
     });
 
     it('should handle adding and removing of assignments including inheritance', async () => {
@@ -243,5 +261,84 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.entityRepository.searchIds).toBeCalledTimes(2);
+    });
+
+    it('should return assignment associations', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const associations = wrapper.vm.assignmentAssociations;
+        const properties = {
+            products: 'product',
+            media: 'media',
+            categories: 'category',
+            customers: 'customer',
+            orders: 'order',
+            shippingMethods: 'shipping_method',
+            newsletterRecipients: 'newsletter_recipient',
+            landingPages: 'landing_page',
+            rules: 'rule'
+        };
+        const expected = Object.entries(properties).map(([assignment, entity]) => {
+            return {
+                name: `sw-settings-tag.detail.assignments.${assignment}`,
+                entity,
+                assignment
+            };
+        });
+
+        expect(associations).toEqual(expected);
+    });
+
+    it('should return association columns', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const columns = wrapper.vm.assignmentAssociationsColumns;
+
+        expect(columns[0].property).toEqual('name');
+    });
+
+    it('should return entity columns', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const columns = wrapper.vm.entitiesColumns;
+
+        expect(columns[0].property).toEqual('name');
+    });
+
+    it('should return selected assignments', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        let selectedAssignments = wrapper.vm.selectedAssignments;
+
+        expect(selectedAssignments['0'].id).toEqual('0');
+        expect(selectedAssignments['2'].id).toEqual('2');
+
+        await wrapper.setProps({
+            toBeAdded: { products: [{ id: '3' }] },
+            toBeDeleted: { products: [{ id: '2' }] }
+        });
+
+        selectedAssignments = wrapper.vm.selectedAssignments;
+
+        expect(selectedAssignments['0'].id).toEqual('0');
+        expect(selectedAssignments['3'].id).toEqual('3');
+        expect(selectedAssignments.hasOwnProperty('2')).toBeFalsy();
+    });
+
+    it('should increase and decrease counts on non existent properties', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.countIncrease('foo');
+
+        expect(wrapper.vm.counts.foo).toEqual(1);
+
+        wrapper.vm.countDecrease('bar');
+
+        expect(wrapper.vm.counts.bar).toEqual(0);
     });
 });

@@ -36,16 +36,40 @@
       "bulkMergeTimeNotice": "Depending on the number of entities assigned, this process may take some time.",
       "bulkMergeInto": "into",
       "placeholderTagName": "Enter tag name...",
-      "connections": {
-        "products": "Products | product | products",
-        "media": "Media | media | media",
-        "categories": "Categories | category | categories",
-        "customers": "Customers | customer | customers",
-        "orders": "Orders | order | orders",
-        "shippingMethods": "Shipping methods | shipping method | shipping methods",
-        "newsletterRecipients": "Newsletter recipients | newsletter recipient | newsletter recipients",
-        "landingPages": "Landing pages | landing page | landing pages",
-        "rules": "Rules | rule | rules"
+      "assignments": {
+        "header": {
+          "products": "Product assignments",
+          "media": "Media assignments",
+          "categories": "Category assignments",
+          "customers": "Customer assignments",
+          "orders": "Order assignments",
+          "shippingMethods": "Shipping method assignments",
+          "newsletterRecipients": "Newsletter recipient assignments",
+          "landingPages": "Landing page assignments",
+          "rules": "Rule assignments"
+        },
+        "content": {
+          "products": "products | product | products",
+          "media": "media",
+          "categories": "categories | category | categories",
+          "customers": "customers | customer | customers",
+          "orders": "orders | order | orders",
+          "shippingMethods": "shipping methods | shipping method | shipping methods",
+          "newsletterRecipients": "newsletter recipients | newsletter recipient | newsletter recipients",
+          "landingPages": "landing pages | landing page | landing pages",
+          "rules": "rules | rule | rules"
+        },
+        "filter": {
+          "products": "Product",
+          "media": "Media",
+          "categories": "Category",
+          "customers": "Customer",
+          "orders": "Order",
+          "shippingMethods": "Shipping method",
+          "newsletterRecipients": "Newsletter recipient",
+          "landingPages": "Landing page",
+          "rules": "Rule"
+        }
       }
     },
     "detail": {
@@ -57,7 +81,16 @@
         "searchPlaceholder": "Search entities...",
         "assignments": "assigned",
         "selected": "assigned entities",
-        "showSelected": "Hide unassigned entities"
+        "showSelected": "Hide unassigned entities",
+        "products": "Products",
+        "media": "Media",
+        "categories": "Categories",
+        "customers": "Customers",
+        "orders": "Orders",
+        "shippingMethods": "Shipping methods",
+        "newsletterRecipients": "Newsletter recipients",
+        "landingPages": "Landing pages",
+        "rules": "Rules"
       }
     }
   },

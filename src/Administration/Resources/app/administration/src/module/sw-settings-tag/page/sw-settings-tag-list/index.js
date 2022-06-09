@@ -54,42 +54,41 @@ Component.register('sw-settings-tag-list', {
             return Shopware.EntityDefinition.get('tag');
         },
 
+        assignmentProperties() {
+            const properties = [];
+
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
+
+                properties.push(propertyName);
+            });
+
+            return properties;
+        },
+
         tagCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.setTerm(this.term);
 
-            if (this.sortBy === 'connections' && this.assignmentFilter) {
-                criteria.addSorting(Criteria.sort(this.assignmentFilter, this.sortDirection));
-            } else {
-                criteria.addSorting(Criteria.sort('name', this.sortDirection));
-            }
+            this.setAggregations(criteria);
 
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many') {
-                    criteria.addAggregation(
-                        Criteria.terms(
-                            propertyName,
-                            'id',
-                            null,
-                            null,
-                            Criteria.count(propertyName, `tag.${propertyName}.id`),
-                        ),
-                    );
-                }
-            });
+            const naturalSort = this.sortBy === 'createdAt';
+            const sorting = Criteria.sort(this.sortBy, this.sortDirection, naturalSort);
 
-            if (this.assignmentFilter && !this.emptyFilter) {
-                criteria.addFilter(Criteria.not('AND', [
-                    Criteria.equals(`tag.${this.assignmentFilter}.id`, null),
-                ]));
+            if (this.assignmentProperties.includes(this.sortBy)) {
+                sorting.field += '.id';
+                sorting.type = 'count';
             }
+            criteria.addSorting(sorting);
 
             return criteria;
         },
 
         tagColumns() {
-            return [{
+            const columns = [{
                 property: 'name',
                 dataIndex: 'name',
                 label: 'sw-settings-tag.list.columnName',
@@ -97,33 +96,51 @@ Component.register('sw-settings-tag-list', {
                 width: '200px',
                 primary: true,
                 allowResize: true,
-            }, {
-                property: 'connections',
-                label: 'sw-settings-tag.list.columnConnections',
-                allowResize: false,
-                sortable: !!this.assignmentFilter,
             }];
+
+            this.assignmentProperties.forEach((propertyName) => {
+                columns.push({
+                    property: `${propertyName}`,
+                    label: this.$tc(`sw-settings-tag.list.assignments.header.${propertyName}`),
+                    width: '250px',
+                    allowResize: true,
+                    sortable: true,
+                });
+            });
+
+            return columns;
         },
 
         assignmentFilterOptions() {
             const options = [];
 
             Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many') {
-                    options.push({
-                        value: propertyName,
-                        label: this.$tc(`sw-settings-tag.list.connections.${propertyName}`, 0),
-                    });
+                if (property.relation !== 'many_to_many') {
+                    return;
                 }
+
+                options.push({
+                    value: propertyName,
+                    label: this.$tc(`sw-settings-tag.list.assignments.filter.${propertyName}`),
+                });
+            });
+            options.sort((a, b) => {
+                if (a.label > b.label) { return 1; }
+                if (b.label > a.label) { return -1; }
+                return 0;
             });
 
             return options;
         },
 
+        hasAssignmentFilter() {
+            return this.assignmentFilter && this.assignmentFilter.length > 0;
+        },
+
         filterCount() {
             let count = 0;
 
-            if (this.assignmentFilter || this.emptyFilter) {
+            if (this.hasAssignmentFilter || this.emptyFilter) {
                 count += 1;
             }
 
@@ -136,21 +153,36 @@ Component.register('sw-settings-tag-list', {
     },
 
     methods: {
+        setAggregations(criteria) {
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
+
+                criteria.addAggregation(
+                    Criteria.terms(
+                        propertyName,
+                        'id',
+                        null,
+                        null,
+                        Criteria.count(propertyName, `tag.${propertyName}.id`),
+                    ),
+                );
+            });
+        },
+
         getList() {
             this.isLoading = true;
-
-            if (this.sortBy === 'connections' && !this.assignmentFilter) {
-                this.sortBy = 'name';
-            }
 
             if (this.$refs.swCardFilter && this.$refs.swCardFilter.term !== this.term) {
                 this.$refs.swCardFilter.term = this.term ?? '';
             }
 
-            if (this.duplicateFilter || this.emptyFilter || this.sortBy === 'connections') {
+            if (this.duplicateFilter || this.emptyFilter || this.hasAssignmentFilter) {
                 this.tagApiService.filterIds(this.tagCriteria.parse(), {
                     duplicateFilter: this.duplicateFilter,
                     emptyFilter: this.emptyFilter,
+                    assignmentFilter: this.assignmentFilter,
                 }).then(({ total, ids }) => {
                     this.total = total;
 
@@ -226,23 +258,20 @@ Component.register('sw-settings-tag-list', {
             return counts;
         },
 
-        getConnections(id) {
-            const counts = this.getCounts(id);
-            const connections = [];
+        getPropertyCounting(propertyName, id) {
+            if (!this.tags.aggregations[propertyName]) {
+                return 0;
+            }
 
-            Object.keys(counts).forEach((property) => {
-                if (this.assignmentFilter && this.assignmentFilter !== property) {
-                    return;
-                }
+            const countBucket = this.tags.aggregations[propertyName].buckets.filter((bucket) => {
+                return bucket.key === id;
+            })[0];
 
-                connections.push({
-                    property,
-                    entity: this.tagDefinition.properties[property].entity,
-                    count: counts[property],
-                });
-            });
+            if (!countBucket || !countBucket[propertyName] || !countBucket[propertyName].count) {
+                return 0;
+            }
 
-            return connections;
+            return countBucket[propertyName].count;
         },
 
         onDelete(id) {

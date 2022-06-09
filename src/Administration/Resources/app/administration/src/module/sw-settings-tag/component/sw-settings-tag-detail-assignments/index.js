@@ -81,7 +81,7 @@ Component.register('sw-settings-tag-detail-assignments', {
             Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
                 if (property.relation === 'many_to_many') {
                     assignmentAssociations.push({
-                        name: this.$tc(`sw-settings-tag.list.connections.${propertyName}`, 0),
+                        name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
                         entity: property.entity,
                         assignment: propertyName,
                     });

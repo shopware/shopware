@@ -2,15 +2,18 @@
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
+const uuid = require('uuid/v4');
+
 describe('Tag: Test crud operations', () => {
     beforeEach(() => {
+        const tagId = uuid().replace(/-/g, '');
         const tags = [
             {
-                id: 'ccc71b4e97644095a1e57748616a5d84',
+                id: tagId,
                 name: 'Example tag'
             }
         ];
-        const taxId = '91b5324352dc4ee58ec320df5dcf2bf4';
+        const taxId = uuid().replace(/-/g, '');
 
         cy.loginViaApi()
             .then(() => {
@@ -51,7 +54,8 @@ describe('Tag: Test crud operations', () => {
         // Check tag listing
         cy.get('.sw-settings-tag-list__grid').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('contain', 'Example tag');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--connections`).contains(/3(\s)*products(\s)*,(\s)*1(\s)*category/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--products`).contains(/3(\s)*products/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
     it('@settings: delete tag', () => {
@@ -106,9 +110,11 @@ describe('Tag: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('contain', 'Cloned example tag');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--connections`).contains(/3(\s)*products(\s)*,(\s)*1(\s)*category/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--products`).contains(/3(\s)*products/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('contain', 'Example tag');
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--connections`).contains(/3(\s)*products(\s)*,(\s)*1(\s)*category/);
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--products`).contains(/3(\s)*products/);
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
     it('@settings: create tag with assignments', () => {
@@ -141,7 +147,7 @@ describe('Tag: Test crud operations', () => {
         cy.get(`.sw-settings-tag-detail-assignments__entities-grid ${page.elements.dataGridRow}--0 .sw-field__checkbox`).click();
 
         // switch to category assignments
-        cy.get(`.sw-settings-tag-detail-assignments__associations-grid ${page.elements.dataGridRow}--2 .associations-grid__row`).click();
+        cy.get(`.sw-settings-tag-detail-assignments__associations-grid .associations-grid__row`).contains('Categories').click();
         cy.wait('@loadCategories').its('response.statusCode').should('equal', 200);
 
         // assign category
@@ -155,7 +161,8 @@ describe('Tag: Test crud operations', () => {
 
         // check tag has been created
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('contain', 'New tag');
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--connections`).contains(/1(\s)*product(\s)*,(\s)*1(\s)*category/);
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--products`).contains(/1(\s)*product/);
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
     it('@settings: edit tag with assignments', () => {
@@ -196,6 +203,7 @@ describe('Tag: Test crud operations', () => {
 
         // check tag has been edited
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('contain', 'Edited tag');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--connections`).contains(/2(\s)*products(\s)*,(\s)*1(\s)*category/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--products`).contains(/2(\s)*products/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 });

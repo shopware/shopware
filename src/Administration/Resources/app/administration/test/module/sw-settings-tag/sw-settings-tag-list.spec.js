@@ -1,6 +1,20 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tag/page/sw-settings-tag-list';
 
+const connections = {
+    products: 412,
+    media: 112,
+    categories: 16,
+    customers: 1,
+    orders: 33,
+    shippingMethods: 0,
+    newsletterRecipients: 0,
+    landingPages: 3,
+    rules: 0
+};
+const deleteEndpoint = jest.fn(() => Promise.resolve());
+const cloneEndpoint = jest.fn(() => Promise.resolve());
+
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
@@ -14,17 +28,6 @@ function createWrapper(privileges = []) {
             name: 'AnotherExampleTag'
         }
     ];
-    const connections = {
-        products: 412,
-        media: 112,
-        categories: 16,
-        customers: 1,
-        orders: 33,
-        shippingMethods: 0,
-        newsletterRecipients: 0,
-        landingPages: 3,
-        rules: 0
-    };
 
     responseMock.aggregations = {};
     responseMock.total = 2;
@@ -59,9 +62,9 @@ function createWrapper(privileges = []) {
                         return Promise.resolve(responseMock);
                     },
 
-                    delete: () => {
-                        return Promise.resolve();
-                    }
+                    delete: deleteEndpoint,
+
+                    clone: cloneEndpoint
                 })
             },
             acl: {
@@ -208,20 +211,33 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const summary = wrapper.vm.getConnections('1');
+        const expected = {};
+        Object.entries(connections).forEach(([propertyName, count]) => {
+            if (!count) {
+                return;
+            }
 
-        expect(summary).toEqual([
-            { property: 'products', entity: 'product', count: 412 },
-            { property: 'media', entity: 'media', count: 112 },
-            { property: 'categories', entity: 'category', count: 16 },
-            { property: 'customers', entity: 'customer', count: 1 },
-            { property: 'orders', entity: 'order', count: 33 },
-            { property: 'landingPages', entity: 'landing_page', count: 3 }
-        ]);
+            expected[propertyName] = count;
+        });
+        const counts = wrapper.vm.getCounts('1');
+
+        expect(counts).toEqual(expected);
+    });
+
+    it('should return total of single assignment', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.getPropertyCounting('products', '1')).toEqual(412);
+        expect(wrapper.vm.getPropertyCounting('invalid', '1')).toEqual(0);
+        expect(wrapper.vm.getPropertyCounting('products', 'invalid')).toEqual(0);
     });
 
     it('should use tag api service for duplicate filter', async () => {
         const wrapper = createWrapper();
+        await wrapper.setData({
+            sortBy: 'products'
+        });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.total).toEqual(2);
@@ -235,5 +251,91 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         expect(wrapper.vm.tagApiService.filterIds).toBeCalledTimes(1);
         expect(wrapper.vm.total).toEqual(1);
+    });
+
+    it('should return sorted many to many assignment filter options', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const options = wrapper.vm.assignmentFilterOptions;
+
+        const expected = ['categories', 'customers', 'landingPages', 'media', 'newsletterRecipients', 'orders', 'products', 'rules', 'shippingMethods']
+            .map((value) => {
+                return {
+                    value,
+                    label: `sw-settings-tag.list.assignments.filter.${value}`
+                };
+            });
+
+        expect(options).toEqual(expected);
+    });
+
+    it('should return count of filters', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(0).toEqual(wrapper.vm.filterCount);
+
+        await wrapper.setData({
+            emptyFilter: true
+        });
+
+        expect(1).toEqual(wrapper.vm.filterCount);
+
+        await wrapper.setData({
+            duplicateFilter: true
+        });
+
+        expect(2).toEqual(wrapper.vm.filterCount);
+    });
+
+    it('should open delete modal and request delete endpoint', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+
+        wrapper.vm.onDelete('foo');
+
+        expect(wrapper.vm.showDeleteModal).toEqual('foo');
+
+        wrapper.vm.onCloseDeleteModal();
+
+        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+
+        wrapper.vm.onConfirmDelete('foo');
+
+        expect(deleteEndpoint).toBeCalledTimes(1);
+    });
+
+    it('should open clone modal and request cl endpoint', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showDuplicateModal).toBeFalsy();
+
+        wrapper.vm.onDuplicate({ id: 'foo', name: 'bar' });
+
+        expect(wrapper.vm.showDuplicateModal).toEqual('foo');
+
+        wrapper.vm.onCloseDuplicateModal();
+
+        expect(wrapper.vm.showDuplicateModal).toBeFalsy();
+
+        wrapper.vm.onConfirmDuplicate('foo');
+
+        expect(cloneEndpoint).toBeCalledTimes(1);
+    });
+
+    it('should open detail modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onDetail('foo', 'bar', 'baz');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showDetailModal).toEqual('foo');
+        expect(wrapper.vm.detailProperty).toEqual('bar');
+        expect(wrapper.vm.detailEntity).toEqual('baz');
     });
 });

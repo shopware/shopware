@@ -86,7 +86,8 @@ FROM seo_url
 WHERE
   route_name = 'frontend.detail.page' AND
   is_deleted = 0 AND
-  is_canonical = 1
+  is_canonical = 1 AND
+  language_id = unhex('2fbb5fe2e29a4d70aa5854ce7ce3e20b')
 GROUP BY product.id
 " . $limit, [
     'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),

@@ -78,7 +78,7 @@ class PdfGenerator implements FileGeneratorInterface
             gc_enable();
         }
 
-        return $dompdf->output() ?? '';
+        return (string) $dompdf->output();
     }
 
     /**

@@ -368,6 +368,7 @@ class DocumentService
             ->addAssociation('currency')
             ->addAssociation('language.locale')
             ->addAssociation('addresses.country')
+            ->addAssociation('addresses.salutation')
             ->addAssociation('addresses.countryState')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod')

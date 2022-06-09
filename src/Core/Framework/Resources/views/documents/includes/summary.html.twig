@@ -21,7 +21,7 @@ All blocks of this template are available in the template which renders this tem
                                     <td class="align-right">{{ 'document.lineItems.totalNet'|trans|sw_sanitize }}</td>
                                 {% endblock %}
                                 {% block document_sum_total_net_price %}
-                                    <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                                    <td class="align-right">{{ order.amountNet|currency(currencyIsoCode, languageId) }}</td>
                                 {% endblock %}
                             </tr>
                         {% endblock %}
@@ -33,7 +33,7 @@ All blocks of this template are available in the template which renders this tem
                                         <td class="align-right">{{ 'document.lineItems.tax'|trans({'%taxRate%': calculatedTax.taxRate})|sw_sanitize }}</td>
                                     {% endblock %}
                                     {% block document_sum_tax_rate %}
-                                        <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
+                                        <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode, languageId) }}</td>
                                     {% endblock %}
                                 </tr>
                             {% endfor %}
@@ -48,7 +48,7 @@ All blocks of this template are available in the template which renders this tem
                                         <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
                                     {% endblock %}
                                     {% block document_sum_total_raw_price %}
-                                        <td class="align-right">{{ order.price.rawTotal|currency(currencyIsoCode) }}</td>
+                                        <td class="align-right">{{ order.price.rawTotal|currency(currencyIsoCode, languageId) }}</td>
                                     {% endblock %}
                                 </tr>
 
@@ -57,7 +57,7 @@ All blocks of this template are available in the template which renders this tem
                                         <td class="align-right">{{ 'document.lineItems.roundedTotal'|trans|sw_sanitize }}</td>
                                     {% endblock %}
                                     {% block document_sum_total_rounded_price %}
-                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals) }}</td>
+                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals, languageId=languageId) }}</td>
                                     {% endblock %}
                                 </tr>
 

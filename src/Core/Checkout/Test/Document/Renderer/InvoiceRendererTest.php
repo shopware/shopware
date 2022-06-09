@@ -204,10 +204,9 @@ class InvoiceRendererTest extends TestCase
                 ]], $this->context);
                 $companyPhone = '123123123';
                 $vatIds = ['VAT-123123'];
-                $order->getOrderCustomer()->setVatIds($vatIds);
 
-                $this->getContainer()->get('order_customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getId(),
+                $this->getContainer()->get('customer.repository')->update([[
+                    'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => $vatIds,
                 ]], $this->context);
 
@@ -245,25 +244,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
                 static::assertStringContainsString('VAT-123123', $rendered);
                 static::assertStringContainsString('123123123', $rendered);
-            },
-        ];
-
-        yield 'render with multiple pages' => [
-            [7, 19],
-            function (DocumentGenerateOperation $operation): void {
-                $operation->assign([
-                    'config' => [
-                        'itemsPerPage' => 1,
-                    ],
-                ]);
-            },
-            function (RenderedDocument $rendered): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-                $rendered = $rendered->getHtml();
-
-                static::assertStringContainsString('Invoice 1000        (1/2)', $rendered);
-                static::assertStringContainsString('Invoice 1000        (2/2)', $rendered);
             },
         ];
 

@@ -169,8 +169,8 @@ class StornoRendererTest extends TestCase
             ],
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
-                static::assertStringContainsString('Cancellation number 1000', $rendered->getHtml());
-                static::assertStringContainsString('Cancellation 1000 for invoice 1001', $rendered->getHtml());
+                static::assertStringContainsString('Cancellation no. 1000', $rendered->getHtml());
+                static::assertStringContainsString('Cancellation 1000 for Invoice 1001', $rendered->getHtml());
             },
         ];
 
@@ -182,20 +182,6 @@ class StornoRendererTest extends TestCase
                 static::assertNotNull($rendered);
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
                 static::assertEquals('storno_STORNO_9999', $rendered->getName());
-            },
-        ];
-
-        yield 'render with multiple pages' => [
-            [
-                'itemsPerPage' => 1,
-            ],
-            function (RenderedDocument $rendered): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-                $rendered = $rendered->getHtml();
-
-                static::assertStringContainsString('Cancellation 1000 for invoice 1001        (1/2)', $rendered);
-                static::assertStringContainsString('Cancellation 1000 for invoice 1001        (2/2)', $rendered);
             },
         ];
     }

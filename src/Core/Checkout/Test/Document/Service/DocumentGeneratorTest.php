@@ -208,8 +208,8 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
         static::assertNotEmpty($stornoStruct->getContent());
-        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
 
         $this->getContainer()->get('order_customer.repository')->update([[
             'id' => $orderCustomer->getId(),
@@ -219,9 +219,9 @@ class DocumentGeneratorTest extends TestCase
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
     /**

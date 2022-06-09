@@ -264,10 +264,8 @@ class InvoiceServiceTest extends TestCase
         static::assertNotNull($country = $countries->first());
         $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
         $companyPhone = '123123123';
-        $vatIds = ['VAT-123123'];
 
         static::assertNotNull($order->getOrderCustomer());
-        $order->getOrderCustomer()->setVatIds($vatIds);
 
         $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
             new DocumentConfiguration(),
@@ -303,7 +301,6 @@ class InvoiceServiceTest extends TestCase
         static::assertStringContainsString($shippingAddress->getLastName(), $processedTemplate);
         static::assertStringContainsString($shippingAddress->getZipcode(), $processedTemplate);
         static::assertStringContainsString('Intra-community delivery (EU)', $processedTemplate);
-        static::assertStringContainsString($vatIds[0], $processedTemplate);
         static::assertStringContainsString($companyPhone, $processedTemplate);
     }
 
@@ -328,7 +325,6 @@ class InvoiceServiceTest extends TestCase
         static::assertNotNull($shippingAddress = $deliveries->getShippingAddress());
         static::assertNotNull($countries = $shippingAddress->getCountries());
         static::assertNotNull($country = $countries->first());
-
         $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
             new DocumentConfiguration(),
             [
@@ -407,7 +403,7 @@ class InvoiceServiceTest extends TestCase
                 static::assertNotNull($addresses = $order->getAddresses());
                 static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
                 static::assertNotNull($country = $billingAddress->getCountry());
-                $country->setIso('VN');
+                $country->setId(Uuid::randomBytes());
             },
             function ($processedTemplate, $vatId): void {
                 static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
@@ -429,10 +425,6 @@ class InvoiceServiceTest extends TestCase
                 $country->getCompanyTax()->setEnabled(true);
             },
             function (OrderEntity $order): void {
-                static::assertNotNull($addresses = $order->getAddresses());
-                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
-                static::assertNotNull($country = $billingAddress->getCountry());
-                $country->setIso('DE');
             },
             function ($processedTemplate, $vatId): void {
                 static::assertStringContainsString("VAT Reg.No: ${vatId}", $processedTemplate);

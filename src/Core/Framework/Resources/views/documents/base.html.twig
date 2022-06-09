@@ -30,6 +30,7 @@ merge 16.11.2020
     {% set currencyIsoCode = order.currency.isoCode %}
 
     {% set locale = order.language.locale.code %}
+    {% set languageId = order.language.id %}
 
     {% set nestedLineItems = order.nestedLineItems %}
 

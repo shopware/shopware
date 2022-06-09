@@ -53,7 +53,7 @@
         /* Header */
         header {
             position: fixed;
-            top: -135px;
+            top: -175px;
         }
 
         .logo {
@@ -82,6 +82,11 @@
         .line-item-table {
             width: 100%;
             border-spacing: 0 2px;
+            border-collapse: collapse;
+        }
+
+        .line-item-table-header {
+            vertical-align: top;
         }
 
         .line-item-table-header > th, .line-item-table:last-child {
@@ -90,8 +95,30 @@
             text-align: left;
         }
 
+        .line-item-table-header > th.product-number {
+            width: 200px;
+        }
+
+        .line-item-table-header > th.product-label {
+            width: 240px;
+        }
+
         .line-item-table-header > th.numbers {
             text-align: right;
+        }
+
+        .line-item-table-header > th.incl-vat {
+            position: relative;
+            width: auto;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            display: inline-block;
+            position: absolute;
+            font-size: 10px;
+            font-weight: normal;
+            margin-top: 12px;
+            right: 0;
         }
 
         .line-item, .sum-container, .payment-shipping-container, .document-comment-container {
@@ -102,6 +129,15 @@
             padding-top: 20px;
         }
 
+        .line-item.nested > td {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-item.nested.first .label-wrapper {
+            top: 20px;
+        }
+
         .line-item-breakable {
             word-wrap: break-word;
         }
@@ -109,14 +145,14 @@
         .line-item .label-wrapper {
             display: inline-block;
             position: absolute;
-            width: 6px;
-            height: 20px;
-            top: 0;
-            border-left:  2px solid rgba(0, 0, 0, 0.15);
+            top: 0.05%;
+            bottom: 0;
+            left: 0;
+            border-left: 2px solid rgba(0, 0, 0, 0.15);
         }
 
-        .wrapper-wrapper {
-            position: relative;
+        .line-item-label {
+            display: inline-block;
         }
 
         .label-wrapper.level-2 { margin-left: 10px; }
@@ -171,6 +207,7 @@
 
         .page-count {
             width: 100%;
+            float: left;
         }
 
         .pagenum:after {
@@ -194,13 +231,14 @@
             position: fixed;
             bottom: 50px;
             font-size: 8px;
+            padding-top: 25px;
         }
 
         footer:after {
             clear: both;
         }
 
-        footer > ul, footer > div {
+        footer > ul {
             width: 20%;
             display: block;
             float: left;

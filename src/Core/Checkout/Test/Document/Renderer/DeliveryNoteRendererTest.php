@@ -111,7 +111,7 @@ class DeliveryNoteRendererTest extends TestCase
                 static::assertStringContainsString('</html>', $html);
 
                 static::assertStringContainsString('Delivery note ' . $deliveryNoteNumber, $html);
-                static::assertStringContainsString(sprintf('Delivery note %s for order %s ', $deliveryNoteNumber, $orderNumber), $html);
+                static::assertStringContainsString(sprintf('Delivery note %s for Order %s ', $deliveryNoteNumber, $orderNumber), $html);
             },
         ];
 
@@ -121,8 +121,8 @@ class DeliveryNoteRendererTest extends TestCase
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for order $orderNumber        (1/2)", $rendered->getHtml());
-                static::assertStringContainsString("Delivery note $deliveryNoteNumber for order $orderNumber        (2/2)", $rendered->getHtml());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
+                static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getHtml());
             },
         ];
     }

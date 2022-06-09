@@ -20,10 +20,6 @@ class CountryEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    public const MEMBER_STATES_OF_EU = [
-        'BE', 'EL', 'LT', 'PT', 'BG', 'ES', 'LU', 'RO', 'CZ', 'FR', 'HU', 'SI', 'DK', 'HR', 'MT', 'SK', 'DE', 'IT', 'NL', 'FI', 'EE', 'CY', 'AT', 'SE', 'IE', 'LV', 'PL',
-    ];
-
     /**
      * @var string|null
      */
@@ -397,10 +393,5 @@ class CountryEntity extends Entity
     public function setCompanyTax(TaxFreeConfig $companyTax): void
     {
         $this->companyTax = $companyTax;
-    }
-
-    public function isEU(): bool
-    {
-        return \in_array($this->iso, self::MEMBER_STATES_OF_EU, true);
     }
 }

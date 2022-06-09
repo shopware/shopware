@@ -31,6 +31,7 @@
       "labelUnit": "Einheit",
       "labelMin": "Minimum",
       "labelMax": "Maximum",
+      "selectionUnitHour": "Stunde",
       "selectionUnitDay": "Tag",
       "selectionUnitWeek": "Woche",
       "selectionUnitMonth": "Monat",

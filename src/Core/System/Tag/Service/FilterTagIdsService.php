@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Tag\Struct\FilteredTagIdsStruct;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -41,6 +40,7 @@ class FilterTagIdsService
         $query = $this->getIdsQuery($criteria, $context);
         $duplicateFilter = $request->get('duplicateFilter', false);
         $emptyFilter = $request->get('emptyFilter', false);
+        $assignmentFilter = $request->get('assignmentFilter', false);
 
         if ($emptyFilter) {
             $this->addEmptyFilter($query);
@@ -48,6 +48,10 @@ class FilterTagIdsService
 
         if ($duplicateFilter) {
             $this->addDuplicateFilter($query);
+        }
+
+        if (\is_array($assignmentFilter)) {
+            $this->addAssignmentFilter($query, $assignmentFilter);
         }
 
         $ids = $query->execute()->fetchFirstColumn();
@@ -58,8 +62,6 @@ class FilterTagIdsService
     private function getIdsQuery(Criteria $criteria, Context $context): QueryBuilder
     {
         $query = new QueryBuilder($this->connection);
-
-        $this->addAggregationSorting($criteria, $query, $context);
 
         $query = $this->criteriaQueryBuilder->build($query, $this->tagDefinition, $criteria, $context);
 
@@ -84,39 +86,6 @@ class FilterTagIdsService
             ->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return (int) $total->execute()->fetchOne();
-    }
-
-    private function addAggregationSorting(Criteria $criteria, QueryBuilder $query, Context $context): void
-    {
-        $sourceEntityName = $this->tagDefinition->getEntityName();
-
-        foreach ($criteria->getSorting() as $fieldSorting) {
-            $direction = $fieldSorting->getDirection();
-            $fieldName = str_replace(sprintf('%s.', $sourceEntityName), '', $fieldSorting->getField());
-            $field = $this->tagDefinition->getField($fieldName);
-
-            if (!$field instanceof ManyToManyAssociationField) {
-                continue;
-            }
-
-            $criteria->resetSorting();
-            $query->addOrderBy(
-                sprintf(
-                    'COUNT(%s.`id`)',
-                    EntityDefinitionQueryHelper::escape(sprintf('%s.%s', $sourceEntityName, $field->getPropertyName()))
-                ),
-                $direction
-            );
-
-            if ($field->getToManyReferenceDefinition()->isVersionAware()) {
-                $criteria->addFilter(new EqualsFilter(
-                    $field->getPropertyName() . '.versionId',
-                    $context->getVersionId()
-                ));
-            }
-
-            break;
-        }
     }
 
     private function addEmptyFilter(QueryBuilder $query): void
@@ -152,5 +121,32 @@ class FilterTagIdsService
             'duplicate',
             'duplicate.`name` = `tag`.`name`'
         );
+    }
+
+    private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
+    {
+        /** @var ManyToManyAssociationField[] $manyToManyFields */
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(function (Field $field) use ($assignments) {
+            return $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true);
+        });
+
+        if (\count($manyToManyFields) === 0) {
+            return;
+        }
+
+        $expressions = $query->expr()->orX();
+
+        foreach ($manyToManyFields as $manyToManyField) {
+            $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
+            $mappingLocalColumn = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingLocalColumn());
+
+            $subQuery = (new QueryBuilder($this->connection))
+                ->select([$mappingLocalColumn])
+                ->from($mappingTable);
+
+            $expressions->add($query->expr()->in('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
+        }
+
+        $query->andWhere($expressions);
     }
 }

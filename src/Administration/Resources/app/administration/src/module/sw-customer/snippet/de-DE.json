@@ -181,7 +181,8 @@
       "columnContextOpenOrder": "Bestellung öffnen",
       "emptyTitle": "Noch keine Bestellungen",
       "emptySearchTitle": "Keine Suchergebnisse",
-      "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten"
+      "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
+      "buttonCreateOrder": "Bestellung anlegen"
     },
     "addressForm": {
       "labelCompany": "Firma",

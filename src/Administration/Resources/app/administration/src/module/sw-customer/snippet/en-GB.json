@@ -181,7 +181,8 @@
       "columnContextOpenOrder": "Open order",
       "emptyTitle": "No orders yet",
       "emptySearchTitle": "No search result",
-      "emptySubline": "Manage your customers' orders here"
+      "emptySubline": "Manage your customers' orders here",
+      "buttonCreateOrder": "Add order"
     },
     "addressForm": {
       "labelCompany": "Company",

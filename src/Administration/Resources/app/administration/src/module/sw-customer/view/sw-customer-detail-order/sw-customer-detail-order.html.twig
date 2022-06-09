@@ -9,7 +9,29 @@
             v-if="(orders && orders.total > 0) || term"
             :placeholder="$tc('sw-customer.detailOrder.searchbarPlaceholder')"
             @sw-card-filter-term-change="onChange"
-        />
+        >
+            <template #filter>
+                {% block sw_customer_detail_order_add_button %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-customer-detail-order__add-order-action"
+                    size="small"
+                    :disabled="!acl.can('order.creator')"
+                    @click="navigateToCreateOrder"
+                >
+                    <sw-icon
+                        name="small-default-plus-circle"
+                        small
+                    />
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-card-filter>
     </template>
     {% endblock %}
 
@@ -81,6 +103,24 @@
                     :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
                     :alt="emptyTitle"
                 >
+            </template>
+
+            <template #actions>
+                {% block sw_customer_detail_order_card_grid_empty_state_action %}
+                <sw-button
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('order.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    class="sw-customer-detail-order__add-order-action"
+                    :disabled="!acl.can('order.creator')"
+                    @click="navigateToCreateOrder"
+                >
+                    {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
+                </sw-button>
+                {% endblock %}
             </template>
         </sw-empty-state>
     </template>

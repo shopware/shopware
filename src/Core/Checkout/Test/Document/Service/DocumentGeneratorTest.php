@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaService;
@@ -126,6 +127,8 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreview(): void
     {
+        self::expectException(InvalidOrderException::class);
+
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
 
@@ -135,6 +138,10 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $documentStruct);
         static::assertNotEmpty($documentStruct->getContent());
+
+        $operation = new DocumentGenerateOperation(Uuid::randomHex());
+
+        $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }
 
     /**

@@ -45,6 +45,6 @@ class PdfRenderer
             gc_enable();
         }
 
-        return $dompdf->output() ?? '';
+        return (string) $dompdf->output();
     }
 }

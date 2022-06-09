@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -106,6 +107,10 @@ class DocumentGenerator
         $config->deepLinkCode = $deepLinkCode;
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
+
+        if (!\array_key_exists($operation->getOrderId(), $rendered->getSuccess())) {
+            throw new InvalidOrderException($operation->getOrderId());
+        }
 
         $document = $rendered->getSuccess()[$operation->getOrderId()];
 

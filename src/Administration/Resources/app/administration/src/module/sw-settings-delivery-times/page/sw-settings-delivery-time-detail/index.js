@@ -53,6 +53,9 @@ Component.register('sw-settings-delivery-time-detail', {
 
         deliveryTimeUnits() {
             return [{
+                value: 'hour',
+                label: this.$tc('sw-settings-delivery-time.detail.selectionUnitHour'),
+            }, {
                 value: 'day',
                 label: this.$tc('sw-settings-delivery-time.detail.selectionUnitDay'),
             }, {

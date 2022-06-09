@@ -4,10 +4,11 @@
 
 Install locust on the machine which executes the benchmark. https://docs.locust.io/en/stable/installation.html
 
-Additionally, you have to install the following dependencies:
-- [Beautiful Soup](hhttps://pypi.org/project/beautifulsoup4/) - `pip install beautifulsoup4`
-- [Faker](https://faker.readthedocs.io/en/master/) - `pip install faker`
-- [locust-plugins](https://github.com/SvenskaSpel/locust-plugins) -pip install locust-plugins
+Additionally, you have to install the dependencies listed in requirements.txt:
+
+```shell
+pip3 install -r requirements.txt
+```
 
 ## Setup
 

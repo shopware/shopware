@@ -6,6 +6,7 @@ use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\SalesChannelDomainNotFoundException;
+use Shopware\Core\Content\ProductExport\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +32,8 @@ class ProductExportController extends AbstractController
 {
     private EntityRepositoryInterface $salesChannelDomainRepository;
 
+    private EntityRepositoryInterface $salesChannelRepository;
+
     private ProductExportGeneratorInterface $productExportGenerator;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -39,10 +43,12 @@ class ProductExportController extends AbstractController
      */
     public function __construct(
         EntityRepositoryInterface $salesChannelDomainRepository,
+        EntityRepositoryInterface $salesChannelRepository,
         ProductExportGeneratorInterface $productExportGenerator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
         $this->productExportGenerator = $productExportGenerator;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -56,7 +62,7 @@ class ProductExportController extends AbstractController
     {
         $result = $this->generateExportPreview($dataBag, $context);
 
-        if ($result->hasErrors()) {
+        if ($result && $result->hasErrors()) {
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
@@ -90,7 +96,7 @@ class ProductExportController extends AbstractController
     {
         $result = $this->generateExportPreview($dataBag, $context);
 
-        if ($result->hasErrors()) {
+        if ($result && $result->hasErrors()) {
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
@@ -105,7 +111,7 @@ class ProductExportController extends AbstractController
         return new JsonResponse(
             [
                 'content' => mb_convert_encoding(
-                    $result->getContent(),
+                    $result ? $result->getContent() : '',
                     'UTF-8',
                     $dataBag->get('encoding')
                 ),
@@ -135,10 +141,23 @@ class ProductExportController extends AbstractController
         return $entity;
     }
 
-    private function generateExportPreview(RequestDataBag $dataBag, Context $context): ProductExportResult
+    private function generateExportPreview(RequestDataBag $dataBag, Context $context): ?ProductExportResult
     {
-        $salesChannelDomainId = $dataBag->get('salesChannelDomainId');
+        $salesChannelDomain = $this->getSalesChannelDomain($dataBag->get('salesChannelDomainId'), $context);
+        $salesChannel = $this->getSalesChannel($dataBag->get('salesChannelId'), $context);
 
+        $productExportEntity = $this->createEntity($dataBag);
+        $productExportEntity->setSalesChannelDomain($salesChannelDomain);
+        $productExportEntity->setStorefrontSalesChannelId($salesChannelDomain->getSalesChannelId());
+        $productExportEntity->setSalesChannel($salesChannel);
+
+        $exportBehavior = new ExportBehavior(true, true, true);
+
+        return $this->productExportGenerator->generate($productExportEntity, $exportBehavior);
+    }
+
+    private function getSalesChannelDomain(string $salesChannelDomainId, Context $context): SalesChannelDomainEntity
+    {
         $criteria = (new Criteria([$salesChannelDomainId]))
             ->addAssociation('language.locale')
             ->addAssociation('salesChannel');
@@ -160,13 +179,31 @@ class ProductExportController extends AbstractController
             throw $salesChannelDomainNotFoundException;
         }
 
-        $productExportEntity = $this->createEntity($dataBag);
-        $productExportEntity->setSalesChannelDomain($salesChannelDomain);
-        $productExportEntity->setStorefrontSalesChannelId($salesChannelDomain->getSalesChannelId());
-        $productExportEntity->setSalesChannel($salesChannelDomain->getSalesChannel());
+        return $salesChannelDomain;
+    }
 
-        $exportBehavior = new ExportBehavior(true, true, true);
+    private function getSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
+    {
+        $criteria = new Criteria([$salesChannelId]);
 
-        return $this->productExportGenerator->generate($productExportEntity, $exportBehavior);
+        $salesChannel = $this->salesChannelRepository->search(
+            $criteria,
+            $context
+        )->get($salesChannelId);
+
+        if (!($salesChannel instanceof SalesChannelEntity)) {
+            $salesChannelNotFoundException = new SalesChannelNotFoundException($salesChannelId);
+            $loggingEvent = new ProductExportLoggingEvent(
+                $context,
+                $salesChannelNotFoundException->getMessage(),
+                Logger::ERROR,
+                $salesChannelNotFoundException
+            );
+            $this->eventDispatcher->dispatch($loggingEvent);
+
+            throw $salesChannelNotFoundException;
+        }
+
+        return $salesChannel;
     }
 }

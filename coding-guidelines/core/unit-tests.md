@@ -14,9 +14,13 @@ When writing unit tests, the following is important:
 - **Modularity** - Your test should not fail just because another test left artifacts (files, storage records, ...).
 - **Cleanup** - It is also important that you clean up your artifacts. If you register an event listener dynamically, make sure that it is removed again on `teardown`. If you write data to the database or change the schema, make sure it is rolled back.
 - **Failure** - Don't just test the happy case or success case, test the failure of your services and objects.
+- **Unit** - Write unit tests (not integration tests), don't always test the whole request or service stack, you can also just instantiate services yourself and mock dependencies to make testing faster and easier.
 
+## Examples
 Here are some good examples of unit tests:
-- [CriteriaTest](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Framework/Test/DataAbstractionLayer/Search/CriteriaTest.php)
-- [CashRounding](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Checkout/Test/Cart/Price/CashRoundingTest.php)
-- [QuantityPriceCalculator](https://github.com/shopware/platform/blob/dea144715a735c2b6f53098b9c92f9eeebc16c21/src/Core/Checkout/Test/Cart/Price/QuantityPriceCalculatorTest.php)
+- [CriteriaTest](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Test/DataAbstractionLayer/Search/CriteriaTest.php)
+- [CashRounding](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Test/Cart/Price/CashRoundingTest.php)
+- [QuantityPriceCalculator](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Test/Cart/Price/QuantityPriceCalculatorTest.php)
 
+Here are some good examples of integration tests:
+- [ProductCartTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Product/Cart/ProductCartTest.php)

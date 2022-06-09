@@ -5,10 +5,13 @@ namespace Shopware\Core\Content\Test\Product;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
@@ -26,9 +29,9 @@ class ProductBuilder
         build as private parentBuild;
     }
 
-    protected string $productNumber;
+    public string $id;
 
-    protected string $id;
+    protected string $productNumber;
 
     protected ?string $name;
 
@@ -81,6 +84,8 @@ class ProductBuilder
     protected array $crossSellings = [];
 
     protected array $tags = [];
+
+    private array $dependencies = [];
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -473,6 +478,20 @@ class ProductBuilder
         return $this;
     }
 
+    public function write(ContainerInterface $container): void
+    {
+        $container->get('product.repository')->create([$this->build()], Context::createDefaultContext());
+
+        $this->writeDependencies($container);
+    }
+
+    public function writeDependencies(ContainerInterface $container): void
+    {
+        foreach ($this->dependencies as $entity => $records) {
+            $container->get($entity . '.repository')->create($records, Context::createDefaultContext());
+        }
+    }
+
     private function getRuleConditions(bool $valid): array
     {
         if ($valid) {
@@ -554,20 +573,18 @@ class ProductBuilder
             return $price;
         }
 
-        if ($this->ids->has($currencyKey)) {
-            $price['currencyId'] = $this->ids->get($currencyKey);
+        $price['currencyId'] = $this->ids->get($currencyKey);
 
-            return $price;
-        }
-
-        $price['currency'] = [
+        $this->dependencies['currency'][] = [
             'id' => $this->ids->get($currencyKey),
             'factor' => 2,
             'name' => 'test-currency',
             'shortName' => 'TC',
             'symbol' => '$',
-            'isoCode' => 'en-GB',
-            'decimalPrecision' => 3,
+            'isoCode' => 'en',
+            'decimalPrecision' => 2,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
         ];
 
         return $price;

@@ -59,6 +59,8 @@
             <tag name="shopware.installer.requirement"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+
         <service id="shopware.installer.guzzle" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Core\Installer\License\LicenseFetcher">
@@ -78,6 +80,8 @@
 
         <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
             <argument type="tagged_iterator" tag="shopware.installer.requirement"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="string">%kernel.project_dir%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -90,6 +94,15 @@
         <service id="Shopware\Core\Installer\Controller\LicenseController" public="true">
             <argument type="service" id="Shopware\Core\Installer\License\LicenseFetcher"/>
 
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Installer\Controller\DatabaseConfigurationController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

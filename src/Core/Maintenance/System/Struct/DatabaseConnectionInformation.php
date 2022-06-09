@@ -12,9 +12,9 @@ class DatabaseConnectionInformation extends Struct
 
     protected int $port = 3306;
 
-    protected ?string $username;
+    protected ?string $username = null;
 
-    protected ?string $password;
+    protected ?string $password = null;
 
     protected string $databaseName = '';
 
@@ -158,5 +158,10 @@ class DatabaseConnectionInformation extends Struct
     public function getSslDontVerifyServerCert(): ?bool
     {
         return $this->sslDontVerifyServerCert;
+    }
+
+    public function hasAdvancedSetting(): bool
+    {
+        return $this->port !== 3306 || $this->sslCaPath || $this->sslCertPath || $this->sslCertKeyPath || $this->sslDontVerifyServerCert != null;
     }
 }

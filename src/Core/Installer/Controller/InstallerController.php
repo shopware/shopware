@@ -7,6 +7,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
+/**
+ * @internal
+ */
 abstract class InstallerController extends AbstractController
 {
     private Environment $twig;

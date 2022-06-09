@@ -20,7 +20,6 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 
     public function __construct(string $projectDir)
     {
-
         $this->projectDir = $projectDir;
     }
 

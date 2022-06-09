@@ -1,0 +1,128 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.license_agreement_header"|trans }}</h2>
+    </div>
+    <div class="card__title">
+        <h2>{{ "shopware.installer.database-configuration_header"|trans }}</h2>
+    </div>
+
+
+    <form
+        action="{{ url('installer.license') }}"
+        method="post"
+        data-ajaxDatabaseSelection="true"
+        data-url="{{ url('installer.license') }}">
+
+        <div class="card__body">
+            {% if error %}
+                <div class="alert alert-error">
+                    {{ error|trans }}
+                </div>
+            {% endif %}
+
+            <p>{{ "shopware.installer.database-configuration_info"|trans }}</p>
+
+            <p>
+                <label for="database_host">{{ "shopware.installer.database-configuration_field_host"|trans }}</label>
+                <input type="text" value="{{ connectionInfo.hostname|default('localhost') }}" name="database_host" id="database_host" required="required" />
+            </p>
+
+            <div class="form-group form-group--50">
+                <p>
+                    <label for="database_user">{{ "shopware.installer.database-configuration_field_user"|trans }}</label>
+                    <input type="text" value="{{ connectionInfo.username ?? '' }}" name="database_user" id="database_user" required="required" />
+                </p>
+
+                <p>
+                    <label for="database_password">{{ "shopware.installer.database-configuration_field_password"|trans }}</label>
+                    <input type="password" value="{{ connectionInfo.password ?? '' }}" name="database_password" id="database_password" />
+                </p>
+            </div>
+
+            <details {% if connectionInfo.hasAdvancedSetting %}open{% endif %}>
+                <summary>
+                    <div class="custom-checkbox">
+                        <input
+                            type="checkbox"
+                            name="advanced-settings"
+                            id="advanced"
+                            onchange="this.parentElement.click();"
+                            {% if connectionInfo.hasAdvancedSetting %}checked{% endif %}/>
+                        <label for="advanced" class="toggle">
+                            {{ "shopware.installer.database-configuration_advanced_settings"|trans }}
+                        </label>
+                    </div>
+                </summary>
+
+                <div id="advanced-settings">
+                    <p>
+                        <label for="database_port">{{ "shopware.installer.database-configuration_field_port"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.port }}" name="database_port" id="database_port" required="required" />
+                    </p>
+
+                    <p>
+                        <label for="database_ssl_ca_path">{{ "shopware.installer.database-configuration_field_ssl_ca_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCaPath ?? ''}}" name="database_ssl_ca_path" id="database_ssl_ca_path" />
+                    </p>
+
+                    <p>
+                        <label for="database_ssl_cert_path">{{ "shopware.installer.database-configuration_field_ssl_cert_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCertPath ?? ''}}" name="database_ssl_cert_path" id="database_ssl_cert_path" />
+                    </p>
+
+                    <p>
+                        <label for="database_ssl_cert_key_path">{{ "shopware.installer.database-configuration_field_ssl_cert_key_path"|trans }}</label>
+                        <input type="text" value="{{ connectionInfo.sslCertKeyPath ?? '' }}" name="database_ssl_cert_key_path" id="database_ssl_cert_key_path" />
+                    </p>
+
+
+                    <div class="custom-checkbox">
+                        <input type="checkbox"
+                               id="database_ssl_dont_verify_cert"
+                               name="database_ssl_dont_verify_cert"
+                               {{ connectionInfo.sslDontVerifyServerCert ? 'checked' : ''}}/>
+                        <label for="database_ssl_dont_verify_cert">{{ "shopware.installer.database-configuration_field_ssl_dont_verify_cert"|trans }}</label>
+                    </div>
+                </div>
+            </details>
+
+            <p>
+                <label for="database_schema">{{ "shopware.installer.database-configuration_field_database"|trans }}</label>
+                <input
+                    data-ajaxDatabaseSelection="true"
+                    data-url="{{ url('installer.license') }}"
+                    type="text"
+                    value="{{ connectionInfo.databaseName }}"
+                    name="database_schema"
+                    id="database_schema"
+                    required="required" />
+            </p>
+            <div id="non-empty-db-warning" class="alert alert-warning is--hidden">
+                <span class="icon-warning"></span>
+                {{ "shopware.installer.database-configuration_non_empty_database"|trans }}
+            </div>
+            <p>
+                <div class="custom-checkbox create_database">
+                    <input
+                        id="database_create_schema_new"
+                        type="checkbox"
+                        onchange="
+                            document.getElementById('database_schema').disabled = this.checked;
+                           document.getElementById('database_schema_new').disabled =!this.checked;
+                        "/>
+                    <label for="database_create_schema_new">{{ "shopware.installer.database-configuration_field_new_database"|trans }}</label>
+                </div>
+
+                <input type="text" name="database_schema" id="database_schema_new" value="{{ connectionInfo.databaseName }}" disabled/>
+            </p>
+
+        </div>
+
+        <div class="card__footer flex-container">
+            <a href="{{ url('installer.license') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
+            <button type="submit" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.start_installation"|trans }}</button>
+        </div>
+    </form>
+{% endblock %}

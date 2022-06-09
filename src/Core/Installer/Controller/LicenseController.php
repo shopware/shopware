@@ -27,7 +27,7 @@ class LicenseController extends InstallerController
     public function license(Request $request): Response
     {
         if ($request->isMethod('POST') && $request->request->get('tos', false)) {
-            return $this->redirectToRoute('installer.license');
+            return $this->redirectToRoute('installer.database-configuration');
         }
 
         $error = null;

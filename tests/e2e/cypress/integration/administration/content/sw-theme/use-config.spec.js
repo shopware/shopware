@@ -13,16 +13,15 @@ describe('Theme: Test loading and saving of theme', () => {
 
     it('@base @content: opens and loads theme config', () => {
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__area').its('length').should('be.gte', 1);
 
         // Check whether logo media inputs are full width
-        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Desktop');
-        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Tablet');
-        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Mobile');
+        cy.contains('.sw-theme-manager-detail__content--section_field-full-width', 'Desktop');
+        cy.contains('.sw-theme-manager-detail__content--section_field-full-width', 'Tablet');
+        cy.contains('.sw-theme-manager-detail__content--section_field-full-width', 'Mobile');
     });
 
     it('@base @content: rename theme', () => {
@@ -33,8 +32,7 @@ describe('Theme: Test loading and saving of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.clickContextMenuItem(
@@ -52,6 +50,6 @@ describe('Theme: Test loading and saving of theme', () => {
         cy.get('.sw-modal .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-theme-manager-detail__info-name').contains('Lovski Theme');
+        cy.contains('.sw-theme-manager-detail__info-name', 'Lovski Theme');
     });
 });

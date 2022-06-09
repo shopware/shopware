@@ -56,7 +56,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
         cy.get('.sw-promotion-persona-form-customers__customer-search').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         cy.contains('Pep Eroni').click();
-        cy.get('.sw-data-grid__cell--fullName').contains('Pep Eroni');
+        cy.contains('.sw-data-grid__cell--fullName', 'Pep Eroni');
 
         // Add discount
         cy.get('a[title="Discounts"]').click();
@@ -107,7 +107,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             cy.get(`${lineItemSelector}-promotion`).scrollIntoView();
-            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Thunder Tuesday');
+            cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-label`, 'Thunder Tuesday');
         });
     });
 });

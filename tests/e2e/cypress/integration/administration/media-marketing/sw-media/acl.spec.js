@@ -22,7 +22,7 @@ describe('Media: Test ACL privileges', () => {
 
         // open media-payment without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-media-library').should('not.exist');
     });
 

@@ -35,11 +35,11 @@ describe('Product: Tagging product', () => {
         cy.get('.sw-product-category-form__tag-field').click();
         cy.get('.sw-product-category-form__tag-field input').type('Schöner');
         cy.contains('Schöner Tag').click();
-        cy.get('.sw-product-category-form__tag-field .sw-label').contains('Schöner Tag');
+        cy.contains('.sw-product-category-form__tag-field .sw-label', 'Schöner Tag');
 
         // Add existing tag
         cy.get(`.product-basic-form ${page.elements.loader}`).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('Product name');
+        cy.contains(page.elements.smartBarHeader, 'Product name');
         cy.get('.sw-product-category-form__tag-field').should('be.visible');
 
         // Create new tag

@@ -24,8 +24,10 @@ describe('Snippet set: Test crud operations', () => {
         cy.get(`${page.elements.gridRow}--0 select[name=sw-field--item-baseFile]`)
             .select('messages.en-GB');
         cy.get(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.awaitAndCheckNotification('Snippet set "Snip Snap" has been saved.');
-        cy.get(`${page.elements.gridRow}--0 a`).contains('Snip Snap');
+        cy.contains(`${page.elements.gridRow}--0 a`, 'Snip Snap');
     });
 
     it('@settings: update and read snippet set', () => {
@@ -33,21 +35,24 @@ describe('Snippet set: Test crud operations', () => {
 
         // Update snippet set
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`${page.elements.gridRow}--0 a`).contains('A Set Name Snippet');
+        cy.contains(`${page.elements.gridRow}--0 a`, 'A Set Name Snippet');
         cy.get(`${page.elements.gridRow}--0`).dblclick();
         cy.get(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`).clear();
         cy.get(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`).type('Nordfriesisch');
         cy.get(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`).should('be.visible');
         cy.get(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.awaitAndCheckNotification('Snippet set "Nordfriesisch" has been saved.');
         cy.get('.is--inline-editing').should('not.exist');
-        cy.get(`${page.elements.gridRow}--0 a`).contains('Nordfriesisch');
+        cy.contains(`${page.elements.gridRow}--0 a`, 'Nordfriesisch');
     });
 
     it('@settings: delete snippet set', () => {
         const page = new SettingsPageObject();
 
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`${page.elements.gridRow}--0 a`).contains('A Set Name Snippet');
+        cy.contains(`${page.elements.gridRow}--0 a`, 'A Set Name Snippet');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
@@ -55,9 +60,10 @@ describe('Snippet set: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the snippet set "A Set Name Snippet"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the snippet set "A Set Name Snippet"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.modal).should('not.exist');
         cy.awaitAndCheckNotification('Snippet set has been deleted.');
         cy.get(`${page.elements.gridRow}--2`).should('not.exist');

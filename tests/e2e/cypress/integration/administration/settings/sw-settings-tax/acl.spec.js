@@ -54,9 +54,8 @@ describe('Tax: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.taxColumnName}`)
-            .should('be.visible')
-            .contains('Very high tax');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.taxColumnName}`, 'Very high tax')
+            .should('be.visible');
     });
 
     it('@settings: update and read tax', () => {
@@ -96,9 +95,8 @@ describe('Tax: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`)
-            .should('be.visible')
-            .contains('Still high tax');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`, 'Still high tax')
+            .should('be.visible');
     });
 
     it('@settings: delete tax', () => {
@@ -133,8 +131,7 @@ describe('Tax: Test acl privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the tax "High tax"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the tax "High tax"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);

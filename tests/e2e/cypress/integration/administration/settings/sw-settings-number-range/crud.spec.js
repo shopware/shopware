@@ -53,8 +53,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Name e2e');
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Name e2e');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
     it('@settings: update and read number range', () => {
@@ -80,8 +79,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Cancellations update');
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Cancellations update');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
     it('@settings: delete number range', () => {
@@ -99,8 +97,8 @@ describe('Number Range: Test crud number range', () => {
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.numberRangeColumnName}`).then(row => {
-            cy.get('.sw-modal__body')
-                .contains(`Are you sure you want to delete the number range "${row.text().trim()}"?`);
+            cy.contains('.sw-modal__body',
+                `Are you sure you want to delete the number range "${row.text().trim()}"?`);
         });
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 

@@ -84,8 +84,8 @@ describe('Product: Test variants visibilities', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Green');
-        cy.get('.sw-data-grid__body').contains('Green').click();
+        cy.contains('.sw-data-grid__body', 'Green');
+        cy.contains('.sw-data-grid__body', 'Green').click();
 
         // remove inherited
         cy.get('.sw-product-detail__select-visibility')

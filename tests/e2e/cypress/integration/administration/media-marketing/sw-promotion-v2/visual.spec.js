@@ -77,8 +77,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Funicular prices');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Funicular prices');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name a`)
             .click();
 

@@ -107,7 +107,7 @@ describe('Integration: Test acl privileges', () => {
         // Verify create a integration
         cy.wait('@createIntegration').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-data-grid__cell-content a[href="#"]').contains('automation key');
+        cy.contains('.sw-data-grid__cell-content a[href="#"]', 'automation key');
     });
 
     it('@settings: can edit a integration', () => {
@@ -144,7 +144,7 @@ describe('Integration: Test acl privileges', () => {
 
         // Verify edit a integration
         cy.wait('@editIntegration').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key-edited');
+        cy.contains('.sw-data-grid__cell-content a[href="#"]', 'chat-key-edited');
     });
 
     it('@settings: can edit a integration with roles', () => {
@@ -187,7 +187,7 @@ describe('Integration: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('chat-key').click();
 
         // disable administrator role
-        cy.get('label').contains('Administrator').click();
+        cy.contains('label', 'Administrator').click();
 
         cy.get('.sw-block-field__block > .sw-select__selection').click();
 

@@ -42,8 +42,8 @@ describe('Tax: Test default tax rates', () => {
 
         // Verify default tax in listing
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`).should('be.visible')
-            .contains('High tax');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`, 'High tax')
+            .should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--default .is--active`)
             .should('be.visible');
 

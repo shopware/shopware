@@ -20,14 +20,14 @@ describe('Search - Storefront: Visual tests', () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 
-        cy.get('.search-headline').contains(`One product found for "${product.name}"`);
-        cy.get('.cms-element-product-listing').contains(product.name);
+        cy.contains('.search-headline', `One product found for "${product.name}"`);
+        cy.contains('.cms-element-product-listing', product.name);
 
         cy.get('input[name=search]').clear().type('Non existent stuff');
         cy.get('.search-suggest-container').should('be.visible');
         cy.get('input[name=search]').type('{enter}');
 
-        cy.get('.search-headline').contains('0 products found for "Non existent stuff"');
+        cy.contains('.search-headline', '0 products found for "Non existent stuff"');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Search] No result', '.cms-element-product-listing', { widths: [375, 1920] });

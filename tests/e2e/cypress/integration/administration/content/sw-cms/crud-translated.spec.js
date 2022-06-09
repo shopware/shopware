@@ -43,9 +43,9 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Fill in basic data
         cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Choose a section type to start with.');
+        cy.contains('.sw-cms-create-wizard__title', 'Choose a section type to start with.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
-        cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
+        cy.contains('.sw-cms-create-wizard__title', 'How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
@@ -59,7 +59,7 @@ describe('CMS: Test crud operations of layouts', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -84,7 +84,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
+        cy.contains('.sw-select-result-list__item-list .sw-select-option--0', 'Deutsch');
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
         cy.wait('@changeLang').its('response.statusCode').should('equal', 200);
@@ -102,7 +102,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.get('.sw-cms-block').should('be.visible');
 
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
         cy.get('.sw-text-editor__content-editor').clear().type('Deutscher Content');
 
         cy.get('.sw-sidebar__navigation li').first().click();
@@ -112,7 +112,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Deutscher Titel');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Deutscher Titel');
     });
 
     it('@base @content: update translation and read layout', () => {
@@ -142,7 +142,7 @@ describe('CMS: Test crud operations of layouts', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -153,7 +153,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
+        cy.contains('.sw-select-result-list__item-list .sw-select-option--0', 'Deutsch');
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
         cy.wait('@changeLang')
@@ -167,28 +167,28 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        cy.get('.sw-text-editor__content-editor').contains('Deutsch');
+        cy.contains('.sw-text-editor__content-editor', 'Deutsch');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
+        cy.contains('.sw-select-result-list__item-list .sw-select-option--1', 'English');
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory')
@@ -196,9 +196,9 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
         cy.get('#languagesDropdown-top-bar').click();
         cy.contains('Deutsch').click();
-        cy.get('.cms-element-text').contains('Deutsch');
+        cy.contains('.cms-element-text', 'Deutsch');
     });
 });

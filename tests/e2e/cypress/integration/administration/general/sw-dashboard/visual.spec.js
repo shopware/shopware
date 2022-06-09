@@ -38,7 +38,7 @@ describe('Dashboard:  Visual tests', () => {
         // Wait for Dashboard stats to be visible
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__card-headline').should('be.visible');
-            cy.get('.sw-dashboard-index__title').contains('Turnover');
+            cy.contains('.sw-dashboard-index__title', 'Turnover');
 
             cy.get('#sw-field--statisticDateRanges-value').select('14Days');
             //select command again to reload data within the card

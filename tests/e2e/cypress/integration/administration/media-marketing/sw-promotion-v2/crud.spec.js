@@ -101,28 +101,27 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Verify conditions
-        cy.get(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`)
-            .contains('Storefront');
-        cy.get(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`)
-            .contains('Thunder Tuesday');
+        cy.contains(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`,
+            'Storefront');
+        cy.contains(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`,
+            'Thunder Tuesday');
 
-        cy.get(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`)
-            .contains('All customers');
+        cy.contains(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`,
+            'All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer');
-        cy.get(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`)
-            .contains('Always valid (Default)');
-        cy.get(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`)
-            .contains('All customers');
+        cy.contains(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`,
+            'Always valid (Default)');
+        cy.contains(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`,
+            'All customers');
 
         // Verify Set-Group
-        cy.get(`${groupSelector}#sw-field--group-packagerKey`)
-            .contains('Amount (net)');
+        cy.contains(`${groupSelector}#sw-field--group-packagerKey`, 'Amount (net)');
         cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-value input`)
             .should('contain.value', '5.5');
-        cy.get(`${groupSelector}#sw-field--group-sorterKey`)
-            .contains('Price, descending');
-        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules ${multiSelectFirstSelector}`)
-            .contains('Always valid (Default)');
+        cy.contains(`${groupSelector}#sw-field--group-sorterKey`,
+            'Price, descending');
+        cy.contains(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules ${multiSelectFirstSelector}`,
+            'Always valid (Default)');
 
         // Configure Discounts
         cy.get('.sw-tabs-item[title="Discounts"]')
@@ -150,20 +149,18 @@ describe('Promotion v2: Test crud operations', () => {
         // Verify discounts
         cy.get('.sw-promotion-discount-component')
             .should('be.visible');
-        cy.get('#sw-field--discount-scope')
-            .contains('Set group-1');
-        cy.get('#sw-field--discount-type')
-            .contains('Absolute');
+        cy.contains('#sw-field--discount-scope', 'Set group-1');
+        cy.contains('#sw-field--discount-type', 'Absolute');
         cy.get('.sw-promotion-discount-component__discount-value input')
             .should('have.value', 10.5);
 
         // Verify promotion in listing
         cy.get('.sw-promotion-v2-detail__cancel-action').click();
 
-        cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').contains('Funicular prices');
+        cy.contains('.sw-data-grid__cell--name > .sw-data-grid__cell-content', 'Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('1 January 2222, 00:00');
-        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('2 February 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
     });
 
     it('@base @marketing: delete promotion', () => {
@@ -179,7 +176,7 @@ describe('Promotion v2: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

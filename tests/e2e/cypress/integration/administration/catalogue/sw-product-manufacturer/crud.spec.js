@@ -22,8 +22,8 @@ describe('Manufacturer: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Manufacturer');
-        cy.get(page.elements.primaryButton).contains('Add manufacturer').click();
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Manufacturer');
+        cy.contains(page.elements.primaryButton, 'Add manufacturer').click();
         cy.url().should('contain', '#/sw/manufacturer/create');
 
         cy.get('input[name=name]').clearTypeAndCheck('MAN-U-FACTURE');
@@ -88,14 +88,14 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get('.sw-code-editor__sanitized-hint').should('be.visible');
 
         cy.get('.sw-text-editor-toolbar-button__type-codeSwitch').click();
-        cy.get('.sw-text-editor__content').contains('Manufacturer description');
+        cy.contains('.sw-text-editor__content', 'Manufacturer description');
 
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
         cy.wait('@saveData').its('response.statusCode').should('equals', 204);
 
-        cy.get('.sw-text-editor__content').contains('Manufacturer description');
+        cy.contains('.sw-text-editor__content', 'Manufacturer description');
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
@@ -114,7 +114,7 @@ describe('Manufacturer: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
+        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

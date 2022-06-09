@@ -55,18 +55,18 @@ describe('Product: Edit in various ways', () => {
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             cy.get('.product-box .product-badges > .badge').should('be.visible');
-            cy.get('.product-price').contains('49.98');
-            cy.get('.product-price .list-price').contains('100');
+            cy.contains('.product-price', '49.98');
+            cy.contains('.product-price .list-price', '100');
             cy.contains('.product-name', 'Product name').click();
 
             cy.get('.list-price-badge').should('be.visible');
-            cy.get('.product-detail-price.with-list-price').contains('49.98');
-            cy.get('.list-price-price').contains('100');
+            cy.contains('.product-detail-price.with-list-price', '49.98');
+            cy.contains('.list-price-price', '100');
 
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
         });
     });
 });

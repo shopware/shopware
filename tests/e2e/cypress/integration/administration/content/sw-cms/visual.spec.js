@@ -45,7 +45,7 @@ describe('CMS: Visual tests', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -61,11 +61,11 @@ describe('CMS: Visual tests', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
@@ -73,7 +73,7 @@ describe('CMS: Visual tests', () => {
 
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();
@@ -82,7 +82,7 @@ describe('CMS: Visual tests', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
         cy.takeSnapshot('[CMS] Layout in Storefront', '.cms-block');
     });
 });

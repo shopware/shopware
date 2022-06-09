@@ -45,6 +45,7 @@ describe('Promotions: pre-conditions', () => {
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@savePromotion').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Verify promotion on detail page
@@ -53,7 +54,7 @@ describe('Promotions: pre-conditions', () => {
         cy.get('#sw-field--promotion-maxRedemptionsGlobal')
             .should('be.empty')
             .should('have.attr', 'placeholder', 'Onbeperkt');
-        cy.get('#sw-field--selectedCodeType').contains('Geen promotiecode vereist');
+        cy.contains('#sw-field--selectedCodeType', 'Geen promotiecode vereist');
 
         // Configure Conditions
         cy.get('.sw-tabs-item[title="Voorwaarden"]')
@@ -85,6 +86,7 @@ describe('Promotions: pre-conditions', () => {
         cy.get('#sw-field--discount-type').select('Procentueel');
         cy.get('.sw-promotion-discount-component__discount-value input').clearTypeAndCheck('10');
         cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
@@ -100,8 +102,9 @@ describe('Promotions: pre-conditions', () => {
             .typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Set the second promotion
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
@@ -110,6 +113,7 @@ describe('Promotions: pre-conditions', () => {
         cy.url().should('include', 'promotion/v2/detail');
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Configure Conditions
@@ -133,6 +137,7 @@ describe('Promotions: pre-conditions', () => {
         cy.get('#sw-field--discount-type').select('Procentueel');
         cy.get('.sw-promotion-discount-component__discount-value input').clearTypeAndCheck('5');
         cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Check from the store front
@@ -151,7 +156,7 @@ describe('Promotions: pre-conditions', () => {
 
             // Off canvas, verify both promotions are added to cart
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('exist');
             cy.contains('Thunder Tuesday').should('exist');
             cy.get('.summary-value.summary-total').should('include.text', '51,00');
@@ -165,6 +170,7 @@ describe('Promotions: pre-conditions', () => {
             cy.contains('Pre-voorwaarden').should('exist');
             cy.get('.sw-promotion-v2-conditions__prevent-combination [type]').click();
             cy.get('.sw-promotion-v2-detail__save-action').click();
+            cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
 
             // Check from the store front
@@ -178,7 +184,7 @@ describe('Promotions: pre-conditions', () => {
 
             // Off canvas, verify the second promotion is added to cart since it has prevent combination setting
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('not.exist');
             cy.contains('Thunder Tuesday').should('exist');
             cy.get('.summary-value.summary-total').should('include.text', '114,00');

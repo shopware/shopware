@@ -16,9 +16,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         cy.get('input.sw-search-bar__input').type('products');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Products')
             .should('be.visible')
-            .contains('Products')
             .click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
@@ -35,8 +34,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         const firstColumn = cy.get('.sw-search-bar__results-column').eq(0);
 
-        firstColumn.get('.sw-search-bar__results-column-header')
-            .contains('Frequently used');
+        firstColumn.contains('.sw-search-bar__results-column-header', 'Frequently used');
         firstColumn.get('.sw-search-bar-item')
             .should('contain', 'Products')
             .and('contain', 'Dashboard');
@@ -50,9 +48,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Product name')
             .should('be.visible')
-            .contains('Product name')
             .click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
@@ -67,8 +64,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         const secondColumn = cy.get('.sw-search-bar__results-column').eq(1);
 
-        secondColumn.get('.sw-search-bar__results-column-header')
-            .contains('Recently searched');
+        secondColumn.contains('.sw-search-bar__results-column-header', 'Recently searched');
         secondColumn.get('.sw-search-bar-item')
             .should('contain', 'Product name');
     })

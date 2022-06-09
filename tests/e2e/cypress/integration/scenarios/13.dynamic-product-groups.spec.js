@@ -40,7 +40,7 @@ describe('Dynamic Product Groups in categories', () => {
 
         // Go to dynamic product pages
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
-        cy.get('h2').should('be.visible').contains('Dynamische productgroepen');
+        cy.contains('h2', 'Dynamische productgroepen').should('be.visible');
         cy.get('.sw-product-stream-list__create-action').click();
         cy.get('#sw-field--productStream-name').clearTypeAndCheck('Dynamic Products');
         cy.get('.sw-product-stream-filter__container').then((conditionElement) => {
@@ -88,20 +88,20 @@ describe('Dynamic Product Groups in categories', () => {
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
-        cy.get('.smart-bar__header').contains('Bulk edit: 3 products');
+        cy.contains('.smart-bar__header', 'Bulk edit: 3 products');
         cy.get('.sw-bulk-edit-change-field-visibilities [type="checkbox"]').click();
         cy.get('div[name="visibilities"]').typeMultiSelectAndCheck('E2E install test');
 
         // Save and apply changes
         cy.get('.sw-bulk-edit-product__save-action').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Success');
-        cy.get('.footer-right .sw-button--primary').contains('Sluiten');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.footer-right .sw-button--primary', 'Sluiten');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');
 

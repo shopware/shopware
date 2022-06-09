@@ -46,17 +46,26 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             .typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Set tax free for customers - B2C
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
-        cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-version__title').click();
+        cy.contains(`.sw-data-grid__cell--name`, 'Netherlands').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input[name="sw-field--country-customerTax-enabled"]').check();
         cy.get('input#sw-field--country-customerTax-amount').clearTypeAndCheck('10');
         cy.get('.sw-button-process__content').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
 
@@ -88,13 +97,13 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
             // Off canvas
             cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
+            cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart and validate tax free for B2C
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
-            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('€ 11,00*');
-            cy.get('.header-cart-total').contains('€ 11,00*');
+            cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name');
+            cy.contains(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`, '€ 11,00*');
+            cy.contains('.header-cart-total', '€ 11,00*');
         });
     });
 
@@ -139,17 +148,19 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             .typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Set tax free for companies - B2B
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
-        cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
+        cy.contains(`.sw-data-grid__cell--name`, 'Netherlands').click();
         cy.get('input[name="sw-field--country-companyTax-enabled"]').check();
         cy.get('input#sw-field--country-companyTax-amount').clearTypeAndCheck('10');
         cy.get('.sw-button-process__content').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
 
@@ -182,13 +193,13 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
             // Off canvas
             cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
+            cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart and validate tax free for B2B
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
-            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('€ 11,00*');
-            cy.get('.header-cart-total').contains('€ 11,00*');
+            cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name');
+            cy.contains(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`, '€ 11,00*');
+            cy.contains('.header-cart-total', '€ 11,00*');
         });
     });
 });

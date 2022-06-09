@@ -40,6 +40,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         cy.url().should('include', 'promotion/v2/detail');
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Verify promotion on detail page
@@ -48,7 +49,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         cy.get('#sw-field--promotion-maxRedemptionsGlobal')
             .should('be.empty')
             .should('have.attr', 'placeholder', 'Onbeperkt');
-        cy.get('select#sw-field--selectedCodeType').contains('Geen promotiecode vereist');
+        cy.contains('select#sw-field--selectedCodeType', 'Geen promotiecode vereist');
 
         // Set a rule based conditions to promotion to the product
         cy.get('.sw-tabs-item[title="Voorwaarden"]').click();
@@ -92,6 +93,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         cy.get('#sw-field--discount-type').select('Procentueel');
         cy.get('.sw-promotion-discount-component__discount-value input').clearTypeAndCheck('10');
         cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
@@ -107,8 +109,9 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
             .typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Check from the store front
         cy.visit('/');
@@ -126,7 +129,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
 
             // Off canvas, verify promotion is not available
             cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains('Thunder Tuesday').should('not.exist');
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
 

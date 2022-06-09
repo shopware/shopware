@@ -142,7 +142,7 @@ describe('Product: Edit property assignment', () => {
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
 
         cy.get('.sw-product-properties .sw-data-grid__cell--selection input').check();
-        cy.get('.sw-product-properties .sw-data-grid__bulk-selected-count').contains(2);
+        cy.contains('.sw-product-properties .sw-data-grid__bulk-selected-count', 2);
         cy.get('.sw-product-properties .sw-data-grid__bulk-selected').should('be.visible');
         cy.get('.sw-product-properties .sw-data-grid__bulk-selected.bulk-link a').click();
 

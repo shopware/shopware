@@ -80,18 +80,18 @@ describe('Seo: Test crud operations on templates', () => {
                     // /... assert that the preview works correctly
                         cy.get('.icon--default-basic-checkmark-line');
                         // Seo Urls cannot contain spaces (as opposed to error messages)
-                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should('have.length', 1);
+                        cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
 
                         // Type the most simple url template, which prints the id
                         cy.get('#sw-field--seo-url-template-undefined').clear().type(`{{${routeNames[routeName]}.id}}`, { parseSpecialCharSequences: false });
                         // ids are 16 hex chars
-                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[a-z0-9]{16}/);
+                        cy.contains('.sw-seo-url-template-card__preview-item', /[a-z0-9]{16}/);
                     });
             });
         });
 
         // check that the templates can be saved
-        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.contains('.smart-bar__actions', 'Save').click();
         cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
     });
 
@@ -122,13 +122,13 @@ describe('Seo: Test crud operations on templates', () => {
                         // ... and that the preview works
                         cy.get('.icon--default-basic-checkmark-line');
                         // Seo Urls cannot contain spaces (as opposed to error messages)
-                        cy.get('.sw-seo-url-template-card__preview-item').contains(/[^\s]+/).should('have.length', 1);
+                        cy.contains('.sw-seo-url-template-card__preview-item', /[^\s]+/).should('have.length', 1);
                     });
             });
         });
 
         //
-        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.contains('.smart-bar__actions', 'Save').click();
         cy.wait('@templateCreateCall').its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('SEO URL templates have been saved.');
     });
@@ -137,7 +137,7 @@ describe('Seo: Test crud operations on templates', () => {
         cy.get('.sw-sales-channel-switch')
             .typeSingleSelectAndCheck('Headless', '.sw-entity-single-select');
 
-        cy.get('.sw-card__content').contains('SEO URLs cannot be assigned to a headless Sales Channel.');
+        cy.contains('.sw-card__content', 'SEO URLs cannot be assigned to a headless Sales Channel.');
     });
 
     it('@base @settings: can save when the first template is empty', () => {
@@ -153,7 +153,7 @@ describe('Seo: Test crud operations on templates', () => {
             .should('be.empty');
 
         // check that no error is thrown
-        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.contains('.smart-bar__actions', 'Save').click();
         cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
         cy.get('.sw-field__error').should('not.exist');
 
@@ -176,7 +176,7 @@ describe('Seo: Test crud operations on templates', () => {
             .should('be.empty');
 
         // check that no error is thrown
-        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.contains('.smart-bar__actions', 'Save').click();
         cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
         cy.get('.sw-field__error').should('not.exist');
 
@@ -199,7 +199,7 @@ describe('Seo: Test crud operations on templates', () => {
             .should('be.empty');
 
         // check that no error is thrown
-        cy.get('.smart-bar__actions').contains('Save').click();
+        cy.contains('.smart-bar__actions', 'Save').click();
 
         cy.wait('@templateSaveCall')
             .its('response.statusCode').should('equal', 200);

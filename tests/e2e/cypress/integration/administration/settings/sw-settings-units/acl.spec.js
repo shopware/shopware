@@ -25,7 +25,7 @@ describe('Unit: Test acl privileges', () => {
 
         // open custom field without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-settings-units-grid').should('not.exist');
 
         // see no settings
@@ -74,9 +74,8 @@ describe('Unit: Test acl privileges', () => {
         // Verify creation
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`)
-            .should('be.visible')
-            .contains('Kilogramm');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Kilogramm')
+            .should('be.visible');
     });
 
     it('@settings @unit: update and read scale unit', () => {
@@ -116,9 +115,8 @@ describe('Unit: Test acl privileges', () => {
         // Verify creation
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .should('be.visible')
-            .contains('KG');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'KG')
+            .should('be.visible');
     });
 
     it('@settings @unit: delete scale unit', () => {

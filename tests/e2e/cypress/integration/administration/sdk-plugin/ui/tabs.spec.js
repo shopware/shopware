@@ -34,7 +34,7 @@ describe('Category: SDK Test', ()=> {
         // Check Example Tab
         cy.get(`a[href*="ui-tabs-product-example-tab"`)
             .click();
-        cy.get('.sw-card').contains('Hello in the new tab ');
+        cy.contains('.sw-card', 'Hello in the new tab ');
 
         cy.getSDKiFrame('ui-modals')
             .should('exist');

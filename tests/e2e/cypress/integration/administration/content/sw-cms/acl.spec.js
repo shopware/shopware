@@ -22,8 +22,8 @@ describe('Category: Test ACL privileges', () => {
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
 
-        cy.get('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title')
-            .contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title',
+            'Vierte Wand');
     });
 
     it('@catalogue: can view shopping experiences detail page', () => {
@@ -37,15 +37,14 @@ describe('Category: Test ACL privileges', () => {
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
 
-        cy.get('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title')
-            .contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title',
+            'Vierte Wand');
 
         cy.get('.sw-cms-list-item--0 > .sw-cms-list-item__image')
             .click();
 
         // check if detail page works
-        cy.get('.sw-cms-detail__page-name')
-            .contains('Vierte Wand');
+        cy.contains('.sw-cms-detail__page-name', 'Vierte Wand');
     });
 
     it('@catalogue: can edit shopping experiences detail page', () => {
@@ -81,7 +80,7 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(2)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Edit headline
         cy.get('.sw-text-editor__content-editor').should('be.visible');
@@ -93,7 +92,7 @@ describe('Category: Test ACL privileges', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
     });
 
     it('@catalogue: can edit shopping experiences detail page', () => {
@@ -124,9 +123,9 @@ describe('Category: Test ACL privileges', () => {
         cy.contains('Create new layout').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Choose a section type to start with.');
+        cy.contains('.sw-cms-create-wizard__title', 'Choose a section type to start with.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
-        cy.get('.sw-cms-create-wizard__title').contains('How do you want to label your new layout?');
+        cy.contains('.sw-cms-create-wizard__title', 'How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
@@ -140,7 +139,7 @@ describe('Category: Test ACL privileges', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -149,6 +148,6 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laidout');
+        cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Laidout');
     });
 });

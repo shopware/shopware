@@ -42,8 +42,9 @@ describe('Test visibility of reviews', () => {
         cy.get('.sw-modal__body').should('not.be.visible');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Login from reviews
         cy.visit('/account/login');
@@ -64,13 +65,13 @@ describe('Test visibility of reviews', () => {
         cy.get('.header-search-input').should('be.visible').type('Product name');
         cy.contains('.search-suggest-product-name', 'Product name').click();
         cy.get('.product-detail-tabs #review-tab').click();
-        cy.get('.alert-content').contains('No reviews found').should('be.visible');
-        cy.get('button.product-detail-review-teaser-btn').contains('Write a review!').click();
+        cy.contains('.alert-content', 'No reviews found').should('be.visible');
+        cy.contains('button.product-detail-review-teaser-btn', 'Write a review!').click();
         cy.get('.review-form').should('be.visible');
         cy.get('#reviewTitle').typeAndCheckStorefront('Lorem ipsum');
         cy.get('#reviewContent').typeAndCheckStorefront('Lorem ipsum dolor sit amet, consetetur sadipscing elitr');
         cy.get('.btn-review-submit').click();
-        cy.get('.alert-success .alert-content').contains('Thank you for submitting your review.').should('be.visible');
+        cy.contains('.alert-success .alert-content', 'Thank you for submitting your review.').should('be.visible');
 
         // Activate review in admin
         cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
@@ -79,20 +80,20 @@ describe('Test visibility of reviews', () => {
             '.sw-context-button__button',
             `.sw-data-grid__row--0`
         );
-        cy.get('h2').contains('Lorem ipsum').should('be.visible');
+        cy.contains('h2', 'Lorem ipsum').should('be.visible');
         cy.get('input[name="sw-field--review-status"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveReview').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Verify review in the storefront
         cy.visit('/');
         cy.get('button#accountWidget').click();
-        cy.get('.header-account-menu .account-aside-footer').contains('Logout').click();
+        cy.contains('.header-account-menu .account-aside-footer', 'Logout').click();
         cy.get('.header-search-input').should('be.visible').type('Product name');
         cy.contains('.search-suggest-product-name', 'Product name').click();
         cy.get('.product-detail-tabs #review-tab').click();
-        cy.get('.h5').contains('Lorem ipsum').should('be.visible');
+        cy.contains('.h5', 'Lorem ipsum').should('be.visible');
 
         // Deactivate visibility of reviews and verify in the storefront
         cy.authenticate().then((result) => {

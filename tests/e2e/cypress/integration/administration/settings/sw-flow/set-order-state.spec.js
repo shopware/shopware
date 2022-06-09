@@ -24,7 +24,7 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -72,10 +72,10 @@ describe('Flow builder: set order status testing', () => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.contains('.btn-buy', 'Add to shopping ').click();
             cy.get('.offcanvas').should('be.visible');
 
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -84,7 +84,7 @@ describe('Flow builder: set order status testing', () => {
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-ordernumber').contains('Your order number: #10000');
+            cy.contains('.finish-ordernumber', 'Your order number: #10000');
         });
 
         // Clear Storefront cookie
@@ -95,7 +95,7 @@ describe('Flow builder: set order status testing', () => {
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('10000');
+            cy.contains(`${page.elements.dataGridRow}--0`, '10000');
         });
 
         cy.clickContextMenuItem(
@@ -107,15 +107,15 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select__order-state').contains('Order status: In Progress');
-            cy.get('.sw-order-state-select__payment-state').contains('Payment status: In Progress');
-            cy.get('.sw-order-state-select__delivery-state').contains('Delivery status: Shipped');
+            cy.contains('.sw-order-state-select__order-state', 'Order status: In Progress');
+            cy.contains('.sw-order-state-select__payment-state', 'Payment status: In Progress');
+            cy.contains('.sw-order-state-select__delivery-state', 'Delivery status: Shipped');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Order status"]').contains('In Progress');
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]').contains('In Progress');
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]').contains('Shipped');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'In Progress');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'In Progress');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Shipped');
         });
     });
     it('@settings: set order state flow with force transition', () => {
@@ -130,7 +130,7 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -175,14 +175,14 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         cy.visit('/');
-        cy.get('.btn-buy').contains('Add to shopping ').click();
+        cy.contains('.btn-buy', 'Add to shopping ').click();
         cy.get('.offcanvas').should('be.visible');
 
         cy.window().then((win) => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
         });
 
         // Checkout
@@ -192,7 +192,7 @@ describe('Flow builder: set order status testing', () => {
         // Finish checkout
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-ordernumber').contains('Your order number: #10000');
+        cy.contains('.finish-ordernumber', 'Your order number: #10000');
 
         // Clear Storefront cookie
         cy.clearCookies();
@@ -202,7 +202,7 @@ describe('Flow builder: set order status testing', () => {
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('10000');
+            cy.contains(`${page.elements.dataGridRow}--0`, '10000');
         });
 
         cy.clickContextMenuItem(
@@ -214,15 +214,15 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select__order-state').contains('Order status: Done');
-            cy.get('.sw-order-state-select__payment-state').contains('Payment status: Refunded');
-            cy.get('.sw-order-state-select__delivery-state').contains('Delivery status: Returned');
+            cy.contains('.sw-order-state-select__order-state', 'Order status: Done');
+            cy.contains('.sw-order-state-select__payment-state', 'Payment status: Refunded');
+            cy.contains('.sw-order-state-select__delivery-state', 'Delivery status: Returned');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Order status"]').contains('Done');
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]').contains('Refunded');
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]').contains('Returned');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Order status"]', 'Done');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]', 'Refunded');
+            cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Returned');
         });
     });
 });

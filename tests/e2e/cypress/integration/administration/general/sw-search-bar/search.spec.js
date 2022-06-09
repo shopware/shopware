@@ -100,15 +100,15 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('product-');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-more-results__link').contains('Show all matching results in products...');
+        cy.contains('.sw-search-more-results__link', 'Show all matching results in products...');
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
-            .contains('product-')
-            .click();
+            .should('be.visible');
+
+        cy.contains('.sw-search-bar-item', 'product-').click();
 
         cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('product-');
+            .should('be.visible');
+        cy.contains('.smart-bar__header h2', 'product-');
     });
 
     it('@searchBar @search: search for a category', () => {
@@ -122,13 +122,14 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Home')
             .should('be.visible')
-            .contains('Home')
             .click();
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Home');
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.contains('.smart-bar__header h2', 'Home')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a customer', () => {
@@ -145,14 +146,12 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Pep Eroni')
             .should('be.visible')
-            .contains('Pep Eroni')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Pep Eroni');
+        cy.contains('.smart-bar__header h2', 'Pep Eroni')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a order', () => {
@@ -196,17 +195,14 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.get('.sw-search-bar__results-column > :nth-child(1)')
             .should('be.visible')
-            .get('.sw-search-bar__types-header-entity')
-            .contains('Order');
+            .contains('.sw-search-bar__types-header-entity', 'Order');
 
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Max Mustermann 10000')
             .should('be.visible')
-            .contains('Max Mustermann 10000')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Order 10000');
+        cy.contains('.smart-bar__header h2', 'Order 10000')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a media', () => {
@@ -229,7 +225,7 @@ describe('Search bar: Check main functionality', () => {
         );
 
         // Upload image in folder
-        cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
+        cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
@@ -246,15 +242,13 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'sw-login-background')
             .should('be.visible')
-            .contains('sw-login-background')
             .click();
 
         cy.get('.sw-media-media-item')
             .should('be.visible')
-            .get('.sw-media-base-item__name')
-            .contains('sw-login-background');
+            .contains('.sw-media-base-item__name', 'sw-login-background');
     });
 
     it('@searchBar @search: toggle result box with results for the letter "e"', () => {

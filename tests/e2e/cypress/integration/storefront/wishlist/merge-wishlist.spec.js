@@ -225,7 +225,7 @@ describe('Wishlist: for wishlist', () => {
         });
     });
 
-    it.only('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', () => {
+    it('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', () => {
         cy.createProductFixture({
             "id": "6dfd9dc216ab4ac99598b837ac600369",
             "name": "Test product 2",

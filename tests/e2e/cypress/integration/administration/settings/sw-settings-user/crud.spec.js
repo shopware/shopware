@@ -58,8 +58,7 @@ describe('User: Test crud operations', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -97,8 +96,7 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0')
-            .contains('abraham');
+        cy.contains('.sw-users-permissions-user-listing .sw-data-grid__row--0', 'abraham');
 
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
@@ -109,8 +107,7 @@ describe('User: Test crud operations', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Warning');
+        cy.contains('.sw-modal__title', 'Warning');
 
         cy.get('.sw-modal__footer > .sw-button--danger')
             .should('be.disabled');
@@ -157,8 +154,7 @@ describe('User: Test crud operations', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -220,8 +216,7 @@ describe('User: Test crud operations', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -244,12 +239,10 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-settings-user-detail__grid-firstName')
             .scrollIntoView();
 
-        cy.get('.sw-settings-user-detail__grid-firstName .sw-field__error')
-            .should('be.visible')
-            .contains('This field must not be empty.');
-        cy.get('.sw-settings-user-detail__grid-password .sw-field__error')
-            .should('be.visible')
-            .contains('This field must not be empty.');
+        cy.contains('.sw-settings-user-detail__grid-firstName .sw-field__error', 'This field must not be empty.')
+            .should('be.visible');
+        cy.contains('.sw-settings-user-detail__grid-password .sw-field__error', 'This field must not be empty.')
+            .should('be.visible');
 
         cy.clearCookies();
         cy.clearCookie('bearerAuth');

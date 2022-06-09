@@ -93,7 +93,7 @@ describe('Create a new property, select value display type and test their appear
         cy.get('.search-suggest-product-name')
             .contains('Variant Product')
             .click();
-        cy.get('.product-detail-name').contains('Variant Product');
+        cy.contains('.product-detail-name', 'Variant Product');
         cy.get('.product-detail-configurator-option-label[title="Yellow"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Red"]')

@@ -45,10 +45,9 @@ describe('Product: Test variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Variant product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Variant product name')
+        cy.contains('.search-suggest-product-name','Variant product name')
             .click();
-        cy.get('.product-detail-name').contains('Variant product name');
+        cy.contains('.product-detail-name', 'Variant product name');
         cy.get('.product-detail-configurator-option-label[title="Red"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Green"]')
@@ -156,8 +155,8 @@ describe('Product: Test variants', () => {
         // Verify in storefront
         cy.visit('/');
         cy.get('.product-box').its('length').should('be.gt', 5);
-        cy.get('.product-variant-characteristics').contains('Color: Red | Size: S');
-        cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
+        cy.contains('.product-variant-characteristics', 'Color: Red | Size: S');
+        cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
     it('@base @catalogue: test multidimensional variant with restrictions', () => {
@@ -209,8 +208,7 @@ describe('Product: Test variants', () => {
                 ).click();
             }
         }
-        cy.get(`.sw-grid ${optionsIndicator}`)
-            .contains(`${optionPosition.length} ${optionString} selected`);
+        cy.contains(`.sw-grid ${optionsIndicator}`,`${optionPosition.length} ${optionString} selected`);
         cy.get('.sw-variant-modal__restriction-configuration').should('be.visible');
         cy.get('.sw-variant-modal__restriction-configuration').click();
 
@@ -238,8 +236,8 @@ describe('Product: Test variants', () => {
         // Generate variants with restrictions
         cy.get('.sw-product-variant-generation__generate-action').click();
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
-        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
-            .contains('5 variants will be added');
+        cy.contains('.sw-product-modal-variant-generation__notification-modal .sw-modal__body',
+            '5 variants will be added');
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
 

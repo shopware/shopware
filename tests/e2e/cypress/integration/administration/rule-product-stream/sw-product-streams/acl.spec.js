@@ -135,10 +135,10 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 .invoke('val')
                 .then(content => cy.expect(content).to.contain('lorem ipsum dolor sit amet.'));
 
-            cy.get('.sw-product-stream-value__operator-select .sw-single-select__selection')
-                .contains('Is not equal to any of');
+            cy.contains('.sw-product-stream-value__operator-select .sw-single-select__selection',
+                'Is not equal to any of');
 
-            cy.get('.sw-product-variant-info__product-name').contains('Product name');
+            cy.contains('.sw-product-variant-info__product-name', 'Product name');
         });
     });
 
@@ -185,7 +185,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 .invoke('val')
                 .then(content => cy.expect(content).to.contain('S.A.V'));
 
-            cy.get('.sw-product-variant-info__product-name').contains('Product name');
+            cy.contains('.sw-product-variant-info__product-name', 'Product name');
         });
     });
 

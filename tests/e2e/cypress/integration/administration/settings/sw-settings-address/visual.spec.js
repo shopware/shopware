@@ -24,7 +24,7 @@ describe('Address settings: Visual testing', () => {
         cy.get('a[href="#/sw/settings/address/index"]').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-card__title').contains('Address');
+        cy.contains('.sw-card__title', 'Address');
         cy.get('.sw-loader').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Address settings] Details', '.sw-settings-address', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

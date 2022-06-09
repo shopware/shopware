@@ -69,14 +69,14 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
@@ -86,8 +86,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.product-description-reviews-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-description-title').contains('Product name');
-        cy.get('.product-detail-description-text').contains('Pudding wafer apple pie fruitcake cupcake');
+        cy.contains('.product-detail-description-title', 'Product name');
+        cy.contains('.product-detail-description-text', 'Pudding wafer apple pie fruitcake cupcake');
     });
 
     it('@content: use product description reviews block in landing page', () => {
@@ -132,14 +132,14 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
@@ -149,7 +149,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.product-description-reviews-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-description-title').contains('Product name');
-        cy.get('.product-detail-description-text').contains('Pudding wafer apple pie fruitcake cupcake');
+        cy.contains('.product-detail-description-title', 'Product name');
+        cy.contains('.product-detail-description-text', 'Pudding wafer apple pie fruitcake cupcake');
     });
 });

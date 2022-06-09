@@ -45,7 +45,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Newsletter recipients');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
 
         cy.get(page.elements.newsletteSave).should('be.disabled');
@@ -75,7 +75,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         }).as('saveData');
 
         // Edit base data
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Newsletter recipients');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
         cy.get('input[name=sw-field--newsletterRecipient-title]').clearTypeAndCheck('Mister');
         cy.get(page.elements.newsletteSave).should('not.be.disabled');
@@ -84,7 +84,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         // Verify updated manufacturer
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-alert__title').contains('Success');
+        cy.contains('.sw-alert__title', 'Success');
     });
 
     // TODO Unskip if NEXT-11444 is fixed
@@ -123,7 +123,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
+        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

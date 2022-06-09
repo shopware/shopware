@@ -64,7 +64,7 @@ describe('Order: Create credit note', () => {
             method: 'POST'
         }).as('orderSearchCall');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -72,7 +72,7 @@ describe('Order: Create credit note', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
             cy.get('.sw-order-detail__smart-bar-edit-button').click();
 
             cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
@@ -125,7 +125,7 @@ describe('Order: Create credit note', () => {
             cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
             cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+            cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Invoice').click();
 
             cy.get('.sw-modal__footer .sw-button--primary')
                 .should('not.be.disabled')
@@ -167,7 +167,7 @@ describe('Order: Create credit note', () => {
             cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
             cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Credit note').click();
+            cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Credit note').click();
 
             cy.get('.sw-modal__footer .sw-button--primary')
                 .should('not.be.disabled')
@@ -195,6 +195,6 @@ describe('Order: Create credit note', () => {
             .scrollIntoView()
             .type('Credit note');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Credit note');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Credit note');
     });
 });

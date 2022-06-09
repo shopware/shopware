@@ -25,7 +25,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-sales-channel-detail-products').should('be.visible');
 
         cy.get('.sw-tabs-item').eq(2).click();
-        cy.get('.sw-sales-channel-detail-theme__info-name').contains('Shopware default theme');
+        cy.contains('.sw-sales-channel-detail-theme__info-name', 'Shopware default theme');
 
         cy.get('.sw-tabs-item').eq(3).click();
         cy.get('#trackingId').should('be.visible');
@@ -48,7 +48,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('#sw-field--salesChannel-name').clearTypeAndCheck('Shopsite');
 
         cy.get('.sw-sales-channel-detail__save-action').click();
-        cy.get('.sw-admin-menu__sales-channel-item--1').contains('Shopsite');
+        cy.contains('.sw-admin-menu__sales-channel-item--1', 'Shopsite');
     });
 
     it('@general: create sales channel', () => {
@@ -76,12 +76,12 @@ describe('Sales Channel: Test acl', () => {
         }).as('saveData');
 
         // Open sales channel creation
-        cy.get('.sw-admin-menu__headline').contains('Sales Channel');
+        cy.contains('.sw-admin-menu__headline', 'Sales Channel');
 
         cy.get('.sw-admin-menu__headline-action').click();
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Add Sales Channel');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Add Sales Channel');
         cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
-        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Storefront - details');
+        cy.contains('.sw-sales-channel-modal .sw-modal__title', 'Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
         // Fill in form and save new sales channel
@@ -114,7 +114,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-sales-channel-detail-base__button-delete').scrollIntoView().click();
         cy.get('.sw-modal__footer .sw-button--danger').click();
 
-        cy.get('.sw-admin-menu__sales-channel-item--0').contains('Headless');
+        cy.contains('.sw-admin-menu__sales-channel-item--0', 'Headless');
         cy.get('.sw-admin-menu__sales-channel-item--1').should('not.exist');
     });
 });

@@ -38,7 +38,7 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Product groups] Listing', '.sw-product-stream-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
+        cy.contains(page.elements.smartBarHeader, 'Dynamic product groups');
 
         // Verify product stream details
         cy.clickContextMenuItem(
@@ -47,7 +47,7 @@ describe('Dynamic product groups: Visual tests', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
         cy.get(page.elements.loader).should('not.exist');
 
         page.fillFilterWithEntityMultiSelect(
@@ -59,7 +59,7 @@ describe('Dynamic product groups: Visual tests', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
 
         // Take snapshot for visual testing
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
@@ -70,14 +70,14 @@ describe('Dynamic product groups: Visual tests', () => {
 
         cy.get('.sw-data-grid .sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal__header').contains('Preview (1)');
+        cy.contains('.sw-modal__header', 'Preview (1)');
 
         cy.handleModalSnapshot('Preview');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview .sw-data-grid__row--0', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
+            cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product name');
             cy.get('.sw-modal__close').click();
         });
 

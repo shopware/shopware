@@ -18,17 +18,17 @@ describe('Minimal install', () => {
         });
 
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Start');
-        cy.get('option:checked').contains('English');
+        cy.contains('.navigation--list .navigation--entry span', 'Start');
+        cy.contains('option:checked', 'English');
         cy.get('#language').select('Dutch');
         cy.contains('Nederlands');
-        cy.get('.welcome-title').contains('Welkom bij Shopware 6');
+        cy.contains('.welcome-title', 'Welkom bij Shopware 6');
 
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
 
         // @install: requirements
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Systeemvereisten');
+        cy.contains('.navigation--list .navigation--entry span', 'Systeemvereisten');
         cy.get('.requirement-group').should('have.class', 'success');
         cy.get('#permissions').should('be.hidden');
         cy.get('#systemchecks').should('be.hidden');
@@ -51,22 +51,22 @@ describe('Minimal install', () => {
         cy.get('#permissions').should('be.hidden');
         cy.get('#systemchecks').should('be.hidden');
 
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
 
         // @install: GTC
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Algemene voorwaarden');
+        cy.contains('.navigation--list .navigation--entry span', 'Algemene voorwaarden');
         cy.url().should('contains', '/license');
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
         cy.url().should('contains', '/license');
 
         cy.get('.custom-checkbox').click();
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
 
         // @install: database config
         cy.url().should('contains', '/database-configuration');
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Configuratie databank');
+        cy.contains('.navigation--list .navigation--entry span', 'Configuratie databank');
 
         cy.get('#c_database_host').clear().type(Cypress.env('dbHost'));
         cy.get('#c_database_user').clear().type(Cypress.env('dbUser'));
@@ -75,24 +75,24 @@ describe('Minimal install', () => {
         cy.get('.c_create_database').click();
 
         cy.get('#c_database_schema_new').clear().type(Cypress.env('dbName'));
-        cy.get('.btn.btn-primary').contains('Installatie starten').click();
+        cy.contains('.btn.btn-primary', 'Installatie starten').click();
 
         // @install: installation
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Installatie');
+        cy.contains('.navigation--list .navigation--entry span', 'Installatie');
         cy.get('.database-import-finish', { timeout: 300000 }).should('be.visible');
 
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
 
         // @install: configuration
         cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .navigation--entry span').contains('Configuratie');
+        cy.contains('.navigation--list .navigation--entry span', 'Configuratie');
 
         cy.get('#c_config_shopName').clear().type('E2E install test');
         cy.get('#c_config_mail').clear().type('e2e@example.com');
         cy.get('#c_config_shop_language').select('Nederlands');
-        cy.get('#c_config_shop_language').contains('Nederlands');
-        cy.get('.footer-main > .is--active').contains('NL');
+        cy.contains('#c_config_shop_language', 'Nederlands');
+        cy.contains('.footer-main > .is--active', 'NL');
 
         cy.contains('Euro');
 
@@ -113,7 +113,7 @@ describe('Minimal install', () => {
 
         cy.get('.alert.alert-error').should('not.exist');
 
-        cy.get('.btn.btn-primary').contains('Verder').click();
+        cy.contains('.btn.btn-primary', 'Verder').click();
 
         // See if return to Admin was successful
         cy.get('.sw-desktop').should('be.visible');
@@ -123,85 +123,85 @@ describe('Minimal install', () => {
 
         cy.get('.sw-first-run-wizard__welcome-image').should('be.visible');
 
-        cy.get('.sw-button span').contains('Next').click();
+        cy.contains('.sw-button span', 'Next').click();
 
         // @frw: skip data-import
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Data import');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Data import');
 
-        cy.get('.sw-button span').contains('Next').click();
+        cy.contains('.sw-button span', 'Next').click();
 
         // @frw: define no default sales channel for product creation
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Default values');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Default values');
 
-        cy.get('.sw-button span').contains('Next').click();
+        cy.contains('.sw-button span', 'Next').click();
         cy.get('.sw-loader__element').should('not.exist');
 
         // @frw: skip mail configuration
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-first-run-wizard-mailer-selection__headline').contains('Establishing email communication');
+        cy.contains('.sw-first-run-wizard-mailer-selection__headline', 'Establishing email communication');
 
         // @frw: SwagPayPal install
         cy.intercept('POST', '**/api/_action/extension/install/plugin/SwagPayPal').as('installSwagPayPal');
-        cy.get('.sw-button span').contains('Configure later').click();
+        cy.contains('.sw-button span', 'Configure later').click();
 
         // @frw: skip paypal
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'PayPal setup');
 
         // the install can run into a race conditioning in the cache clear if it runs in parallel with the SwagMarkets install
         cy.wait('@installSwagPayPal').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-button span').contains('Skip').click();
+        cy.contains('.sw-button span', 'Skip').click();
 
         // @frw: Shopware Markets
         cy.intercept('PUT', '**/api/_action/extension/activate/plugin/SwagMarkets').as('activateSwagMarkets');
 
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Markets');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Shopware Markets');
 
         cy.wait('@activateSwagMarkets').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-button span').contains('Next').click();
+        cy.contains('.sw-button span', 'Next').click();
 
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Extensions');
-        cy.get('.sw-button span').contains('Next').click();
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Extensions');
+        cy.contains('.sw-button span', 'Next').click();
 
         // @frw: skip account login
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Account');
-        cy.get('.sw-button span').contains('Skip').click();
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Shopware Account');
+        cy.contains('.sw-button span', 'Skip').click();
 
         // @frw: skip store page
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-first-run-wizard-store').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Store');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Shopware Store');
         cy.get('.sw-button').should('not.be.disabled');
-        cy.get('.sw-button span').contains('Skip').click();
+        cy.contains('.sw-button span', 'Skip').click();
 
         // @frw: finish
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-first-run-wizard-finish').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--success span').contains('Shopware Store');
+        cy.contains('.sw-step-display .sw-step-item.sw-step-item--success span', 'Shopware Store');
 
         cy.intercept({
             url: '/api/_action/store/frw/finish',
             method: 'post'
         }).as('finishCall');
 
-        cy.get('.sw-button span').contains('Finish').click();
+        cy.contains('.sw-button span', 'Finish').click();
 
         cy.wait('@finishCall').its('response.statusCode').should('equal', 200);
 

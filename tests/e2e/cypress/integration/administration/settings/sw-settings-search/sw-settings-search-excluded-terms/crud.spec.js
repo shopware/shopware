@@ -89,8 +89,8 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term created.');
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`, 'example');
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
@@ -148,8 +148,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__row .sw-data-grid__cell.sw-data-grid__cell--header.sw-data-grid__cell--selection input')
             .check();
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').contains(10);
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count', 10);
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').should('be.visible');
         cy.get('.sw-settings-search-excluded-search-terms ' +

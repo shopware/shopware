@@ -58,7 +58,7 @@ describe('Order: Visual tests', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Listing', '.sw-order-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.contextMenuButton}`).click();
         cy.get('.sw-context-menu')

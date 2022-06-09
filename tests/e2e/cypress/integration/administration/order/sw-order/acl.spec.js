@@ -37,7 +37,7 @@ describe('Order: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         });
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -45,18 +45,15 @@ describe('Order: Test ACL privileges', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`)
-                .contains('Max Mustermann');
-            cy.get('.sw-order-user-card__metadata-price').contains('49.98');
-            cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            cy.contains('.sw-order-user-card__metadata-price', '49.98');
+            cy.contains('.sw-order-base__label-sales-channel', 'Storefront');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(page.elements.tabs.general.summaryMainHeader)
-                .contains('- Max Mustermann (max.mustermann@example.com)');
+            cy.contains(page.elements.tabs.general.summaryMainHeader, '- Max Mustermann (max.mustermann@example.com)');
 
-            cy.get(page.elements.tabs.general.summaryMainTotal)
-                .contains('49.98');
+            cy.contains(page.elements.tabs.general.summaryMainTotal, '49.98');
 
             cy.get(page.elements.stateSelects.orderStateSelect)
                 .find('input')
@@ -72,15 +69,15 @@ describe('Order: Test ACL privileges', () => {
         });
 
         cy.get('.sw-order-detail__summary').scrollIntoView();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('49.98');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('19 %');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0`, '49.98');
+        cy.contains(`${page.elements.dataGridRow}--0`, '19 %');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.get('.sw-order-detail__summary').scrollIntoView();
-            cy.get('.sw-address__headline').contains('Shipping address');
-            cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
-            cy.get('.sw-order-state-card__history-entry .sw-order-state-card__text').contains('Open');
+            cy.contains('.sw-address__headline', 'Shipping address');
+            cy.contains('.sw-order-delivery-metadata .sw-address__location', 'Bielefeld');
+            cy.contains('.sw-order-state-card__history-entry .sw-order-state-card__text', 'Open');
         });
     });
 
@@ -117,7 +114,7 @@ describe('Order: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         });
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -125,19 +122,17 @@ describe('Order: Test ACL privileges', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`)
-                .contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
 
             // click edit button
             cy.get('.sw-order-detail__smart-bar-edit-button').click();
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(page.elements.tabs.general.summaryMainHeader)
-                .contains('- Max Mustermann (max.mustermann@example.com)');
+            cy.contains(page.elements.tabs.general.summaryMainHeader,
+                '- Max Mustermann (max.mustermann@example.com)');
 
-            cy.get(page.elements.tabs.general.summaryMainTotal)
-                .contains('49.98');
+            cy.contains(page.elements.tabs.general.summaryMainTotal, '49.98');
         });
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
@@ -196,13 +191,13 @@ describe('Order: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         });
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-order-list__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-order-list__confirm-delete-text`,
             'Do you really want to delete this order (10000)?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

@@ -10,6 +10,6 @@ describe('User: Test general user values', () => {
 
     it('@general: check if user title is set correctly', () => {
         cy.login('admin');
-        cy.get('.sw-admin-menu__user-type').contains('Administrator');
+        cy.contains('.sw-admin-menu__user-type', 'Administrator');
     });
 });

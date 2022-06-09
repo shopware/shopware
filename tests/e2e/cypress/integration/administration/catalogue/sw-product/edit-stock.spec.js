@@ -47,7 +47,7 @@ describe('Product: Edit in various ways', () => {
         cy.window().then((win) => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
+            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
         });
     });
 
@@ -85,7 +85,7 @@ describe('Product: Edit in various ways', () => {
             cy.get('.btn-buy').should('be.visible');
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
+            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
         });
     });
 
@@ -121,7 +121,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('a[title="Details"]').should('be.visible');
         cy.get('a[title="Details"]').click();
         cy.get('.delivery-status-indicator.bg-danger').should('be.visible');
-        cy.get('.delivery-information').contains('No longer available');
+        cy.contains('.delivery-information', 'No longer available');
         cy.get('.btn-buy').should('not.exist');
     });
 });

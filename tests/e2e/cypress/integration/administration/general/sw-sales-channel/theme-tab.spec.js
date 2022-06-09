@@ -14,7 +14,7 @@ describe('Sales Channel: Tests about the theme tab in the sales channel', () => 
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
-        cy.get('.sw-tabs-item').contains('Theme').click();
+        cy.contains('.sw-tabs-item', 'Theme').click();
 
         cy.get('.sw-sales-channel-detail-theme').should('exist');
     });
@@ -24,7 +24,7 @@ describe('Sales Channel: Tests about the theme tab in the sales channel', () => 
 
         page.openSalesChannel('Storefront', 1);
 
-        cy.get('.sw-tabs-item').contains('Theme').click();
+        cy.contains('.sw-tabs-item', 'Theme').click();
         cy.title().should('include', 'Storefront');
     });
 });

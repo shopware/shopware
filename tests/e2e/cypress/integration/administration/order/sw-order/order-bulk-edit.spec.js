@@ -24,7 +24,7 @@ describe('Order: Bulk edit orders', () => {
 
     it('@package @order: should modify orders with the bulk edit functionality', () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
-        
+
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'POST'
@@ -44,7 +44,7 @@ describe('Order: Bulk edit orders', () => {
 
         // Create the second order
         cy.contains('Add order').click();
-        cy.get('h2').contains('New order');
+        cy.contains('h2', 'New order');
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
             .should('be.disabled');
         cy.get('.sw-order-create-details-header .sw-entity-single-select')
@@ -94,7 +94,7 @@ describe('Order: Bulk edit orders', () => {
         // Apply the changes
         cy.get('.sw-bulk-edit-order__save-action.sw-button-process').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.get('.sw-loader').should('not.exist');

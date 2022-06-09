@@ -40,7 +40,7 @@ describe('Dynamic product group: Test relative time filters', () => {
             productStreamPage.elements.contextMenuButton,
             `${productStreamPage.elements.dataGridRow}--0`
         );
-        cy.get(productStreamPage.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         productStreamPage.fillFilterWithSelect(
@@ -53,7 +53,7 @@ describe('Dynamic product group: Test relative time filters', () => {
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').should('contain', 'Preview (2)');
@@ -73,7 +73,7 @@ describe('Dynamic product group: Test relative time filters', () => {
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').should('contain', 'Preview (1)');

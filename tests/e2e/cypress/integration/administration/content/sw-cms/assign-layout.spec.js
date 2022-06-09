@@ -59,7 +59,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Open layout assignment from sidebar
         cy.get('.sw-sidebar-navigation-item[title="Layout assignment"]').click();
@@ -81,7 +81,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Warning modal should appear because landing page has an assigned layout
         cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('be.visible');
-        cy.get('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').should('be.visible').contains('landing pages');
+        cy.contains('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts', 'landing pages').should('be.visible');
 
         // Confirm changes
         cy.get('.sw-cms-layout-assignment-modal__action-changes-confirm').click();
@@ -104,14 +104,14 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
         // Verify layout is assigned to landing page
-        cy.get('.sw-tree-item__element').contains('Testingpage').click();
+        cy.contains('.sw-tree-item__element', 'Testingpage').click();
         cy.get('.sw-landing-page-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
-        cy.get('.sw-category-layout-card__desc-headline').contains('Testing page');
+        cy.contains('.sw-category-layout-card__desc-headline', 'Testing page');
 
         // Verify layout in storefront
         cy.visit('/landingpage');
-        cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 
     it('@base @content: assign layout to category from layout editor', () => {
@@ -130,7 +130,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Open layout assignment from sidebar
         cy.get('.sw-sidebar-navigation-item[title="Layout assignment"]').click();
@@ -143,11 +143,11 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         // Assign root category in tree field
         cy.get('.sw-category-tree__input-field').focus();
         cy.get('.sw-category-tree-field__results_popover').should('be.visible');
-        cy.get('.sw-tree-item__element').contains('Home').parent().parent()
+        cy.contains('.sw-tree-item__element', 'Home').parent().parent()
             .find('.sw-field__checkbox')
             .click();
         cy.get('.sw-modal__title').click();
-        cy.get('.sw-category-tree-field__selected-label').contains('Home').should('be.visible');
+        cy.contains('.sw-category-tree-field__selected-label', 'Home').should('be.visible');
 
         // Confirm layout assignment
         cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
@@ -171,14 +171,14 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
-        cy.get('.sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-category-layout-card__desc-headline', 'Vierte Wand');
 
         // Verify layout in storefront
         cy.visit('/');
-        cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 
     it('@base @content: assign layout to shop page from layout editor', () => {
@@ -202,7 +202,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             .first()
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
-        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.sw-text-editor__content-editor h2', 'Lorem Ipsum dolor sit amet');
 
         // Open layout assignment from sidebar
         cy.get('.sw-sidebar-navigation-item[title="Layout assignment"]').click();
@@ -217,7 +217,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         cy.get('.sw-cms-layout-assignment-modal__tab-shop-pages').click();
 
         // Fill in shop page
-        cy.get('.sw-cms-layout-assignment-modal__sales-channel-select').contains('All Sales Channels');
+        cy.contains('.sw-cms-layout-assignment-modal__sales-channel-select', 'All Sales Channels');
         cy.get('.sw-cms-layout-assignment-modal__shop-page-select').typeMultiSelectAndCheck('Contact forms');
 
         // Confirm layout assignment
@@ -239,13 +239,13 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify contact page has assigned layout
         cy.get('.sw-system-config--field-core-basic-information-contact-page').scrollIntoView();
-        cy.get('.sw-cms-page-select-box[name="core.basicInformation.contactPage"]').contains('Wall of Text');
+        cy.contains('.sw-cms-page-select-box[name="core.basicInformation.contactPage"]', 'Wall of Text');
 
         // Verify layout in storefront
         cy.visit('/');
         cy.get('.footer-contact-form').scrollIntoView();
         cy.get('.footer-contact-form a[title="contact form"]').click();
         cy.get('.modal .modal-dialog').should('be.visible');
-        cy.get('.modal .modal-dialog .modal-body .cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.contains('.modal .modal-dialog .modal-body .cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 });

@@ -40,10 +40,11 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         cy.get('.sw-first-run-wizard-modal').should('be.visible');
 
         // Search for Shopware Language Pack
-        cy.get('.sw-plugin-card').contains('Shopware Language Pack');
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack');
 
         // Install Shopware Language Pack plugin
-        cy.get('.sw-plugin-card').contains('Shopware Language Pack').get('.button-plugin-install').click();
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack');
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack').get('.button-plugin-install').click();
 
         // Wait for plugin install requests
         cy.wait(['@installPlugin', '@activatePlugin']).spread((installPlugin, activatePlugin) => {
@@ -69,7 +70,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         // The language switch reloads the page and the first run wizard should be visible again
         cy.get('.sw-first-run-wizard-modal').should('be.visible');
 
-        cy.get('.sw-first-run-wizard-modal').contains('Welkom bij de Shopware 6 Administration');
+        cy.contains('.sw-first-run-wizard-modal', 'Welkom bij de Shopware 6 Administration');
     });
 
     it.skip('@frw: Should fail to install Lingala', () => {

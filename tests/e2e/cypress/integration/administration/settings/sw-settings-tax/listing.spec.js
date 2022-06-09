@@ -13,7 +13,8 @@ describe('Tax: Test tax-rule listing operations', () => {
     });
 
     it('@setting: test the default sorting and page', () => {
-        cy.get('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value').contains('Standard rate').click();
+        cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
+            'Standard rate').click();
 
         cy.testListing({
             sorting: {
@@ -29,7 +30,8 @@ describe('Tax: Test tax-rule listing operations', () => {
     });
 
     it('@setting: test the sorting and limit function', () => {
-        cy.get('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value').contains('Standard rate').click();
+        cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
+            'Standard rate').click();
 
         cy.testListing({
             sorting: {

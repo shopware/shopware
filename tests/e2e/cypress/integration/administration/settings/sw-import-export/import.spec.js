@@ -72,7 +72,6 @@ describe('Import/Export - Check import functionality', () => {
 
         // Verify that the imported product exists in product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Example product');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Example product');
     });
 });

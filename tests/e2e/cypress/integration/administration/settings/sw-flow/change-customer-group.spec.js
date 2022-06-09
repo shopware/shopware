@@ -27,7 +27,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Checkout customer login');
@@ -72,7 +72,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('Eroni');
+            cy.contains(`${page.elements.dataGridRow}--0`, 'Eroni');
         });
 
         cy.clickContextMenuItem(

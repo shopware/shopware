@@ -121,7 +121,7 @@ describe('Currency: Test acl privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-currency-list__content').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`, 'Dukaten');
     });
 
     it('@settings: can delete currency', () => {
@@ -156,8 +156,8 @@ describe('Currency: Test acl privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the currency "ZZ Yen"?');
+        cy.contains('.sw-modal__body',
+            'Are you sure you want to delete the currency "ZZ Yen"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion

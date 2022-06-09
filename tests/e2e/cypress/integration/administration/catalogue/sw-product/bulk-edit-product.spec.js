@@ -110,7 +110,7 @@ describe('Product: Test bulk edit product', () => {
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.get('.smart-bar__header').contains('Bulk edit: 2 products');
+        cy.contains('.smart-bar__header', 'Bulk edit: 2 products');
 
         cy.get('.sw-bulk-edit-change-field__container:first .sw-field__checkbox').click();
         cy.get('.sw-text-editor__content-editor').clear().type('Some random description');
@@ -118,7 +118,7 @@ describe('Product: Test bulk edit product', () => {
         cy.get('.sw-bulk-edit-product__save-action').click();
 
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
 
         cy.get('.footer-right .sw-button--primary').click();
 
@@ -126,8 +126,8 @@ describe('Product: Test bulk edit product', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Success');
-        cy.get('.footer-right .sw-button--primary').contains('Close');
+        cy.contains('.sw-bulk-edit-save-modal', 'Bulk edit - Success');
+        cy.contains('.footer-right .sw-button--primary', 'Close');
         cy.get('.footer-right .sw-button--primary').click();
 
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');

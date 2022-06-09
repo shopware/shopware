@@ -37,7 +37,7 @@ describe('Category: SDK Test', ()=> {
 
         cy.get(`a[href*="ui-tabs-product-example-tab"`)
             .click();
-        cy.get('.sw-card').contains('Hello in the new tab ');
+        cy.contains('.sw-card', 'Hello in the new tab ');
 
         cy.getSDKiFrame('ui-modals')
             .contains('Hello in the example card');
@@ -48,9 +48,8 @@ describe('Category: SDK Test', ()=> {
             .contains('Open Modal')
             .click();
 
-        cy.get('.sw-modal')
-            .should('be.visible')
-            .contains('Hello from the plugin');
+        cy.contains('.sw-modal', 'Hello from the plugin')
+            .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')
             .should('be.visible');
         cy.getSDKiFrame('ui-modals-modal-content')

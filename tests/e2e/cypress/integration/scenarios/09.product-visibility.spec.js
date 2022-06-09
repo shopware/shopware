@@ -41,8 +41,9 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-modal__body').should('not.be.visible');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -53,6 +54,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');
         cy.get('.sw-button-process').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@assignProductToCategory').its('response.statusCode').should('equal', 200);
 
@@ -92,8 +94,9 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-modal__body').should('not.be.visible');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -104,6 +107,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');
         cy.get('.sw-button-process').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@assignProductToCategory').its('response.statusCode').should('equal', 200);
 
@@ -142,8 +146,9 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-modal__footer .sw-button__content').click();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -154,6 +159,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');
         cy.get('.sw-button-process').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@assignProductToCategory').its('response.statusCode').should('equal', 200);
 

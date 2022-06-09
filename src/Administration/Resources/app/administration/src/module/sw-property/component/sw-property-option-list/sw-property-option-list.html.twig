@@ -67,66 +67,67 @@
     {% endblock %}
 
     {% block sw_property_option_list_grid %}
-    <template #grid>
-        <sw-one-to-many-grid
-            ref="grid"
-            :is-loading="isLoading"
-            :collection="propertyGroup.options"
-            :columns="getGroupColumns()"
-            :full-page="false"
-            :local-mode="propertyGroup.isNew()"
-            :allow-inline-edit="allowInlineEdit"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            @selection-change="onGridSelectionChanged"
-        >
+        <template #grid>
+            <sw-one-to-many-grid
+                ref="grid"
+                :is-loading="isLoading"
+                :collection="propertyGroup.options"
+                :columns="getGroupColumns()"
+                :full-page="false"
+                :local-mode="propertyGroup.isNew()"
+                :allow-inline-edit="allowInlineEdit"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                @selection-change="onGridSelectionChanged"
+            >
 
-            <template #column-name="{ item, isInlineEdit }">
-                <template v-if="isInlineEdit">
-                    <sw-field
-                        v-model="item.name"
-                        size="small"
-                    />
+                <template #column-name="{ item, isInlineEdit }">
+                    <template v-if="isInlineEdit">
+                        <sw-field
+                            v-model="item.name"
+                            size="small"
+                        />
+                    </template>
+
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <a
+                        v-else
+                        class="sw-settings-option-detail__link"
+                        @click="onOptionEdit(item)"
+                    >
+                        {{ item.translated.name }}
+                    </a>
                 </template>
 
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                <a
-                    v-else
-                    class="sw-settings-option-detail__link"
-                    @click="onOptionEdit(item)"
-                >
-                    {{ item.translated.name }}
-                </a>
-            </template>
-
-            {% block sw_settings_property_list_grid_columns_actions %}
-            <template #more-actions="{ item }">
-                {% block sw_settings_property_list_grid_columns_actions_edit %}
-                <sw-context-menu-item
-                    class="sw-property-option-list__edit-action"
-                    :disabled="!acl.can('property.editor')"
-                    @click="onOptionEdit(item)"
-                >
-                    {{ $tc('sw-property.list.contextMenuView') }}
-                </sw-context-menu-item>
+                {% block sw_settings_property_list_grid_columns_actions %}
+                <template #more-actions="{ item }">
+                    {% block sw_settings_property_list_grid_columns_actions_edit %}
+                    <sw-context-menu-item
+                        class="sw-property-option-list__edit-action"
+                        :disabled="!acl.can('property.editor')"
+                        @click="onOptionEdit(item)"
+                    >
+                        {{ $tc('sw-property.list.contextMenuView') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
                 {% endblock %}
-            </template>
-            {% endblock %}
 
-            {% block sw_property_list_grid_columns_actions_delete %}
-            <template #delete-action="{ item }">
-                <sw-context-menu-item
-                    variant="danger"
-                    :disabled="!acl.can('property.editor')"
-                    @click="onSingleOptionDelete(item.id)"
-                >
-                    {{ $tc('sw-property.list.contextMenuDelete') }}
-                </sw-context-menu-item>
-            </template>
-            {% endblock %}
-        </sw-one-to-many-grid>
-        {% endblock %}
-    </template>
+                {% block sw_property_list_grid_columns_actions_delete %}
+                <template #delete-action="{ item }">
+                    <sw-context-menu-item
+                        variant="danger"
+                        :disabled="!acl.can('property.editor')"
+                        @click="onSingleOptionDelete(item.id)"
+                    >
+                        {{ $tc('sw-property.list.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                </template>
+                {% endblock %}
+            </sw-one-to-many-grid>
+        </template>
+    {% endblock %}
+    
     {% block sw_property_option_list_detail %}
     <sw-property-option-detail
         v-if="currentOption"

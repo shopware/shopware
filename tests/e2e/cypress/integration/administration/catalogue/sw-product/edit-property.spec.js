@@ -115,6 +115,9 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
 
+        cy.getSDKiFrame('location-index').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0`).scrollIntoView();
+
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-delete',
             page.elements.contextMenuButton,
@@ -152,6 +155,9 @@ describe('Product: Edit property assignment', () => {
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+
+        cy.getSDKiFrame('location-index').should('be.visible');
+        cy.get('.sw-product-properties .sw-empty-state').scrollIntoView();
         cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
     });
 
@@ -186,7 +192,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
-    it.only('@base @catalogue: add properties', () => {
+    it('@base @catalogue: add properties', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,

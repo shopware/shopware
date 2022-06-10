@@ -42,6 +42,19 @@ class IdsCollection
         return $this->create($key);
     }
 
+    public function getIdArray(array $keys, bool $bytes = false): array
+    {
+        $list = $this->getList($keys);
+
+        $list = $bytes ? Uuid::fromHexToBytesList($list) : $list;
+
+        $list = \array_map(static function (string $id) {
+            return ['id' => $id];
+        }, $list);
+
+        return \array_values($list);
+    }
+
     public function getBytes(string $key): string
     {
         return Uuid::fromHexToBytes($this->get($key));

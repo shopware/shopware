@@ -4,12 +4,14 @@ namespace Shopware\Core\Content\Test\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TestShortHands;
 
 /**
+ * @internal
  * This test is used as "good" reference integration tests inside our guidelines.
  */
 class ProductCartTest extends TestCase
@@ -38,6 +40,7 @@ class ProductCartTest extends TestCase
 
         static::assertEquals($builder->id, $item->getId());
 
+        static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
         static::assertEquals($expected, $item->getPrice()->getTotalPrice());
     }
 

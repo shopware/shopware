@@ -5821,11 +5821,6 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/Fixture/ListingTestData.php
 
 		-
-			message: "#^Class Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRoute constructor invoked with 7 parameters, 6 required\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertContains\\(\\) expects iterable, array\\|null given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/SalesChannel/Listing/ProductListingLoaderTest.php

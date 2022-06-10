@@ -79,8 +79,7 @@ class CachedProductListingRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            [],
-            $this->getContainer()->get('logger')
+            []
         );
 
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
@@ -138,8 +137,7 @@ class CachedProductListingRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            $config,
-            $this->getContainer()->get('logger')
+            $config
         );
 
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);

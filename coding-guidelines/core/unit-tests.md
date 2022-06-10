@@ -15,12 +15,19 @@ When writing unit tests, the following is important:
 - **Cleanup** - It is also important that you clean up your artifacts. If you register an event listener dynamically, make sure that it is removed again on `teardown`. If you write data to the database or change the schema, make sure it is rolled back.
 - **Failure** - Don't just test the happy case or success case, test the failure of your services and objects.
 - **Unit** - Write unit tests (not integration tests), don't always test the whole request or service stack, you can also just instantiate services yourself and mock dependencies to make testing faster and easier.
+- **Para-test** - Your tests should be compatible with our para-test setup so that any developer can quickly run the tests locally.
 
 ## Examples
 Here are some good examples of unit tests:
 - [CriteriaTest](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Test/DataAbstractionLayer/Search/CriteriaTest.php)
+  - Good example for simple DTO tests
 - [CashRounding](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Test/Cart/Price/CashRoundingTest.php)
-- [QuantityPriceCalculator](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Test/Cart/Price/QuantityPriceCalculatorTest.php)
+  - Nice test matrix for single service coverage
+- [AddCustomerTagActionTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Flow/Dispatching/Action/AddCustomerTagActionTest.php)
+  - A good example of how to test flow actions and use mocks for repositories
 
 Here are some good examples of integration tests:
 - [ProductCartTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Product/Cart/ProductCartTest.php)
+  - Slim product cart test with good helper function integrations
+- [CachedProductListingRouteTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php)
+  - This test is a little complex, but has a very good test case matrix with good descriptions and reusable test code.

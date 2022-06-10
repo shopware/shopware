@@ -159,6 +159,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     ],
                 ],
                 [
+                    'price_percentage' => [
+                        'path_match' => 'price.*.percentage.*',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
                     'long_to_double' => [
                         'match_mapping_type' => 'long',
                         'mapping' => ['type' => 'double'],
@@ -295,6 +301,16 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
                         $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
                         $document[$key] = $taxes['net'];
+
+                        if (empty($taxes['percentage'])) {
+                            continue;
+                        }
+
+                        $key = 'cheapest_price_' . $rule . '_' . $currency . '_gross_percentage';
+                        $document[$key] = $taxes['percentage']['gross'];
+
+                        $key = 'cheapest_price_' . $rule . '_' . $currency . '_net_percentage';
+                        $document[$key] = $taxes['percentage']['net'];
                     }
                 }
             }

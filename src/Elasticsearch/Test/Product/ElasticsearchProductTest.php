@@ -2484,6 +2484,128 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
+    {
+        try {
+            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(
+                    Uuid::randomHex(),
+                    TestDefaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
+
+            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
+
+            $searcher = $this->createEntitySearcher();
+
+            $cases = $this->providerCheapestPricePercentageFilterAndSorting();
+
+            foreach ($cases as $message => $case) {
+                $criteria = new Criteria($ids->prefixed('product-'));
+
+                if ($case['operator']) {
+                    $criteria->addFilter(
+                        new RangeFilter('product.cheapestPrice.percentage', [
+                            $case['operator'] => $case['percentage'],
+                        ])
+                    );
+                }
+
+                $criteria->addSorting(new FieldSorting('product.cheapestPrice.percentage', $case['direction']));
+                $criteria->addSorting(new FieldSorting('product.productNumber', $case['direction']));
+
+                $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
+
+                static::assertCount(\count($case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
+                static::assertEquals(array_map(function (string $id) use ($ids) {
+                    return $ids->get($id);
+                }, $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function providerCheapestPricePercentageFilterAndSorting(): \Generator
+    {
+        yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
+            'ids' => ['product-1', 'product-4'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with greater than 50 percent price to list ratio sorted ascending' => [
+            'ids' => ['product-4', 'product-1'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent price to list ratio sorted descending' => [
+            'ids' => ['product-2', 'product-5', 'product-3'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent price to list ratio sorted ascending' => [
+            'ids' => ['product-3', 'product-5', 'product-2'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test percent price to list ratio sorted descending' => [
+            'ids' => ['product-1', 'product-4', 'product-2', 'product-5', 'product-7', 'product-6', 'product-3'],
+            'operator' => null,
+            'percentage' => null,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test percent price to list ratio sorted ascending' => [
+            'ids' => ['product-3', 'product-6', 'product-7', 'product-5', 'product-2', 'product-4', 'product-1'],
+            'operator' => null,
+            'percentage' => null,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria($ids->prefixed('product-'));
+
+            $criteria->addAggregation(new StatsAggregation('percentage', 'product.cheapestPrice.percentage'));
+
+            $aggregator = $this->createEntityAggregator();
+
+            $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
+
+            $aggregation = $result->get('percentage');
+
+            static::assertInstanceOf(StatsResult::class, $aggregation);
+            static::assertEquals(0, $aggregation->getMin());
+            static::assertEquals(66.67, $aggregation->getMax());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
     {
         $context = $this->createIndexingContext();
@@ -3011,7 +3133,7 @@ class ElasticsearchProductTest extends TestCase
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
-                ->price(50)
+                ->price(50, 50, 'default', 150, 150)
                 ->releaseDate('2019-01-01 10:11:00')
                 ->purchasePrice(0)
                 ->stock(2)
@@ -3031,7 +3153,7 @@ class ElasticsearchProductTest extends TestCase
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
-                ->price(100)
+                ->price(100, 100, 'default', 150, 150)
                 ->price(300, null, 'anotherCurrency')
                 ->releaseDate('2019-01-01 10:13:00')
                 ->purchasePrice(0)
@@ -3050,7 +3172,7 @@ class ElasticsearchProductTest extends TestCase
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
-                ->price(150)
+                ->price(150, 150, 'default', 150, 150)
                 ->price(800, null, 'anotherCurrency')
                 ->releaseDate('2019-06-15 13:00:00')
                 ->purchasePrice(100)
@@ -3066,7 +3188,7 @@ class ElasticsearchProductTest extends TestCase
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
-                ->price(200)
+                ->price(200, 200, 'default', 500, 500)
                 ->price(500, null, 'anotherCurrency')
                 ->releaseDate('2020-09-30 15:00:00')
                 ->purchasePrice(100)
@@ -3080,7 +3202,7 @@ class ElasticsearchProductTest extends TestCase
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
-                ->price(250)
+                ->price(250, 250, 'default', 300, 300)
                 ->price(600, null, 'anotherCurrency')
                 ->releaseDate('2021-12-10 11:59:00')
                 ->purchasePrice(100)

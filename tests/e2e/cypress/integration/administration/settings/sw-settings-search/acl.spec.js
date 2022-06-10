@@ -20,6 +20,8 @@ describe('Search: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
@@ -32,6 +34,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // assert that there is an available settings for search module
@@ -70,6 +74,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -108,6 +114,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -153,6 +161,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -210,6 +220,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -276,6 +288,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -354,6 +368,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -424,6 +440,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -464,6 +482,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -497,10 +517,11 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
-
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
@@ -545,6 +566,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

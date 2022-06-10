@@ -25,12 +25,18 @@ describe('Product creation via API and commercial customer registration', () => 
 
         // Saleschannel initial settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Express', '10', '8');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/payment/index');
         cy.setPaymentMethod('Paid in advance');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('E2E install test')
             .selectCountryForSalesChannel('Germany')
@@ -39,6 +45,8 @@ describe('Product creation via API and commercial customer registration', () => 
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
@@ -53,6 +61,8 @@ describe('Product creation via API and commercial customer registration', () => 
 
         // Login/registration settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/login/registration/index');
         cy.get('.sw-system-config--field-core-login-registration-show-account-type-selection [type]').check();
         cy.get('.sw-button-process__content').click();
@@ -62,6 +72,8 @@ describe('Product creation via API and commercial customer registration', () => 
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/country/index');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Germany');
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();

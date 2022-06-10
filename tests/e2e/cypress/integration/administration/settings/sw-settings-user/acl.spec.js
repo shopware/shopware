@@ -22,6 +22,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-users-permissions-user-listing')
@@ -68,6 +70,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
@@ -146,6 +150,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
@@ -226,6 +232,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // create a new user
@@ -295,6 +303,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Requests we want to wait for later

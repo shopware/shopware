@@ -19,6 +19,8 @@ describe('Promotion v2: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -50,6 +52,8 @@ describe('Promotion v2: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-promotion-v2-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -59,6 +63,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.takeSnapshot('[Promotion] Listing', '.sw-promotion-v2-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('a[href="#/sw/promotion/v2/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');

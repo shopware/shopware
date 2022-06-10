@@ -17,6 +17,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
             return cy.createCustomerFixtureStorefront();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -44,6 +46,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         cy.url().should('include', 'settings/rule/index');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/rule/create/base');
 
         // fill basic data
@@ -83,6 +87,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         // Create shipping method
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.get('a[href="#/sw/settings/shipping/create"]').click();
         cy.get('input[name=sw-field--shippingMethod-name]').typeAndCheck('Shipping to Netherlands');
@@ -109,8 +115,12 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         // Add shipping method to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('Storefront');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
         cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
@@ -190,6 +200,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         cy.url().should('include', 'settings/rule/index');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/rule/create/base');
 
         // fill basic data
@@ -228,6 +240,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         // Select the rule as Dollar currency
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

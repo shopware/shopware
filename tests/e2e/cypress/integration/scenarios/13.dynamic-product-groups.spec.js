@@ -40,6 +40,8 @@ describe('Dynamic Product Groups in categories', () => {
 
         // Go to dynamic product pages
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Dynamische productgroepen').should('be.visible');
         cy.get('.sw-product-stream-list__create-action').click();
         cy.get('#sw-field--productStream-name').clearTypeAndCheck('Dynamic Products');
@@ -66,6 +68,8 @@ describe('Dynamic Product Groups in categories', () => {
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
         cy.get('.sw-single-select__selection').type('Dynamische productgroep');
@@ -82,6 +86,8 @@ describe('Dynamic Product Groups in categories', () => {
 
         // Add both products to the sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
         cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
         cy.get('.link.link-primary').click();

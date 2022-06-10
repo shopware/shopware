@@ -28,6 +28,8 @@ describe('Promotion: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -49,6 +51,8 @@ describe('Promotion: Visual tests', () => {
         cy.takeSnapshot('[Promotion] listing', '.sw-promotion-list');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');

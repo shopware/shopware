@@ -35,6 +35,8 @@ describe('Dynamic product group: Test relative time filters', () => {
     it('@base @rule: can preview products with relative time filters', () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,

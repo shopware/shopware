@@ -9,6 +9,8 @@ describe('CMS: check validation of product list page', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

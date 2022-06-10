@@ -40,6 +40,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open property without permissions
@@ -61,6 +63,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
@@ -91,6 +95,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
@@ -134,6 +140,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Add customer group
@@ -188,6 +196,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
@@ -229,6 +239,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-customer-base-form__account-type-select')
@@ -281,6 +293,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-customer-base-form__account-type-select')

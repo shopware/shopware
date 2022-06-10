@@ -25,6 +25,8 @@ describe('Sales Channel: Test product assignment operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -56,8 +58,8 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('a[href="#/sw/product/create"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
-        cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('First Product');
 
@@ -141,8 +143,8 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         cy.get('a[href="#/sw/product/create"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
-        cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('First Product');
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');

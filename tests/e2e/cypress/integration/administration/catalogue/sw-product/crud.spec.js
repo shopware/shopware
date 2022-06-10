@@ -10,6 +10,8 @@ describe('Product: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -29,6 +31,8 @@ describe('Product: Test crud operations', () => {
 
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
@@ -207,6 +211,8 @@ describe('Product: Test crud operations', () => {
 
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with floating point net price');
 

@@ -21,6 +21,8 @@ describe('Product: Mode advanced settings at product detail', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -157,6 +159,8 @@ describe('Product: Mode advanced settings at product detail', () => {
         }).as('saveUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-custom-field-set-list__column-name').first().click();
         cy.get('.sw-loader').should('not.exist');
@@ -168,6 +172,8 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         cy.awaitAndCheckNotification('has been saved');
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

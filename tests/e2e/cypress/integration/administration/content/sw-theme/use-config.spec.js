@@ -8,6 +8,8 @@ describe('Theme: Test loading and saving of theme', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

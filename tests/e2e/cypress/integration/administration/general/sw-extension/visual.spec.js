@@ -10,6 +10,8 @@ describe('Dashboard:  Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -33,6 +35,8 @@ describe('Dashboard:  Visual tests', () => {
             mainMenuId: 'sw-extension',
             subMenuId: 'sw-extension-store'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Check extension store
         cy.get('.sw-extension-store-landing-page').should('be.visible');
@@ -75,6 +79,8 @@ describe('Dashboard:  Visual tests', () => {
         cy.takeSnapshot('[My extensions] Store', '.sw-extension-store-listing', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.visit(Cypress.env('admin'));
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-dashboard-index__card--bg-checklist').should('be.visible');
 
         // Check my extensions listing
@@ -87,6 +93,7 @@ describe('Dashboard:  Visual tests', () => {
         cy.wait('@getInstalled')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Change color of the element to ensure consistent snapshots

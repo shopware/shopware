@@ -22,6 +22,8 @@ describe('Shipping: Test acl privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // open shipping
         cy.contains('.sw-data-grid__cell-value', 'Luftpost').click();
@@ -45,6 +47,8 @@ describe('Shipping: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -88,6 +92,8 @@ describe('Shipping: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -123,6 +129,8 @@ describe('Shipping: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

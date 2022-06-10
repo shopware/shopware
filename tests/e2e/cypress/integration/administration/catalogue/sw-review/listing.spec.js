@@ -223,6 +223,8 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index?term=product&page=2&limit=10&sortBy=customer.lastName,customer.firstName&sortDirection=ASC&naturalSorting=false`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm: 'product',

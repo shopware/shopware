@@ -9,6 +9,8 @@ describe('Promotion v2: Test crud operations', () => {
                 return cy.createDefaultFixture('promotion');
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
             });
     });

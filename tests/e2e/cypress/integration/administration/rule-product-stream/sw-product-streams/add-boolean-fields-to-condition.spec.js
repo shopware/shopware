@@ -59,6 +59,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
     it('@base @rule: can preview products with boolean field', () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
@@ -116,6 +118,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // click on the custom field
         cy.contains(`.sw-grid-row${page.elements.gridRow}--0 a`, 'My custom field')
@@ -142,6 +146,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
         // go to product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // open the first product
         cy.contains(`${page.elements.dataGridRow} .sw-data-grid__cell--name div > a`, 'First product')
@@ -169,6 +175,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
         const productStreamPage = new ProductStreamObject();
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,

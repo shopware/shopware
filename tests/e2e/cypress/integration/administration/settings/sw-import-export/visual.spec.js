@@ -18,6 +18,8 @@ describe('Import/Export:  Visual tests', () => {
             cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -48,7 +50,8 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('#sw-import-export').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[href="#/sw/import-export/index/profiles"]').should('be.visible');
         cy.get('[href="#/sw/import-export/index/profiles"]').click();
         cy.get('.sw-page__main-content').should('be.visible');
@@ -226,6 +229,8 @@ describe('Import/Export:  Visual tests', () => {
 
     it('should check appearance of import/export wizard', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(page.elements.importExportCreateNewProfileButton)
             .should('be.visible')

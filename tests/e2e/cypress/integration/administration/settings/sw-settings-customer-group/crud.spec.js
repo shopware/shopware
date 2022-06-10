@@ -9,6 +9,8 @@ describe('Customer group: Test crud operations', () => {
             return cy.createDefaultFixture('customer-group');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -45,8 +47,12 @@ describe('Customer group: Test crud operations', () => {
             mainMenuId: 'sw-customer',
             subMenuId: 'sw-customer-index'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-customer-list__content').should('be.visible');
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select');
 

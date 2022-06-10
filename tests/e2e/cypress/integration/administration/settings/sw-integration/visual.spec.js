@@ -9,6 +9,8 @@ describe('Integration: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -32,7 +34,8 @@ describe('Integration: Visual testing', () => {
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Integration] Listing', '.sw-integration-list__overview');
 
         cy.contains('.sw-data-grid__cell-content a', 'chat-key').click();

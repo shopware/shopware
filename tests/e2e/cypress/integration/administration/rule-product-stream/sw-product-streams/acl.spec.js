@@ -19,6 +19,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.smart-bar__actions .sw-button.sw-button--primary')
@@ -92,6 +94,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -156,6 +160,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 }
             ]).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
             cy.get('.smart-bar__actions .sw-button--primary').click();
@@ -200,6 +206,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 }
             ]).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
             cy.intercept({

@@ -21,6 +21,8 @@ describe('create role with different permissions', () => {
 
         //go to sw/users/permissions/index
         cy.visit(`${Cypress.env('admin')}#/sw/settings/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings__tab-system').click();
         cy.get('#sw-users-permissions').click();
 

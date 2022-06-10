@@ -17,6 +17,8 @@ describe('Minimal auto update', () => {
 
         cy.login();
         cy.visit('/admin#/sw/category/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-tree-item__label', 'Startseite').click();
         cy.get('.sw-loader').should('not.exist');

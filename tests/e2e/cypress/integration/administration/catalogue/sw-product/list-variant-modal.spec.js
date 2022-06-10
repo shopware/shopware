@@ -16,6 +16,8 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.get('.sw-data-grid__cell--name')
                     .click();
@@ -37,6 +39,8 @@ describe('Product: Test variants', () => {
                 cy.get('.sw-modal').should('not.exist');
 
                 cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 // open variant modal
                 cy.get(':nth-child(2) > .sw-button')

@@ -34,6 +34,8 @@ describe('Import/Export - Check activities in progress are updating', () => {
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();

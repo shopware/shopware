@@ -17,6 +17,8 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
     const page = new ProductPageObject();
@@ -154,9 +156,13 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
         // Set tax free for companies - B2B
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.contains(`.sw-data-grid__cell--name`, 'Netherlands').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input[name="sw-field--country-companyTax-enabled"]').check();
         cy.get('input#sw-field--country-companyTax-amount').clearTypeAndCheck('10');
         cy.get('.sw-button-process__content').click();

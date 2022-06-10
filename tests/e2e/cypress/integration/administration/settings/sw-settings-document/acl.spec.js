@@ -11,6 +11,8 @@ describe('Settings Documents: Test crud operations with ACL', () => {
     it('@general: read documents with ACL, but without rights', () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.location('hash').should('eq', '#/sw/privilege/error/index');

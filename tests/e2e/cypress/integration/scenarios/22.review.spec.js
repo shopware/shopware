@@ -7,6 +7,8 @@ describe('Test visibility of reviews', () => {
             cy.createProductFixture();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -75,6 +77,8 @@ describe('Test visibility of reviews', () => {
 
         // Activate review in admin
         cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             '.sw-context-button__button',

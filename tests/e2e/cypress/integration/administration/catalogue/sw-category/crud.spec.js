@@ -8,6 +8,8 @@ describe('Category: Create several categories', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -60,6 +62,8 @@ describe('Category: Create several categories', () => {
 
         // Assign category and set it active
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Invisibilian').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');

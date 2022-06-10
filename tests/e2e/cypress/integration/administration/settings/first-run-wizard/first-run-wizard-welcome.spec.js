@@ -9,12 +9,16 @@ describe('FirstRunWizard Test language Auto-Install', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     // skipped because it has a dependency to the sbp, see NEXT-15818
     it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/install/plugin/SwagLanguagePack`,

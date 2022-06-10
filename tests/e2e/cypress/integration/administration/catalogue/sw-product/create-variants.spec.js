@@ -22,6 +22,8 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -99,6 +101,8 @@ describe('Product: Test variants', () => {
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Add option to property group
         cy.wait('@searchUserConfig')
@@ -139,6 +143,8 @@ describe('Product: Test variants', () => {
         greenOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const productPage = new ProductPageObject();
 

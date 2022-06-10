@@ -25,6 +25,8 @@ describe('Dynamic product group: Test product has cover image filter with and wi
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/create`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

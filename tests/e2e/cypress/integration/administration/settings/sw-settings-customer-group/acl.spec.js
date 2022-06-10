@@ -23,6 +23,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-settings-customer-group-list').should('be.visible');
@@ -51,6 +53,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -114,6 +118,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -165,6 +171,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

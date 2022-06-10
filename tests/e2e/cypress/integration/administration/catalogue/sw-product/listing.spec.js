@@ -81,6 +81,8 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const searchTerm = 'product';
 
@@ -178,6 +180,8 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm: 'product',

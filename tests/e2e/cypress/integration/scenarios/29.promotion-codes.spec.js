@@ -22,6 +22,8 @@ describe('Create promotion codes to the product and check it at the storefront',
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -89,6 +91,8 @@ describe('Create promotion codes to the product and check it at the storefront',
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -195,6 +199,8 @@ describe('Create promotion codes to the product and check it at the storefront',
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -319,6 +325,8 @@ describe('Create promotion codes to the product and check it at the storefront',
 
             // Add product to sales channel
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
             cy.url().should('include', 'product/index');
             cy.clickContextMenuItem(
                 '.sw-entity-listing__context-menu-edit-action',

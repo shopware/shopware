@@ -13,6 +13,8 @@ describe('Theme: Test Inheritance', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,6 +30,8 @@ describe('Theme: Test Inheritance', () => {
             cy.createDefaultFixture('theme', {id: childThemeId, parentThemeId: themeId}, 'theme-inheritance').then(() => {
                 cy.createDefaultFixture('theme-child', {parentId: themeId, childId: childThemeId}).then(() => {
                     cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+                    cy.get('.sw-skeleton').should('not.exist');
+                    cy.get('.sw-loader').should('not.exist');
                 })
             })
         });

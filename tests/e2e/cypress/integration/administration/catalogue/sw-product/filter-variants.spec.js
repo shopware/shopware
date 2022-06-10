@@ -16,6 +16,8 @@ describe('Product: Test filter variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.get('.sw-data-grid__cell--name')
                     .click();

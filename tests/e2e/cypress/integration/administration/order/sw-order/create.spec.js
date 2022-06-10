@@ -11,7 +11,9 @@ describe('Order: Create order', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -384,8 +386,12 @@ describe('Order: Create order', () => {
         const page = new OrderPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.get('a[href="#/sw/promotion/v2/create"]').click();
+        cy.get('.smart-bar__actions .sw-button--primary').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -465,9 +471,13 @@ describe('Order: Create order', () => {
 
         // Navigate to order list page
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // navigate to order create page
         cy.contains('Add order').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // select an existing customer
         cy.get('.sw-order-create-details-header .sw-entity-single-select')

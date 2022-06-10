@@ -17,6 +17,8 @@ describe('Minimal auto update', () => {
 
         cy.login();
         cy.visit('/admin#/sw/media/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-media-library').should('be.visible');
         cy.get('.sw-media-media-item').scrollIntoView();

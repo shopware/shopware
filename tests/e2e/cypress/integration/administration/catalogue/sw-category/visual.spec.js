@@ -8,6 +8,8 @@ describe('Category: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -22,9 +24,10 @@ describe('Category: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-category'
         });
-
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-tree').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-skeleton__tree-item').should('not.exist');

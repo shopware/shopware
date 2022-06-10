@@ -11,6 +11,8 @@ describe('Delivery times group: Test crud operations', () => {
         })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -56,6 +58,8 @@ describe('Delivery times group: Test crud operations', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

@@ -10,6 +10,8 @@ describe('Rule builder: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -27,6 +29,8 @@ describe('Rule builder: Visual tests', () => {
         cy.get('#sw-settings-rule').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-rule-list__content').should('exist');
 
         // Change text of the element to ensure consistent snapshots

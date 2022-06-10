@@ -6,6 +6,8 @@ describe('Theme: Visual tests', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -27,6 +29,8 @@ describe('Theme: Visual tests', () => {
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-theme-list__list').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
         cy.log('Before Screenshot');

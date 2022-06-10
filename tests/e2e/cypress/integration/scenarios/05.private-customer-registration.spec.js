@@ -37,15 +37,23 @@ describe('Product creation via UI and private customer registration', () => {
 
         // Saleschannel initial settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/listing/index');
         cy.setSalesChannel('E2E install test');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Standard', '5', '4');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/payment/index');
         cy.setPaymentMethod('Cash on delivery');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('E2E install test')
             .selectPaymentMethodForSalesChannel('Cash on delivery')
@@ -53,6 +61,8 @@ describe('Product creation via UI and private customer registration', () => {
 
         // Create product via UI
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.get('.sw-button.sw-button--primary').click();
         cy.get('#sw-field--product-name').typeAndCheck('Product-5');

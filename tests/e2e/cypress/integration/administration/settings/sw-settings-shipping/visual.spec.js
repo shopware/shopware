@@ -10,6 +10,8 @@ describe('Administration: Check module navigation in settings', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,7 +30,8 @@ describe('Administration: Check module navigation in settings', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-shipping-list__content').should('exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.log('change Sorting direction from None to ASC');
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');

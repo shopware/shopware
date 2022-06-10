@@ -15,6 +15,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
     it('@settings: create new rule for condition sequence', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
 
@@ -72,6 +74,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Time rule');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -80,6 +84,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
     it('@settings: update rule for condition sequence', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
 
@@ -138,6 +144,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Weekend sales');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

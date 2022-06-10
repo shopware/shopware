@@ -14,6 +14,8 @@ describe('Flow builder: Add remove tag testing', () => {
 
     it('@settings: add and remove tag action flow', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
@@ -169,7 +171,8 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
-            cy.get('.sw-data-grid-skeleton').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
             cy.contains(`${page.elements.dataGridRow}--0`, '10001');
             cy.contains(`${page.elements.dataGridRow}--1`, '10000');
         });

@@ -14,6 +14,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         }).then(() => {
             cy.loginViaApi();
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -22,6 +24,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
@@ -34,6 +38,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -59,6 +65,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check that NewsletterRecipient exists
         cy.contains('Mustermann').should('exist');

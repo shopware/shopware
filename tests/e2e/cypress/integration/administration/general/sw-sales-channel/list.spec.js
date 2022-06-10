@@ -45,6 +45,7 @@ describe('Sales Channel: Test list', () => {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/sales/channel/list`);
                 cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

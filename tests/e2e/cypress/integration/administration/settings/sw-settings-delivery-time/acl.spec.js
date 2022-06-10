@@ -23,6 +23,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -53,6 +55,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -106,6 +110,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -148,6 +154,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

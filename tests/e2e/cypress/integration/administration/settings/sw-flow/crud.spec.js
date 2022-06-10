@@ -7,6 +7,8 @@ describe('Flow builder: Test crud operations', () => {
     beforeEach(() => {
         cy.loginViaApi().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 

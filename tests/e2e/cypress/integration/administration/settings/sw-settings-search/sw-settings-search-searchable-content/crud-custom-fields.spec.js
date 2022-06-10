@@ -30,6 +30,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -92,6 +94,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -164,6 +168,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

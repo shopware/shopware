@@ -10,8 +10,14 @@ describe('Add and remove products from saleschannel', () => {
     afterEach(() => {
         // Remove product from the sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__actions-menu').click();
         cy.contains('.sw-context-menu__content', 'Remove').click();
         cy.contains('Nog geen producten toegevoegd').should('be.visible');
@@ -25,8 +31,14 @@ describe('Add and remove products from saleschannel', () => {
     it('@package: should add via product selection', () => {
         // Add product from the sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
         cy.contains('.sw-modal__header', 'Add products').should('be.visible');
         cy.get('.sw-data-grid__select-all [type]').check();
@@ -43,6 +55,8 @@ describe('Add and remove products from saleschannel', () => {
     it('@package: should add via category selection', () => {
         // Add product to the home
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-tree-item__label', 'Home').click();
         cy.get('[title="Producten"]').click();
         cy.get('input[placeholder="Producten zoeken en toewijzen …"]').click();
@@ -50,8 +64,14 @@ describe('Add and remove products from saleschannel', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
         cy.contains('.sw-modal__header', 'Add products').should('be.visible');
         cy.get('[title="Category selection"]').click();
@@ -67,7 +87,11 @@ describe('Add and remove products from saleschannel', () => {
     it('@package: should add and remove via product group selection', () => {
         // Add product to a dynamic product group
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-stream-list__create-action').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input[name=sw-field--productStream-name]').typeAndCheck('Dynamic Products');
         cy.get('[class="sw-product-stream-value sw-product-stream-value--grow-2"] .sw-entity-single-select__selection').click();
         cy.contains('.sw-select-result-list__content', 'Product name').click();
@@ -78,8 +102,14 @@ describe('Add and remove products from saleschannel', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('E2E install test').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[title="Producten"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
         cy.contains('.sw-modal__header', 'Add products').should('be.visible');
         cy.get('[title="Product group selection"]').click();

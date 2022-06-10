@@ -25,6 +25,8 @@ describe('Order: Visual tests', () => {
             cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -44,6 +46,8 @@ describe('Order: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -108,6 +112,8 @@ describe('Order: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing

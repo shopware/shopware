@@ -67,6 +67,8 @@ describe('Rule builder: Test app script conditions', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -76,6 +78,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const conditions = {
             'Custom single select': 'sw-single-select',
@@ -143,6 +146,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // fill basic data
         cy.get('input[name=sw-field--rule-name]').clearTypeAndCheck('Rule 1st');

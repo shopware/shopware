@@ -24,6 +24,8 @@ describe('Rule builder: Test crud operations', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();
@@ -61,6 +63,8 @@ describe('Rule builder: Test crud operations', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();
@@ -139,6 +143,8 @@ describe('Rule builder: Test crud operations', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();
@@ -150,6 +156,8 @@ describe('Rule builder: Test crud operations', () => {
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // save with empty data
         cy.get('button.sw-button').contains('Save').click();
@@ -223,6 +231,8 @@ describe('Rule builder: Test crud operations', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();

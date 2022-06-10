@@ -30,6 +30,8 @@ describe('Create a new property, select value display type and test their appear
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -65,6 +67,8 @@ describe('Create a new property, select value display type and test their appear
 
         // Navigate to variant generator listing and start
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
 
         cy.clickContextMenuItem(

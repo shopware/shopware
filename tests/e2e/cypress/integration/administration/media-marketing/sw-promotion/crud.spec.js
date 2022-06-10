@@ -25,6 +25,8 @@ describe('Promotion: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -43,6 +45,8 @@ describe('Promotion: Test crud operations', () => {
         }).as('saveDiscount');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');

@@ -17,6 +17,8 @@ describe('Minimal auto update', () => {
 
         cy.login();
         cy.visit('/admin#/sw/customer/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-data-grid__cell--firstName', 'Knopf').click();
         cy.get('.sw-loader').should('not.exist');

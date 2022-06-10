@@ -12,6 +12,8 @@ describe('Mail templates: Check module navigation in settings', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -30,8 +32,8 @@ describe('Mail templates: Check module navigation in settings', () => {
         });
         cy.get('#sw-mail-template').click();
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
-
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Type', 'Cancellation invoice');
 
         cy.wait('@getData').its('response.statusCode').should('equals', 200);

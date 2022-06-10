@@ -10,6 +10,8 @@ describe('CMS: Visual tests', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -29,6 +31,8 @@ describe('CMS: Visual tests', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-cms'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Take snapshot for visual testing
         cy.get('.sw-cms-list-item--0').should('be.visible');
@@ -65,6 +69,8 @@ describe('CMS: Visual tests', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();

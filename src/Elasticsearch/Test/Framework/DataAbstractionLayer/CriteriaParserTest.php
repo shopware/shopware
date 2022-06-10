@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -148,6 +149,22 @@ class CriteriaParserTest extends TestCase
             Context::createDefaultContext(),
         ];
 
+        yield 'default cheapest price/list price percentage' => [
+            new FieldSorting('cheapestPrice.percentage', FieldSorting::ASCENDING),
+            [
+                'id' => 'cheapest_price_percentage',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                            'factor' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            Context::createDefaultContext(),
+        ];
+
         $context = Context::createDefaultContext();
         $context->assign(['currencyId' => 'foo']);
 
@@ -169,6 +186,26 @@ class CriteriaParserTest extends TestCase
                     'decimals' => 100,
                     'round' => true,
                     'multiplier' => 100.0,
+                ],
+            ],
+            $context,
+        ];
+
+        yield 'different currency cheapest price/list price percentage' => [
+            new FieldSorting('cheapestPrice.percentage', FieldSorting::ASCENDING),
+            [
+                'id' => 'cheapest_price_percentage',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyfoo_gross_percentage',
+                            'factor' => 1,
+                        ],
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                            'factor' => 1.0,
+                        ],
+                    ],
                 ],
             ],
             $context,
@@ -331,6 +368,49 @@ class CriteriaParserTest extends TestCase
                                             ],
                                         ],
                                     ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'range filter: cheapestPrice' => [
+            new RangeFilter('cheapestPrice', [RangeFilter::GTE => 10]),
+            [
+                'script' => [
+                    'script' => [
+                        'id' => 'cheapest_price_filter',
+                        'params' => [
+                            RangeFilter::GTE => 10,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                                    'factor' => 1,
+                                ],
+                            ],
+                            'decimals' => 100,
+                            'round' => true,
+                            'multiplier' => 100.0,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'range filter: cheapestPrice price/list price percentage' => [
+            new RangeFilter('cheapestPrice.percentage', [RangeFilter::GTE => 10]),
+            [
+                'script' => [
+                    'script' => [
+                        'id' => 'cheapest_price_percentage_filter',
+                        'params' => [
+                            RangeFilter::GTE => 10,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                                    'factor' => 1,
                                 ],
                             ],
                         ],

@@ -125,6 +125,16 @@ class CriteriaParser
             ]);
         }
 
+        if ($this->isCheapestPriceField($sorting->getField(), true)) {
+            return new FieldSort('_script', $sorting->getDirection(), [
+                'type' => 'number',
+                'script' => [
+                    'id' => 'cheapest_price_percentage',
+                    'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
+                ],
+            ]);
+        }
+
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
 
         if ($sorting instanceof CountSorting) {
@@ -353,6 +363,13 @@ class CriteriaParser
             ]);
         }
 
+        if ($this->isCheapestPriceField($aggregation->getField(), true)) {
+            return new Metric\StatsAggregation($aggregation->getName(), null, [
+                'id' => 'cheapest_price_percentage',
+                'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
+            ]);
+        }
+
         return new Metric\StatsAggregation($aggregation->getName(), $fieldName);
     }
 
@@ -423,7 +440,7 @@ class CriteriaParser
         return $context->getRounding()->roundForNet();
     }
 
-    private function getCheapestPriceAccessors(Context $context): array
+    private function getCheapestPriceAccessors(Context $context, bool $percentage = false): array
     {
         $accessors = [];
 
@@ -438,6 +455,11 @@ class CriteriaParser
                 'currency' . $context->getCurrencyId(),
                 $tax,
             ]);
+
+            if ($percentage) {
+                $key .= '_percentage';
+            }
+
             $accessors[] = ['key' => $key, 'factor' => 1];
 
             if ($context->getCurrencyId() === Defaults::CURRENCY) {
@@ -450,6 +472,10 @@ class CriteriaParser
                 'currency' . Defaults::CURRENCY,
                 $tax,
             ]);
+
+            if ($percentage) {
+                $key .= '_percentage';
+            }
 
             $accessors[] = ['key' => $key, 'factor' => $context->getCurrencyFactor()];
         }
@@ -573,15 +599,19 @@ class CriteriaParser
     private function parseRangeFilter(RangeFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
         if ($this->isCheapestPriceField($filter->getField())) {
-            $params = [];
-            foreach ($filter->getParameters() as $key => $value) {
-                $params[$key] = (float) $value;
-            }
-
             return new ScriptIdQuery('cheapest_price_filter', [
                 'params' => array_merge(
-                    $params,
+                    $this->getRangeParameters($filter),
                     $this->getCheapestPriceParameters($context)
+                ),
+            ]);
+        }
+
+        if ($this->isCheapestPriceField($filter->getField(), true)) {
+            return new ScriptIdQuery('cheapest_price_percentage_filter', [
+                'params' => array_merge(
+                    $this->getRangeParameters($filter),
+                    ['accessors' => $this->getCheapestPriceAccessors($context, true)]
                 ),
             ]);
         }
@@ -595,9 +625,25 @@ class CriteriaParser
         );
     }
 
-    private function isCheapestPriceField(string $field): bool
+    private function isCheapestPriceField(string $field, bool $percentage = false): bool
     {
-        return \in_array($field, ['product.cheapestPrice', 'cheapestPrice'], true);
+        if ($percentage) {
+            $haystack = ['product.cheapestPrice.percentage', 'cheapestPrice.percentage'];
+        } else {
+            $haystack = ['product.cheapestPrice', 'cheapestPrice'];
+        }
+
+        return \in_array($field, $haystack, true);
+    }
+
+    private function getRangeParameters(RangeFilter $filter): array
+    {
+        $params = [];
+        foreach ($filter->getParameters() as $key => $value) {
+            $params[$key] = (float) $value;
+        }
+
+        return $params;
     }
 
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface

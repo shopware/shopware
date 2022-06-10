@@ -9411,11 +9411,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Parser/SqlQueryParserTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilderTest\\:\\:maxApiLimitProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/RequestCriteriaBuilderTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 26
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php

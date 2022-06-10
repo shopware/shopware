@@ -27,6 +27,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RequestCriteriaBuilder
 {
+    private const TOTAL_COUNT_MODE_MAPPING = [
+        'none' => Criteria::TOTAL_COUNT_MODE_NONE,
+        'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,
+        'next-pages' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+    ];
+
     private ?int $maxLimit;
 
     private AggregationParser $aggregationParser;
@@ -84,6 +90,20 @@ class RequestCriteriaBuilder
         return $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
     }
 
+    public function addTotalCountMode(string $totalCountMode, Criteria $criteria): void
+    {
+        if (is_numeric($totalCountMode)) {
+            $criteria->setTotalCountMode((int) $totalCountMode);
+
+            // total count is out of bounds
+            if ($criteria->getTotalCountMode() > 2 || $criteria->getTotalCountMode() < 0) {
+                $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+            }
+        } else {
+            $criteria->setTotalCountMode(self::TOTAL_COUNT_MODE_MAPPING[$totalCountMode] ?? Criteria::TOTAL_COUNT_MODE_NONE);
+        }
+    }
+
     private function parse(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, ?int $maxLimit): Criteria
     {
         $searchException = new SearchRequestException();
@@ -99,7 +119,7 @@ class RequestCriteriaBuilder
             $criteria->setLimit(null);
         } else {
             if (isset($payload['total-count-mode'])) {
-                $criteria->setTotalCountMode((int) $payload['total-count-mode']);
+                $this->addTotalCountMode((string) $payload['total-count-mode'], $criteria);
             }
 
             if (isset($payload['limit'])) {

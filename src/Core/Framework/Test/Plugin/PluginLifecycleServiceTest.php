@@ -699,18 +699,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $context);
     }
 
-    private function dontRemoveMigrations(Context $context): void
-    {
-        $_SERVER['TEST_KEEP_MIGRATIONS'] = true;
-
-        $overAllCount = $this->getMigrationCount('');
-        $swagTestCount = $this->prepareRemoveMigrationTest($context);
-        static::assertSame(1, $swagTestCount);
-
-        $newOverAllCount = $this->getMigrationCount('');
-        static::assertSame($overAllCount + $swagTestCount, $newOverAllCount);
-    }
-
     private function removeMigrationsCannotRemoveShopwareMigrations(Context $context): void
     {
         $this->pluginService->refreshPlugins($context, new NullIO());
@@ -870,19 +858,5 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
-    }
-
-    private function prepareRemoveMigrationTest(Context $context): int
-    {
-        $plugin = $this->getPlugin($context);
-
-        $this->pluginLifecycleService->installPlugin($plugin, $context);
-
-        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
-        static::assertSame(1, $swagTestCount);
-
-        $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
-
-        return $this->getMigrationCount('SwagTest\\Migration\\');
     }
 }

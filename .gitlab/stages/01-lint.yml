@@ -97,7 +97,7 @@ Stylelint (Storefront):
         reports:
             junit: src/Storefront/Resources/app/storefront/stylelint.junit.xml
 
-PHP analysis:
+PHP static analysis:
     extends: .base-no-setup
     variables:
         GIT_DEPTH: 0
@@ -115,22 +115,38 @@ PHP analysis:
               - phpstan.neon.dist
               - composer.json
               - phpstan-baseline.neon
+              - '**/*.php'
+    before_script:
+        - composer update --no-interaction
+        - composer run init:db
+    script:
+        - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+    artifacts:
+        reports:
+            codequality: phpstan-report.json
+
+PHP lint:
+    extends: .base-no-setup
+    variables:
+        GIT_DEPTH: 0
+    stage: lint
+    image: shopware/development:7.4-composer-2
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+              - composer.json
               - .bc-exclude.php
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
               - '**/*.php'
     before_script:
-        - composer install --quiet --no-interaction
-        - composer run init:db
+        - composer update --no-interaction
     script:
         - composer run ecs -- src --no-progress-bar
-        - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
         - composer run lint:changelog
         - composer run lint:snippets
         - composer run bc-check
-    artifacts:
-        reports:
-            codequality: phpstan-report.json
 
 NPM CI:
     extends: .base-no-setup

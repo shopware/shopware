@@ -19,10 +19,7 @@ trait PromotionTestFixtureBehaviour
 {
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @param $value
-     */
-    public function createSetGroupFixture(string $packagerKey, $value, string $sorterKey, string $promotionId, ContainerInterface $container): string
+    public function createSetGroupFixture(string $packagerKey, int $value, string $sorterKey, string $promotionId, ContainerInterface $container): string
     {
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -86,10 +83,8 @@ trait PromotionTestFixtureBehaviour
 
     /**
      * Creates a new absolute promotion in the database.
-     *
-     * @return string
      */
-    private function createTestFixtureAbsolutePromotion(string $promotionId, string $code, float $value, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART)
+    private function createTestFixtureAbsolutePromotion(string $promotionId, string $code, float $value, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART): string
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
@@ -108,10 +103,8 @@ trait PromotionTestFixtureBehaviour
 
     /**
      * Creates a new percentage promotion in the database.
-     *
-     * @return string
      */
-    private function createTestFixturePercentagePromotion(string $promotionId, ?string $code, float $percentage, ?float $maxValue, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART)
+    private function createTestFixturePercentagePromotion(string $promotionId, ?string $code, float $percentage, ?float $maxValue, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART): string
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
@@ -130,10 +123,8 @@ trait PromotionTestFixtureBehaviour
 
     /**
      * Creates a new percentage promotion in the database.
-     *
-     * @return string
      */
-    private function createTestFixtureSetGroupPromotion(string $promotionId, ?string $code, ContainerInterface $container)
+    private function createTestFixtureSetGroupPromotion(string $promotionId, ?string $code, ContainerInterface $container): void
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
@@ -159,7 +150,7 @@ trait PromotionTestFixtureBehaviour
         string $applierKey = 'ALL',
         string $usageKey = 'ALL',
         string $pickerKey = 'VERTICAL'
-    ) {
+    ): string {
         $scope = PromotionDiscountEntity::SCOPE_SETGROUP . '-' . $groupIndex;
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

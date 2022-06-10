@@ -51,6 +51,8 @@ Component.register('sw-settings-custom-field-set-list', {
 
             const params = this.getMainListingParams();
 
+            criteria.limit = params.limit;
+            criteria.setPage(params.page);
             criteria.addFilter(Criteria.multi(
                 'OR',
                 [

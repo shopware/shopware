@@ -320,16 +320,8 @@
                 </template>
 
                 <template #actions="{ item, openTreeItem }">
-
                     {% block sw_tree_item_children_items_slot_actions %}
-                    <sw-vnode-renderer
-                        v-if="$scopedSlots.actions"
-                        :node="$scopedSlots.actions({ item, openTreeItem })"
-                    />
-                    <div
-                        v-else
-                        class="sw-tree-item__actions"
-                    >
+                    <div class="sw-tree-item__actions">
 
                         {% block sw_tree_items_transition_active_state %}
                         <sw-icon
@@ -340,8 +332,12 @@
                         />
                         {% endblock %}
 
-                        <slot
-                            name="actions"
+                        <sw-vnode-renderer
+                            v-if="$scopedSlots.actions"
+                            :node="$scopedSlots.actions({ item, openTreeItem })"
+                        />
+                        <template
+                            v-else
                             :item="item"
                             :openTreeItem="openTreeItem"
                             :addElement="addElement"
@@ -432,7 +428,7 @@
                                 </div>
                                 {% endblock %}
                             </sw-context-button>
-                        </slot>
+                        </template>
                     </div>
                     {% endblock %}
                 </template>

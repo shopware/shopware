@@ -14,7 +14,7 @@ class ApiAware extends Flag
     ];
 
     /**
-     * @var array[string]string
+     * @var array<string, string>
      */
     private $whitelist = [];
 

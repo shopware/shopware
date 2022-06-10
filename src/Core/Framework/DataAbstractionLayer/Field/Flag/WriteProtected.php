@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 class WriteProtected extends Flag
 {
     /**
-     * @var array[string]bool
+     * @var array<string, bool>
      */
     private $allowedScopes = [];
 

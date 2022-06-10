@@ -242,15 +242,67 @@ describe('src/app/component/form/sw-text-editor', () => {
         await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
         await wrapper.vm.$nextTick();
 
-        // eslint-disable-next-line max-len
-        const expectedValue = '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
+        const expectedValue =
+            '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
 
-        // check if link was insert right in content editor
+        // check if link was inserted correctly into content editor
         expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
         // check if content value was emitted right
         const emittedValue = wrapper.emitted().input[0];
         expect(emittedValue[0]).toEqual(expectedValue);
+    });
+
+    const buttonVariantsDataProvider = [{
+        buttonVariant: 'none',
+        resultClasses: '',
+    }, {
+        buttonVariant: 'primary',
+        resultClasses: 'btn btn-primary',
+    }, {
+        buttonVariant: 'secondary',
+        resultClasses: 'btn btn-secondary',
+    }, {
+        buttonVariant: 'primary-sm',
+        resultClasses: 'btn btn-primary btn-sm',
+    }, {
+        buttonVariant: 'secondary-sm',
+        resultClasses: 'btn btn-secondary btn-sm',
+    }];
+
+    buttonVariantsDataProvider.forEach(({ buttonVariant, resultClasses }) => {
+        it(`should always render correct links as correct button types (buttonVariant: ${buttonVariant})`, async () => {
+            wrapper = createWrapper();
+
+            // set initial content
+            const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+            await addTextToEditor(wrapper, '<p id="fooBarTest">foo-bar</p>');
+
+            // select content
+            const paragraph = document.getElementById('fooBarTest');
+            await addAndCheckSelection(wrapper, paragraph, 0, 7, 'foo-bar');
+
+            // prepare expected result
+            const displayAsButton = buttonVariant !== 'none';
+            const link = {
+                value: 'https://www.foo-bar.com',
+                target: '_blank',
+                classes: displayAsButton ? ` class="${resultClasses}"` : '',
+            };
+            const linkParameters = `target="${link.target}" href="${link.value}" rel="noopener"`;
+            const expectedValue = `<p id="fooBarTest"><a ${linkParameters}${link.classes}>foo-bar</a></p>`;
+
+            // generate link
+            wrapper.vm.onSetLink(link.value, link.target, displayAsButton, buttonVariant);
+            await wrapper.vm.$nextTick();
+
+            // check if link was inserted correctly into content editor
+            expect(contentEditor.element.innerHTML).toEqual(expectedValue);
+
+            // check if content value was emitted right
+            const emittedValue = wrapper.emitted().input[0];
+            expect(emittedValue[0]).toEqual(expectedValue);
+        });
     });
 
     it('should handle inserting inline mapping', async () => {

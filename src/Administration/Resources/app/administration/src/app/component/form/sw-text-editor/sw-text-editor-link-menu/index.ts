@@ -2,10 +2,12 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
 import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-text-editor-link-menu.html.twig';
+import './sw-text-editor-link-menu.scss';
 
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
+type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
 type LinkCategories = 'link' | 'detail' | 'category' | 'email' | 'phone';
 interface TextEditorLinkMenuConfig {
     title: string,
@@ -13,6 +15,7 @@ interface TextEditorLinkMenuConfig {
     expanded: boolean,
     newTab: boolean,
     displayAsButton: boolean,
+    buttonVariant: ButtonVariant,
     value: string,
     type: string,
     tag: 'a',
@@ -42,8 +45,10 @@ Component.register('sw-text-editor-link-menu', {
         isHTTPs: boolean,
         opensNewTab: boolean,
         displayAsButton: boolean,
+        buttonVariant: ButtonVariant,
         linkCategory: LinkCategories,
         categoryCollection?: EntityCollectionType,
+        buttonVariantList: Array<{ id: ButtonVariant, name: string }>
         } {
         return {
             linkTitle: '',
@@ -51,8 +56,22 @@ Component.register('sw-text-editor-link-menu', {
             isHTTPs: false,
             opensNewTab: false,
             displayAsButton: false,
+            buttonVariant: 'primary',
             linkCategory: 'link',
             categoryCollection: undefined,
+            buttonVariantList: [{
+                id: 'primary',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+            }, {
+                id: 'secondary',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+            }, {
+                id: 'primary-sm',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+            }, {
+                id: 'secondary-sm',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+            }],
         };
     },
 
@@ -76,10 +95,13 @@ Component.register('sw-text-editor-link-menu', {
     watch: {
         buttonConfig: {
             async handler(buttonConfig): Promise<void> {
-                const { title, newTab, displayAsButton, value, type } = buttonConfig as TextEditorLinkMenuConfig;
+                const {
+                    title, newTab, displayAsButton, buttonVariant, value, type,
+                } = buttonConfig as TextEditorLinkMenuConfig;
                 this.linkTitle = title;
                 this.opensNewTab = newTab;
                 this.displayAsButton = displayAsButton;
+                this.buttonVariant = buttonVariant;
 
                 const parsedResult = await this.parseLink(value, type);
                 this.linkCategory = parsedResult.type;
@@ -198,7 +220,8 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('button-click', {
                 type: 'link',
                 value: this.prepareLink(),
-                displayAsButton: this.displayAsButton ? 'primary' : false,
+                displayAsButton: this.displayAsButton,
+                buttonVariant: this.buttonVariant,
                 newTab: this.opensNewTab,
             });
         },

@@ -606,26 +606,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
 			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/LineItem/Group/ProductLineItemProviderTest.php
@@ -791,47 +771,7 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeResultStatement.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionAbsoluteCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionAbsoluteCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionAbsoluteCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
 
@@ -846,57 +786,7 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^Cannot call method getCalculatedTaxes\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
 			message: "#^Cannot call method getTax\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
 
@@ -904,26 +794,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:\\$context has no type specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionSetGroupCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionSetGroupCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionSetGroupCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DataAbstractionLayer\\\\Indexer\\\\PromotionExclusionIndexerTest\\:\\:\\$connection is never read, only written\\.$#"
@@ -936,114 +806,14 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DeliveryPromotionCalculationTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DeliveryPromotionCalculationTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DeliveryPromotionCalculationTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionCartEventTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionCartEventTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionCartEventTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 4
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionDiscountCompositionTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionDiscountCompositionTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionDiscountCompositionTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
 
 		-
 			message: "#^Cannot call method getLabel\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
 			count: 3
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionExtensionCodesTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionExtensionCodesTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionExtensionCodesTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionHandlingTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionHandlingTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionHandlingTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
 
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null\\.$#"
@@ -1084,26 +854,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Checkout/Test/Cart/SalesChannel/CartDeleteRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartItemAddRouteTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartItemAddRouteTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartItemAddRouteTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -1851,26 +1601,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 16
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
@@ -2001,49 +1731,9 @@ parameters:
 			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:\\$customerRepository is unused\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:\\$customerRepository is never read, only written\\.$#"
@@ -2061,32 +1751,12 @@ parameters:
 			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:testGetCodePreview\\(\\) has parameter \\$codePattern with no type specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:testGetCodePreview\\(\\) has parameter \\$expectedRegex with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
@@ -8266,26 +7936,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 14
 			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
@@ -12358,26 +12008,6 @@ parameters:
 			message: "#^Cannot access offset 'message' on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1647443222AllowLongLogEntryMessagesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createSetGroupDiscount\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createSetGroupFixture\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createTestFixtureSetGroupPromotion\\(\\) should return string but return statement is missing\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
-
-		-
-			message: "#^PHPDoc tag @param has invalid value \\(\\$value\\)\\: Unexpected token \"\\$value\", expected type at offset 18$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"

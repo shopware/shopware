@@ -13,7 +13,7 @@ class ReadProtection extends EntityProtection
     public const PROTECTION = 'read_protection';
 
     /**
-     * @var array[string]bool
+     * @var array<string, bool>
      */
     private $allowedScopes = [];
 

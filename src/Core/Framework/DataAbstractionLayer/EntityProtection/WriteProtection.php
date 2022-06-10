@@ -7,7 +7,7 @@ class WriteProtection extends EntityProtection
     public const PROTECTION = 'write_protection';
 
     /**
-     * @var array[string]bool
+     * @var array<string, bool>
      */
     private $allowedScopes = [];
 

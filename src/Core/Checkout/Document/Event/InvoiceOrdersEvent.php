@@ -2,6 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
-class InvoiceOrdersEvent extends DocumentOrderEvent
+final class InvoiceOrdersEvent extends DocumentOrderEvent
 {
 }

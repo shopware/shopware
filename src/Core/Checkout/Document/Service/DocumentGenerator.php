@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-class DocumentGenerator
+final class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;
 

@@ -190,9 +190,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
     it('should call download documents with error', async () => {
         wrapper.vm.createNotificationError = jest.fn();
-        wrapper.vm.orderDocumentApiService.download = jest.fn().mockImplementation(() => Promise.reject({
-            message: 'error'
-        }));
+        wrapper.vm.orderDocumentApiService.download = jest.fn().mockImplementation(() => Promise.reject(new Error('error occured')));
 
         await wrapper.setData({
             latestDocuments: {

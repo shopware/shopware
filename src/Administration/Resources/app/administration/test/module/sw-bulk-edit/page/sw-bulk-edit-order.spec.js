@@ -387,7 +387,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
         wrapper.vm.onCustomFieldsChange.mockRestore();
-        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName')
+        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
     });
 
     it('should call onChangeDocument when a document field changed is changed', async () => {

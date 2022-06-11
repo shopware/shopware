@@ -1,9 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note';
 
 function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-order-documents-generate-invoice'), {
+    return shallowMount(Shopware.Component.build('sw-bulk-edit-order-documents-generate-credit-note'), {
         stubs: {
             'sw-datepicker': true,
             'sw-textarea-field': true,
@@ -11,7 +12,7 @@ function createWrapper() {
     });
 }
 
-describe('sw-bulk-edit-order-documents-generate-invoice', () => {
+describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
     let wrapper;
 
     beforeAll(() => {
@@ -36,7 +37,7 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
         }));
 
         Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
-            type: 'invoice',
+            type: 'credit_note',
             value: {
                 documentDate: 'documentDate',
                 documentComment: 'documentComment',

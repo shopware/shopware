@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 
-class DocumentMerger
+final class DocumentMerger
 {
     private EntityRepositoryInterface $documentRepository;
 

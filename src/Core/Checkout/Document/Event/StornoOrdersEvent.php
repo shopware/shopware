@@ -2,6 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
-class StornoOrdersEvent extends DocumentOrderEvent
+final class StornoOrdersEvent extends DocumentOrderEvent
 {
 }

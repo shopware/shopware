@@ -64,7 +64,7 @@ Component.register('sw-bulk-edit-save-modal-success', {
                 return [];
             }
 
-            if (!this.downloadOrderDocuments.value.length) {
+            if (this.downloadOrderDocuments.value.length <= 0) {
                 return [];
             }
 
@@ -109,7 +109,7 @@ Component.register('sw-bulk-edit-save-modal-success', {
         },
 
         async getLatestDocuments() {
-            if (this.selectedDocumentTypes.length === 0) {
+            if (this.selectedDocumentTypes.length <= 0) {
                 return;
             }
 

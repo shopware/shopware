@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed
+ * @deprecated tag:v6.5.0 - Will be removed - please extends AbstractDocumentRenderer instead
  */
 interface DocumentGeneratorInterface
 {

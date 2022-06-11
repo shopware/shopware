@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Document\Service;
 
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
-use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -29,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @group slow
+ *
  * @internal
  */
 class DocumentMergerTest extends TestCase
@@ -127,36 +127,6 @@ class DocumentMergerTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $mergeResult);
         static::assertEquals($mergeResult->getContent(), $expectedBlob);
-    }
-
-    public function testMergeWithoutStaticMedia(): void
-    {
-        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
-        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentGenerationResult());
-
-        $documentMerger = new DocumentMerger(
-            $this->documentRepository,
-            $this->getContainer()->get(MediaService::class),
-            $mockGenerator,
-            $this->getContainer()->get('pdf.merger'),
-        );
-
-        $documentId = Uuid::randomHex();
-
-        $this->documentRepository->create([[
-            'id' => $documentId,
-            'documentTypeId' => $this->documentTypeId,
-            'fileType' => FileTypes::PDF,
-            'orderId' => $this->orderId,
-            'static' => false,
-            'documentMediaFileId' => null,
-            'config' => [],
-            'deepLinkCode' => Random::getAlphanumericString(32),
-        ]], $this->context);
-
-        $mergeResult = $documentMerger->merge([$documentId], $this->context);
-
-        static::assertNull($mergeResult);
     }
 
     /**

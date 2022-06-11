@@ -119,7 +119,7 @@ Component.register('sw-bulk-edit-save-modal-process', {
         },
 
         async createDocuments() {
-            if (!this.createDocumentPayload.length) {
+            if (this.createDocumentPayload.length <= 0) {
                 return;
             }
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document\Struct;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Struct\Struct;
 
-class DocumentGenerateOperation extends Struct
+final class DocumentGenerateOperation extends Struct
 {
     protected string $orderId;
 

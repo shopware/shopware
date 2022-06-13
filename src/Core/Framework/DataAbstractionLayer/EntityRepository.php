@@ -25,6 +25,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - will be final from 6.5.0
+ * @final
+ */
 class EntityRepository implements EntityRepositoryInterface
 {
     private EntityReaderInterface $reader;
@@ -165,7 +169,10 @@ class EntityRepository implements EntityRepositoryInterface
 
         if ($affected->getWritten()) {
             $updates = EntityWrittenContainerEvent::createWithWrittenEvents($affected->getWritten(), $context, []);
-            $event->addEvent(...$updates->getEvents());
+
+            if ($updates->getEvents() !== null) {
+                $event->addEvent(...$updates->getEvents());
+            }
         }
 
         $this->eventDispatcher->dispatch($event);
@@ -206,7 +213,7 @@ class EntityRepository implements EntityRepositoryInterface
             $behavior ?? new CloneBehavior()
         );
 
-        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, [], true);
         $this->eventDispatcher->dispatch($event);
 
         return $event;

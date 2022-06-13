@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -17,6 +16,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -84,7 +84,12 @@ class ThumbnailService
         }
 
         if (!empty($delete)) {
-            $context->addState(MediaThumbnailRepositoryDecorator::SYNCHRONE_FILE_DELETE);
+            $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+
+            $delete = \array_map(function (string $id) {
+                return ['id' => $id];
+            }, $delete);
+
             $this->thumbnailRepository->delete($delete, $context);
         }
 
@@ -195,6 +200,13 @@ class ThumbnailService
 
         $strict = \func_get_args()[2] ?? false;
 
+        if ($config->getMediaThumbnailSizes() === null) {
+            return 0;
+        }
+        if ($media->getThumbnails() === null) {
+            return 0;
+        }
+
         $toBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
@@ -216,7 +228,11 @@ class ThumbnailService
             }
         }
 
-        $this->thumbnailRepository->delete($toBeDeletedThumbnails->getIds(), $context);
+        $delete = \array_map(static function (string $id) {
+            return ['id' => $id];
+        }, $toBeDeletedThumbnails->getIds());
+
+        $this->thumbnailRepository->delete($delete, $context);
 
         $update = $this->createThumbnailsForSizes($media, $config, $toBeCreatedSizes);
 
@@ -255,15 +271,15 @@ class ThumbnailService
 
         $savedThumbnails = [];
 
+        $type = $media->getMediaType();
+        if ($type === null) {
+            throw new \RuntimeException(\sprintf('Media type, for id %s, not loaded', $media->getId()));
+        }
+
         try {
             foreach ($thumbnailSizes as $size) {
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size, $config);
-                $thumbnail = $this->createNewImage(
-                    $mediaImage,
-                    $media->getMediaType(),
-                    $originalImageSize,
-                    $thumbnailSize
-                );
+                $thumbnail = $this->createNewImage($mediaImage, $type, $originalImageSize, $thumbnailSize);
 
                 $url = $this->urlGenerator->getRelativeThumbnailUrl(
                     $media,
@@ -274,7 +290,7 @@ class ThumbnailService
                 $mediaFilesystem = $this->getFileSystem($media);
                 if ($originalImageSize === $thumbnailSize
                     && $mediaFilesystem->getSize($originalUrl) < $mediaFilesystem->getSize($url)) {
-                    $mediaFilesystem->update($url, $mediaFilesystem->read($originalUrl));
+                    $mediaFilesystem->update($url, (string) $mediaFilesystem->read($originalUrl));
                 }
 
                 $savedThumbnails[] = [
@@ -433,6 +449,10 @@ class ThumbnailService
     {
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
+        if ($thumbnail === false) {
+            throw new \RuntimeException('Can not create image handle');
+        }
+
         if (!$type->is(ImageType::TRANSPARENT)) {
             $colorWhite = (int) imagecolorallocate($thumbnail, 255, 255, 255);
             imagefill($thumbnail, 0, 0, $colorWhite);
@@ -491,7 +511,7 @@ class ThumbnailService
         $imageFile = ob_get_contents();
         ob_end_clean();
 
-        if ($this->getFileSystem($media)->put($url, $imageFile) === false) {
+        if ($this->getFileSystem($media)->put($url, (string) $imageFile) === false) {
             throw new ThumbnailCouldNotBeSavedException($url);
         }
     }
@@ -525,8 +545,17 @@ class ThumbnailService
 
     private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void
     {
-        $associatedThumbnails = $media->getThumbnails()->getIds();
-        $this->thumbnailRepository->delete($associatedThumbnails, $context);
+        if (!$media->getThumbnails()) {
+            throw new \RuntimeException('Media contains no thumbnails');
+        }
+
+        $delete = $media->getThumbnails()->getIds();
+
+        $delete = \array_map(static function (string $id) {
+            return ['id' => $id];
+        }, $delete);
+
+        $this->thumbnailRepository->delete($delete, $context);
     }
 
     private function getFileSystem(MediaEntity $media): FilesystemInterface

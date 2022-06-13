@@ -195,28 +195,6 @@ class PaymentMethodRepositoryTest extends TestCase
         static::assertCount(1, $resultSet);
     }
 
-    public function testPluginPaymentMethodCanBeDeletedWithInternalDelete(): void
-    {
-        $defaultContext = Context::createDefaultContext();
-        $paymentMethod = $this->createPaymentMethodDummyArray();
-        $paymentMethod[0]['pluginId'] = $this->addPlugin($defaultContext);
-
-        $this->paymentRepository->create($paymentMethod, $defaultContext);
-
-        $primaryKey = [
-            'id' => $this->paymentMethodId,
-        ];
-
-        $this->paymentRepository->internalDelete([$primaryKey], $defaultContext);
-
-        $criteria = new Criteria([$this->paymentMethodId]);
-
-        /** @var PaymentMethodCollection $resultSet */
-        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
-
-        static::assertCount(0, $resultSet);
-    }
-
     public function testDefaultHandlerWrittenAtCreateIfNoHandlerIdentifierGiven(): void
     {
         $defaultContext = Context::createDefaultContext();
@@ -298,8 +276,8 @@ class PaymentMethodRepositoryTest extends TestCase
         $pluginRepo->create([[
             'id' => $pluginId,
             'label' => 'testPlugin',
-            'name' => 'testPluginName',
-            'baseClass' => 'TestPlugin\\TestPlugin',
+            'name' => Uuid::randomHex(),
+            'baseClass' => Uuid::randomHex(),
             'version' => 'version',
             'autoload' => [],
         ]], $context);

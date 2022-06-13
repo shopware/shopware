@@ -2,12 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
-use League\Flysystem\AdapterInterface;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
-use Shopware\Core\Content\Media\Message\DeleteFileHandler;
-use Shopware\Core\Content\Media\Message\DeleteFileMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,51 +10,43 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
+ */
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
-    public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private EventDispatcherInterface $eventDispatcher;
+    /**
+     * @deprecated tag:v6.5.0 - Use \Shopware\Core\Content\Media\DataAbstractionLayer\MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE instead
+     */
+    public const SYNCHRONE_FILE_DELETE = MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE;
 
     private EntityRepositoryInterface $innerRepo;
-
-    private MessageBusInterface $messageBus;
-
-    private DeleteFileHandler $deleteFileHandler;
 
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepositoryInterface $innerRepo,
-        EventDispatcherInterface $eventDispatcher,
-        UrlGeneratorInterface $urlGenerator,
-        MessageBusInterface $messageBus,
-        DeleteFileHandler $deleteFileHandler
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->urlGenerator = $urlGenerator;
+    public function __construct(EntityRepositoryInterface $innerRepo)
+    {
         $this->innerRepo = $innerRepo;
-        $this->messageBus = $messageBus;
-        $this->deleteFileHandler = $deleteFileHandler;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $thumbnails = $this->getThumbnailsByIds($ids, $context);
+        $mapped = [];
+        foreach ($ids as $id) {
+            if (!\is_array($id)) {
+                $id = ['id' => $id];
+                Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Thumbnail repository is called with flat ids array. This format is no longer supported with v6.5.0.0');
+            }
+            $mapped[] = $id;
+        }
 
-        return $this->deleteFromCollection($thumbnails, $context);
+        return $this->innerRepo->delete($mapped, $context);
     }
-
-    // Unchanged methods
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
@@ -109,77 +96,5 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
     public function getDefinition(): EntityDefinition
     {
         return $this->innerRepo->getDefinition();
-    }
-
-    private function getThumbnailsByIds(array $ids, Context $context): MediaThumbnailCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addAssociation('media');
-        $criteria->addFilter(new EqualsAnyFilter('media_thumbnail.id', $ids));
-
-        $thumbnailsSearch = $this->search($criteria, $context);
-
-        /** @var MediaThumbnailCollection $thumbnails */
-        $thumbnails = $thumbnailsSearch->getEntities();
-
-        return $thumbnails;
-    }
-
-    private function deleteFromCollection(MediaThumbnailCollection $thumbnails, Context $context): EntityWrittenContainerEvent
-    {
-        if ($thumbnails->count() === 0) {
-            $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);
-            $this->eventDispatcher->dispatch($event);
-
-            return $event;
-        }
-
-        $thumbnailIds = [];
-        $privatePaths = [];
-        $publicPaths = [];
-
-        foreach ($thumbnails as $thumbnail) {
-            $thumbnailIds[] = [
-                'id' => $thumbnail->getId(),
-                'mediaId' => $thumbnail->getMediaId(),
-            ];
-
-            if ($thumbnail->getMedia() === null) {
-                continue;
-            }
-
-            if ($thumbnail->getMedia()->isPrivate()) {
-                $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
-            } else {
-                $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
-            }
-        }
-
-        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
-        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
-
-        $delete = $this->innerRepo->delete($thumbnailIds, $context);
-
-        $event = new MediaThumbnailDeletedEvent($thumbnails, $context);
-        $this->eventDispatcher->dispatch($event, $event::EVENT_NAME);
-
-        return $delete;
-    }
-
-    private function performFileDelete(Context $context, array $paths, string $visibility): void
-    {
-        if (\count($paths) <= 0) {
-            return;
-        }
-
-        $deleteMsg = new DeleteFileMessage();
-        $deleteMsg->setFiles($paths);
-        $deleteMsg->setVisibility($visibility);
-
-        if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
-            $this->deleteFileHandler->handle($deleteMsg);
-        } else {
-            $this->messageBus->dispatch($deleteMsg);
-        }
     }
 }

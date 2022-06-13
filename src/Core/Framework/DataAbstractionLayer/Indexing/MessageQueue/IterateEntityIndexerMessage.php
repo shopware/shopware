@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
 /**
  * @package core
  */
-class IterateEntityIndexerMessage
+class IterateEntityIndexerMessage implements AsyncMessageInterface
 {
     /**
      * @var string

@@ -1,0 +1,33 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\MessageQueue\Subscriber;
+
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\TaskRegistry;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
+final class UpdatePostFinishSubscriber implements EventSubscriberInterface
+{
+    private TaskRegistry $registry;
+
+    public function __construct(TaskRegistry $taskRegistry)
+    {
+        $this->registry = $taskRegistry;
+    }
+
+    /**
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [UpdatePostFinishEvent::class => 'updatePostFinishEvent'];
+    }
+
+    public function updatePostFinishEvent(): void
+    {
+        $this->registry->registerTasks();
+    }
+}

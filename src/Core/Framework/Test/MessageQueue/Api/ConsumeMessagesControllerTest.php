@@ -8,8 +8,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,7 +44,7 @@ class ConsumeMessagesControllerTest extends TestCase
             [
                 'id' => $taskId,
                 'name' => 'test',
-                'scheduledTaskClass' => RequeueDeadMessagesTask::class,
+                'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
@@ -58,10 +58,10 @@ class ConsumeMessagesControllerTest extends TestCase
         // consume the queued task
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'v65']);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
         $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertSame(200, $client->getResponse()->getStatusCode(), \print_r($response, true));
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
         static::assertEquals(1, $response['handledMessages']);
@@ -81,7 +81,7 @@ class ConsumeMessagesControllerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'v65']);
 
         $entries = $this->gateway->list('message_queue_stats');
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageCollection;
 
 /**
  * @package core
@@ -32,11 +31,6 @@ class ScheduledTaskEntity extends Entity
      * @var string
      */
     protected $status;
-
-    /**
-     * @var DeadMessageCollection|null
-     */
-    protected $deadMessages;
 
     /**
      * @var \DateTimeInterface|null
@@ -94,16 +88,6 @@ class ScheduledTaskEntity extends Entity
     public function setStatus(string $status): void
     {
         $this->status = $status;
-    }
-
-    public function getDeadMessages(): ?DeadMessageCollection
-    {
-        return $this->deadMessages;
-    }
-
-    public function setDeadMessages(DeadMessageCollection $deadMessages): void
-    {
-        $this->deadMessages = $deadMessages;
     }
 
     public function getLastExecutionTime(): ?\DateTimeInterface

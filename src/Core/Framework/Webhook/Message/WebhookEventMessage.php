@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook\Message;
 
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
 /**
  * @package core
  */
-class WebhookEventMessage
+class WebhookEventMessage implements AsyncMessageInterface
 {
     private array $payload;
 

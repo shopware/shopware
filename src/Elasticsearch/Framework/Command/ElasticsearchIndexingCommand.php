@@ -62,7 +62,7 @@ class ElasticsearchIndexingCommand extends Command
             $step = \count($message->getData()->getIds());
 
             if ($input->getOption('no-queue')) {
-                $this->indexer->handle($message);
+                $this->indexer->__invoke($message);
 
                 $progressBar->advance($step);
 

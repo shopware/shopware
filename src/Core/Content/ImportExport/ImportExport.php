@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -121,7 +120,7 @@ class ImportExport
 
         $resource = $this->filesystem->readStream($path);
         $config = Config::fromLog($this->logEntity);
-        $overallResults = new ArrayCollection($this->logEntity->getResult());
+        $overallResults = $this->logEntity->getResult();
 
         $this->eventDispatcher->addListener(WriteCommandExceptionEvent::class, [$this, 'onWriteException']);
 
@@ -201,11 +200,7 @@ class ImportExport
 
             $this->importExportService->saveProgress($progress);
 
-            $this->logResults(
-                $overallResults,
-                $result,
-                $this->repository->getDefinition()->getEntityName()
-            );
+            $overallResults = $this->logResults($overallResults, $result, $this->repository->getDefinition()->getEntityName());
 
             ++$processed;
             if ($this->importLimit > 0 && $processed >= $this->importLimit) {
@@ -238,7 +233,7 @@ class ImportExport
             $progress->setState($invalidRecordsProgress === null ? Progress::STATE_SUCCEEDED : Progress::STATE_FAILED);
         }
 
-        $this->importExportService->saveProgress($progress, $overallResults->toArray());
+        $this->importExportService->saveProgress($progress, $overallResults);
 
         return $progress;
     }
@@ -545,14 +540,11 @@ class ImportExport
         }
     }
 
-    /**
-     * @param ArrayCollection<int|string, array> $overallResults
-     */
     private function logResults(
-        ArrayCollection $overallResults,
+        array $overallResults,
         ?EntityWrittenContainerEvent $result,
         string $entityName
-    ): void {
+    ): array {
         $defaultTemplate = [
             sprintf('%sSkip', EntityWriteResult::OPERATION_INSERT) => 0,
             sprintf('%sSkip', EntityWriteResult::OPERATION_UPDATE) => 0,
@@ -564,11 +556,11 @@ class ImportExport
         ];
 
         if (!$result && !$this->failedWriteCommands) {
-            $entityResult = $overallResults->get($entityName) ?? $defaultTemplate;
+            $entityResult = $overallResults[$entityName] ?? $defaultTemplate;
             ++$entityResult['otherError'];
-            $overallResults->set($entityName, $entityResult);
+            $overallResults[$entityName] = $entityResult;
 
-            return;
+            return $overallResults;
         }
 
         if (!$result && $this->failedWriteCommands) {
@@ -578,20 +570,20 @@ class ImportExport
                 }
 
                 $entityName = $writeCommand->getDefinition()->getEntityName();
-                $entityResult = $overallResults->get($entityName) ?? $defaultTemplate;
+                $entityResult = $overallResults[$entityName] ?? $defaultTemplate;
                 $operation = $writeCommand->getEntityExistence()->exists()
                     ? EntityWriteResult::OPERATION_UPDATE
                     : EntityWriteResult::OPERATION_INSERT;
                 $type = $writeCommand->isFailed() ? 'Error' : 'Skip';
                 ++$entityResult[sprintf('%s%s', $operation, $type)];
-                $overallResults->set($entityName, $entityResult);
+                $overallResults[$entityName] = $entityResult;
             }
 
-            return;
+            return $overallResults;
         }
 
         if (!$result || !$result->getEvents()) {
-            return;
+            return $overallResults;
         }
 
         foreach ($result->getEvents() as $event) {
@@ -600,10 +592,11 @@ class ImportExport
             }
 
             foreach ($event->getWriteResults() as $writeResult) {
-                $entityResult = $overallResults->get($writeResult->getEntityName()) ?? $defaultTemplate;
+                $entityResult = $overallResults[$writeResult->getEntityName()] ?? $defaultTemplate;
                 ++$entityResult[$writeResult->getOperation()];
-                $overallResults->set($writeResult->getEntityName(), $entityResult);
+                $overallResults[$writeResult->getEntityName()] = $entityResult;
             }
         }
+        return $overallResults;
     }
 }

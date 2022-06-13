@@ -12,10 +12,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @package core
- *
- * @deprecated tag:v6.5.0 - reason:becomes-final - will be final starting with v6.5.0.0 and won't extend ScheduledTaskHandler anymore
  */
-class CacheInvalidator extends ScheduledTaskHandler
+final class CacheInvalidator
 {
     private const CACHE_KEY = 'invalidation';
 
@@ -43,49 +41,12 @@ class CacheInvalidator extends ScheduledTaskHandler
         array $adapters,
         TagAwareAdapterInterface $cache,
         EventDispatcherInterface $dispatcher,
-        EntityRepository $scheduledTaskRepository
     ) {
-        parent::__construct($scheduledTaskRepository);
         $this->dispatcher = $dispatcher;
         $this->adapters = $adapters;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->cache = $cache;
         $this->delay = $delay;
         $this->count = $count;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed use InvalidateCacheTaskHandler instead
-     *
-     * @return iterable<string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed use InvalidateCacheTaskHandler instead
-     */
-    public function run(): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', InvalidateCacheTaskHandler::class)
-        );
-
-        try {
-            if ($this->delay <= 0) {
-                $this->invalidateExpired(null);
-
-                return;
-            }
-
-            $time = new \DateTime();
-            $time->modify(sprintf('-%s second', $this->delay));
-            $this->invalidateExpired($time);
-        } catch (\Throwable $e) {
-        }
     }
 
     /**

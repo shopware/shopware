@@ -7,4 +7,5 @@ namespace Shopware\Core\Framework\Api\Context;
  */
 class SystemSource implements ContextSource
 {
+    public string $type = 'system';
 }

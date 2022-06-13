@@ -2,31 +2,24 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
 
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
  * @internal
  */
-final class DummyHandler extends AbstractMessageHandler
+final class DummyHandler implements MessageHandlerInterface
 {
     private object $lastMessage;
 
     private ?\Throwable $exceptionToThrow = null;
 
-    public function handle($message): void
+    public function __invoke(FooMessage $message): void
     {
         $this->lastMessage = $message;
 
         if ($this->exceptionToThrow) {
             throw $this->exceptionToThrow;
         }
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            TestMessage::class,
-        ];
     }
 
     public function getLastMessage(): object

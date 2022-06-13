@@ -129,6 +129,10 @@
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
         </service>
 
+        <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Content\Test\Category\Service\CountingEntityReader" decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
             <argument type="service" id="Shopware\Core\Content\Test\Category\Service\CountingEntityReader.inner"/>
         </service>

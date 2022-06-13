@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -22,9 +23,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
+ * @internal
  */
-class SitemapGenerateTaskHandler extends ScheduledTaskHandler
+final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     private EntityRepository $salesChannelRepository;
 
@@ -61,6 +62,31 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         $this->systemConfigService = $systemConfigService;
         $this->messageBus = $messageBus;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @param SitemapGenerateTask|SitemapMessage $message
+     *
+     * @throws \Throwable
+     */
+    public function __invoke(ScheduledTask $message): void
+    {
+        $sitemapRefreshStrategy = $this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy');
+        if ($sitemapRefreshStrategy !== SitemapExporterInterface::STRATEGY_SCHEDULED_TASK) {
+            return;
+        }
+
+        if ($message instanceof SitemapMessage) {
+            $this->generate($message);
+
+            return;
+        }
+
+        if ($message instanceof SitemapGenerateTask) {
+            parent::__invoke($message);
+
+            return;
+        }
     }
 
     public static function getHandledMessages(): iterable
@@ -106,31 +132,6 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             foreach ($languageIds as $languageId) {
                 $this->messageBus->dispatch(new SitemapMessage($salesChannel->getId(), $languageId, null, null, false));
             }
-        }
-    }
-
-    /**
-     * @param SitemapGenerateTask|SitemapMessage $message
-     *
-     * @throws \Throwable
-     */
-    public function handle($message): void
-    {
-        $sitemapRefreshStrategy = $this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy');
-        if ($sitemapRefreshStrategy !== SitemapExporterInterface::STRATEGY_SCHEDULED_TASK) {
-            return;
-        }
-
-        if ($message instanceof SitemapMessage) {
-            $this->generate($message);
-
-            return;
-        }
-
-        if ($message instanceof SitemapGenerateTask) {
-            parent::handle($message);
-
-            return;
         }
     }
 

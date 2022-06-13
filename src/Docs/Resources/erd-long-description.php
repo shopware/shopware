@@ -129,8 +129,6 @@ use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventAct
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Log\LogEntryDefinition;
-use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
-use Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
@@ -221,14 +219,6 @@ EOD
     ,
     EventActionDefinition::class => <<<'EOD'
 Configuration for specific custom event handling (e.g. send a mail).
-EOD
-    ,
-    DeadMessageDefinition::class => <<<'EOD'
-Failing messages in the queue. Re-queued with an ever-increasing threshold.
-EOD
-    ,
-    MessageQueueStatsDefinition::class => <<<'EOD'
-The number of tasks currently in the queue.
 EOD
     ,
     PluginDefinition::class => <<<'EOD'

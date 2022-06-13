@@ -37,7 +37,7 @@ class DeleteFileHandlerTest extends TestCase
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));
@@ -57,7 +57,7 @@ class DeleteFileHandlerTest extends TestCase
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2, $file3]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));

@@ -215,8 +215,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ->withConsecutive(...$consecutiveUpdateMessageParams)
             ->willReturn(1);
 
-        $handler->handle($generateMessage);
-        $handler->handle($updateMessage1);
-        $handler->handle($updateMessage2);
+        $handler->__invoke($generateMessage);
+        $handler->__invoke($updateMessage1);
+        $handler->__invoke($updateMessage2);
     }
 }

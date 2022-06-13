@@ -13,7 +13,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - MessageHandler will be internal and final starting with v6.5.0.0
  */
-class LogCleanupTaskHandler extends ScheduledTaskHandler
+final class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @var SystemConfigService

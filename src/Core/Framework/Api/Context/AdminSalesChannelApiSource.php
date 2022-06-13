@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Context;
  */
 class AdminSalesChannelApiSource extends SalesChannelApiSource
 {
+    public string $type = 'admin-sales-channel-api';
+
     /**
      * @var Context
      */

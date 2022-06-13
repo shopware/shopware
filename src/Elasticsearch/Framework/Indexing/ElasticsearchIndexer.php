@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -26,6 +25,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -33,7 +33,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will only implement MessageHandlerInterface and all MessageHandler will be internal and final starting with v6.5.0.0
  */
-class ElasticsearchIndexer extends AbstractMessageHandler
+final class ElasticsearchIndexer implements MessageHandlerInterface
 {
     private Connection $connection;
 
@@ -88,6 +88,67 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->eventDispatcher = $eventDispatcher;
         $this->indexingBatchSize = $indexingBatchSize;
         $this->bus = $bus;
+    }
+
+    public function __invoke(ElasticsearchIndexingMessage $message): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        $task = $message->getData();
+
+        $ids = $task->getIds();
+
+        $index = $task->getIndex();
+
+        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
+            'idCount' => \count($ids),
+            'index' => $index,
+        ]);
+
+        if (!$this->client->indices()->exists(['index' => $index])) {
+            return;
+        }
+
+        $entity = $task->getEntity();
+
+        $definition = $this->registry->get($entity);
+
+        $context = $message->getContext();
+
+        $context->addExtension('currencies', $this->getCurrencies());
+
+        if (!$definition) {
+            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
+        }
+
+        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
+
+        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
+
+        $documents = [];
+        foreach ($data as $id => $document) {
+            $documents[] = ['index' => ['_id' => $id]];
+            $documents[] = $document;
+        }
+
+        foreach ($toRemove as $id) {
+            $documents[] = ['delete' => ['_id' => $id]];
+        }
+
+        $arguments = [
+            'index' => $index,
+            'body' => $documents,
+        ];
+
+        $result = $this->client->bulk($arguments);
+
+        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
+            $errors = $this->parseErrors($result);
+
+            throw new ElasticsearchIndexingException($errors);
+        }
     }
 
     /**
@@ -153,30 +214,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
-            $this->handle($message);
+            $this->__invoke($message);
         }
-    }
-
-    /**
-     * @param object|ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
-     */
-    public function handle($message): void
-    {
-        if (!$message instanceof ElasticsearchIndexingMessage && !$message instanceof ElasticsearchLanguageIndexIteratorMessage) {
-            return;
-        }
-
-        if (!$this->helper->allowIndexing()) {
-            return;
-        }
-
-        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
-            $this->handleLanguageIndexIteratorMessage($message);
-
-            return;
-        }
-
-        $this->handleIndexingMessage($message);
     }
 
     public static function getHandledMessages(): iterable

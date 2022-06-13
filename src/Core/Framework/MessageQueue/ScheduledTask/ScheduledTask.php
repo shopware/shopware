@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @package core
  */
-abstract class ScheduledTask
+abstract class ScheduledTask implements AsyncMessageInterface
 {
     protected ?string $taskId = null;
 

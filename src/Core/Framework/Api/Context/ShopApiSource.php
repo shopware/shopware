@@ -7,4 +7,5 @@ namespace Shopware\Core\Framework\Api\Context;
  */
 class ShopApiSource extends SalesChannelApiSource
 {
+    public string $type = 'shop-api';
 }

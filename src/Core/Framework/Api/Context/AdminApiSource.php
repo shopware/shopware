@@ -7,6 +7,8 @@ namespace Shopware\Core\Framework\Api\Context;
  */
 class AdminApiSource implements ContextSource
 {
+    public string $type = 'admin-api';
+
     /**
      * @var string|null
      */

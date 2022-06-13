@@ -8,16 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEn
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - EntityIndexerRegistry will not implement EventSubscriberInterface anymore, it will also become final and internal in v6.5.0
  */
-class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
+class EntityIndexerRegistry implements EventSubscriberInterface, MessageSubscriberInterface
 {
     public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
 
@@ -55,6 +55,32 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     }
 
     /**
+     * @param EntityIndexingMessage|IterateEntityIndexerMessage $message
+     */
+    public function __invoke($message): void
+    {
+        if ($message instanceof EntityIndexingMessage) {
+            $indexer = $this->getIndexer($message->getIndexer());
+
+            if ($indexer) {
+                $indexer->handle($message);
+            }
+
+            return;
+        }
+
+        if ($message instanceof IterateEntityIndexerMessage) {
+            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+
+            if (!$next) {
+                return;
+            }
+
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
+        }
+    }
+
+    /**
      * @deprecated tag:v6.5.0 - reason:remove-subscriber - will be removed in v6.5.0, event handling is done in `EntityIndexingSubscriber`
      */
     public static function getSubscribedEvents(): array
@@ -64,10 +90,8 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     public static function getHandledMessages(): iterable
     {
-        return [
-            EntityIndexingMessage::class,
-            IterateEntityIndexerMessage::class,
-        ];
+        yield EntityIndexingMessage::class;
+        yield IterateEntityIndexerMessage::class;
     }
 
     /**
@@ -153,32 +177,6 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     }
 
     /**
-     * @param mixed $message
-     */
-    public function handle($message): void
-    {
-        if ($message instanceof EntityIndexingMessage) {
-            $indexer = $this->getIndexer($message->getIndexer());
-
-            if ($indexer) {
-                $indexer->handle($message);
-            }
-
-            return;
-        }
-
-        if ($message instanceof IterateEntityIndexerMessage) {
-            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
-
-            if (!$next) {
-                return;
-            }
-
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
-        }
-    }
-
-    /**
      * @param list<string> $indexer
      * @param list<string> $skip
      */
@@ -237,7 +235,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             return;
         }
-        $this->handle($message);
+        $this->__invoke($message);
     }
 
     /**

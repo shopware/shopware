@@ -66,7 +66,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'v65']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -102,7 +102,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'default']);
+        $client->request('POST', $url, ['receiver' => 'v65']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
         $response = json_decode((string) $client->getResponse()->getContent(), true);
@@ -138,9 +138,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $this->clearQueue();
         // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $bus->getDispatchedMessages();
+        $messagesBefore = $this->getDispatchedMessages();
         $this->getTaskHandler()->run();
-        $messagesAfter = $bus->getDispatchedMessages();
+        $messagesAfter = $this->getDispatchedMessages();
 
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
@@ -388,5 +388,13 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
                 'active' => $active,
             ],
         ], $this->context);
+    }
+
+    private function getDispatchedMessages(): array
+    {
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+
+        return $bus->getDispatchedMessages();
     }
 }

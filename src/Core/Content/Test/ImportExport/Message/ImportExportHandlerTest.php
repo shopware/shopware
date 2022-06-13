@@ -40,7 +40,7 @@ class ImportExportHandlerTest extends AbstractImportExportTest
         );
 
         $importExportMessage = new ImportExportMessage($context, $logEntity->getId(), ImportExportLogEntity::ACTIVITY_IMPORT);
-        $importExportHandler->handle($importExportMessage);
+        $importExportHandler->__invoke($importExportMessage);
 
         $messages = $messageBus->getDispatchedMessages();
 
@@ -58,7 +58,7 @@ class ImportExportHandlerTest extends AbstractImportExportTest
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
         static::assertEquals(50, $updatedLogEntity->getRecords());
 
-        $importExportHandler->handle($importExportMessage);
+        $importExportHandler->__invoke($importExportMessage);
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
         static::assertEquals(100, $updatedLogEntity->getRecords());
     }

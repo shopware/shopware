@@ -1,6 +1,6 @@
 ---
 title: Refactor delivery time units
-issue: n.a.
+issue: NEXT-21958
 author: Silvio Kennecke
 author_github: @silviokennecke
 ---

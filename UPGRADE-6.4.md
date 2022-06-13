@@ -1,6 +1,86 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.12.0
+## Refactoring of storefront line item twig templates
+
+With the next major release we want to unify the twig templates, which are used to display line items in the storefront.
+Right now, there are multiple different templates for different areas in which line items are displayed:
+* Cart, confirm and finish page
+* OffCanvas Cart
+* Account order details
+
+Those different templates will be removed in favor of a new line item base template, which can be adjusted via configuration variables.
+Furthermore, each known line item type will have its own sub-template to avoid too many if/else conditions within the line item base template.
+This will also future-proof the line item base template for possible new line item types. 
+There will be no more separate `-children` templates for nested line items. Nested line items will also be covered by the new base template.
+
+* New line item template: `Resources/views/storefront/component/line-item/line-item.html.twig`
+    * Config variables:
+        * `displayMode` (string) - Toggle the appearance of the line item
+            * `default` - Full line item appearance including mobile and desktop styling
+            * `offcanvas` - Appearance will always stay mobile, regardless of the viewport size. Provides additional classes for OffCanvas JS-plugins
+            * `order` - Appearance for display inside the account order list
+        * `showTaxPrice` (boolean) - Show the tax price instead of the unit price of the line item.
+        * `showQuantitySelect` (boolean) - Show a select dropdown to change the quantity. When false it only displays the current quantity as text.
+        * `redirectTo` (string) - The redirect route, which should be used after performing actions like "remove" or "change quantity".
+    * types:
+        * `product` - Display a product line item including preview image, additional information and link to product.
+        * `discount` - Display a discount line item and skip all unneeded information like "variants".
+        * `container` - Display a container line item, which can include nested line items.
+        * `generic` - Display a line item with an unknown type, try to render as much information as possible.
+## Apps can now require additional ACL privileges
+
+In addition to requiring CRUD-permission on entity basis, apps can now also require additional ACL privileges.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+    ...
+    </meta>
+    <permissions>
+        <create>product</create>
+        <update>product</update>
+        <permission>user_change_me</permission>
+    </permissions>
+</manifest>
+```
+## Apps can now associate custom field sets to more entities
+
+Apps can now add custom field sets to the following additional entities:
+* landing_page
+* promotion
+* product_stream
+* property_group
+* product_review
+* event_action
+* country
+* currency
+* customer_group
+* delivery_time
+* document_base_config
+* language
+* number_range
+* payment_method
+* rule
+* salutation
+* shipping_method
+* tax
+## Only configured custom fields will be indexed in Elasticsearch
+
+With Shopware 6.5 only configured customFields in the YAML file will be indexed, to reduce issues with type errors.
+The config can be created in the `config/packages/elasticsearch.yml` with the following config
+
+```yaml
+elasticsearch:
+  product:
+    custom_fields_mapping:
+      some_date_field: datetime
+```
+
+See [\Shopware\Core\System\CustomField\CustomFieldTypes](https://github.com/shopware/platform/blob/0ca57ddee85e9ab00d1a15a44ddc8ff16c3bc37b/src/Core/System/CustomField/CustomFieldTypes.php#L7-L19) for the complete list of possible options
+
 # 6.4.11.0
 ## Introduce BeforeDeleteEvent
 The event is dispatched before delete commands are executed, so you can add success callbacks into the event when the delete command is successfully executed. Or you add error callbacks to the event when the execution meets some errors.

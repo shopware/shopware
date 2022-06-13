@@ -1,4 +1,141 @@
 # 6.5.0.0
+## Introduced in 6.4.12.0
+## Deprecations in `Shopware\Core\Framework\Store\Services\StoreAppLifecycleService`
+The class `StoreAppLifecycleService` has been marked as internal.
+
+We also removed the `StoreAppLifecycleService::getAppIdByName()` method.
+
+## Removal of `Shopware\Core\Framework\Store\Exception\ExtensionRequiresNewPrivilegesException`
+We removed the `ExtensionRequiresNewPrivilegesException` exception.
+Will be replaced with the internal `ExtensionUpdateRequiresConsentAffirmationException` exception to have a more generic one.
+## Overwrite or extend line item templates:
+
+If you are extending line item templates inside the cart, OffCanvas or other areas, you need to use the line item base template `Resources/views/storefront/component/line-item/line-item.html.twig`
+and extend from one of the template files inside the `Resources/views/storefront/component/line-item/types/` directory.
+
+For example: You extend the line item's information about product variants with additional content.
+
+### Before
+```twig
+{# YourExtension/src/Resources/views/storefront/page/checkout/checkout-item.html.twig #}
+
+{% sw_extends '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
+
+{% block page_checkout_item_info_variant_characteristics %}
+    {{ parent() }}
+    <div>My extra content</div>
+{% endblock %}
+```
+
+### After
+```twig
+{# YourExtension/src/Resources/views/storefront/component/line-item/type/product.html.twig #}
+
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{% block component_line_item_type_product_variant_characteristics %}
+    {{ parent() }}
+    <div>My extra content</div>
+{% endblock %}
+```
+
+Since the new `line-item.html.twig` is used throughout multiple areas, the template extension above will take effect for product line items
+in all areas. Depending on your use case, you might want to restrict this to more specific areas. You have the possibility to check the
+current `displayMode` to determine if the line item is shown inside the OffCanvas for example. Previously, the OffCanvas line items had
+an individual template. You can now use the same `line-item.html.twig` template as for regular line items.
+
+### Before
+```twig
+{# YourExtension/src/Resources/views/storefront/component/checkout/offcanvas-item.html.twig #}
+
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-item.html.twig' %}
+
+{% block cart_item_variant_characteristics %}
+    {{ parent() }}
+    <div>My extra content</div>
+{% endblock %}
+```
+
+### After
+```twig
+{# YourExtension/src/Resources/views/storefront/component/line-item/type/product.html.twig #}
+
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{% block component_line_item_type_product_variant_characteristics %}
+    {{ parent() }}
+
+    {# Only show content when line item is inside offcanvas #}
+    {% if displayMode === 'offcanvas' %}
+        <div>My extra content</div>
+    {% endif %}
+{% endblock %}
+```
+
+You can narrow down this even more by checking for the `controllerAction` and render your changes only in desired actions.
+The dedicated `confirm-item.html.twig` in the example below no longer exists. You can use `line-item.html.twig` as well.
+
+### Before
+```twig
+{# YourExtension/src/Resources/views/storefront/page/checkout/confirm/confirm-item.html.twig #}
+
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-item.html.twig' %}
+
+{% block cart_item_variant_characteristics %}
+    {{ parent() }}
+    <div>My extra content</div>
+{% endblock %}
+```
+
+### After
+```twig
+{# YourExtension/src/Resources/views/storefront/component/line-item/type/product.html.twig #}
+
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{% block component_line_item_type_product_variant_characteristics %}
+    {{ parent() }}
+
+    {# Only show content on the confirm page #}
+    {% if controllerAction === 'confirmPage' %}
+        <div>My extra content</div>
+    {% endif %}
+{% endblock %}
+```
+## Refactoring of `HreflangLoader`
+
+The protected method `\Shopware\Core\Content\Seo\HreflangLoader::generateHreflangHome()` was removed, use `\Shopware\Core\Content\Seo\HreflangLoader::load()` with `route = 'frontend.home.page'` instead.
+### Before
+```php
+class CustomHrefLoader extends HreflangLoader
+{
+    public function someFunction(SalesChannelContext $salesChannelContext)
+    {
+        return $this->generateHreflangHome($salesChannelContext);
+    }
+}
+```
+### After
+```php
+class CustomHrefLoader extends HreflangLoader
+{
+    public function someFunction(SalesChannelContext $salesChannelContext)
+    {
+        return $this->load(
+            new HreflangLoaderParameter('frontend.home.page', [], $salesChannelContext)
+        );
+    }
+}
+```
+## Removal of `Feature::triggerDeprecated()`
+
+The method `Feature::triggerDeprecated()` was removed, use `Feature::triggerDeprecationOrThrow()` instead.
+## Removal of the `psalm` dependency
+
+The platform does not rely on `psalm` for static analysis anymore, but solely uses `phpstan` for that purpose.
+Therefore, the `psalm` dev-dependency was removed. 
+If you used the dev-dependency from platform in your project, please install the `psalm` package directly into your project.
+
 ## Introduced in 6.4.11.0
 ## ArrayEntity::getVars():
 * The `ArrayEntity::getVars()` has been changed so that the `data` property is no longer in the payload but applied to the `root` level.

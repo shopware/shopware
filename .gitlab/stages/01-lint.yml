@@ -109,6 +109,8 @@ PHP static analysis:
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     rules:
+        - if: '$CI_COMMIT_BRANCH == "trunk"'
+          when: never
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - changes:
@@ -116,6 +118,11 @@ PHP static analysis:
               - composer.json
               - phpstan-baseline.neon
               - '**/*.php'
+    cache:
+        key: 'phpstan_cache'
+        paths:
+            - var/cache/phpstan
+        policy: pull
     before_script:
         - composer update --no-interaction
         - composer run init:db
@@ -124,6 +131,16 @@ PHP static analysis:
     artifacts:
         reports:
             codequality: phpstan-report.json
+
+PHP static analysis (push cache):
+    extends: PHP static analysis
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "trunk"'
+    cache:
+        key: 'phpstan_cache'
+        paths:
+            - var/cache/phpstan
+        policy: pull-push
 
 PHP lint:
     extends: .base-no-setup

@@ -65,14 +65,14 @@ Shopware.Service('cmsService').registerCmsElement({
             return;
         }
 
-        Object.keys(elem.config).forEach((configKey) => {
+        Object.keys(elem.config).forEach((configKey, index) => {
             const entity = elem.config[configKey].entity;
 
             if (!entity) {
                 return;
             }
 
-            const entityKey = entity.name;
+            const entityKey = `${entity.name}-${index}`;
             if (!data[`entity-${entityKey}`]) {
                 return;
             }

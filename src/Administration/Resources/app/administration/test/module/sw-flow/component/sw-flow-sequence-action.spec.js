@@ -570,8 +570,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await actionSelect.trigger('click');
 
         const actionItems = wrapper.findAll('.sw-select-result');
+
         expect(actionItems.length).toEqual(5);
-        expect(actionItems.at(2).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems.at(0).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {
@@ -582,7 +583,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 swIcon: 'default-communication-speech-bubbles',
                 requirements: ['customerAware', 'orderAware'],
                 app: {
-                    active: false
+                    active: false,
+                    name: 'FlowAppSystem'
                 }
             }
         ];
@@ -593,7 +595,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
 
-        const disabledAction = wrapper.find('.sw-flow-sequence-action__disabled');
+        const disabledAction = await wrapper.find('.sw-flow-sequence-action__disabled');
         expect(disabledAction.exists()).toBeTruthy();
     });
 
@@ -629,8 +631,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const actionItems = wrapper.findAll('.sw-grouped-single-select__group-separator');
 
         expect(actionItems.length).toEqual(2);
-        expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.tag');
-        expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.general');
+        expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.general');
+        expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.tag');
     });
 
     it('should have tooltip for disabled actions', async () => {
@@ -642,6 +644,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
+                    name: 'FlowAppSystem'
                 }
             }
         ];
@@ -665,6 +668,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
+                    name: 'FlowAppSystem'
                 },
                 config: [
                     {

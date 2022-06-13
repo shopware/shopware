@@ -50,7 +50,7 @@ abstract class AbstractAppActivationCommand extends Command
         $id = $this->appRepo->searchIds($criteria, $context)->firstId();
 
         if (!$id) {
-            $io->error("No app found for \"${appName}\".");
+            $io->error("No app found for \"{$appName}\".");
 
             return self::FAILURE;
         }

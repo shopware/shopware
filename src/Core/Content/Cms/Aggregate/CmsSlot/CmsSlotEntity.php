@@ -63,6 +63,11 @@ class CmsSlotEntity extends Entity
      */
     protected $locked;
 
+    /**
+     * @var string|null
+     */
+    protected $cmsBlockVersionId;
+
     public function getType(): string
     {
         return $this->type;
@@ -165,5 +170,15 @@ class CmsSlotEntity extends Entity
     public function setFieldConfig(FieldConfigCollection $fieldConfig): void
     {
         $this->fieldConfig = $fieldConfig;
+    }
+
+    public function getCmsBlockVersionId(): ?string
+    {
+        return $this->cmsBlockVersionId;
+    }
+
+    public function setCmsBlockVersionId(?string $cmsBlockVersionId): void
+    {
+        $this->cmsBlockVersionId = $cmsBlockVersionId;
     }
 }

@@ -58,7 +58,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            mime_content_type($fileName),
+            (string) mime_content_type($fileName),
             $extension,
             $bytesWritten,
             hash_file('md5', $fileName) ?: null
@@ -91,7 +91,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            mime_content_type($fileName),
+            (string) mime_content_type($fileName),
             $extension,
             $writtenBytes,
             hash_file('md5', $fileName) ?: null
@@ -100,9 +100,11 @@ class FileFetcher
 
     public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $tempFile = (string) tempnam(sys_get_temp_dir(), '');
         $fh = @fopen($tempFile, 'wb');
-        $blobSize = @fwrite($fh, $blob);
+        \assert($fh !== false);
+
+        $blobSize = (int) @fwrite($fh, $blob);
         $fileHash = $tempFile ? hash_file('md5', $tempFile) : null;
 
         return new MediaFile(
@@ -182,18 +184,18 @@ class FileFetcher
         try {
             $inputStream = @fopen($filename, 'wb');
         } catch (\Throwable $e) {
-            throw new UploadException("Could not open Stream to write upload data: ${filename}");
+            throw new UploadException("Could not open Stream to write upload data: {$filename}");
         }
 
         if ($inputStream === false) {
-            throw new UploadException("Could not open Stream to write upload data: ${filename}");
+            throw new UploadException("Could not open Stream to write upload data: {$filename}");
         }
 
         return $inputStream;
     }
 
     /**
-     * @param resource|string $sourceStream
+     * @param resource $sourceStream
      * @param resource        $destStream
      */
     private function copyStreams($sourceStream, $destStream): int

@@ -84,6 +84,11 @@ class SalesChannelEntity extends Entity
     protected $navigationCategoryId;
 
     /**
+     * @var string
+     */
+    protected $navigationCategoryVersionId;
+
+    /**
      * @var int
      */
     protected $navigationCategoryDepth;
@@ -97,6 +102,11 @@ class SalesChannelEntity extends Entity
      * @var string|null
      */
     protected $homeCmsPageId;
+
+    /**
+     * @var string|null
+     */
+    protected $homeCmsPageVersionId;
 
     /**
      * @var CmsPageEntity|null
@@ -136,7 +146,17 @@ class SalesChannelEntity extends Entity
     /**
      * @var string|null
      */
+    protected $footerCategoryVersionId;
+
+    /**
+     * @var string|null
+     */
     protected $serviceCategoryId;
+
+    /**
+     * @var string|null
+     */
+    protected $serviceCategoryVersionId;
 
     /**
      * @var string|null
@@ -364,12 +384,12 @@ class SalesChannelEntity extends Entity
     protected $hreflangDefaultDomain;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $analyticsId;
 
     /**
-     * @var SalesChannelAnalyticsEntity
+     * @var SalesChannelAnalyticsEntity|null
      */
     protected $analytics;
 
@@ -1120,5 +1140,45 @@ class SalesChannelEntity extends Entity
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
+    }
+
+    public function getNavigationCategoryVersionId(): string
+    {
+        return $this->navigationCategoryVersionId;
+    }
+
+    public function setNavigationCategoryVersionId(string $navigationCategoryVersionId): void
+    {
+        $this->navigationCategoryVersionId = $navigationCategoryVersionId;
+    }
+
+    public function getHomeCmsPageVersionId(): ?string
+    {
+        return $this->homeCmsPageVersionId;
+    }
+
+    public function setHomeCmsPageVersionId(?string $homeCmsPageVersionId): void
+    {
+        $this->homeCmsPageVersionId = $homeCmsPageVersionId;
+    }
+
+    public function getFooterCategoryVersionId(): ?string
+    {
+        return $this->footerCategoryVersionId;
+    }
+
+    public function setFooterCategoryVersionId(?string $footerCategoryVersionId): void
+    {
+        $this->footerCategoryVersionId = $footerCategoryVersionId;
+    }
+
+    public function getServiceCategoryVersionId(): ?string
+    {
+        return $this->serviceCategoryVersionId;
+    }
+
+    public function setServiceCategoryVersionId(?string $serviceCategoryVersionId): void
+    {
+        $this->serviceCategoryVersionId = $serviceCategoryVersionId;
     }
 }

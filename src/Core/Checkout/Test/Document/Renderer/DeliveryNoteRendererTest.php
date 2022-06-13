@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;

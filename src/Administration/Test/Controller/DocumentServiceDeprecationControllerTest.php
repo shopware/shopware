@@ -21,6 +21,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * @internal
+ */
 class DocumentServiceDeprecationControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -114,6 +117,9 @@ class DocumentServiceDeprecationControllerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class DecoratingDocumentGeneratorRegistry extends DocumentGeneratorRegistry
 {
 }

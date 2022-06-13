@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @group slow
+ * @internal
  */
 class DocumentMergerTest extends TestCase
 {

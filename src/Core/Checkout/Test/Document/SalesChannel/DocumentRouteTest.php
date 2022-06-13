@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group store-api
+ * @internal
  */
 class DocumentRouteTest extends TestCase
 {

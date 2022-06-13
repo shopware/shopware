@@ -147,7 +147,7 @@ Component.register('sw-bulk-edit-save-modal-process', {
 
         async createDocument(documentType, payload) {
             if (payload.length <= this.requestsPerPayload) {
-                await this.orderDocumentApiService.create(documentType, payload);
+                await this.orderDocumentApiService.generate(documentType, payload);
                 this.$set(this.document[documentType], 'isReached', 100);
 
                 return Promise.resolve();
@@ -158,7 +158,7 @@ Component.register('sw-bulk-edit-save-modal-process', {
 
             return Promise
                 .all(chunkedPayload.map(async (item) => {
-                    await this.orderDocumentApiService.create(documentType, item);
+                    await this.orderDocumentApiService.generate(documentType, item);
                     this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
                 }))
                 .then(() => {

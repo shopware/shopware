@@ -89,6 +89,25 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.createDocuments.mockRestore();
     });
 
+    it('should generate documents successful', async () => {
+        wrapper.vm.orderDocumentApiService.generate = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createDocument('invoice', [
+            {
+                config: {
+                    documentDate: 'documentDate',
+                    documentComment: 'documentComment',
+                },
+                fileType: 'pdf',
+                orderId: 'orderId',
+                type: 'invoice',
+            },
+        ]);
+
+        expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        wrapper.vm.orderDocumentApiService.create.mockRestore();
+    });
+
     it('should create documents successful', async () => {
         wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
 

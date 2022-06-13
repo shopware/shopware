@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 trait DocumentTrait
 {
     use IntegrationTestBehaviour;

@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
     public function testCreate(): void

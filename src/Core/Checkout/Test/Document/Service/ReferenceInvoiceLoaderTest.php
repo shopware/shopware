@@ -15,6 +15,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ReferenceInvoiceLoaderTest extends TestCase
 {
     use DocumentTrait;

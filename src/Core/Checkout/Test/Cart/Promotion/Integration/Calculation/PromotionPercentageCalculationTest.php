@@ -153,6 +153,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $price = $promotion->getPrice();
         static::assertInstanceOf(CalculatedPrice::class, $price);
         static::assertEquals(-50, $price->getTotalPrice());
+        static::assertNotNull($price->getCalculatedTaxes()->first());
         static::assertEquals(-8.33, $price->getCalculatedTaxes()->first()->getTax());
     }
 

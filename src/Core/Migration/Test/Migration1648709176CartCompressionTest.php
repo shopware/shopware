@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -103,12 +104,14 @@ class Migration1648709176CartCompressionTest extends TestCase
         $compressed = new CartPersister(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(CartSerializationCleaner::class),
             true
         );
 
         $uncompressed = new CartPersister(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(CartSerializationCleaner::class),
             true
         );
 

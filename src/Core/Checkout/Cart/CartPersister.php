@@ -24,15 +24,18 @@ class CartPersister extends AbstractCartPersister
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private CartSerializationCleaner $cartSerializationCleaner;
+
     private bool $compress;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, bool $compress)
+    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress)
     {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cartSerializationCleaner = $cartSerializationCleaner;
         $this->compress = $compress;
     }
 
@@ -167,6 +170,8 @@ class CartPersister extends AbstractCartPersister
 
         $cart->setErrors(new ErrorCollection());
         $cart->setData(null);
+
+        $this->cartSerializationCleaner->cleanupCart($cart);
 
         // @deprecated tag:v6.6.0 - remove else part
         if ($payloadExists) {

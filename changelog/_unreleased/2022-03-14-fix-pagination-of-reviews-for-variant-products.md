@@ -1,8 +1,9 @@
 ---
 title: Fix pagination of reviews for variant products
+issue: NEXT-21016
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Storefront
-* Fix pagination of reviews for variant products by considering the `parentId` in the form URL
+* Changed pagination of reviews for variant products to consider the `parentId` in the form URL

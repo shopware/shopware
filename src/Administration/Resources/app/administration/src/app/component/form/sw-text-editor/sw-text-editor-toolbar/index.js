@@ -189,10 +189,8 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         beforeUnmountedComponent() {
-            const body = document.querySelector('body');
-
-            if (body.contains(this.$el)) {
-                body.removeChild(this.$el);
+            if (this.$el?.parentElement?.contains(this.$el)) {
+                this.$el.parentElement.removeChild(this.$el);
             }
         },
 

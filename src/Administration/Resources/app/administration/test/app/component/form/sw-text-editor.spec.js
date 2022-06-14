@@ -35,16 +35,16 @@ function createWrapper(allowInlineDataMapping = true) {
             'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
             'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-container': Shopware.Component.build('sw-container'),
-            'sw-icon': { template: '<div class="sw-icon"></div>' },
+            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-field': Shopware.Component.build('sw-field'),
+            'sw-icon': { template: '<div class="sw-icon"></div>' },
             'sw-select-field': true,
             'sw-field-error': true,
         },
@@ -755,6 +755,28 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
     });
 
+    it('should let the toolbar disappear, when containing component unmounts', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>');
+
+        // select anything to trigger the toolbar
+        const content = document.getElementById('content');
+        await addAndCheckSelection(wrapper, content, 0, 4, 'Shop');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // unmount component
+        await wrapper.destroy();
+        expect(linkMenu.exists()).toBe(false);
+    });
+
     it("should leave the text alone, if there isn't link to be removed", async () => {
         wrapper = createWrapper();
 
@@ -862,7 +884,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
     });
 
-    it('should fall back to pasteing text into the wysiwyg editor if html isn\'t available', async () => {
+    it('should fall back to pasting text into the wysiwyg editor if html isn\'t available', async () => {
         wrapper = createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');

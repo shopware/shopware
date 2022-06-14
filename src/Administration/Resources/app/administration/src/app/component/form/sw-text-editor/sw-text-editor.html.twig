@@ -21,6 +21,7 @@
         {% block sw_text_editor_box_toolbar %}
         <sw-text-editor-toolbar
             v-if="hasSelection || !isInlineEdit"
+            ref="text-editor-toolbar"
             :parent-is-active="isActive"
             :is-inline-edit="isInlineEdit"
             :selection="selection"

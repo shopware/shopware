@@ -41,34 +41,42 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             url: `/account/register`,
             method: 'POST'
         }).as('registerCustomer');
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/sales-channel-type`,
-            method: 'POST'
-        }).as('searchSalesChannelType');
 
         // Set tax-free
         cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             '.sw-context-button__button',
             `.sw-data-grid__row--0`
         );
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.wait('@searchSalesChannelType').its('response.statusCode').should('equal', 200);
         cy.get('input#sw-field--currency-taxFreeFrom').should('be.visible');
         cy.get('input#sw-field--currency-taxFreeFrom').should('have.value', '0');
-        cy.get('input#sw-field--currency-taxFreeFrom').clearTypeAndCheck('10');
+        cy.get('input#sw-field--currency-taxFreeFrom').type('{selectall}{backspace}{selectall}{backspace}10{enter}');
+        cy.get('input#sw-field--currency-taxFreeFrom').should('have.value', '10');
 
         // Set country price rounding
+        cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').scrollIntoView();
         cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').click();
         cy.get('.sw-settings-currency-country-modal__select-country')
             .typeSingleSelectAndCheck('Netherlands', '.sw-settings-currency-country-modal__select-country');
         cy.get('.sw-settings-currency-country-modal input[name=sw-field--itemRounding-decimals]')
-            .clearTypeAndCheck('3');
+            .type('{selectall}{backspace}{selectall}{backspace}3{enter}');
+        cy.get('.sw-settings-currency-country-modal input[name=sw-field--itemRounding-decimals]')
+            .should('have.value', '3');
         cy.get('.sw-settings-currency-country-modal input[name=sw-field--totalRounding-decimals]')
-            .clearTypeAndCheck('3');
+            .type('{selectall}{backspace}{selectall}{backspace}3{enter}');
+        cy.get('.sw-settings-currency-country-modal input[name=sw-field--totalRounding-decimals]')
+            .should('have.value', '3');
         cy.get('.sw-settings-currency-country-modal__button-save').click();
         cy.wait('@saveCurrencyCountry').its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-alert').should('not.exist');
 
         // Verify country price rounding
         cy.get('.sw-settings-currency-country-modal').should('not.exist');
@@ -77,13 +85,20 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCurrencySettings').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
@@ -112,7 +127,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             // Go to cart
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
             cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name');
-            cy.contains(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`, '34,116');
+            cy.get(`${lineItemSelector}-total-price`).contains('34,116');
             cy.contains('.col-5.checkout-aside-summary-total', '34,116');
             cy.get('a[title="Proceed to checkout"]').click();
 
@@ -133,7 +148,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             cy.contains('.confirm-address', 'Test Tester');
             cy.contains(`${lineItemSelector}-label`, 'Product name');
             cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
-            cy.contains(`${lineItemSelector}-total-price`, '34,116');
+            cy.get(`${lineItemSelector}-total-price`).contains('34,116');
             cy.contains('.col-5.checkout-aside-summary-total', '34,116');
 
             // Finish checkout

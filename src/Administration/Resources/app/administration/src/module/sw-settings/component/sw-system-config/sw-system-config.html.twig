@@ -59,7 +59,6 @@
                                 :key="props.isInheritField + props.isInherited"
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
-                                :help-text="(element.config.css ? $tc('sw-settings.system-config.scssHelpText') + element.config.css : '')"
                                 @input="props.updateCurrentValue"
                                 @change="props.updateCurrentValue"
                             />

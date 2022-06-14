@@ -194,6 +194,10 @@ Component.register('sw-system-config', {
                 bind.config.componentName = 'sw-text-editor';
             }
 
+            if (bind.config.css && bind.config.helpText === undefined) {
+                bind.config.helpText = this.$tc('sw-settings.system-config.scssHelpText') + element.config.css;
+            }
+
             return bind;
         },
 

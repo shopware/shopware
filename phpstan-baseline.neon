@@ -2911,26 +2911,6 @@ parameters:
 			path: src/Core/Content/Test/Flow/ChangeCustomerStatusActionTest.php
 
 		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Cannot call method update\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\DataAbstractionLayer\\\\FlowPayloadUpdaterTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/DataAbstractionLayer/FlowPayloadUpdaterTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\FlowActionTestSubscriber\\:\\:\\$actions has no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/FlowActionTestSubscriber.php
@@ -6376,21 +6356,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:addTranslated\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getApiAlias\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getTranslation\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\:\\:filterAndReduceByProperty\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
@@ -6479,16 +6444,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$entityName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:getByEntityName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:handle\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:iterateIndexer\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\:\\:__construct\\(\\) has parameter \\$data with no type specified\\.$#"
@@ -7074,21 +7029,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:set\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct implements generic interface ArrayAccess but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:all\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:get\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Flow\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
@@ -12,6 +11,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
+use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,17 +25,13 @@ class FlowPayloadUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
-
-    private ?Connection $connection;
+    private EntityRepositoryInterface $flowRepository;
 
     private TestDataCollection $ids;
 
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());
     }
@@ -45,6 +41,7 @@ class FlowPayloadUpdaterTest extends TestCase
         $this->createTestData();
 
         $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+        static::assertNotNull($flow);
 
         $trueCaseNextAction = new ActionSequence();
         $trueCaseNextAction->action = AddOrderTagAction::getName();
@@ -71,9 +68,13 @@ class FlowPayloadUpdaterTest extends TestCase
         $sequence->flowId = $this->ids->get('flow_id');
         $sequence->sequenceId = $this->ids->get('flow_sequence_id');
 
+        $flat = [];
+        $flat[$this->ids->create('flow_sequence_id1')] = $trueCase;
+        $flat[$this->ids->get('flow_sequence_id')] = $sequence;
+
         $expected = [$sequence];
 
-        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), $flow->getPayload());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected, $flat)), $flow->getPayload());
     }
 
     public function testUpdate(): void
@@ -124,9 +125,14 @@ class FlowPayloadUpdaterTest extends TestCase
         $sequence->flowId = $this->ids->get('flow_id');
         $sequence->sequenceId = $this->ids->get('flow_sequence_id');
 
+        $flat = [];
+        $flat[$this->ids->create('flow_sequence_id1')] = $trueCase;
+        $flat[$this->ids->create('flow_sequence_id2')] = $falseCase;
+        $flat[$this->ids->get('flow_sequence_id')] = $sequence;
+
         $expected = [$sequence];
 
-        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), $flow->getPayload());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected, $flat)), $flow->getPayload());
     }
 
     public function testPayloadShouldUpdateAfterDeletedAllSequence(): void
@@ -166,6 +172,26 @@ class FlowPayloadUpdaterTest extends TestCase
 
         static::assertSame([], $flow->getSequences()->getElements());
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
+    }
+
+    public function testJumpFlow(): void
+    {
+        $this->createTestData();
+
+        /** @var FlowEntity $flowEntity */
+        $flowEntity = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+
+        /** @var string $payload */
+        $payload = $flowEntity->getPayload();
+        $flow = unserialize($payload);
+        static::assertTrue($flow->getSequences()[0] instanceof IfSequence);
+
+        $flat = $flow->getFlat();
+        static::assertTrue($flat[$this->ids->create('flow_sequence_id1')] instanceof ActionSequence);
+        static::assertTrue($flat[$this->ids->create('flow_sequence_id')] instanceof IfSequence);
+
+        $flow->jump($this->ids->create('flow_sequence_id1'));
+        static::assertTrue($flow->getSequences()[0] instanceof ActionSequence);
     }
 
     private function createTestData(): void

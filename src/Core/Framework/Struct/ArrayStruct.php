@@ -2,6 +2,12 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+/**
+ * @template-covariant TKey
+ * @template-covariant TValue
+ *
+ * @implements \ArrayAccess<string, mixed>
+ */
 class ArrayStruct extends Struct implements \ArrayAccess
 {
     /**
@@ -53,6 +59,9 @@ class ArrayStruct extends Struct implements \ArrayAccess
         unset($this->data[$offset]);
     }
 
+    /**
+     * @return mixed
+     */
     public function get(string $key)
     {
         return $this->offsetGet($key);
@@ -60,7 +69,7 @@ class ArrayStruct extends Struct implements \ArrayAccess
 
     /**
      * @param string|int $key
-     * @param array      $value
+     * @param mixed      $value
      *
      * @return array
      */
@@ -76,6 +85,9 @@ class ArrayStruct extends Struct implements \ArrayAccess
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function all()
     {
         return $this->data;

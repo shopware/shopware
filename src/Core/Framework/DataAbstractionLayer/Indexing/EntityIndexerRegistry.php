@@ -134,12 +134,15 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
             return;
         }
-        /** @var ArrayStruct $skip */
+        /** @var ArrayStruct<string, mixed> $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
         $message->addSkip(...$skip->all());
     }
 
+    /**
+     * @param mixed $message
+     */
     public function handle($message): void
     {
         if ($message instanceof EntityIndexingMessage) {
@@ -221,7 +224,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->handle($message);
     }
 
-    private function iterateIndexer(string $name, $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
+    private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);
 

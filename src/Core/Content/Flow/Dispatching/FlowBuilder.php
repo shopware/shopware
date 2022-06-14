@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal not intended for decoration or replacement
@@ -14,16 +15,18 @@ class FlowBuilder
     {
         $flowSequences = $this->buildHierarchyTree($flowSequences);
 
+        $flatBag = new ArrayStruct();
+
         $sequences = [];
         foreach ($flowSequences as $flowSequence) {
             if ($flowSequence['sequence_id'] === null) {
                 continue;
             }
 
-            $sequences[] = $this->createNestedSequence($flowSequence, []);
+            $sequences[] = $this->createNestedSequence($flowSequence, [], $flatBag);
         }
 
-        return new Flow($id, $sequences);
+        return new Flow($id, $sequences, $flatBag->all());
     }
 
     private function buildHierarchyTree(array $flowSequences, ?string $parentId = null): array
@@ -50,16 +53,26 @@ class FlowBuilder
         return $items;
     }
 
-    private function createNestedSequence(array $sequence, array $siblings): Sequence
+    /**
+     * @param ArrayStruct<string, mixed> $flatBag
+     */
+    private function createNestedSequence(array $sequence, array $siblings, ArrayStruct $flatBag): Sequence
     {
         if ($sequence['action_name'] !== null) {
-            return $this->createNestedAction($sequence, $siblings);
+            $object = $this->createNestedAction($sequence, $siblings, $flatBag);
+        } else {
+            $object = $this->createNestedIf($sequence, $flatBag);
         }
 
-        return $this->createNestedIf($sequence);
+        $flatBag->set($sequence['sequence_id'], $object);
+
+        return $object;
     }
 
-    private function createNestedAction(array $currentSequence, array $siblingSequences): Sequence
+    /**
+     * @param ArrayStruct<string, mixed> $flagBag
+     */
+    private function createNestedAction(array $currentSequence, array $siblingSequences, ArrayStruct $flagBag): Sequence
     {
         $config = $currentSequence['config'] ? json_decode($currentSequence['config'], true) : [];
 
@@ -69,7 +82,7 @@ class FlowBuilder
 
             return Sequence::createAction(
                 $currentSequence['action_name'],
-                $this->createNestedSequence($firstChildren, $children),
+                $this->createNestedSequence($firstChildren, $children, $flagBag),
                 $currentSequence['flow_id'],
                 $currentSequence['sequence_id'],
                 $config
@@ -91,7 +104,7 @@ class FlowBuilder
 
         return Sequence::createAction(
             $currentSequence['action_name'],
-            $this->createNestedAction($nextSequence, $siblingSequences),
+            $this->createNestedAction($nextSequence, $siblingSequences, $flagBag),
             $currentSequence['flow_id'],
             $currentSequence['sequence_id'],
             $config,
@@ -99,7 +112,10 @@ class FlowBuilder
         );
     }
 
-    private function createNestedIf(array $currentSequence): Sequence
+    /**
+     * @param ArrayStruct<string, mixed> $flagBag
+     */
+    private function createNestedIf(array $currentSequence, ArrayStruct $flagBag): Sequence
     {
         $sequenceChildren = $currentSequence['children'];
         if (!$sequenceChildren) {
@@ -119,14 +135,14 @@ class FlowBuilder
         if (!empty($trueCases)) {
             $trueCase = array_shift($trueCases);
 
-            $trueCaseSequence = $this->createNestedSequence($trueCase, $trueCases);
+            $trueCaseSequence = $this->createNestedSequence($trueCase, $trueCases, $flagBag);
         }
 
         $falseCaseSequence = null;
         if (!empty($falseCases)) {
             $falseCase = array_shift($falseCases);
 
-            $falseCaseSequence = $this->createNestedSequence($falseCase, $falseCases);
+            $falseCaseSequence = $this->createNestedSequence($falseCase, $falseCases, $flagBag);
         }
 
         return Sequence::createIF($currentSequence['rule_id'], $currentSequence['flow_id'], $currentSequence['sequence_id'], $trueCaseSequence, $falseCaseSequence);

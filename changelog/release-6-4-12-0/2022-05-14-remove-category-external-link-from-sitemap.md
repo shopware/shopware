@@ -7,4 +7,4 @@ author_github: CodeproSpace
 ---
 
 # Core
-* I added a condition where link categories are not got in sitemap `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider`
+* Added a condition where link categories are not got in sitemap `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider`

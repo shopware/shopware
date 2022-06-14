@@ -17,6 +17,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
@@ -30,10 +31,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -46,8 +45,6 @@ class ProductExportGeneratorTest extends TestCase
 
     private Context $context;
 
-    private SalesChannelContext $salesChannelContext;
-
     private ProductExportGeneratorInterface $service;
 
     protected function setUp(): void
@@ -55,9 +52,6 @@ class ProductExportGeneratorTest extends TestCase
         $this->repository = $this->getContainer()->get('product_export.repository');
         $this->service = $this->getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
     public function testExport(): void
@@ -70,6 +64,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
     }
 
@@ -224,6 +219,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringContainsString('options-group', $exportResult->getContent());
     }
 
@@ -239,7 +235,36 @@ class ProductExportGeneratorTest extends TestCase
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringContainsString('options-group', $exportResult->getContent());
+    }
+
+    /**
+     * @dataProvider isoCodeProvider
+     */
+    public function testExportRendersGivenCurrencies(string $code): void
+    {
+        $productExportId = $this->createTestEntity([
+            'currencyId' => $this->getCurrencyIdByIso($code),
+            'bodyTemplate' => '{{ context.currency.isoCode }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $result = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $result);
+        static::assertStringContainsString($code, $result->getContent());
+    }
+
+    public function isoCodeProvider(): \Generator
+    {
+        yield 'Polish zloty iso code' => ['PLN'];
+        yield 'Euro iso code' => ['EUR'];
+        yield 'US dollar iso code' => ['USD'];
+        yield 'British pound iso code' => ['GBP'];
     }
 
     private function createProductExportCriteria(string $id): Criteria

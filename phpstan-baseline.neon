@@ -2466,16 +2466,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Api\\\\ProductExportController\\:\\:generateExportPreview\\(\\) should return Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult but returns Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Api/ProductExportController.php
-
-		-
-			message: "#^Parameter \\#1 \\$salesChannel of method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity\\:\\:setSalesChannel\\(\\) expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity, Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Api/ProductExportController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Error\\\\Error\\:\\:createFrom\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/Error/Error.php
@@ -5764,16 +5754,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"

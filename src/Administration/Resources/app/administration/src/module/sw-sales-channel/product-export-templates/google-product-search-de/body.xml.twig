@@ -30,6 +30,10 @@
     <g:shipping>
         <g:country>DE</g:country>
         <g:service>Standard</g:service>
+        {% if product.shippingFree  %}
+        <g:price>0.00 {{ context.currency.isoCode }}</g:price>
+        {% else %}
         <g:price>4.95 {{ context.currency.isoCode }}{# change your default delivery costs #}</g:price>
+        {% endif %}
     </g:shipping>
 </item>

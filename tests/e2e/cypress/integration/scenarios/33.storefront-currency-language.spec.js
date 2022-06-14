@@ -83,7 +83,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.get('.product-detail-buy .btn-buy').contains('In het winkelmandje').click();
 
         // Off canvas
-        cy.get('.offcanvas.is-open').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
         cy.contains('.cart-item-price', '€ 49,98*').should('be.visible');
         cy.get('a[title="Naar de kassa"]').should('be.visible');
         cy.contains('Doorgaan met winkelen').click();
@@ -105,7 +105,7 @@ describe('Sales Channel: create product, change currency and language', () => {
 
         // Verify currency and language on canvas
         cy.get('.header-cart-icon').click({ force: true });
-        cy.get('.offcanvas.is-open').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
         cy.contains('.cart-item-price', '58,52 $*').should('be.visible');
         cy.get('a[title="Weiter zur Kasse"]').should('be.visible');
     });

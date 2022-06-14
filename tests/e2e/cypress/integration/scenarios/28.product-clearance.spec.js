@@ -93,7 +93,7 @@ describe('Hide products after clearance & free shipping.', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
 
             // Guest check out

@@ -152,7 +152,7 @@ describe('Create a variant product using default customer and buy it via cash on
             cy.contains('Add to shopping cart').click();
 
             // Off canvas
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
 
             // Total: product price

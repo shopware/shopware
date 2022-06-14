@@ -8,7 +8,8 @@ Based on custom offcanvas component.
 .navigation-offcanvas {
     overflow-x: hidden;
 
-    .offcanvas-content-container {
+    .offcanvas-content-container,
+    .offcanvas-body {
         padding: 0;
     }
 }

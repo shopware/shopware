@@ -121,7 +121,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart

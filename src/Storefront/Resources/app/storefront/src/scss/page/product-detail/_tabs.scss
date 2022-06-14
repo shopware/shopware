@@ -1,5 +1,10 @@
 .product-detail-tabs-content {
     display: none;
+
+    .offcanvas-body {
+        overflow: initial;
+        padding: 0;
+    }
 }
 
 .product-detail-description-text {

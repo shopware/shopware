@@ -155,7 +155,7 @@ describe('Promotions: pre-conditions', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas, verify both promotions are added to cart
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('exist');
             cy.contains('Thunder Tuesday').should('exist');
@@ -183,7 +183,7 @@ describe('Promotions: pre-conditions', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas, verify the second promotion is added to cart since it has prevent combination setting
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('not.exist');
             cy.contains('Thunder Tuesday').should('exist');

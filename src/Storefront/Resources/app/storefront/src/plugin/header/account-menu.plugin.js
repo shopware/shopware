@@ -23,8 +23,7 @@ export default class OffCanvasAccountMenu extends Plugin {
         hiddenClass: 'd-none',
 
         /**
-         * from which direction the
-         * offcanvas opens
+         * from which direction the offcanvas opens
          */
         offcanvasPostion: 'left',
     };

@@ -97,7 +97,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                     cy.get('.product-detail-buy .btn-buy').click();
 
                     // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                    cy.get(page.elements.offCanvasCart).should('be.visible');
                     cy.get(`${lineItemSelector}-label`).contains(productName);
                     cy.get(`${page.elements.offCanvasCart} .offcanvas-close`).click();
 
@@ -109,7 +109,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                     cy.get('.product-detail-buy .btn-buy').click();
 
                     // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                    cy.get(page.elements.offCanvasCart).should('be.visible');
                     cy.get(`${lineItemSelector}-label`).contains(additionalProduct.name);
 
                     // Checkout

@@ -96,7 +96,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart and validate tax free for B2C
@@ -192,7 +192,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart and validate tax free for B2B

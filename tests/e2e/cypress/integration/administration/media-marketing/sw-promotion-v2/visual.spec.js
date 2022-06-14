@@ -133,6 +133,6 @@ describe('Promotion v2: Visual tests', () => {
             .should('have.css', 'visibility', 'hidden');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas');
     });
 });

@@ -70,7 +70,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
         });
 
@@ -140,7 +140,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
         });
 

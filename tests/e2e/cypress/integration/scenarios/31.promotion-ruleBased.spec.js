@@ -128,7 +128,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas, verify promotion is not available
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains('Thunder Tuesday').should('not.exist');
             cy.get('.summary-value.summary-total').should('include.text', '60,00');

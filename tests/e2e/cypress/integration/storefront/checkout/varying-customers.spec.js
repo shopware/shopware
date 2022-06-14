@@ -107,7 +107,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
                     cy.get('.product-detail-buy .btn-buy').click();
 
                     // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                    cy.get(page.elements.offCanvasCart).should('be.visible');
                     cy.get(`${lineItemSelector}-label`).contains(product.name);
                     cy.get(`${lineItemSelector}-price`).contains(price);
                     cy.get('.summary-value.summary-total').contains(price);

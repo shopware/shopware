@@ -118,7 +118,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             // Off canvas verify promotion name and percentage
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(`${lineItemSelector}-promotion`, promoCode);
             cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-price`)
@@ -224,7 +224,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             // Off canvas verify promotion name and percentage
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck('EK_1907');
             cy.get('button#addPromotionOffcanvasCart').click();
@@ -348,7 +348,7 @@ describe('Create promotion codes to the product and check it at the storefront',
                 const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
                 // Off canvas verify promotion name and percentage
-                cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+                cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
                 cy.contains(`${lineItemSelector}-label`, 'Test Product');
                 cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck(individualPromoCode);
                 cy.get('button#addPromotionOffcanvasCart').click();

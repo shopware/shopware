@@ -148,7 +148,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.contains('.search-suggest-product-name', 'Product name').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+        cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
 
         cy.window().then((win) => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
@@ -156,7 +156,6 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
             cy.get(`${lineItemSelector}-label`).contains('Product name');
         });
-
         cy.get('a[title="Proceed to checkout"]').click();
         cy.url().should('include', 'checkout/confirm');
         cy.get('.address').contains('Germany');

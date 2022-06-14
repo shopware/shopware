@@ -109,7 +109,7 @@ describe('Product creation via UI and private customer registration', () => {
             cy.get('.header-search-input').should('be.visible').type('Product-5');
             cy.contains('.search-suggest-product-name', 'Product-5').click();
             cy.get('.product-detail-buy .btn-buy').click();
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Product-5');
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
             cy.contains(`${lineItemSelector}-details-container [title]`, 'Product-5');

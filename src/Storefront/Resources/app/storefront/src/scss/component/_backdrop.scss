@@ -22,3 +22,9 @@ https://getbootstrap.com/docs/4.0/components/modal/#options
         margin-top: -$spacer;
     }
 }
+
+.offcanvas-backdrop {
+    &.show {
+        opacity: 1;
+    }
+}

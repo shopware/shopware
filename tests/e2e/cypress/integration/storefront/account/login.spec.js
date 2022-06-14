@@ -72,7 +72,7 @@ describe('Account: Login as customer', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains('Product name');
 
             // Go to cart

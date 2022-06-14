@@ -25,6 +25,11 @@
         "branch-alias": {
             "dev-master": "6.4.x-dev",
             "dev-trunk": "6.4.x-dev"
+        },
+        "patches": {
+            "phpunit/phpunit": {
+                "Allow invalid directories in mapping": "src/Core/Test/Patches/phpunit-phpunit-src-textui-testsuitemapper-php.patch"
+            }
         }
     },
     "config": {
@@ -36,7 +41,8 @@
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "require": {
@@ -169,6 +175,7 @@
         "phpstan/phpstan-symfony": "1.1.8",
         "phpunit/php-code-coverage": "~9.2.14",
         "phpunit/phpunit": "~9.5.17",
+        "cweagans/composer-patches": "^1.7",
         "smalot/pdfparser": "~0.14.0",
         "staabm/phpstan-dba": "0.2.29",
         "symfony/browser-kit": "~5.4.0",

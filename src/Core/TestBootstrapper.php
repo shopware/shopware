@@ -31,6 +31,8 @@ class TestBootstrapper
 
     private bool $loadEnvFile = true;
 
+    private bool $commercialEnabled = false;
+
     private ?OutputInterface $output = null;
 
     /**
@@ -43,6 +45,13 @@ class TestBootstrapper
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);
+        }
+
+        $commercialComposerJson = $_SERVER['PROJECT_ROOT'] . '/custom/plugins/SwagCommercial/composer.json';
+
+        if ($this->commercialEnabled && file_exists($commercialComposerJson)) {
+            $this->addCallingPlugin($commercialComposerJson);
+            $this->addActivePlugins('SwagCommercial');
         }
 
         $classLoader = $this->getClassLoader();
@@ -223,6 +232,13 @@ class TestBootstrapper
     public function setDatabaseUrl(?string $databaseUrl): TestBootstrapper
     {
         $this->databaseUrl = $databaseUrl;
+
+        return $this;
+    }
+
+    public function setEnableCommercial(bool $enableCommercial = true): TestBootstrapper
+    {
+        $this->commercialEnabled = $enableCommercial;
 
         return $this;
     }

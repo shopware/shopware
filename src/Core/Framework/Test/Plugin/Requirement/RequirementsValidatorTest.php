@@ -159,6 +159,7 @@ class RequirementsValidatorTest extends TestCase
         $plugin = new PluginEntity();
         $plugin->setPath($path);
         $plugin->setManagedByComposer(false);
+        $plugin->setVersion('1.0.0');
 
         return $plugin;
     }

@@ -34,7 +34,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
     }
 
-    public function maxApiLimitProvider()
+    public function maxApiLimitProvider(): iterable
     {
         yield 'Test null max limit' => [10000, null, 10000, false];
         yield 'Test null max limit and null limit' => [null, null, null, false];
@@ -233,5 +233,67 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertEquals(101, $criteria->getAssociation('options')->getLimit());
         static::assertNull($criteria->getAssociation('prices')->getLimit());
         static::assertNull($criteria->getAssociation('categories')->getLimit());
+    }
+
+    /**
+     * @param mixed $totalCountMode
+     * @dataProvider providerTotalCount
+     */
+    public function testDifferentTotalCount($totalCountMode, int $expectedMode): void
+    {
+        $payload = [
+            'total-count-mode' => $totalCountMode,
+        ];
+
+        $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
+        static::assertSame($expectedMode, $criteria->getTotalCountMode());
+    }
+
+    public function providerTotalCount(): iterable
+    {
+        yield [
+            '0',
+            Criteria::TOTAL_COUNT_MODE_NONE,
+        ];
+
+        yield [
+            '1',
+            Criteria::TOTAL_COUNT_MODE_EXACT,
+        ];
+
+        yield [
+            '2',
+            Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+        ];
+
+        yield [
+            '3',
+            Criteria::TOTAL_COUNT_MODE_NONE,
+        ];
+
+        yield [
+            '-3',
+            Criteria::TOTAL_COUNT_MODE_NONE,
+        ];
+
+        yield [
+            'none',
+            Criteria::TOTAL_COUNT_MODE_NONE,
+        ];
+
+        yield [
+            'none-2',
+            Criteria::TOTAL_COUNT_MODE_NONE,
+        ];
+
+        yield [
+            'exact',
+            Criteria::TOTAL_COUNT_MODE_EXACT,
+        ];
+
+        yield [
+            'next-pages',
+            Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+        ];
     }
 }

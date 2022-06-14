@@ -67,5 +67,16 @@ Component.register('sw-settings-payment-sorting-modal', {
         onSort(sortedItems) {
             this.sortedPaymentMethods = sortedItems;
         },
+
+        isShopwareDefaultPaymentMethod(paymentMethod) {
+            const defaultPaymentMethods = [
+                'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\DebitPayment',
+                'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment',
+                'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\CashPayment',
+                'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\PrePayment',
+            ];
+
+            return defaultPaymentMethods.includes(paymentMethod.handlerIdentifier);
+        },
     },
 });

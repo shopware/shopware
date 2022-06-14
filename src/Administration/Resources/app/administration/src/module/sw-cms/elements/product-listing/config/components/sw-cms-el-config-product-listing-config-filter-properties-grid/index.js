@@ -1,6 +1,10 @@
 import template from './sw-cms-el-config-product-listing-config-filter-properties-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-filter-properties-grid.scss';
 
+/**
+ * @deprecated tag:v6.5.0 - Is now entirely integrated into the `sw-cms-el-config-product-listing`
+ * @status deprecated
+ */
 Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-properties-grid', {
     template,
 

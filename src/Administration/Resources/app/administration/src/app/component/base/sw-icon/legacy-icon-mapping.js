@@ -1,3 +1,5 @@
+// @deprecated tag:v6.5.0 - File will be removed without replacement
+
 export default {
     'icons-text-editor-undo': 'icons-regular-undo-xs',
     'icons-small-trending-up': 'icons-regular-chart-line-up-s',
@@ -31,7 +33,7 @@ export default {
     'icons-default-action-document-view': 'icons-regular-file-search',
     'icons-default-action-drag-horizontal': 'icons-regular-grip-vertical',
     'icons-default-action-drag-vertical': 'icons-regular-grip-horizontal',
-    'icons-default-action-duplicate': 'icons-regular-clone',
+    'icons-default-action-duplicate': 'icons-regular-duplicate',
     'icons-default-action-external': 'icons-regular-external-link',
     'icons-default-action-filter': 'icons-regular-filter',
     'icons-default-action-grab': 'icons-regular-grip-lines',

@@ -94,7 +94,7 @@ describe('Product: Sort grid', () => {
 
         // check order when pound arrow is up
         cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-        cy.get('.icon--small-arrow-small-up').should('be.visible');
+        cy.get('.icon--regular-chevron-up-xxs').should('be.visible');
 
         cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Original product');
         cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--name', 'Second product');
@@ -110,7 +110,7 @@ describe('Product: Sort grid', () => {
 
         // check order when pound arrow is down
         cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-        cy.get('.icon--small-arrow-small-down').should('be.visible');
+        cy.get('.icon--regular-chevron-down-xxs').should('be.visible');
 
         cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Second product');
         cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--name', 'Original product');

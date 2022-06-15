@@ -1,7 +1,7 @@
 {% block sw_icon %}
 <component
-    v-if="!replacementName || !useIconKit"
     :is="iconName"
+    v-if="!replacementName || !useIconKit"
     class="sw-icon"
     :class="classes"
     :style="styles"
@@ -10,8 +10,8 @@
 />
 
 <component
-    v-else
     :is="replacementName"
+    v-else
     class="sw-icon"
     :class="classes"
     :style="styles"

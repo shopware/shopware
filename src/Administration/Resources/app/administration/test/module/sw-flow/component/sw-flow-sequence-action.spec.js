@@ -396,7 +396,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         let actionSelect = wrapper.find('.sw-single-select__selection');
         expect(actionSelect.exists()).toBeTruthy();
 
-        const closeSelection = wrapper.find('.sw-icon[name="small-default-x-circle"]');
+        const closeSelection = wrapper.find('.sw-icon[name="regular-times-circle-s"]');
         await closeSelection.trigger('click');
 
         let addButton = wrapper.find('.sw-flow-sequence-action__add-button');

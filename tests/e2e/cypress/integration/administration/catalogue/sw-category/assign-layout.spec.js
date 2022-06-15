@@ -18,7 +18,7 @@ describe('Category: Create several categories', () => {
 
         cy.log('Check that sorting got applied for list view aswell and switch back to grid view afterwards');
         cy.get('.sw-cms-layout-modal__actions-mode').click();
-        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--small-arrow-small-up').should('exist');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--regular-chevron-up-xxs').should('exist');
         cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--name', 'Default listing layout');
         cy.get('.sw-cms-layout-modal__actions-mode').click();
 
@@ -42,12 +42,12 @@ describe('Category: Create several categories', () => {
 
         cy.log('Sort by Name, ascending');
         cy.get('.sw-cms-layout-modal__actions-sorting select').select('Name, ascending');
-        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--small-arrow-small-up').should('exist');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--regular-chevron-up-xxs').should('exist');
 
         cy.log('Sort in Grid by Name, descending');
         cy.get('.sw-data-grid__cell--selection:nth(0) input').click();
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click();
-        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--small-arrow-small-down').should('exist');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--regular-chevron-down-xxs').should('exist');
         cy.get('.sw-cms-layout-modal__actions-sorting select').should('have.value', 'name:DESC');
 
         cy.log('Select the Terms of service Layout, which should be on top in the sorting by Name, descending');
@@ -61,7 +61,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-cms-layout-modal__actions-mode').click();
 
         cy.log('check that sorting is still applied after switching back');
-        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--small-arrow-small-down').should('exist');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--regular-chevron-down-xxs').should('exist');
         cy.get('.sw-cms-layout-modal__actions-sorting select').should('have.value', 'name:DESC');
 
         cy.log('Save selection');

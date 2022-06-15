@@ -220,6 +220,15 @@ describe('Dynamic product group: Test various filters', () => {
 
         cy.get('.sw-modal').should('be.visible');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview .sw-data-grid__body .sw-data-grid__row')
             .children()
             .contains('.sw-product-variant-info__product-name', 'Product Manufacturer');

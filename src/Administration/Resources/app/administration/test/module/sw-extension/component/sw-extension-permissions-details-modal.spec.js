@@ -100,18 +100,19 @@ describe('sw-extension-permissions-details-modal', () => {
             .wrappers.map(td => td.find('.icon').text());
 
         expect(allIcons).toStrictEqual([
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C']);
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C'
+        ]);
     });
 
 
@@ -161,21 +162,22 @@ describe('sw-extension-permissions-details-modal', () => {
         const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation')
             .wrappers.map(td => td.find('.icon').text());
         expect(allIcons).toStrictEqual([
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-x-line-medium small:true color:#DE294C',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046',
-            'name:small-default-checkmark-line-medium small:true color:#37D046']);
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-times-s small:true color:#DE294C',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046',
+            'name:regular-checkmark-xs small:true color:#37D046'
+        ]);
     });
 });

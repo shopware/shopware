@@ -33,7 +33,7 @@ class Migration1652441129 extends MigrationStep
             ->execute()
             ->fetchFirstColumn();
 
-        foreach($oldIconSalesChannelTypes as $id) {
+        foreach ($oldIconSalesChannelTypes as $id) {
             $connection->executeStatement(
                 'UPDATE `sales_channel_type` SET `icon_name` = :newIconName WHERE `id`= :id',
                 [

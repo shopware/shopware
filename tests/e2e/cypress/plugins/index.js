@@ -100,4 +100,6 @@ module.exports = (on, config) => {
                 .catch((e) => reject(e));
         });
     })
+
+    return config;
 };

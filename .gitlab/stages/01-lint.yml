@@ -198,6 +198,7 @@ rufus:
   stage: lint
   image: curlimages/curl:7.72.0
   rules:
+    - !reference [ .rules, skip ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual

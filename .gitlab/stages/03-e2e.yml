@@ -20,16 +20,21 @@ E2E:
         CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
         CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
+        CYPRESS_grepTags: '-quarantined'
     parallel:
         matrix:
             -   TEST_DIRECTORY:
                     - "cypress/integration/administration/settings/**/*"
                     - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
                     - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
-                    - "cypress/integration/administration/sdk-plugin/**/*"
                     - "cypress/integration/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "major"]
+            # sdk
+            - TEST_DIRECTORY: "cypress/integration/administration/sdk-plugin/**/*"
+              BROWSER: 'chrome'
+              FEATURE_ALL: [ "false", "major" ]
+              ADMIN_SDK_TESTS: 'true'
             # firefox
             -   TEST_DIRECTORY:
                     - "cypress/integration/administration/settings/**/*"
@@ -44,7 +49,12 @@ E2E:
             export CYPRESS_INTERRUPT_ON_ERROR="true"
           fi
         - composer run init:e2e
-        - composer run e2e:prepare
+        - >
+          if [[ -n $ADMIN_SDK_TESTS ]]; then
+            composer run e2e:prepare;
+          else
+            bin/console e2e:dump-db;
+          fi
         - composer run e2e:cypress -- run
             --browser chrome
             --spec "$TEST_DIRECTORY"
@@ -71,6 +81,17 @@ E2E:
             - var/log/*
         reports:
             junit: var/log/e2e/*.xml
+
+E2E quarantined:
+  extends: E2E
+  parallel:
+    matrix:
+      - TEST_DIRECTORY:
+         - 'cypress/integration/administration/**/*'
+         - 'cypress/integration/storefront/**/*'
+        CYPRESS_grepTags: 'quarantined'
+        BROWSER: 'chrome'
+        ALLOW_FAILURE: 'true'
 
 E2E install NL:
     extends:
@@ -100,14 +121,6 @@ E2E install NL:
         - FEATURE_ALL: 'false'
         - FEATURE_ALL: 'major'
           ALLOW_FAILURE: 'true'
-    rules:
-        - !reference [ .rules, skip ]
-        - if: !reference [ .rules, run-allow-failure, if ]
-          allow_failure: true
-        - !reference [ .rules, run ]
-        - if: !reference [ .rules, long-running-allow-failure, if ]
-          allow_failure: true
-        - if: !reference [ .rules, long-running, if ]
     script:
         - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"

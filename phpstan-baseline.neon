@@ -2201,54 +2201,9 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Cannot call method getConfiguration\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DeleteNotUsedMediaService.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DeleteNotUsedMediaService.php
-
-		-
-			message: "#^Cannot call method isNoAssociation\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DeleteNotUsedMediaService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Event\\\\MediaFileExtensionWhitelistEvent\\:\\:getWhitelist\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Event/MediaFileExtensionWhitelistEvent.php
-
-		-
-			message: "#^Parameter \\#1 \\$fileName of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileFetcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function fopen expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileFetcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileFetcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$source of function stream_copy_to_stream expects resource, resource\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileFetcher.php
-
-		-
-			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Media/File/FileFetcher.php
-
-		-
-			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileFetcher.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileLoader\\:\\:loadMediaFile\\(\\) should return string but returns string\\|false\\.$#"
@@ -4739,56 +4694,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFileExists\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename_or_stream of function mime_content_type expects resource\\|string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileFetcher\\:\\:fetchFileFromURL\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileFetcher\\:\\:fetchRequestData\\(\\) expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, int given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, int\\<0, max\\>\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$query \\(Symfony\\\\Component\\\\HttpFoundation\\\\InputBag\\<string\\>\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag\\.$#"
-			count: 10
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$request \\(Symfony\\\\Component\\\\HttpFoundation\\\\InputBag\\<bool\\|float\\|int\\|string\\>\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag\\.$#"
-			count: 7
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileFetcherTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$preferredFileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
@@ -8261,21 +8166,6 @@ parameters:
 			path: src/Core/Framework/Test/App/Lifecycle/Update/DefaultAppUpdaterTest.php
 
 		-
-			message: "#^Cannot access offset 'query' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Manifest/ModuleLoaderTest.php
-
-		-
-			message: "#^Cannot access offset 'value' on array\\|bool\\|float\\|int\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Manifest/ModuleLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\App\\\\Manifest\\\\ModuleLoaderTest\\:\\:createApp\\(\\) has parameter \\$params with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Manifest/ModuleLoaderTest.php
-
-		-
 			message: "#^Cannot call method getMainModule\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Manifest/Xml/AdminTest.php
@@ -8611,11 +8501,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TranslatedVersionsTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\TreeIndexerTest\\:\\:\\$eventDispatcher is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TreeIndexerTest.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/EntityExtensionReadTest.php
@@ -8824,21 +8709,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\DateFieldSerializerTest\\:\\:testSerializer\\(\\) has parameter \\$input with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/DateFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\DateTimeFieldSerializerTest\\:\\:testSerializer\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\DateTimeFieldSerializerTest\\:\\:testSerializerString\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializerTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\EmailFieldSerializerTest\\:\\:\\$field \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\EmailField\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\.$#"
@@ -9074,16 +8944,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:\\$taxRepository is unused\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\CompositeEntitySearcherTest\\:\\:\\$definitions\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/CompositeEntitySearcherTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\CompositeEntitySearcherTest\\:\\:\\$userId is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/CompositeEntitySearcherTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\CriteriaTest\\:\\:stringConvertProvider\\(\\) has no return type specified\\.$#"
@@ -11920,16 +11780,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$analytics \\(Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelAnalytics\\\\SalesChannelAnalyticsEntity\\) does not accept Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelAnalytics\\\\SalesChannelAnalyticsEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$analyticsId \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileCollection\\:\\:getByName\\(\\) has parameter \\$key with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Files/SnippetFileCollection.php
@@ -12518,6 +12368,7 @@ parameters:
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:disableArticle\\(\\) has parameter \\$articleId with no type specified\\.$#"
 			count: 1
 			path: src/Docs/Convert/WikiApiService.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$categoryId of method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:deleteCategory\\(\\) expects string, int\\|string given\\.$#"

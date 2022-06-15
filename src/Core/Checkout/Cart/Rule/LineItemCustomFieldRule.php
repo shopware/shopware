@@ -23,6 +23,16 @@ class LineItemCustomFieldRule extends Rule
     protected $renderedFieldValue;
 
     /**
+     * @var string|null
+     */
+    protected $selectedField;
+
+    /**
+     * @var string|null
+     */
+    protected $selectedFieldSet;
+
+    /**
      * @internal
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])

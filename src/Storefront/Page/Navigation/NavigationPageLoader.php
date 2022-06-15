@@ -84,7 +84,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
                 : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
 
-            $page->getMetaInformation()->assign(['canonical' => $canonical]);
+            $page->getMetaInformation()->setCanonical($canonical);
         }
 
         return $page;

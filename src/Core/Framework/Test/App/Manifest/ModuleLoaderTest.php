@@ -137,14 +137,14 @@ class ModuleLoaderTest extends TestCase
         static::assertEquals([], $modules);
     }
 
-    private function createApp(string $name, ...$params): void
+    private function createApp(string $name, array ...$params): void
     {
         $payload = [
             'name' => $name,
             'active' => true,
             'path' => __DIR__ . '/Manifest/_fixtures/test',
             'version' => '0.0.1',
-            'label' => "test ${name}",
+            'label' => "test {$name}",
             'accessToken' => 'test',
             'appSecret' => $this->defaultSecret,
             'integration' => [
@@ -245,12 +245,15 @@ class ModuleLoaderTest extends TestCase
     private function validateSource(string $givenSource, string $urlPath, string $secret): void
     {
         $url = parse_url($givenSource);
+        static::assertIsArray($url);
+        static::assertArrayHasKey('query', $url);
         $queryString = $url['query'];
         unset($url['query']);
 
         $expectedUrl = parse_url($urlPath);
         static::assertEquals($expectedUrl, $url);
 
+        /** @var array{"value": string} $shopId */
         $shopId = $this->getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
 
         parse_str($queryString, $query);

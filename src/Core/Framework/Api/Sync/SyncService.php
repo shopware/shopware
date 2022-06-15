@@ -249,7 +249,7 @@ class SyncService implements SyncServiceInterface
     {
         $exception = new ApiConversionException();
 
-        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $exception, "/${writeIndex}");
+        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $exception, "/{$writeIndex}");
         $exception->tryToThrow();
 
         return $converted;

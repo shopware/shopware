@@ -41,8 +41,8 @@ class PluginFinder
         IOInterface $composerIO
     ): array {
         return array_merge(
+            $this->loadLocalPlugins($pluginDir, $composerIO, $errors),
             $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors),
-            $this->loadLocalPlugins($pluginDir, $composerIO, $errors)
         );
     }
 

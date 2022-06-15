@@ -194,7 +194,7 @@
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
         </service>
 
         <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true">
@@ -202,5 +202,32 @@
         </service>
 
         <service id="shopware.store_download_client" class="GuzzleHttp\Client" />
+
+        <service id="Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+
+            <tag name="shopware.store_client.middleware" priority="9999"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="request_stack"/>
+
+            <tag name="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.store_client.middleware"/>
+        </service>
     </services>
 </container>

@@ -20,7 +20,7 @@ describe('Cache module', () => {
     });
 
     // NEXT-20024
-    it.skip('@base @settings: clear cache', () => {
+    it('@base @settings: clear cache', { tags: ['quarantined'] }, () => {
         cy.contains('Caches & Indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();

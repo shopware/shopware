@@ -181,7 +181,7 @@ describe('Product: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@catalogue: check filter function and display listing correctly', () => {
+    it('@catalogue: check filter function and display listing correctly', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -248,7 +248,7 @@ describe('Product: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@catalogue: check reset filter', () => {
+    it('@catalogue: check reset filter', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);

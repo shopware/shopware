@@ -15,7 +15,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
     });
 
     // skipped because it has a dependency to the sbp, see NEXT-15818
-    it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
+    it('@frw: Tests the auto-install of the first run wizard with dutch', { tags: ['quarantined'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -77,7 +77,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         cy.contains('.sw-first-run-wizard-modal', 'Welkom bij de Shopware 6 Administration');
     });
 
-    it.skip('@frw: Should fail to install Lingala', () => {
+    it('@frw: Should fail to install Lingala', { tags: ['quarantined'] }, () => {
         AddLanguageToLanguageTable('No Plugin Available Language', 'ln-CD', 'Lingala, Democratic Republic of the Congo');
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`).then(() => {
             cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible').then(() => {

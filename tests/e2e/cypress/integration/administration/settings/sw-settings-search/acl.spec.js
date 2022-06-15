@@ -16,7 +16,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: access the search but without rights', () => {
+    it('@settings: access the search but without rights', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
@@ -26,7 +26,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: can view the general tab and live search tab content', () => {
+    it('@settings: can view the general tab and live search tab content', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -58,7 +58,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Search behaviour section
-    it.skip('@settings: can edit search behaviour settings if having editor/creator privilege', () => {
+    it('@settings: can edit search behaviour settings if having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -102,7 +102,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section - General tab
-    it.skip('@settings: should able to update config field', () => {
+    it('@settings: should able to update config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -149,7 +149,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to reset config to default on general tab', () => {
+    it('@settings: should able to reset config to default on general tab', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -204,7 +204,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section -> Custom field tab
-    it.skip('@settings: should able to create a custom config field', () => {
+    it('@settings: should able to create a custom config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -272,7 +272,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to update config field', () => {
+    it('@settings: should able to update config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -352,7 +352,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to delete config field', () => {
+    it('@settings: should able to delete config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -432,7 +432,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Excluded search terms section
-    it.skip('@settings: can create the excluded search terms having creator privilege', () => {
+    it('@settings: can create the excluded search terms having creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -470,7 +470,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: can update the excluded search terms having editor/creator privilege', () => {
+    it('@settings: can update the excluded search terms having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -509,7 +509,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to a delete a excluded terms if having deleter privilege', () => {
+    it('@settings: should able to a delete a excluded terms if having deleter privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -554,7 +554,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Rebuild search index section
-    it.skip('@settings: can rebuild the search index if having editor/creator privilege', () => {
+    it('@settings: can rebuild the search index if having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',

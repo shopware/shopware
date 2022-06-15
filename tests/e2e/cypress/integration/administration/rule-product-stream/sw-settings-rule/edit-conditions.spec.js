@@ -68,7 +68,7 @@ describe('Rule builder: Test crud operations', () => {
     });
 
     // TODO: E2E will be fixed and removed skip in NEXT-16286
-    it.skip('@rule: edit rule conditions', () => {
+    it('@rule: edit rule conditions', { tags: ['quarantined'] }, () => {
         const page = new RulePageObject();
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');

@@ -13,7 +13,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: Pagination for product search config excluded terms', () => {
+    it('@settings: Pagination for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -30,7 +30,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: create and update config for product search config excluded terms', () => {
+    it('@settings: create and update config for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -96,7 +96,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: search term for product search config excluded terms', () => {
+    it('@settings: search term for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         const searchTerm = 'example';
@@ -120,7 +120,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: delete config for product search config excluded terms', () => {
+    it('@settings: delete config for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

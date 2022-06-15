@@ -63,6 +63,10 @@ class RedisCartPersister extends AbstractCartPersister
             throw new CartTokenNotFoundException($token);
         }
 
+        if (!isset($value['compressed'])) {
+            throw new CartTokenNotFoundException($token);
+        }
+
         $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize((string) $value['content']);
 
         if (!\is_array($content)) {
@@ -91,7 +95,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete(self::PREFIX . $cart->getToken(), $context);
+            $this->delete($cart->getToken(), $context);
 
             return;
         }

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -34,16 +33,11 @@ class StoreApiProxyControllerTest extends TestCase
 
     private Request $request;
 
-    private EntityRepositoryInterface $customerRepository;
-
-    private TestDataCollection $ids;
-
     private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->ids = new TestDataCollection();
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $this->salesChannelContext = $this->createSalesChannelContext();
     }
 
@@ -52,7 +46,9 @@ class StoreApiProxyControllerTest extends TestCase
         $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
         static::assertNotEmpty($json);
         static::assertSame('salutation', $json['elements'][0]['apiAlias']);
@@ -65,7 +61,9 @@ class StoreApiProxyControllerTest extends TestCase
         $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
         static::assertNotEmpty($json);
         static::assertSame('salutation', $json['elements'][0]['apiAlias']);
@@ -76,7 +74,9 @@ class StoreApiProxyControllerTest extends TestCase
         $response = $this->request('GET', '/store-api/salutation?limit=1');
 
         static::assertSame(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
         static::assertNotEmpty($json);
         static::assertCount(1, $json['elements']);
@@ -89,7 +89,9 @@ class StoreApiProxyControllerTest extends TestCase
         ]);
 
         static::assertSame(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
         static::assertNotEmpty($json);
         static::assertCount(1, $json['elements']);
@@ -102,7 +104,9 @@ class StoreApiProxyControllerTest extends TestCase
         ]);
 
         static::assertSame(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
         static::assertNotEmpty($json);
         static::assertCount(1, $json['errors']);
@@ -175,9 +179,11 @@ class StoreApiProxyControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true)['product']['translated'];
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
 
-        static::assertSame('Second', $json['name']);
+        static::assertSame('Second', $json['product']['translated']['name']);
     }
 
     public function testHeaderLanguageIsConsidered(): void
@@ -202,7 +208,9 @@ class StoreApiProxyControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $json = json_decode($content, true);
         static::assertSame($secondLanguage, $json['context']['languageIdChain'][0]);
 
         if (!Feature::isActive('FEATURE_NEXT_17276')) {
@@ -231,10 +239,11 @@ class StoreApiProxyControllerTest extends TestCase
 
     private function request(string $method, string $url, array $body = [], array $headers = []): Response
     {
+        /** @var array|false $urlComponents */
         $urlComponents = parse_url($url);
         $query = [];
 
-        if (isset($urlComponents['query'])) {
+        if (\is_array($urlComponents) && isset($urlComponents['query'])) {
             parse_str($urlComponents['query'], $query);
         }
 

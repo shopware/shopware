@@ -1,5 +1,8 @@
 import HttpClient from './http-client.service';
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, call the store-api directly or create a custom controller that uses the store-api route internally
+ */
 export default class StoreApiClient extends HttpClient {
 
     constructor() {

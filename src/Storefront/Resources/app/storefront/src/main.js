@@ -206,7 +206,9 @@ if (window.googleReCaptchaV3Active) {
     PluginManager.register('GoogleReCaptchaV3', GoogleReCaptchaV3Plugin, '[data-google-re-captcha-v3]');
 }
 
-window.storeApiClient = StoreApiClient;
+if (!Feature.isActive('v6.5.0.0')) {
+    window.storeApiClient = StoreApiClient;
+}
 
 window.Feature = Feature;
 

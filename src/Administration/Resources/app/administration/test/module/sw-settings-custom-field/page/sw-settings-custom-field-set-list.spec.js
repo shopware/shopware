@@ -174,4 +174,12 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
         expect(editMenuItem.attributes('disabled')).toBeFalsy();
     });
+
+    it('should contain a listing criteria with page and limit properties', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.listingCriteria.page).toEqual(1);
+        expect(wrapper.vm.listingCriteria.limit).toEqual(25);
+    });
 });

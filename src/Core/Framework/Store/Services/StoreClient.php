@@ -527,14 +527,18 @@ class StoreClient
             $headers = [];
         }
 
-        $response = $this->client->post(
-            $this->endpoints['my_plugin_updates'],
-            [
-                'query' => $query,
-                'headers' => $headers,
-                'json' => ['plugins' => $extensionList],
-            ]
-        );
+        try {
+            $response = $this->client->post(
+                $this->endpoints['my_plugin_updates'],
+                [
+                    'query' => $query,
+                    'headers' => $headers,
+                    'json' => ['plugins' => $extensionList],
+                ]
+            );
+        } catch (\Throwable $throwable) {
+            return [];
+        }
 
         $data = \json_decode($response->getBody()->getContents(), true);
 

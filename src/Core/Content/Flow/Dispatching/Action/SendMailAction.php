@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -197,12 +198,18 @@ class SendMailAction extends FlowAction
                 $this->getTemplateData($mailEvent)
             );
 
-            $writes = array_map(static function ($id) {
-                return ['id' => $id, 'sent' => true];
-            }, array_column($attachments, 'id'));
+            $documentAttachments = array_filter($attachments, function (array $attachment) use ($extension) {
+                return \array_key_exists('id', $attachment) && \in_array($attachment['id'], $extension->getDocumentIds(), true);
+            });
 
-            if (!empty($writes)) {
-                $this->documentRepository->update($writes, $event->getContext());
+            $documentAttachments = array_column($documentAttachments, 'id');
+
+            if (!empty($documentAttachments)) {
+                $this->connection->executeStatement(
+                    'UPDATE `document` SET `updated_at` = :now, `sent` = 1 WHERE `id` IN (:ids)',
+                    ['ids' => Uuid::fromHexToBytesList($documentAttachments), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                    ['ids' => Connection::PARAM_STR_ARRAY]
+                );
             }
         } catch (\Exception $e) {
             $this->logger->error(
@@ -315,15 +322,20 @@ class SendMailAction extends FlowAction
             }
         }
 
-        if (!empty($extensions->getDocumentIds())) {
-            $attachments = $this->buildOrderAttachments($extensions->getDocumentIds(), $attachments, $mailEvent->getContext());
+        $documentIds = $extensions->getDocumentIds();
+
+        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $mailEvent instanceof OrderAware) {
+            $latestDocuments = $this->getLatestDocumentsOfTypes($mailEvent->getOrderId(), $eventConfig['documentTypeIds']);
+
+            $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
         }
 
-        if (empty($eventConfig['documentTypeIds']) || !\is_array($eventConfig['documentTypeIds']) || !$mailEvent instanceof OrderAware) {
-            return $attachments;
+        if (!empty($documentIds)) {
+            $extensions->setDocumentIds($documentIds);
+            $attachments = $this->buildOrderAttachments($documentIds, $attachments, $mailEvent->getContext());
         }
 
-        return $this->buildFlowSettingAttachments($mailEvent->getOrderId(), $eventConfig['documentTypeIds'], $attachments, $mailEvent->getContext());
+        return $attachments;
     }
 
     private function injectTranslator(MailAware $event): bool
@@ -389,7 +401,7 @@ class SendMailAction extends FlowAction
         return $this->mappingAttachmentsInfo($entities, $attachments, $context);
     }
 
-    private function buildFlowSettingAttachments(string $orderId, array $documentTypeIds, array $attachments, Context $context): array
+    private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
         $documents = $this->connection->fetchAllAssociative(
             'SELECT
@@ -413,21 +425,13 @@ class SendMailAction extends FlowAction
 
         $documentsGroupByType = FetchModeHelper::group($documents);
 
+        $documentIds = [];
+
         foreach ($documentsGroupByType as $document) {
             $documentIds[] = array_shift($document)['doc_id'];
         }
 
-        if (empty($documentIds)) {
-            return $attachments;
-        }
-
-        $criteria = new Criteria($documentIds);
-        $criteria->setTitle('send-mail::load-flow-documents');
-        $criteria->addAssociations(['documentMediaFile', 'documentType']);
-
-        $entities = $this->documentRepository->search($criteria, $context);
-
-        return $this->mappingAttachmentsInfo($entities, $attachments, $context);
+        return $documentIds;
     }
 
     private function mappingAttachmentsInfo(EntityCollection $entities, array $attachments, Context $context): array

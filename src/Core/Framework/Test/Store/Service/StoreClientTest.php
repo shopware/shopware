@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Store\Service;
 
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -176,6 +177,7 @@ class StoreClientTest extends TestCase
             'avatarUrl' => 'https://avatar.shopware.com/john-doe.png',
         ];
 
+        $this->getRequestHandler()->append();
         $this->getRequestHandler()->append(new Response(200, [], \json_encode($userInfo, \JSON_THROW_ON_ERROR)));
 
         $returnedUserInfo = $this->storeClient->userInfo($this->storeContext);
@@ -186,5 +188,23 @@ class StoreClientTest extends TestCase
         static::assertEquals('/swplatform/userinfo', $lastRequest->getUri()->getPath());
         static::assertEquals('GET', $lastRequest->getMethod());
         static::assertEquals($userInfo, $returnedUserInfo);
+    }
+
+    public function testMissingConnectionBecauseYouAreInGermanCellularInternet(): void
+    {
+        $this->getRequestHandler()->append(new ConnectException(
+            'cURL error 7: Failed to connect to api.shopware.com port 443 after 4102 ms: Network is unreachable (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://api.shopware.com/swplatform/pluginupdates?shopwareVersion=6.4.12.0&language=de-DE&domain=',
+            $this->createMock(RequestInterface::class)
+        ));
+
+        $pluginList = new ExtensionCollection();
+        $pluginList->add((new ExtensionStruct())->assign([
+            'name' => 'TestExtension',
+            'version' => '1.0.0',
+        ]));
+
+        $returnedUserInfo = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
+
+        static::assertSame([], $returnedUserInfo);
     }
 }

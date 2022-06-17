@@ -57,6 +57,7 @@ describe('Category: Visual tests', () => {
         cy.get('.sw-skeleton__tree-item-nested').should('not.exist');
 
         cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

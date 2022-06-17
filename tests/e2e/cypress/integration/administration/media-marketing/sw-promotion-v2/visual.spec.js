@@ -77,6 +77,8 @@ describe('Promotion v2: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
+        const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
+        cy.get('.sw-promotion-v2-detail__save-action').contains(save).trigger('mouseout').trigger('mouseleave');
         cy.contains('General settings').click();
         cy.get('.sw-tooltip').should('not.exist');
         cy.prepareAdminForScreenshot();

@@ -30,10 +30,10 @@ describe('Rule builder: Visual tests', () => {
         cy.get('.sw-settings-rule-list__content').should('exist');
 
         // Change text of the element to ensure consistent snapshots
-        cy.changeElementText('.sw-data-grid__cell--updatedAt', '01 Jan 2018, 00:01');
+        cy.changeElementText('.sw-data-grid__cell--updatedAt .sw-data-grid__cell-content', '01 Jan 2018, 00:01');
 
         // Change text of the element to ensure consistent snapshots
-        cy.changeElementText('.sw-data-grid__cell--createdAt', '01 Jan 2018, 00:00');
+        cy.changeElementText('.sw-data-grid__cell--createdAt .sw-data-grid__cell-content', '01 Jan 2018, 00:00');
 
         // Take snapshot for visual testing
         cy.get(page.elements.loader).should('not.exist');

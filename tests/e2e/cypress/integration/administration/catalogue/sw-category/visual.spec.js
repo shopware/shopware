@@ -41,6 +41,7 @@ describe('Category: Visual tests', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
+        cy.get('.sw-media-upload-v2__switch-mode').should('exist');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(

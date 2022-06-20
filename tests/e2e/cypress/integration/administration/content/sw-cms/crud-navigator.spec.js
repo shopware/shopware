@@ -21,6 +21,8 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         }).then(() => {
             cy.viewport(1920, 1080);
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/detail/${pageId}`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
 
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/cms-page/*`,

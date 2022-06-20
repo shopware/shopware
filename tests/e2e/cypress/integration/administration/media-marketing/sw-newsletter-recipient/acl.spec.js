@@ -20,6 +20,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     // TODO Unskip if NEXT-11444 is fixed
     it.skip('@marketing: read NewsletterRecipient with ACL, but without rights', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__cell--email').click();
         cy.location('hash').then(hash => {
             cy.loginAsUserWithPermissions([]);
@@ -44,6 +46,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
@@ -67,6 +71,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -107,6 +113,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check that NewsletterRecipient exists
         cy.contains('Mustermann').should('exist');

@@ -183,6 +183,8 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         // Go to shipping methods
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/detail/${shippingMethodId}`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Assign rule to shipping method
         cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
@@ -197,6 +199,8 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         // Go back to rule
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');

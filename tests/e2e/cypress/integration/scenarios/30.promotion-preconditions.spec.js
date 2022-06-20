@@ -22,6 +22,8 @@ describe('Promotions: pre-conditions', () => {
             return cy.createDefaultFixture('promotion');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -91,6 +93,8 @@ describe('Promotions: pre-conditions', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -108,6 +112,8 @@ describe('Promotions: pre-conditions', () => {
 
         // Set the second promotion
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'promotion/v2/index');
         cy.contains('Thunder Tuesday').click();
         cy.url().should('include', 'promotion/v2/detail');
@@ -163,6 +169,8 @@ describe('Promotions: pre-conditions', () => {
 
             // Set promotion settings to 'Prevent combination with other promotions'
             cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
             cy.url().should('include', 'promotion/v2/index');
             cy.contains('Thunder Tuesday').click();
             cy.url().should('include', 'promotion/v2/detail');

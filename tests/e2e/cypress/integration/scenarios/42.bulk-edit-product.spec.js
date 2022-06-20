@@ -47,10 +47,14 @@ describe('Bulk Edit - Products', () => {
 
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
         cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
         cy.get('.link.link-primary').click();
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Make changes on both product
         cy.get('.sw-product-bulk-edit-modal').should('exist');
@@ -102,6 +106,8 @@ describe('Bulk Edit - Products', () => {
 
         // Verify from the product details
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -126,6 +132,8 @@ describe('Bulk Edit - Products', () => {
 
         // Verify from the second product details
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

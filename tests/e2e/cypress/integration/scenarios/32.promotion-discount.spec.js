@@ -22,6 +22,8 @@ describe('Promotions: Discount for a specific range of products', () => {
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -104,6 +106,8 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -225,6 +229,8 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -343,6 +349,8 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -359,6 +367,8 @@ describe('Promotions: Discount for a specific range of products', () => {
         cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('E2E install test')
             .selectCountryForSalesChannel('USA');

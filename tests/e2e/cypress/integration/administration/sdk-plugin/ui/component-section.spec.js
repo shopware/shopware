@@ -16,6 +16,9 @@ describe('SDK Tests: Component section', ()=> {
             .then(() => {
                 cy.log('Open example product');
 
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+
                 cy.get('.smart-bar__content')
                     .should('be.visible');
                 cy.contains('.smart-bar__content', 'Products');

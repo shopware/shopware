@@ -13,6 +13,8 @@ describe('Flow builder: flow detail page', () => {
             })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

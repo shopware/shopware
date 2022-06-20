@@ -129,6 +129,8 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const searchTerm = 'Pep';
 
@@ -228,6 +230,8 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index?term=Pep&page=2&limit=10&sortBy=lastName,firstName&sortDirection=ASC&naturalSorting=false`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm: 'Pep',

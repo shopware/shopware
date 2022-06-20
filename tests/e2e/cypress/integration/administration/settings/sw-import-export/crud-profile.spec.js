@@ -8,6 +8,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();
@@ -534,6 +536,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // Verify the export profile cant be used for importing
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/import`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-import-export-importer__profile-select').click();
         cy.get('.sw-import-export-importer__profile-select input').type('BasicExportWizard');
         cy.get('.sw-select-result-list__empty').should('be.visible');

@@ -122,6 +122,8 @@ describe('Checkout: Visual tests', () => {
 
         cy.login();
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.prepareAdminForScreenshot();

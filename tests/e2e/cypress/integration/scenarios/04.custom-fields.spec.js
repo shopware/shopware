@@ -12,6 +12,8 @@ describe('Creating custom fields and assigning to various models', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -51,6 +53,8 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // check custom text field from the categories
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.sw-tree-item__label').click();
         cy.contains('Vrije tekstvelden').scrollIntoView();
@@ -64,6 +68,8 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // check the existence of the custom field from the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.get('.sw-data-grid__table a').click();
         cy.url().should('include', 'product/detail');
@@ -96,6 +102,8 @@ describe('Creating custom fields and assigning to various models', () => {
         const typeOfTheCustom = 'Nummer veld';
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'custom/field/create');
 
         // create new custom field
@@ -126,6 +134,8 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // check custom fields from the categories
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.sw-tree-item__label').click();
         cy.contains('Vrije tekstvelden').scrollIntoView();
@@ -140,6 +150,8 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // create rule builder and define custom field
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/create/base`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'rule/create/base');
         cy.get('input#sw-field--rule-name').type('custom rule builder');
         cy.get('input#sw-field--rule-priority').type('1');

@@ -35,6 +35,8 @@ describe('Order: Test promotions in existing orders', () => {
                 salesChannelId = data.id;
 
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

@@ -11,6 +11,8 @@ describe('Media: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -44,6 +46,8 @@ describe('Media: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-index__page-content').should('be.visible');
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
@@ -86,6 +90,8 @@ describe('Media: Visual tests', () => {
         const page = new ProductPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({

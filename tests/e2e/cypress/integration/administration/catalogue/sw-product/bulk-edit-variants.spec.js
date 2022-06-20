@@ -91,6 +91,8 @@ describe('Product: Bulk edit variants', () => {
         // Go to products page to create variant product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
@@ -232,6 +234,8 @@ describe('Product: Bulk edit variants', () => {
         // Verify the changes from the variant product details
         cy.log('Verify the changes from the variant products');
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--x-small.sw-product-list__variant-indicator').click();
         cy.get('.sw-data-grid__row.sw-data-grid__row--0 .sw-product-variant-info.sw-product-variant-modal__variant-options').click();
         cy.get('.sw-text-editor__content-editor').should('include.text', bulkEditVariants.description);

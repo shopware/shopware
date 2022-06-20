@@ -13,6 +13,8 @@ describe('Product: Edit in various ways', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -84,6 +86,8 @@ describe('Product: Edit in various ways', () => {
 
         // Access custom field
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-grid__cell-content a', 'My custom field').should('be.visible');
         cy.contains('.sw-grid__cell-content a', 'My custom field').click();
 
@@ -97,6 +101,8 @@ describe('Product: Edit in various ways', () => {
 
         // Open product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,

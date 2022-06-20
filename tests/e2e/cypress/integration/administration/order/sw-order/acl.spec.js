@@ -35,6 +35,8 @@ describe('Order: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
@@ -112,6 +114,8 @@ describe('Order: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
@@ -189,6 +193,8 @@ describe('Order: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');

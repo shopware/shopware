@@ -10,6 +10,8 @@ describe('Language: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,7 +30,8 @@ describe('Language: Visual testing', () => {
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Language] Listing', '.sw-settings-language-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

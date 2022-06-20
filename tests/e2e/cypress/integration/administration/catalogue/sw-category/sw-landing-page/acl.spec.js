@@ -57,6 +57,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for duplicate landing page
         cy.intercept({
@@ -109,6 +111,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for save landing page
         cy.intercept({
@@ -157,6 +161,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for loading landing pages
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
@@ -196,6 +202,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for update landing page
         cy.intercept({
@@ -258,6 +266,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for delete landing page
         cy.intercept({

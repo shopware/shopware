@@ -31,6 +31,8 @@ describe('Product: Check cross selling integration', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -70,6 +72,8 @@ describe('Product: Check cross selling integration', () => {
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();
@@ -132,6 +136,8 @@ describe('Product: Check cross selling integration', () => {
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();
@@ -223,6 +229,8 @@ describe('Product: Check cross selling integration', () => {
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();

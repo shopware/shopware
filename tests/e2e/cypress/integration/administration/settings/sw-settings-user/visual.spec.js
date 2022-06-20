@@ -51,6 +51,8 @@ describe('User: Visual testing', () => {
         cy.contains('Users & permissions').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-user-list').should('be.visible');
 
         // Shoot snapshots

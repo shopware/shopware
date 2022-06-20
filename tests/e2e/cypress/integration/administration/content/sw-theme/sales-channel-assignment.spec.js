@@ -9,6 +9,8 @@ describe('Theme: Test sales channel assignment', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -66,6 +68,8 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@loadData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');

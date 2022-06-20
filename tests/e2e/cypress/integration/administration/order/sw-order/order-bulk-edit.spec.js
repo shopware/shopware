@@ -19,6 +19,8 @@ describe('Order: Bulk edit orders', () => {
             return cy.createCustomerFixture();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -71,6 +73,8 @@ describe('Order: Bulk edit orders', () => {
 
         // Bulk edit
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
         cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
@@ -104,6 +108,8 @@ describe('Order: Bulk edit orders', () => {
 
         //Verify changes from the first order
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
         cy.get('.sw-data-grid__row.sw-data-grid__row--0')
             .within(() => {

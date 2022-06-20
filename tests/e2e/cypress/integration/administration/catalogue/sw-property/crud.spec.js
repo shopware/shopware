@@ -12,6 +12,8 @@ describe('Property: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,6 +30,7 @@ describe('Property: Test crud operations', () => {
 
         // Add property group
         cy.get('a[href="#/sw/property/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--propertyGroup-name]').typeAndCheck('1 Coleur');

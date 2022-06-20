@@ -9,6 +9,8 @@ describe('Salutation: Visual tesing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,7 +28,8 @@ describe('Salutation: Visual tesing', () => {
         cy.get('#sw-settings-salutation').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Salutation] Listing', '.sw-settings-salutation-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

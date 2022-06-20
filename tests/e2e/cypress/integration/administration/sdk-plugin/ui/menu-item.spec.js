@@ -11,6 +11,9 @@ describe('Category: SDK Test', ()=> {
 
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
 

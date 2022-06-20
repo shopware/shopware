@@ -35,6 +35,8 @@ describe('Customer: Edit customer\'s addresses', () => {
             .then(result => {
                 customer = result;
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

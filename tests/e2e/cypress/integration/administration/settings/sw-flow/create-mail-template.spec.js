@@ -15,6 +15,8 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
     it('@settings: create mail template for send mail action', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
         cy.intercept({
@@ -82,7 +84,8 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
         cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
         cy.get('.sw-empty-state').should('not.exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,

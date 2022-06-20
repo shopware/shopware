@@ -23,6 +23,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -106,6 +108,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // make manual order
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
 
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
@@ -144,11 +148,15 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // verify the new customer's order from the products page
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__cell--price-EUR > .sw-data-grid__cell-content')
             .should('include.text', '10,00');
 
         // verify the new customer's order from the order page
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Bestellingen').should('be.visible');
         cy.get('.sw-order-list__manual-order-label .sw-label__caption')
             .should('include.text', 'Handmatige bestelling');

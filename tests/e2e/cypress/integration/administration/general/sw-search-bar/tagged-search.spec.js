@@ -16,8 +16,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Products').click();
@@ -39,8 +39,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
@@ -65,8 +65,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Customers').click();
@@ -116,8 +116,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Orders').click();
@@ -138,6 +138,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         const page = new MediaPageObject();
@@ -164,8 +166,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Media').click();

@@ -21,6 +21,8 @@ describe('Product: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -38,6 +40,8 @@ describe('Product: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-list__content').should('be.visible');
 
         cy.get('.sw-skeleton__listing').should('not.exist');
@@ -211,6 +215,8 @@ describe('Product: Visual tests', () => {
         // Open product and add cross selling
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-list-grid').should('be.visible');
 
         cy.contains('Original product').click();

@@ -20,6 +20,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -47,6 +49,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -128,6 +132,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -178,6 +184,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({

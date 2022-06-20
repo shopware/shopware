@@ -19,6 +19,8 @@ describe('Theme: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open property without permissions
@@ -38,6 +40,8 @@ describe('Theme: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Ensure theme name
@@ -101,6 +105,8 @@ describe('Theme: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Open theme
@@ -141,6 +147,8 @@ describe('Theme: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Navigate to theme manager
@@ -194,6 +202,8 @@ describe('Theme: Test ACL privileges', () => {
             ]);
         }).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Open theme actions of desired theme

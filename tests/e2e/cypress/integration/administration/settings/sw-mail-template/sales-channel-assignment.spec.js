@@ -5,6 +5,8 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         cy.intercept({
@@ -28,6 +30,8 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('#sw-mail-template').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 
@@ -63,8 +67,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         });
 
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData')
-    .its('response.statusCode').should('equal', 200);
+        cy.wait('@getData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 
@@ -129,8 +134,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         });
 
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData')
-    .its('response.statusCode').should('equal', 200);
+        cy.wait('@getData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 

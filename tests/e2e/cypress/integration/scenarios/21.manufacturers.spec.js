@@ -17,6 +17,8 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -75,6 +77,8 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
 
         // assign manufacturer to the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -120,6 +124,8 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();

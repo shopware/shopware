@@ -16,11 +16,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Pro');
@@ -48,11 +45,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cat');
@@ -80,11 +74,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cus');
@@ -136,11 +127,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Ord');
@@ -170,6 +158,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         const page = new MediaPageObject();
@@ -224,11 +214,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('add new prod');

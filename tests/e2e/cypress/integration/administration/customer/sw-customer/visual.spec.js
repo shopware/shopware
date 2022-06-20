@@ -33,6 +33,8 @@ describe('Customer:  Visual test', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -57,6 +59,8 @@ describe('Customer:  Visual test', () => {
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Take snapshot for visual testing
         cy.contains('.sw-select__selection', 'English');

@@ -29,6 +29,8 @@ describe('Customer: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -43,6 +45,8 @@ describe('Customer: Test crud operations', () => {
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-customer-base-form__account-type-select')
             .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');

@@ -28,6 +28,8 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open product
@@ -90,6 +92,8 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open product
@@ -140,6 +144,8 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.smart-bar__header h2').should('be.visible');
@@ -149,8 +155,8 @@ describe('Product: Test ACL privileges', () => {
         // create new product
         cy.get('a[href="#/sw/product/create"]').click();
         cy.contains('.smart-bar__header h2', 'New product');
-        cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--product-name').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
@@ -209,6 +215,8 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Delete product

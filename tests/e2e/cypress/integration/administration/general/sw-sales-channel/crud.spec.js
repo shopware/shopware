@@ -7,6 +7,8 @@ describe('Sales Channel: Test crud operations', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -48,6 +50,8 @@ describe('Sales Channel: Test crud operations', () => {
             mainMenuId: 'sw-customer',
             subMenuId: 'sw-customer-index'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.smart-bar__actions a[href="#/sw/customer/create"]').click();
         cy.get('.sw-customer-base-form__sales-channel-select')
             .typeSingleSelectAndCheck('1st Epic Sales Channel', '.sw-customer-base-form__sales-channel-select');

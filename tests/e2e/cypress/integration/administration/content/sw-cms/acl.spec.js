@@ -21,6 +21,8 @@ describe('Category: Test ACL privileges', () => {
 
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title',
             'Vierte Wand');
@@ -36,6 +38,8 @@ describe('Category: Test ACL privileges', () => {
 
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-cms-list-item--0 > .sw-cms-list-item__info > .sw-cms-list-item__title',
             'Vierte Wand');
@@ -61,6 +65,8 @@ describe('Category: Test ACL privileges', () => {
 
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -113,6 +119,8 @@ describe('Category: Test ACL privileges', () => {
 
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,

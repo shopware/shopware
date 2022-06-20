@@ -95,8 +95,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('product-');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -117,8 +117,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -141,8 +141,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -188,8 +188,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -215,7 +215,9 @@ describe('Search bar: Check main functionality', () => {
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
@@ -235,8 +237,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         setMediaEntitySearchable();
 
@@ -260,8 +262,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('e');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -291,8 +293,8 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('name');
 

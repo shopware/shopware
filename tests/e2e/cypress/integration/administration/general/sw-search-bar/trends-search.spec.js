@@ -13,6 +13,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
         }).as('getFrequentlyUsed');
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('products');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -23,8 +25,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
         cy.get('.sw-dashboard')
             .should('exist');
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
 
@@ -44,6 +46,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         cy.get('input.sw-search-bar__input').type('Product');

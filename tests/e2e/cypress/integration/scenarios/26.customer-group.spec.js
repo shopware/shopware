@@ -4,6 +4,8 @@ describe('Admin & Storefront: test customer group registration', () => {
     beforeEach(() => {
         cy.loginViaApi().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -123,6 +125,8 @@ describe('Admin & Storefront: test customer group registration', () => {
 
         // Accept commercial customer in admin
         cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-customer-list__requested-group-label .sw-label__caption', 'Verzoek VIP Commercial');
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',

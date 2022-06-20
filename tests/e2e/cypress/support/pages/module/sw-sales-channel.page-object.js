@@ -65,6 +65,8 @@ export default class SalesChannelPageObject {
     openSalesChannel(salesChannelName, position = 0) {
         cy.contains(`${this.elements.salesChannelMenuName}--${position} > a`, salesChannelName);
         cy.get(`${this.elements.salesChannelMenuName}--${position}`).click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains(this.elements.smartBarHeader, salesChannelName);
     }
 

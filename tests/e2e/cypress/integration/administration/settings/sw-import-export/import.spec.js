@@ -8,6 +8,8 @@ describe('Import/Export - Check import functionality', () => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/import`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();
@@ -72,6 +74,8 @@ describe('Import/Export - Check import functionality', () => {
 
         // Verify that the imported product exists in product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Example product');
     });
 });

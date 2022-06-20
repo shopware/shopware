@@ -20,6 +20,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
@@ -62,6 +64,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
@@ -118,6 +122,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
@@ -169,6 +175,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
@@ -190,6 +198,8 @@ describe('Custom Fields: Test crud operations', () => {
         cy.contains('.sw-empty-state__title', 'No custom fields yet.');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // delete custom field set
         cy.get('.sw-grid__row--0 .sw-context-button__button').click();

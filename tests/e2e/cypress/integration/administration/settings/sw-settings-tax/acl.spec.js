@@ -32,6 +32,8 @@ describe('Tax: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -73,6 +75,8 @@ describe('Tax: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -114,6 +118,8 @@ describe('Tax: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

@@ -19,6 +19,8 @@ describe('Sales Channel: Test acl', () => {
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
 
         cy.get('.sw-tabs-item').eq(1).click();
@@ -44,6 +46,8 @@ describe('Sales Channel: Test acl', () => {
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
         cy.get('#sw-field--salesChannel-name').clearTypeAndCheck('Shopsite');
 
@@ -111,6 +115,8 @@ describe('Sales Channel: Test acl', () => {
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-sales-channel-detail-base__button-delete').scrollIntoView().click();
         cy.get('.sw-modal__footer .sw-button--danger').click();
 

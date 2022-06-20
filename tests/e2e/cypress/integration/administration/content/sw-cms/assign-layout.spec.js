@@ -40,6 +40,8 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -100,6 +102,8 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Collapse category and expand landing page tree
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
 
@@ -171,6 +175,8 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
@@ -236,6 +242,8 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Navigate to settings basic information
         cy.visit(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify contact page has assigned layout
         cy.get('.sw-system-config--field-core-basic-information-contact-page').scrollIntoView();

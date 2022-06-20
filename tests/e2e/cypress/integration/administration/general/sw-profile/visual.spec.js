@@ -4,6 +4,8 @@ describe('Profile: Visual tests', () => {
     beforeEach(() => {
         cy.loginViaApi().then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

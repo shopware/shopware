@@ -9,6 +9,8 @@ describe('Administration: Check module navigation', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,6 +28,8 @@ describe('Administration: Check module navigation', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-review-list').should('be.visible');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');

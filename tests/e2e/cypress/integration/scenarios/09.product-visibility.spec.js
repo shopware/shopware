@@ -9,6 +9,8 @@ describe('Admin & Storefront - product visibility', () => {
             cy.createProductFixture();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -47,6 +49,8 @@ describe('Admin & Storefront - product visibility', () => {
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
@@ -100,6 +104,8 @@ describe('Admin & Storefront - product visibility', () => {
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
@@ -152,6 +158,8 @@ describe('Admin & Storefront - product visibility', () => {
 
         // Define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();

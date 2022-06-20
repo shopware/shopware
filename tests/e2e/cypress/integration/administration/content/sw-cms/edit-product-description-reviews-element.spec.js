@@ -16,6 +16,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -69,6 +71,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
@@ -102,6 +106,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
         }).as('saveCategory');
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-cms-list-item--0').click();
 
@@ -132,6 +138,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();

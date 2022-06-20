@@ -11,6 +11,8 @@ describe('Validation of theme and cache after auto update', () => {
     it('@update: Check caches after update', () => {
         cy.login();
         cy.visit('/admin#/sw/settings/cache/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Caches leeren').click();
         cy.visit('/');

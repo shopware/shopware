@@ -59,4 +59,39 @@ class RateLimiterFactoryTest extends TestCase
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
     }
+
+    public function testFactoryShouldUseSymfonyFactoryOverrideDefaultConfig(): void
+    {
+        $factory = new RateLimiterFactory(
+            array_merge(
+                [
+                    'enabled' => true,
+                    'id' => 'test_limiter',
+                    'policy' => 'time_backoff',
+                    'reset' => '1 hour',
+                    'limits' => [
+                        [
+                            'limit' => 3,
+                            'interval' => '10 seconds',
+                        ],
+                        [
+                            'limit' => 5,
+                            'interval' => '30 seconds',
+                        ],
+                    ],
+                ],
+                [
+                    'enabled' => true,
+                    'id' => 'test_limiter',
+                    'policy' => 'token_bucket',
+                    'limit' => 3,
+                    'rate' => ['interval' => '60 seconds'],
+                ],
+            ),
+            $this->createMock(StorageInterface::class),
+            $this->createMock(LockFactory::class)
+        );
+
+        static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
+    }
 }

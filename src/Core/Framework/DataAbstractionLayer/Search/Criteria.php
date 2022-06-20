@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
  * @final
  */
 class Criteria extends Struct implements \Stringable

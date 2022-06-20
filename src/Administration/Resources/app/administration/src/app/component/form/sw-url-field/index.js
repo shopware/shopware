@@ -13,7 +13,7 @@ const URL_REGEX = {
 
 /**
  * @public
- * @description Url field component which supports a switch for https and http.
+ * @description URL field component which supports a switch for https and http.
  * @status ready
  * @example-type dynamic
  * @component-example

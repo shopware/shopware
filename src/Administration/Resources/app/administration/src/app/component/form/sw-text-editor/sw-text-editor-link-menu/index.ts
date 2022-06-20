@@ -173,7 +173,7 @@ Component.register('sw-text-editor-link-menu', {
 
             return {
                 target: link,
-                type: detectedLinkType as LinkCategories,
+                type: (detectedLinkType ?? 'link') as LinkCategories,
             };
         },
 

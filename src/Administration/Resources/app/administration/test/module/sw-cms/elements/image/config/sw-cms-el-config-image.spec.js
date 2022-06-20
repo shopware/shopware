@@ -3,6 +3,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image/config';
 import 'src/module/sw-cms/component/sw-cms-mapping-field';
+import 'src/app/component/form/sw-dynamic-url-field';
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-el-config-image'), {
@@ -32,7 +33,8 @@ function createWrapper() {
             'sw-text-field': true,
             'sw-cms-mapping-field': Shopware.Component.build('sw-cms-mapping-field'),
             'sw-media-upload-v2': true,
-            'sw-upload-listener': true
+            'sw-upload-listener': true,
+            'sw-dynamic-url-field': true,
         },
         propsData: {
             element: {

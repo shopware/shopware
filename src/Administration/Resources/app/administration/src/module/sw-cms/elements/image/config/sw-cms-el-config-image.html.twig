@@ -96,12 +96,8 @@
 
     {% block sw_cms_element_image_config_link %}
     <div class="sw-cms-el-config-image__link">
-        <sw-field
+        <sw-dynamic-url-field
             v-model="element.config.url.value"
-            class="sw-cms-el-config-image__link-input"
-            type="text"
-            :label="$tc('sw-cms.elements.image.config.label.linkTo')"
-            :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')"
         />
         <sw-field
             v-model="element.config.newTab.value"

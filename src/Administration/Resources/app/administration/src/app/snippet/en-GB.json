@@ -936,7 +936,7 @@
       "linkTo": "Link to",
       "placeholder": "Enter URL...",
       "labelUrl": "URL",
-      "labelType": "Type",
+      "labelType": "Link-Type",
       "labelLink": "Link",
       "labelProduct": "Product",
       "labelCategory":"Category",

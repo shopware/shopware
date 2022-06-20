@@ -3,8 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class SearchPattern
 {

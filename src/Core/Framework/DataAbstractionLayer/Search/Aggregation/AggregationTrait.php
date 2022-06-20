@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
-/**
- * @final
- */
 trait AggregationTrait
 {
     /**

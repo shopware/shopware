@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
 class ContainsFilter extends SingleFieldFilter
 {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
 class JsonUpdateCommand extends UpdateCommand
 {

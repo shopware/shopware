@@ -63,11 +63,12 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
     /**
      * @dataProvider casesWithTokenFilter
+     *
+     * NEXT-17291 - Test is flaky
+     * @group quarantined
      */
     public function testMatchingWithTokenFilter(string $term, array $expected): void
     {
-        static::markTestSkipped('Test is flaky. Will be fixed with NEXT-17291');
-
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
@@ -85,10 +86,12 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
     /**
      * @dataProvider caseWithFetchingTokenTerms
+     *
+     * NEXT-17291 - Test is flaky
+     * @group quarantined
      */
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
-        static::markTestSkipped('Test is flaky. Will be fixed with NEXT-17291');
         $context = Context::createDefaultContext();
 
         $tokenTerms = $this->interpreter->interpret($term, $context)->getTokenTerms();

@@ -288,10 +288,11 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertNotNull($actualNewsletter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testDefaultProperties(): void
     {
-        static::markTestSkipped('Fix random failure');
-
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('property_group.repository');
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');

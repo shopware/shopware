@@ -52,9 +52,12 @@ class ClientRepositoryTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
+    /**
+     * NEXT-6026
+     * @group quarantined
+     */
     public function testDoesntAffectIntegrationWithoutApp(): void
     {
-        static::markTestSkipped('NEXT-6026');
         $browser = $this->getBrowserAuthenticatedWithIntegration();
         $browser->request('GET', '/api/product');
 

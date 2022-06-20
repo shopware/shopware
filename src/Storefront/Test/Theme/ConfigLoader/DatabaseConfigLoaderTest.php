@@ -52,10 +52,12 @@ class DatabaseConfigLoaderTest extends TestCase
         $this->mediaRepository->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * NEXT-20034
+     * @group quarantined
+     */
     public function testMediaConfigurationLoading(): void
     {
-        static::markTestSkipped('NEXT-20034');
-
         self::setUpMedia();
 
         $theme = [[

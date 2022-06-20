@@ -82,10 +82,11 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertNull($filter->encodeMediaUrl($media));
     }
 
+    /**
+     * @group quarantined
+     */
     public function testItEncodesTheUrl(): void
     {
-        static::markTestSkipped('Flaky');
-
         $filter = new UrlEncodingTwigFilter();
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $uploadTime = new \DateTime();

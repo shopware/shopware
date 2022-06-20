@@ -39,6 +39,15 @@ Component.register('sw-media-field', {
             required: false,
             default: null,
         },
+
+        defaultFolder: {
+            type: String,
+            required: false,
+            validator(value) {
+                return value.length > 0;
+            },
+            default: null,
+        },
     },
 
     data() {
@@ -68,6 +77,31 @@ Component.register('sw-media-field', {
             return this.showUploadField ?
                 this.$tc('global.sw-media-field.labelToggleSearchExisting') :
                 this.$tc('global.sw-media-field.labelToggleUploadNew');
+        },
+
+        suggestionCriteria() {
+            const criteria = new Criteria(1, 5);
+
+            criteria.addFilter(Criteria.not(
+                'AND',
+                [Criteria.equals('uploadedAt', null)],
+            ));
+
+            if (this.searchTerm) {
+                criteria.addFilter(Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.contains('fileName', this.searchTerm),
+                        Criteria.contains('fileExtension', this.searchTerm),
+                    ],
+                ));
+            }
+
+            if (this.defaultFolder) {
+                criteria.addFilter(Criteria.equals('mediaFolder.defaultFolder.entity', this.defaultFolder));
+            }
+
+            return criteria;
         },
     },
 
@@ -110,25 +144,9 @@ Component.register('sw-media-field', {
 
         async fetchSuggestions() {
             this.isLoadingSuggestions = true;
-            const criteria = new Criteria(1, 5);
-
-            criteria.addFilter(Criteria.not(
-                'AND',
-                [Criteria.equals('uploadedAt', null)],
-            ));
-
-            if (this.searchTerm) {
-                criteria.addFilter(Criteria.multi(
-                    'OR',
-                    [
-                        Criteria.contains('fileName', this.searchTerm),
-                        Criteria.contains('fileExtension', this.searchTerm),
-                    ],
-                ));
-            }
 
             try {
-                this.suggestedItems = await this.mediaRepository.search(criteria, Context.api);
+                this.suggestedItems = await this.mediaRepository.search(this.suggestionCriteria, Context.api);
             } catch (e) {
                 throw new Error(e);
             } finally {

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
 class EntityAggregation extends Aggregation
 {

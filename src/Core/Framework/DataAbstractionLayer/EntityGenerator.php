@@ -37,7 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
 class EntityGenerator
 {

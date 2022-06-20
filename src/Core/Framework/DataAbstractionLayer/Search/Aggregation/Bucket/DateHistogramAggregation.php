@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
 class DateHistogramAggregation extends BucketAggregation
 {

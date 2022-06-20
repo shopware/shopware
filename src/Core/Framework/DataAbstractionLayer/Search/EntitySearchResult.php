@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
+ * @final
  */
 class EntitySearchResult extends EntityCollection
 {

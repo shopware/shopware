@@ -85,6 +85,9 @@ parameters:
         -
             message: '#Access to private property#'
             path: src/Core/Framework/Api/Controller/CacheController.php
+        # @final annotation of internal classes
+        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+
         # Invalid phpdoc in OpenAPI Library
         -
              message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'

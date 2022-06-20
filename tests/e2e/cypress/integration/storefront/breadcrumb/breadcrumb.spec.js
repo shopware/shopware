@@ -42,6 +42,19 @@ describe('Test if breadcrumb works correctly', () => {
                     }
                 ]
             });
+
+            cy.createCategoryFixture({
+                name: 'Inactive category',
+                type: 'page',
+                active: false,
+                parentId: categoryId,
+                children: [
+                    {
+                        name: 'Sub 4',
+                        type: 'page'
+                    }
+                ]
+            });
         }).then(() => {
             cy.visit('/');
         });
@@ -68,5 +81,8 @@ describe('Test if breadcrumb works correctly', () => {
 
             cy.get('.cms-breadcrumb .breadcrumb').contains('Test category 3').should('have.prop', 'tagName' ).should('eq', 'A');
         });
+
+        cy.get('.nav-link.main-navigation-link').contains('Inactive category').should('not.exist');
+        cy.get('.cms-breadcrumb .breadcrumb').contains('Inactive category').should('not.have.prop', 'tagName' ).should('eq', 'A');
     });
 });

@@ -79,11 +79,17 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
         $breadcrumb = [];
         foreach ($categoryIds as $categoryId) {
-            if ($categories->get($categoryId) === null) {
+            $category = $categories->get($categoryId);
+            if ($category === null) {
                 continue;
             }
 
-            $breadcrumb[$categoryId] = $categories->get($categoryId);
+            // prevent hyperlinking an inactive category
+            if ($category->getType() === 'page' && !$category->getActive()) {
+                $category->setType('folder');
+            }
+
+            $breadcrumb[$categoryId] = $category;
         }
 
         return $breadcrumb;

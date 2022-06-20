@@ -163,6 +163,26 @@ describe('Promotion v2: Test crud operations', () => {
         cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
     });
 
+    it('@base @marketing: create promotion in non system language', () => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/promotion`,
+            method: 'POST'
+        }).as('getData');
+
+        cy.waitFor('.sw-language-switch');
+
+        cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
+        cy.wait('@getData').its('response.statusCode').should('equal', 200);
+
+        cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
+        cy.get('.sw-promotion-v2-list__smart-bar-button-add').click();
+
+        cy.get('.sw_language-info__info').should('be.visible');
+        cy.get('.sw_language-info__info').contains('"New promotion" is displayed in the system default language. Always maintain new data in your chosen system default language.');
+
+        cy.get('.sw-language-switch__select').should('have.class', 'is--disabled');
+    });
+
     it('@base @marketing: delete promotion', () => {
         const page = new ProductPageObject();
         cy.intercept({
@@ -177,8 +197,7 @@ describe('Promotion v2: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
-            'Are you sure you want to delete this item?'
-        );
+            'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product

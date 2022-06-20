@@ -8,39 +8,60 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
+use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedEvent;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
  */
-class AuthControllerTest extends TestCase
+class AuthControllerAuthTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
     use LineItemTestFixtureBehaviour;
+
+    private SalesChannelContext $salesChannelContext;
 
     public function testSessionIsInvalidatedOnLogOut(): void
     {
@@ -306,6 +327,174 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testAccountLoginAlreadyLoggedIn(): void
+    {
+        $controller = $this->getAuthController();
+
+        $customer = $this->createCustomer();
+
+        $request = $this->createRequest(
+            'frontend.account.login.page',
+            [
+                'redirectTo' => 'frontend.account.order.single.page',
+                'redirectParameters' => ['deepLinkCode' => 'example'],
+                'loginError' => false,
+                'waitTime' => 5,
+            ],
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
+            ]
+        );
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        /** @var RedirectResponse $response */
+        $response = $controller->login($request, new RequestDataBag($request->attributes->all()), $this->salesChannelContext);
+
+        static::assertEquals(302, $response->getStatusCode());
+
+        static::assertEquals('/account/order/example', $response->getTargetUrl());
+    }
+
+    public function testAccountLoginInactiveCustomer(): void
+    {
+        $controller = $this->getAuthController();
+
+        $customer = $this->createCustomer(false, true);
+
+        $request = $this->createRequest(
+            'frontend.account.login.page',
+            [
+                'redirectTo' => 'frontend.account.order.single.page',
+                'redirectParameters' => ['deepLinkCode' => 'example'],
+                'loginError' => false,
+                'waitTime' => 5,
+            ]
+        );
+
+        $request->attributes->add(
+            [
+                'username' => 'test@example.com',
+                'password' => 'test',
+            ]
+        );
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $response = $controller->login($request, new RequestDataBag($request->attributes->all()), $this->salesChannelContext);
+
+        static::assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testAccountRecoveryPassword(): void
+    {
+        $controller = $this->getAuthController();
+
+        $recoveryCreated = $this->createRecovery();
+
+        $request = $this->createRequest(
+            'frontend.account.recover.password.page',
+            [
+                'hash' => $recoveryCreated['hash'],
+            ]
+        );
+
+        $request->attributes->add(
+            [
+                'username' => 'test@example.com',
+                'password' => 'test',
+            ]
+        );
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $testSubscriber = new AuthTestSubscriber();
+
+        $this->getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
+
+        $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
+
+        $this->getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
+
+        static::assertEquals(200, $response->getStatusCode());
+        static::assertStringContainsString($recoveryCreated['hash'], (string) $response->getContent());
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertEquals($recoveryCreated['hash'], AuthTestSubscriber::$renderEvent->getParameters()['page']->getHash());
+            static::assertFalse(AuthTestSubscriber::$renderEvent->getParameters()['page']->isHashExpired());
+            static::assertInstanceOf(AccountRecoverPasswordPage::class, AuthTestSubscriber::$page);
+        }
+    }
+
+    public function testAccountRecoveryPasswordExpired(): void
+    {
+        $controller = $this->getAuthController();
+
+        $recoveryCreated = $this->createRecovery(true);
+
+        $request = $this->createRequest(
+            'frontend.account.recover.password.page',
+            [
+                'hash' => $recoveryCreated['hash'],
+            ]
+        );
+
+        $request->attributes->add(
+            [
+                'username' => 'test@example.com',
+                'password' => 'test',
+            ]
+        );
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
+
+        /** @var FlashBag $flashBag */
+        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        static::assertEquals(302, $response->getStatusCode());
+        static::assertCount(1, $flashBag->get('danger'));
+        static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
+    }
+
+    public function testAccountRecoveryPasswordWrongHash(): void
+    {
+        $controller = $this->getAuthController();
+
+        $request = $this->createRequest(
+            'frontend.account.recover.password.page',
+            [
+                'hash' => 'wrong',
+            ]
+        );
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
+
+        /** @var FlashBag $flashBag */
+        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        static::assertEquals(302, $response->getStatusCode());
+        static::assertCount(1, $flashBag->get('danger'));
+        static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
+    }
+
+    public function testAccountRecoveryPasswordNoHash(): void
+    {
+        $controller = $this->getAuthController();
+
+        $request = $this->createRequest('frontend.account.recover.password.page');
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
+
+        /** @var FlashBag $flashBag */
+        $flashBag = $this->getContainer()->get('request_stack')->getSession()->getFlashBag(); /** @phpstan-ignore-line  */
+        static::assertEquals(302, $response->getStatusCode());
+        static::assertCount(1, $flashBag->get('danger'));
+        static::assertEquals('/account/recover', $response->headers->get('location') ?? '');
+    }
+
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
         $this->request('GET', '/account/guest/login', []);
@@ -368,7 +557,7 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(): CustomerEntity
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -387,12 +576,14 @@ class AuthControllerTest extends TestCase
                     'salutationId' => $this->getValidSalutationId(),
                     'countryId' => $this->getValidCountryId(),
                 ],
+                'doubleOptInRegistration' => $doubleOptInReg,
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'test',
                 'firstName' => 'Max',
+                'active' => $active,
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
@@ -404,5 +595,105 @@ class AuthControllerTest extends TestCase
         $repo->create($data, Context::createDefaultContext());
 
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+    }
+
+    private function getAuthController(): AuthController
+    {
+        $controller = new AuthController(
+            $this->getContainer()->get(AccountLoginPageLoader::class),
+            $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
+            $this->createMock(AbstractResetPasswordRoute::class),
+            $this->getContainer()->get(LoginRoute::class),
+            $this->createMock(AbstractLogoutRoute::class),
+            $this->getContainer()->get(StorefrontCartFacade::class),
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
+        );
+        $controller->setContainer($this->getContainer());
+        $controller->setTwig($this->getContainer()->get('twig'));
+
+        return $controller;
+    }
+
+    private function createRequest(string $route, array $params = [], array $salesChannelContextOptions = []): Request
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
+        $this->salesChannelContext = $salesChannelContextFactory->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            $salesChannelContextOptions
+        );
+
+        $request = new Request();
+        $request->query->add($params);
+        $request->setSession($this->getSession());
+        $request->attributes->add([
+            '_route' => $route,
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $this->salesChannelContext,
+            RequestTransformer::STOREFRONT_URL => 'http://localhost',
+        ]);
+
+        return $request;
+    }
+
+    private function createRecovery(bool $expired = false): array
+    {
+        $customer = $this->createCustomer();
+
+        $hash = Random::getAlphanumericString(32);
+        $hashId = Uuid::randomHex();
+
+        $this->getContainer()->get('customer_recovery.repository')->create([
+            [
+                'id' => $hashId,
+                'customerId' => $customer->getId(),
+                'hash' => $hash,
+            ],
+        ], Context::createDefaultContext());
+
+        if ($expired) {
+            $this->getContainer()->get(Connection::class)->update(
+                'customer_recovery',
+                [
+                    'created_at' => (new \DateTime())->sub(new \DateInterval('PT3H'))->format(
+                        Defaults::STORAGE_DATE_TIME_FORMAT
+                    ),
+                ],
+                [
+                    'id' => Uuid::fromHexToBytes($hashId),
+                ]
+            );
+        }
+
+        return ['customer' => $customer, 'hash' => $hash, 'hashId' => $hashId];
+    }
+}
+
+/**
+ * @internal
+ */
+class AuthTestSubscriber implements EventSubscriberInterface
+{
+    public static StorefrontRenderEvent $renderEvent;
+
+    public static AccountRecoverPasswordPage $page;
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            StorefrontRenderEvent::class => 'onRender',
+            AccountRecoverPasswordPageLoadedEvent::class => 'onPageLoad',
+        ];
+    }
+
+    public function onRender(StorefrontRenderEvent $event): void
+    {
+        self::$renderEvent = $event;
+    }
+
+    public function onPageLoad(AccountRecoverPasswordPageLoadedEvent $event): void
+    {
+        self::$page = $event->getPage();
     }
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -35,12 +34,14 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\FormController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -114,12 +115,12 @@ class ControllerRateLimiterTest extends TestCase
 
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
-            $this->getContainer()->get('customer_recovery.repository'),
             $passwordRecoveryMailRoute,
             $this->getContainer()->get(ResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->getContainer()->get(LogoutRoute::class),
-            $this->getContainer()->get(CartService::class)
+            $this->getContainer()->get(StorefrontCartFacade::class),
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
         $controller->setContainer($this->getContainer());
 
@@ -145,12 +146,12 @@ class ControllerRateLimiterTest extends TestCase
     {
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
-            $this->getContainer()->get('customer_recovery.repository'),
             $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
             $this->createMock(AbstractResetPasswordRoute::class),
             $this->createMock(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
-            $this->getContainer()->get(CartService::class)
+            $this->getContainer()->get(StorefrontCartFacade::class),
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
         $controller->setContainer($this->getContainer());
         $controller->setTwig($this->getContainer()->get('twig'));
@@ -183,12 +184,12 @@ class ControllerRateLimiterTest extends TestCase
 
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
-            $this->getContainer()->get('customer_recovery.repository'),
             $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
             $this->createMock(AbstractResetPasswordRoute::class),
             $loginRoute,
             $this->createMock(AbstractLogoutRoute::class),
-            $this->getContainer()->get(CartService::class)
+            $this->getContainer()->get(StorefrontCartFacade::class),
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
         $controller->setContainer($this->getContainer());
 

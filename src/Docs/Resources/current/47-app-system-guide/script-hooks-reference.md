@@ -113,6 +113,18 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+#### account-recover-password-page-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | account-recover-password-page-loaded                         |
+| **Since**              | 6.4.13.0                        |
+| **Class**              | `Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedHook`                      |
+| **Description**        | Triggered when the AccountRecoverPasswordPage is loaded<br>                  |
+| **Available Data**     | page: [`Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/RecoverPassword/AccountRecoverPasswordPage.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 #### account-register-page-loaded
 
 | <!-- -->               | <!-- -->                                |

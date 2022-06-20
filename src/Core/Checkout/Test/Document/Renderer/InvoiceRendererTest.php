@@ -270,6 +270,26 @@ class InvoiceRendererTest extends TestCase
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM customer');
     }
 
+    public function testCreateNewOrderVersionId(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $operationInvoice = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+
+        $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+    }
+
     private function initServices(): void
     {
         $this->context = Context::createDefaultContext();

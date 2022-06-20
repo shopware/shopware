@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -76,12 +77,37 @@ final class StornoRenderer extends AbstractDocumentRenderer
             return $result;
         }
 
-        $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
+        $referenceInvoiceNumbers = [];
+
+        $orders = new OrderCollection();
+
+        /** @var DocumentGenerateOperation $operation */
+        foreach ($operations as $operation) {
+            try {
+                $orderId = $operation->getOrderId();
+                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId());
+
+                if (empty($invoice)) {
+                    throw new DocumentGenerationException('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
+                }
+
+                $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
+
+                $referenceInvoiceNumbers[$orderId] = $documentRefer['documentNumber'];
+
+                $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
+
+                $orders->add($order);
+                $operation->setReferencedDocumentId($invoice['id']);
+                if ($order->getVersionId()) {
+                    $operation->setOrderVersionId($order->getVersionId());
+                }
+            } catch (\Throwable $exception) {
+                $result->addError($operation->getOrderId(), $exception);
+            }
+        }
 
         // TODO: future implementation (only fetch required data and associations)
-
-        /** @var OrderCollection $orders */
-        $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
         $this->eventDispatcher->dispatch(new StornoOrdersEvent($orders, $context));
 
@@ -103,7 +129,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
                 $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                $referenceDocumentNumber = $this->getReferenceDocumentNumber($operation);
+                $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
                 $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
@@ -161,6 +187,22 @@ final class StornoRenderer extends AbstractDocumentRenderer
         throw new DecorationPatternException(self::class);
     }
 
+    private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
+    {
+        // Get the correct order with versioning from reference invoice
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
+
+        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+
+        if ($order === null) {
+            throw new InvalidOrderException($orderId);
+        }
+
+        return $order;
+    }
+
     private function handlePrices(OrderEntity $order): OrderEntity
     {
         foreach ($order->getLineItems() ?? [] as $lineItem) {
@@ -177,25 +219,6 @@ final class StornoRenderer extends AbstractDocumentRenderer
         $order->setAmountTotal($order->getAmountTotal() / -1);
 
         return $order;
-    }
-
-    private function getReferenceDocumentNumber(DocumentGenerateOperation $operation): ?string
-    {
-        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
-            return $operation->getConfig()['custom']['invoiceNumber'];
-        }
-
-        $invoice = $this->referenceInvoiceLoader->load($operation->getOrderId(), $operation->getReferencedDocumentId());
-
-        if (empty($invoice)) {
-            throw new DocumentGenerationException('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
-        }
-
-        $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
-
-        $operation->setReferencedDocumentId($invoice['id']);
-
-        return $documentRefer['documentNumber'];
     }
 
     private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string

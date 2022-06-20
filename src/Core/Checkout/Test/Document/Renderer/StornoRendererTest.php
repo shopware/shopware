@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -158,18 +159,18 @@ class StornoRendererTest extends TestCase
 
     public function stornoNoteRendererDataProvider(): \Generator
     {
-        yield 'render delivery_note successfully' => [
+        yield 'render storno successfully' => [
             [
                 'documentNumber' => '1000',
                 'custom' => [
                     'stornoNumber' => '1000',
-                    'invoiceNumber' => '2000',
+                    'invoiceNumber' => '1001',
                 ],
             ],
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertStringContainsString('Cancellation number 1000', $rendered->getHtml());
-                static::assertStringContainsString('Cancellation 1000 for invoice 2000', $rendered->getHtml());
+                static::assertStringContainsString('Cancellation 1000 for invoice 1001', $rendered->getHtml());
             },
         ];
 
@@ -181,21 +182,6 @@ class StornoRendererTest extends TestCase
                 static::assertNotNull($rendered);
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
                 static::assertEquals('storno_STORNO_9999', $rendered->getName());
-            },
-        ];
-
-        yield 'render storno with invoice number' => [
-            [
-                'custom' => [
-                    'invoiceNumber' => 'INVOICE_9999',
-                ],
-            ],
-            function (?RenderedDocument $rendered = null): void {
-                static::assertNotNull($rendered);
-                $config = $rendered->getConfig();
-                static::assertArrayHasKey('custom', $config);
-                static::assertArrayHasKey('invoiceNumber', $config['custom']);
-                static::assertEquals('INVOICE_9999', $config['custom']['invoiceNumber']);
             },
         ];
 
@@ -212,6 +198,34 @@ class StornoRendererTest extends TestCase
                 static::assertStringContainsString('Cancellation 1000 for invoice 1001        (2/2)', $rendered);
             },
         ];
+    }
+
+    public function testUsingTheSameOrderVersionIdWithReferenceDocument(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        static::assertNotNull($result);
+
+        $operationStorno = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationStorno->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
+
+        $this->stornoRenderer->render(
+            [$orderId => $operationStorno],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertEquals($operationInvoice->getOrderVersionId(), $operationStorno->getOrderVersionId());
+        static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
     }
 
     private function generateDemoCart(array $taxes): Cart

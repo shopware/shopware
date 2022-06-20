@@ -87,7 +87,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
         static::assertEquals($invoiceStruct->getId(), $invoice['id']);
         static::assertEquals($orderId, $invoice['orderId']);
-        static::assertEquals(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
+        static::assertNotEquals(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
         static::assertNotEmpty($invoice['config']);
     }
 }

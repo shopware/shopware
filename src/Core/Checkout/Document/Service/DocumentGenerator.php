@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -162,6 +163,7 @@ final class DocumentGenerator
                     'documentTypeId' => $documentTypeId,
                     'fileType' => $operation->getFileType(),
                     'orderId' => $orderId,
+                    'orderVersionId' => $operation->getOrderVersionId(),
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
                     'config' => $document->getConfig(),
@@ -205,12 +207,14 @@ final class DocumentGenerator
             return $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document');
         });
 
-        $this->documentRepository->update([
+        $this->connection->executeStatement(
+            'UPDATE `document` SET `updated_at` = :now, `document_media_file_id` = :mediaId WHERE `id` = :id',
             [
-                'id' => $documentId,
-                'documentMediaFileId' => $mediaId,
+                'id' => Uuid::fromHexToBytes($documentId),
+                'mediaId' => Uuid::fromHexToBytes($mediaId),
+                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
-        ], $context);
+        );
 
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }

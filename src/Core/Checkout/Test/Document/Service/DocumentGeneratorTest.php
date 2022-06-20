@@ -480,6 +480,11 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($document);
         static::assertSame($this->orderId, $document->getOrderId());
+
+        // document should refer to a versioned order
+        static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertEquals($operation->getOrderVersionId(), $document->getOrderVersionId());
+
         static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
     }

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -124,5 +125,23 @@ class DeliveryNoteRendererTest extends TestCase
                 static::assertStringContainsString("Delivery note $deliveryNoteNumber for order $orderNumber        (2/2)", $rendered->getHtml());
             },
         ];
+    }
+
+    public function testNotCreatingNewOrderVersionId(): void
+    {
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+
+        $operationDelivery = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+
+        $this->deliveryNoteRenderer->render(
+            [$orderId => $operationDelivery],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
     }
 }

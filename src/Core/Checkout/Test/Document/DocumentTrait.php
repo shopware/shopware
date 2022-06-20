@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -191,5 +192,15 @@ trait DocumentTrait
         /** @var EntityRepositoryInterface $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
+    }
+
+    private function orderVersionExists(string $orderId, string $orderVersionId): bool
+    {
+        return (bool) $this->getContainer()->get(Connection::class)->fetchOne('
+            SELECT 1 FROM `order` WHERE `id` = :id AND `version_id` = :versionId
+        ', [
+            'id' => Uuid::fromHexToBytes($orderId),
+            'versionId' => Uuid::fromHexToBytes($orderVersionId),
+        ]);
     }
 }

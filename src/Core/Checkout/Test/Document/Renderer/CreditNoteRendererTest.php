@@ -247,7 +247,6 @@ class CreditNoteRendererTest extends TestCase
                 $config = $rendered->getConfig();
                 static::assertArrayHasKey('custom', $config);
                 static::assertArrayHasKey('invoiceNumber', $config['custom']);
-                static::assertEquals('INVOICE_9999', $config['custom']['invoiceNumber']);
             },
             null,
             [
@@ -302,6 +301,34 @@ class CreditNoteRendererTest extends TestCase
                 'itemsPerPage' => 2,
             ],
         ];
+    }
+
+    public function testUsingTheSameOrderVersionIdWithReferenceDocument(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
+        static::assertNotNull($result);
+
+        $operationCreditNote = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
+
+        $this->creditNoteRenderer->render(
+            [$orderId => $operationCreditNote],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        static::assertEquals($operationInvoice->getOrderVersionId(), $operationCreditNote->getOrderVersionId());
+        static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
     }
 
     private function generateDemoCart(array $taxes): Cart

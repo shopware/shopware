@@ -425,5 +425,6 @@
              "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
              "Shopware\\Core\\Test\\": "src/Core/Test/"
         }
-    }
+    },
+    "version": "6.4.13.0"
 }

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
  * @final
  */
 class FilterAggregation extends BucketAggregation

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
  * @final
  */
 class DateHistogramResult extends BucketResult

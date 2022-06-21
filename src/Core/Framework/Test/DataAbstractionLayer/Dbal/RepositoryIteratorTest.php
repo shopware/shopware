@@ -1,13 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -56,5 +60,37 @@ class RepositoryIteratorTest extends TestCase
         }
 
         static::assertTrue($iteration < 100);
+    }
+
+    public function testFetchIdAutoIncrement(): void
+    {
+        /** @var EntityRepositoryInterface $systemConfigRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+
+        $ids = new IdsCollection();
+
+        $builder = new ProductBuilder($ids, 'product1');
+        $builder->price(1);
+        $productRepository->create([$builder->build()], $context);
+
+        $builder = new ProductBuilder($ids, 'product2');
+        $builder->price(2);
+        $productRepository->create([$builder->build()], $context);
+
+        $builder = new ProductBuilder($ids, 'product3');
+        $builder->price(3);
+        $productRepository->create([$builder->build()], $context);
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $iterator = new RepositoryIterator($productRepository, $context, $criteria);
+
+        $totalFetchedIds = 0;
+        while ($iterator->fetchIds()) {
+            ++$totalFetchedIds;
+        }
+        static::assertEquals($totalFetchedIds, 3);
     }
 }

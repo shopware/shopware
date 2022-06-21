@@ -177,7 +177,6 @@ class StoreClientTest extends TestCase
             'avatarUrl' => 'https://avatar.shopware.com/john-doe.png',
         ];
 
-        $this->getRequestHandler()->append();
         $this->getRequestHandler()->append(new Response(200, [], \json_encode($userInfo, \JSON_THROW_ON_ERROR)));
 
         $returnedUserInfo = $this->storeClient->userInfo($this->storeContext);

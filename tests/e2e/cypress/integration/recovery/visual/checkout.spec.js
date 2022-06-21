@@ -79,6 +79,11 @@ describe('Checkout: Visual tests', () => {
             cy.get('.login-collapse-toggle').click();
             cy.get('.login-form').should('be.visible');
 
+            const country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
+            cy.get('select[name="billingAddress[countryId]"]').select(country);
+            cy.get('.register-billing > .country-and-state-form-elements > .d-none').should('not.exist');
+            cy.get('#billingAddressAddressCountryState').should('be.visible');
+
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Login`, accountPage.elements.loginCard, {widths: [375, 1920]});
 

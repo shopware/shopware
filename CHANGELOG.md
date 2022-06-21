@@ -47,6 +47,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21621 - Change HTML lang to snippet set language](/changelog/release-6-4-13-0/2022-06-13-change-html-lang-to-snippet-set.md) ([Thomas Aschauer](https://github.com/taschaue))
 *  [NEXT-21781 - Flow builder action list not sorted correctly](/changelog/release-6-4-13-0/2022-06-13-flow-builder-action-list-not-sorted-correctly.md)
 *  [NEXT-21987 - Fix double cart prefix on delete in redis cache adapter](/changelog/release-6-4-13-0/2022-06-15-fix-double-cart-prefix-on-delete.md) ([Micha Hobert](https://github.com/Isengo1989))
+*  [NEXT-22044 - Remove deprecated annotation for final](/changelog/release-6-4-13-0/2022-06-20-remove-deprecated-annotation-for-final.md)
 
 ## 6.4.12.0
 * [NEXT-18950 - Create app flow action DAL](/changelog/release-6-4-12-0/2021-12-09-create-app-flow-action-dal.md)

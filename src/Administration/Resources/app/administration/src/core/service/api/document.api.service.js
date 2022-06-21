@@ -74,8 +74,6 @@ class DocumentApiService extends ApiService {
                     }
 
                     this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-
-                    return Promise.resolve(true);
                 })
                 .catch((error) => {
                     if (error.response?.data?.errors) {
@@ -115,8 +113,6 @@ class DocumentApiService extends ApiService {
                     }
 
                     this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-
-                    return Promise.resolve(true);
                 }).catch((error) => {
                     if (error.response?.data?.errors) {
                         this.$listener(

@@ -1,6 +1,7 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
+import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/utils/sw-loader';
@@ -679,28 +680,34 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.setRouteMetaModule.mockRestore();
     });
 
-    it('should call fetchStatusOptions when component created', () => {
+    it('should call fetchStatusOptions when component created', async () => {
         wrapper = createWrapper();
-        const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions').mockImplementation();
+        const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions');
 
-        wrapper.vm.createdComponent();
+        await flushPromises();
+
+        expect(fetchStatusOptionsSpy).toHaveBeenCalledTimes(3);
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(1, 'orders.id');
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(2, 'orderTransactions.orderId');
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(3, 'orderDeliveries.orderId');
 
-        const orderStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orders.id', [selectedOrderId]));
-        orderStateCriteria.addFilter(Shopware.Data.Criteria.equals('orders.versionId', Shopware.Context.api.liveVersionId));
+        const orderStateCriteria = new Criteria(1, null);
+        const { liveVersionId } = Shopware.Context.api;
+
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(3);
+
+        orderStateCriteria.addFilter(Criteria.equalsAny('orders.id', [selectedOrderId]));
+        orderStateCriteria.addFilter(Criteria.equals('orders.versionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
 
-        const orderTransactionStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
-        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderTransactions.orderVersionId', Shopware.Context.api.liveVersionId));
+        const orderTransactionStateCriteria = new Criteria(1, null);
+        orderTransactionStateCriteria.addFilter(Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
+        orderTransactionStateCriteria.addFilter(Criteria.equals('orderTransactions.orderVersionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
 
-        const orderDeliveryStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
-        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderDeliveries.orderVersionId', Shopware.Context.api.liveVersionId));
+        const orderDeliveryStateCriteria = new Criteria(1, null);
+        orderDeliveryStateCriteria.addFilter(Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
+        orderDeliveryStateCriteria.addFilter(Criteria.equals('orderDeliveries.orderVersionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
 
         wrapper.vm.fetchStatusOptions.mockClear();

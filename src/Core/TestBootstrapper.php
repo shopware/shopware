@@ -3,6 +3,7 @@
 namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
+use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -44,6 +45,8 @@ class TestBootstrapper
 
     public function bootstrap(): TestBootstrapper
     {
+        BypassFinals::enable();
+
         $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {

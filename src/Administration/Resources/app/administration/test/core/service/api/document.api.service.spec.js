@@ -104,10 +104,7 @@ describe('documentService', () => {
             ];
         });
 
-        const file = {
-            name: 'upload_file.pdf',
-            type: 'application/pdf'
-        };
+        const file = new File(['test document'], 'upload_file.pdf', { type: 'application/pdf' });
 
         clientMock.onPost(`/_action/document/${documentId}/upload?fileName=${config.documentNumber}_upload_file&extension=pdf`).reply(() => {
             uploadRequestSent = true;
@@ -240,10 +237,7 @@ describe('documentService', () => {
             ];
         });
 
-        const file = {
-            name: 'upload_file.pdf',
-            type: 'application/pdf'
-        };
+        const file = new File(['test document'], 'upload_file.pdf', { type: 'application/pdf' });
 
         clientMock.onPost(`/_action/document/${documentId}/upload?fileName=${config.documentNumber}_upload_file&extension=pdf`).reply(() => {
             uploadRequestSent = true;

@@ -30,15 +30,11 @@ class SnippetFinderTest extends TestCase
     {
         $kernelMock = $this->createMock(Kernel::class);
         $pluginMock = $this->createMock(Plugin::class);
-        $activeReflection = new \ReflectionProperty(Plugin::class, 'active');
-        $activeReflection->setAccessible(true);
-        $activeReflection->setValue($pluginMock, true);
         $pluginMock->method('getPath')->willReturn(__DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle');
+        $pluginMock->method('isActive')->willReturn(true);
 
         $kernelPluginLoaderMock = $this->createMock(KernelPluginLoader::class);
-        $activeReflection = new \ReflectionProperty(KernelPluginLoader::class, 'pluginInstances');
-        $activeReflection->setAccessible(true);
-        $activeReflection->setValue($kernelPluginLoaderMock, new KernelPluginCollection([$pluginMock]));
+        $kernelPluginLoaderMock->expects(static::any())->method('getPluginInstances')->willReturn(new KernelPluginCollection([$pluginMock]));
 
         $kernelMock
             ->expects(static::exactly(2))

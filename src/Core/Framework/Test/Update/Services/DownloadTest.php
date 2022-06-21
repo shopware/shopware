@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Update\Services;
 
+use DG\BypassFinals;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
@@ -15,18 +16,33 @@ class DownloadTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var int|null
-     */
-    private $errorMask;
+    private ?int $errorMask = null;
 
     /**
      * @var string[]
      */
-    private $testFiles = [];
+    private array $testFiles = [];
+
+    private static bool $restored = false;
+
+    protected function setUp(): void
+    {
+        try {
+            stream_wrapper_restore('file');
+            self::$restored = true;
+        } catch (\Throwable $exception) {
+            // nth
+        }
+    }
 
     protected function tearDown(): void
     {
+        if (self::$restored) {
+            stream_wrapper_unregister('file');
+            stream_wrapper_register('file', BypassFinals::class);
+            self::$restored = false;
+        }
+
         if ($this->errorMask !== null) {
             error_reporting($this->errorMask);
         }
@@ -41,7 +57,7 @@ class DownloadTest extends TestCase
     {
         $download = new Download();
 
-        $tempfile = $this->tmpFile('/tmp', 'updateFile');
+        $tempfile = $this->tmpFile();
 
         $download->downloadFile(
             'http://assets.shopware.com/sw_logo_white.png',
@@ -67,11 +83,11 @@ class DownloadTest extends TestCase
 
     public function testUnicode(): void
     {
-        $tempfile = $this->tmpFile('/tmp', 'updateFile');
+        $tempfile = $this->tmpFile();
         $remoteFile = $this->createPublicTestFile('/foo.bin', '💣💣💣 Bomb');
 
-        $sha1 = sha1_file($remoteFile);
-        $size = filesize($remoteFile);
+        $sha1 = (string) sha1_file($remoteFile);
+        $size = (int) filesize($remoteFile);
 
         $download = new Download();
 
@@ -89,10 +105,10 @@ class DownloadTest extends TestCase
 
     public function testInvalidHash(): void
     {
-        $tempfile = $this->tmpFile('/tmp', 'updateFile');
+        $tempfile = $this->tmpFile();
         $remoteFile = $this->createPublicTestFile('/foo.bin', 'Test');
 
-        $size = filesize($remoteFile);
+        $size = (int) filesize($remoteFile);
 
         $download = new Download();
 
@@ -113,16 +129,16 @@ class DownloadTest extends TestCase
     public function testDownload100MiB(): void
     {
         $size = 1024 * 1024 * 100;
-        $tempfile = $this->tmpFile('/tmp', 'updateFile');
+        $tempfile = $this->tmpFile();
 
         $remoteFile = $this->createPublicTestFile('/foo.bin', null, $size);
 
-        $sha1 = sha1_file($remoteFile);
+        $sha1 = (string) sha1_file($remoteFile);
 
         $download = new Download();
 
-        $callback = $this->getMockBuilder('stdClass')
-            ->addMethods(['callback'])
+        $callback = $this->getMockBuilder(DummyClass::class)
+            ->onlyMethods(['callback'])
             ->getMock();
 
         $totalDownloaded = 0;
@@ -203,7 +219,7 @@ class DownloadTest extends TestCase
 
     private function tmpFile(): string
     {
-        $tempfile = tempnam('/tmp', 'updateFile');
+        $tempfile = (string) tempnam('/tmp', 'updateFile');
 
         $this->testFiles[] = $tempfile;
 
@@ -221,11 +237,13 @@ class DownloadTest extends TestCase
 
         $testFile = $projectDir . '/public' . $path;
         $handle = fopen($testFile, 'wb');
+        static::assertNotFalse($handle);
 
         if ($content !== null) {
             fwrite($handle, $content);
         } else {
-            $size = $size ?? 1024;
+            static::assertTrue($size >= 0);
+            $size = $size ?: 1024;
             ftruncate($handle, $size);
         }
 
@@ -234,5 +252,17 @@ class DownloadTest extends TestCase
         $this->testFiles[] = $testFile;
 
         return $testFile;
+    }
+}
+
+/**
+ * @internal
+ */
+class DummyClass
+{
+    public function callback(): ?\Closure
+    {
+        return function (): void {
+        };
     }
 }

@@ -364,8 +364,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should show only invoice numbers in invoice number select field', () => {
-        const wrapper = createWrapper();
-
         const invoiceOptions = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select')
             .findAll('option');
 
@@ -377,8 +375,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should disable create button if there is no selected invoice', () => {
-        const wrapper = createWrapper();
-
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBe('disabled');
 
@@ -387,8 +383,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {
-        const wrapper = createWrapper();
-
         const invoiceOptions = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select')
             .findAll('option');
 

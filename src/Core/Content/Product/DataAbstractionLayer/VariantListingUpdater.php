@@ -9,10 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class VariantListingUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -22,6 +19,11 @@ class VariantListingUpdater
         $this->connection = $connection;
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(array $ids, Context $context): void
     {
         $ids = array_filter($ids);
@@ -54,6 +56,11 @@ class VariantListingUpdater
         foreach ($listingConfiguration as $parentId => $config) {
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
+
+            // display parent in listing
+            if ($config['display_parent']) {
+                $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+            }
 
             if ($config['main_variant']) {
                 $groups = [];
@@ -109,6 +116,13 @@ class VariantListingUpdater
         }
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @throws \Doctrine\DBAL\Exception
+     *
+     * @return array<int|string, array<string, mixed>>
+     */
     private function getListingConfiguration(array $ids, Context $context): array
     {
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
@@ -118,6 +132,7 @@ class VariantListingUpdater
             'product.id as id',
             'product.configurator_group_config as config',
             'product.main_variant_id',
+            'product.display_parent',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
         ]);
         $query->from('product');
@@ -143,6 +158,7 @@ class VariantListingUpdater
                 'groups' => $groups,
                 'child_count' => $config['child_count'],
                 'main_variant' => $config['main_variant_id'],
+                'display_parent' => $config['display_parent'],
             ];
         }
 

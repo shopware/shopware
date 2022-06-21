@@ -18,6 +18,9 @@ trait EntityCustomFieldsTrait
         return $this->customFields;
     }
 
+    /**
+     * @param array<mixed>|null $customFields
+     */
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;

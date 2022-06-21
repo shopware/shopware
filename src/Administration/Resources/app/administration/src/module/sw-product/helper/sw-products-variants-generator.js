@@ -20,6 +20,16 @@ export default class VariantsGenerator extends EventEmitter {
     createNewVariants(forceGenerating, currencies, product) {
         this.product = product;
 
+        // This check is done to set a default value for completely new generated variants
+        // without changing existing configuration
+        if (!this.product.variantListingConfig
+            || (!this.product.variantListingConfig.displayParent
+                && !this.product.variantListingConfig.configuratorGroupConfig
+                && !this.product.variantListingConfig.mainVariantId)) {
+            this.product.variantListingConfig = {};
+            this.product.variantListingConfig.displayParent = true;
+        }
+
         return new Promise((resolve) => {
             const grouped = this.groupTheOptions(this.product.configuratorSettings);
 
@@ -49,7 +59,7 @@ export default class VariantsGenerator extends EventEmitter {
                         }
 
                         new Promise((resolveDelete) => {
-                            // notify view to refresh progrss
+                            // notify view to refresh progress
                             this.emit('progress-max', { type: 'delete', progress: queues.deleteQueue.length });
 
                             // create mapping for api call
@@ -60,7 +70,7 @@ export default class VariantsGenerator extends EventEmitter {
                             // send api calls for delete
                             this.processQueue('delete', mapped, 0, 10, resolveDelete);
                         }).then(() => {
-                        // notify view to refresh progress
+                            // notify view to refresh progress
                             this.emit('progress-max', { type: 'upsert', progress: queues.createQueue.length });
 
                             // send api calls for create

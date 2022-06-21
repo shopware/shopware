@@ -10,6 +10,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductHydrator extends EntityHydrator
 {
+    /**
+     * @param array<string, string> $row
+     *
+     * @throws \Exception
+     */
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
         if (isset($row[$root . '.id'])) {
@@ -80,6 +85,12 @@ class ProductHydrator extends EntityHydrator
         }
         if (isset($row[$root . '.mainVariantId'])) {
             $entity->mainVariantId = Uuid::fromBytesToHex($row[$root . '.mainVariantId']);
+        }
+        if (isset($row[$root . '.displayParent'])) {
+            $entity->displayParent = (bool) $row[$root . '.displayParent'];
+        }
+        if (isset($row[$root . '.variantListingConfig'])) {
+            $entity->variantListingConfig = $definition->decode('variantListingConfig', self::value($row, $root, 'variantListingConfig'));
         }
         if (\array_key_exists($root . '.variantRestrictions', $row)) {
             $entity->variantRestrictions = $definition->decode('variantRestrictions', self::value($row, $root, 'variantRestrictions'));

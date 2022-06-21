@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
@@ -207,22 +209,22 @@ class ProductEntity extends Entity
     protected $releaseDate;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $categoryTree;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $streamIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $optionIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $propertyIds;
 
@@ -262,22 +264,38 @@ class ProductEntity extends Entity
     protected $packUnitPlural;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $variantRestrictions;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+     *
      * @var array<string>|null
      */
     protected $configuratorGroupConfig;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+     *
      * @var string|null
      */
     protected $mainVariantId;
 
     /**
-     * @var array
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+     *
+     * @var bool|null
+     */
+    protected $displayParent;
+
+    /**
+     * @var VariantListingConfig|null
+     */
+    protected $variantListingConfig;
+
+    /**
+     * @var array<string>
      */
     protected $variation = [];
 
@@ -342,7 +360,7 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, array<string, string>>>|null
      */
     protected $slotConfig;
 
@@ -397,12 +415,12 @@ class ProductEntity extends Entity
     protected $coverId;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $blacklistIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $whitelistIds;
 
@@ -412,12 +430,12 @@ class ProductEntity extends Entity
     protected $visibilities;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $tagIds;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $categoryIds;
 
@@ -772,11 +790,17 @@ class ProductEntity extends Entity
         $this->releaseDate = $releaseDate;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCategoryTree(): ?array
     {
         return $this->categoryTree;
     }
 
+    /**
+     * @param array<string>|null $categoryTree
+     */
     public function setCategoryTree(?array $categoryTree): void
     {
         $this->categoryTree = $categoryTree;
@@ -919,6 +943,9 @@ class ProductEntity extends Entity
         return $this->releaseDate < new \DateTime();
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getStreamIds(): ?array
     {
         return $this->streamIds;
@@ -932,6 +959,9 @@ class ProductEntity extends Entity
         $this->streamIds = $streamIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getOptionIds(): ?array
     {
         return $this->optionIds;
@@ -945,6 +975,9 @@ class ProductEntity extends Entity
         $this->optionIds = $optionIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getPropertyIds(): ?array
     {
         return $this->propertyIds;
@@ -988,11 +1021,17 @@ class ProductEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    /**
+     * @return array<string, array<string, array<string, string>>>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, array<string, array<string, string>>> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -1138,6 +1177,9 @@ class ProductEntity extends Entity
         $this->coverId = $coverId;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getBlacklistIds(): ?array
     {
         return $this->blacklistIds;
@@ -1151,6 +1193,9 @@ class ProductEntity extends Entity
         $this->blacklistIds = $blacklistIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getWhitelistIds(): ?array
     {
         return $this->whitelistIds;
@@ -1184,6 +1229,9 @@ class ProductEntity extends Entity
         $this->productNumber = $productNumber;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getTagIds(): ?array
     {
         return $this->tagIds;
@@ -1197,41 +1245,109 @@ class ProductEntity extends Entity
         $this->tagIds = $tagIds;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getVariantRestrictions(): ?array
     {
         return $this->variantRestrictions;
     }
 
+    /**
+     * @param array<string>|null $variantRestrictions
+     */
     public function setVariantRestrictions(?array $variantRestrictions): void
     {
         $this->variantRestrictions = $variantRestrictions;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getConfiguratorGroupConfig(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $this->configuratorGroupConfig;
     }
 
+    /**
+     * @param array<string>|null $configuratorGroupConfig
+     */
     public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $this->configuratorGroupConfig = $configuratorGroupConfig;
     }
 
     public function getMainVariantId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $this->mainVariantId;
     }
 
     public function setMainVariantId(?string $mainVariantId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $this->mainVariantId = $mainVariantId;
     }
 
+    public function getDisplayParent(): ?bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
+        return $this->displayParent;
+    }
+
+    public function setDisplayParent(?bool $displayParent): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
+        $this->displayParent = $displayParent;
+    }
+
+    public function getVariantListingConfig(): ?VariantListingConfig
+    {
+        return $this->variantListingConfig;
+    }
+
+    public function setVariantListingConfig(?VariantListingConfig $variantListingConfig): void
+    {
+        $this->variantListingConfig = $variantListingConfig;
+    }
+
+    /**
+     * @return array<string>
+     */
     public function getVariation(): array
     {
         return $this->variation;
     }
 
+    /**
+     * @param array<string> $variation
+     */
     public function setVariation(array $variation): void
     {
         $this->variation = $variation;
@@ -1397,11 +1513,17 @@ class ProductEntity extends Entity
         $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCustomSearchKeywords(): ?array
     {
         return $this->customSearchKeywords;
     }
 
+    /**
+     * @param array<string>|null $customSearchKeywords
+     */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;
@@ -1481,6 +1603,9 @@ class ProductEntity extends Entity
         $this->streams = $streams;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCategoryIds(): ?array
     {
         return $this->categoryIds;

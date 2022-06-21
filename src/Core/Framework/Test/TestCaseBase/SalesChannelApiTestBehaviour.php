@@ -227,6 +227,10 @@ trait SalesChannelApiTestBehaviour
         return $customerId;
     }
 
+    /**
+     * @param array<mixed> $salesChannel
+     * @param array<mixed> $options
+     */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -238,6 +242,9 @@ trait SalesChannelApiTestBehaviour
         return $context;
     }
 
+    /**
+     * @param array<mixed> $salesChannelOverride
+     */
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
         $salesChannel = $this->createSalesChannel($salesChannelOverride);

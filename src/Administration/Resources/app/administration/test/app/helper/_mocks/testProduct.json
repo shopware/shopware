@@ -459,6 +459,11 @@
       ]
     }
   ],
+  "variantListingConfig": {
+    "displayParent": false,
+    "mainVariantId": null,
+    "configuratorGroupConfig": null
+  },
   "visibilities": [],
   "searchKeywords": [],
   "productReviews": [],

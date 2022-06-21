@@ -65,21 +65,19 @@ describe('Product: Test variants', () => {
 
         // Set surcharge
         cy.get('.is--inline-edit .sw-inheritance-switch').should('be.visible');
-        cy.get('.sw-data-grid__row--0 .sw-inheritance-switch .icon--custom-inherited').first().click();
         cy.get('.sw-data-grid__row--0 .sw-price-field__lock').first().click();
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.visible');
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.enabled');
-        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '64');
-        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clear();
-        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '');
-        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clearTypeAndCheck('100');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '100');
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clear().clear();
+        cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().clearTypeAndCheck('333');
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().type('{enter}');
 
         // Assert surcharge
         cy.get('.sw-data-grid__row--0 #sw-price-field-net')
             .first()
             .invoke('val')
-            .should('eq', '50.251256281407');
+            .should('eq', '167.33668341709');
         cy.get('.icon--custom-uninherited').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
@@ -111,10 +109,10 @@ describe('Product: Test variants', () => {
                     cy.contains('Green').click();
 
                     cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
-                    cy.contains('.product-detail-price', '100.00');
+                    cy.contains('.product-detail-price', '333.00');
                 } else {
                     cy.log('Variant "Green" is already open.');
-                    cy.contains('.product-detail-price', '100.00');
+                    cy.contains('.product-detail-price', '333.00');
                 }
             });
         });

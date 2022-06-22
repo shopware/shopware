@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -84,15 +85,18 @@ class ProductListingLoader
             );
         }
 
-        $variantIds = $ids->getIds();
-
         $mapping = array_combine($ids->getIds(), $ids->getIds());
 
-        if (!$this->hasOptionFilter($criteria)) {
-            list($variantIds, $mapping) = $this->resolvePreviews($ids->getIds(), $context);
+        $hasOptionFilter = $this->hasOptionFilter($criteria);
+        if (!$hasOptionFilter) {
+            $mapping = $this->resolvePreviews($ids->getIds(), $context);
         }
 
-        $read = $criteria->cloneForRead($variantIds);
+        $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
+        $this->eventDispatcher->dispatch($event);
+        $mapping = $event->getMapping();
+
+        $read = $criteria->cloneForRead(array_values($mapping));
         $read->addAssociation('options.group');
 
         $entities = $this->repository->search($read, $context);
@@ -186,7 +190,7 @@ class ProductListingLoader
 
         // now we have a mapping for "child => main variant"
         if (empty($mapping)) {
-            return [$ids, array_combine($ids, $ids)];
+            return $ids;
         }
 
         // filter inactive and not available variants
@@ -202,11 +206,9 @@ class ProductListingLoader
 
         $remapped = [];
         // replace existing ids with main variant id
-        $sorted = [];
         foreach ($ids as $id) {
             // id has no mapped main_variant - keep old id
             if (!isset($mapping[$id])) {
-                $sorted[] = $id;
                 $remapped[$id] = $id;
 
                 continue;
@@ -217,20 +219,16 @@ class ProductListingLoader
 
             // main variant is configured but not active/available - keep old id
             if (!$available->has($main)) {
-                $sorted[] = $id;
                 $remapped[$id] = $id;
 
                 continue;
             }
 
             // main variant is configured and available - add main variant id
-            if (!\in_array($main, $sorted, true)) {
-                $remapped[$id] = $main;
-                $sorted[] = $main;
-            }
+            $remapped[$id] = $main;
         }
 
-        return [$sorted, $remapped];
+        return $remapped;
     }
 
     private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void
@@ -239,6 +237,7 @@ class ProductListingLoader
             $entities->addExtension($name, $extension);
         }
 
+        /** @var string $id */
         foreach ($ids->getIds() as $id) {
             if (!isset($mapping[$id])) {
                 continue;
@@ -251,6 +250,11 @@ class ProductListingLoader
 
             /** @var Entity $entity */
             $entity = $entities->get($mapping[$id]);
+
+            // Ensure that extension of first mapping is not overwritten
+            if ($entity->hasExtension('search')) {
+                continue;
+            }
 
             // get access to the data of the search result
             $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));

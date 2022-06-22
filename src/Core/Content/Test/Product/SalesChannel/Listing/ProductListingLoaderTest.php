@@ -4,19 +4,26 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -58,10 +65,19 @@ class ProductListingLoaderTest extends TestCase
      */
     private $mainVariantId;
 
+    /**
+     * @var string[]
+     */
     private $optionIds = [];
 
+    /**
+     * @var string[]
+     */
     private $variantIds = [];
 
+    /**
+     * @var string[]
+     */
     private $groupIds = [];
 
     protected function setUp(): void
@@ -72,6 +88,24 @@ class ProductListingLoaderTest extends TestCase
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         parent::setUp();
+    }
+
+    public function testResolvePreviewEvent(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->visibility()
+            ->build();
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+        $this->getContainer()->get('event_dispatcher')->addListener(ProductListingResolvePreviewEvent::class, $listener);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $criteria = new Criteria($ids->getList(['p1']));
+        $this->productListingLoader->load($criteria, $context);
     }
 
     public function testMainVariant(): void
@@ -86,8 +120,8 @@ class ProductListingLoaderTest extends TestCase
         $mainVariant = $listing->getEntities()->first();
 
         static::assertEquals($this->mainVariantId, $mainVariant->getId());
-        static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds());
-        static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds());
+        static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
+        static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
         static::assertTrue($mainVariant->hasExtension('search'));
     }
 

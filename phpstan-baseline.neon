@@ -2351,16 +2351,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Detail/ProductConfiguratorLoader.php
 
 		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult\\:\\:getDataOfId\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingLoader.php
-
-		-
-			message: "#^Possibly invalid array key type array\\|string\\.$#"
-			count: 3
-			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingResult\\:\\:addCurrentFilter\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
@@ -5449,26 +5439,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Fixture\\\\ListingTestData\\:\\:getKey\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/Fixture/ListingTestData.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertContains\\(\\) expects iterable, array\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingLoaderTest\\:\\:\\$groupIds has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingLoaderTest\\:\\:\\$optionIds has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/ProductListingLoaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingLoaderTest\\:\\:\\$variantIds has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/ProductListingLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingRouteTest\\:\\:setVisibilities\\(\\) has parameter \\$createdProducts with no type specified\\.$#"

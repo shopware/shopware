@@ -292,7 +292,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                     $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
 
                     $filename = basename($originalPath);
-                    $extension = pathinfo($filename, \PATHINFO_EXTENSION) === '' ? '.scss' : '';
+                    $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
                     if (file_exists($path)) {
                         return $path;
@@ -330,6 +330,22 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         return $compiled;
+    }
+
+    private function getImportFileExtension(string $extension): string
+    {
+        // If the import has no extension, it must be a SCSS module.
+        if ($extension === '') {
+            return '.scss';
+        }
+
+        // If the import has a .min extension, we assume it must be a compiled CSS file.
+        if ($extension === 'min') {
+            return '.css';
+        }
+
+        // If it has any other extension, we don't assume a specific extension.
+        return '';
     }
 
     /**

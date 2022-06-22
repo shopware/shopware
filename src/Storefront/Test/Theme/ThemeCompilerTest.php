@@ -816,6 +816,50 @@ PHP_EOL;
         static::assertSame(trim($expectedCssOutput), trim($actual));
     }
 
+    public function testVendorImportFiles(): void
+    {
+        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
+        $compileStyles = $themeCompilerReflection->getMethod('compileStyles');
+        $compileStyles->setAccessible(true);
+
+        $testScss = <<<PHP_EOL
+@import '~vendor/library.min'; // Test import for plain CSS without extension
+@import '~vendor/library.min.css'; // Test import for plain CSS with explicit extension (deprecated)
+@import '~vendor/another-library'; // Test import of SCSS module
+@import '~vendor/another-library.scss'; // Test import of SCSS module with explicit extension
+PHP_EOL;
+
+        $expectedCssOutput = <<<PHP_EOL
+.plain-css-from-library {
+\tcolor: red;
+}
+
+.plain-css-from-library {
+\tcolor: red;
+}
+
+.another-lib {
+\tcolor: #0d9c0d;
+}
+
+.another-lib {
+\tcolor: #0d9c0d;
+}
+PHP_EOL;
+
+        $actual = $compileStyles->invoke(
+            $this->themeCompiler,
+            $testScss,
+            new StorefrontPluginConfiguration('test'),
+            [
+                'vendor' => __DIR__ . '/fixtures/ThemeWithScssVendorImports/Storefront/Resources/app/storefront/vendor',
+            ],
+            '1337'
+        );
+
+        static::assertSame(trim($expectedCssOutput), trim($actual));
+    }
+
     public function copyToLiveData(): array
     {
         return [

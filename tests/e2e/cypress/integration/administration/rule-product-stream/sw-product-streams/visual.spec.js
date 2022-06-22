@@ -30,13 +30,9 @@ describe('Dynamic product groups: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__row--0').should('be.visible');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-data-grid__cell--updatedAt',
-            'color: #fff'
-        );
-        cy.get('.sw-data-grid__cell--updatedAt')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--updatedAt .sw-data-grid__cell-content', '01 Jan 2018, 00:00');
+
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Product groups] Listing', '.sw-product-stream-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

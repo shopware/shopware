@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1652441129 extends MigrationStep
+class Migration1652441129ReplaceIconNames extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {

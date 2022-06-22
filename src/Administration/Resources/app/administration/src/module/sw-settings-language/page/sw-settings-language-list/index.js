@@ -37,6 +37,7 @@ Component.register('sw-settings-language-list', {
         listingCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('locale');
+            criteria.addAssociation('translationCode');
 
             if (this.sortBy) {
                 criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
@@ -68,7 +69,7 @@ Component.register('sw-settings-language-list', {
                 dataIndex: 'locale.id',
                 label: 'sw-settings-language.list.columnLocaleName',
             }, {
-                property: 'locale.code',
+                property: 'translationCode.code',
                 label: 'sw-settings-language.list.columnIsoCode',
             }, {
                 property: 'parent',

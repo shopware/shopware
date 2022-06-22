@@ -191,6 +191,15 @@ class DocumentService
             $generatedDocument->setContentType($fileGenerator->getContentType());
             $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
         } else {
+            if (
+                !$this->hasValidFile($document)
+                || $document->getDocumentMediaFile() === null
+                || $document->getDocumentMediaFile()->getMimeType() === null
+                || $document->getDocumentMediaFileId() === null
+            ) {
+                throw new DocumentGenerationException('Document is missing file data');
+            }
+
             $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName() . '.' . $document->getDocumentMediaFile()->getFileExtension());
             $generatedDocument->setContentType($document->getDocumentMediaFile()->getMimeType());
 
@@ -319,9 +328,11 @@ class DocumentService
             ->addAssociation('currency')
             ->addAssociation('language.locale')
             ->addAssociation('addresses.country')
+            ->addAssociation('addresses.countryState')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
             ->addAssociation('orderCustomer.customer');
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
@@ -497,6 +508,10 @@ class DocumentService
         DocumentConfiguration $config,
         FileGeneratorInterface $fileGenerator
     ): void {
+        if ($document->getDocumentType() === null) {
+            throw new DocumentGenerationException('DocumentType missing');
+        }
+
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
             $document->getDocumentType()->getTechnicalName()
         );

@@ -311,36 +311,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentGenerator/StornoGenerator.php
 
 		-
-			message: "#^Cannot call method getFileExtension\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Cannot call method getMimeType\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentType\\\\DocumentTypeEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$contentType of method Shopware\\\\Core\\\\Checkout\\\\Document\\\\GeneratedDocument\\:\\:setContentType\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$mediaId of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaService\\:\\:loadFile\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
@@ -1369,26 +1339,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentApiTest\\:\\:\\$connection is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentServiceTest\\:\\:getValidSalutationId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentServiceTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentServiceTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
 
 		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"

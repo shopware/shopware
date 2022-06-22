@@ -235,12 +235,14 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('deliveries.shippingMethod');
         $criteria->addAssociation('deliveries.shippingOrderAddress.country');
+        $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
         $criteria->addAssociation('salesChannel');
         $criteria->addAssociation('language.locale');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('addresses.country');
+        $criteria->addAssociation('addresses.countryState');
 
         $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
         $this->eventDispatcher->dispatch($event);

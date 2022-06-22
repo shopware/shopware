@@ -7,6 +7,10 @@ describe('Account - Register: Visual tests', () => {
 
         cy.visit('/account/login');
         cy.get('.register-card').should('be.visible');
+        const country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
+        cy.get('select[name="billingAddress[countryId]"]').select(country);
+        cy.get('.register-billing > .country-and-state-form-elements > .d-none').should('not.exist');
+        cy.get('#billingAddressAddressCountryState').should('be.visible');
 
         // Take snapshot for visual testing
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Registration`, page.elements.registerCard, { widths: [375, 1920] });
@@ -23,7 +27,6 @@ describe('Account - Register: Visual tests', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        const country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
         cy.get('select[name="billingAddress[countryId]"]').select(country);
 
         cy.get('.register-submit .btn[type="submit"]').click();

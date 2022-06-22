@@ -464,6 +464,7 @@
 
                                                 {% block page_account_delete_account_confirm_modal_form %}
                                                     <form method="post"
+                                                          data-form-csrf-handler="true"
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
 

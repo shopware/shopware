@@ -74,6 +74,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry"/>
             <argument type="service" id="order.repository"/>

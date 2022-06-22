@@ -2,6 +2,8 @@ import './component';
 import './config';
 import './preview';
 
+const utils = Shopware.Utils;
+
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',
     label: 'sw-cms.elements.imageSlider.label',
@@ -43,14 +45,14 @@ Shopware.Service('cmsService').registerCmsElement({
             return;
         }
 
-        Object.keys(elem.config).forEach((configKey, index) => {
+        Object.keys(elem.config).forEach((configKey) => {
             const entity = elem.config[configKey].entity;
 
             if (!entity) {
                 return;
             }
 
-            const entityKey = `${entity.name}-${index}`;
+            const entityKey = `${entity.name}-${utils.createId()}`;
             if (!data[`entity-${entityKey}`]) {
                 return;
             }

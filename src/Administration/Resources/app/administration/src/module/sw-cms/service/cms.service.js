@@ -1,5 +1,6 @@
 const { Application, Entity } = Shopware;
 const Criteria = Shopware.Data.Criteria;
+const utils = Shopware.Utils;
 
 Application.addServiceProvider('cmsService', () => {
     return {
@@ -28,7 +29,7 @@ function registerCmsElement(config) {
         config.collect = function collect(elem) {
             const criteriaList = {};
 
-            Object.keys(elem.config).forEach((configKey, index) => {
+            Object.keys(elem.config).forEach((configKey) => {
                 if (['mapped', 'default'].includes(elem.config[configKey].source)) {
                     return;
                 }
@@ -36,7 +37,7 @@ function registerCmsElement(config) {
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = `${entity.name}-${index}`;
+                    const entityKey = `${entity.name}-${utils.createId()}`;
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
@@ -55,14 +56,14 @@ function registerCmsElement(config) {
                 return;
             }
 
-            Object.keys(elem.config).forEach((configKey, index) => {
+            Object.keys(elem.config).forEach((configKey) => {
                 const entity = elem.config[configKey].entity;
 
                 if (!entity) {
                     return;
                 }
 
-                const entityKey = `${entity.name}-${index}`;
+                const entityKey = `${entity.name}-${utils.createId()}`;
                 if (!data[`entity-${entityKey}`]) {
                     return;
                 }

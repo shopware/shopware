@@ -12,6 +12,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        /** @var array{type?: string, config?: array}[] $services */
         $services = $container->getParameter('shopware.increment');
         $tag = 'shopware.increment.gateway';
 

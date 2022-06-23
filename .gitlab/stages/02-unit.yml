@@ -23,7 +23,9 @@ Jest (Administration):
             - build/artifacts/jest
         reports:
             junit: build/artifacts/jest/administration.junit.xml
-            cobertura: build/artifacts/jest/cobertura-coverage.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: build/artifacts/jest/cobertura-coverage.xml
 
 Jest (Storefront):
     extends: .base
@@ -47,7 +49,9 @@ Jest (Storefront):
             - build/artifacts/jest
         reports:
             junit: build/artifacts/jest/storefront.junit.xml
-            cobertura: build/artifacts/jest/cobertura-coverage.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: build/artifacts/jest/cobertura-coverage.xml
 
 PHP coverage:
     extends: .base-no-setup
@@ -96,7 +100,9 @@ PHP coverage:
             - cobertura.xml
         reports:
             junit: phpunit.junit.xml
-            cobertura: cobertura.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: cobertura.xml
     parallel:
         matrix:
             - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]

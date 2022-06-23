@@ -1,0 +1,11 @@
+--- /dev/null
++++ ../src/TextUI/TestSuiteMapper.php
+@@ -68,7 +68,7 @@
+
+                         $testSuiteEmpty = false;
+                     } elseif (strpos($directory->path(), '*') === false && !is_dir($directory->path())) {
+-                        throw new TestDirectoryNotFoundException($directory->path());
++                        fwrite(\STDERR, sprintf('cannot find folder %s, ignoring' . PHP_EOL, $directory->path()));
+                     }
+                 }
+

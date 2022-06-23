@@ -84,6 +84,7 @@ E2E:
 
 E2E quarantined:
   extends: E2E
+  stage: quarantine
   parallel:
     matrix:
       - TEST_DIRECTORY:

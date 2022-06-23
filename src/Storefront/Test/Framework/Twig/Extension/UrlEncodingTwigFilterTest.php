@@ -83,6 +83,7 @@ class UrlEncodingTwigFilterTest extends TestCase
     }
 
     /**
+     * NEXT-21735
      * @group quarantined
      */
     public function testItEncodesTheUrl(): void

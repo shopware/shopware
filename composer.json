@@ -313,10 +313,13 @@
             "@phpstan src/"
         ],
         "phpunit": [
-            "phpunit"
+            "phpunit --exclude-group=quarantined"
+        ],
+        "phpunit:quarantined": [
+            "phpunit --group=quarantined"
         ],
         "paratest": [
-            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
+            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver,quarantined --processes $(nproc)"
         ],
         "locust:init": "php src/Core/DevOps/Locust/setup.php",
         "locust:run": "cd src/Core/DevOps/Locust && locust",

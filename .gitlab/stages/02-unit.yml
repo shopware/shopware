@@ -220,6 +220,7 @@ PHP Full:
 
 PHP Full quarantined:
     extends: PHP Full
+    stage: quarantine
     parallel:
         matrix:
             - MYSQL_IMAGE: mariadb:10.4

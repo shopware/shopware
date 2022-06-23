@@ -45,7 +45,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.get('.sw-flow-sequence-selector__add-action').click();
 
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Change customer group', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign customer group', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-change-customer-group-modal').should('be.visible');
 
         cy.get('.sw-flow-change-customer-group-modal__type-select')

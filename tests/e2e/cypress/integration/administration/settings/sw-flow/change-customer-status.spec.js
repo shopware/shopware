@@ -40,7 +40,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.get('.sw-flow-sequence-selector__add-action').click();
 
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Change customer status', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign account status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-change-customer-status-modal').should('be.visible');
 
         cy.get('.sw-flow-change-customer-status-modal__type-select')

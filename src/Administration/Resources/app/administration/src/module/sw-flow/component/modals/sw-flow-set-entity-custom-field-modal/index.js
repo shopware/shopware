@@ -104,11 +104,11 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                 ...this.defaultFieldOptions,
                 {
                     value: 'add',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.add')}`,
+                    label: `${this.$tc('global.default.add')}`,
                 },
                 {
                     value: 'remove',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.remove')}`,
+                    label: `${this.$tc('global.default.remove')}`,
                 },
             ];
         },

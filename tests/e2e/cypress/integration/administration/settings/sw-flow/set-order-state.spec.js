@@ -41,7 +41,7 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-flow-sequence-selector').should('be.visible');
         cy.get('.sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Set status', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
 
         cy.get('#sw-field--config-order').select('In Progress')
@@ -150,7 +150,7 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-flow-sequence-selector').should('be.visible');
         cy.get('.sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Set status', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
 
         cy.get('#sw-field--config-order').select('Done')

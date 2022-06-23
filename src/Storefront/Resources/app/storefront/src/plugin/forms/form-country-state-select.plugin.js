@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
+import Feature from 'src/helper/feature.helper';
 
 export default class CountryStateSelectPlugin extends Plugin {
 
@@ -12,6 +13,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         countryStatePlaceholderSelector: '[data-placeholder-option="true"]',
         vatIdFieldInput: '#vatIds',
         vatIdRequired: 'vat-id-required',
+        stateRequired: 'state-required',
     };
 
     init() {
@@ -32,13 +34,14 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
         const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
+        const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
         if (!initialCountryId) {
             return;
         }
-        this.requestStateData(initialCountryId, initialCountryStateId);
+        this.requestStateData(initialCountryId, initialCountryStateId, stateRequired);
 
         if (!vatIdInput) {
             return;
@@ -49,8 +52,9 @@ export default class CountryStateSelectPlugin extends Plugin {
     onChangeCountry(event) {
         const countryId = event.target.value;
 
-        this.requestStateData(countryId);
         const countrySelect = event.target.options[event.target.selectedIndex];
+        const stateRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.stateRequired);
+        this.requestStateData(countryId, null, stateRequired);
         const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
@@ -59,14 +63,22 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
     }
 
-    requestStateData(countryId, countryStateId = null) {
+    /**
+     * @deprecated tag:v6.5.0 - stateRequired has to be set from the calling instance 'frontend.country.country-data' will no longer provide this value
+     */
+    requestStateData(countryId, countryStateId = null, stateRequired = false) {
         const payload = JSON.stringify({ countryId });
 
         this._client.post(
             window.router['frontend.country.country-data'],
             payload,
             (response) => {
-                const responseData = JSON.parse(response);
+                let responseData = JSON.parse(response);
+                if (Feature.isActive('v6.5.0.0')) {
+                    responseData = {...responseData, ...{
+                        stateRequired: stateRequired,
+                    }};
+                }
 
                 updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options)
             }

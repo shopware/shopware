@@ -14,7 +14,7 @@ describe('Form country state select plugin', () => {
             </div>
 
             <select class="country-select" data-initial-country-id="555nase">
-                <option data-vat-id-required="1">Netherlands</option>
+                <option data-vat-id-required="1" data-state-required="0">Netherlands</option>
             </select>
             <select class="country-state-select" data-initial-country-state-id="">
                 <option>Select state..</option>
@@ -77,8 +77,8 @@ describe('Form country state select plugin', () => {
 
                 <select class="country-select" data-initial-country-id="">
                     <option disabled="disabled" value="" selected="selected">Select country...</option>
-                    <option data-vat-id-required="1">Netherlands</option>
-                    <option data-vat-id-required="0">Germany</option>
+                    <option data-vat-id-required="1" data-state-required="0">Netherlands</option>
+                    <option data-vat-id-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
                     <option>Select state..</option>
@@ -106,8 +106,8 @@ describe('Form country state select plugin', () => {
 
                 <select class="country-select" data-initial-country-id="">
                     <option disabled="disabled" value="">Select country...</option>
-                    <option value="1" selected="selected" data-vat-id-required="1">Netherlands</option>
-                    <option value="2" data-vat-id-required="0">Germany</option>
+                    <option value="1" selected="selected" data-vat-id-required="1" data-state-required="0">Netherlands</option>
+                    <option value="2" data-vat-id-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
                     <option>Select state..</option>

@@ -309,6 +309,9 @@
                 "country_route": {
                     "$ref": "#/definitions/cache_invalidation_states"
                 },
+                "country_state_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
                 "salutation_route": {
                     "$ref": "#/definitions/cache_invalidation_states"
                 },

@@ -5261,11 +5261,6 @@ parameters:
 			path: src/Core/Framework/Context.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Cache/EntityCacheKeyGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\CompiledFieldCollection\\:\\:getMappedByStorageName\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
@@ -11118,21 +11113,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:isValid\\(\\) invoked with 2 parameters, 1 required\\.$#"
 			count: 1
 			path: src/Storefront/Controller/CaptchaController.php
-
-		-
-			message: "#^Cannot call method getForceStateInRegistration\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CountryStateController.php
-
-		-
-			message: "#^Cannot call method getStates\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Controller/CountryStateController.php
-
-		-
-			message: "#^Cannot call method sortByPositionAndName\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryState\\\\CountryStateCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CountryStateController.php
 
 		-
 			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"

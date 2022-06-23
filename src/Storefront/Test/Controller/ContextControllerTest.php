@@ -129,7 +129,7 @@ class ContextControllerTest extends TestCase
         $this->browser->request('GET', $this->testBaseUrl);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $contextSubscriber = new TestSubscriber();
+        $contextSubscriber = new ContextControllerTestSubscriber();
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $dispatcher->addSubscriber($contextSubscriber);
 
@@ -152,7 +152,7 @@ class ContextControllerTest extends TestCase
 /**
  * @internal
  */
-class TestSubscriber implements EventSubscriberInterface
+class ContextControllerTestSubscriber implements EventSubscriberInterface
 {
     public static SalesChannelContextSwitchEvent $switchEvent;
 

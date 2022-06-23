@@ -207,6 +207,20 @@ trait BasicTestDataBehaviour
         return $id;
     }
 
+    protected function getDeCountryId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('country.repository');
+
+        $criteria = (new Criteria())->setLimit(1)
+            ->addFilter(new EqualsFilter('iso', 'DE'));
+
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
+    }
+
     protected function getValidCategoryId(): string
     {
         /** @var EntityRepositoryInterface $repository */

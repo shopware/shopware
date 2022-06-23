@@ -36,7 +36,7 @@ describe('Administration: Check module navigation', () => {
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').should('be.visible');
 
         // Change text of the element to ensure consistent snapshots
-        cy.changeElementText('.sw-data-grid__cell--createdAt', '01 Jan 2018, 00:00');
+        cy.changeElementText('.sw-data-grid__cell--createdAt .sw-data-grid__cell-content', '01 Jan 2018, 00:00');
 
         // Take snapshot
         cy.prepareAdminForScreenshot();

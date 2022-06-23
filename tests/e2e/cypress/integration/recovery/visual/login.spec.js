@@ -9,12 +9,6 @@ describe('Account - Login: Visual tests', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Account overview after login`,
-            page.elements.loginCard,
-            {widths: [375, 1920]}
-        );
-
         const user = Cypress.env('testDataUsage') ? 'kathie.jaeger@test.com' : 'test@example.com';
         cy.get('#loginMail').type(user);
         cy.get('#loginPassword').type('shopware');
@@ -24,5 +18,11 @@ describe('Account - Login: Visual tests', () => {
         cy.get('.account-welcome h1').should((element) => {
             expect(element).to.contain(accountHeader);
         });
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Account overview after login`,
+            '.account-overview',
+            {widths: [375, 1920]}
+        );
     });
 });

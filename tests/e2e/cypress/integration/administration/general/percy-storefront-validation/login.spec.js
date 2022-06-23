@@ -10,9 +10,6 @@ describe('Account - Login: Visual tests', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('[Account] Overview after login', page.elements.loginCard, { widths: [375, 1920] });
-
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
@@ -20,5 +17,8 @@ describe('Account - Login: Visual tests', () => {
         cy.get('.account-welcome h1').should((element) => {
             expect(element).to.contain('Overview');
         });
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('[Account] Overview after login', '.account-overview', { widths: [375, 1920] });
     });
 });

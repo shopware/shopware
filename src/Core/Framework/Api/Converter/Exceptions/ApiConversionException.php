@@ -45,13 +45,16 @@ class ApiConversionException extends ShopwareHttpException
             /** @var ShopwareException $exception */
             foreach ($innerExceptions as $exception) {
                 $parameters = [];
+                $errorCode = 0;
+
                 if ($exception instanceof ShopwareException) {
                     $parameters = $exception->getParameters();
+                    $errorCode = $exception->getErrorCode();
                 }
 
                 $error = [
                     'status' => (string) $this->getStatusCode(),
-                    'code' => $exception->getErrorCode(),
+                    'code' => $errorCode,
                     'title' => Response::$statusTexts[Response::HTTP_BAD_REQUEST],
                     'detail' => $exception->getMessage(),
                     'source' => ['pointer' => $pointer],

@@ -70,7 +70,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotNull($mailTemplateId);
 
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
@@ -80,6 +80,9 @@ class SendMailActionTest extends TestCase
 
         $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
         $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+
+        $documentIdOlder = null;
+        $documentIdNewer = null;
 
         if ($hasFlowSettingAttachment || $hasOrderSettingAttachment) {
             $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
@@ -118,16 +121,36 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
+        $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+        $documents = $documentRepository->search($criteria, $context);
+
+        $newDocument = $documents->get($documentIdNewer);
+        static::assertNotNull($newDocument);
+        static::assertFalse($newDocument->getSent());
+        $newDocumentOrderVersionId = $newDocument->getOrderVersionId();
+
+        $oldDocument = $documents->get($documentIdOlder);
+        static::assertNotNull($oldDocument);
+        static::assertFalse($oldDocument->getSent());
+        $oldDocumentOrderVersionId = $oldDocument->getOrderVersionId();
+
+        // new version is created
+        static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
+        static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
+
         $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
+        static::assertIsArray($mailService->data);
+        static::assertArrayHasKey('recipients', $mailService->data);
 
         switch ($recipients['type']) {
             case 'admin':
                 $admin = $this->getContainer()->get(Connection::class)->fetchAssociative(
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
+                static::assertIsArray($admin);
                 static::assertEquals($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
 
                 break;
@@ -142,13 +165,18 @@ class SendMailActionTest extends TestCase
         if ($hasFlowSettingAttachment) {
             $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
             $documents = $documentRepository->search($criteria, $context);
-            foreach ($documents as $document) {
-                if ($document->getSent()) {
-                    static::assertEquals($documentIdNewer, $document->getId());
-                } else {
-                    static::assertEquals($documentIdOlder, $document->getId());
-                }
-            }
+
+            $newDocument = $documents->get($documentIdNewer);
+            static::assertNotNull($newDocument);
+            static::assertTrue($newDocument->getSent());
+
+            $oldDocument = $documents->get($documentIdOlder);
+            static::assertNotNull($oldDocument);
+            static::assertFalse($oldDocument->getSent());
+
+            // version does not changed
+            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
+            static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }
 
@@ -181,6 +209,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
+        static::assertNotNull($mailTemplateId);
         $this->getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
@@ -248,6 +277,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
+        static::assertNotNull($mailTemplateId);
         $this->getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
@@ -300,6 +330,8 @@ class SendMailActionTest extends TestCase
         $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
 
         if ($hasEmail) {
+            static::assertIsArray($mailService->data);
+            static::assertArrayHasKey('recipients', $mailService->data);
             static::assertIsObject($mailFilterEvent);
             static::assertEquals(1, $mailService->calls);
             static::assertEquals([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
@@ -323,6 +355,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
+        static::assertNotNull($mailTemplateId);
         $this->getContainer()->get(Connection::class)->executeStatement(
             'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
             [
@@ -391,7 +424,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotNull($mailTemplateId);
 
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
@@ -489,7 +522,7 @@ class SendMailActionTest extends TestCase
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
-
+        static::assertNotNull($mailTemplate->getMailTemplateTypeId());
         $data = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT template_data FROM mail_template_type WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId())]
@@ -502,7 +535,7 @@ class SendMailActionTest extends TestCase
         }
     }
 
-    public function updateTemplateDataProvider()
+    public function updateTemplateDataProvider(): \Generator
     {
         yield 'Test disable mail template updates' => [false];
         yield 'Test enable mail template updates' => [true];
@@ -522,7 +555,7 @@ class SendMailActionTest extends TestCase
             ->searchIds($criteria, $context)
             ->firstId();
 
-        static::assertNotEmpty($mailTemplateId);
+        static::assertNotNull($mailTemplateId);
 
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
@@ -784,9 +817,9 @@ class TestStringTemplateRenderer extends StringTemplateRenderer
  */
 class TestEmailService extends EMailService
 {
-    public $calls = 0;
+    public float $calls = 0;
 
-    public $data = null;
+    public ?array $data = null;
 
     public function __construct()
     {

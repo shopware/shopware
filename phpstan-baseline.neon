@@ -3091,51 +3091,6 @@ parameters:
 			path: src/Core/Content/Test/Flow/RemoveOrderTagActionTest.php
 
 		-
-			message: "#^Cannot access offset 'email' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Cannot access offset 'first_name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Cannot access offset 'last_name' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SendMailActionTest\\:\\:updateTemplateDataProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, string\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\TestEmailService\\:\\:\\$calls has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\TestEmailService\\:\\:\\$data has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Variable \\$documentIdNewer might not be defined\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
-			message: "#^Variable \\$documentIdOlder might not be defined\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/SendMailActionTest.php
-
-		-
 			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/SetCustomerCustomFieldActionTest.php

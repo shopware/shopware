@@ -9,7 +9,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
 {% sw_extends '@Framework/documents/base.html.twig' %}
 
-{% block document_title_tag %}{% trans with {'%stornoNumber%': order.id} %}document.stornoHeadline{% endtrans %}{% endblock %}
+{% block document_title_tag %}{% trans with {'%stornoNumber%': config.custom.stornoNumber, '%invoiceNumber%': config.custom.invoiceNumber} %}document.stornoHeadline{% endtrans %}{% endblock %}
 
 {% block document_headline %}
     <h1 class="headline">

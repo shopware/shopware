@@ -36,14 +36,18 @@ class CleanupVersionTaskHandler extends ScheduledTaskHandler
         $time = new \DateTime();
         $time->modify(sprintf('-%s day', $this->days));
 
-        $this->connection->executeStatement(
-            'DELETE FROM version WHERE created_at <= :timestamp',
-            ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
-        );
+        do {
+            $result = $this->connection->executeStatement(
+                'DELETE FROM version WHERE created_at <= :timestamp LIMIT 1000',
+                ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+        } while ($result > 0);
 
-        $this->connection->executeStatement(
-            'DELETE FROM version_commit WHERE created_at <= :timestamp',
-            ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
-        );
+        do {
+            $result = $this->connection->executeStatement(
+                'DELETE FROM version_commit WHERE created_at <= :timestamp LIMIT 1000',
+                ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+        } while ($result > 0);
     }
 }

@@ -128,7 +128,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(0, $documentStruct);
     }
 
-    public function testPreview(): void
+    public function testPreviewWithIncorrectDeepLinkCode(): void
     {
         self::expectException(InvalidOrderException::class);
 
@@ -136,7 +136,9 @@ class DocumentGeneratorTest extends TestCase
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
 
         $operation = new DocumentGenerateOperation($this->orderId);
-
+        $operation->assign([
+            'preview' => true,
+        ]);
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode() ?? '', $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $documentStruct);
@@ -145,6 +147,81 @@ class DocumentGeneratorTest extends TestCase
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
+    }
+
+    public function testPreviewInvoice(): void
+    {
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        static::assertNotNull($order);
+
+        $operation = new DocumentGenerateOperation($this->orderId);
+
+        $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $documentStruct);
+        static::assertNotEmpty($documentStruct->getContent());
+    }
+
+    public function testPreviewStorno(): void
+    {
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
+        static::assertNotNull($order);
+        $orderCustomer = $order->getOrderCustomer();
+        static::assertNotNull($orderCustomer);
+        $customerNo = (string) $orderCustomer->getCustomerNumber();
+
+        $invoiceNumber = '9998';
+        $invoiceConfig1 = new DocumentConfiguration();
+        $invoiceConfig1->setDocumentNumber($invoiceNumber);
+
+        $invoiceConfig2 = new DocumentConfiguration();
+        $invoiceConfig2->setDocumentNumber('9999');
+
+        $operation1 = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $invoiceConfig1->jsonSerialize());
+        $operation2 = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $invoiceConfig2->jsonSerialize());
+
+        $this->documentGenerator->generate(InvoiceRenderer::TYPE, [
+            $this->orderId => $operation1,
+        ], $this->context);
+
+        $this->documentGenerator->generate(InvoiceRenderer::TYPE, [
+            $this->orderId => $operation2,
+        ], $this->context);
+
+        $stornoConfiguration = new DocumentConfiguration();
+        $stornoConfiguration->assign([
+            'custom' => [
+                'invoiceNumber' => $invoiceNumber,
+            ],
+        ]);
+
+        $operation = new DocumentGenerateOperation(
+            $this->orderId,
+            FileTypes::PDF,
+            $stornoConfiguration->jsonSerialize(),
+            null,
+            false,
+            true
+        );
+
+        $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
+        static::assertNotEmpty($stornoStruct->getContent());
+        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+
+        $this->getContainer()->get('order_customer.repository')->update([[
+            'id' => $orderCustomer->getId(),
+            'customerNumber' => 'CHANGED NUMBER',
+        ]], $this->context);
+
+        $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
+        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        // Customer no does not change because it refers to the older version of order
+        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
     }
 
     /**

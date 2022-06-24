@@ -125,7 +125,7 @@ class DocumentController extends AbstractController
             );
         }
 
-        $download = $request->query->getBoolean('download', false);
+        $download = $request->query->getBoolean('download');
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [

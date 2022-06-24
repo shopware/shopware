@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -106,6 +107,11 @@ final class DocumentGenerator
     {
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
+
+        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
+            $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
+            $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
+        }
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
@@ -324,5 +330,21 @@ final class DocumentGenerator
                 'document'
             );
         });
+    }
+
+    private function getReferenceId(string $orderId, string $invoiceNumber): string
+    {
+        return (string) $this->connection->fetchOne('
+            SELECT LOWER(HEX(document.id))
+            FROM document INNER JOIN document_type
+                ON document.document_type_id = document_type.id
+            WHERE document_type.technical_name = :technicalName
+            AND JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) = :invoiceNumber
+            AND document.order_id = :orderId
+        ', [
+            'technicalName' => InvoiceRenderer::TYPE,
+            'invoiceNumber' => $invoiceNumber,
+            'orderId' => Uuid::fromHexToBytes($orderId),
+        ]);
     }
 }

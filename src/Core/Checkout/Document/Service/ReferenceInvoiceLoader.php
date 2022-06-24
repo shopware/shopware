@@ -52,7 +52,7 @@ final class ReferenceInvoiceLoader
         $builder->orderBy('`document`.`created_at`', 'DESC');
         $builder->setMaxResults(1);
 
-        if ($referenceDocumentId !== null) {
+        if (!empty($referenceDocumentId)) {
             $builder->andWhere('`document`.`id` = :documentId');
             $builder->setParameter('documentId', Uuid::fromHexToBytes($referenceDocumentId));
         }

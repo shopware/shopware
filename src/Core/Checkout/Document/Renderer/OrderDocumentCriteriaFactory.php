@@ -25,9 +25,11 @@ final class OrderDocumentCriteriaFactory
             'currency',
             'language.locale',
             'addresses.country',
+            'addresses.countryState',
             'deliveries.positions',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
+            'deliveries.shippingOrderAddress.countryState',
             'orderCustomer.customer',
         ]);
 

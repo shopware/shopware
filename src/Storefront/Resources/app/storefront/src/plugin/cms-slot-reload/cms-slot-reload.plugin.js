@@ -4,6 +4,7 @@ import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import CmsSlotOptionValidatorHelper from 'src/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';
 import Iterator from 'src/helper/iterator.helper';
 
+/** @deprecated tag:v6.5.0 - Functionality moved to ListingPlugin */
 export default class CmsSlotReloadPlugin extends Plugin {
 
     static options = {

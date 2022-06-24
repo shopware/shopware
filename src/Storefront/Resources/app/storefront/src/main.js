@@ -58,7 +58,9 @@ import ProductSliderPlugin from 'src/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/plugin/magnifier/magnifier.plugin';
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
+/** @deprecated tag:v6.5.0 - CmsSlotReload plugin is deprecated. Functionality moved to ListingPlugin */
 import CmsSlotReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-reload.plugin';
+/** @deprecated tag:v6.5.0 - CmsSlotHistoryReload plugin is deprecated. Functionality moved to ListingPlugin */
 import CmsSlotHistoryReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/plugin/address-editor/address-editor.plugin';
@@ -83,6 +85,7 @@ import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 import GoogleReCaptchaV2Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v2.plugin';
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
+/** @deprecated tag:v6.5.0 - SwagBlockLink plugin will be removed without replacement */
 import SwagBlockLink from 'src/helper/block-link.helper';
 import StoreApiClient from 'src/service/store-api-client.service';
 import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
@@ -141,7 +144,9 @@ PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slid
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
+/** @deprecated tag:v6.5.0 - CmsSlotReload plugin is deprecated. Functionality moved to ListingPlugin */
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
+/** @deprecated tag:v6.5.0 - CmsSlotHistoryReload plugin is deprecated. Functionality moved to ListingPlugin */
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
@@ -157,12 +162,13 @@ PluginManager.register('FilterRatingSelect', FilterRatingSelectPlugin, '[data-fi
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
 PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');
-PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
+PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]'); // Not used in core, but implemented for plugins
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
+/** @deprecated tag:v6.5.0 - SwagBlockLink plugin will be removed without replacement */
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
-PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
+PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]'); // Not used in core, but implemented for plugins
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');

@@ -207,6 +207,14 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
             }
         });
 
+        const offset = this._getOffset();
+        const pageHeight = document.body.scrollHeight;
+        const viewportHeight = window.innerHeight;
+
+        if ((offset < (pageHeight - viewportHeight))) {
+            shouldScroll = false;
+        }
+
         return shouldScroll;
     }
 

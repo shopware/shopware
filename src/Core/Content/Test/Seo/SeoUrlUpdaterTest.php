@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -103,7 +104,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create([
             $productBuilder->build(),
-        ], $this->ids->getContext());
+        ], Context::createDefaultContext());
 
         // Manually trigger the updater, as the automatic updater triggers only for the storefront routes
         $this->getContainer()->get(SeoUrlUpdater::class)->update(
@@ -118,7 +119,7 @@ class SeoUrlUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->salesChannel['id']));
         $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
             $criteria,
-            $this->ids->getContext()
+            Context::createDefaultContext()
         )->first();
 
         // Check if seo url was created

@@ -212,7 +212,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $criteria->addAssociation('categories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $this->ids->getContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         $category = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
         $category2 = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->contextFactory->create('', $this->ids->get('sales-channel-2')));
@@ -417,31 +417,31 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ], false);
 
-        $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), $this->ids->getContext())->first();
+        $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), Context::createDefaultContext())->first();
         $categoryMain = $this->breadcrumbBuilder->getProductSeoCategory($mainProduct, $this->salesChannelContext);
 
         static::assertSame($this->ids->get('navigation-a-2'), $categoryMain->getId());
         static::assertSame('EN-AA', $categoryMain->getName());
 
-        $variant1 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-1')]), $this->ids->getContext())->first();
+        $variant1 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-1')]), Context::createDefaultContext())->first();
         $categoryVariant1 = $this->breadcrumbBuilder->getProductSeoCategory($variant1, $this->salesChannelContext);
 
         static::assertSame($this->ids->get('navigation-b-2'), $categoryVariant1->getId());
         static::assertSame('EN-BA', $categoryVariant1->getName());
 
-        $variant2 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-2')]), $this->ids->getContext())->first();
+        $variant2 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-2')]), Context::createDefaultContext())->first();
         $categoryVariant2 = $this->breadcrumbBuilder->getProductSeoCategory($variant2, $this->salesChannelContext);
 
         static::assertSame($this->ids->get('navigation-b-1'), $categoryVariant2->getId());
         static::assertSame('EN-B', $categoryVariant2->getName());
 
-        $variant3 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-3')]), $this->ids->getContext())->first();
+        $variant3 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-3')]), Context::createDefaultContext())->first();
         $categoryVariant3 = $this->breadcrumbBuilder->getProductSeoCategory($variant3, $this->salesChannelContext);
 
         static::assertSame($this->ids->get('navigation-a-1'), $categoryVariant3->getId());
         static::assertSame('EN-A', $categoryVariant3->getName());
 
-        $variant4 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-4')]), $this->ids->getContext())->first();
+        $variant4 = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product-4')]), Context::createDefaultContext())->first();
         $categoryVariant4 = $this->breadcrumbBuilder->getProductSeoCategory($variant4, $this->salesChannelContext);
 
         static::assertSame($this->ids->get('navigation-a-2'), $categoryVariant4->getId());
@@ -502,7 +502,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create($data, $this->ids->getContext());
+        $this->getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
 
         return $this->ids->get($key);
     }

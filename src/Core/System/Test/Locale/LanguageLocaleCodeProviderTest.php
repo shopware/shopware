@@ -26,7 +26,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
     {
         $this->languageLocaleProvider = $this->getContainer()->get(LanguageLocaleCodeProvider::class);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -70,7 +70,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
                 'name' => 'language-locale',
                 'territory' => 'language-locale',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $data = [
             [
@@ -89,6 +89,6 @@ class LanguageLocaleCodeProviderTest extends TestCase
         ];
 
         $this->getContainer()->get('language.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

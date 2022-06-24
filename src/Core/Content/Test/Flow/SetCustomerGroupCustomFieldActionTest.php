@@ -31,7 +31,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -91,7 +91,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = $this->getContainer()->get('customer_group.repository')
-            ->search(new Criteria([$this->ids->get('customer_group')]), $this->ids->context)->first();
+            ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertEquals($customerGroup->getCustomFields(), $expect);

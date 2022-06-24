@@ -50,7 +50,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
                 $manufacturerRepo->upsert([[
                     'id' => $ids->get('m1'),
                     'name' => 'update',
-                ]], $ids->getContext());
+                ]], Context::createDefaultContext());
             },
             true,
             $ids,
@@ -64,7 +64,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
                 $manufacturerRepo->upsert([[
                     'id' => $ids->get('m1'),
                     'name' => 'update',
-                ]], $ids->getContext());
+                ]], Context::createDefaultContext());
             },
             true,
             $ids,
@@ -78,7 +78,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
                 $productRepo->upsert([[
                     'id' => $ids->get('p1'),
                     'name' => 'update',
-                ]], $ids->getContext());
+                ]], Context::createDefaultContext());
             },
             false,
             $ids,
@@ -96,7 +96,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
                             ->build()
                     );
 
-                $productRepo->create([$product4->build()], $ids->getContext());
+                $productRepo->create([$product4->build()], Context::createDefaultContext());
             },
             true,
             $ids,
@@ -107,7 +107,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
             function (ContainerInterface $container) use ($ids): void {
                 $productRepo = $container->get('product.repository');
 
-                $productRepo->delete([['id' => $ids->get('p2')]], $ids->getContext());
+                $productRepo->delete([['id' => $ids->get('p2')]], Context::createDefaultContext());
             },
             false,
             $ids,
@@ -121,7 +121,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
                 $product4 = (new ProductBuilder($ids, 'p4'))
                     ->price(100);
 
-                $productRepo->create([$product4->build()], $ids->getContext());
+                $productRepo->create([$product4->build()], Context::createDefaultContext());
             },
             false,
             $ids,

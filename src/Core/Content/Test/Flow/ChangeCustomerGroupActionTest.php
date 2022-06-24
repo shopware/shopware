@@ -53,7 +53,7 @@ class ChangeCustomerGroupActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -119,10 +119,10 @@ class ChangeCustomerGroupActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Test group'));
         /** @var CustomerGroupEntity $customerGroupId */
-        $customerGroupId = $this->getContainer()->get('customer_group.repository')->search($criteria, $this->ids->context)->first();
+        $customerGroupId = $this->getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->first();
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), $this->ids->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         static::assertSame($customerGroupId->getId(), $customer->getGroupId());
     }
@@ -174,7 +174,7 @@ class ChangeCustomerGroupActionTest extends TestCase
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -184,6 +184,6 @@ class ChangeCustomerGroupActionTest extends TestCase
                 'id' => $this->ids->create('customer_group_id'),
                 'name' => 'Test group',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
@@ -26,11 +25,6 @@ class AdministrationControllerTest extends TestCase
     private $connection;
 
     /**
-     * @var TestDataCollection
-     */
-    private $ids;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
@@ -41,7 +35,6 @@ class AdministrationControllerTest extends TestCase
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
@@ -258,7 +251,7 @@ class AdministrationControllerTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }

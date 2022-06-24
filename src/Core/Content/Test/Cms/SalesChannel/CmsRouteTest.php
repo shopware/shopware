@@ -29,7 +29,7 @@ class CmsRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -118,6 +118,6 @@ class CmsRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$cms], $this->ids->context);
+        $this->getContainer()->get('cms_page.repository')->create([$cms], Context::createDefaultContext());
     }
 }

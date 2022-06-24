@@ -49,7 +49,7 @@ class AddCustomerTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -184,7 +184,7 @@ class AddCustomerTagActionTest extends TestCase
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -202,6 +202,6 @@ class AddCustomerTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

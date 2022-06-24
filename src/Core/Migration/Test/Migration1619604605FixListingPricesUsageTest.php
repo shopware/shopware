@@ -135,7 +135,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         ];
 
         $writtenEvent = $this->getContainer()->get('product_stream.repository')
-            ->create([$stream], $ids->getContext());
+            ->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(
@@ -175,7 +175,7 @@ class Migration1619604605FixListingPricesUsageTest extends TestCase
         ];
 
         $writtenEvent = $this->getContainer()->get('product_stream.repository')
-            ->create([$stream], $ids->getContext());
+            ->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(

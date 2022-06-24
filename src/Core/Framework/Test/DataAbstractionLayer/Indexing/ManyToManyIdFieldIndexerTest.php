@@ -41,12 +41,12 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
     public function testPropertyIndexing(): void
     {
-        $data = new TestDataCollection(Context::createDefaultContext());
+        $data = new TestDataCollection();
 
         $this->createProduct($data);
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertContains($data->get('red'), $product->getPropertyIds());
@@ -55,11 +55,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
         $this->productPropertyRepository->delete(
             [['productId' => $data->get('product'), 'optionId' => $data->get('red')]],
-            $data->getContext()
+            Context::createDefaultContext()
         );
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotContains($data->get('red'), $product->getPropertyIds());
@@ -68,11 +68,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
         $this->productPropertyRepository->create(
             [['productId' => $data->get('product'), 'optionId' => $data->get('red')]],
-            $data->getContext()
+            Context::createDefaultContext()
         );
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertContains($data->get('red'), $product->getPropertyIds());
@@ -88,11 +88,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
                     ],
                 ],
             ],
-            $data->getContext()
+            Context::createDefaultContext()
         );
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertContains($data->get('red'), $product->getPropertyIds());
@@ -102,12 +102,12 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
     public function testResetRelation(): void
     {
-        $data = new TestDataCollection(Context::createDefaultContext());
+        $data = new TestDataCollection();
 
         $this->createProduct($data);
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         // product is created with red and green, assert both ids are inside the many to many id field
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -119,10 +119,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
         $this->productPropertyRepository->delete([
             ['productId' => $data->get('product'), 'optionId' => $data->get('red')],
             ['productId' => $data->get('product'), 'optionId' => $data->get('green')],
-        ], $data->getContext());
+        ], Context::createDefaultContext());
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
@@ -132,10 +132,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
         $this->productPropertyRepository->create([
             ['productId' => $data->get('product'), 'optionId' => $data->get('red')],
             ['productId' => $data->get('product'), 'optionId' => $data->get('green')],
-        ], $data->getContext());
+        ], Context::createDefaultContext());
 
         /** @var ProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
+        $product = $this->productRepository->search(new Criteria([$data->get('product')]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
@@ -163,7 +163,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
                     ],
                 ],
             ],
-            $data->getContext()
+            Context::createDefaultContext()
         );
     }
 }

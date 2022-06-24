@@ -345,10 +345,10 @@ class CheapestPriceTest extends TestCase
             ];
 
             $this->getContainer()->get('product.repository')
-                ->create($products, $ids->getContext());
+                ->create($products, Context::createDefaultContext());
             $criteria = new Criteria($ids->all());
             $result = $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $ids->getContext());
+                ->searchIds($criteria, Context::createDefaultContext());
             static::assertNotNull($result);
 
             return $ids;

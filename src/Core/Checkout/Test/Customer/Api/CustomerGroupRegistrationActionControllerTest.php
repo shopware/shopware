@@ -57,7 +57,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->flowRepository = $this->getContainer()->get('flow.repository');
         $this->flowActionTestSubscriber = new FlowActionTestSubscriber();
@@ -308,7 +308,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->attributes->set('customerId', $customerId);
         $request->attributes->set('customerIds', [$customerId]);
 
-        $response = $result->accept($request, $this->ids->context);
+        $response = $result->accept($request, Context::createDefaultContext());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $dispatcher->removeListener(CustomerGroupRegistrationAccepted::class, $listener);
@@ -334,7 +334,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->attributes->set('customerId', $customerId);
         $request->attributes->set('customerIds', [$customerId]);
 
-        $response = $result->decline($request, $this->ids->context);
+        $response = $result->decline($request, Context::createDefaultContext());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $dispatcher->removeListener(CustomerGroupRegistrationAccepted::class, $listener);
@@ -444,7 +444,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ], $requestedGroup ? ['requestedGroup' => ['name' => 'foo']] : []),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }

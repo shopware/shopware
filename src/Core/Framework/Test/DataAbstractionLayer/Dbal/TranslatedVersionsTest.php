@@ -275,7 +275,7 @@ class TranslatedVersionsTest extends TestCase
     private function createParentChildProduct(bool $addChildTranslations = true): IdsCollection
     {
         $context = Context::createDefaultContext();
-        $ids = new IdsCollection($context);
+        $ids = new IdsCollection();
 
         $parentProduct = (new ProductBuilder($ids, 'parent'))
             ->price(100)

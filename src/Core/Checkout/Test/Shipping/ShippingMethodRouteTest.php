@@ -35,7 +35,7 @@ class ShippingMethodRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -72,7 +72,7 @@ class ShippingMethodRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('shipping_method.repository')
-            ->update($updateData, $this->ids->context);
+            ->update($updateData, Context::createDefaultContext());
 
         $this->salesChannelContext = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
@@ -318,6 +318,6 @@ class ShippingMethodRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('shipping_method.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

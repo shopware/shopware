@@ -9,6 +9,7 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -49,7 +50,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('group1'),
                 'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -68,7 +69,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('group1'),
                 'name' => 'new name',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -92,7 +93,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -111,7 +112,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('property-assigned'),
                 'colorHexCode' => '#000000',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -130,7 +131,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('property-unassigned'),
                 'colorHexCode' => '#000000',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -149,7 +150,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('property-assigned'),
                 'name' => 'updated',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -168,7 +169,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'id' => $this->ids->get('property-unassigned'),
                 'name' => 'updated',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -185,7 +186,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $builder->price(10)
             ->property('property-assigned', '');
 
-        $event = $this->getContainer()->get('product.repository')->create([$builder->build()], $this->ids->context);
+        $event = $this->getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
 
         $this->cacheInvalidatorMock->expects(static::once())
             ->method('invalidate')
@@ -215,12 +216,12 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ];
 
-        $groupRepository->create([$data], $this->ids->context);
+        $groupRepository->create([$data], Context::createDefaultContext());
 
         $builder = new ProductBuilder($this->ids, 'product1');
         $builder->price(10)
             ->property('property-assigned', '');
 
-        $this->getContainer()->get('product.repository')->create([$builder->build()], $this->ids->context);
+        $this->getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
     }
 }

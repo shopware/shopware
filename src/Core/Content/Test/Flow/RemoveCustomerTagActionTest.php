@@ -46,7 +46,7 @@ class RemoveCustomerTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -189,7 +189,7 @@ class RemoveCustomerTagActionTest extends TestCase
                     ['tagId' => $this->ids->get('tag_id2'), 'name' => 'tag2'],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -207,6 +207,6 @@ class RemoveCustomerTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

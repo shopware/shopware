@@ -39,7 +39,7 @@ class PromotionIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     public function testPromotionIndexerUpdateReturnNullIfGeneratingCode(): void

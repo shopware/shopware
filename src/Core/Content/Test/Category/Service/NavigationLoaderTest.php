@@ -181,7 +181,7 @@ class NavigationLoaderTest extends TestCase
 
     public function testLoadDifferentDepth(): void
     {
-        $data = new TestDataCollection(Context::createDefaultContext());
+        $data = new TestDataCollection();
         $categories = [
             [
                 'id' => $data->create('root'), 'name' => 'root', 'children' => [
@@ -206,7 +206,7 @@ class NavigationLoaderTest extends TestCase
             ],
         ];
 
-        $this->repository->create($categories, $data->getContext());
+        $this->repository->create($categories, Context::createDefaultContext());
 
         $context = Generator::createSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($data->get('root'));

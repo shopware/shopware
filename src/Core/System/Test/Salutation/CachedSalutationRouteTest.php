@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Salutation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -146,7 +147,7 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -160,7 +161,7 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
@@ -168,7 +169,7 @@ class CachedSalutationRouteTest extends TestCase
                     'displayName' => 'update',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->update([$data], $ids->getContext());
+                $this->getContainer()->get('salutation.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -182,14 +183,14 @@ class CachedSalutationRouteTest extends TestCase
                     'salutationKey' => 'test',
                 ];
 
-                $this->getContainer()->get('salutation.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('salutation.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
                     'id' => $ids->get('salutation'),
                 ];
 
-                $this->getContainer()->get('salutation.repository')->delete([$data], $ids->getContext());
+                $this->getContainer()->get('salutation.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];

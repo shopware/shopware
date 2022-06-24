@@ -30,7 +30,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -108,7 +108,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
                     'hash' => Uuid::randomHex(),
                 ],
             ],
-            $this->ids->context
+            Context::createDefaultContext()
         );
 
         $this->browser

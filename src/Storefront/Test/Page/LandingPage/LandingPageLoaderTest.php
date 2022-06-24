@@ -38,7 +38,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoad(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->get('landing-page'),
@@ -61,7 +61,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithInactiveLandingPage(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -77,7 +77,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithoutCmsPage(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -137,6 +137,6 @@ class LandingPageLoaderTest extends TestCase
         }
 
         $this->getContainer()->get('landing_page.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

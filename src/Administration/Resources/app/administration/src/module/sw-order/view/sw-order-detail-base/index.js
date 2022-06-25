@@ -197,6 +197,7 @@ Component.register('sw-order-detail-base', {
 
             criteria
                 .addAssociation('addresses.country')
+                .addAssociation('addresses.salutation')
                 .addAssociation('addresses.countryState')
                 .addAssociation('deliveries.shippingMethod')
                 .addAssociation('deliveries.shippingOrderAddress')

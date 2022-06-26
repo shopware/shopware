@@ -72,31 +72,78 @@
         :is-loading="isLoading"
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
-            {% block sw_settings_country_address_handling_formatting_card_field_check_default_address_format %}
-            <sw-switch-field
-                v-model="customAddressFormat"
-                class="sw-settings-country-address-handling__option-items sw-settings-country-address-handling__use-default-address-format"
-                bordered
-                :disabled="!acl.can('country.editor')"
-                :label="$tc('sw-settings-country.detail.labelCheckDefaultAddressFormat')"
-            />
+            {% block sw_settings_country_address_handling_drag_drop %}
+            <div class="sw-settings-country-address-handling__address-markup">
+                <sw-multi-snippet-drag-and-drop
+                    v-for="(snippet, index) in advancedAddressFormat"
+                    :key="index"
+                    v-droppable="{ data: { snippet, index }, dragGroup: 'sw-multi-snippet' }"
+                    v-draggable="{ ...dragConf, data: { snippet, index }}"
+                    :value="snippet"
+                    :line-position="index"
+                    :disabled="isDisabled"
+                    @change="change"
+                    @drag-end="onDragEnd"
+                    @location-move="moveToLocation"
+                    @add-new-line="addNewLineAt"
+                    @open-snippet-modal="openSnippetModal"
+                />
+            </div>
             {% endblock %}
 
-            {% block sw_settings_country_address_handling_formatting_card_field_address_format_plain %}
-            <sw-code-editor
-                ref="plainEditor"
-                v-model="country.advancedAddressFormatPlain"
-                name="format_plain"
-                completion-mode="entity"
-                :class="{'is--disabled': !customAddressFormat}"
-                :completer-function="outerCompleterFunction"
-                :label="$tc('sw-settings-country.detail.labelAddressFormatPlain')"
-                :editor-config="editorConfig"
-                :disabled="!acl.can('country.editor')"
-            />
+            {% block sw_settings_country_address_handling_preview %}
+            <div class="sw-settings-country-address-handling__address-preview">
+                {% block sw_settings_country_address_handling_address_preview_title %}
+                <div class="sw-card__title">
+                    {{ $tc('sw-settings-country.detail.previewTitle') }}
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_country_address_handling_preview_customer_selection %}
+                <sw-entity-single-select
+                    v-model="customerId"
+                    class="sw-settings-country-address-handling__customer-select"
+                    :label="$tc('sw-settings-country.detail.labelCustomer')"
+                    :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
+                    entity="customer"
+                    show-clearable-button
+                    :criteria="customerCriteria"
+                    :label-callback="customerLabel"
+                    @change="onChangeCustomer"
+                />
+                {% endblock %}
+
+                {% block sw_settings_country_address_handling_rendering %}
+                <sw-settings-country-preview-template
+                    :preview-data="previewData"
+                    :advanced-address-format="advancedAddressFormat"
+                />
+                {% endblock %}
+
+                {% block sw_settings_country_address_handling_preview_reset_button %}
+                <sw-button
+                    class="sw-settings-country-address-handling__button-reset"
+                    variant="ghost-danger"
+                    @click="resetMarkup"
+                >
+                    {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
+                </sw-button>
+                {% endblock %}
+            </div>
             {% endblock %}
         </sw-container>
     </sw-card>
+    {% endblock %}
+
+    {% block sw_settings_country_address_handling_new_snippet_modal %}
+    <sw-settings-country-new-snippet-modal
+        v-if="isOpenModal"
+        :selections="snippets"
+        :current-position="currentPosition"
+        :advanced-address-format="advancedAddressFormat"
+        @change="change"
+        @modal-close="onCloseModal"
+    />
     {% endblock %}
 </div>
 {% endblock %}

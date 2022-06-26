@@ -133,10 +133,6 @@ Component.register('sw-settings-country-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
-
-        showSidebar() {
-            return this.$route.name === 'sw.settings.country.detail.address-handling';
-        },
     },
 
     created() {
@@ -344,15 +340,6 @@ Component.register('sw-settings-country-detail', {
 
         onSaveModal() {
             return this.onSave();
-        },
-
-        openPreviewModal(customer) {
-            this.previewData = customer;
-            this.showPreviewModal = true;
-        },
-
-        closePreviewModal() {
-            this.showPreviewModal = false;
         },
     },
 });

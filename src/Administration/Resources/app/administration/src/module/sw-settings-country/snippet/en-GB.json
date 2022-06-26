@@ -7,7 +7,14 @@
     },
     "general": {
       "mainMenuItemGeneral": "Countries",
-      "placeholderSearchBar": "Search countries..."
+      "placeholderSearchBar": "Search countries...",
+      "actions": {
+        "newSnippet": "Add new snippet",
+        "createBefore": "New row before",
+        "createAfter": "New row after",
+        "moveTop": "Move row to top",
+        "moveBottom": "Move row to bottom"
+      }
     },
     "list": {
       "textHeadline": "Countries",
@@ -66,17 +73,15 @@
       "helpTextAdvancedPostalCodePattern": "",
       "labelCheckDefaultAddressFormat": "Custom address format",
       "labelAddressFormatPlain": "Format",
-      "titleFormatting": "Formatting",
+      "titleFormatting": "Address markup",
       "helpTextCheckPostalCodePattern": "Enables validation of postal codes for a range of countries",
-      "previewModalTitle": "Preview",
-      "sidebar": {
-        "titleShowAvailableVariables": "Variables",
-        "titleShowPreview": "Show preview",
-        "copyTooltip": "Copy to clipboard.",
-        "labelCustomer": "Customer",
-        "placeholderSelectCustomer": "Select a customer...",
-        "buttonPreview": "Preview"
-      }
+      "previewTitle": "Preview",
+      "labelCustomer": "Customer",
+      "placeholderSelectCustomer": "Select a customer...",
+      "buttonResetMarkup": "Reset address markup",
+      "newSnippetModalTitle": "Insert snippet",
+      "buttonInsertSnippet": "Insert snippet",
+      "placeholderSearchSnippet": "Search snippets..."
     }
   },
   "sw-country-state-detail": {

@@ -19,16 +19,6 @@
         padding: 16px;
     }
 
-    .sw-code-editor.is--disabled .sw-code-editor__editor {
-        cursor: not-allowed;
-        pointer-events: none;
-        opacity: 0.5;
-    }
-
-    .sw-code-editor.is--disabled .ace-tm {
-        background-color: $color-gray-200;
-    }
-
     .advanced-postal-code {
         margin: 12px 0;
         position: relative;
@@ -52,5 +42,21 @@
         .sw-field--text.is--disabled > div {
             display: none;
         }
+    }
+
+    &__address-markup {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__address-preview {
+        .sw-card__title {
+            padding: 32px 0 28px;
+        }
+    }
+
+    &__button-reset.sw-button {
+        margin: 38px 0 28px;
     }
 }

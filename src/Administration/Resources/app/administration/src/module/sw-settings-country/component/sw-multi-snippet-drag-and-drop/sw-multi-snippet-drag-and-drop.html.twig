@@ -1,0 +1,134 @@
+{% block sw_multi_snippet_drag_and_drop %}
+<div class="sw-multi-snippet-drag-and-drop">
+    {% block sw_multi_snippet_drag_and_drop_action %}
+    <sw-icon
+        class="sw-multi-snippet-drag-and-drop__action"
+        name="regular-grip-vertical"
+        size="12"
+    />
+    {% endblock %}
+
+    {% block sw_multi_snippet_drag_and_drop_select_base %}
+    <sw-select-base
+        class="sw-multi-snippet-select"
+        :is-loading="isLoading"
+        :error="errorObject"
+        v-bind="$attrs"
+        v-on="$listeners"
+    >
+        {% block sw_multi_snippet_drag_and_drop_base %}
+        {% block sw_multi_snippet_drag_and_drop_base_selection %}
+        <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+            {% block sw_multi_snippet_drag_and_drop_base_selection_slot %}
+            <ul
+                ref="selectionList"
+                class="sw-select-selection-list"
+            >
+                {% block sw_select_selection_list_item %}
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+                <li
+                    v-for="(snippet, index) in value"
+                    :key="index"
+                    class="sw-select-selection-list__item-holder"
+                    :class="'sw-select-selection-list__item-holder--' + index"
+                    :data-id="snippet[valueProperty]"
+                >
+                    {% block sw_select_selection_list_item_inner %}
+                    <slot
+                        name="selected-option"
+                        v-bind="{ snippet, defaultLabel: snippet[labelProperty], disabled, linePosition }"
+                    >
+                        <sw-label
+                            v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
+                            v-draggable="{ ...mergedDragConfig, data: { snippet, index, linePosition }}"
+                            :dismissable="!isSelectionDisabled(snippet)"
+                            :size="size"
+                            @dismiss="onClickDismiss(index)"
+                        >
+                            {% block sw_select_selection_list_item_text %}
+                            <span class="sw-select-selection-list__item">
+                                <slot
+                                    name="label-property"
+                                    v-bind="{ item: snippet, index, labelProperty, valueProperty }"
+                                >
+                                    {{ snippet[labelProperty] }}
+                                </slot>
+                            </span>
+                            {% endblock %}
+                        </sw-label>
+                    </slot>
+                    {% endblock %}
+                </li>
+                {% endblock %}
+
+                {% block sw_select_selection_list_input %}
+                <li>
+                    <slot name="input">
+                        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                        <input
+                            class="sw-select-selection-list__input"
+                            type="text"
+                            :disabled="disabled"
+                        >
+                    </slot>
+                </li>
+                {% endblock %}
+            </ul>
+            {% endblock %}
+        </template>
+        {% endblock %}
+        {% endblock %}
+    </sw-select-base>
+    {% endblock %}
+
+    {% block sw_multi_snippet_drag_and_drop_context_menu %}
+    <sw-context-button class="sw-multi-snippet-drag-and-drop__context-button">
+        {% block sw_multi_snippet_drag_and_drop_context_menu_add_new_snippet %}
+        <sw-context-menu-item @click="openModal">
+            {{ $tc('sw-settings-country.general.actions.newSnippet') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_multi_snippet_drag_and_drop_context_menu_create_before %}
+        <sw-context-menu-item @click="addNewLineAt('above')">
+            {{ $tc('sw-settings-country.general.actions.createBefore') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_multi_snippet_drag_and_drop_context_menu_create_after %}
+        <sw-context-menu-item @click="addNewLineAt('below')">
+            {{ $tc('sw-settings-country.general.actions.createAfter') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_multi_snippet_drag_and_drop_context_menu_move_top %}
+        <sw-context-menu-item
+            :disabled="disabled"
+            @click="moveToLocation(0)"
+        >
+            {{ $tc('sw-settings-country.general.actions.moveTop') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_multi_snippet_drag_and_drop_context_menu_move_bottom %}
+        <sw-context-menu-item
+            :disabled="disabled"
+            @click="moveToLocation"
+        >
+            {{ $tc('sw-settings-country.general.actions.moveBottom') }}
+        </sw-context-menu-item>
+        {% endblock %}
+
+        {% block sw_multi_snippet_drag_and_drop_context_menu_item_delete %}
+        <sw-context-menu-item
+            variant="danger"
+            :disabled="disabled"
+            @click="onDelete"
+        >
+            {{ $tc('global.default.delete') }}
+        </sw-context-menu-item>
+        {% endblock %}
+    </sw-context-button>
+    {% endblock %}
+</div>
+{% endblock %}

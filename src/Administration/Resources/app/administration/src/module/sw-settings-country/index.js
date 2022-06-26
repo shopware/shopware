@@ -7,8 +7,9 @@ import './component/sw-settings-country-state';
 import './component/sw-settings-country-currency-dependent-modal';
 import './component/sw-settings-country-currency-hamburger-menu';
 import './component/sw-settings-country-address-handling';
-import './component/sw-settings-country-sidebar';
-import './component/sw-settings-country-preview-template-modal';
+import './component/sw-settings-country-new-snippet-modal';
+import './component/sw-multi-snippet-drag-and-drop';
+import './component/sw-settings-country-preview-template';
 
 import './acl';
 

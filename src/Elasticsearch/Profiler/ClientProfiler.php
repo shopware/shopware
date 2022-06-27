@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use Elasticsearch\Client;
+use Elasticsearch\Connections\ConnectionInterface;
 use Elasticsearch\Namespaces\AbstractNamespace;
 
 class ClientProfiler extends Client
@@ -28,6 +29,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
+            'url' => $this->assembleElasticsearchUrl($this->transport->getConnection(), $request),
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -45,5 +47,21 @@ class ClientProfiler extends Client
     public function getCalledRequests(): array
     {
         return $this->requests;
+    }
+
+    private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string
+    {
+        $path = $connection->getPath();
+
+        if (isset($request['index'])) {
+            $path .= $request['index'] . '/_search';
+            unset($request['index']);
+        }
+
+        if (isset($request['body'])) {
+            unset($request['body']);
+        }
+
+        return sprintf('%s://%s:%d/%s?%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $path, http_build_query($request));
     }
 }

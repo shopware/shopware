@@ -11,15 +11,14 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,27 +35,27 @@ class CartLineItemController extends StorefrontController
 
     private PromotionItemBuilder $promotionItemBuilder;
 
-    private SalesChannelRepositoryInterface $productRepository;
-
     private ProductLineItemFactory $productLineItemFactory;
 
     private HtmlSanitizer $htmlSanitizer;
+
+    private AbstractProductListRoute $productListRoute;
 
     /**
      * @internal
      */
     public function __construct(
         CartService $cartService,
-        SalesChannelRepositoryInterface $productRepository,
         PromotionItemBuilder $promotionItemBuilder,
         ProductLineItemFactory $productLineItemFactory,
-        HtmlSanitizer $htmlSanitizer
+        HtmlSanitizer $htmlSanitizer,
+        AbstractProductListRoute $productListRoute
     ) {
         $this->cartService = $cartService;
-        $this->productRepository = $productRepository;
         $this->promotionItemBuilder = $promotionItemBuilder;
         $this->productLineItemFactory = $productLineItemFactory;
         $this->htmlSanitizer = $htmlSanitizer;
+        $this->productListRoute = $productListRoute;
     }
 
     /**
@@ -178,7 +177,7 @@ class CartLineItemController extends StorefrontController
             $criteria->setLimit(1);
             $criteria->addFilter(new EqualsFilter('productNumber', $number));
 
-            $data = $this->productRepository->searchIds($criteria, $context)->getIds();
+            $data = $this->productListRoute->load($criteria, $context)->getProducts()->getIds();
 
             if (empty($data)) {
                 $this->addFlash(self::DANGER, $this->trans(

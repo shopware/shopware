@@ -256,11 +256,6 @@ shopware:
         major: true
         description: "Webpack alias refactor"
         # issue: NEXT_11634
-      - name: FEATURE_NEXT_17235
-        default: false
-        major: true
-        description: "Replace icons with meteor icon kit"
-        # issue: NEXT_17325
       - name: FEATURE_NEXT_18762
         default: false
         major: true

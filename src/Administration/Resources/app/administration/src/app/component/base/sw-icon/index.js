@@ -98,11 +98,13 @@ Component.register('sw-icon', {
             let additionalStyles = {};
 
             /**
+             * @deprecated tag:v6.5.0 - Icons will no longer have space around them.
+             *
              * The space mapping for the old icons should be removed in the
              * next major. The space around the icons need to be set then
              * in CSS.
              */
-            if (!this.feature.isActive('FEATURE_NEXT_17235')) {
+            if (!this.feature.isActive('v6.5.0.0')) {
                 const legacyName = Object.entries(legacyIconMapping).find(([oldName, newName]) => {
                     return (oldName === this.iconName) || (newName === this.iconName);
                 });
@@ -136,7 +138,7 @@ Component.register('sw-icon', {
         },
 
         useIconKit() {
-            return this.feature.isActive('FEATURE_NEXT_17235');
+            return this.feature.isActive('v6.5.0.0');
         },
     },
 

@@ -12056,26 +12056,6 @@ parameters:
 			path: src/Storefront/Controller/CaptchaController.php
 
 		-
-			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ContextController.php
-
-		-
-			message: "#^Cannot access offset 'path' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ContextController.php
-
-		-
-			message: "#^Cannot access offset 'port' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ContextController.php
-
-		-
-			message: "#^Cannot access property \\$attributes on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ContextController.php
-
-		-
 			message: "#^Cannot call method getForceStateInRegistration\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/CountryStateController.php
@@ -12269,21 +12249,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$actualJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
-
-		-
-			message: "#^Cannot call method getContext\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ContextControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Controller/ContextControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ContextControllerTest\\:\\:\\$lastRouteContext is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ContextControllerTest.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"

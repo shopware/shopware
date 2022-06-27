@@ -191,6 +191,12 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
             <argument type="service" id="customer.repository"/>
         </service>

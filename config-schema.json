@@ -832,11 +832,11 @@
                     "additionalProperties": true,
                     "properties": {
                         "number_of_shards": {
-                            "type": "integer",
+                            "type": ["integer", "null"],
                             "default": 3
                         },
                         "number_of_replicas": {
-                            "type": "integer",
+                            "type": ["integer", "null"],
                             "default": 3
                         },
                         "mapping.total_fields.limit": {

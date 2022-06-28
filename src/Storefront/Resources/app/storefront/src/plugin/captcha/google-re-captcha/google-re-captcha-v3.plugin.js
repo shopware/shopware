@@ -8,10 +8,11 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
 
     init() {
         super.init();
+        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     onFormSubmit() {
-        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
+        this._submitInvisibleForm();
     }
 
     getGreCaptchaInfo() {
@@ -32,8 +33,6 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
 
             this.grecaptchaInput.value = token;
             this.formSubmitting = false;
-
-            this._submitInvisibleForm();
         });
     }
 }

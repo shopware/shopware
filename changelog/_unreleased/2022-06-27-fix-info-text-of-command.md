@@ -6,4 +6,4 @@ author_email: info@the-cake-shop.de
 author_github: Isengo1989
 ---
 # Core
-* Fix info text on SQL to Redis migration
+* Changed the info message of the Redis to SQL migration command

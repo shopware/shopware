@@ -1,6 +1,6 @@
 ---
 title: Fix state count bug in the flow-builder
-issue:
+issue: NEXT-22153
 author: Daniel Wolf
 author_email: daniel.wolf@8mylez.com
 author_github: supus

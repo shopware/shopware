@@ -41,6 +41,8 @@ import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
+const selectedOrderId = Shopware.Utils.createId();
+
 const routes = [
     {
         name: 'sw.bulk.edit.order',
@@ -160,9 +162,15 @@ function createWrapper(isResponseError = false) {
         provide: {
             validationService: {},
             repositoryFactory: {
-                create: () => {
+                create: (entity) => {
+                    if (entity === 'state_machine_state') {
+                        return {
+                            searchIds: jest.fn()
+                        };
+                    }
+
                     return {
-                        create: (entity) => {
+                        create: () => {
                             if (entity === 'custom_field_set') {
                                 return {
                                     search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
@@ -260,7 +268,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             }
         });
 
-        Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
     });
 
     afterEach(() => {
@@ -514,6 +522,33 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.$route.meta.$module.icon).toBe('default-shopping-paper-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should call fetchStatusOptions when component created', () => {
+        wrapper = createWrapper();
+        const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions').mockImplementation();
+
+        wrapper.vm.createdComponent();
+        expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(1, 'orders.id');
+        expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(2, 'orderTransactions.orderId');
+        expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(3, 'orderDeliveries.orderId');
+
+        const orderStateCriteria = new Shopware.Data.Criteria(1, null);
+        orderStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orders.id', [selectedOrderId]));
+        orderStateCriteria.addFilter(Shopware.Data.Criteria.equals('orders.versionId', Shopware.Context.api.liveVersionId));
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
+
+        const orderTransactionStateCriteria = new Shopware.Data.Criteria(1, null);
+        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
+        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderTransactions.orderVersionId', Shopware.Context.api.liveVersionId));
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
+
+        const orderDeliveryStateCriteria = new Shopware.Data.Criteria(1, null);
+        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
+        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderDeliveries.orderVersionId', Shopware.Context.api.liveVersionId));
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
+
+        wrapper.vm.fetchStatusOptions.mockClear();
     });
 
     it('should disable processing button', async () => {

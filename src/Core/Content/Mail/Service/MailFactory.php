@@ -55,13 +55,15 @@ class MailFactory extends AbstractMailFactory
             }
         }
 
+        $attach = Feature::isActive('FEATURE_NEXT_22241') ? 'attach' : 'embed';
+
         foreach ($attachments as $url) {
-            $mail->embed($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
+            $mail->$attach($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
         }
 
         if (isset($binAttachments)) {
             foreach ($binAttachments as $binAttachment) {
-                $mail->embed(
+                $mail->$attach(
                     $binAttachment['content'],
                     $binAttachment['fileName'],
                     $binAttachment['mimeType']

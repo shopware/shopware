@@ -39,6 +39,8 @@ describe('Order: Visual tests', () => {
         }).as('getData');
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
+        cy.get('.navigation-list-item__type-plugin').should('exist');
+        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
@@ -105,6 +107,8 @@ describe('Order: Visual tests', () => {
             method: 'POST'
         }).as('getData');
 
+        cy.get('.navigation-list-item__type-plugin').should('exist');
+        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',

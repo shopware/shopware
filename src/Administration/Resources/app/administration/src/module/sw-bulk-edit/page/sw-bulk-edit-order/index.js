@@ -245,8 +245,8 @@ Component.register('sw-bulk-edit-order', {
 
             await Promise.all([
                 this.fetchStatusOptions('orders.id'),
-                this.fetchStatusOptions('orderTransactions.order.id'),
-                this.fetchStatusOptions('orderDeliveries.order.id'),
+                this.fetchStatusOptions('orderTransactions.orderId'),
+                this.fetchStatusOptions('orderDeliveries.orderId'),
                 this.loadCustomFieldSets(),
             ]);
 
@@ -304,10 +304,10 @@ Component.register('sw-bulk-edit-order', {
                 return this.fetchToStateMachineTransitions(states);
             }).then(toStates => {
                 switch (field) {
-                    case 'orderTransactions.order.id':
+                    case 'orderTransactions.orderId':
                         this.transactionStatus = toStates;
                         break;
-                    case 'orderDeliveries.order.id':
+                    case 'orderDeliveries.orderId':
                         this.deliveryStatus = toStates;
                         break;
                     default:
@@ -321,9 +321,23 @@ Component.register('sw-bulk-edit-order', {
         fetchStateMachineStates(field) {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
 
+            let versionField = null;
+
+            switch (field) {
+                case 'orderTransactions.orderId':
+                    versionField = 'orderTransactions.orderVersionId';
+                    break;
+                case 'orderDeliveries.orderId':
+                    versionField = 'orderDeliveries.orderVersionId';
+                    break;
+                default:
+                    versionField = 'orders.versionId';
+            }
+
             const requests = payloadChunks.map(ids => {
-                const criteria = new Criteria(1, 25);
+                const criteria = new Criteria(1, null);
                 criteria.addFilter(Criteria.equalsAny(field, ids));
+                criteria.addFilter(Criteria.equals(versionField, Shopware.Context.api.liveVersionId));
 
                 return this.stateMachineStateRepository.searchIds(criteria);
             });

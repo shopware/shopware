@@ -47,7 +47,7 @@ Component.register('sw-settings-custom-field-set-list', {
         },
 
         listingCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(this.page, this.limit);
 
             const params = this.getMainListingParams();
 

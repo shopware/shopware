@@ -102,6 +102,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
                         $lineItem->setDataTimestamp(new \DateTimeImmutable());
                         $lineItem->setDataContextHash($hash);
+                    } else {
+                        $lineItem->setDataTimestamp(null);
                     }
                 }
             }

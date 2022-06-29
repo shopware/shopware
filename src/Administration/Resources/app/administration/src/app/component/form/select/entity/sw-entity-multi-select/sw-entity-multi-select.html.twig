@@ -17,6 +17,7 @@
             v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
             :initial-search-term="searchTerm"
             :initial-selection="currentCollection"
+            v-bind="advancedSelectionParameters"
             @modal-close="closeAdvancedSelectionModal"
             @selection-submit="onAdvancedSelectionSubmit"
         />

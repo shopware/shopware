@@ -530,7 +530,8 @@
       "resetFilters": "Reset filters",
       "applySelection": "Apply selection",
       "entity": {
-        "product": "Products"
+        "product": "Products",
+        "rule": "Rules"
       }
     },
     "sw-entity-multi-select": {

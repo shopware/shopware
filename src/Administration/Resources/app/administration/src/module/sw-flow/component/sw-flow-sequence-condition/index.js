@@ -71,6 +71,13 @@ Component.register('sw-flow-sequence-condition', {
             return this.sequence.rule.description.replace(/\n/g, '<br>');
         },
 
+        advanceSelectionParameters() {
+            return {
+                // TODO: NEXT-18428 - adjust this
+                ruleAwareGroupKey: 'flowConditions',
+            };
+        },
+
         ...mapState('swFlowState', ['invalidSequences']),
         ...mapGetters('swFlowState', ['sequences']),
     },

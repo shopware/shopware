@@ -198,4 +198,16 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         ]]);
         expect(searchModal.emitted('modal-close')).toHaveLength(1);
     });
+
+    it('should get assignment properties', async () => {
+        const searchModal = createAdvancedSelectionModal();
+
+        await searchModal.setProps({
+            entityName: 'rule'
+        });
+        const assignmentProperties = searchModal.vm.assignmentProperties;
+
+        expect(assignmentProperties).toContain('productPrices');
+        expect(assignmentProperties).toContain('paymentMethods');
+    });
 });

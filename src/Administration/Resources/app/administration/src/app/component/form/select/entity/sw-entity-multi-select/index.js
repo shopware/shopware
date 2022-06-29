@@ -111,6 +111,13 @@ Component.register('sw-entity-multi-select', {
                 return '';
             },
         },
+        advancedSelectionParameters: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
     },
 
     data() {

@@ -62,14 +62,23 @@ Component.register('sw-multi-select-filter', {
                 return;
             }
 
-            const filterCriteria = [
-                this.filter.schema
-                    ? Criteria.equalsAny(
-                        `${this.filter.property}.${this.filter.schema.referenceField}`,
-                        newValues.map(newValue => newValue[this.filter.schema.referenceField]),
-                    )
-                    : Criteria.equalsAny(this.filter.property, newValues),
-            ];
+            let filterCriteria = [];
+            if (this.filter.existingType) {
+                const multiFilter = [];
+                newValues.forEach((value) => {
+                    multiFilter.push(Criteria.not('and', [Criteria.equals(`${value}.id`, null)]));
+                });
+                filterCriteria.push(Criteria.multi('or', multiFilter));
+            } else {
+                filterCriteria = [
+                    this.filter.schema
+                        ? Criteria.equalsAny(
+                            `${this.filter.property}.${this.filter.schema.referenceField}`,
+                            newValues.map(newValue => newValue[this.filter.schema.referenceField]),
+                        )
+                        : Criteria.equalsAny(this.filter.property, newValues),
+                ];
+            }
 
             const values = !this.isEntityMultiSelect ? newValues : newValues.map(value => ({
                 id: value.id,

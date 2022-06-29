@@ -87,7 +87,7 @@
 
         <template #grid>
             {% block sw_entity_advanced_selection_modal_list_grid %}
-            <sw-entity-listing
+            <sw-entity-advanced-selection-modal-grid
                 v-if="entities && entities.length"
                 class="sw-entity-advanced-selection-modal__grid"
                 :items="entities"
@@ -109,8 +109,8 @@
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
                 :maximum-select-items="isSingleSelect ? 1 : null"
-                :is-record-selectable="isRecordSelectableCallback"
                 :pre-selection="currentSelection"
+                :is-record-selectable-callback="isRecordSelectableCallback"
                 @selection-change="onSelectionChange"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
@@ -118,7 +118,7 @@
                 {% block sw_entity_advanced_selection_modal_list_grid_slots %}
                 {# Re-expose essential column slots #}
                 <template
-                    v-for="column in entityColumns"
+                    v-for="column in previewColumns"
                     #[`preview-${column.property}`]="slotData"
                 >
                     <slot
@@ -133,12 +133,12 @@
                 >
                     <slot
                         :name="`column-${column.property}`"
-                        v-bind="slotData"
+                        v-bind="{ ...slotData, aggregations }"
                     ></slot>
                 </template>
                 {% endblock %}
 
-            </sw-entity-listing>
+            </sw-entity-advanced-selection-modal-grid>
             {% endblock %}
 
             {% block sw_entity_advanced_selection_modal_list_empty_state %}

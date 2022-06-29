@@ -121,6 +121,13 @@ Component.register('sw-entity-single-select', {
                 return '';
             },
         },
+        advancedSelectionParameters: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
     },
 
     data() {

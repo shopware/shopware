@@ -29,6 +29,7 @@ describe('Rule builder: Test crud operations', () => {
             method: 'POST'
         }).as('searchRule');
 
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -109,6 +110,7 @@ describe('Rule builder: Test crud operations', () => {
     });
 
     it('@base @rule: should show the condition select upwards', () => {
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

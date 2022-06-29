@@ -80,15 +80,22 @@ Component.register('sw-entity-advanced-selection-modal', {
         },
         // Callback functions which receives one item of the entity and returns true or false,
         // depending on if the corresponding grid row should be selectable.
-        // This is passed to the 'is-record-selectable' property of the sw-entity-listing.
+        // This is passed to the 'is-record-selectable-callback' property of the sw-entity-advanced-selection-modal-grid.
         isRecordSelectableCallback: {
             type: Function,
             required: false,
-            // by default no callback function should be provided to the sw-entity-listing
+            // by default no callback function should be provided to the sw-entity-advanced-selection-modal-grid
             default: undefined,
         },
         // Additional criteria filters that should always apply.
         criteriaFilters: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+        criteriaAggregations: {
             type: Array,
             required: false,
             default() {
@@ -119,12 +126,18 @@ Component.register('sw-entity-advanced-selection-modal', {
                 return [];
             },
         },
+        disablePreviews: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
             isLoading: true, // must be true on component creation
             entities: [],
+            aggregations: [],
             currentSelection: {},
             filterCriteria: [],
             disableRouteParams: true,
@@ -141,6 +154,22 @@ Component.register('sw-entity-advanced-selection-modal', {
 
         entityRepository() {
             return this.repositoryFactory.create(this.entityName);
+        },
+
+        entityDefinition() {
+            return Shopware.EntityDefinition.get(this.entityName);
+        },
+
+        assignmentProperties() {
+            const properties = [];
+
+            Object.entries(this.entityDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
+                    properties.push(propertyName);
+                }
+            });
+
+            return properties;
         },
 
         allEntityAssociations() {
@@ -173,7 +202,12 @@ Component.register('sw-entity-advanced-selection-modal', {
 
             if (this.sortBy) {
                 this.sortBy.split(',').forEach(sortBy => {
-                    defaultCriteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
+                    const sorting = Criteria.sort(sortBy, this.sortDirection, this.naturalSorting);
+                    if (this.assignmentProperties.includes(this.sortBy)) {
+                        sorting.field += '.id';
+                        sorting.type = 'count';
+                    }
+                    defaultCriteria.addSorting(sorting);
                 });
             }
 
@@ -192,6 +226,11 @@ Component.register('sw-entity-advanced-selection-modal', {
                 defaultCriteria.addFilter(filter);
             });
 
+            // add aggregations
+            this.criteriaAggregations.forEach(aggregation => {
+                defaultCriteria.addAggregation(aggregation);
+            });
+
             return defaultCriteria;
         },
 
@@ -205,6 +244,14 @@ Component.register('sw-entity-advanced-selection-modal', {
 
         listFilters() {
             return this.filterFactory.create(this.entityName, this.entityFilters);
+        },
+
+        previewColumns() {
+            if (this.disablePreviews) {
+                return [];
+            }
+
+            return this.entityColumns;
         },
     },
 
@@ -239,6 +286,7 @@ Component.register('sw-entity-advanced-selection-modal', {
             return this.entityRepository.search(this.entityCriteria, this.entityContext).then((items) => {
                 this.total = items.total;
                 this.entities = items;
+                this.aggregations = items.aggregations;
                 this.isLoading = false;
 
                 return items;

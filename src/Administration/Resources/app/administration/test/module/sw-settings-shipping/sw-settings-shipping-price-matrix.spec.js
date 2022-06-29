@@ -4,8 +4,6 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 
 Shopware.State.registerModule('swShippingDetail', state);
 
-const ruleConditionDataProviderServiceMock = {};
-
 const createWrapper = () => {
     return shallowMount(Shopware.Component.build('sw-settings-shipping-price-matrix'), {
         store: Shopware.State._store,
@@ -34,9 +32,6 @@ const createWrapper = () => {
                     currencyPrice: [{ currencyId: 'euro', gross: 0, linked: false, net: 0 }]
                 }]
             }
-        },
-        provide: {
-            ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
         }
     });
 };
@@ -49,35 +44,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             { id: 'pound', translated: { name: 'Pound' } }
         ]);
     });
+
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should have a restriction tooltip when rule is restricted', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper();
-        ruleConditionDataProviderServiceMock.isRuleRestricted = jest.fn(() => true);
-        ruleConditionDataProviderServiceMock.getRestrictedRuleTooltipConfig = jest.fn(() => true);
-
-        const shippingMethodTooltip = wrapper.vm.shippingMethodRuleTooltipConfig({}, false, 'someKey');
-        const shippingMethodPriceTooltip = wrapper.vm.shippingPriceRuleTooltipConfig({}, false, 'someKey');
-
-        expect(shippingMethodTooltip).toBeTruthy();
-        expect(shippingMethodPriceTooltip).toBeTruthy();
-    });
-
-    it('should have a in use tooltip when rule is not restricted', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-        const wrapper = createWrapper();
-        ruleConditionDataProviderServiceMock.isRuleRestricted = jest.fn(() => false);
-
-        const shippingMethodTooltip = wrapper.vm.shippingMethodRuleTooltipConfig({}, false, 'someKey');
-        const shippingMethodPriceTooltip = wrapper.vm.shippingPriceRuleTooltipConfig({}, false, 'someKey');
-
-        expect(shippingMethodTooltip.message).toEqual('sw-settings-shipping.priceMatrix.ruleAlreadyUsed');
-        expect(shippingMethodPriceTooltip.message).toEqual('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix');
     });
 
     it('should add conditions association', async () => {
@@ -88,16 +59,5 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         expect(ruleFilterCriteria.associations[0].association).toEqual('conditions');
         expect(shippingRuleFilterCriteria.associations[0].association).toEqual('conditions');
-    });
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_18215) test can be removed
-     */
-    it('should not be restricted if feature is off', async () => {
-        global.activeFeatureFlags = [];
-        const wrapper = createWrapper();
-        const restricted = wrapper.vm.isRuleRestricted();
-
-        expect(restricted).toBeFalsy();
     });
 });

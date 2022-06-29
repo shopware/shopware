@@ -5,6 +5,38 @@
       "placeholderSearchBar": "Search all rules...",
       "descriptionTextModule": "Manage rules here."
     },
+    "filter": {
+      "conditionFilter": {
+        "label": "Conditions",
+        "placeholder": "Select conditions..."
+      },
+      "groupFilter": {
+        "label": "Condition types",
+        "placeholder": "Select condition types..."
+      },
+      "assignmentFilter": {
+        "label": "Assignments",
+        "placeholder": "Select assignments...",
+        "values": {
+          "cartPromotions": "Promotion cart rules",
+          "orderPromotions": "Promotion order rules",
+          "personaPromotions": "Promotion customer rules",
+          "promotionSetGroups": "Promotion set group rules",
+          "promotionDiscounts": "Promotion discount product rules",
+          "eventActions": "Business events",
+          "flowSequences": "Flows",
+          "paymentMethods": "Payment methods",
+          "productPrices": "Product price rules",
+          "shippingMethodPriceCalculations": "Shipping method price matrices",
+          "shippingMethodPrices": "Shipping method price rules",
+          "shippingMethods": "Shipping method availability rules"
+        }
+      },
+      "tagFilter": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
+      }
+    },
     "list": {
       "textHeadline": "Rule builder",
       "buttonAddRule": "Create rule",
@@ -14,11 +46,38 @@
       "columnDateUpdated": "Updated at",
       "columnPriority": "Priority",
       "columnStatus": "Status",
+      "columnTags": "Tags",
+      "columnCartPromotions": "Promotion cart rule assignments",
+      "columnOrderPromotions": "Promotion order rule assignments",
+      "columnPersonaPromotions": "Promotion customer rule assignments",
+      "columnPromotionSetGroups": "Promotion set group rule assignments",
+      "columnPromotionDiscounts": "Promotion discount product rule assignments",
+      "columnEventActions": "Business event assignments",
+      "columnFlowSequences": "Flow assignments",
+      "columnPaymentMethods": "Payment method assignments",
+      "columnProductPrices": "Product price assignments",
+      "columnShippingMethodPriceCalculations": "Shipping method price matrix assignments",
+      "columnShippingMethodPrices": "Shipping method price assignments",
+      "columnShippingMethods": "Shipping method assignments",
       "contextMenuDuplicate": "Duplicate",
       "titleSidebarItemRefresh": "Refresh",
       "valid": "Valid",
       "invalid": "Invalid",
-      "messageEmpty": "No rules yet"
+      "messageEmpty": "No rules yet",
+      "assignments": {
+        "cartPromotions": "promotion cart rule | promotion cart rules",
+        "orderPromotions": "promotion order rule | promotion order rules",
+        "personaPromotions": "promotion customer rule | promotion customer rules",
+        "promotionSetGroups": "promotion set group rule | promotion set group rules",
+        "promotionDiscounts": "promotion discount product rule | promotion discount product rules",
+        "eventActions": "business event | business events",
+        "flowSequences": "flow | flows",
+        "paymentMethods": "payment method | payment methods",
+        "productPrices": "product price | product prices",
+        "shippingMethodPriceCalculations": "shipping method price matrix | shipping method price matrices",
+        "shippingMethodPrices": "shipping method price | shipping method prices",
+        "shippingMethods": "shipping method | shipping methods"
+      }
     },
     "detail": {
       "textHeadline": "New rule",

@@ -448,6 +448,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
             new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM)
         );
 
-        return $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        return (string) $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

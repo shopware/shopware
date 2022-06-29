@@ -42,16 +42,20 @@ E2E:
     before_script:
         - !reference [ .scripts, install-node, script ]
         - cp public/.htaccess.dist public/.htaccess
-        - composer install -o
+        - composer install -o --no-scripts
         - mkdir -p config/jwt custom/plugins || true
         - composer run init:db
         - composer run init:js
         - composer run init:e2e
-        # install test plugin and build admin
-        - composer run e2e:prepare
+        - composer run e2e:sdk-plugin:fixture-to-plugin
+        - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install)'
+        - bin/console plugin:refresh
+        - bin/console plugin:install --activate TestPlugin
+        - composer run build:js
         - bin/console theme:compile
         - bin/console theme:change --all Storefront
         - bin/console assets:install
+        - bin/console e2e:dump-db
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:

@@ -3677,7 +3677,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method getPath\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity\\|null\\.$#"
-			count: 11
+			count: 13
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
 		-
@@ -3791,11 +3791,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$file of function file_put_contents expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|null given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
@@ -3826,17 +3821,7 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$path of method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTest\\:\\:import\\(\\) expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
 			message: "#^Static method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTest\\:\\:assertImportExportFailed\\(\\) invoked with 2 parameters, 1 required\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
@@ -7541,16 +7526,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/OAuth/BearerTokenValidatorTest.php
 
 		-
-			message: "#^Cannot call method getIntegrationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/OAuth/ClientRepositoryTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/OAuth/ClientRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\ResponseTypeRegistryTest\\:\\:assertDetailJsonApiStructure\\(\\) has parameter \\$content with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/ResponseTypeRegistryTest.php
@@ -8274,36 +8249,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/CustomField/Api/CustomFieldSetActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:createBasicCustomFields\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:createProduct\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:getProduct\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:\\$eventDispatcher is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
@@ -12911,11 +12856,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Twig/Extension/IconCacheTwigFilterTest.php
 
 		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/Extension/UrlEncodingTwigFilterTest.php
-
-		-
 			message: "#^Cannot access property \\$server on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Twig/TwigAppVariableTest.php
@@ -12944,16 +12884,6 @@ parameters:
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 2
 			path: src/Storefront/Test/Framework/Twig/TwigDateFormatTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:getProductSearchConfigId\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 2
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:\\$ids is never read, only written\\.$#"
@@ -13199,21 +13129,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ConfigLoader\\\\DatabaseAvailableThemeProviderTest\\:\\:getThemeId\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseAvailableThemeProviderTest.php
-
-		-
-			message: "#^Offset 'fields' does not exist on array\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Offset 'media\\-field' does not exist on array\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ConfigLoader/DatabaseConfigLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\StaticFileAvailableThemeProvider\\:\\:getDecorated\\(\\) invoked with 1 parameter, 0 required\\.$#"

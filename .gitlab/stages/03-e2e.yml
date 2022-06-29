@@ -27,14 +27,10 @@ E2E:
                     - "cypress/integration/administration/settings/**/*"
                     - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
                     - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/administration/sdk-plugin/**/*"
                     - "cypress/integration/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "major"]
-            # sdk
-            - TEST_DIRECTORY: "cypress/integration/administration/sdk-plugin/**/*"
-              BROWSER: 'chrome'
-              FEATURE_ALL: [ "false", "major" ]
-              ADMIN_SDK_TESTS: 'true'
             # firefox
             -   TEST_DIRECTORY:
                     - "cypress/integration/administration/settings/**/*"
@@ -43,17 +39,25 @@ E2E:
                     - "cypress/integration/storefront/**/*"
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
+    before_script:
+        - !reference [ .scripts, install-node, script ]
+        - cp public/.htaccess.dist public/.htaccess
+        - composer install -o
+        - mkdir -p config/jwt custom/plugins || true
+        - composer run init:db
+        - composer run init:js
+        - composer run init:e2e
+        # install test plugin and build admin
+        - composer run e2e:prepare
+        - bin/console theme:compile
+        - bin/console theme:change --all Storefront
+        - bin/console assets:install
+        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:
         - >
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
             export CYPRESS_INTERRUPT_ON_ERROR="true"
-          fi
-        - composer run init:e2e
-        - >
-          if [[ -n $ADMIN_SDK_TESTS ]]; then
-            composer run e2e:prepare;
-          else
-            bin/console e2e:dump-db;
           fi
         - composer run e2e:cypress -- run
             --browser chrome

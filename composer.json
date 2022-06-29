@@ -336,7 +336,6 @@
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
-            "@putenv SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1",
             "@e2e:sdk-plugin:fixture-to-plugin",
             "@e2e:sdk-plugin:prepare-plugin",
             "@php bin/console e2e:dump-db"

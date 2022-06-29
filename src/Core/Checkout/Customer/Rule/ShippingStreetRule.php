@@ -41,11 +41,11 @@ class ShippingStreetRule extends Rule
             return false;
         }
 
-        if (!\is_string($this->streetName)) {
+        if (!\is_string($this->streetName) && $this->operator !== self::OPERATOR_EMPTY) {
             throw new UnsupportedValueException(\gettype($this->streetName), self::class);
         }
 
-        return RuleComparison::string($location->getStreet(), $this->streetName, $this->operator);
+        return RuleComparison::string($location->getStreet(), $this->streetName ?? '', $this->operator);
     }
 
     public function getConstraints(): array

@@ -41,11 +41,11 @@ class LastNameRule extends Rule
             return false;
         }
 
-        if (!\is_string($this->lastName)) {
+        if (!\is_string($this->lastName) && $this->operator !== self::OPERATOR_EMPTY) {
             throw new UnsupportedValueException(\gettype($this->lastName), self::class);
         }
 
-        return RuleComparison::string($customer->getLastName(), $this->lastName, $this->operator);
+        return RuleComparison::string($customer->getLastName(), $this->lastName ?? '', $this->operator);
     }
 
     public function getConstraints(): array

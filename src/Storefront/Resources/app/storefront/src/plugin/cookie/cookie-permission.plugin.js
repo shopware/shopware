@@ -95,12 +95,14 @@ export default class CookiePermissionPlugin extends Plugin {
      * Sets the 'cookie-preference' cookie to hide the cookie bar
      * @private
      */
-    _handleDenyButton() {
+    _handleDenyButton(event) {
+        event.preventDefault();
+
         const { cookieExpiration, cookieName } = this.options;
         this._hideCookieBar();
         this._removeBodyPadding();
         CookieStorage.setItem(cookieName, '1', cookieExpiration);
-
+        
         this.$emitter.publish('onClickDenyButton');
     }
 

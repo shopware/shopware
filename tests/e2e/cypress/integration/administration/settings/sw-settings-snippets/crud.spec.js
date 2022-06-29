@@ -106,7 +106,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(page.elements.snippetSaveAction).click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -166,7 +166,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(page.elements.snippetSaveAction).click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
         cy.get(page.elements.smartBarBack).click();
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-skeleton').should('not.exist');

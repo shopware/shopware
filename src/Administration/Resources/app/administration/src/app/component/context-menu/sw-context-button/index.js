@@ -59,7 +59,7 @@ Component.register('sw-context-button', {
         icon: {
             type: String,
             required: false,
-            default: 'small-more',
+            default: 'solid-ellipsis-h-s',
         },
 
         disabled: {

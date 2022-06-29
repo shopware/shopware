@@ -133,7 +133,7 @@ describe('Dynamic product group: Test various filters', () => {
             expect($productStreamFilter).to.have.length(1);
         });
         cy.contains('button.sw-button', 'Save').click();
-        cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('button.sw-button .icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @rule: search and add products with operator "Is equal to any of"', () => {
@@ -220,6 +220,15 @@ describe('Dynamic product group: Test various filters', () => {
 
         cy.get('.sw-modal').should('be.visible');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview .sw-data-grid__body .sw-data-grid__row')
             .children()
             .contains('.sw-product-variant-info__product-name', 'Product Manufacturer');
@@ -228,7 +237,7 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('.sw-product-stream-modal-preview').should('not.exist');
 
         cy.contains('button.sw-button', 'Save').click();
-        cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('button.sw-button .icon--regular-checkmark-xs').should('be.visible');
     });
 
     resultCases.forEach(resultCase => {

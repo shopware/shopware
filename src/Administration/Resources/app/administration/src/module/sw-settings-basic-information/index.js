@@ -20,7 +20,7 @@ Module.register('sw-settings-basic-information', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -37,7 +37,7 @@ Module.register('sw-settings-basic-information', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.basic.information.index',
-        icon: 'default-basic-stack-line',
+        icon: 'regular-bars',
         privilege: 'system.system_config',
     },
 });

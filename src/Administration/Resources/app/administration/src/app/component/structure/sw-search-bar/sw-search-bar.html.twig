@@ -23,11 +23,11 @@
             >
                 <sw-icon
                     v-if="isOffCanvasShown"
-                    name="default-basic-x-line"
+                    name="regular-times"
                 />
                 <sw-icon
                     v-else
-                    name="small-default-stack-line"
+                    name="regular-bars-s"
                 />
             </button>
             {% endblock %}
@@ -41,7 +41,7 @@
                 class="sw-search-bar__button"
                 @click="showSearchBar"
             >
-                <sw-icon name="default-action-search" />
+                <sw-icon name="regular-search" />
             </button>
             {% endblock %}
         </div>
@@ -63,7 +63,7 @@
             >
                 {{ getLabelSearchType() }}
                 <sw-icon
-                    name="small-arrow-medium-down"
+                    name="regular-chevron-down-xs"
                     small
                 />
             </span>
@@ -92,14 +92,14 @@
                 @click="hideSearchBar"
             >
                 <sw-icon
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                 />
             </button>
 
             <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
                 <sw-icon
-                    name="small-search"
+                    name="regular-search-s"
                     small
                 />
             </span>
@@ -166,7 +166,7 @@
                             >
                                 {% block sw_search_bar_results_list_bar_item_icon %}
                                 <sw-icon
-                                    name="small-arrow-medium-double-right"
+                                    name="regular-double-chevron-right-s"
                                     color="rgb(179, 191, 204)"
                                 />
                                 {% endblock %}
@@ -223,7 +223,7 @@
 
                 <sw-icon
                     small
-                    name="default-action-settings"
+                    name="regular-cog"
                     class="sw-search-bar__footer-action-setting"
                     :style="{ 'color': '#7d8c9b' }"
                     @click="toggleSearchPreferencesModal"
@@ -263,7 +263,7 @@
                         <sw-icon
                             class="sw-search-bar__type-item-icon"
                             :style="{ 'color': getEntityIconColor(type.entityName) }"
-                            :name="type.entityName ? getEntityIcon(type.entityName) : 'default-basic-shape-circle'"
+                            :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                         />
 
                         {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
@@ -303,7 +303,7 @@
 
                 <sw-icon
                     small
-                    name="default-action-settings"
+                    name="regular-cog"
                     class="sw-search-bar__footer-action-setting"
                     :style="{ 'color': '#7d8c9b' }"
                     @click="toggleSearchPreferencesModal"
@@ -333,7 +333,7 @@
                     <sw-icon
                         class="sw-search-bar__type-item-icon"
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
-                        :name="type.entityName ? getEntityIcon(type.entityName) : 'default-basic-shape-circle'"
+                        :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
                     {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
                 </span>
@@ -415,7 +415,7 @@
 
                 <sw-icon
                     :style="{ 'color': '#7d8c9b' }"
-                    name="default-action-settings"
+                    name="regular-cog"
                     small
                     class="sw-search-bar__footer-action-setting"
                     @click="toggleSearchPreferencesModal"

@@ -9,7 +9,7 @@
     <template v-if="!source">
         {% block sw_media_preview_v2_no_media_icon %}
         <sw-icon
-            name="default-object-image"
+            name="regular-image"
             size="16px"
         />
         {% endblock %}
@@ -43,7 +43,7 @@
             <sw-icon
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
-                name="default-lock-closed"
+                name="regular-lock"
                 multicolor
             />
             {% endblock %}
@@ -78,7 +78,7 @@
             <sw-icon
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
-                name="default-lock-closed"
+                name="regular-lock"
                 multicolor
             />
             {% endblock %}
@@ -119,7 +119,7 @@
             <sw-icon
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
-                name="default-lock-closed"
+                name="regular-lock"
                 multicolor
             />
             {% endblock %}
@@ -146,7 +146,7 @@
             <sw-icon
                 v-if="mediaIsPrivate"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
-                name="default-lock-closed"
+                name="regular-lock"
                 multicolor
             />
         </template>

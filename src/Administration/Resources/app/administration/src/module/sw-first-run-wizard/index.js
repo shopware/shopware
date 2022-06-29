@@ -177,7 +177,7 @@ Module.register('sw-first-run-wizard', {
     settingsItem: {
         group: 'system',
         to: 'sw.first.run.wizard.index',
-        icon: 'default-object-rocket',
+        icon: 'regular-rocket',
         privilege: 'admin',
     },
 });

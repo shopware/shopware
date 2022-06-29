@@ -41,7 +41,7 @@ export default {
     alert: '.sw-alert',
     alertClose: '.sw-alert__close',
     notification: '.sw-notifications__notification',
-    successIcon: '.icon--small-default-checkmark-line-medium',
+    successIcon: '.icon--regular-checkmark-xs',
 
     // Rule conditions
     conditionOrContainer: '.sw-condition-container__or-child',

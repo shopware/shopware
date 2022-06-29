@@ -38,7 +38,7 @@ export default class SnippetPageObject {
     }
 
     filterSnippets(name, position = 0) {
-        cy.get('.icon--default-action-filter').click();
+        cy.get('.icon--regular-filter').click();
         cy.get('input[name=addedSnippets]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

@@ -9,7 +9,7 @@ const { Component } = Shopware;
  * @example-type static
  * @component-example
  * <sw-sidebar #sidebar>
- *     <sw-sidebar-item title="Refresh" icon="default-arrow-360-left"></sw-sidebar-item>
+ *     <sw-sidebar-item title="Refresh" icon="regular-undo"></sw-sidebar-item>
  * </sw-sidebar>
  */
 Component.register('sw-sidebar', {

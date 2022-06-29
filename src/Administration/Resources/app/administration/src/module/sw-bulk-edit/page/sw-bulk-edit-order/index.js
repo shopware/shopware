@@ -258,7 +258,7 @@ Component.register('sw-bulk-edit-order', {
 
         setRouteMetaModule() {
             this.$set(this.$route.meta.$module, 'color', '#A092F0');
-            this.$set(this.$route.meta.$module, 'icon', 'default-shopping-paper-bag');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-shopping-bag');
         },
 
         loadBulkEditData() {

@@ -44,7 +44,7 @@ describe('Checkout: Use rounding', () => {
 
         cy.get('.sw-settings-currency-detail__save-action').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
         cy.visit('/');

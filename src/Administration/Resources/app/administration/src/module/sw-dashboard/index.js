@@ -12,7 +12,7 @@ Module.register('sw-dashboard', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#6AD6F0',
-    icon: 'default-device-dashboard',
+    icon: 'regular-tachometer',
     favicon: 'icon-module-dashboard.png',
 
     routes: {
@@ -28,7 +28,7 @@ Module.register('sw-dashboard', {
         id: 'sw-dashboard',
         label: 'sw-dashboard.general.mainMenuItemGeneral',
         color: '#6AD6F0',
-        icon: 'default-device-dashboard',
+        icon: 'regular-tachometer',
         path: 'sw.dashboard.index',
         position: 10,
     }],

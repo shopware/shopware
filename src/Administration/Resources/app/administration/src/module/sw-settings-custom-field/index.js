@@ -23,7 +23,7 @@ Module.register('sw-settings-custom-field', {
     title: 'sw-settings-custom-field.general.mainMenuItemGeneral',
     description: 'sw-settings-custom-field.general.description',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'custom-field-set',
 
@@ -57,7 +57,7 @@ Module.register('sw-settings-custom-field', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.custom.field.index',
-        icon: 'default-basic-stack-block',
+        icon: 'regular-bars-square',
         privilege: 'custom_field.viewer',
     },
 });

@@ -6,7 +6,7 @@ exports[`components/utils/sw-internal-link should renders correctly 1`] = `
 >
   test internal link 
   <sw-icon-stub
-    name="default-arrow-simple-right"
+    name="regular-long-arrow-right"
     small=""
   />
 </a>

@@ -14,7 +14,7 @@ Module.register('sw-theme-manager', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ff68b4',
-    icon: 'default-symbol-content',
+    icon: 'regular-content',
     favicon: 'icon-module-content.png',
     entity: 'theme',
 

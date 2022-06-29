@@ -11,7 +11,7 @@ Module.register('sw-settings-language', {
     title: 'sw-settings-language.general.mainMenuItemGeneral',
     description: 'Language section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'language',
 
@@ -48,7 +48,7 @@ Module.register('sw-settings-language', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.language.index',
-        icon: 'default-location-flag',
+        icon: 'regular-flag',
         privilege: 'language.viewer',
     },
 });

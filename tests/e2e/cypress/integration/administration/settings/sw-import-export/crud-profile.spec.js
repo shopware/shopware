@@ -215,10 +215,10 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.importExportWizardMappingPage}__text`).should('be.visible');
 
         // sort mappings
-        cy.get(`${page.elements.dataGridRow}--0 .icon--small-arrow-small-down`)
+        cy.get(`${page.elements.dataGridRow}--0 .icon--regular-chevron-down-xxs`)
             .click();
 
-        cy.get(`${page.elements.dataGridRow}--3 .icon--small-arrow-small-up`)
+        cy.get(`${page.elements.dataGridRow}--3 .icon--regular-chevron-up-xxs`)
             .click();
 
         // Check imported mapping

@@ -13,7 +13,7 @@ Module.register('sw-settings-salutation', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'salutation',
 
@@ -54,7 +54,7 @@ Module.register('sw-settings-salutation', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.salutation.index',
-        icon: 'default-communication-speech-bubbles',
+        icon: 'regular-comments',
         privilege: 'salutation.viewer',
     },
 });

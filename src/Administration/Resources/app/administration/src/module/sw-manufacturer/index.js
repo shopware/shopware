@@ -13,7 +13,7 @@ Module.register('sw-manufacturer', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'default-symbol-products',
+    icon: 'regular-products',
     favicon: 'icon-module-products.png',
     entity: 'product_manufacturer',
 

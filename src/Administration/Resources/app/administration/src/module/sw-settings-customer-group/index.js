@@ -15,7 +15,7 @@ Module.register('sw-settings-customer-group', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'customer_group',
 
@@ -56,7 +56,7 @@ Module.register('sw-settings-customer-group', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.customer.group.index',
-        icon: 'default-avatar-multiple',
+        icon: 'regular-users',
         privilege: 'customer_groups.viewer',
     },
 

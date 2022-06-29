@@ -120,11 +120,11 @@ Component.register('sw-admin-menu', {
         },
 
         sidebarCollapseIcon() {
-            return this.isExpanded ? 'default-arrow-circle-left' : 'default-arrow-circle-right';
+            return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
         },
 
         userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'small-arrow-medium-down' : 'small-arrow-medium-up';
+            return this.isUserActionsActive ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs';
         },
 
         scrollbarOffsetStyle() {

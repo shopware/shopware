@@ -53,7 +53,7 @@ if (Feature.isActive('FEATURE_NEXT_16271')) {
             icon: {
                 type: String,
                 required: false,
-                default: 'small-search',
+                default: 'regular-search-s',
             },
         },
 
@@ -126,7 +126,7 @@ if (Feature.isActive('FEATURE_NEXT_16271')) {
             icon: {
                 type: String,
                 required: false,
-                default: 'small-search',
+                default: 'regular-search-s',
             },
         },
 

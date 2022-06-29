@@ -32,6 +32,11 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.contains('Custom fields (1)').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // click on the custom field
         cy.contains('.sw-grid-row.sw-grid__row--0 a', 'My custom field')
             .click();
@@ -99,6 +104,16 @@ describe('Dynamic product group: Add custom fields to condition', () => {
 
         cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.contains('.sw-modal__header', 'Preview (1)');
             cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product name');

@@ -12,7 +12,7 @@ Module.register('sw-settings-logging', {
     title: 'sw-settings-logging.general.mainMenuItemGeneral',
     description: 'Log viewer',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'log_entry',
 
@@ -30,7 +30,7 @@ Module.register('sw-settings-logging', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.logging.index',
-        icon: 'default-device-server',
+        icon: 'regular-server',
         privilege: 'system.logging',
     },
 });

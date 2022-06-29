@@ -132,12 +132,12 @@ Component.register('sw-customer-detail-addresses', {
                 property: 'defaultShippingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 align: 'center',
-                iconLabel: 'default-shopping-cart',
+                iconLabel: 'regular-shopping-cart',
             }, {
                 property: 'defaultBillingAddress',
                 label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 align: 'center',
-                iconLabel: 'default-documentation-file',
+                iconLabel: 'regular-file-text',
             }, {
                 property: 'lastName',
                 label: this.$tc('sw-customer.detailAddresses.columnLastName'),

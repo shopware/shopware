@@ -39,6 +39,7 @@
     "@babel/runtime": "7.17.9",
     "@shopware-ag/admin-extension-sdk": "2.1.0",
     "@shopware-ag/eslint-config-base": "1.0.0",
+    "@shopware-ag/meteor-icon-kit": "4.0.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",
     "@shopware-ag/webpack-plugin-injector": "1.0.6",

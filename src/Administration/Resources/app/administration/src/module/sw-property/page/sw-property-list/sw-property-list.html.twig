@@ -126,13 +126,13 @@
                     <template v-else>
                         <sw-icon
                             v-if="item.filterable"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             small
                             class="is--active"
                         />
                         <sw-icon
                             v-else
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             small
                             class="is--inactive"
                         />
@@ -239,7 +239,7 @@
     <sw-sidebar slot="sidebar">
         {% block sw_property_list_sidebar_refresh_item %}
         <sw-sidebar-item
-            icon="default-arrow-360-left"
+            icon="regular-undo"
             :title="$tc('sw-property.list.titleSidebarItemRefresh')"
             @click="onRefresh"
         />

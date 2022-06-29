@@ -27,6 +27,11 @@ $sw-price-field-suffix-font-weight: 400;
             color: $color-gray-700;
             cursor: default;
         }
+
+        .sw-icon {
+            // @deprecated tag:v6.5.0 - The !important attribute can be removed
+            padding: 0 3px !important;
+        }
     }
 
     .sw-field {

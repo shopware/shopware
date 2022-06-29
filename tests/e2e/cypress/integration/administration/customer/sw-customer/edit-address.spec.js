@@ -177,11 +177,11 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
 
         cy.get('.sw-data-grid__cell--2').click();
-        cy.get('.icon--small-arrow-small-up').should('be.visible');
+        cy.get('.icon--regular-chevron-up-xxs').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
 
         cy.contains(`${page.elements.dataGridRow}--0`, customer.lastName);
-        cy.get('.icon--default-shopping-cart').should('be.visible');
+        cy.get('.icon--regular-shopping-cart').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
             .click();
         cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0:checked`);

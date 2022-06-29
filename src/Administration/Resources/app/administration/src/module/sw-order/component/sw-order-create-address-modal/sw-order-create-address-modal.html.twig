@@ -72,7 +72,7 @@
                             @click="onAddNewAddress"
                         >
                             <sw-icon
-                                name="small-default-plus-circle"
+                                name="regular-plus-circle-s"
                                 small
                             />
                             {{ $tc('sw-customer.detailAddresses.buttonAddAddress') }}
@@ -90,7 +90,7 @@
                 >
                     <sw-empty-state
                         :title="$tc('sw-order.addressSelection.emptySearchResults')"
-                        :icon="'default-object-address'"
+                        :icon="'regular-book-user'"
                     >
                         {% block sw_order_create_address_modal_empty_state_content %}
                         <span></span>

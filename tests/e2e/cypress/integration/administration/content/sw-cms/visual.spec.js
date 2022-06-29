@@ -55,8 +55,8 @@ describe('CMS: Visual tests', () => {
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-        cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('not.exist');
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');

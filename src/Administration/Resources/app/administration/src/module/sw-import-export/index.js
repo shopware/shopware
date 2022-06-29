@@ -49,7 +49,7 @@ Shopware.Module.register('sw-import-export', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-device-database',
+    icon: 'regular-database',
     entity: 'import_export_profile',
     routePrefixPath: 'sw/import-export',
 
@@ -97,7 +97,7 @@ Shopware.Module.register('sw-import-export', {
     settingsItem: {
         group: 'shop',
         to: 'sw.import.export.index',
-        icon: 'default-location-flag',
+        icon: 'regular-flag',
         privilege: 'system.import_export',
     },
 });

@@ -25,7 +25,7 @@ describe('src/module/sw-extension/component/sw-extension-adding-success', () => 
 
         expect(wrapper.get('.sw-circle-icon').props('variant')).toBe('success');
         expect(wrapper.get('.sw-circle-icon').props('size')).toBe(72);
-        expect(wrapper.get('.sw-circle-icon').props('iconName')).toBe('default-basic-checkmark-line');
+        expect(wrapper.get('.sw-circle-icon').props('iconName')).toBe('regular-checkmark');
     });
 
     it('has a primary block button', () => {

@@ -32,8 +32,8 @@ Module.register('sw-promotion', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'default-package-gift',
-    favicon: 'default-object-marketing',
+    icon: 'regular-gift',
+    favicon: 'regular-megaphone',
     entity: 'promotion',
 
     routes: {
@@ -124,7 +124,7 @@ Module.register('sw-promotion', {
         id: 'sw-marketing',
         label: 'global.sw-admin-menu.navigation.mainMenuItemMarketing',
         color: '#FFD700',
-        icon: 'default-object-marketing',
+        icon: 'regular-megaphone',
         position: 70,
         privilege: 'promotion.viewer',
     }, {
@@ -132,7 +132,7 @@ Module.register('sw-promotion', {
         path: 'sw.promotion.index',
         label: 'sw-promotion.general.mainMenuItemGeneral',
         color: '#FFD700',
-        icon: 'default-package-gift',
+        icon: 'regular-gift',
         position: 100,
         parent: 'sw-marketing',
         privilege: 'promotion.viewer',

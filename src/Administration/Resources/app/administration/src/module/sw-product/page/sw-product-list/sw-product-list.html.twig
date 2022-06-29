@@ -117,7 +117,7 @@
                             @click="openVariantModal(item)"
                         >
                             <sw-icon
-                                name="default-web-variants"
+                                name="regular-variants"
                                 size="14px"
                             />
                         </sw-button>
@@ -145,13 +145,13 @@
                     <template v-else>
                         <sw-icon
                             v-if="item.active"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             small
                             class="is--active"
                         />
                         <sw-icon
                             v-else
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             small
                             class="is--inactive"
                         />
@@ -240,7 +240,7 @@
                         <template #column-active="{ item }">
                             <sw-icon
                                 small
-                                :name="item.active ? 'small-default-checkmark-line-medium' : 'small-default-x-line-medium'"
+                                :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
                                 :color="item.active ? '#37d046' : '#de294c'"
                             />
                         </template>
@@ -334,7 +334,7 @@
         <sw-sidebar>
             {% block sw_product_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-product.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

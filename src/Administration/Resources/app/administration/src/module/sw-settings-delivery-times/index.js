@@ -12,7 +12,7 @@ Module.register('sw-settings-delivery-time', {
     title: 'sw-settings-delivery-time.general.mainMenuItemGeneral',
     description: 'sw-settings-delivery-time.general.description',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'delivery_time',
 
@@ -46,7 +46,7 @@ Module.register('sw-settings-delivery-time', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.delivery.time.index',
-        icon: 'default-time-clock',
+        icon: 'regular-clock',
         privilege: 'delivery_times.viewer',
     },
 });

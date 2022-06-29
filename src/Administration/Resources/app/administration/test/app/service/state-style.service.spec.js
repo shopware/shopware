@@ -29,7 +29,7 @@ describe('src/app/service/state-style.service.js', () => {
 
         expect(typeof placeholder).toEqual('object');
         expect(placeholder.hasOwnProperty('icon')).toBe(true);
-        expect(placeholder.icon).toEqual('small-arrow-small-down');
+        expect(placeholder.icon).toEqual('regular-chevron-down-xxs');
         expect(placeholder.hasOwnProperty('iconStyle')).toBe(true);
         expect(placeholder.iconStyle).toEqual('sw-order-state__bg-neutral-icon');
         expect(placeholder.hasOwnProperty('iconBackgroundStyle')).toBe(true);
@@ -98,11 +98,11 @@ describe('src/app/service/state-style.service.js', () => {
         };
 
         const iconMapping = {
-            neutral: 'small-arrow-small-down',
-            progress: 'small-default-circle-small',
-            done: 'small-default-checkmark-line-small',
-            warning: 'small-exclamationmark',
-            danger: 'small-default-x-line-small'
+            neutral: 'regular-chevron-down-xxs',
+            progress: 'regular-circle-xxs',
+            done: 'regular-checkmark-xxs',
+            warning: 'regular-exclamation-s',
+            danger: 'regular-times-xs'
         };
 
         const variantMapping = {

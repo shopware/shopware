@@ -544,7 +544,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     expired: true
                 },
                 expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.rentExpiredAt',
-                expectedIcon: 'default-badge-warning'
+                expectedIcon: 'regular-exclamation-triangle'
             },
             'should display when a test phase will expire': {
                 storeLicense: {
@@ -561,7 +561,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                     expired: true
                 },
                 expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
-                expectedIcon: 'default-badge-alert'
+                expectedIcon: 'regular-exclamation-circle'
             }
         };
 

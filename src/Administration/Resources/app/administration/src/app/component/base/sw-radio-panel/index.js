@@ -15,7 +15,7 @@ const utils = Shopware.Utils;
  *     value="selectionValueIfSelected"
  *     title="Example title"
  *     description="Example description"
- *     icon="default-badge-warning"
+ *     icon="regular-exclamation-triangle"
  * ></sw-radio-panel>
  */
 Component.register('sw-radio-panel', {

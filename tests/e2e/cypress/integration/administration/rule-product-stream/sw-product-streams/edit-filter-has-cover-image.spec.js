@@ -48,6 +48,15 @@ describe('Dynamic product group: Test product has cover image filter with and wi
         cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // should only preview one product with cover image
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.contains('.sw-modal__header', 'Preview (1)');
@@ -68,6 +77,15 @@ describe('Dynamic product group: Test product has cover image filter with and wi
         // open preview
         cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // should only preview one product with cover image
         cy.get('.sw-product-stream-modal-preview').within(() => {

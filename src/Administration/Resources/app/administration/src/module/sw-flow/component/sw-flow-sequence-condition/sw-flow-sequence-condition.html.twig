@@ -17,14 +17,14 @@
         {% block sw_flow_sequence_condition_true_arrow_icon %}
         <sw-icon
             v-if="showArrowIcon(true)"
-            name="small-arrow-large-right"
+            name="regular-chevron-right-s"
             small
         />
 
         <sw-context-button
             v-else
             class="arrow-action sw-flow-sequence-condition__true-action"
-            icon="small-default-plus-line-medium"
+            icon="regular-plus-xs"
             :disabled="disabledAddSequence(true)"
         >
             {% block sw_flow_sequence_condition_true_arrow_add_condition %}
@@ -90,14 +90,14 @@
         {% block sw_flow_sequence_condition_false_arrow_icon %}
         <sw-icon
             v-if="showArrowIcon(false)"
-            name="small-arrow-large-down"
+            name="regular-chevron-down-s"
             small
         />
 
         <sw-context-button
             v-else
             class="arrow-action sw-flow-sequence-condition__false-action"
-            icon="small-default-plus-line-medium"
+            icon="regular-plus-xs"
             :disabled="disabledAddSequence(false)"
         >
             {% block sw_flow_sequence_condition_false_arrow_add_condition %}
@@ -170,7 +170,7 @@
                     >
                         <sw-icon
                             size="12px"
-                            name="small-default-rule"
+                            name="regular-rule-s"
                         />
                         <span class="sw-flow-sequence-condition__no-rule">
                             {{ $tc('sw-flow.detail.sequence.noRule') }}
@@ -190,7 +190,7 @@
                             <div class="sw-flow-sequence-condition__rule-name">
                                 <sw-icon
                                     size="12px"
-                                    name="small-default-rule"
+                                    name="regular-rule-s"
                                 />
                                 <h3>{{ sequence.rule.name }}</h3>
                             </div>
@@ -264,7 +264,7 @@
                             <sw-icon
                                 size="10px"
                                 color="#fff"
-                                name="small-default-plus-line-small"
+                                name="regular-plus-xxs"
                             />
                         </div>
                         {% endblock %}
@@ -281,7 +281,7 @@
                         <sw-icon
                             size="12px"
                             color="#758ca3"
-                            name="small-default-x-circle"
+                            name="regular-times-circle-s"
                             @click="toggleAddButton"
                         />
 

@@ -84,10 +84,10 @@ describe('src/component/grid/sw-pagination', () => {
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
         expect(leftArrow.exists()).toBe(true);
-        expect(leftArrow.attributes('name')).toBe('small-arrow-medium-left');
+        expect(leftArrow.attributes('name')).toBe('regular-chevron-left-xs');
 
         expect(rightArrow.exists()).toBe(true);
-        expect(rightArrow.attributes('name')).toBe('small-arrow-medium-right');
+        expect(rightArrow.attributes('name')).toBe('regular-chevron-right-xs');
     });
 
     it('should have the right amount of elements', async () => {
@@ -142,7 +142,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should emit event when clicking on an arrow', async () => {
-        const rightArrow = wrapper.find('div.icon[name="small-arrow-medium-right"]');
+        const rightArrow = wrapper.find('div.icon[name="regular-chevron-right-xs"]');
 
         await rightArrow.trigger('click');
 

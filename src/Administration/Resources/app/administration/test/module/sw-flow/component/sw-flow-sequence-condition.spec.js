@@ -171,10 +171,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeTruthy();
 
-        const falseArrowIcon = wrapper.find('.sw-icon[name="small-arrow-large-down"]');
+        const falseArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-down-s"]');
         expect(falseArrowIcon.exists()).toBeFalsy();
 
-        const trueArrowIcon = wrapper.find('.sw-icon[name="small-arrow-large-right"]');
+        const trueArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-right-s"]');
         expect(trueArrowIcon.exists()).toBeFalsy();
     });
 
@@ -207,10 +207,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeFalsy();
 
-        const falseArrowIcon = wrapper.find('.sw-icon[name="small-arrow-large-down"]');
+        const falseArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-down-s"]');
         expect(falseArrowIcon.exists()).toBeTruthy();
 
-        const trueArrowIcon = wrapper.find('.sw-icon[name="small-arrow-large-right"]');
+        const trueArrowIcon = wrapper.find('.sw-icon[name="regular-chevron-right-s"]');
         expect(trueArrowIcon.exists()).toBeTruthy();
     });
 
@@ -303,7 +303,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         let ruleSelect = wrapper.find('.sw-flow-sequence-condition__selection-rule');
         expect(ruleSelect.exists()).toBeTruthy();
 
-        const closeSelection = wrapper.find('.sw-icon[name="small-default-x-circle"]');
+        const closeSelection = wrapper.find('.sw-icon[name="regular-times-circle-s"]');
         await closeSelection.trigger('click');
 
         let addButton = wrapper.find('.sw-flow-sequence-condition__add-button');

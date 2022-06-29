@@ -137,10 +137,10 @@ Component.register('sw-datepicker', {
 
         suffixName() {
             if (this.noCalendar) {
-                return 'default-time-clock';
+                return 'regular-clock';
             }
 
-            return 'default-calendar-full';
+            return 'regular-calendar';
         },
 
         noCalendar() {

@@ -23,7 +23,7 @@ Module.register('sw-settings-search', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'product_search_config',
 
@@ -65,7 +65,7 @@ Module.register('sw-settings-search', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.search.index',
-        icon: 'default-action-search',
+        icon: 'regular-search',
         privilege: 'product_search_config.viewer',
     },
 });

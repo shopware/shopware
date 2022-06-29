@@ -33,12 +33,12 @@ const { Component } = Shopware;
  * }">
  * <template #actions>
  *     <sw-button size="small" disabled>
- *         <sw-icon name="small-pencil" small></sw-icon>
+ *         <sw-icon name="regular-pencil-s" small></sw-icon>
  *         Edit user
  *     </sw-button>
  *
  *     <sw-button size="small" disabled>
- *         <sw-icon name="default-lock-key" small></sw-icon>
+ *         <sw-icon name="regular-key" small></sw-icon>
  *         Change password
  *      </sw-button>
  * </template>

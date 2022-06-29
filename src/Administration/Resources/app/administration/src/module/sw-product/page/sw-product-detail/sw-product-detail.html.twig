@@ -60,7 +60,7 @@
                         :disabled="isLoading || !acl.can('product.editor')"
                     >
                         <sw-icon
-                            name="small-arrow-medium-down"
+                            name="regular-chevron-down-xs"
                             size="16"
                         />
                     </sw-button>
@@ -105,7 +105,7 @@
                 :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
             >
                 <sw-icon
-                    name="default-arrow-simple-left"
+                    name="regular-long-arrow-left"
                     small
                 />
                 {{ $tc('sw-product.general.backToParent') }}
@@ -117,7 +117,7 @@
                 :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }"
             >
                 <sw-icon
-                    name="default-arrow-simple-left"
+                    name="regular-long-arrow-left"
                     small
                 />
                 {{ $tc('sw-product.general.backToGeneralOverview') }}

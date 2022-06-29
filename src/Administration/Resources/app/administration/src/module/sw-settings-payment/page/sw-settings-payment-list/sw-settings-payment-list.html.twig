@@ -19,7 +19,7 @@
         <h2>
             {% block sw_settings_payment_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             /> {{ $tc('sw-settings-payment.list.textHeadline') }}
             {% endblock %}
@@ -111,13 +111,13 @@
                         {% block sw_settings_payment_list_column_active_label %}
                         <sw-icon
                             v-if="item.active"
-                            name="small-default-checkmark-line-medium"
+                            name="regular-checkmark-xs"
                             small
                             class="is--active"
                         />
                         <sw-icon
                             v-else
-                            name="small-default-x-line-medium"
+                            name="regular-times-s"
                             small
                             class="is--inactive"
                         />

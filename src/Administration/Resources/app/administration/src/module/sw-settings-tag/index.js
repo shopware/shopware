@@ -12,7 +12,7 @@ Module.register('sw-settings-tag', {
     title: 'sw-settings-tag.general.mainMenuItemGeneral',
     description: 'Tag section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'tag',
 
@@ -30,7 +30,7 @@ Module.register('sw-settings-tag', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.tag.index',
-        icon: 'default-action-tags',
+        icon: 'regular-tag',
         privilege: 'tag.viewer',
     },
 });

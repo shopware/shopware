@@ -9,16 +9,16 @@ Application.addServiceProvider('flowBuilderService', () => {
 
 export default function flowBuilderService() {
     const $icon = {
-        addEntityTag: 'default-action-tags',
-        removeEntityTag: 'default-action-tags',
-        mailSend: 'default-communication-envelope',
-        setOrderState: 'default-shopping-plastic-bag',
-        generateDocument: 'default-documentation-file',
-        changeCustomerGroup: 'default-avatar-multiple',
-        changeCustomerStatus: 'default-avatar-single',
-        stopFlow: 'default-basic-x-circle',
-        setEntityCustomField: 'default-documentation-paper-pencil-signed',
-        addEntityAffiliateAndCampaignCode: 'default-documentation-paper-pencil-signed',
+        addEntityTag: 'regular-tag',
+        removeEntityTag: 'regular-tag',
+        mailSend: 'regular-envelope',
+        setOrderState: 'regular-shopping-bag-alt',
+        generateDocument: 'regular-file-text',
+        changeCustomerGroup: 'regular-users',
+        changeCustomerStatus: 'regular-user',
+        stopFlow: 'regular-times-circle',
+        setEntityCustomField: 'regular-file-signature',
+        addEntityAffiliateAndCampaignCode: 'regular-file-signature',
     };
 
     const $labelSnippet = {

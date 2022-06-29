@@ -369,7 +369,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').should('be.visible');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').contains('Green');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').realHover();
-        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link .icon--default-text-editor-link').should('be.visible');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link .icon--regular-link-xs').should('be.visible');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').click();
 
         cy.get('.sw-skeleton__detail-bold').should('not.exist');

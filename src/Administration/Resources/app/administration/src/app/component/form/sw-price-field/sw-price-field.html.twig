@@ -52,13 +52,13 @@
             <sw-icon
                 v-if="priceForCurrency.linked"
                 key="price-field-locked-indicator"
-                name="default-lock-closed"
+                name="regular-lock"
                 size="16"
             />
             <sw-icon
                 v-else
                 key="price-field-locked-indicator"
-                name="default-lock-open"
+                name="regular-lock-open"
                 size="16"
             />
         </button>
@@ -107,7 +107,7 @@
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
             <sw-icon
-                name="default-arrow-simple-right"
+                name="regular-long-arrow-right"
                 small
             />
         </a>

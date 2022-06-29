@@ -9,6 +9,12 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
 
     inject: ['feature'],
 
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
+
     computed: {
         operators() {
             return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
@@ -31,7 +37,7 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.isNet', 'value.amount']),
 
         currentError() {
             return this.conditionValueIsNetError

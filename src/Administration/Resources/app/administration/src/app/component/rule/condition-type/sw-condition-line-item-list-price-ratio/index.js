@@ -14,6 +14,12 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-list-price-ratio', 'sw-condition-base-line-item', {
     template,
 
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
+
     computed: {
         operators() {
             return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(

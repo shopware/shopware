@@ -54,10 +54,17 @@ class LineItemListPriceRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'amount' => RuleConstraints::float(),
+        $constraints = [
             'operator' => RuleConstraints::numericOperators(),
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['amount'] = RuleConstraints::float();
+
+        return $constraints;
     }
 
     /**

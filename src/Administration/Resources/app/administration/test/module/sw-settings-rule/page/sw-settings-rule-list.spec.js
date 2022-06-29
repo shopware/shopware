@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-list';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
+import FilterService from 'src/app/service/filter.service';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-rule-list'), {
@@ -32,6 +33,21 @@ function createWrapper(privileges = []) {
 
                     ])
                 })
+            },
+            filterFactory: {
+                create: (name, filters) => filters,
+            },
+            filterService: FilterService,
+            ruleConditionDataProviderService: {
+                getConditions: () => {
+                    return [{ type: 'foo', label: 'bar' }];
+                },
+                getGroups: () => {
+                    return [{ id: 'foo', name: 'bar' }];
+                },
+                getByGroup: () => {
+                    return [{ type: 'foo' }];
+                }
             },
             acl: {
                 can: (identifier) => {
@@ -136,5 +152,58 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(wrapper.vm.onDuplicate)
             .toHaveBeenCalledTimes(1);
+    });
+
+    it('should get filter options for conditions', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+        const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
+
+        expect(conditionFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
+    });
+
+    it('should get filter options for groups', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+        const groupFilterOptions = wrapper.vm.groupFilterOptions;
+
+        expect(groupFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
+    });
+
+    it('should get filter options for associations', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+        const associationFilterOptions = wrapper.vm.associationFilterOptions;
+
+        expect(associationFilterOptions.map(option => option.value)).toContain('productPrices');
+        expect(associationFilterOptions.map(option => option.value)).toContain('paymentMethods');
+    });
+
+    it('should get list filters', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+        const listFilters = wrapper.vm.listFilters;
+
+        expect(Object.keys(listFilters)).toContain('conditionGroups');
+        expect(Object.keys(listFilters)).toContain('conditions');
+        expect(Object.keys(listFilters)).toContain('assignments');
+        expect(Object.keys(listFilters)).toContain('tags');
+    });
+
+    it('should get counts', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+
+        await wrapper.setData({
+            rules: {
+                aggregations: {
+                    productPrices: {
+                        buckets: [{
+                            key: '1',
+                            productPrices: {
+                                count: 100
+                            }
+                        }]
+                    },
+                }
+            }
+        });
+
+        expect(wrapper.vm.getCounts('productPrices', '1')).toEqual(100);
     });
 });

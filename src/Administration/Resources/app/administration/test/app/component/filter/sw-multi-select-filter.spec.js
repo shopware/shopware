@@ -291,4 +291,42 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             ['option1']
         ]);
     });
+
+    it('should emit filter-update with correct value when filter has existing type', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                labelProperty: 'key',
+                valueProperty: 'key',
+                label: 'Test',
+                value: null,
+                filterCriteria: null,
+                options: [
+                    { key: 'option1' },
+                    { key: 'option2' }
+                ],
+                existingType: true
+            }
+        });
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            'category-filter',
+            [Criteria.multi('or', [Criteria.not('and', [Criteria.equals('option1.id', null)])])],
+            ['option1']
+        ]);
+    });
 });

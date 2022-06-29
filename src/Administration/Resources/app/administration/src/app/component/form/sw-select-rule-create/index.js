@@ -58,6 +58,31 @@ Component.register('sw-select-rule-create', {
             required: false,
             default: null,
         },
+
+        /**
+         * @internal (flag:FEATURE_NEXT_18215)
+         * Contains an array of rule ids which should not be selectable,
+         * for example because they are already used in a different place
+         */
+        restrictedRuleIds: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+
+        /**
+         * @internal (flag:FEATURE_NEXT_18215)
+         * Tooltip label to show for any rule in the restrictedRuleIds array
+         */
+        restrictedRuleIdsTooltipLabel: {
+            type: String,
+            required: false,
+            default() {
+                return '';
+            },
+        },
     },
 
     data() {
@@ -67,8 +92,6 @@ Component.register('sw-select-rule-create', {
                 id: '',
             },
             showRuleModal: false,
-            /* @internal (flag:FEATURE_NEXT_18215) */
-            restrictedRules: [],
         };
     },
 
@@ -121,17 +144,41 @@ Component.register('sw-select-rule-create', {
             }
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted(rule) {
+            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
+
             if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return false;
+                return insideRestrictedRuleIds;
             }
 
-            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
+            const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
+                rule.conditions,
+                this.ruleAwareGroupKey,
+            );
+
+            return isRuleRestricted || insideRestrictedRuleIds;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
+        getAdvancedSelectionParameters() {
+            return {
+                ruleAwareGroupKey: this.ruleAwareGroupKey,
+                restrictedRuleIds: this.restrictedRuleIds,
+                restrictedRuleIdsTooltipLabel: this.restrictedRuleIdsTooltipLabel,
+            };
+        },
+
         tooltipConfig(rule) {
+            if (this.restrictedRuleIds.includes(rule.id)) {
+                return {
+                    message: this.restrictedRuleIdsTooltipLabel,
+                    disabled: false,
+                };
+            }
+
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return { message: '', disabled: true };
+            }
+
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
                 rule.conditions,
                 this.ruleAwareGroupKey,

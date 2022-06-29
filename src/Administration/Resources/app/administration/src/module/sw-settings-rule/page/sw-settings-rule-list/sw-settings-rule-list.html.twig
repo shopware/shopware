@@ -70,6 +70,7 @@
             <sw-entity-listing
                 v-if="isLoading || rules"
                 ref="swRuleGrid"
+                identifier="sw-settings-rule-list"
                 class="sw-rule-list-grid"
                 :items="rules"
                 :columns="getRuleColumns()"
@@ -88,6 +89,35 @@
                 @inline-edit-save="onInlineEditSave"
                 @items-delete-finish="getList"
             >
+
+                {% block sw_settings_rule_list_grid_column_tags %}
+                <template #column-tags="{ item }">
+                    <span class="sw-data-grid__cell-value">
+                        <sw-label
+                            v-for="tag in item.tags"
+                            :key="tag.id"
+                        >
+                            {{ tag.name }}
+                        </sw-label>
+                    </span>
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_rule_list_grid_column_assignments %}
+                <template
+                    v-for="(propertyName, index) in assignmentProperties"
+                    :slot="`column-${propertyName}`"
+                    slot-scope="{ item }"
+                >
+                    <span
+                        :key="index"
+                        class="sw-data-grid__cell-value"
+                    >
+                        {{ getCounts(propertyName, item.id) }}
+                        {{ $tc(`sw-settings-rule.list.assignments.${propertyName}`, getCounts(propertyName, item.id)) }}
+                    </span>
+                </template>
+                {% endblock %}
 
                 <template #column-invalid="{item}">
                     <template v-if="item.invalid">
@@ -144,6 +174,17 @@
                 @click="onRefresh"
             />
             {% endblock %}
+
+            {% block sw_settings_rule_list_sidebar_filter %}
+            <sw-sidebar-filter-panel
+                entity="rule"
+                :store-key="storeKey"
+                :active-filter-number="activeFilterNumber"
+                :filters="listFilters"
+                :defaults="defaultFilters"
+                @criteria-changed="updateCriteria"
+            />
+        {% endblock %}
         </sw-sidebar>
     </template>
     {% endblock %}

@@ -49,9 +49,15 @@ describe('components/sw-select-rule-create', () => {
                     getRestrictedRules() {
                         return Promise.resolve(['second-id']);
                     },
-                    getRestrictedRuleTooltipConfig: () => { return { disabled: false, message: '' }; },
+                    getRestrictedRuleTooltipConfig: (ruleConditions) => {
+                        if (ruleConditions.length < 1) {
+                            return { disabled: true, message: '' };
+                        }
+
+                        return { disabled: false, message: 'ruleAwarenessRestrictionLabelText' };
+                    },
                     isRuleRestricted: (conditions) => { return conditions[0]; },
-                }
+                },
             },
             stubs: {
                 'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
@@ -73,7 +79,8 @@ describe('components/sw-select-rule-create', () => {
             },
             propsData: {
                 ruleId: 'random-rule-id',
-                restriction: 'productPrices'
+                restrictedRuleIds: ['restrictedId'],
+                restrictedRuleIdsTooltipLabel: 'myRestrictedLabelText'
             }
         });
     }
@@ -108,6 +115,30 @@ describe('components/sw-select-rule-create', () => {
 
         expect(firstResult.attributes('class')).not.toContain('is--disabled');
         expect(secondResult.attributes('class')).toContain('is--disabled');
+    });
+
+    it('should have disabled tooltip because rule is not in restricted array and not in rule awareness', async () => {
+        wrapper = await createWrapper();
+        const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'ruleId', conditions: [] });
+
+        expect(tooltipConfig.disabled).toBeTruthy();
+        expect(tooltipConfig.message).toEqual('');
+    });
+
+    it('should have correct tooltip because rule is in restricted array', async () => {
+        wrapper = await createWrapper();
+        const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'restrictedId', conditions: [] });
+
+        expect(tooltipConfig.disabled).toBeFalsy();
+        expect(tooltipConfig.message).toEqual('myRestrictedLabelText');
+    });
+
+    it('should have correct tooltip because of restricted rule by rule awareness', async () => {
+        wrapper = await createWrapper();
+        const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'someRuleAwarenessRestrictedId', conditions: [true] });
+
+        expect(tooltipConfig.disabled).toBeFalsy();
+        expect(tooltipConfig.message).toEqual('ruleAwarenessRestrictionLabelText');
     });
 
     /**

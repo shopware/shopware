@@ -71,8 +71,15 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-conditions__rules-exclusion-selection')
             .typeMultiSelectAndCheck('Thunder Tuesday');
 
-        cy.get('.sw-promotion-v2-conditions__rule-select-customer')
-            .typeMultiSelectAndCheck('All customers');
+        // Test the sw-entity-advanced-selection-modal
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 1);
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer').click();
+        cy.get('.sw-many-to-many-select-filtering__advanced-selection').click();
+        cy.get('.sw-data-grid__row:contains("All customers") .sw-field--checkbox:not(.is--disabled):not(.sw-data-grid__select-all)').click();
+        cy.get('.sw-entity-advanced-selection-modal__button-apply').click();
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 2);
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').contains('All customers');
+
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .type('{esc}');
         cy.get('.sw-promotion-v2-cart-condition-form__rule-select-cart')
@@ -108,9 +115,9 @@ describe('Promotion v2: Test crud operations', () => {
         cy.contains(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`,
             'Thunder Tuesday');
 
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 2);
         cy.contains(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`,
             'All customers');
-        cy.get('.sw-promotion-v2-conditions__rule-select-customer');
         cy.contains(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`,
             'Always valid (Default)');
         cy.contains(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`,

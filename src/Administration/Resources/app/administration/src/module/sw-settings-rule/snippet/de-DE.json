@@ -5,6 +5,38 @@
       "placeholderSearchBar": "Durchsuche alle Regeln ...",
       "descriptionTextModule": "Verwaltung von Regeln."
     },
+    "filter": {
+      "conditionFilter": {
+        "label": "Bedingungen",
+        "placeholder": "Bedingungen auswählen ..."
+      },
+      "groupFilter": {
+        "label": "Bedingungstypen",
+        "placeholder": "Typ auswählen ..."
+      },
+      "assignmentFilter": {
+        "label": "Zuweisungen",
+        "placeholder": "Zuweisungen auswählen ...",
+        "values": {
+          "cartPromotions": "Rabattaktion-Warenkorbregeln",
+          "orderPromotions": "Rabattaktion-Bestellungsregeln",
+          "personaPromotions": "Rabattaktion-Kundenregeln",
+          "promotionSetGroups": "Rabattaktion-Setgruppenregeln",
+          "promotionDiscounts": "Rabatte",
+          "eventActions": "Business-Events",
+          "flowSequences": "Flows",
+          "paymentMethods": "Zahlungsarten",
+          "productPrices": "Produktpreise",
+          "shippingMethodPriceCalculations": "Versandarten-Preismatritzen",
+          "shippingMethodPrices": "Versandartenpreise",
+          "shippingMethods": "Versandartenverfügbarkeit"
+        }
+      },
+      "tagFilter": {
+        "label": "Tags",
+        "placeholder": "Tags auswählen ..."
+      }
+    },
     "list": {
       "textHeadline": "Rule Builder",
       "buttonAddRule": "Regel erstellen",
@@ -14,11 +46,38 @@
       "columnDateUpdated": "Zuletzt bearbeitet",
       "columnPriority": "Priorität",
       "columnStatus": "Status",
+      "columnTags": "Tags",
+      "columnCartPromotions": "Rabattaktion-Warenkorbregel-Zuweisungen",
+      "columnOrderPromotions": "Rabattaktion-Bestellungsregel-Zuweisungen",
+      "columnPersonaPromotions": "Rabattaktion-Kundenregel-Zuweisungen",
+      "columnPromotionSetGroups": "Rabattaktion-Setgruppenregel-Zuweisungen",
+      "columnPromotionDiscounts": "Rabatt-Zuweisungen",
+      "columnEventActions": "Business-Event-Zuweisungen",
+      "columnFlowSequences": "Flow-Zuweisungen",
+      "columnPaymentMethods": "Zahlungsart-Zuweisungen",
+      "columnProductPrices": "Produktpreis-Zuweisungen",
+      "columnShippingMethodPriceCalculations": "Versandarten-Preismatrix-Zuweisungen",
+      "columnShippingMethodPrices": "Versandartenpreis-Zuweisungen",
+      "columnShippingMethods": "Versandartenverfügbarkeit-Zuweisungen",
       "contextMenuDuplicate": "Duplizieren",
       "titleSidebarItemRefresh": "Aktualisieren",
       "valid": "Gültig",
       "invalid": "Ungütig",
-      "messageEmpty": "Noch keine Regeln"
+      "messageEmpty": "Noch keine Regeln",
+      "assignments": {
+        "cartPromotions": "Rabattaktion-Warenkorbregel | Rabattaktion-Warenkorbregeln",
+        "orderPromotions": "Rabattaktion-Bestellungsregel | Rabattaktion-Bestellungsregeln",
+        "personaPromotions": "Rabattaktion-Kundenregel | Rabattaktion-Kundenregeln",
+        "promotionSetGroups": "Rabattaktion-Setgruppenregel | Rabattaktion-Setgruppenregeln",
+        "promotionDiscounts": "Rabatt | Rabatte",
+        "eventActions": "Business-Event | Business-Events",
+        "flowSequences": "Flow | Flows",
+        "paymentMethods": "Zahlungsart | Zahlungsarten",
+        "productPrices": "Produktpreis | Produktpreise",
+        "shippingMethodPriceCalculations": "Versandarten-Preismatrix | Versandarten-Preismatritzen",
+        "shippingMethodPrices": "Versandartenpreis | Versandartenpreise",
+        "shippingMethods": "Versandartenverfügbarkeit | Versandartenverfügbarkeiten"
+      }
     },
     "detail": {
       "textHeadline": "Neue Regel",

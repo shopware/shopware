@@ -19,6 +19,7 @@
             v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
             :is-single-select="true"
             :initial-search-term="advancedSelectionInitialSearchTerm"
+            v-bind="advancedSelectionParameters"
             @modal-close="closeAdvancedSelectionModal"
             @selection-submit="onAdvancedSelectionSubmit"
         />

@@ -237,7 +237,7 @@ Component.register('sw-settings-rule-detail', {
 
             if (to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') {
                 this.checkUnsavedData({ to, from, next });
-            } else if (to.name === 'sw.settings.rule.detail.base') {
+            } else if (to.name === 'sw.settings.rule.detail.base' || to.name === 'sw.settings.rule.create.base') {
                 this.conditionsTreeContainsUserChanges = false;
                 this.conditionTreeFinishedLoading = false;
                 next();

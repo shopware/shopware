@@ -294,6 +294,8 @@
                             :placeholder="$tc('sw-flow.rule.placeholderSelectRule')"
                             :disabled="disabled"
                             :error="fieldError"
+                            advanced-selection-component="sw-advanced-selection-rule"
+                            :advanced-selection-parameters="advanceSelectionParameters"
                             @change="(id, rule) => onRuleChange(rule)"
                         >
                             <template #before-item-list>

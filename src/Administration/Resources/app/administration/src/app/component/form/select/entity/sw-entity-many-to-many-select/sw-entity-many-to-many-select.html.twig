@@ -12,6 +12,18 @@
     {% block sw_entity_many_to_many_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
         {% block sw_entity_many_to_many_select_base_selection_slot %}
+        {% block sw_entity_many_to_many_select_advanced_selection_modal %}
+        <component
+            :is="advancedSelectionComponent"
+            v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
+            :initial-search-term="searchTerm"
+            :initial-selection="entityCollection"
+            v-bind="advancedSelectionParameters"
+            @modal-close="closeAdvancedSelectionModal"
+            @selection-submit="onAdvancedSelectionSubmit"
+        />
+        {% endblock %}
+
         <sw-select-selection-list
             ref="selectionList"
             :selections="visibleValues"
@@ -54,7 +66,20 @@
             {% block sw_entity_many_to_many_select_base_results_list %}
             {% block sw_entity_many_to_many_select_base_results_list_before %}
             <template #before-item-list>
+                {% block sw_entity_many_to_many_select_base_results_list_before_advanced_selection %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <div
+                    v-if="isAdvancedSelectionActive"
+                    class="sw-many-to-many-select-filtering__advanced-selection sw-select-result"
+                    @click="openAdvancedSelectionModal"
+                >
+                    {{ $tc('global.sw-entity-advanced-selection-modal.link') }}
+                </div>
+                {% endblock %}
+
+                {% block sw_entity_single_select_base_results_list_before_slot %}
                 <slot name="before-item-list"></slot>
+                {% endblock %}
             </template>
             {% endblock %}
 

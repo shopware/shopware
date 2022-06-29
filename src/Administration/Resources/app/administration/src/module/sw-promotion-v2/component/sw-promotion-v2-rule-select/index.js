@@ -55,6 +55,14 @@ Component.register('sw-promotion-v2-rule-select', {
         };
     },
 
+    computed: {
+        advanceSelectionParameters() {
+            return {
+                ruleAwareGroupKey: this.ruleAwareGroupKey,
+            };
+        },
+    },
+
     methods: {
         onChange(collection) {
             this.$emit('change', collection);

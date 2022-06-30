@@ -74,7 +74,7 @@ Component.register('sw-order-address-modal', {
 
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
-        }
+        },
     },
 
     created() {

@@ -177,6 +177,7 @@ build zip:
         - rm -rf "Resources/app/storefront/node_modules" || true
         - rm -rf vendor composer.lock || true
         - cd $CI_PROJECT_DIR/custom/plugins/$PLUGIN_NAME
+        - composer config --unset 'repositories.platform-packages'
         - plugin-uploader ext:zip --strategy=plain -- "$PWD"
         - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
         - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
@@ -236,6 +237,10 @@ phpstan:
               - phpstan.neon*
     script:
         - *install-dev-tools
+        - >
+          if [[ -r tests/TestBootstrap.php ]]; then
+              php tests/TestBootstrap.php
+          fi
         - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:

@@ -4,10 +4,12 @@ namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
@@ -75,6 +77,15 @@ class TestBootstrapper
         }
 
         return $this;
+    }
+
+    public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
+    {
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $kernel = new StaticAnalyzeKernel('test', true, $pluginLoader, 'phpstan-test-cache-id');
+        $kernel->boot();
+
+        return $kernel;
     }
 
     public function getClassLoader(): ClassLoader
@@ -249,7 +260,7 @@ class TestBootstrapper
             return $this->output;
         }
 
-        return $this->output = new ConsoleOutput();
+        return $this->output = new NullOutput();
     }
 
     public function setOutput(?OutputInterface $output): TestBootstrapper
@@ -345,19 +356,21 @@ class TestBootstrapper
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
 
-        $args = [
-            '--activate' => true,
-            '--reinstall' => true,
-            'plugins' => $this->activePlugins,
-        ];
+        foreach ($this->activePlugins as $activePlugin) {
+            $args = [
+                '--activate' => true,
+                '--reinstall' => true,
+                'plugins' => [$activePlugin],
+            ];
 
-        $returnCode = $installCommand->run(
-            new ArrayInput($args, $installCommand->getDefinition()),
-            $this->getOutput()
-        );
+            $returnCode = $installCommand->run(
+                new ArrayInput($args, $installCommand->getDefinition()),
+                $this->getOutput()
+            );
 
-        if ($returnCode !== 0) {
-            throw new \RuntimeException('system:install failed');
+            if ($returnCode !== 0) {
+                throw new \RuntimeException('system:install failed');
+            }
         }
 
         KernelLifecycleManager::bootKernel();

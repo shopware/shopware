@@ -1512,7 +1512,7 @@ class AppLifecycleTest extends TestCase
         $criteria->addSorting(new FieldSorting('path', FieldSorting::ASCENDING));
         $templates = $templateRepository->search($criteria, $this->context)->getEntities();
 
-        static::assertCount(2, $templates);
+        static::assertCount(3, $templates);
         $templates = array_values($templates->getElements());
 
         /** @var TemplateEntity $template */

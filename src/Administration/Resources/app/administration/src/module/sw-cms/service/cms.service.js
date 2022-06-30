@@ -1,5 +1,6 @@
 const { Application, Entity } = Shopware;
 const Criteria = Shopware.Data.Criteria;
+const utils = Shopware.Utils;
 
 Application.addServiceProvider('cmsService', () => {
     return {
@@ -11,6 +12,7 @@ Application.addServiceProvider('cmsService', () => {
         getCmsBlockRegistry,
         getEntityMappingTypes,
         getPropertyByMappingPath,
+        getCollectFunction,
     };
 });
 
@@ -35,7 +37,7 @@ function registerCmsElement(config) {
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = entity.name;
+                    const entityKey = `${entity.name}-${utils.createId()}`;
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
@@ -61,7 +63,7 @@ function registerCmsElement(config) {
                     return;
                 }
 
-                const entityKey = entity.name;
+                const entityKey = `${entity.name}-${utils.createId()}`;
                 if (!data[`entity-${entityKey}`]) {
                     return;
                 }
@@ -237,4 +239,40 @@ function getPropertyByMappingPath(entity, propertyPath) {
 
         return (obj.translated?.[key]) || obj[key];
     }, entity);
+}
+
+function getCollectFunction() {
+    return function collect(elem) {
+        const context = {
+            ...Shopware.Context.api,
+            inheritance: true,
+        };
+
+        const criteriaList = {};
+
+        Object.keys(elem.config).forEach((configKey) => {
+            if (['mapped', 'default'].includes(elem.config[configKey].source)) {
+                return;
+            }
+
+            const entity = elem.config[configKey].entity;
+
+            if (entity && elem.config[configKey].value) {
+                const entityKey = `${entity.name}-${utils.createId()}`;
+                const entityData = {
+                    value: [elem.config[configKey].value],
+                    key: configKey,
+                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(1, 25),
+                    ...entity,
+                };
+
+                entityData.searchCriteria.setIds(entityData.value);
+                entityData.context = context;
+
+                criteriaList[`entity-${entityKey}`] = entityData;
+            }
+        });
+
+        return criteriaList;
+    };
 }

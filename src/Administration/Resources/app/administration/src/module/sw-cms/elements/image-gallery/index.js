@@ -2,6 +2,8 @@ import './component';
 import './config';
 import './preview';
 
+const utils = Shopware.Utils;
+
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',
     label: 'sw-cms.elements.imageGallery.label',
@@ -72,7 +74,7 @@ Shopware.Service('cmsService').registerCmsElement({
                 return;
             }
 
-            const entityKey = entity.name;
+            const entityKey = `${entity.name}-${utils.createId()}`;
             if (!data[`entity-${entityKey}`]) {
                 return;
             }

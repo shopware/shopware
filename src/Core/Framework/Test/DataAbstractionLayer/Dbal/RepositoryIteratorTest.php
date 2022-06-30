@@ -64,7 +64,7 @@ class RepositoryIteratorTest extends TestCase
 
     public function testFetchIdAutoIncrement(): void
     {
-        /** @var EntityRepositoryInterface $systemConfigRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();

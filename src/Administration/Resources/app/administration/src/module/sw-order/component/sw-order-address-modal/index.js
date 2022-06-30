@@ -47,6 +47,7 @@ Component.register('sw-order-address-modal', {
             availableAddresses: [],
             selectedAddressId: 0,
             isLoading: false,
+            addressCustomFieldSets: [],
         };
     },
 
@@ -70,6 +71,10 @@ Component.register('sw-order-address-modal', {
         orderCustomer() {
             return this.order.orderCustomer;
         },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
     },
 
     created() {
@@ -81,6 +86,14 @@ Component.register('sw-order-address-modal', {
             if (this.orderCustomer && this.orderCustomer.customerId) {
                 this.getCustomerInfo();
             }
+
+            const customFieldSetCriteria = new Criteria(1, 25);
+            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
+                .addAssociation('customFields');
+
+            this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
+                this.addressCustomFieldSets = customFieldSets;
+            });
         },
 
         getCustomerInfo() {

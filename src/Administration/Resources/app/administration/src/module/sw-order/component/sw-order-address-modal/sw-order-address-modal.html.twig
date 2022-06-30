@@ -40,6 +40,11 @@
                     :customer="orderCustomer"
                     :countries="countries"
                 />
+                <sw-custom-field-set-renderer
+                    :entity="address"
+                    variant="tabs"
+                    :sets="addressCustomFieldSets"
+                />
                 {% endblock %}
             </div>
             <div v-if="active==='addresses'">

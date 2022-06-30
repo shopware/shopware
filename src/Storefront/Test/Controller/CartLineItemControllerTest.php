@@ -41,12 +41,12 @@ class CartLineItemControllerTest extends TestCase
     /**
      * @dataProvider productNumbers
      */
-    public function testAddProductByNumber(?string $productId, string $productNumber): void
+    public function testAddAndDeleteProductByNumber(?string $productId, string $productNumber, bool $available = true): void
     {
         $contextToken = Uuid::randomHex();
 
         $cartService = $this->getContainer()->get(CartService::class);
-        if ($productId) {
+        if ($productId && $available) {
             $this->createProduct($productId, $productNumber);
         }
         $request = $this->createRequest(['number' => $productNumber]);
@@ -54,9 +54,11 @@ class CartLineItemControllerTest extends TestCase
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $response = $this->getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
 
-        $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);
+        $cart = $cartService->getCart($contextToken, $salesChannelContext);
+
+        $cartLineItem = $cart->getLineItems()->get($productId);
         $flashBag = $this->getFlashBag()->all();
-        if ($productId) {
+        if ($productId && $available) {
             static::assertArrayHasKey('success', $flashBag);
             static::assertNotNull($cartLineItem);
         } else {
@@ -64,6 +66,25 @@ class CartLineItemControllerTest extends TestCase
             static::assertSame($this->getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashBag['danger'][0]);
             static::assertNull($cartLineItem);
         }
+        static::assertSame(200, $response->getStatusCode());
+
+        // Delete
+        if ($productId === null) {
+            return;
+        }
+
+        $response = $this->getContainer()->get(CartLineItemController::class)->deleteLineItem($cart, $productId, $request, $salesChannelContext);
+
+        $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);
+        $flashBag = $this->getFlashBag()->all();
+
+        if ($available) {
+            static::assertArrayHasKey('success', $flashBag);
+        } else {
+            static::assertArrayHasKey('danger', $flashBag);
+        }
+        static::assertNull($cartLineItem);
+
         static::assertSame(200, $response->getStatusCode());
     }
 
@@ -76,6 +97,7 @@ class CartLineItemControllerTest extends TestCase
             [Uuid::randomHex(), 'test_123'],
             [Uuid::randomHex(), 'testäüö123'],
             [Uuid::randomHex(), 'test/123'],
+            [Uuid::randomHex(), 'test/unavailableProduct', false],
             [null, 'nonExisting'],
             [null, 'with<br>HTML'],
         ];

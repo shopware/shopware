@@ -29,7 +29,6 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -775,40 +774,6 @@ class TestStopSendSubscriber implements EventSubscriberInterface
     {
         $this->event = $event;
         $event->stopPropagation();
-    }
-}
-
-/**
- * @internal
- */
-class TestStringTemplateRenderer extends StringTemplateRenderer
-{
-    /**
-     * @var array
-     */
-    public $templateData;
-
-    public function __construct()
-    {
-    }
-
-    public function initialize(): void
-    {
-    }
-
-    public function render(string $templateSource, array $data, Context $context): string
-    {
-        $this->templateData = $data;
-
-        return '';
-    }
-
-    public function enableTestMode(): void
-    {
-    }
-
-    public function disableTestMode(): void
-    {
     }
 }
 

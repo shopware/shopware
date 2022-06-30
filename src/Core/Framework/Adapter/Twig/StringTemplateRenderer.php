@@ -8,8 +8,12 @@ use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
 use Twig\Extension\CoreExtension;
+use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @final tag:v6.5.0
+ */
 class StringTemplateRenderer
 {
     private Environment $twig;
@@ -55,14 +59,29 @@ class StringTemplateRenderer
     }
 
     /**
+     * @param bool $htmlEscape - @deprecated tag:v6.5.0 parameter $htmlEscape will be added in v6.5.0.0
+     *
      * @throws StringTemplateRenderingException
      */
-    public function render(string $templateSource, array $data, Context $context): string
+    public function render(string $templateSource, array $data, Context $context /*, bool $htmlEscape = true */): string
     {
-        $name = md5($templateSource);
+        // @deprecated tag:v6.5.0 - Remove if/else
+        if (\func_num_args() === 4) {
+            $htmlEscape = (bool) func_get_arg(3);
+        } else {
+            $htmlEscape = true;
+        }
+
+        $name = md5($templateSource . !$htmlEscape);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 
         $this->twig->addGlobal('context', $context);
+
+        if ($this->twig->hasExtension(EscaperExtension::class)) {
+            /** @var EscaperExtension $escaperExtension */
+            $escaperExtension = $this->twig->getExtension(EscaperExtension::class);
+            $escaperExtension->setDefaultStrategy($htmlEscape ? 'html' : false);
+        }
 
         try {
             return $this->twig->render($name, $data);

@@ -4256,11 +4256,6 @@ parameters:
 			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
 
 		-
-			message: "#^Parameter \\#6 \\$salesChannelDefinition of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailService constructor expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:__construct\\(\\) has parameter \\$config with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
@@ -4384,16 +4379,6 @@ parameters:
 			message: "#^Cannot access offset 'system_default' on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:\\$calls has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\TestEmailService\\:\\:\\$data has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

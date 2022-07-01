@@ -24,6 +24,9 @@
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">custom/plugins/SwagCommercial</directory>
+            <directory suffix=".php">tests/php-integration</directory>
+            <directory suffix=".php">tests/php-unit</directory>
+
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>

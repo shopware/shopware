@@ -1,0 +1,15 @@
+{
+    "$schema":"./vendor/phpbench/phpbench/phpbench.schema.json",
+    "core.extensions": ["Shopware\\Tests\\Bench\\BenchExtension"],
+    "runner.bootstrap": "src/Core/TestBootstrap.php",
+    "runner.path": "tests/bench/Cases",
+    "runner.file_pattern": "*Bench.php",
+    "runner.iterations": 10,
+    "runner.revs": 3,
+    "report.generators": {
+        "compressed": {
+            "generator": "expression",
+            "cols": [ "benchmark", "subject", "mem_peak", "mode", "mean", "best", "worst" ]
+        }
+    }
+}

@@ -126,3 +126,4 @@ vendor-bin/**/composer.lock
 
 # nix
 .direnv/
+.phpbench/*

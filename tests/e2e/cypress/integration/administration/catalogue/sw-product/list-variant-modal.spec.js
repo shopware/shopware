@@ -110,7 +110,7 @@ describe('Product: Test variants', () => {
 
         // check delete modal has been closed
         cy.get('.sw-product-variant-modal__delete-modal')
-            .should('be.not.visible');
+            .should('not.be.visible');
 
         cy.awaitAndCheckNotification('Successfully deleted "Parent Product".');
 

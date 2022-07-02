@@ -75,6 +75,9 @@ class CartMergedSubscriberTest extends TestCase
         static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
+    /**
+     * @param array<string, mixed> $salesChannelData
+     */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId = null): SalesChannelContext
     {
         if ($customerId) {

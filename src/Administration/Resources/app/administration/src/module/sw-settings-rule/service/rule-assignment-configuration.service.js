@@ -150,6 +150,67 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 },
             ],
         },
+        tax_provider: {
+            id: 'tax_provider',
+            notAssignedDataTotal: 0,
+            allowAdd: true,
+            entityName: 'tax_provider',
+            label: 'sw-settings-rule.detail.associations.taxProviders',
+            criteria: () => {
+                const criteria = new Criteria(1, associationLimit);
+                criteria.addFilter(Criteria.equals('availabilityRuleId', ruleId));
+
+                return criteria;
+            },
+            detailRoute: 'sw.settings.tax.tax_provider.detail',
+            gridColumns: [
+                {
+                    property: 'name',
+                    label: 'Name',
+                    rawData: true,
+                    sortable: true,
+                    routerLink: 'sw.settings.tax.tax_provider.detail',
+                },
+                {
+                    property: 'active',
+                    label: 'Active',
+                    rawData: true,
+                    sortable: true,
+                    allowEdit: false,
+                },
+            ],
+            addContext: {
+                type: 'one-to-many',
+                entity: 'tax_provider',
+                column: 'availabilityRuleId',
+                searchColumn: 'name',
+                criteria: () => {
+                    const criteria = new Criteria(1, 25);
+                    criteria.addFilter(Criteria.not(
+                        'AND',
+                        [Criteria.equals('availabilityRuleId', ruleId)],
+                    ));
+
+                    return criteria;
+                },
+                gridColumns: [
+                    {
+                        property: 'name',
+                        label: 'Name',
+                        rawData: true,
+                        sortable: true,
+                        allowEdit: false,
+                    },
+                    {
+                        property: 'active',
+                        label: 'Active',
+                        rawData: true,
+                        sortable: true,
+                        allowEdit: false,
+                    },
+                ],
+            },
+        },
         payment_method: {
             id: 'payment_method',
             associationName: 'paymentMethods',

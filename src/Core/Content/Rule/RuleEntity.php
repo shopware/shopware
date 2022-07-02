@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
  * @package business-ops
@@ -126,6 +127,8 @@ class RuleEntity extends Entity
      * @var PromotionCollection|null
      */
     protected $cartPromotions;
+
+    protected ?TaxProviderCollection $taxProviders = null;
 
     public function getName(): string
     {
@@ -371,5 +374,15 @@ class RuleEntity extends Entity
     public function setCartPromotions(PromotionCollection $cartPromotions): void
     {
         $this->cartPromotions = $cartPromotions;
+    }
+
+    public function getTaxProviders(): ?TaxProviderCollection
+    {
+        return $this->taxProviders;
+    }
+
+    public function setTaxProviders(TaxProviderCollection $taxProviders): void
+    {
+        $this->taxProviders = $taxProviders;
     }
 }

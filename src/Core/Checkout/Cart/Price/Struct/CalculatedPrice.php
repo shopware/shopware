@@ -38,7 +38,7 @@ class CalculatedPrice extends Struct
     protected $taxRules;
 
     /**
-     * @var ReferencePrice
+     * @var ReferencePrice|null
      */
     protected $referencePrice;
 
@@ -80,6 +80,11 @@ class CalculatedPrice extends Struct
     public function getCalculatedTaxes(): CalculatedTaxCollection
     {
         return $this->calculatedTaxes;
+    }
+
+    public function setCalculatedTaxes(CalculatedTaxCollection $calculatedTaxes): void
+    {
+        $this->calculatedTaxes = $calculatedTaxes;
     }
 
     public function getTaxRules(): TaxRuleCollection

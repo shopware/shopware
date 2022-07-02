@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -256,6 +257,37 @@ class StorefrontCartFacadeTest extends TestCase
         static::assertEquals($controlCart, $returnedCart);
     }
 
+    public function testCartServiceIsCalledTaxedAndWithNoCaching(): void
+    {
+        $cartService = static::createMock(CartService::class);
+        $cartService
+            ->expects(static::once())
+            ->method('getCart')
+            ->with(
+                'token',
+                static::isInstanceOf(SalesChannelContext::class),
+                CartService::SALES_CHANNEL,
+                false,
+                true
+            );
+
+        $cartFacade = new StorefrontCartFacade(
+            $cartService,
+            static::createMock(BlockedShippingMethodSwitcher::class),
+            static::createMock(BlockedPaymentMethodSwitcher::class),
+            static::createMock(ContextSwitchRoute::class),
+            static::createMock(CartCalculator::class),
+            static::createMock(AbstractCartPersister::class),
+        );
+
+        $cartFacade->get(
+            'token',
+            static::createMock(SalesChannelContext::class),
+            false,
+            true
+        );
+    }
+
     public function callbackShippingMethodSwitcherReturnOriginalMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
     {
         return $salesChannelContext->getShippingMethod();
@@ -359,10 +391,12 @@ class StorefrontCartFacadeTest extends TestCase
             (new LineItem('line-item-id-1', 'line-item-type-1'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-1')
+                ->assign(['uniqueIdentifier' => 'line-item-id-1'])
         )->add(
             (new LineItem('line-item-id-2', 'line-item-type-2'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-2')
+                ->assign(['uniqueIdentifier' => 'line-item-id-2'])
         );
 
         return $cart;

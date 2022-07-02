@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @package checkout
@@ -75,6 +76,11 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
+     * Used as a unique id to identify a line item over multiple nested levels
+     */
+    protected string $uniqueIdentifier;
+
+    /**
      * @var array<int, string>
      */
     protected array $states = [];
@@ -85,6 +91,7 @@ class LineItem extends Struct
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
     {
         $this->id = $id;
+        $this->uniqueIdentifier = Uuid::randomHex();
         $this->type = $type;
         $this->children = new LineItemCollection();
 
@@ -471,6 +478,11 @@ class LineItem extends Struct
     public function setDataContextHash(?string $dataContextHash): void
     {
         $this->dataContextHash = $dataContextHash;
+    }
+
+    public function getUniqueIdentifier(): string
+    {
+        return $this->uniqueIdentifier;
     }
 
     /**

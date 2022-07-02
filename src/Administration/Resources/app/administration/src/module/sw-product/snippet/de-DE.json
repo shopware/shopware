@@ -83,7 +83,7 @@
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter",
       "taxRateHelpText": {
-        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
+        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Wenn Du einen Steuerservice-Anbieter (Tax Provider) aktiviert hast, könnte der hier festgelegte Steuersatz überschrieben werden. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
         "linkText": "Einstellungen"
       }
     },

@@ -154,7 +154,7 @@ class PromotionEntity extends Entity
     protected $orderCount;
 
     /**
-     * @var array|null
+     * @var array<string, int>|null
      */
     protected $ordersPerCustomerCount;
 
@@ -442,11 +442,17 @@ class PromotionEntity extends Entity
         $this->orderCount = $orderCount;
     }
 
+    /**
+     * @return array<string, int>|null
+     */
     public function getOrdersPerCustomerCount(): ?array
     {
         return $this->ordersPerCustomerCount;
     }
 
+    /**
+     * @param array<string, int> $ordersPerCustomerCount
+     */
     public function setOrdersPerCustomerCount(array $ordersPerCustomerCount): void
     {
         $this->ordersPerCustomerCount = $ordersPerCustomerCount;
@@ -517,6 +523,9 @@ class PromotionEntity extends Entity
         $this->translations = $translations;
     }
 
+    /**
+     * @return string[]
+     */
     public function getExclusionIds(): array
     {
         if ($this->exclusionIds === null) {
@@ -577,7 +586,10 @@ class PromotionEntity extends Entity
                 $personaRuleOR = new OrRule();
 
                 foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
-                    $personaRuleOR->addRule($ruleEntity->getPayload());
+                    $payload = $ruleEntity->getPayload();
+                    if ($payload instanceof Rule) {
+                        $personaRuleOR->addRule($payload);
+                    }
                 }
 
                 $requirements->addRule($personaRuleOR);
@@ -588,7 +600,10 @@ class PromotionEntity extends Entity
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
-                $cartOR->addRule($ruleEntity->getPayload());
+                $payload = $ruleEntity->getPayload();
+                if ($payload instanceof Rule) {
+                    $cartOR->addRule($payload);
+                }
             }
 
             $requirements->addRule($cartOR);
@@ -623,7 +638,10 @@ class PromotionEntity extends Entity
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
-                $orderOR->addRule($ruleEntity->getPayload());
+                $payload = $ruleEntity->getPayload();
+                if ($payload instanceof Rule) {
+                    $orderOR->addRule($payload);
+                }
             }
 
             $requirements->addRule($orderOR);

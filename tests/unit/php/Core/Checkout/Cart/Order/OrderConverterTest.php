@@ -322,12 +322,14 @@ class OrderConverterTest extends TestCase
         unset($result['token']);
         for ($i = 0; $i < \count($result['lineItems']); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
+            unset($result['lineItems'][$i]['uniqueIdentifier']);
         }
 
         for ($i = 0; $i < \count($result['deliveries']); ++$i) {
             unset($result['deliveries'][$i]['deliveryDate']);
             for ($f = 0; $f < \count($result['deliveries'][$i]['positions']); ++$f) {
                 unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
+                unset($result['deliveries'][$i]['positions'][$f]['lineItem']['uniqueIdentifier']);
             }
         }
 
@@ -354,6 +356,7 @@ class OrderConverterTest extends TestCase
         unset($result['token']);
         for ($i = 0; $i < \count($result['lineItems']); ++$i) {
             unset($result['lineItems'][$i]['extensions']['originalId']);
+            unset($result['lineItems'][$i]['uniqueIdentifier']);
         }
 
         for ($i = 0; $i < \count($result['deliveries']); ++$i) {

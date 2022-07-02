@@ -56,9 +56,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo(): MetaInfo {
         return {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            title: this.$createTitle() as string,
+            title: this.$createTitle(),
         };
     },
 

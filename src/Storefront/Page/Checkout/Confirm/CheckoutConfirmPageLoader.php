@@ -80,7 +80,7 @@ class CheckoutConfirmPageLoader
         $page->setPaymentMethods($this->getPaymentMethods($context));
         $page->setShippingMethods($this->getShippingMethods($context));
 
-        $cart = $this->cartService->get($context->getToken(), $context);
+        $cart = $this->cartService->get($context->getToken(), $context, false, true);
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 

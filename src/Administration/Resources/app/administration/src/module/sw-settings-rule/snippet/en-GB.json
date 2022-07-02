@@ -107,7 +107,8 @@
         "promotionDiscountRules": "Promotion discount product rules",
         "promotionGroupRules": "Promotion set group rules",
         "shippingMethodAvailabilityRule": "Shipping method availability rules",
-        "flows": "Flow Builders"
+        "flows": "Flow Builders",
+        "taxProviders": "Tax Providers"
       },
       "typeHasNoAssociations": "No rules assigned",
       "hasNoAssociations": "This rule is not in use",

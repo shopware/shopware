@@ -76,6 +76,9 @@ class PayloadService
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context): array
     {
         $payload->setSource($this->buildSource($app));
@@ -117,6 +120,9 @@ class PayloadService
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function encode(SourcedPayloadInterface $payload): array
     {
         $array = $payload->jsonSerialize();
@@ -146,6 +152,9 @@ class PayloadService
         return $array;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function encodeEntity(Entity $entity): array
     {
         $definition = $this->definitionRegistry->getByEntityName($entity->getApiAlias());

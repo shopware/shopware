@@ -9,3 +9,36 @@ $sw-settings-tax-list-color-success: $color-emerald-500;
         }
     }
 }
+
+.sw-settings-tax-provider-list-content {
+    &__bg {
+        background: $color-gray-100;
+        text-align: right;
+        height: 81px;
+        padding: 20px;
+    }
+
+    .sw-tax-provider-items {
+        padding: 30px;
+    }
+
+    .sw-tax-provider-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        align-items: center;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        margin-bottom: 16px;
+        column-gap: 16px;
+        padding: 10px 16px;
+        font-size: $font-size-xs;
+
+        .sw-tax-provider__link {
+            text-align: right;
+        }
+
+        .sw-field--switch {
+            margin: 0;
+        }
+    }
+}

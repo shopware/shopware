@@ -347,7 +347,7 @@ PHP Full:
                 rm -rf tests/integration/php/Administration
                 rm -rf tests/integration/php/Elasticsearch
                 rm -rf tests/integration/php/Storefront
-                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", ."autoload-dev", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
+                jq 'del(.replace."shopware/storefront", .replace."shopware/administration", .replace."shopware/elasticsearch", .autoload."psr-4"."Shopware\\\\Administration\\\\", .autoload."psr-4"."Shopware\\\\Storefront\\\\", .autoload."psr-4"."Shopware\\\\Elasticsearch\\\\")' composer.json > composer.json.tmp && mv composer.json.tmp composer.json
                 composer dump-autoload
             fi
         - FAILED=0

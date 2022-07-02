@@ -24,9 +24,15 @@ class AssetInstallCommandTest extends TestCase
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDirectory('bundles/test');
 
-        $fixturePath = realpath(__DIR__ . '/../../App/Manifest/_fixtures/test');
-        $relativeFixturePath = ltrim(
-            str_replace($this->getContainer()->getParameter('kernel.project_dir'), '', $fixturePath),
+        $fixturePath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+        $fixturePath = \realpath($fixturePath);
+        static::assertNotFalse($fixturePath);
+
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        static::assertNotFalse($projectDir);
+
+        $relativeFixturePath = \ltrim(
+            \str_replace($projectDir, '', $fixturePath),
             '/'
         );
 

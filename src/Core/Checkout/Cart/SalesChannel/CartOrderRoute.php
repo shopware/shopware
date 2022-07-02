@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
+use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -43,6 +44,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     private PreparedPaymentService $preparedPaymentService;
 
+    private TaxProviderProcessor $taxProviderProcessor;
+
     /**
      * @internal
      */
@@ -52,7 +55,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         OrderPersisterInterface $orderPersister,
         AbstractCartPersister $cartPersister,
         EventDispatcherInterface $eventDispatcher,
-        PreparedPaymentService $preparedPaymentService
+        PreparedPaymentService $preparedPaymentService,
+        TaxProviderProcessor $taxProviderProcessor
     ) {
         $this->cartCalculator = $cartCalculator;
         $this->orderRepository = $orderRepository;
@@ -60,6 +64,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->cartPersister = $cartPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->preparedPaymentService = $preparedPaymentService;
+        $this->taxProviderProcessor = $taxProviderProcessor;
     }
 
     public function getDecorated(): AbstractCartOrderRoute
@@ -77,6 +82,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $context->addState('checkout-order-route');
 
         $calculatedCart = $this->cartCalculator->calculate($cart, $context);
+        $this->taxProviderProcessor->process($calculatedCart, $context);
 
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);

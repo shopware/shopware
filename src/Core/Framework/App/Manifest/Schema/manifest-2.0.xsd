@@ -111,6 +111,17 @@
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="tax" type="tax" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register tax providers your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueTaxProviderName">
+                        <xs:selector xpath="tax-provider"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -490,6 +501,19 @@
             <xs:element type="xs:string" name="group"/>
             <xs:element type="xs:string" name="script"/>
             <xs:element name="constraints" maxOccurs="unbounded" type="custom-field-list"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="tax">
+        <xs:sequence>
+            <xs:element name="tax-provider" type="tax-provider" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tax-provider">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:int" name="priority"/>
+            <xs:element type="xs:anyURI" name="process-url"/>
         </xs:choice>
     </xs:complexType>
 </xs:schema>

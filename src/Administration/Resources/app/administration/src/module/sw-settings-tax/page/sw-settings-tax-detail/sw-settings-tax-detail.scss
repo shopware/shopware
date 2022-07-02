@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-settings-tax-detail {
     position: relative;
 
@@ -14,6 +16,21 @@
 
         .sw-field {
             margin-right: 20px;
+        }
+    }
+
+    .sw-settings-tax-detail-tax-provider-info {
+        &.sw-alert {
+            max-width: $content-width;
+            margin: 0 auto 40px;
+
+            @media screen and (max-width: 1360px) {
+                max-width: 770px;
+            }
+
+            &.sw-alert--info {
+                color: $color-shopware-brand-500;
+            }
         }
     }
 }

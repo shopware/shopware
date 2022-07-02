@@ -15,6 +15,7 @@ class CartPrice extends Struct
     public const TAX_STATE_GROSS = 'gross';
     public const TAX_STATE_NET = 'net';
     public const TAX_STATE_FREE = 'tax-free';
+    public const TAX_STATE_EXTERNAL = 'external';
 
     /**
      * @var float
@@ -83,6 +84,11 @@ class CartPrice extends Struct
     public function getCalculatedTaxes(): CalculatedTaxCollection
     {
         return $this->calculatedTaxes;
+    }
+
+    public function setCalculatedTaxes(CalculatedTaxCollection $calculatedTaxes): void
+    {
+        $this->calculatedTaxes = $calculatedTaxes;
     }
 
     public function getTaxRules(): TaxRuleCollection

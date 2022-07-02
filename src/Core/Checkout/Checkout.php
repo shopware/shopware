@@ -33,5 +33,9 @@ class Checkout extends Bundle
         $loader->load('rule.xml');
         $loader->load('promotion.xml');
         $loader->load('shipping.xml');
+
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $loader->load('services_test.xml');
+        }
     }
 }

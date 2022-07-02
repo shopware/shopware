@@ -90,7 +90,8 @@ class CartService implements ResetInterface
         string $token,
         SalesChannelContext $context,
         string $name = self::SALES_CHANNEL,
-        bool $caching = true
+        bool $caching = true,
+        bool $taxed = false
     ): Cart {
         if ($caching && isset($this->cart[$token])) {
             return $this->cart[$token];
@@ -99,6 +100,7 @@ class CartService implements ResetInterface
         $request = new Request();
         $request->query->set('name', $name);
         $request->query->set('token', $token);
+        $request->query->set('taxed', $taxed);
 
         $cart = $this->loadRoute->load($request, $context)->getCart();
 

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -82,6 +83,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private PaymentMethodPersister $paymentMethodPersister;
 
+    private TaxProviderPersister $taxProviderPersister;
+
     private RuleConditionPersister $ruleConditionPersister;
 
     private CmsBlockPersister $cmsBlockPersister;
@@ -117,6 +120,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ScriptPersister $scriptPersister,
         WebhookPersister $webhookPersister,
         PaymentMethodPersister $paymentMethodPersister,
+        TaxProviderPersister $taxProviderPersister,
         RuleConditionPersister $ruleConditionPersister,
         CmsBlockPersister $cmsBlockPersister,
         AbstractAppLoader $appLoader,
@@ -142,6 +146,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customFieldPersister = $customFieldPersister;
         $this->webhookPersister = $webhookPersister;
         $this->paymentMethodPersister = $paymentMethodPersister;
+        $this->taxProviderPersister = $taxProviderPersister;
         $this->ruleConditionPersister = $ruleConditionPersister;
         $this->cmsBlockPersister = $cmsBlockPersister;
         $this->appLoader = $appLoader;
@@ -288,6 +293,8 @@ class AppLifecycle extends AbstractAppLifecycle
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
+            $this->taxProviderPersister->updateTaxProviders($manifest, $id, $defaultLocale, $context);
+
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 

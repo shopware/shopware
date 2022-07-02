@@ -173,12 +173,16 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
     private function insertAppWithModule(string $name, ?array $modules): string
     {
         $appId = Uuid::randomHex();
+
+        $path = \realpath(__DIR__ . '/../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test');
+        static::assertNotFalse($path);
+
         $this->appRepository->create([
             [
                 'id' => $appId,
                 'name' => $name,
                 'label' => $name,
-                'path' => realpath(__DIR__ . '/../../Framework/Test/App/Manifest/_fixtures/test'),
+                'path' => $path,
                 'active' => true,
                 'modules' => $modules,
                 'version' => '1.0.0',

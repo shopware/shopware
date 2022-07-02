@@ -59,6 +59,7 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationCollection;
 use Shopware\Core\System\StateMachine\StateMachineTranslationCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
+use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
 /**
@@ -373,6 +374,8 @@ class LanguageEntity extends Entity
      * @var AppFlowActionTranslationCollection|null
      */
     protected $appFlowActionTranslations;
+
+    protected ?TaxProviderTranslationCollection $taxProviderTranslations = null;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -1011,5 +1014,15 @@ class LanguageEntity extends Entity
     public function getApiAlias(): string
     {
         return 'language';
+    }
+
+    public function getTaxProviderTranslations(): ?TaxProviderTranslationCollection
+    {
+        return $this->taxProviderTranslations;
+    }
+
+    public function setTaxProviderTranslations(TaxProviderTranslationCollection $taxProviderTranslations): void
+    {
+        $this->taxProviderTranslations = $taxProviderTranslations;
     }
 }

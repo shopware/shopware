@@ -171,4 +171,12 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             </constraints>
         </rule-condition>
     </rule-conditions>
+    <tax>
+        <tax-provider>
+            <identifier>myTaxProvider</identifier>
+            <name>My tax provider</name>
+            <priority>1</priority>
+            <process-url>https://tax-provider.app/process</process-url>
+        </tax-provider>
+    </tax>
 </manifest>

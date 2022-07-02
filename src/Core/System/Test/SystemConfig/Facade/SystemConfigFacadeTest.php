@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\Script\Execution\SalesChannelTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -58,6 +58,9 @@ class SystemConfigFacadeTest extends TestCase
         static::assertEquals($result, $facade->get('test.value', $salesChannelId));
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function getWithoutAppCases(): array
     {
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)

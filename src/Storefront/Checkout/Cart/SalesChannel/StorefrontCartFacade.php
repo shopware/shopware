@@ -56,9 +56,11 @@ class StorefrontCartFacade
 
     public function get(
         string $token,
-        SalesChannelContext $originalContext
+        SalesChannelContext $originalContext,
+        bool $caching = true,
+        bool $taxed = false
     ): Cart {
-        $originalCart = $this->cartService->getCart($token, $originalContext);
+        $originalCart = $this->cartService->getCart($token, $originalContext, CartService::SALES_CHANNEL, $caching, $taxed);
         $cartErrors = $originalCart->getErrors();
         if (!$this->cartContainsBlockedMethods($cartErrors)) {
             return $originalCart;

@@ -1,3 +1,4 @@
+{% set treeItem = item %}
 {% set isActive = treeItem.category.id == activeId %}
 {% set hasChildren = treeItem.category.visibleChildCount > 0 %}
 {% set url = category_url(treeItem.category) %}

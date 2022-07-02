@@ -1,3 +1,4 @@
+{% set treeItem = item %}
 {% if treeItem.parentId == context.salesChannel.navigationCategoryId %}
     {% set url = path('frontend.menu.offcanvas') %}
 {% else %}

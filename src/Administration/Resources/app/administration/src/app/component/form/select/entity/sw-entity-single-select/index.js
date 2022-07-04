@@ -124,6 +124,11 @@ Component.register('sw-entity-single-select', {
                 return {};
             },
         },
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
         shouldShowActiveState: {
             type: Boolean,
             required: false,

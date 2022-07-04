@@ -1,6 +1,6 @@
 ---
 title: Optimize Delete queries on cart and version tables
-issue: Issue-2532
+issue: next-22163
 author: Micha Hobert
 author_email: info@the-cake-shop.de
 author_github: Isengo1989

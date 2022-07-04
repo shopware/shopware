@@ -57,7 +57,7 @@ describe('Review: Test ACL privileges', () => {
 
         // open review
         cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('.sw-data-grid__cell--title', 'Bestes Produkt')
+            .contains('.sw-data-grid__cell--title a', 'Bestes Produkt')
             .click();
 
         // check review values
@@ -89,7 +89,7 @@ describe('Review: Test ACL privileges', () => {
 
         // open review
         cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('.sw-data-grid__cell--title', 'Bestes Produkt')
+            .contains('.sw-data-grid__cell--title a', 'Bestes Produkt')
             .click();
 
         cy.get('#sw-field--review-comment').type('My description');

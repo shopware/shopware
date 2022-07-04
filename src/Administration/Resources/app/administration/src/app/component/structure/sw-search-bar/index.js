@@ -425,6 +425,10 @@ Component.register('sw-search-bar', {
             }
         },
 
+        _isEmptyObject(value) {
+            return !(typeof value === 'object' && Object.keys(value).length > 0);
+        },
+
         doListSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
             this.$emit('search', searchTerm);
@@ -447,7 +451,7 @@ Component.register('sw-search-bar', {
                 this.showResultsContainer = false;
                 this.showResultsSearchTrends = false;
             }
-        }, 750),
+        }, 30),
 
         doGlobalSearchWithElasticSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
@@ -484,15 +488,32 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
-            const queries = this.searchRankingService.buildGlobalSearchQueries(
-                this.userSearchPreference,
-                searchTerm,
-                this.criteriaCollection,
-                this.searchLimit + 1,
-                0,
-            );
-            const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
+            const useElastic = true;
+
+            let response;
+
+            if (useElastic) {
+                const names = [];
+                Object.keys(this.userSearchPreference).forEach((key) => {
+                    if (this._isEmptyObject(this.userSearchPreference[key])) {
+                        return;
+                    }
+                    names.push(key);
+                });
+
+                response = await this.searchService.elastic(searchTerm, names, { 'sw-inheritance': true });
+            } else {
+                // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
+                const queries = this.searchRankingService.buildGlobalSearchQueries(
+                    this.userSearchPreference,
+                    searchTerm,
+                    this.criteriaCollection,
+                    this.searchLimit + 1,
+                    0
+                );
+                response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
+            }
+
             const data = response.data;
 
             if (!data) {

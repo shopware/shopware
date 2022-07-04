@@ -215,6 +215,15 @@ parameters:
             count: 2
             path: src/Storefront/Theme/ThemeService.php
 
+        # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
+        - '#Trait .* is used zero times and is not analysed.#'
+
+        # Bug in Phpstan Symfony: https://github.com/phpstan/phpstan-symfony/issues/286
+        -
+            message: '#Parameter \#1 \$expected of static method PHPUnit\\Framework\\Assert::assertSame\(\) contains unresolvable type#'
+            count: 4
+            path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule

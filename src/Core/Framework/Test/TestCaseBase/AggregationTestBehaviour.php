@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
+ */
 trait AggregationTestBehaviour
 {
     public function setupFixtures(Context $context): array

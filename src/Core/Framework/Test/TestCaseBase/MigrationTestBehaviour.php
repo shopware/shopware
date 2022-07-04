@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
 
+/**
+ * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
+ */
 trait MigrationTestBehaviour
 {
     use KernelTestBehaviour;

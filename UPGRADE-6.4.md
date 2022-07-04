@@ -1,6 +1,154 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.13.0
+## Added new plugin config field
+
+Now you can declare a config field in your plugin `config.xml` to be available as scss variable.
+The new tag is `<css>` and takes the name of the scss variable as its value.
+
+```xml
+<input-field>
+    <name>myPluginBackgroundcolor</name>
+    <label>Backgroundcolor</label>
+    <label lang="de-DE">Hintergrundfarbe</label>
+    <css>my-plugin-background-color</css>
+    <defaultValue>#eee</defaultValue>
+</input-field>
+
+```
+## Add support for Bootstrap v5 OffCanvas
+
+Bootstrap has released a new OffCanvas component in version 5. To stick more towards the Bootstrap framework in the Storefront,
+we have decided to migrate our custom OffCanvas solution to the Bootstrap v5 OffCanvas component.
+
+Find out more about the Bootstrap OffCanvas here: https://getbootstrap.com/docs/5.1/components/offcanvas/
+
+In general, the changes are mostly done internally, so that interacting with the OffCanvas via JavaScript can remain the same.
+However, when the major flag `V6_5_0_0` is activated, the OffCanvas module will open a Bootstrap OffCanvas with slightly different elements/classes.
+
+Let's take a look at an example, which opens an OffCanvas using our OffCanvas module `src/plugin/offcanvas/offcanvas.plugin`:
+```js
+import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+
+// No need for changes in general usage!
+OffCanvas.open(
+    'My content', // Content to render inside the OffCanvas
+    () => {},     // Callback function to run after opening the OffCanvas
+    'right',      // Position
+    true,         // Can be closed via the backdrop
+    100,          // Delay
+    true,         // Full-width OffCanvas
+    'my-class'    // Additional CSS classes for the OffCanvas element
+);
+```
+The above example, will work as expected, but it will yield different HTML in the DOM:
+
+**Opened OffCanvas with current implementation**
+```html
+<div class="offcanvas is-right is-open">
+    My content
+</div>
+<div class="modal-backdrop modal-backdrop-open"></div>
+```
+
+**Opened OffCanvas with Bootstrap v5 (V6_5_0_0=true)**
+```html
+<!-- `right` is now called `end` in Bootstrap v5. This will be converted automatically. -->
+<!-- `show` is now used instead of `is-open` to indicate the active state. -->
+<div class="offcanvas offcanvas-end show" style="visibility: visible;" aria-modal="true" role="dialog">
+    My content
+</div>
+
+<!-- Bootstrap v5 uses a dedicated backdrop for the OffCanvas. -->
+<div class="offcanvas-backdrop fade show"></div>
+```
+
+Furthermore, Bootstrap v5 needs slightly different HTML inside the OffCanvas itself. This needs to be considered,
+if you inject your HTML manually via JavaScript:
+
+```js
+import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import Feature from 'src/helper/feature.helper';
+
+let offCanvasContent;
+
+// OffCanvas now needs additional `offcanvas-header`
+// Content class `offcanvas-content-container` is now `offcanvas-body`
+if (Feature.isActive('v6.5.0.0')) {
+    offCanvasContent = `
+    <div class="offcanvas-header p-0">
+        <button class="btn btn-light offcanvas-close js-offcanvas-close btn-block sticky-top">
+            Close
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        Content
+    </div>
+    `;
+} else {
+    offCanvasContent = `
+    <button class="btn btn-light offcanvas-close js-offcanvas-close btn-block sticky-top">
+        Close
+    </button>
+    <div class="offcanvas-content-container">
+        Content
+    </div>
+    `;
+}
+
+// No need for changes in general usage!
+OffCanvas.open(
+    offCanvasContent // Use altered HTML, if Bootstrap v5 is used
+);
+```
+
+If you use `src/plugin/offcanvas/ajax-offcanvas.plugin` with a response which is based on `Resources/views/storefront/utilities/offcanvas.html.twig`, 
+you don't need to change anything. The markup inside the OffCanvas twig file is adjusted automatically to Bootstrap v5 markup.
+## Removed repository decorators
+The following repository decorator classes will be removed with the next major:
+* `MediaRepositoryDecorator`
+* `MediaThumbnailRepositoryDecorator`
+* `MediaFolderRepositoryDecorator`
+* `PaymentMethodRepositoryDecorator`
+
+If you use one of the repository and type hint against this specific classes, you have to change you type hints to `EntityRepository`:
+
+### Before
+```php
+private MediaRepositoryDecorator $mediaRepository;
+```
+
+### After
+```php
+private EntityRepositoryInterface $mediaRepository;
+```
+
+## Thumbnail repository flat ids delete
+The `media_thumbnail.repository` had an own implementation of the `EntityRepository`(`MediaThumbnailRepositoryDecorator`) which breaks the nested primary key pattern for the `delete` call and allows providing flat id arrays. If you use the repository in this way, you have to change the usage as follow:
+
+### Before
+```php
+$repository->delete([$id1, $id2], $context);
+```
+
+### After
+```php
+$repository->delete([
+    ['id' => $id1], 
+    ['id' => $id2]
+], $context);
+```
+
+## `@internal` entity repositories
+We marked the `EntityRepositoryInterface` & `SalesChannelRepositoryInterface` classes as `@deprecated` and will be removed and the `EntityRepository` & `SalesChannelRepository` as final, to be able to release future optimizations more easily. Therefor if you implement an own repository class for your entities, you have to remove this. To modify the repository calls you can use one of the following events:
+* `BeforeDeleteEvent`: Allows an access point for before and after deleting the entity
+* `EntitySearchedEvent`: Allows access points to the criteria for search and search-ids
+* `PreWriteValidationEvent`/`PostWriteValidationEvent`: Allows access points before and after the entity written
+* `SalesChannelProcessCriteriaEvent`: Allows access to the criteria before the entity is search within a sales channel scope
+
+Additionally, you have to change your type hints from `EntityRepositoryInterface` to `EntityRepository` or `SalesChannelRepository`:
+
 # 6.4.12.0
 ## Refactoring of storefront line item twig templates
 

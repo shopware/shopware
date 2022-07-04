@@ -60,6 +60,14 @@ Component.register('sw-order-address-modal', {
             return criteria;
         },
 
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
+            criteria.addAssociation('customFields');
+
+            return criteria;
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -87,13 +95,7 @@ Component.register('sw-order-address-modal', {
                 this.getCustomerInfo();
             }
 
-            const customFieldSetCriteria = new Criteria(1, 25);
-            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
-                .addAssociation('customFields');
-
-            this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
-                this.addressCustomFieldSets = customFieldSets;
-            });
+            this.getCustomFieldSetData();
         },
 
         getCustomerInfo() {
@@ -161,6 +163,12 @@ Component.register('sw-order-address-modal', {
                 }
             }).finally(() => {
                 this.isLoading = false;
+            });
+        },
+
+        getCustomFieldSetData() {
+            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((response) => {
+                this.addressCustomFieldSets = response;
             });
         },
     },

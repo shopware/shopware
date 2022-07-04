@@ -35,7 +35,7 @@ class Entity extends Struct
     protected $updatedAt;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $_entityName;
 
@@ -103,7 +103,7 @@ class Entity extends Struct
             return $this->getExtension($property);
         }
 
-        /** @var ArrayStruct|null $extension */
+        /** @var ArrayStruct<string, mixed>|null $extension */
         $extension = $this->getExtension('foreignKeys');
         if ($extension && $extension instanceof ArrayStruct && $extension->has($property)) {
             return $extension->get($property);
@@ -130,6 +130,9 @@ class Entity extends Struct
         return $this->translated;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getTranslation(string $field)
     {
         return $this->translated[$field] ?? null;
@@ -140,6 +143,9 @@ class Entity extends Struct
         $this->translated = $translated;
     }
 
+    /**
+     * @param mixed $value
+     */
     public function addTranslated(string $key, $value): void
     {
         $this->translated[$key] = $value;
@@ -211,11 +217,16 @@ class Entity extends Struct
         $class = explode('\\', $class);
         $class = end($class);
 
-        return $this->_entityName = preg_replace(
+        /** @var string $entityName */
+        $entityName = preg_replace(
             '/_entity$/',
             '',
             ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_')
         );
+
+        $this->_entityName = $entityName;
+
+        return $entityName;
     }
 
     /**

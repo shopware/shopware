@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 class ProductDetailRouteResponse extends StoreApiResponse
 {
     /**
-     * @var ArrayStruct
+     * @var ArrayStruct<string, mixed>
      */
     protected $object;
 
@@ -22,6 +22,9 @@ class ProductDetailRouteResponse extends StoreApiResponse
         ], 'product_detail'));
     }
 
+    /**
+     * @return ArrayStruct<string, mixed>
+     */
     public function getResult(): ArrayStruct
     {
         return $this->object;

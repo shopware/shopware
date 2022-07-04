@@ -78,7 +78,7 @@ class EntityHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($normal), $first->get('normalFk'));
 
         static::assertTrue($first->hasExtension(EntityReader::FOREIGN_KEYS));
-        /** @var ArrayStruct|null $foreignKeys */
+        /** @var ArrayStruct<string, mixed>|null $foreignKeys */
         $foreignKeys = $first->getExtension(EntityReader::FOREIGN_KEYS);
 
         static::assertInstanceOf(ArrayStruct::class, $foreignKeys);

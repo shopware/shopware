@@ -50,6 +50,14 @@ abstract class Rule extends Struct
      */
     abstract public function getConstraints(): array;
 
+    /**
+     * Get the config which contains operators and fields to be rendered in the admin.
+     */
+    public function getConfig(): ?RuleConfig
+    {
+        return null;
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();

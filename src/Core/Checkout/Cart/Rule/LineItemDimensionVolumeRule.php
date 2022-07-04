@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -57,6 +58,13 @@ class LineItemDimensionVolumeRule extends Rule
             'operator' => RuleConstraints::numericOperators(false),
             'amount' => RuleConstraints::float(),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->numberField('amount', ['unit' => RuleConfig::UNIT_VOLUME]);
     }
 
     /**

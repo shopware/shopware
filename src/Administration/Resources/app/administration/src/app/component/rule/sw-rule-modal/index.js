@@ -2,7 +2,7 @@ import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { EntityCollection } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -19,6 +19,8 @@ Component.register('sw-rule-modal', {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
+        'ruleConditionsConfigApiService',
+        'feature',
     ],
 
     mixins: [
@@ -58,8 +60,12 @@ Component.register('sw-rule-modal', {
             );
         },
 
+        appScriptConditionRepository() {
+            return this.repositoryFactory.create('app_script_condition');
+        },
+
         modalTitle() {
-            if (this.rule.isNew()) {
+            if (!this.rule || this.rule.isNew()) {
                 return this.$tc('sw-rule-modal.modalTitleNew');
             }
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
@@ -74,8 +80,30 @@ Component.register('sw-rule-modal', {
 
     methods: {
         createdComponent() {
-            this.rule = this.ruleRepository.create(Context.api);
-            this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+            this.isLoading = true;
+
+            this.loadConditionData().then((scripts) => {
+                this.ruleConditionDataProviderService.addScriptConditions(scripts);
+                this.rule = this.ruleRepository.create(Context.api);
+                this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+                this.isLoading = false;
+            });
+        },
+
+        loadConditionData() {
+            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const criteria = new Criteria(1, 500);
+
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
+            }
+
+            return Promise.all([
+                this.appScriptConditionRepository.search(criteria, context),
+                this.ruleConditionsConfigApiService.load(),
+            ]).then((results) => {
+                return results[0];
+            });
         },
 
         conditionsChanged({ conditions }) {

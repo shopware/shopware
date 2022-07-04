@@ -66,7 +66,11 @@ function createWrapper(privileges = [], isNewRule = false) {
         },
         provide: {
             ruleConditionDataProviderService: {
-                getModuleTypes: () => []
+                getModuleTypes: () => [],
+                addScriptConditions: () => {}
+            },
+            ruleConditionsConfigApiService: {
+                load: () => Promise.resolve()
             },
             repositoryFactory: {
                 create: (repository) => {

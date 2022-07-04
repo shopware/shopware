@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -46,5 +47,12 @@ class OrderCountRule extends Rule
             'count' => RuleConstraints::int(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->intField('count');
     }
 }

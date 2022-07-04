@@ -616,11 +616,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Price/AmountCalculatorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Price\\\\CashRoundingTest\\:\\:roundingProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Price/CashRoundingTest.php
-
-		-
 			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\QuantityPriceCalculator constructor invoked with 3 parameters, 2 required\\.$#"
 			count: 2
 			path: src/Core/Checkout/Test/Cart/Price/PercentagePriceCalculatorTest.php
@@ -6096,71 +6091,6 @@ parameters:
 			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
 
 		-
-			message: "#^Function Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\foo_escaper_for_test\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Function Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\foo_escaper_for_test\\(\\) has parameter \\$charset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Function Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\foo_escaper_for_test\\(\\) has parameter \\$string with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:provideCustomEscaperCases\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:provideObjectsForEscaping\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:testCustomEscaper\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:testCustomEscaper\\(\\) has parameter \\$strategy with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:testCustomEscaper\\(\\) has parameter \\$string with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$cssSpecialChars has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$htmlAttrSpecialChars has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$htmlSpecialChars has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$jsSpecialChars has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$urlSpecialChars has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
 			message: "#^Cannot access offset 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Bundle' on array\\<string, class\\-string\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/TemplateIteratorTest.php
@@ -7644,11 +7574,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:\\$taxRepository is unused\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\CriteriaTest\\:\\:stringConvertProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/CriteriaTest.php
 
 		-
 			message: "#^Cannot call method getCount\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\Bucket\\|null\\.$#"
@@ -11578,16 +11503,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventCollection\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrlTemplateRepositoryTest.php
-
-		-
-			message: "#^Cannot access property \\$attributes on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Twig/Extension/IconCacheTwigFilterTest.php
-
-		-
-			message: "#^Method TestController\\:\\:addFlash\\(\\) has parameter \\$message with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/Extension/IconCacheTwigFilterTest.php
 
 		-
 			message: "#^Cannot access property \\$server on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"

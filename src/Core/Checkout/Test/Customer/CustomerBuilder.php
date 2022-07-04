@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
@@ -20,7 +23,7 @@ class CustomerBuilder
 {
     use TestBuilderTrait;
 
-    protected string $id;
+    public string $id;
 
     protected string $customerNumber;
 
@@ -48,30 +51,33 @@ class CustomerBuilder
 
     protected array $defaultPaymentMethod = [];
 
+    protected array $salutation = [];
+
     public function __construct(
         IdsCollection $ids,
         string $customerNumber,
-        string $firstName = 'Max',
-        string $lastName = 'Mustermann',
-        string $email = 'max@mustermann.com',
-        string $customerGroup = 'Standard customer group',
-        string $billingAddress = 'Default address',
-        string $shippingAddress = 'Default address',
-        string $paymentMethod = 'Cash on delivery',
-        string $salesChannelId = TestDefaults::SALES_CHANNEL
+        string $salesChannelId = TestDefaults::SALES_CHANNEL,
+        string $customerGroup = 'customer-group',
+        string $billingAddress = 'default-address',
+        string $shippingAddress = 'default-address'
     ) {
         $this->ids = $ids;
         $this->customerNumber = $customerNumber;
         $this->id = $ids->create($customerNumber);
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
+        $this->firstName = 'Max';
+        $this->lastName = 'Mustermann';
+        $this->email = 'max@mustermann.com';
         $this->salesChannelId = $salesChannelId;
+        $this->salutation = self::salutation($ids);
 
         $this->customerGroup($customerGroup);
         $this->defaultBillingAddress($billingAddress);
         $this->defaultShippingAddress($shippingAddress);
-        $this->defaultPaymentMethod($paymentMethod);
+
+        $this->defaultPaymentMethodId = self::connection()->fetchOne(
+            'SELECT LOWER(HEX(payment_method_id)) FROM sales_channel_payment_method WHERE sales_channel_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($salesChannelId)]
+        );
     }
 
     public function customerNumber(string $customerNumber): self
@@ -128,8 +134,6 @@ class CustomerBuilder
 
     public function defaultPaymentMethod(string $key): self
     {
-        $this->defaultPaymentMethodId = $this->ids->get($key);
-
         $this->defaultPaymentMethod = [
             'id' => $this->ids->get($key),
             'name' => $key,
@@ -144,16 +148,37 @@ class CustomerBuilder
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
             'city' => 'Bielefeld',
+            'salutation' => self::salutation($this->ids),
             'street' => 'Buchenweg 5',
             'zipcode' => '33062',
-            'country' => [
-                'id' => $this->ids->get($key),
-                'name' => 'Germany',
-            ],
+            'countryId' => $this->getCountry(),
         ], $customParams);
 
         $this->addresses[$key] = $address;
 
         return $this;
+    }
+
+    private static function salutation(IdsCollection $ids): array
+    {
+        return [
+            'id' => $ids->get('salutation'),
+            'salutationKey' => 'salutation',
+            'displayName' => 'test',
+            'letterName' => 'test',
+        ];
+    }
+
+    private static function connection(): Connection
+    {
+        return KernelLifecycleManager::getKernel()->getContainer()->get(Connection::class);
+    }
+
+    private function getCountry(): string
+    {
+        return self::connection()->fetchOne(
+            'SELECT LOWER(HEX(country_id)) FROM sales_channel_country WHERE sales_channel_id = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($this->salesChannelId)]
+        );
     }
 }

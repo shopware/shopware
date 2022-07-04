@@ -418,7 +418,8 @@
             "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
         },
         "exclude-from-classmap": [
-            "src/**/Test/"
+            "src/**/Test/",
+            "tests/"
         ]
     },
     "autoload-dev": {
@@ -436,7 +437,10 @@
              "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
              "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
              "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
-             "Shopware\\Core\\Test\\": "src/Core/Test/"
+             "Shopware\\Core\\Test\\": "src/Core/Test/",
+             "Shopware\\Tests\\Unit\\": "tests/unit/",
+             "Shopware\\Tests\\Integration\\": "tests/integration/",
+             "Shopware\\Tests\\Bench\\": "tests/bench/"
         }
     }
 }

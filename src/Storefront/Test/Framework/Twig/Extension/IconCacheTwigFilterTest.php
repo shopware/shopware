@@ -149,6 +149,9 @@ class IconCacheTwigFilterTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestController extends StorefrontController
 {
     public SystemConfigService $systemConfigService;
@@ -160,6 +163,9 @@ class TestController extends StorefrontController
         parent::addCartErrors($cart, $filter);
     }
 
+    /**
+     * @param string $message
+     */
     public function addFlash(string $type, $message): void
     {
         // NOOP
@@ -168,8 +174,14 @@ class TestController extends StorefrontController
     public function testRenderStorefront(string $view, SalesChannelContext $salesChannelContext): Response
     {
         $this->container->get('request_stack')->push(new Request());
-        $this->container->get('request_stack')->getCurrentRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
-        $this->container->get('request_stack')->getCurrentRequest()->attributes->set(RequestTransformer::STOREFRONT_URL, '/');
+        $current = $this->container->get('request_stack')->getCurrentRequest();
+
+        if (!$current instanceof Request) {
+            throw new RuntimeException('Request not found');
+        }
+
+        $current->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $current->attributes->set(RequestTransformer::STOREFRONT_URL, '/');
 
         return parent::renderStorefront($view);
     }

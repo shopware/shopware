@@ -3,10 +3,12 @@
     class="sw-rule-modal"
     variant="full"
     :title="modalTitle"
+    :is-loading="isLoading"
     @modal-close="$emit('modal-close')"
 >
     {% block sw_rule_modal_basic_info %}
     <sw-container
+        v-if="rule"
         columns="2fr 1fr"
         gap="0px 32px"
     >
@@ -32,6 +34,7 @@
 
     {% block sw_rule_modal_basic_info_description %}
     <sw-field
+        v-if="rule"
         v-model="rule.description"
         type="textarea"
         :label="$tc('sw-rule-modal.labelDescription')"
@@ -42,6 +45,7 @@
 
     {% block sw_rule_modal_condition_tree %}
     <sw-condition-tree
+        v-if="rule"
         :condition-repository="ruleConditionRepository"
         :condition-data-provider-service="ruleConditionDataProviderService"
         :root-condition="null"

@@ -741,6 +741,71 @@
         "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character ..."
       }
     },
+    "sw-condition-generic": {
+      "customerEmail": {
+        "email": {
+          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
+        }
+      },
+      "cartLineItemDimensionWidth": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
+        }
+      },
+      "cartLineItemDimensionHeight": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
+        }
+      },
+      "cartLineItemDimensionLength": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderLength"
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
+            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
+          }
+        }
+      },
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "@:global.day-of-week.monday",
+            "2": "@:global.day-of-week.tuesday",
+            "3": "@:global.day-of-week.wednesday",
+            "4": "@:global.day-of-week.thursday",
+            "5": "@:global.day-of-week.friday",
+            "6": "@:global.day-of-week.saturday",
+            "7": "@:global.day-of-week.sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
+            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeOfType": {
+          "options": {
+            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
+            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
+            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
+          }
+        }
+      },
+      "units": {
+        "dimension": "mm",
+        "weight": "kg",
+        "volume": "mm³"
+      }
+    },
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Use as cover",

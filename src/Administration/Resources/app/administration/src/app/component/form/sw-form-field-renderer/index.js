@@ -278,6 +278,18 @@ Component.register('sw-form-field-renderer', {
                 return 'sw-multi-select';
             }
 
+            if (this.type === 'single-entity-id-select') {
+                return 'sw-entity-single-select';
+            }
+
+            if (this.type === 'multi-entity-id-select') {
+                return 'sw-entity-multi-id-select';
+            }
+
+            if (this.type === 'tagged') {
+                return 'sw-tagged-field';
+            }
+
             return 'sw-field';
         },
 

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+
 class SalesChannelRule extends Rule
 {
     /**
@@ -41,5 +43,12 @@ class SalesChannelRule extends Rule
     public function getName(): string
     {
         return 'salesChannel';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('salesChannelIds', SalesChannelDefinition::ENTITY_NAME, true);
     }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -51,6 +52,13 @@ class CartVolumeRule extends Rule
             'volume' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->numberField('volume', ['unit' => RuleConfig::UNIT_VOLUME]);
     }
 
     private function calculateCartVolume(Cart $cart): float

@@ -3,6 +3,9 @@ import template from './sw-condition-promotions-in-cart-count.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic instead.
+ */
 Component.extend('sw-condition-promotions-in-cart-count', 'sw-condition-base', {
     template,
 

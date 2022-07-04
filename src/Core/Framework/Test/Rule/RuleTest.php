@@ -106,6 +106,53 @@ class RuleTest extends TestCase
         }
     }
 
+    public function testConfigOperatorsMatchConstraints(): void
+    {
+        /** @var Rule $rule */
+        foreach ($this->getRules() as $rule) {
+            $constraints = $rule->getConstraints();
+            $config = $rule->getConfig();
+
+            if ($config === null) {
+                continue;
+            }
+
+            $configData = $config->getData();
+            $configOperators = $configData['operatorSet']['operators'] ?? null;
+
+            if (empty($constraints['operator']) && empty($configOperators)) {
+                continue;
+            }
+
+            if (empty($constraints['operator']) && !empty($configOperators)) {
+                static::fail(sprintf(
+                    'Missing constraints in condition %s for operator while config has operator set',
+                    $rule->getName()
+                ));
+            }
+
+            if (!empty($constraints['operator']) && empty($configOperators)) {
+                static::fail(sprintf(
+                    'Missing operator set for config of condition %s while constraints require operator',
+                    $rule->getName()
+                ));
+            }
+
+            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
+                return $operatorConstraints instanceof Choice;
+            }));
+
+            if (!$choiceConstraint) {
+                continue;
+            }
+
+            static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), sprintf(
+                'Constraints and config for operator differ in condition %s',
+                $rule->getName()
+            ));
+        }
+    }
+
     private function getRulesWithEmptyOperator(): \Traversable
     {
         /** @var Rule $rule */

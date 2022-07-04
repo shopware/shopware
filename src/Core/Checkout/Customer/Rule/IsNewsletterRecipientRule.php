@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,6 +50,12 @@ class IsNewsletterRecipientRule extends Rule
     public function getName(): string
     {
         return 'customerIsNewsletterRecipient';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->booleanField('isNewsletterRecipient');
     }
 
     private function matchIsNewsletterRecipient(CustomerEntity $customer, SalesChannelContext $context): bool

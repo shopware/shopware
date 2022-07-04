@@ -9,6 +9,7 @@ Component.register('sw-settings-rule-detail', {
 
     inject: [
         'ruleConditionDataProviderService',
+        'ruleConditionsConfigApiService',
         'repositoryFactory',
         'acl',
         'feature',
@@ -141,22 +142,9 @@ Component.register('sw-settings-rule-detail', {
             immediate: true,
             handler() {
                 this.isLoading = true;
-                const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
 
-                this.appScriptConditionRepository.search(new Criteria(1, 500), context).then((scripts) => {
-                    scripts.forEach((script) => {
-                        this.ruleConditionDataProviderService.addCondition('scriptRule', {
-                            component: 'sw-condition-script',
-                            label: script?.translated?.name || script.name,
-                            scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
-                            group: script.group,
-                            scriptId: script.id,
-                            appScriptCondition: {
-                                id: script.id,
-                                config: script.config,
-                            },
-                        });
-                    });
+                this.loadConditionData().then((scripts) => {
+                    this.ruleConditionDataProviderService.addScriptConditions(scripts);
 
                     if (!this.ruleId) {
                         this.isLoading = false;
@@ -208,6 +196,22 @@ Component.register('sw-settings-rule-detail', {
     },
 
     methods: {
+        loadConditionData() {
+            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const criteria = new Criteria(1, 500);
+
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
+            }
+
+            return Promise.all([
+                this.appScriptConditionRepository.search(criteria, context),
+                this.ruleConditionsConfigApiService.load(),
+            ]).then((results) => {
+                return results[0];
+            });
+        },
+
         createRule() {
             this.rule = this.ruleRepository.create(Context.api);
             this.conditions = this.rule.conditions;

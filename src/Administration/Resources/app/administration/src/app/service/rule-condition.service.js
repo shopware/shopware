@@ -164,6 +164,7 @@ export default function createConditionService() {
         getByType,
         getByGroup,
         addCondition,
+        addScriptConditions,
         getConditions,
         addModuleType,
         getModuleTypes,
@@ -172,6 +173,7 @@ export default function createConditionService() {
         removeGroup,
         getOperatorSet,
         getOperatorSetByComponent,
+        getOperatorOptionsByIdentifiers,
         getAndContainerData,
         isAndContainer,
         getOrContainerData,
@@ -222,6 +224,22 @@ export default function createConditionService() {
         $store[condition.scriptId ?? type] = condition;
     }
 
+    function addScriptConditions(scripts) {
+        scripts.forEach((script) => {
+            addCondition('scriptRule', {
+                component: 'sw-condition-script',
+                label: script?.translated?.name || script.name,
+                scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
+                group: script.group,
+                scriptId: script.id,
+                appScriptCondition: {
+                    id: script.id,
+                    config: script.config,
+                },
+            });
+        });
+    }
+
     function getOperatorSet(operatorSetName) {
         return operatorSets[operatorSetName];
     }
@@ -251,6 +269,30 @@ export default function createConditionService() {
         }
 
         return operatorSets.defaultSet;
+    }
+
+    function getOperatorOptionsByIdentifiers(identifiers, isMatchAny = false) {
+        return identifiers.map((identifier) => {
+            const option = Object.entries(operators).find(([name, operator]) => {
+                if (isMatchAny && ['equals', 'notEquals'].includes(name)) {
+                    return false;
+                }
+                if (!isMatchAny && ['isOneOf', 'isNoneOf'].includes(name)) {
+                    return false;
+                }
+
+                return identifier === operator.identifier;
+            });
+
+            if (option) {
+                return option.pop();
+            }
+
+            return {
+                identifier,
+                label: `global.sw-condition.operator.${identifier}`,
+            };
+        });
     }
 
     function addModuleType(type) {

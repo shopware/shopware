@@ -18,7 +18,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: read NewsletterRecipient with ACL, but without rights', () => {
+    it('@marketing: read NewsletterRecipient with ACL, but without rights', { tags: ['quarantined'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -35,7 +35,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: read NewsletterRecipient with ACL', () => {
+    it('@marketing: read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -56,7 +56,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: edit and read NewsletterRecipient with ACL', () => {
+    it('@marketing: edit and read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -94,7 +94,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: delete NewsletterRecipient with ACL', () => {
+    it('@marketing: delete NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([

@@ -28,7 +28,7 @@ describe('Order: Create credit note', () => {
     });
 
     // NEXT-21363
-    it.skip('@base @order: create credit note', () => {
+    it('@base @order: create credit note', { tags: ['quarantined'] }, () => {
         const page = new OrderPageObject();
 
         cy.intercept({

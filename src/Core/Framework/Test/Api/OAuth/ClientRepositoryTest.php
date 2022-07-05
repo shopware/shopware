@@ -29,6 +29,7 @@ class ClientRepositoryTest extends TestCase
 
         $browser = $this->createClient();
         $app = $this->fetchApp('test');
+        static::assertNotNull($app);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secret = AccessKeyHelper::generateSecretAccessKey();
@@ -52,13 +53,17 @@ class ClientRepositoryTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
+    /**
+     * NEXT-6026
+     *
+     * @group quarantined
+     */
     public function testDoesntAffectIntegrationWithoutApp(): void
     {
-        static::markTestSkipped('NEXT-6026');
         $browser = $this->getBrowserAuthenticatedWithIntegration();
         $browser->request('GET', '/api/product');
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertEquals(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
     private function fetchApp(string $appName): ?AppEntity

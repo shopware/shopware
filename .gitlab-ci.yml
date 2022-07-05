@@ -5,6 +5,8 @@ stages:
     - unit
     # cypress E2E tests
     - E2E
+    # quarantined tests
+    - quarantine
     # search for vulnerabilities in code and dependencies
     - security
     # build artifacts used in deploy

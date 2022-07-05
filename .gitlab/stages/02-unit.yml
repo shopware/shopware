@@ -88,7 +88,7 @@ PHP coverage:
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit phpunit.junit.xml
-            --exclude-group=needsWebserver,skip-paratest,not-deterministic
+            --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
             --testsuite "$TESTSUITE"
             --order-by default
             --coverage-text
@@ -134,6 +134,8 @@ PHP Full:
         REDIS_URL: redis://redis:6379
     rules:
         - !reference [.rules, skip]
+        - if: !reference [.rules, run-allow-failure, if ]
+          allow_failure: true
         - !reference [.rules, run]
         - if: !reference [.rules, long-running-allow-failure, if]
           allow_failure: true
@@ -199,9 +201,9 @@ PHP Full:
         - >
             for SUITE in $TEST_SUITES; do
                 if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --stop-on-failure;
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --stop-on-failure --exclude-group=quarantined;
                 else
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined || FAILED=1
                 fi
             done
         - '[[ $FAILED -eq 0 ]]'
@@ -215,3 +217,16 @@ PHP Full:
             - var/log/*
         reports:
             junit: phpunit.*.junit.xml
+
+PHP Full quarantined:
+    extends: PHP Full
+    stage: quarantine
+    parallel:
+        matrix:
+            - MYSQL_IMAGE: mariadb:10.4
+              DEV_IMAGE: shopware/development:8.0-composer-2
+              FEATURE_ALL: 'false'
+              ALLOW_FAILURE: 'true'
+    script:
+      - composer run phpunit -- --group=quarantined --log-junit phpunit.$SUITE.junit.xml --colors=never
+    after_script: []

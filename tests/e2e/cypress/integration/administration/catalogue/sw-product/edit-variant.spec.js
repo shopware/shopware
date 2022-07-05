@@ -242,7 +242,7 @@ describe('Product: Test variants', () => {
     });
 
     // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards
-    it.skip('@base @catalogue: test multidimensional variant with restrictions', () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -299,7 +299,7 @@ describe('Product: Test variants', () => {
     });
 
     // TODO: unskip the test with NEXT-19240 - was skipped because it is extremely flaky
-    it.skip('@base @catalogue: test surcharges / discounts in variant', () => {
+    it('@base @catalogue: test surcharges / discounts in variant', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
 
         cy.intercept({

@@ -292,7 +292,7 @@ describe('Order: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@order: check filter function and display listing correctly', () => {
+    it('@order: check filter function and display listing correctly', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
@@ -357,7 +357,7 @@ describe('Order: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@order: check reset filter', () => {
+    it('@order: check reset filter', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);

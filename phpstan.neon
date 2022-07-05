@@ -55,6 +55,11 @@ parameters:
             message: '#Service ".*" is private#'
             path: src/**/*Test.php
 
+        # ignore errors caused by static::markTestSkipped
+        -
+            message: '#Unreachable statement - code above always terminates.#'
+            path: src/**/*Test.php
+
         # Method gets always an EntityCollection
         -
             message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'

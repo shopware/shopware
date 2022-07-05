@@ -117,7 +117,7 @@ describe('Basic Informaion: Edit assignments', () => {
     });
 
     // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
-    it.skip('@settings: change active captcha and test input field show when google recaptcha selected', () => {
+    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,

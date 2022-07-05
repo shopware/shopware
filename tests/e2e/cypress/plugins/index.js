@@ -46,6 +46,9 @@ module.exports = (on, config) => {
             return;
         }
 
+        const grepTags = config.env['grepTags'] || '';
+        const isQuarantined = grepTags.includes('quarantined') && !grepTags.includes('-quarantined');
+
         // Find all failed tests which contains retry attempts
         const failedTests = results.tests.filter((test) => {
             return test.attempts.some((attempt) => attempt.state === 'failed')
@@ -56,8 +59,8 @@ module.exports = (on, config) => {
             return;
         }
 
-        // stop execution when a test fails non-flaky
-        if (results.stats?.failures > 0) {
+        // stop execution when a test fails non-flaky, if it's not quarantined
+        if (results.stats?.failures > 0 && !isQuarantined) {
             return;
         }
 
@@ -88,6 +91,7 @@ module.exports = (on, config) => {
                     'test-target-branch': config.env['TARGET_BRANCH'],
                     'test-target-commit': config.env['TARGET_COMMIT'],
                     'test-commit-branch': config.env['COMMIT_BRANCH'],
+                    'test-is-quarantined': isQuarantined,
                 }
             })
         })
@@ -100,4 +104,6 @@ module.exports = (on, config) => {
                 .catch((e) => reject(e));
         });
     })
+
+    return config;
 };

@@ -9,7 +9,7 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 
-const createSingleSelect = (customOptions) => {
+function createSingleSelect(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
 
@@ -51,7 +51,7 @@ const createSingleSelect = (customOptions) => {
         ...options,
         ...customOptions
     });
-};
+}
 
 describe('components/sw-single-select', () => {
     it('should be a Vue.js component', async () => {
@@ -173,7 +173,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should not show the selected item on first entry', async () => {
-        const wrapper = await createSingleSelect();
+        const wrapper = createSingleSelect();
         await wrapper.setProps({
             value: 'entryThreeValue'
         });
@@ -186,7 +186,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should show the clearable icon in the single select', async () => {
-        const wrapper = await createSingleSelect({
+        const wrapper = createSingleSelect({
             attrs: {
                 showClearableButton: true
             }
@@ -197,7 +197,7 @@ describe('components/sw-single-select', () => {
     });
 
     it('should clear the selection when clicking on clear icon', async () => {
-        const wrapper = await createSingleSelect({
+        const wrapper = createSingleSelect({
             propsData: {
                 value: 'entryOneValue',
                 options: [

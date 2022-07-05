@@ -11,10 +11,15 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 .sw-select-result {
     padding: 12px 15px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
     border-radius: 4px;
+
+    .sw-select-result__result-item-preview {
+        order: 1;
+        margin-right: 10px;
+        display: block;
+    }
 
     .sw-select-result__result-item-text {
         max-width: 100%;
@@ -22,18 +27,45 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         display: flex;
         flex-direction: column;
         color: $color-darkgray-200;
-    }
-
-    .sw-icon {
-        color: $sw-select-result-color-icon;
-        flex-grow: 0;
-        flex-shrink: 0;
-        margin-left: 10px;
+        order: 2;
     }
 
     &.is--active {
         background: $sw-select-result-active-color-background;
         color: $sw-select-result-active-color-text;
+
+        .sw-select-result__result-item-text {
+            color: $sw-select-result-active-color-text;
+        }
+    }
+
+    .sw-select-result__result-item-description {
+        width: 100%;
+        color: $color-gray-600;
+        order: 3;
+        line-height: 14px;
+        padding: 0 0 0 8px;
+    }
+
+    > .sw-icon {
+        color: $sw-select-result-color-icon;
+        margin-left: 10px;
+        order: 4;
+        justify-self: end;
+    }
+
+    &.is--description-bottom {
+        grid-template-columns: 1fr auto;
+
+        .sw-select-result__result-item-description {
+            grid-column-start: 1;
+            padding: 8px 0 0;
+            order: 3;
+        }
+
+        .sw-icon {
+            order: 2;
+        }
     }
 
     &.is--disabled {
@@ -51,47 +83,6 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
         .sw-select-result__result-item-text {
             color: $sw-select-result-disabled-color-text;
-        }
-    }
-
-    &.has--description {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-
-        .sw-select-result__result-item-text {
-            order: 1;
-        }
-
-        &.is--active {
-            .sw-select-result__result-item-text {
-                color: $sw-select-result-active-color-text;
-            }
-        }
-
-        .sw-select-result__result-item-description {
-            width: 100%;
-            color: $color-gray-600;
-            order: 2;
-            line-height: 14px;
-            padding: 0 0 0 8px;
-        }
-
-        .sw-icon {
-            order: 3;
-        }
-
-        &.is--description-bottom {
-            grid-template-columns: 1fr auto;
-
-            .sw-select-result__result-item-description {
-                grid-column-start: 1;
-                padding: 8px 0 0;
-                order: 3;
-            }
-
-            .sw-icon {
-                order: 2;
-            }
         }
     }
 

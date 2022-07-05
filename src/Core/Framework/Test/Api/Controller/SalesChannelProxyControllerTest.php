@@ -107,7 +107,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
-        $this->ids = new TestDataCollection($this->context);
+        $this->ids = new TestDataCollection();
     }
 
     public function testProxyWithInvalidSalesChannelId(): void

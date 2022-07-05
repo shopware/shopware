@@ -165,7 +165,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>

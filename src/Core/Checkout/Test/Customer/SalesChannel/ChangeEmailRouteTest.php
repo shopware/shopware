@@ -40,7 +40,7 @@ class ChangeEmailRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -316,7 +316,7 @@ class ChangeEmailRouteTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }

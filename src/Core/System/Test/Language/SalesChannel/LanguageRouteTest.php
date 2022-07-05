@@ -30,7 +30,7 @@ class LanguageRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -138,7 +138,7 @@ class LanguageRouteTest extends TestCase
                 'name' => 'locale-2',
                 'territory' => 'locale-2',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $data = [
             [
@@ -156,6 +156,6 @@ class LanguageRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('language.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

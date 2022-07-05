@@ -767,7 +767,7 @@ class OrderRouteTest extends TestCase
                     'countryIds' => [$countryId],
                 ],
             ]],
-        ]], $ids->getContext());
+        ]], Context::createDefaultContext());
 
         $this->getContainer()->get('product.repository')->create([
             (new ProductBuilder($ids, '1000'))
@@ -776,7 +776,7 @@ class OrderRouteTest extends TestCase
                 ->active(true)
                 ->visibility()
                 ->build(),
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',

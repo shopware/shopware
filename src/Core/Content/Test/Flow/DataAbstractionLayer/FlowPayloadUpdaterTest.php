@@ -33,14 +33,14 @@ class FlowPayloadUpdaterTest extends TestCase
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     public function testCreate(): void
     {
         $this->createTestData();
 
-        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
         static::assertNotNull($flow);
 
         $trueCaseNextAction = new ActionSequence();
@@ -96,9 +96,9 @@ class FlowPayloadUpdaterTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
-        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
+        $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), Context::createDefaultContext())->first();
 
         $falseCase = new ActionSequence();
         $falseCase->action = AddOrderTagAction::getName();
@@ -144,11 +144,11 @@ class FlowPayloadUpdaterTest extends TestCase
             ['id' => $this->ids->get('flow_sequence_id2')],
             ['id' => $this->ids->get('flow_sequence_id1')],
             ['id' => $this->ids->get('flow_sequence_id')],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $criteria = new Criteria([$this->ids->get('flow_id')]);
         $criteria->addAssociation('sequences');
-        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertSame([], $flow->getSequences()->getElements());
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
@@ -164,11 +164,11 @@ class FlowPayloadUpdaterTest extends TestCase
             'active' => true,
             'payload' => null,
             'invalid' => true,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
 
         $criteria = new Criteria([$this->ids->get('flow_id')]);
         $criteria->addAssociation('sequences');
-        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertSame([], $flow->getSequences()->getElements());
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
@@ -246,6 +246,6 @@ class FlowPayloadUpdaterTest extends TestCase
                     'trueCase' => true,
                 ],
             ],
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
     }
 }

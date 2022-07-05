@@ -52,7 +52,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
         $this->dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->dispatcher->addSubscriber($this->flowActionTestSubscriber);
     }

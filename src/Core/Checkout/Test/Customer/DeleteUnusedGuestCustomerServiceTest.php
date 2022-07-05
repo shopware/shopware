@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -46,7 +47,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItDeletesUnusedGuestCustomer(): void
     {
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
@@ -68,7 +69,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItDoesOnlyDeleteGuestCustomers(): void
     {
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
@@ -106,7 +107,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItDeletesOnlyExpiredCustomerAccounts(): void
     {
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $nonExpiredCustomer = (new CustomerBuilder($this->ids, '10000'))
@@ -145,7 +146,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItDoesOnlyDeleteCustomersWithoutOrders(): void
     {
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $customerWithOrder = (new CustomerBuilder($this->ids, '10000'))
@@ -189,7 +190,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', 0);
 
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
@@ -221,7 +222,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', null);
 
-        $context = $this->ids->context;
+        $context = Context::createDefaultContext();
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
@@ -257,7 +258,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->price(10)
             ->build();
 
-        $productRepository->create([$product], $this->ids->context);
+        $productRepository->create([$product], Context::createDefaultContext());
 
         $orderId = Uuid::randomHex();
 
@@ -311,7 +312,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             'billingAddressId' => $customer['defaultBillingAddressId'],
         ];
 
-        $orderRepository->create([$order], $this->ids->context);
+        $orderRepository->create([$order], Context::createDefaultContext());
 
         return $orderId;
     }

@@ -68,7 +68,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->createDataTest();
     }
 

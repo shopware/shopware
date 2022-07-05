@@ -32,7 +32,7 @@ class LandingPageRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -192,6 +192,6 @@ class LandingPageRouteTest extends TestCase
         $data = array_merge($data, $override);
 
         $this->getContainer()->get('landing_page.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

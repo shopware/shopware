@@ -30,7 +30,7 @@ class CustomerGroupRegistrationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->salesChannel = $this->createSalesChannelContext();
     }
 
@@ -54,7 +54,7 @@ class CustomerGroupRegistrationTest extends TestCase
                 'registrationTitle' => 'test',
                 'registrationSalesChannels' => [['id' => $this->salesChannel->getSalesChannel()->getId()]],
             ],
-        ], $this->ids->getContext());
+        ], Context::createDefaultContext());
 
         $request = new Request();
         $request->attributes->set('customerGroupId', $this->ids->get('group'));

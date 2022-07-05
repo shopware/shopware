@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -44,7 +45,7 @@ class EntityLoadedEventFactoryTest extends TestCase
             ->manufacturer('m1')
             ->prices('r1', 5);
 
-        $this->productRepository->create([$builder->build()], $this->ids->getContext());
+        $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addAssociations([
@@ -54,11 +55,11 @@ class EntityLoadedEventFactoryTest extends TestCase
         ]);
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $this->ids->getContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
         $product->addExtension('test', new LanguageCollection([
             (new LanguageEntity())->assign(['id' => $this->ids->create('l1'), '_entityName' => 'language']),
         ]));
-        $events = $this->entityLoadedEventFactory->create([$product], $this->ids->getContext());
+        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
 
         $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
             return $event->getName();
@@ -79,7 +80,7 @@ class EntityLoadedEventFactoryTest extends TestCase
     {
         $tax = (new TaxEntity())->assign(['_entityName' => 'tax']);
 
-        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], $this->ids->getContext());
+        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
 
         $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
             return $event->getName();

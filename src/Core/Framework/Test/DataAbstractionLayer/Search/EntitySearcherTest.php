@@ -596,7 +596,7 @@ class EntitySearcherTest extends TestCase
 
         $repository = $this->getContainer()->get('product.repository');
 
-        $repository->create([$product->build()], $ids->getContext());
+        $repository->create([$product->build()], Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->setLimit(0);
@@ -617,7 +617,7 @@ class EntitySearcherTest extends TestCase
         $result = $searcher->search(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
-            $ids->getContext()
+            Context::createDefaultContext()
         );
 
         static::assertEquals(0, $result->getTotal());

@@ -33,7 +33,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -49,7 +49,7 @@ class RemoveOrderTagActionTest extends TestCase
     {
         $this->createDataTest();
         $this->createCustomerAndLogin();
-        $orderId = $this->createOrder($this->ids->context);
+        $orderId = $this->createOrder(Context::createDefaultContext());
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -142,7 +142,7 @@ class RemoveOrderTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createOrder(Context $context): string

@@ -234,8 +234,8 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        $this->ids->getContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-        $this->getContainer()->get('tag.repository')->create($tags, $this->ids->getContext());
+        Context::createDefaultContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        $this->getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
     }
 
     private function getCategoryPayload(int $count, string $name): array

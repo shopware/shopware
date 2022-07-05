@@ -43,7 +43,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -92,10 +92,10 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     public function testPayOrder(): void
     {
-        $paymentMethodId = $this->createPaymentMethodV630($this->ids->getContext());
+        $paymentMethodId = $this->createPaymentMethodV630(Context::createDefaultContext());
         $customerId = $this->createCustomer();
-        $orderId = $this->createOrder($customerId, $paymentMethodId, $this->ids->getContext());
-        $this->createTransaction($orderId, $paymentMethodId, $this->ids->getContext());
+        $orderId = $this->createOrder($customerId, $paymentMethodId, Context::createDefaultContext());
+        $this->createTransaction($orderId, $paymentMethodId, Context::createDefaultContext());
 
         $this->browser
             ->request(

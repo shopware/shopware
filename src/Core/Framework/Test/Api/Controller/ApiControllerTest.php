@@ -2345,7 +2345,7 @@ EOF;
             ],
         ];
         $this->getContainer()->get('customer.repository')
-            ->create([$data], $ids->getContext());
+            ->create([$data], Context::createDefaultContext());
 
         return $ids;
     }

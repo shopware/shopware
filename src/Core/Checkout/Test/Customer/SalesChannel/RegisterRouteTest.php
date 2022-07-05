@@ -57,7 +57,7 @@ class RegisterRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -610,7 +610,7 @@ class RegisterRouteTest extends TestCase
                 ],
                 'registrationSalesChannels' => [['id' => $this->getSalesChannelApiSalesChannelId()]],
             ],
-        ], $this->ids->getContext());
+        ], Context::createDefaultContext());
 
         $this->browser
             ->request(
@@ -627,7 +627,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame('customer', $response['apiAlias']);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
     }
@@ -1098,7 +1098,7 @@ class RegisterRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $productRepository->create([
             [
@@ -1114,6 +1114,6 @@ class RegisterRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

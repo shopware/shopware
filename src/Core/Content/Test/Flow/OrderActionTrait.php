@@ -76,7 +76,7 @@ trait OrderActionTrait
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ], $additionalData),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function login(?string $email = null, ?string $password = null): void
@@ -114,7 +114,7 @@ trait OrderActionTrait
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function submitOrder(): void
@@ -223,7 +223,7 @@ trait OrderActionTrait
                 'context' => '{}',
                 'payload' => '{}',
             ], $additionalData),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function getStateId(string $state, string $machine)

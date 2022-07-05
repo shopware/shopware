@@ -44,7 +44,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelContext = $this->createSalesChannelContext();

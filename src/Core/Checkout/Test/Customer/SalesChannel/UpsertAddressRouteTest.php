@@ -32,7 +32,7 @@ class UpsertAddressRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -92,7 +92,7 @@ class UpsertAddressRouteTest extends TestCase
 
         // Check existence
         /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search(new Criteria([$content['id']]), $this->ids->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->first();
         $serializedAddress = $address->jsonSerialize();
 
         foreach ($data as $key => $val) {
@@ -201,7 +201,7 @@ class UpsertAddressRouteTest extends TestCase
 
         // Check existence
         /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
 
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);

@@ -32,7 +32,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         static::markTestSkipped('vatId was removed');
         parent::setUp();
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     public function testNoChanges(): void
@@ -74,12 +74,12 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');
 
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($customer->getVatIds());
         static::assertIsArray($customer->getVatIds());
@@ -93,12 +93,12 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');
 
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getVatIds());
         static::assertNull($customerAddress->getVatId());
@@ -114,12 +114,12 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');
 
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($customer->getVatIds());
         static::assertIsArray($customer->getVatIds());
@@ -140,14 +140,14 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository->update([[
             'id' => $this->ids->get('address_id'),
             'vatId' => 'AU123123123',
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($customer->getVatIds());
         static::assertIsArray($customer->getVatIds());
@@ -168,14 +168,14 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository->update([[
             'id' => $this->ids->get('address_id'),
             'vatId' => null,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertIsArray($customer->getVatIds());
         static::assertEmpty($customer->getVatIds());
@@ -191,14 +191,14 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $customerAddressRepository->update([[
             'id' => $this->ids->get('address_id'),
             'vatId' => 'AU123123123',
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
         $criteria = new Criteria([$this->ids->get('address_id')]);
-        $customerAddress = $customerAddressRepository->search($criteria, $this->ids->context)->first();
+        $customerAddress = $customerAddressRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerRepository = $this->getContainer()->get('customer.repository');
 
         $criteria = new Criteria([$this->ids->get('customer_id')]);
-        $customer = $customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNotNull($customer->getVatIds());
         static::assertIsArray($customer->getVatIds());
@@ -240,7 +240,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
             ->insert(
                 $this->getContainer()->get(CustomerDefinition::class),
                 [$insertData],
-                WriteContext::createFromContext($this->ids->context)
+                WriteContext::createFromContext(Context::createDefaultContext())
             );
     }
 }

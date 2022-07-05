@@ -42,7 +42,7 @@ class ResetPasswordRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -182,7 +182,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria([$customerId]);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->getContainer()->get('customer.repository')->search($criteria, $this->ids->getContext())->first();
+        $customer = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getLegacyEncoder());
         static::assertNull($customer->getLegacyPassword());
@@ -245,7 +245,7 @@ class ResetPasswordRouteTest extends TestCase
 
         $this->customerRepository->create([
             $customer,
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }

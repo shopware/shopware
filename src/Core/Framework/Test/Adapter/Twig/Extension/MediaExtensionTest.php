@@ -17,7 +17,7 @@ class MediaExtensionTest extends TestCase
 
     public function testSingleSearch(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             'id' => $ids->create('media'),
@@ -25,11 +25,11 @@ class MediaExtensionTest extends TestCase
         ];
 
         $this->getContainer()->get('media.repository')
-            ->create([$data], $ids->getContext());
+            ->create([$data], Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
             'ids' => $ids->getList(['media']),
-            'context' => $ids->getContext(),
+            'context' => Context::createDefaultContext(),
         ]);
 
         static::assertEquals('testImage/', $result);
@@ -37,7 +37,7 @@ class MediaExtensionTest extends TestCase
 
     public function testMultiSearch(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             ['id' => $ids->create('media-1'), 'fileName' => 'image-1'],
@@ -45,11 +45,11 @@ class MediaExtensionTest extends TestCase
         ];
 
         $this->getContainer()->get('media.repository')
-            ->create($data, $ids->getContext());
+            ->create($data, Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
             'ids' => $ids->getList(['media-1', 'media-2']),
-            'context' => $ids->getContext(),
+            'context' => Context::createDefaultContext(),
         ]);
 
         static::assertEquals('image-1/image-2/', $result);

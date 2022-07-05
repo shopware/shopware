@@ -66,7 +66,7 @@ class ProductCartProcessorTest extends TestCase
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->calculator = $this->getContainer()->get(QuantityPriceCalculator::class);
     }
@@ -157,7 +157,7 @@ class ProductCartProcessorTest extends TestCase
             ->visibility()
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

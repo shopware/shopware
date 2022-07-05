@@ -50,7 +50,7 @@ class LoginRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -357,7 +357,7 @@ class LoginRouteTest extends TestCase
             'active' => $active,
         ];
 
-        $this->customerRepository->create([$customer], $this->ids->context);
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

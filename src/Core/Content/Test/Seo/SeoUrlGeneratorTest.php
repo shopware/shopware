@@ -292,6 +292,6 @@ class SeoUrlGeneratorTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->getContext());
+        ], Context::createDefaultContext());
     }
 }

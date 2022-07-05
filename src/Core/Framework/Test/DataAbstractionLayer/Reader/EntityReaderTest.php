@@ -2078,12 +2078,12 @@ class EntityReaderTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, $ids->getContext());
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria();
         $criteria->addAssociation('translations.language.categoryTranslations');
 
-        $products = $this->getContainer()->get('product.repository')->search($criteria, $ids->getContext());
+        $products = $this->getContainer()->get('product.repository')->search($criteria, Context::createDefaultContext());
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
@@ -2417,19 +2417,21 @@ class EntityReaderTest extends TestCase
 
         $product->variant($variant->build());
 
+        $context = Context::createDefaultContext();
+
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
-        ], $ids->context);
+        ], $context);
 
         $criteria = new Criteria([$ids->get('p1.1')]);
         $media = $criteria->getAssociation('media');
         $media->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
         $media->assign($criteriaConfig);
-        $ids->context->setConsiderInheritance(true);
 
-        $product = $productRepository->search($criteria, $ids->context)->first();
+        $context->setConsiderInheritance(true);
 
+        $product = $productRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotNull($product->getMedia());
 

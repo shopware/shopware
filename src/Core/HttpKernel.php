@@ -37,6 +37,11 @@ class HttpKernel
     protected static $kernelClass = Kernel::class;
 
     /**
+     * @var class-string<HttpCache>
+     */
+    protected static string $httpCacheClass = HttpCache::class;
+
+    /**
      * @var ClassLoader|null
      */
     protected $classLoader;
@@ -147,7 +152,7 @@ class HttpKernel
         $enabled = $container->hasParameter('shopware.http.cache.enabled')
             && $container->getParameter('shopware.http.cache.enabled');
         if ($enabled && $container->has(CacheStore::class)) {
-            $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
+            $kernel = new static::$httpCacheClass($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }
 
         $response = $kernel->handle($transformed, $type, $catch);

@@ -128,6 +128,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'createdAt' => [
                     'type' => 'date',
                 ],
+                'markAsTopseller' => EntityMapper::BOOLEAN_FIELD,
                 'sales' => EntityMapper::INT_FIELD,
                 'stock' => EntityMapper::INT_FIELD,
                 'shippingFree' => EntityMapper::BOOLEAN_FIELD,
@@ -278,6 +279,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
+                'markAsTopseller' => (bool) $item['markAsTopseller'],
                 'optionIds' => $optionIds,
                 'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $groups[$optionId], '_count' => 1], $optionIds),
                 'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo),
@@ -472,6 +474,7 @@ SELECT
     IFNULL(p.width, pp.width) AS width,
     IFNULL(p.release_date, pp.release_date) AS releaseDate,
     IFNULL(p.created_at, pp.created_at) AS createdAt,
+    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
     IFNULL(p.category_tree, pp.category_tree) AS categoryIds,
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,

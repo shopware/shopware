@@ -127,7 +127,7 @@ export default class DatePickerPlugin extends Plugin {
      */
     generateFlatpickrOptions() {
         let localeIndex = 'default';
-        if (this.options.locale.substring(0, 2) !== 'en') {
+        if (this.options.locale !== 'default') {
             localeIndex = this.options.locale.substring(0, 2);
         }
 

@@ -10,15 +10,15 @@ class RuleComparison
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
     {
         if ($itemValue === null) {
-            return $operator === Rule::OPERATOR_EMPTY;
+            return self::isNegativeOperator($operator);
         }
 
         if ($operator === Rule::OPERATOR_EMPTY) {
-            return empty($itemValue);
+            return false;
         }
 
         if ($ruleValue === null) {
-            return false;
+            return self::isNegativeOperator($operator);
         }
 
         switch ($operator) {
@@ -136,5 +136,13 @@ class RuleComparison
             default:
                 throw new UnsupportedOperatorException($operator, self::class);
         }
+    }
+
+    public static function isNegativeOperator(string $operator): bool
+    {
+        return \in_array($operator, [
+            Rule::OPERATOR_EMPTY,
+            Rule::OPERATOR_NEQ,
+        ], true);
     }
 }

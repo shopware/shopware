@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -161,66 +162,6 @@ class OrderTotalAmountRuleTest extends TestCase
         static::assertFalse($result);
     }
 
-    public function testMatchWithEquals(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 6000, 'operator' => Rule::OPERATOR_EQ]);
-
-        $scope = $this->createTestScope();
-
-        static::assertTrue($rule->match($scope));
-    }
-
-    public function testMatchWithNotEquals(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 6000, 'operator' => Rule::OPERATOR_NEQ]);
-
-        $scope = $this->createTestScope();
-
-        static::assertFalse($rule->match($scope));
-    }
-
-    public function testMatchWithLowerThan(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 5000, 'operator' => Rule::OPERATOR_LT]);
-
-        $scope = $this->createTestScope();
-
-        static::assertFalse($rule->match($scope));
-    }
-
-    public function testMatchWithGreaterThan(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 8000, 'operator' => Rule::OPERATOR_GT]);
-
-        $scope = $this->createTestScope();
-
-        static::assertFalse($rule->match($scope));
-    }
-
-    public function testMatchWithLowerEquals(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 8000, 'operator' => Rule::OPERATOR_LTE]);
-
-        $scope = $this->createTestScope();
-
-        static::assertTrue($rule->match($scope));
-    }
-
-    public function testMatchWithGreaterEquals(): void
-    {
-        $rule = new OrderTotalAmountRule();
-        $rule->assign(['amount' => 5000, 'operator' => Rule::OPERATOR_GTE]);
-
-        $scope = $this->createTestScope();
-
-        static::assertTrue($rule->match($scope));
-    }
-
     public function testCustomerMetaFieldSubscriberWithCompletedOrder(): void
     {
         /** @var EntityRepositoryInterface $orderRepository */
@@ -259,6 +200,7 @@ class OrderTotalAmountRuleTest extends TestCase
             $defaultContext
         );
 
+        static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());
         static::assertSame(10, (int) $result->first()->getOrderTotalAmount());
 
@@ -277,6 +219,8 @@ class OrderTotalAmountRuleTest extends TestCase
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
         );
+
+        static::assertNotNull($result->first());
         static::assertSame(0, $result->first()->getOrderCount());
         static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
     }
@@ -319,6 +263,7 @@ class OrderTotalAmountRuleTest extends TestCase
             $defaultContext
         );
 
+        static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());
         static::assertSame(10, (int) $result->first()->getOrderTotalAmount());
 
@@ -331,26 +276,76 @@ class OrderTotalAmountRuleTest extends TestCase
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
         );
+
+        static::assertNotNull($result->first());
         static::assertSame(0, $result->first()->getOrderCount());
         static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
     }
 
-    private function createTestScope(): CheckoutRuleScope
+    /**
+     * @dataProvider getMatchValues
+     */
+    public function testRuleMatching(string $operator, bool $isMatching, ?float $orderAmount, float $ruleOrderAmount, bool $noCustomer = false): void
     {
+        $rule = new OrderTotalAmountRule();
+        $rule->assign(['amount' => $ruleOrderAmount, 'operator' => $operator]);
+
         $scope = $this->createMock(CheckoutRuleScope::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
         $orderCollection = new OrderCollection();
+        $customer = $this->createMock(CustomerEntity::class);
+        $customer->method('getOrderTotalAmount')->willReturn($orderAmount);
 
+        if ($noCustomer) {
+            $customer = null;
+        }
+
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
         $orderCollection->add($this->createMock(OrderEntity::class));
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);
-        $salesChannelContext->method('getCustomer')
-            ->willReturn($customer);
-        $customer->method('getOrderTotalAmount')
-            ->willReturn((float) 6000);
 
-        return $scope;
+        static::assertSame($isMatching, $rule->match($scope));
+    }
+
+    public function getMatchValues(): \Traversable
+    {
+        yield 'operator_eq / no match / greater value' => [Rule::OPERATOR_EQ, false, 100, 50];
+        yield 'operator_eq / match / equal value' => [Rule::OPERATOR_EQ, true, 50, 50];
+        yield 'operator_eq / no match / lower value' => [Rule::OPERATOR_EQ, false, 10, 50];
+        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, 100, 50, true];
+
+        yield 'operator_gt / match / greater value' => [Rule::OPERATOR_GT, true, 100, 50];
+        yield 'operator_gt / no match / equal value' => [Rule::OPERATOR_GT, false, 50, 50];
+        yield 'operator_gt / no match / lower value' => [Rule::OPERATOR_GT, false, 10, 50];
+        yield 'operator_gt / no match / no customer' => [Rule::OPERATOR_GT, false, 100, 50, true];
+
+        yield 'operator_gte / match / greater value' => [Rule::OPERATOR_GTE, true, 100, 50];
+        yield 'operator_gte / match / equal value' => [Rule::OPERATOR_GTE, true, 50, 50];
+        yield 'operator_gte / no match / lower value' => [Rule::OPERATOR_GTE, false, 10, 50];
+        yield 'operator_gte / no match / no customer' => [Rule::OPERATOR_GTE, false, 100, 50, true];
+
+        yield 'operator_lt / no match / greater value' => [Rule::OPERATOR_LT, false, 100, 50];
+        yield 'operator_lt / no match / equal value' => [Rule::OPERATOR_LT, false, 50, 50];
+        yield 'operator_lt / match / lower value' => [Rule::OPERATOR_LT, true, 10, 50];
+        yield 'operator_lt / no match / no customer' => [Rule::OPERATOR_LT, false, 10, 50, true];
+
+        yield 'operator_lte / no match / greater value' => [Rule::OPERATOR_LTE, false, 100, 50];
+        yield 'operator_lte / match / equal value' => [Rule::OPERATOR_LTE, true, 50, 50];
+        yield 'operator_lte / match / lower value' => [Rule::OPERATOR_LTE, true, 10, 50];
+        yield 'operator_lte / no match / no customer' => [Rule::OPERATOR_LTE, false, 10, 50, true];
+
+        yield 'operator_neq / match / greater value' => [Rule::OPERATOR_NEQ, true, 100, 50];
+        yield 'operator_neq / no match / equal value' => [Rule::OPERATOR_NEQ, false, 50, 50];
+        yield 'operator_neq / match / lower value' => [Rule::OPERATOR_NEQ, true, 10, 50];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 100, 50, true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 100, 50, true];
     }
 }

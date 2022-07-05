@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -179,7 +180,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTagIds([$tagId]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([$tagId]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_EQ, [$tagId]);
 
@@ -192,7 +195,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTagIds([]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagId]);
 
@@ -205,7 +210,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTagIds([$tagId]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([$tagId]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagId]);
 
@@ -218,7 +225,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_EQ, $tagIds);
 
@@ -231,7 +240,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagIds[1], $tagIds[2]]);
 
@@ -244,7 +255,9 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->salesChannelContext->getCustomer();
+        $customer->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, $tagIds);
 
@@ -278,7 +291,7 @@ class CustomerTagRuleTest extends TestCase
     /**
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(string $operator, bool $isMatching, ?string $identifier): void
+    public function testRuleMatching(string $operator, bool $isMatching, ?string $identifier, bool $noCustomer = false): void
     {
         $identifiers = ['kyln123', 'kyln456'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -289,6 +302,11 @@ class CustomerTagRuleTest extends TestCase
         } else {
             $customer->setTagIds([]);
         }
+
+        if ($noCustomer) {
+            $customer = null;
+        }
+
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -301,15 +319,24 @@ class CustomerTagRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public function getMatchValues(): \Traversable
     {
-        return [
-            'operator_oq / not match / identifier' => [Rule::OPERATOR_EQ, false, 'kyln000'],
-            'operator_oq / match / identifier' => [Rule::OPERATOR_EQ, true, 'kyln123'],
-            'operator_neq / match / identifier' => [Rule::OPERATOR_NEQ, true, 'kyln000'],
-            'operator_neq / not match / identifier' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / not match / identifier' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / match / identifier' => [Rule::OPERATOR_EMPTY, true, null],
-        ];
+        yield 'operator_eq / not match / identifier' => [Rule::OPERATOR_EQ, false, 'kyln000'];
+        yield 'operator_eq / match / identifier' => [Rule::OPERATOR_EQ, true, 'kyln123'];
+        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, 'kyln123', true];
+        yield 'operator_neq / match / identifier' => [Rule::OPERATOR_NEQ, true, 'kyln000'];
+        yield 'operator_neq / not match / identifier' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
+        yield 'operator_empty / not match / identifier' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
+        yield 'operator_empty / match / identifier' => [Rule::OPERATOR_EMPTY, true, null];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 'kyln123', true];
+            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 'kyln123', true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 'kyln123', true];
+        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 'kyln123', true];
     }
 }

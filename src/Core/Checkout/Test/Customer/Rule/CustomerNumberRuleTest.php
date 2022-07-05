@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,11 +42,17 @@ class CustomerNumberRuleTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var CustomerNumberRule
+     */
+    private $rule;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->rule = new CustomerNumberRule();
     }
 
     public function testValidateWithMissingNumbers(): void
@@ -134,6 +142,49 @@ class CustomerNumberRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    /**
+     * @dataProvider getMatchValues
+     */
+    public function testRuleMatching(string $operator, bool $isMatching, array $customerNumbers, bool $noCustomer = false): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $customer = new CustomerEntity();
+        $customer->setCustomerNumber('1337');
+        if ($noCustomer) {
+            $customer = null;
+        }
+
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $this->rule->assign(['numbers' => $customerNumbers, 'operator' => $operator]);
+
+        $match = $this->rule->match($scope);
+        if ($isMatching) {
+            static::assertTrue($match);
+        } else {
+            static::assertFalse($match);
+        }
+    }
+
+    public function getMatchValues(): \Traversable
+    {
+        yield 'operator_eq / match / customer number' => [Rule::OPERATOR_EQ, true, ['1337']];
+        yield 'operator_eq / no match / customer number' => [Rule::OPERATOR_EQ, false, ['0000']];
+        yield 'operator_eq / no match / empty customer' => [Rule::OPERATOR_EQ, false, ['0000'], true];
+
+        yield 'operator_neq / no match / customer number' => [Rule::OPERATOR_NEQ, false, ['1337']];
+        yield 'operator_neq / match / customer number' => [Rule::OPERATOR_NEQ, true, ['0000']];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / match / empty customer' => [Rule::OPERATOR_NEQ, false, ['0000'], true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / empty customer' => [Rule::OPERATOR_NEQ, true, ['0000'], true];
     }
 
     public function testUnsupportedValue(): void

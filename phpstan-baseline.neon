@@ -996,41 +996,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Repository/CustomerRepositoryTest.php
 
 		-
-			message: "#^Cannot call method setTagIds\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 6
-			path: src/Core/Checkout/Test/Customer/Rule/CustomerTagRuleTest.php
-
-		-
-			message: "#^Call to an undefined method DateTimeInterface\\:\\:modify\\(\\)\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Call to an undefined method DateTimeInterface\\:\\:setTime\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Cannot call method getLastOrderDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Cannot call method getOrderCount\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Cannot call method getOrderCount\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Customer/Rule/OrderTotalAmountRuleTest.php
-
-		-
-			message: "#^Cannot call method getOrderTotalAmount\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Customer/Rule/OrderTotalAmountRuleTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 6
 			path: src/Core/Checkout/Test/Customer/SalesChannel/AccountNewsletterRecipientRouteTest.php
@@ -2284,11 +2249,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\:\\:\\$status \\(bool\\) does not accept bool\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
 
 		-
 			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:isRequiredCustomField\\(\\) expects string, int\\|string given\\.$#"
@@ -4879,51 +4839,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 8
 			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Cannot call method getMessageKey\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Error\\\\Error\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Cannot call method getReferencedId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartProcessorTest\\:\\:advancedPricingProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartProcessorTest\\:\\:productDeliverabilityProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\QuantityPriceCalculator\\:\\:calculate\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\QuantityPriceDefinition, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PriceDefinitionInterface\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function array_merge expects array, array\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|null given\\.$#"

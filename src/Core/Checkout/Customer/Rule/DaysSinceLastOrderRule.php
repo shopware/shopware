@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -53,13 +54,21 @@ class DaysSinceLastOrderRule extends Rule
         $customer = $scope->getSalesChannelContext()->getCustomer();
 
         if (!$customer) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         $lastOrderDate = $customer->getLastOrderDate();
 
         if ($lastOrderDate === null) {
-            return $this->operator === self::OPERATOR_EMPTY;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return $this->operator === self::OPERATOR_EMPTY;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         $interval = $lastOrderDate->diff($currentDate);

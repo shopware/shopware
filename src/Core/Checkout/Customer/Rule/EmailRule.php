@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -35,7 +36,11 @@ class EmailRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if ($this->email && mb_strpos($this->email, '*') !== false) {

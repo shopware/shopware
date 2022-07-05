@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -75,7 +76,11 @@ class LineItemDimensionVolumeRule extends Rule
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         return RuleComparison::numeric($deliveryInformation->getVolume(), $this->amount, $this->operator);

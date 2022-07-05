@@ -212,30 +212,6 @@ class LineItemRuleTest extends TestCase
         static::assertFalse($matches);
     }
 
-    public function testNotMatchesWithPayloadId(): void
-    {
-        $matches = $this->getLineItemRule(Rule::OPERATOR_NEQ)->match(
-            new LineItemScope(
-                ($this->createLineItem())->setPayloadValue('id', 'A'),
-                $this->createMock(SalesChannelContext::class)
-            )
-        );
-
-        static::assertFalse($matches);
-    }
-
-    public function testNotMatchesDifferentPayloadId(): void
-    {
-        $matches = $this->getLineItemRule()->match(
-            new LineItemScope(
-                ($this->createLineItem())->setPayloadValue('id', 'C'),
-                $this->createMock(SalesChannelContext::class)
-            )
-        );
-
-        static::assertFalse($matches);
-    }
-
     public function testLineItemsInCartRuleScope(): void
     {
         $rule = $this->getLineItemRule();

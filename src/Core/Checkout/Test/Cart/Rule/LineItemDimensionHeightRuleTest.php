@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -13,6 +12,7 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -63,50 +63,65 @@ class LineItemDimensionHeightRuleTest extends TestCase
         string $operator,
         float $height,
         ?float $lineItemHeight,
-        bool $expected
+        bool $expected,
+        bool $lineItemWithoutDeliveryInfo = false
     ): void {
         $this->rule->assign([
             'amount' => $height,
             'operator' => $operator,
         ]);
 
+        $lineItem = $this->createLineItemWithHeight($lineItemHeight);
+        if ($lineItemWithoutDeliveryInfo) {
+            $lineItem = $this->createLineItem();
+        }
+
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItemWithHeight($lineItemHeight),
+            $lineItem,
             $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
     }
 
-    public function getMatchingRuleTestData(): array
+    public function getMatchingRuleTestData(): \Traversable
     {
-        return [
-            // OPERATOR_EQ
-            'match / operator equals / same height' => [Rule::OPERATOR_EQ, 100, 100, true],
-            'no match / operator equals / different height' => [Rule::OPERATOR_EQ, 200, 100, false],
-            // OPERATOR_NEQ
-            'no match / operator not equals / same height' => [Rule::OPERATOR_NEQ, 100, 100, false],
-            'match / operator not equals / different height' => [Rule::OPERATOR_NEQ, 200, 100, true],
-            // OPERATOR_GT
-            'no match / operator greater than / lower height' => [Rule::OPERATOR_GT, 100, 50, false],
-            'no match / operator greater than / same height' => [Rule::OPERATOR_GT, 100, 100, false],
-            'match / operator greater than / higher height' => [Rule::OPERATOR_GT, 100, 200, true],
-            // OPERATOR_GTE
-            'no match / operator greater than equals / lower height' => [Rule::OPERATOR_GTE, 100, 50, false],
-            'match / operator greater than equals / same height' => [Rule::OPERATOR_GTE, 100, 100, true],
-            'match / operator greater than equals / higher height' => [Rule::OPERATOR_GTE, 100, 200, true],
-            // OPERATOR_LT
-            'match / operator lower than / lower height' => [Rule::OPERATOR_LT, 100, 50, true],
-            'no match / operator lower  than / same height' => [Rule::OPERATOR_LT, 100, 100, false],
-            'no match / operator lower than / higher height' => [Rule::OPERATOR_LT, 100, 200, false],
-            // OPERATOR_LTE
-            'match / operator lower than equals / lower height' => [Rule::OPERATOR_LTE, 100, 50, true],
-            'match / operator lower than equals / same height' => [Rule::OPERATOR_LTE, 100, 100, true],
-            'no match / operator lower than equals / higher height' => [Rule::OPERATOR_LTE, 100, 200, false],
-            // OPERATOR_EMPTY
-            'match / operator empty / null height' => [Rule::OPERATOR_EMPTY, 100, null, true],
-            'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, false],
-        ];
+        // OPERATOR_EQ
+        yield 'match / operator equals / same height' => [Rule::OPERATOR_EQ, 100, 100, true];
+        yield 'no match / operator equals / different height' => [Rule::OPERATOR_EQ, 200, 100, false];
+        yield 'no match / operator equals / without delivery info' => [Rule::OPERATOR_EQ, 200, 100, false, true];
+        // OPERATOR_NEQ
+        yield 'no match / operator not equals / same height' => [Rule::OPERATOR_NEQ, 100, 100, false];
+        yield 'match / operator not equals / different height' => [Rule::OPERATOR_NEQ, 200, 100, true];
+        // OPERATOR_GT
+        yield 'no match / operator greater than / lower height' => [Rule::OPERATOR_GT, 100, 50, false];
+        yield 'no match / operator greater than / same height' => [Rule::OPERATOR_GT, 100, 100, false];
+        yield 'match / operator greater than / higher height' => [Rule::OPERATOR_GT, 100, 200, true];
+        // OPERATOR_GTE
+        yield 'no match / operator greater than equals / lower height' => [Rule::OPERATOR_GTE, 100, 50, false];
+        yield 'match / operator greater than equals / same height' => [Rule::OPERATOR_GTE, 100, 100, true];
+        yield 'match / operator greater than equals / higher height' => [Rule::OPERATOR_GTE, 100, 200, true];
+        // OPERATOR_LT
+        yield 'match / operator lower than / lower height' => [Rule::OPERATOR_LT, 100, 50, true];
+        yield 'no match / operator lower  than / same height' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / higher height' => [Rule::OPERATOR_LT, 100, 200, false];
+        // OPERATOR_LT
+        yield 'match / operator lower than equals / lower height' => [Rule::OPERATOR_LTE, 100, 50, true];
+        yield 'match / operator lower than equals / same height' => [Rule::OPERATOR_LTE, 100, 100, true];
+        yield 'no match / operator lower than equals / higher height' => [Rule::OPERATOR_LTE, 100, 200, false];
+        // OPERATOR_EMPTY
+        yield 'match / operator empty / null height' => [Rule::OPERATOR_EMPTY, 100, null, true];
+        yield 'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, false];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'no match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
+            yield 'no match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, false, true];
+
+            return;
+        }
+
+        yield 'match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
+        yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
     }
 
     /**
@@ -117,16 +132,28 @@ class LineItemDimensionHeightRuleTest extends TestCase
         float $height,
         ?float $lineItemHeight1,
         ?float $lineItemHeight2,
-        bool $expected
+        bool $expected,
+        bool $lineItem1WithoutDeliveryInfo = false,
+        bool $lineItem2WithoutDeliveryInfo = false
     ): void {
         $this->rule->assign([
             'amount' => $height,
             'operator' => $operator,
         ]);
 
+        $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
+        if ($lineItem1WithoutDeliveryInfo) {
+            $lineItem1 = $this->createLineItem();
+        }
+
+        $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
+        if ($lineItem2WithoutDeliveryInfo) {
+            $lineItem2 = $this->createLineItem();
+        }
+
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithHeight($lineItemHeight1),
-            $this->createLineItemWithHeight($lineItemHeight2),
+            $lineItem1,
+            $lineItem2,
         ]);
         $cart = $this->createCart($lineItemCollection);
 
@@ -146,18 +173,35 @@ class LineItemDimensionHeightRuleTest extends TestCase
         float $height,
         ?float $lineItemHeight1,
         ?float $lineItemHeight2,
-        bool $expected
+        bool $expected,
+        bool $lineItem1WithoutDeliveryInfo = false,
+        bool $lineItem2WithoutDeliveryInfo = false,
+        ?float $containerLineItemHeight = null
     ): void {
         $this->rule->assign([
             'amount' => $height,
             'operator' => $operator,
         ]);
 
+        $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
+        if ($lineItem1WithoutDeliveryInfo) {
+            $lineItem1 = $this->createLineItem();
+        }
+
+        $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
+        if ($lineItem2WithoutDeliveryInfo) {
+            $lineItem2 = $this->createLineItem();
+        }
+
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithHeight($lineItemHeight1),
-            $this->createLineItemWithHeight($lineItemHeight2),
+            $lineItem1,
+            $lineItem2,
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $containerLineItem = $this->createLineItem();
+        if ($containerLineItemHeight !== null) {
+            $containerLineItem = $this->createLineItemWithHeight($containerLineItemHeight);
+        }
+        $containerLineItem->setChildren($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
@@ -168,52 +212,58 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartRuleScopeTestData(): array
+    public function getCartRuleScopeTestData(): \Traversable
     {
-        return [
-            // OPERATOR_EQ
-            'match / operator equals / same height' => [Rule::OPERATOR_EQ, 100, 100, 200, true],
-            'no match / operator equals / different height' => [Rule::OPERATOR_EQ, 200, 100, 300, false],
-            // OPERATOR_NEQ
-            'no match / operator not equals / same height' => [Rule::OPERATOR_NEQ, 100, 100, 100, false],
-            'match / operator not equals / different height' => [Rule::OPERATOR_NEQ, 200, 100, 200, true],
-            'match / operator not equals / different height 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true],
-            // OPERATOR_GT
-            'no match / operator greater than / lower height' => [Rule::OPERATOR_GT, 100, 50, 70, false],
-            'no match / operator greater than / same height' => [Rule::OPERATOR_GT, 100, 100, 70, false],
-            'match / operator greater than / higher height' => [Rule::OPERATOR_GT, 100, 200, 70, true],
-            // OPERATOR_GTE
-            'no match / operator greater than equals / lower height' => [Rule::OPERATOR_GTE, 100, 50, 70, false],
-            'match / operator greater than equals / same height' => [Rule::OPERATOR_GTE, 100, 100, 70, true],
-            'match / operator greater than equals / higher height' => [Rule::OPERATOR_GTE, 100, 200, 70, true],
-            // OPERATOR_LT
-            'match / operator lower than / lower height' => [Rule::OPERATOR_LT, 100, 50, 120, true],
-            'no match / operator lower  than / same height' => [Rule::OPERATOR_LT, 100, 100, 120, false],
-            'no match / operator lower than / higher height' => [Rule::OPERATOR_LT, 100, 200, 120, false],
-            // OPERATOR_LTE
-            'match / operator lower than equals / lower height' => [Rule::OPERATOR_LTE, 100, 50, 120, true],
-            'match / operator lower than equals / same height' => [Rule::OPERATOR_LTE, 100, 100, 120, true],
-            'no match / operator lower than equals / higher height' => [Rule::OPERATOR_LTE, 100, 200, 120, false],
-            // OPERATOR_EMPTY
-            'match / operator empty / null height 1' => [Rule::OPERATOR_EMPTY, 100, null, 120, true],
-            'match / operator empty / null height 2' => [Rule::OPERATOR_EMPTY, 100, 100, null, true],
-            'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false],
-        ];
-    }
+        // OPERATOR_EQ
+        yield 'match / operator equals / same height' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
+        yield 'no match / operator equals / different height' => [Rule::OPERATOR_EQ, 200, 100, 300, false];
+        yield 'no match / operator equals / item 1 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true];
+        yield 'no match / operator equals / item 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, false, true];
+        yield 'no match / operator equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true, true];
+        // OPERATOR_NEQ
+        yield 'no match / operator not equals / same height' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, false, 100];
+        yield 'match / operator not equals / different height' => [Rule::OPERATOR_NEQ, 200, 100, 200, true];
+        yield 'match / operator not equals / different height 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true];
+        // OPERATOR_GT
+        yield 'no match / operator greater than / lower height' => [Rule::OPERATOR_GT, 100, 50, 70, false];
+        yield 'no match / operator greater than / same height' => [Rule::OPERATOR_GT, 100, 100, 70, false];
+        yield 'match / operator greater than / higher height' => [Rule::OPERATOR_GT, 100, 200, 70, true];
+        // OPERATOR_GTE
+        yield 'no match / operator greater than equals / lower height' => [Rule::OPERATOR_GTE, 100, 50, 70, false];
+        yield 'match / operator greater than equals / same height' => [Rule::OPERATOR_GTE, 100, 100, 70, true];
+        yield 'match / operator greater than equals / higher height' => [Rule::OPERATOR_GTE, 100, 200, 70, true];
+        // OPERATOR_LT
+        yield 'match / operator lower than / lower height' => [Rule::OPERATOR_LT, 100, 50, 120, true];
+        yield 'no match / operator lower  than / same height' => [Rule::OPERATOR_LT, 100, 100, 120, false];
+        yield 'no match / operator lower than / higher height' => [Rule::OPERATOR_LT, 100, 200, 120, false];
+        // OPERATOR_LTE
+        yield 'match / operator lower than equals / lower height' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
+        yield 'match / operator lower than equals / same height' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
+        yield 'no match / operator lower than equals / higher height' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
+        // OPERATOR_EMPTY
+        yield 'match / operator empty / null height 1' => [Rule::OPERATOR_EMPTY, 100, null, 120, true];
+        yield 'match / operator empty / null height 2' => [Rule::OPERATOR_EMPTY, 100, 100, null, true];
+        yield 'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false, false, false, 200];
 
-    /**
-     * @throws InvalidQuantityException
-     */
-    public function testMatchWithEmptyDeliveryInformation(): void
-    {
-        $this->rule->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'no match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
+            yield 'no match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
+            yield 'no match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
 
-        $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
-        ));
+            yield 'no match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
+            yield 'no match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
+            yield 'no match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
 
-        static::assertFalse($match);
+            return;
+        }
+
+        yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
+        yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
+        yield 'match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
+
+        yield 'match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, true, true, true];
+        yield 'match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, true];
+        yield 'match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, false, true];
     }
 
     public function testValidateWithIntAmount(): void

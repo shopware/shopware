@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -86,7 +87,11 @@ class LineItemCreationDateRule extends Rule
             $itemCreatedString = $lineItem->getPayloadValue('createdAt');
 
             if ($itemCreatedString === null) {
-                return false;
+                if (!Feature::isActive('v6.5.0.0')) {
+                    return false;
+                }
+
+                return RuleComparison::isNegativeOperator($this->operator);
             }
 
             $itemCreated = $this->buildDate($itemCreatedString);

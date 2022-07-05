@@ -26,7 +26,7 @@ trait CartRuleHelperTrait
     protected function createLineItemWithDeliveryInfo(
         bool $freeDelivery,
         int $quantity = 1,
-        float $weight = 50.0,
+        ?float $weight = 50.0,
         ?float $height = null,
         ?float $width = null,
         ?float $length = null,

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -168,7 +169,7 @@ class ShippingStreetRuleTest extends TestCase
     /**
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet): void
+    public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet, bool $noAddress = false): void
     {
         $streetName = 'kyln123';
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -176,6 +177,11 @@ class ShippingStreetRuleTest extends TestCase
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setStreet($shippingStreet);
+
+        if ($noAddress) {
+            $customerAddress = null;
+        }
+
         $location->method('getAddress')->willReturn($customerAddress);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
@@ -189,16 +195,24 @@ class ShippingStreetRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public function getMatchValues(): \Traversable
     {
-        return [
-            'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'],
-            'operator_oq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'],
-            'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'kyln000'],
-            'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '],
-        ];
+        yield 'operator_eq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
+        yield 'operator_eq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'];
+        yield 'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'kyln000'];
+        yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
+        yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
+        yield 'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 'ky', true];
+            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 'ky', true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 'ky', true];
+        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 'ky', true];
     }
 
     public function testUnsupportedValue(): void

@@ -6,12 +6,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -35,11 +37,14 @@ class LineItemTotalPriceRuleTest extends TestCase
 
     private Context $context;
 
+    private LineItemTotalPriceRule $rule;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->rule = new LineItemTotalPriceRule();
     }
 
     public function testValidateWithMissingParameters(): void
@@ -223,19 +228,197 @@ class LineItemTotalPriceRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testIfMatchesCorrectWithCartRuleScopeNested(): void
+    /**
+     * @dataProvider getMatchingRuleTestData
+     */
+    public function testIfMatchesCorrectWithLineItem(
+        string $operator,
+        float $price,
+        float $lineItemPrice,
+        bool $expected,
+        bool $lineItemWithoutPrice = false
+    ): void {
+        $this->rule->assign([
+            'amount' => $price,
+            'operator' => $operator,
+        ]);
+
+        $lineItem = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice);
+        if ($lineItemWithoutPrice) {
+            $lineItem = $this->createLineItem();
+        }
+
+        $match = $this->rule->match(new LineItemScope(
+            $lineItem,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    public function getMatchingRuleTestData(): \Traversable
     {
+        // OPERATOR_EQ
+        yield 'match / operator equals / same price' => [Rule::OPERATOR_EQ, 100, 100, true];
+        yield 'no match / operator equals / different price' => [Rule::OPERATOR_EQ, 200, 100, false];
+        yield 'no match / operator equals / without delivery info' => [Rule::OPERATOR_EQ, 200, 100, false, true];
+        // OPERATOR_NEQ
+        yield 'no match / operator not equals / same price' => [Rule::OPERATOR_NEQ, 100, 100, false];
+        yield 'match / operator not equals / different price' => [Rule::OPERATOR_NEQ, 200, 100, true];
+        // OPERATOR_GT
+        yield 'no match / operator greater than / lower price' => [Rule::OPERATOR_GT, 100, 50, false];
+        yield 'no match / operator greater than / same price' => [Rule::OPERATOR_GT, 100, 100, false];
+        yield 'match / operator greater than / higher price' => [Rule::OPERATOR_GT, 100, 200, true];
+        // OPERATOR_GTE
+        yield 'no match / operator greater than equals / lower price' => [Rule::OPERATOR_GTE, 100, 50, false];
+        yield 'match / operator greater than equals / same price' => [Rule::OPERATOR_GTE, 100, 100, true];
+        yield 'match / operator greater than equals / higher price' => [Rule::OPERATOR_GTE, 100, 200, true];
+        // OPERATOR_LT
+        yield 'match / operator lower than / lower price' => [Rule::OPERATOR_LT, 100, 50, true];
+        yield 'no match / operator lower  than / same price' => [Rule::OPERATOR_LT, 100, 100, false];
+        yield 'no match / operator lower than / higher price' => [Rule::OPERATOR_LT, 100, 200, false];
+        // OPERATOR_LTE
+        yield 'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, true];
+        yield 'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, true];
+        yield 'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, false];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
+
+            return;
+        }
+
+        yield 'match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScope(
+        string $operator,
+        float $price,
+        float $lineItemPrice1,
+        float $lineItemPrice2,
+        bool $expected,
+        bool $lineItem1WithoutPrice = false,
+        bool $lineItem2WithoutPrice = false
+    ): void {
+        $this->rule->assign([
+            'amount' => $price,
+            'operator' => $operator,
+        ]);
+
+        $lineItem1 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
+        if ($lineItem1WithoutPrice) {
+            $lineItem1 = $this->createLineItem();
+        }
+
+        $lineItem2 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
+        if ($lineItem2WithoutPrice) {
+            $lineItem2 = $this->createLineItem();
+        }
+
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, 20.0),
-            $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, 50.0),
+            $lineItem1,
+            $lineItem2,
+        ]);
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopeNested(
+        string $operator,
+        float $price,
+        float $lineItemPrice1,
+        float $lineItemPrice2,
+        bool $expected,
+        bool $lineItem1WithoutPrice = false,
+        bool $lineItem2WithoutPrice = false
+    ): void {
+        $this->rule->assign([
+            'amount' => $price,
+            'operator' => $operator,
+        ]);
+
+        $lineItem1 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
+        if ($lineItem1WithoutPrice) {
+            $lineItem1 = $this->createLineItem();
+        }
+
+        $lineItem2 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
+        if ($lineItem2WithoutPrice) {
+            $lineItem2 = $this->createLineItem();
+        }
+
+        $lineItemCollection = new LineItemCollection([
+            $lineItem1,
+            $lineItem2,
         ]);
         $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $containerLineItem->setType(LineItem::CONTAINER_LINE_ITEM);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
-        $match = (new LineItemTotalPriceRule(Rule::OPERATOR_EQ, 50.0))->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
-        );
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
 
-        static::assertTrue($match);
+        static::assertSame($expected, $match);
+    }
+
+    public function getCartRuleScopeTestData(): \Traversable
+    {
+        // OPERATOR_EQ
+        yield 'match / operator equals / same price' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
+        yield 'no match / operator equals / different price' => [Rule::OPERATOR_EQ, 200, 100, 300, false];
+        // OPERATOR_NEQ
+
+        yield 'match / operator not equals / different price' => [Rule::OPERATOR_NEQ, 200, 100, 200, true];
+        yield 'match / operator not equals / different price 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true];
+        // OPERATOR_GT
+        yield 'no match / operator greater than / lower price' => [Rule::OPERATOR_GT, 100, 50, 70, false];
+        yield 'no match / operator greater than / same price' => [Rule::OPERATOR_GT, 100, 100, 70, false];
+        yield 'match / operator greater than / higher price' => [Rule::OPERATOR_GT, 100, 200, 70, true];
+        // OPERATOR_GTE
+        yield 'no match / operator greater than equals / lower price' => [Rule::OPERATOR_GTE, 100, 50, 70, false];
+        yield 'match / operator greater than equals / same price' => [Rule::OPERATOR_GTE, 100, 100, 70, true];
+        yield 'match / operator greater than equals / higher price' => [Rule::OPERATOR_GTE, 100, 200, 70, true];
+        // OPERATOR_LT
+        yield 'match / operator lower than / lower price' => [Rule::OPERATOR_LT, 100, 50, 120, true];
+        yield 'no match / operator lower  than / same price' => [Rule::OPERATOR_LT, 100, 100, 120, false];
+        yield 'no match / operator lower than / higher price' => [Rule::OPERATOR_LT, 100, 200, 120, false];
+        // OPERATOR_LTE
+        yield 'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
+        yield 'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
+        yield 'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'no match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
+            yield 'no match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
+            yield 'no match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
+
+            yield 'no match / operator empty / item 1 and 2 without price' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
+            yield 'no match / operator empty / item 1 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
+            yield 'no match / operator empty / item 2 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
+
+            return;
+        }
+
+        yield 'match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
+        yield 'match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
+        yield 'match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
+
+        yield 'match / operator empty / item 1 and 2 without price' => [Rule::OPERATOR_EMPTY, 200, 100, 300, true, true, true];
+        yield 'match / operator empty / item 1 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, true];
+        yield 'match / operator empty / item 2 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, false, true];
     }
 }

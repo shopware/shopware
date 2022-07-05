@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -83,6 +85,21 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(101, $info->getHeight());
         static::assertEquals(102, $info->getWidth());
         static::assertEquals(103, $info->getLength());
+    }
+
+    public function testDeliveryInformationWithEmptyWeight(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+        $this->createProduct(['weight' => null]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
+
+        $info = $lineItem->getDeliveryInformation();
+
+        static::assertNotNull($info->getWeight()); // Has to be changed to assertNull, when type has changed to ?float
     }
 
     public function testNotCompletedLogic(): void
@@ -161,13 +178,16 @@ class ProductCartProcessorTest extends TestCase
         static::assertCount(1, $cart->getLineItems());
 
         $lineItem = $cart->getLineItems()->first();
+        static::assertNotNull($lineItem);
         static::assertEquals('product', $lineItem->getType());
         static::assertEquals($ids->get('test'), $lineItem->getReferencedId());
 
-        static::assertEquals($price, $lineItem->getPrice()->getTotalPrice());
+        /** @var CalculatedPrice $calcPrice */
+        $calcPrice = $lineItem->getPrice();
+        static::assertEquals($price, $calcPrice->getTotalPrice());
     }
 
-    public function advancedPricingProvider()
+    public function advancedPricingProvider(): \Traversable
     {
         yield 'Test not matching rule' => [false, 100];
 
@@ -542,6 +562,9 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -582,11 +605,13 @@ class ProductCartProcessorTest extends TestCase
         $actualProduct = $cart->get($product->getId());
         static::assertEquals($quantityExpected, $actualProduct->getQuantity());
         if ($errorKey !== null) {
-            static::assertEquals($errorKey, $service->getCart($token, $context)->getErrors()->first()->getMessageKey());
+            $error = $service->getCart($token, $context)->getErrors()->first();
+            static::assertNotNull($error);
+            static::assertEquals($errorKey, $error->getMessageKey());
         }
     }
 
-    public function productDeliverabilityProvider()
+    public function productDeliverabilityProvider(): array
     {
         return [
             'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
@@ -636,6 +661,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -664,6 +691,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertNotNull($product->getPriceDefinition());
+        static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
@@ -721,6 +750,10 @@ class ProductCartProcessorTest extends TestCase
 
     private function createProduct(?array $additionalData = []): void
     {
+        if ($additionalData === null) {
+            $additionalData = [];
+        }
+
         $data = [
             'id' => $this->ids->create('product'),
             'name' => 'test',
@@ -757,6 +790,10 @@ class ProductCartProcessorTest extends TestCase
 
     private function createCustomField(?array $additionalData = []): void
     {
+        if ($additionalData === null) {
+            $additionalData = [];
+        }
+
         $data = array_merge([
             'id' => self::CUSTOM_FIELD_ID,
             'name' => 'lorem_ipsum',

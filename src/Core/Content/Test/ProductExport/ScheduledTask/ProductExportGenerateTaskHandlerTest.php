@@ -176,6 +176,32 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    public function testSchedulerRunIfSalesChannelIsActive(): void
+    {
+        $this->prepareProductExportForScheduler(true);
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
+    }
+
+    public function testSchedulerDontRunIfSalesChannelIsNotActive(): void
+    {
+        $this->prepareProductExportForScheduler(false);
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore), $messagesAfter);
+    }
+
     protected function createSecondStorefrontSalesChannel(): void
     {
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -332,5 +358,24 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             $this->productExportRepository->searchIds(new Criteria(), $this->context)->getIds(),
             $this->context
         );
+    }
+
+    private function prepareProductExportForScheduler(bool $active): void
+    {
+        $this->createProductStream();
+        $this->clearProductExports();
+        $this->createTestEntity();
+
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->getSalesChannelId()));
+        $salesChannelId = $salesChannelRepository->searchIds($criteria, $this->context)->firstId();
+
+        $salesChannelRepository->update([
+            [
+                'id' => $salesChannelId,
+                'active' => $active
+            ]
+        ], $this->context);
     }
 }

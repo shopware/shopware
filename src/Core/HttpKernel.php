@@ -39,7 +39,7 @@ class HttpKernel
     /**
      * @var class-string<HttpCache>
      */
-    protected static $httpCacheClass = HttpCache::class;
+    protected static string $httpCacheClass = HttpCache::class;
 
     /**
      * @var ClassLoader|null

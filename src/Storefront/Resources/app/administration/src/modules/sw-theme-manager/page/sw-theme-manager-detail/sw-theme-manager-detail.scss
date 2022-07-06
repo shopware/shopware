@@ -128,19 +128,16 @@
         .sw-media-upload-v2__header {
             flex-direction: row-reverse;
             position: relative;
-            top: -18px;
-            margin-bottom: -12px;
+            top: -28px;
+            margin-bottom: -24px;
             z-index: 99;
+            height: 24px;
         }
 
         .sw-inherit-wrapper__toggle-wrapper {
             z-index: 100;
             position: relative;
             width: fit-content;
-        }
-
-        .sw-media-upload-v2__switch-mode {
-            position: absolute;
         }
     }
 

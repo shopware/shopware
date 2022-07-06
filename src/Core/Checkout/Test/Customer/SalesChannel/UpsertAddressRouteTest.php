@@ -3,16 +3,29 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
+use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -53,10 +66,10 @@ class UpsertAddressRouteTest extends TestCase
                 \json_encode([
                     'email' => $email,
                     'password' => 'shopware',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -73,11 +86,11 @@ class UpsertAddressRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                \json_encode($data)
+                \json_encode($data, \JSON_THROW_ON_ERROR)
             );
 
         $response = $this->browser->getResponse();
-        $content = \json_decode($response->getContent(), true);
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('id', $content);
@@ -112,7 +125,7 @@ class UpsertAddressRouteTest extends TestCase
                 '/store-api/account/address'
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(6, $response['errors']);
@@ -127,7 +140,7 @@ class UpsertAddressRouteTest extends TestCase
                 '/store-api/account/customer'
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $addressId = $response['defaultBillingAddressId'];
 
         $this->browser
@@ -136,7 +149,7 @@ class UpsertAddressRouteTest extends TestCase
                 '/store-api/account/list-address'
             );
 
-        $address = \json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
+        $address = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['elements'][0];
         $address['firstName'] = __FUNCTION__;
 
         // Update
@@ -147,7 +160,7 @@ class UpsertAddressRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                \json_encode($address)
+                \json_encode($address, \JSON_THROW_ON_ERROR)
             );
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
@@ -159,7 +172,7 @@ class UpsertAddressRouteTest extends TestCase
                 '/store-api/account/list-address'
             );
 
-        $updatedAddress = \json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
+        $updatedAddress = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['elements'][0];
         unset($address['updatedAt'], $updatedAddress['updatedAt']);
 
         static::assertSame($address, $updatedAddress);
@@ -188,10 +201,10 @@ class UpsertAddressRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                \json_encode($data)
+                \json_encode($data, \JSON_THROW_ON_ERROR)
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('id', $response);
 
@@ -206,6 +219,72 @@ class UpsertAddressRouteTest extends TestCase
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);
         }
+    }
+
+    public function testCustomFields(): void
+    {
+        $addressRepository = $this->createMock(EntityRepository::class);
+        $addressRepository
+            ->method('searchIds')
+            ->willReturn(new IdSearchResult(1, [['data' => ['address-1'], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('first')
+            ->willReturn(new CustomerAddressEntity());
+
+        $addressRepository
+            ->method('search')
+            ->willReturn($result);
+
+        $addressRepository
+            ->method('upsert')
+            ->with([
+                [
+                    'salutationId' => null,
+                    'firstName' => null,
+                    'lastName' => null,
+                    'street' => null,
+                    'city' => null,
+                    'zipcode' => null,
+                    'countryId' => null,
+                    'countryStateId' => null,
+                    'company' => null,
+                    'department' => null,
+                    'title' => null,
+                    'phoneNumber' => null,
+                    'additionalAddressLine1' => null,
+                    'additionalAddressLine2' => null,
+                    'id' => 'test',
+                    'customerId' => 'test',
+                    'customFields' => [
+                        'mapped' => 1,
+                    ],
+                ],
+            ]);
+
+        $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
+        $storeApiCustomFieldMapper
+            ->method('map')
+            ->with(CustomerAddressDefinition::ENTITY_NAME, new RequestDataBag(['bla' => 'bla', 'mapped' => 1]))
+            ->willReturn(['mapped' => 1]);
+
+        $route = new UpsertAddressRoute(
+            $addressRepository,
+            $this->createMock(DataValidator::class),
+            new EventDispatcher(),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(SystemConfigService::class),
+            $storeApiCustomFieldMapper
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId('test');
+        $route->upsert('test', new RequestDataBag([
+            'customFields' => [
+                'bla' => 'bla',
+                'mapped' => 1,
+            ],
+        ]), $this->createMock(SalesChannelContext::class), $customer);
     }
 
     public function addressDataProvider(): \Generator

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
@@ -13,8 +14,12 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,10 +27,19 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -81,10 +95,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         /**
          * @var Connection $connection
@@ -96,7 +110,7 @@ class RegisterRouteTest extends TestCase
                 'customerId' => Uuid::fromHexToBytes($response['id']),
             ]
         );
-        $result = json_decode($result, true);
+        $result = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('domainId', $result);
 
@@ -123,10 +137,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -151,16 +165,16 @@ class RegisterRouteTest extends TestCase
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
-        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData()));
+        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR));
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('apiAlias', $response, \print_r($response, true));
         static::assertSame('customer', $response['apiAlias']);
 
-        $this->browser->request('POST', '/store-api/account/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['email' => 'teg-reg@example.com', 'password' => '12345678']));
+        $this->browser->request('POST', '/store-api/account/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['email' => 'teg-reg@example.com', 'password' => '12345678'], \JSON_THROW_ON_ERROR));
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
 
@@ -200,10 +214,10 @@ class RegisterRouteTest extends TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($this->getRegistrationData($storefrontUrl))
+            json_encode($this->getRegistrationData($storefrontUrl), \JSON_THROW_ON_ERROR)
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($expectedStatus, $browser->getResponse()->getStatusCode());
 
@@ -221,10 +235,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-            $response = json_decode($browser->getResponse()->getContent(), true);
+            $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             static::assertArrayHasKey('contextToken', $response);
         } else {
@@ -242,15 +256,15 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -258,7 +272,7 @@ class RegisterRouteTest extends TestCase
                 '/store-api/account/customer'
             );
 
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('errors', $customer);
         static::assertSame('customer', $customer['apiAlias']);
     }
@@ -286,12 +300,12 @@ class RegisterRouteTest extends TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($this->getRegistrationData($domainUrlTest['expectDomain']))
+            json_encode($this->getRegistrationData($domainUrlTest['expectDomain']), \JSON_THROW_ON_ERROR)
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertEquals(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertArrayNotHasKey('errors', $response);
@@ -306,15 +320,18 @@ class RegisterRouteTest extends TestCase
             json_encode([
                 'email' => 'teg-reg@example.com',
                 'password' => '12345678',
-            ])
+            ], \JSON_THROW_ON_ERROR)
         );
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
 
-    public function registerWithDomainAndLeadingSlashProvider()
+    /**
+     * @return array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}
+     */
+    public function registerWithDomainAndLeadingSlashProvider(): array
     {
         return [
             // test without leading slash
@@ -345,10 +362,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
 
@@ -364,10 +381,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('contextToken', $response);
         static::assertArrayHasKey('errors', $response);
@@ -388,7 +405,7 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -403,10 +420,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -435,9 +452,9 @@ class RegisterRouteTest extends TestCase
 
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
 
-        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData()));
+        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR));
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
 
@@ -447,7 +464,7 @@ class RegisterRouteTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => sha1('teg-reg@example.com')]));
+        $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => sha1('teg-reg@example.com')], \JSON_THROW_ON_ERROR));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
@@ -489,7 +506,7 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
         /** @var CustomerDoubleOptInRegistrationEvent $caughtEvent */
@@ -510,14 +527,14 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -525,7 +542,7 @@ class RegisterRouteTest extends TestCase
                 '/store-api/account/customer'
             );
 
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $customer);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $customer['errors'][0]['code']);
     }
@@ -544,13 +561,13 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         // Validate I am not logged in
         $this->browser
@@ -559,7 +576,7 @@ class RegisterRouteTest extends TestCase
                 '/store-api/account/customer'
             );
 
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $customer);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $customer['errors'][0]['code']);
 
@@ -579,13 +596,13 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertTrue($response['active']);
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -593,7 +610,7 @@ class RegisterRouteTest extends TestCase
                 '/store-api/account/customer'
             );
 
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('errors', $customer);
         static::assertSame('customer', $response['apiAlias']);
     }
@@ -619,10 +636,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode(array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')]))
+                json_encode(array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')]), \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
 
@@ -654,15 +671,25 @@ class RegisterRouteTest extends TestCase
         $expectedEmailExistedStatus = 400;
 
         return [
+            // @phpstan-ignore-next-line
             [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedSuccessStatus],
+            // @phpstan-ignore-next-line
             [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
+            // @phpstan-ignore-next-line
             [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            // @phpstan-ignore-next-line
             [!$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
         ];
     }
@@ -688,10 +715,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertSame(['DE123456789'], $response['vatIds']);
@@ -707,10 +734,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -734,10 +761,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($this->getContainer()->get(SystemConfigService::class)->get('core.loginRegistration.vatIdFieldRequired', $this->getSalesChannelApiSalesChannelId())) {
             static::assertArrayHasKey('errors', $response);
@@ -756,10 +783,10 @@ class RegisterRouteTest extends TestCase
                     json_encode([
                         'email' => 'teg-reg@example.com',
                         'password' => '12345678',
-                    ])
+                    ], \JSON_THROW_ON_ERROR)
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true);
+            $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             static::assertArrayHasKey('contextToken', $response);
         }
@@ -790,10 +817,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -823,10 +850,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -841,10 +868,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -874,10 +901,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
 
@@ -911,10 +938,10 @@ class RegisterRouteTest extends TestCase
                 json_encode([
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -943,10 +970,10 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -970,13 +997,13 @@ class RegisterRouteTest extends TestCase
                             'referencedId' => $this->ids->get('p1'),
                         ],
                     ],
-                ])
+                ], \JSON_THROW_ON_ERROR)
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $contextToken);
 
         $additionalData = [
             'guest' => true,
@@ -990,7 +1017,7 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($registrationData)
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -998,6 +1025,71 @@ class RegisterRouteTest extends TestCase
         $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertCount(1, $newContextToken);
         static::assertNotEquals($contextToken, $newContextToken);
+    }
+
+    public function testCustomFields(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService
+            ->method('get')
+            ->willReturn('1');
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $result->method('first')->willReturn($customerEntity);
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects(static::once())
+            ->method('create')
+            ->willReturnCallback(function (array $create) {
+                static::assertSame(['mapped' => 1], $create[0]['customFields']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $customFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
+        $customFieldMapper
+            ->expects(static::once())
+            ->method('map')
+            ->with(CustomerDefinition::ENTITY_NAME, new RequestDataBag([
+                'test' => 1,
+                'mapped' => 1,
+            ]))
+            ->willReturn(['mapped' => 1]);
+
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $customFieldMapper
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [],
+            'customFields' => [
+                'test' => 1,
+                'mapped' => 1,
+            ],
+        ];
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
     private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array

@@ -248,11 +248,6 @@ parameters:
 		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
 			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
-			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/SendPasswordRecoveryMailRoute.php
 
 		-
@@ -1021,36 +1016,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/SalesChannel/MergeWishlistProductRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\RegisterRouteTest\\:\\:registerWithDomainAndLeadingSlashProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Negated boolean expression is always false\\.$#"
-			count: 21
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 31
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:setServerParameter\\(\\) expects string, string\\|null given\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 32
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 6
 			path: src/Core/Checkout/Test/Customer/SalesChannel/RemoveWishlistProductRouteTest.php
@@ -1099,16 +1064,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\SwitchDefaultAddressRouteTest\\:\\:\\$customerRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/SalesChannel/SwitchDefaultAddressRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Core/Checkout/Test/Customer/SalesChannel/UpsertAddressRouteTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Customer/SalesChannel/UpsertAddressRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -5229,11 +5184,6 @@ parameters:
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
-
-		-
-			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/CustomFieldTypes/CustomFieldType.php
 
 		-
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"

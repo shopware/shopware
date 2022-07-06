@@ -176,6 +176,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute" public="true">
@@ -217,6 +218,7 @@
             <argument type="service" id="sales_channel.country.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
@@ -238,6 +240,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute" public="true">

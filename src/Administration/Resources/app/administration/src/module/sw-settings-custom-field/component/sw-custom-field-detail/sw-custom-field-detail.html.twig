@@ -65,6 +65,17 @@
         />
         {% endblock %}
 
+        {% block sw_custom_field_detail_modal_allow_customer_write %}
+        <sw-field
+            v-model="currentCustomField.allowCustomerWrite"
+            type="switch"
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
+            class="sw-custom-field-detail__allow-customer-write"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCustomerWrite')"
+            :disabled="!acl.can('custom_field.editor')"
+        />
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <sw-alert class="sw-custom-field-detail__info">
             {{ $tc('sw-settings-custom-field.customField.detail.infoText', 0, { name: currentCustomField.name }) }}

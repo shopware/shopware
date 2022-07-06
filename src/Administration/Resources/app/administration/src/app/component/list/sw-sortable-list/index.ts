@@ -1,12 +1,9 @@
 import type { PropType } from 'vue';
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 
 const { Component } = Shopware;
-
-interface Entity extends $TSFixMe {
-    id: string;
-}
 
 interface DragConfig {
     delay: number,
@@ -43,6 +40,7 @@ interface DragConfig {
  */
 Component.register('sw-sortable-list', {
     template,
+
     props: {
         items: {
             type: Array as PropType<Array<Entity>>,
@@ -57,7 +55,7 @@ Component.register('sw-sortable-list', {
             },
         },
         dragConf: {
-            type: Object,
+            type: Object as PropType<DragConfig>,
             required: false,
             default(): DragConfig {
                 return this.defaultConfig;

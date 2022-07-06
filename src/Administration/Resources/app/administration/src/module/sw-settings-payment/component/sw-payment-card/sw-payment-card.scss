@@ -38,10 +38,6 @@ $sw-payment-card_content-gap: 20px;
         text-decoration: underline;
         flex-shrink: 0;
         margin: 0 $sw-payment-card_content-gap;
-
-        .sw-icon {
-            display: none;
-        }
     }
 
     .sw-internal-link.sw-internal-link--disabled {

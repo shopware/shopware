@@ -47,7 +47,7 @@ Component.register('sw-settings-payment-sorting-modal', {
                 return paymentMethod;
             });
 
-            this.paymentMethodRepository.saveAll(this.sortedPaymentMethods, Shopware.Context.api)
+            return this.paymentMethodRepository.saveAll(this.sortedPaymentMethods, Shopware.Context.api)
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');

@@ -24,6 +24,7 @@
         <sw-internal-link
             v-if="acl.can('payment.editor')"
             :router-link="{ name: 'sw.settings.payment.detail', params: { id: paymentMethod.id }}"
+            hide-icon
         >
             {{ $tc('sw-settings-payment.overview.editDetails') }}
         </sw-internal-link>

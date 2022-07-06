@@ -82,7 +82,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                         'AND',
                         [
                             new EqualsFilter('generateByCronjob', true),
-                            new EqualsFilter('salesChannel.active', true)
+                            new EqualsFilter('salesChannel.active', true),
                         ]
                     )
                 )

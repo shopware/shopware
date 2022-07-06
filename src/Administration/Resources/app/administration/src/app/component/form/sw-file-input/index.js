@@ -53,12 +53,19 @@ Component.register('sw-file-input', {
         value: {
             required: false,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
             selectedFile: null,
             utilsId: utils.createId(),
+            isDragActive: false,
         };
     },
 
@@ -66,9 +73,31 @@ Component.register('sw-file-input', {
         id() {
             return `sw-file-input--${this.utilsId}`;
         },
+
+        isDragActiveClass() {
+            return {
+                'is--active': this.isDragActive,
+            };
+        },
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            if (this.$refs.dropzone) {
+                ['dragover', 'drop'].forEach((event) => {
+                    window.addEventListener(event, this.stopEventPropagation, false);
+                });
+                this.$refs.dropzone.addEventListener('drop', this.onDrop);
+
+                window.addEventListener('dragenter', this.onDragEnter);
+                window.addEventListener('dragleave', this.onDragLeave);
+            }
+        },
+
         onChooseButtonClick() {
             this.$refs.fileInput.click();
         },
@@ -122,6 +151,55 @@ Component.register('sw-file-input', {
                 }),
             });
             return false;
+        },
+
+        onDragEnter() {
+            if (this.disabled) {
+                return;
+            }
+
+            this.isDragActive = true;
+        },
+
+        onDragLeave(event) {
+            if (event.screenX === 0 && event.screenY === 0) {
+                this.isDragActive = false;
+                return;
+            }
+
+            const target = event.target;
+
+            if (target.closest('.sw-file-input__dropzone')) {
+                return;
+            }
+
+            this.isDragActive = false;
+        },
+
+        stopEventPropagation(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        },
+
+        onDrop(event) {
+            if (this.disabled) {
+                return;
+            }
+
+            const newFiles = Array.from(event.dataTransfer.files);
+            this.isDragActive = false;
+
+            if (newFiles.length === 0) {
+                return;
+            }
+
+            const newFile = newFiles[0];
+
+            if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+                this.setSelectedFile(newFile);
+            }
+
+            this.$refs.fileForm.reset();
         },
     },
 });

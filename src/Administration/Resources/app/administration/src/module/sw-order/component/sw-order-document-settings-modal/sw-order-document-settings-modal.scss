@@ -1,0 +1,14 @@
+.sw-order-document-settings-modal {
+    &__comment {
+        margin-top: 22px;
+    }
+
+    &__file-toggle.sw-field--switch {
+        margin: 0;
+    }
+
+    footer.sw-modal__footer {
+        display: flex;
+        justify-content: space-between;
+    }
+}

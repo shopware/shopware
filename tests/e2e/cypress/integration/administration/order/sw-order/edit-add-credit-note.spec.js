@@ -137,7 +137,7 @@ describe('Order: Create credit note', () => {
         // Generate preview
         cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
-        cy.get('#sw-order-document-settings-modal__preview-button').click();
+        cy.get('.sw-order-document-settings-modal__preview-button').click();
 
         cy.wait('@onPreview').its('response.statusCode').should('equal', 200);
 

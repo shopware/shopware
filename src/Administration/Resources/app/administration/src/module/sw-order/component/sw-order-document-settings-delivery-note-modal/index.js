@@ -5,6 +5,8 @@ const { Component } = Shopware;
 Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-document-settings-modal', {
     template,
 
+    inject: ['feature'],
+
     data() {
         return {
             documentConfig: {

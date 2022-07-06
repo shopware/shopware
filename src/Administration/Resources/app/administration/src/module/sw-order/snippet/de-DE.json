@@ -342,6 +342,7 @@
       "labelMarkAsUnsent": "Als ungesendet markieren",
       "labelCreateNew": "Neues Dokument erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
+      "messageNoDocumentFound": "Keine Dokumente vorhanden",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
       "error": {
         "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung."

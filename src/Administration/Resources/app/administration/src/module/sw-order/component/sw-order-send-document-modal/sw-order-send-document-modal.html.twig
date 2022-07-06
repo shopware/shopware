@@ -46,25 +46,25 @@
     {% endblock %}
 
     {% block sw_order_send_document_modal_customer_mail_select %}
-    <sw-field
+    <sw-text-field
         v-model="recipient"
-        type="text"
         :label="$tc('sw-order.documentSendModal.labelRecipient')"
         required
     />
     {% endblock %}
 
     {% block sw_order_send_document_modal_subject %}
-    <sw-field
+    <sw-text-field
         v-model="subject"
-        type="text"
         :label="$tc('sw-order.documentSendModal.labelSubject')"
         required
     />
     {% endblock %}
 
     {% block sw_order_send_document_modal_mail_content %}
-    <div class="sw-order-send-document-modal__email-content-label">
+    <div
+        class="sw-order-send-document-modal__email-content-label"
+    >
         {{ $tc('sw-order.documentSendModal.labelContent') }}
     </div>
 

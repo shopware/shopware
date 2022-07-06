@@ -3,6 +3,7 @@ import './sw-media-upload-v2.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { fileReader } = Shopware.Utils;
+const { fileSize } = Shopware.Utils.format;
 const { Criteria } = Shopware.Data;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
@@ -31,7 +32,7 @@ Component.register('sw-media-upload-v2', {
 
     props: {
         source: {
-            type: [Object, String],
+            type: [Object, String, File],
             required: false,
             default: null,
         },
@@ -39,9 +40,9 @@ Component.register('sw-media-upload-v2', {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular'],
+            validValues: ['compact', 'regular', 'small'],
             validator(value) {
-                return ['compact', 'regular'].includes(value);
+                return ['compact', 'regular', 'small'].includes(value);
             },
             default: 'regular',
         },
@@ -99,7 +100,19 @@ Component.register('sw-media-upload-v2', {
             default: 'image/*',
         },
 
+        maxFileSize: {
+            type: Number,
+            required: false,
+            default: null,
+        },
+
         disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        useFileData: {
             type: Boolean,
             required: false,
             default: false,
@@ -114,6 +127,7 @@ Component.register('sw-media-upload-v2', {
             isDragActive: false,
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: false,
+            isCorrectFileType: true,
         };
     },
 
@@ -148,6 +162,7 @@ Component.register('sw-media-upload-v2', {
             return {
                 'is--active': this.isDragActive,
                 'is--multi': this.variant === 'regular' && !!this.multiSelect,
+                'is--small': this.variant === 'small',
             };
         },
 
@@ -247,7 +262,7 @@ Component.register('sw-media-upload-v2', {
                 return;
             }
 
-            this.handleUpload(newMediaFiles);
+            this.handleFileCheck(newMediaFiles);
         },
 
         onDropMedia(dragData) {
@@ -269,7 +284,16 @@ Component.register('sw-media-upload-v2', {
         onDragLeave(event) {
             if (event.screenX === 0 && event.screenY === 0) {
                 this.isDragActive = false;
+                return;
             }
+
+            const target = event.target;
+
+            if (target.closest('.sw-media-upload-v2__dropzone')) {
+                return;
+            }
+
+            this.isDragActive = false;
         },
 
         stopEventPropagation(event) {
@@ -314,7 +338,19 @@ Component.register('sw-media-upload-v2', {
                 this.preview = url;
             }
 
-            const fileInfo = fileReader.getNameAndExtensionFromUrl(url);
+            let fileInfo;
+
+            try {
+                fileInfo = fileReader.getNameAndExtensionFromUrl(url);
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),
+                });
+
+                return;
+            }
+
             if (fileExtension) {
                 fileInfo.extension = fileExtension;
             }
@@ -330,9 +366,12 @@ Component.register('sw-media-upload-v2', {
         onFileInputChange() {
             const newMediaFiles = Array.from(this.$refs.fileInput.files);
 
-            if (newMediaFiles.length) {
-                this.handleUpload(newMediaFiles);
+            if (!newMediaFiles.length) {
+                return;
             }
+
+            this.handleFileCheck(newMediaFiles);
+
             this.$refs.fileForm.reset();
         },
 
@@ -387,6 +426,73 @@ Component.register('sw-media-upload-v2', {
         handleMediaServiceUploadEvent({ action }) {
             if (action === 'media-upload-fail') {
                 this.onRemoveMediaItem();
+            }
+        },
+
+        checkFileSize(file) {
+            if (this.maxFileSize === null || file.size <= this.maxFileSize || file.fileSize <= this.maxFileSize) {
+                return true;
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
+                    name: file.name || file.fileName,
+                    limit: fileSize(this.maxFileSize),
+                }),
+            });
+            return false;
+        },
+
+        checkFileType(file) {
+            if (!this.fileAccept || this.fileAccept === '*/*') {
+                return true;
+            }
+
+            const fileTypes = this.fileAccept.split(',');
+
+            fileTypes.forEach(fileType => {
+                const fileAcceptType = fileType.split('/');
+                const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
+
+                if (fileAcceptType[0] !== currentFileType[0]) {
+                    this.isCorrectFileType = false;
+                    return;
+                }
+
+                if (fileAcceptType[1] === '*') {
+                    this.isCorrectFileType = true;
+                    return;
+                }
+
+                this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+            });
+
+            if (this.isCorrectFileType) {
+                return true;
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
+                    name: file.name || file.fileName,
+                    supportedTypes: this.fileAccept,
+                }),
+            });
+            return false;
+        },
+
+        handleFileCheck(files) {
+            const checkedFiles = files.filter((file) => {
+                return this.checkFileSize(file) && this.checkFileType(file);
+            });
+
+
+            if (this.useFileData) {
+                this.preview = !this.multiSelect ? checkedFiles[0] : null;
+                this.$emit('media-upload-add-file', checkedFiles);
+            } else {
+                this.handleUpload(checkedFiles);
             }
         },
     },

@@ -66,7 +66,7 @@ describe('Order: Test order state', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.clickContextMenuItem(
@@ -91,7 +91,7 @@ describe('Order: Test order state', () => {
         // Generate invoice
         cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('Always get a bill');
-        cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`).click();
+        cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`).click();
 
         // Verify invoice
         cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 200);
@@ -162,7 +162,7 @@ describe('Order: Test order state', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
             cy.clickContextMenuItem(
@@ -191,7 +191,7 @@ describe('Order: Test order state', () => {
 
         cy.get('#sw-field--documentConfig-documentNumber').invoke('val')
             .then((invoiceNumber) => {
-                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`)
+                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`)
                     .should('not.be.disabled')
                     .click();
 
@@ -238,7 +238,7 @@ describe('Order: Test order state', () => {
                         }
                     });
 
-                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`)
+                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`)
                     .should('not.be.disabled')
                     .click();
 
@@ -247,5 +247,128 @@ describe('Order: Test order state', () => {
 
                 cy.awaitAndCheckNotification(`Document number ${invoiceNumber} has already been allocated.`);
             });
+    });
+
+    it('@order: upload customer document file to document order', () => {
+        const page = new OrderPageObject();
+
+        // Request we want to wait for later
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
+            method: 'POST'
+        }).as('createDocumentCall');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document`,
+            method: 'POST'
+        }).as('findDocumentCall');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/order`,
+            method: 'POST'
+        }).as('findOrder');
+
+        cy.contains(`${page.elements.dataGridRow}--0`,'Mustermann, Max');
+        cy.clickContextMenuItem(
+            '.sw-order-list__order-view-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.contains(`${page.elements.userMetadata}-user-name`,'Max Mustermann');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('documents');
+        });
+
+        // Find documents
+        cy.get(page.elements.tabs.documents.documentGrid)
+            .scrollIntoView()
+            .should('be.visible');
+
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.clickContextMenuItem(
+                '.sw-context-menu-item',
+                '.sw-order-document-grid-button',
+                null,
+                'Invoice'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+
+            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
+
+            cy.get('.sw-modal__footer .sw-button--primary')
+                .should('not.be.disabled')
+                .click();
+        });
+
+        // Generate invoice
+        cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
+        cy.get('#sw-field--documentConfig-documentComment').type('Always get a bill');
+        cy.get('.sw-order-document-settings-modal__file-toggle input[type="checkbox"]').check().should('be.checked');
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-media-upload-v2').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-file-input__file-input').attachFile('img/sw-test-image.png');
+            cy.awaitAndCheckNotification('The selected file "sw-test-image.png" has an unsupported format. Please use one of the following types: application/pdf.');
+            cy.get('.sw-file-input__file-headline').should('not.exist');
+
+            cy.get('.sw-file-input__file-input').attachFile('pdf/sample.pdf');
+            cy.get('.sw-file-input__file-headline')
+                .should('be.visible')
+                .contains('sample.pdf');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-media-upload-v2__file-input').attachFile('img/sw-test-image.png');
+            cy.awaitAndCheckNotification('The selected file "sw-test-image.png" has an unsupported format. Please use one of the following types: application/pdf.');
+            cy.get('.sw-media-upload-v2__file-headline').should('not.exist');
+
+            cy.get('.sw-media-upload-v2__file-input').attachFile('pdf/sample.pdf');
+            cy.get('.sw-media-upload-v2__file-headline')
+                .should('be.visible')
+                .contains('sample.pdf');
+        });
+
+        cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`).click();
+
+        // Verify invoice
+        cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@findOrder').its('response.statusCode').should('equal', 200);
+        cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.contains(`${page.elements.dataGridRow}--0`,'Mustermann, Max');
+        cy.clickContextMenuItem(
+            '.sw-order-list__order-view-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('documents');
+        });
+
+        cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
+        cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`)
+            .should('be.visible')
+            .contains('Invoice');
+
+        cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0 .sw-data-grid__cell--actions .sw-context-button`)
+            .click();
+
+        cy.contains('.sw-context-menu-item','Download');
     });
 });

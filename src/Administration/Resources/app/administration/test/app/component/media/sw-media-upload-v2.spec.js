@@ -1,12 +1,18 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
+import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
+import flushPromises from 'flush-promises';
 
-function createWrapper(customOptions = {}, privileges = []) {
+function createWrapper(customOptions = {}) {
+    const localVue = createLocalVue();
+    localVue.directive('droppable', {});
+
     return shallowMount(Shopware.Component.build('sw-media-upload-v2'), {
+        localVue,
         stubs: {
-            'sw-icon': true,
-            'sw-button': true,
+            'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+            'sw-button': Shopware.Component.build('sw-button'),
             'sw-context-button': true,
             'sw-button-group': true,
             'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
@@ -14,15 +20,16 @@ function createWrapper(customOptions = {}, privileges = []) {
         },
         provide: {
             repositoryFactory: {},
-            mediaService: {},
-            configService: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
+            mediaService: {
+                addListener: () => {}
+            },
+            configService: {
+                getConfig: () => Promise.resolve({
+                    settings: {
+                        enableUrlFeature: true,
+                    }
+                })
+            },
         },
         propsData: {
             uploadTag: 'my-upload'
@@ -31,13 +38,34 @@ function createWrapper(customOptions = {}, privileges = []) {
     });
 }
 
+let fileInput = null;
+let fileInputValue = '';
+let fileInputFilesGet;
+let fileInputValueGet;
+let fileInputValueSet;
+
 describe('src/app/component/media/sw-media-upload-v2', () => {
     let wrapper;
 
     beforeEach(() => {
-        wrapper = createWrapper({}, [
-            'media.editor'
-        ]);
+        wrapper = createWrapper();
+
+        fileInput = wrapper.find('.sw-media-upload-v2__file-input');
+
+        fileInputFilesGet = jest.fn();
+        fileInputValueGet = jest.fn().mockReturnValue(fileInputValue);
+        fileInputValueSet = jest.fn().mockImplementation(v => {
+            fileInputValue = v;
+        });
+
+        Object.defineProperty(fileInput.element, 'files', {
+            get: fileInputFilesGet
+        });
+
+        Object.defineProperty(fileInput.element, 'value', {
+            get: fileInputValueGet,
+            set: fileInputValueSet,
+        });
     });
 
     it('should be a Vue.js component', async () => {
@@ -45,8 +73,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('should contain the default accept value', async () => {
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
-
         expect(fileInput.attributes().accept).toBe('image/*');
     });
 
@@ -54,7 +80,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('application/pdf');
     });
@@ -63,7 +88,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             fileAccept: 'image/jpeg,image/gif,image/png'
         });
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png');
     });
@@ -72,7 +96,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             fileAccept: 'image/jpeg,image/gif,image/png,application/pdf,image/x-eps'
         });
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png,application/pdf,image/x-eps');
     });
@@ -81,7 +104,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             fileAccept: '*/*'
         });
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('*/*');
     });
@@ -199,7 +221,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         expect(switchModeButton.exists()).toBeTruthy();
 
-        const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
+        // const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
         expect(fileInput.exists()).toBeTruthy();
 
         let switchToUrlModeBtn = switchModeButton.find('.sw-media-upload-v2__button-url-upload');
@@ -219,6 +241,131 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         const urlForm = wrapper.find('.sw-media-upload-v2__url-form');
 
         expect(urlForm.exists()).toBeTruthy();
+    });
+
+    it('should show media form when select upload by url option', async () => {
+        await flushPromises();
+
+        const uploadOption = wrapper.find('.sw-context-menu-item');
+        expect(uploadOption.text()).toEqual('global.sw-media-upload-v2.buttonUrlUpload');
+
+        await uploadOption.trigger('click');
+
+        expect(uploadOption.text()).toEqual('global.sw-media-upload-v2.buttonFileUpload');
+        expect(wrapper.find('sw-media-url-form-stub').exists()).toBeTruthy();
+    });
+
+    it('open media button should have normal style shade when variant is regular', async () => {
+        wrapper = createWrapper({
+            listeners: {
+                'media-upload-sidebar-open': jest.fn()
+            }
+        });
+
+        const openMediaButton = wrapper.find('.open-media-sidebar');
+
+        expect(openMediaButton.find('.sw-icon').exists()).toBeFalsy();
+        expect(openMediaButton.text()).toEqual('global.sw-media-upload-v2.buttonOpenMedia');
+    });
+
+    it('open media button should have square shade when variant is compact', async () => {
+        wrapper = createWrapper({
+            listeners: {
+                'media-upload-sidebar-open': jest.fn()
+            }
+        });
+
+        await wrapper.setProps({
+            variant: 'small'
+        });
+
+        const openMediaButton = wrapper.find('.open-media-sidebar');
+
+        expect(openMediaButton.classes()).toContain('sw-button--square');
+        expect(openMediaButton.find('.sw-icon').exists()).toBeTruthy();
+    });
+
+    it('should show error notification able file type is not suitable', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setProps({
+            fileAccept: 'image/jpg',
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 12345,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.sw-media-upload-v2.notification.invalidFileType.message',
+            title: 'global.default.error',
+        });
+    });
+
+    it('should show error notification able file size is not suitable', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setProps({
+            fileAccept: 'image/jpg',
+            maxFileSize: 2000,
+        });
+
+        fileInputValue = 'dummy.jpg';
+        fileInputFilesGet.mockReturnValue([{
+            size: 12345,
+            name: 'dummy.jpg',
+            type: 'image/jpg'
+        }]);
+
+        await fileInput.trigger('change');
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.sw-media-upload-v2.notification.invalidFileSize.message',
+            title: 'global.default.error',
+        });
+    });
+
+    it('should able emit "media-upload-add-file" event when file type and file size are matched', async () => {
+        await wrapper.setProps({
+            fileAccept: 'application/pdf',
+            maxFileSize: 2000,
+            useFileData: true,
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+    });
+
+    it('should emit media-upload-remove-image event when removing file', async () => {
+        await wrapper.setProps({
+            source: {
+                fileName: 'test',
+                fileExtension: 'jpg'
+            },
+        });
+
+        expect(wrapper.find('.sw-media-upload-v2__file-headline').text()).toEqual('test.jpg');
+
+        const removeFileButton = wrapper.find('.sw-media-upload-v2__remove-icon');
+        await removeFileButton.trigger('click');
+
+        expect(wrapper.emitted('media-upload-remove-image')).toBeTruthy();
     });
 });
 

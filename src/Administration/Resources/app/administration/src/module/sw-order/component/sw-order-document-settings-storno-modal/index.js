@@ -5,6 +5,8 @@ const { Component } = Shopware;
 Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', {
     template,
 
+    inject: ['feature'],
+
     props: {
         order: {
             type: Object,

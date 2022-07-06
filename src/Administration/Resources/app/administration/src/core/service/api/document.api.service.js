@@ -17,13 +17,15 @@ class DocumentApiService extends ApiService {
         this.$listener = () => ({});
     }
 
-    createDocument(orderId,
+    createDocument(
+        orderId,
         documentTypeName,
         documentConfig = {},
         referencedDocumentId = null,
         additionalParams = {},
         additionalHeaders = {},
-        file = null) {
+        file = null,
+    ) {
         let route = `/_action/order/${orderId}/document/${documentTypeName}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -32,16 +34,20 @@ class DocumentApiService extends ApiService {
             referenced_document_id: referencedDocumentId,
         };
 
-        if (file) {
+        if (file || documentConfig.documentMediaFileId) {
             params.static = true;
         }
 
-        let docCreated = this.httpClient
+        let docCreated;
+
+        return this.httpClient
             .post(route, params, {
                 additionalParams,
                 headers,
             }).then((response) => {
-                if (file && response.data.documentId) {
+                docCreated = response;
+
+                if (file && file instanceof File && response.data.documentId) {
                     const fileName = file.name.split('.').shift();
                     const fileExtension = file.name.split('.').pop();
                     // eslint-disable-next-line max-len
@@ -55,7 +61,7 @@ class DocumentApiService extends ApiService {
 
                 this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
 
-                return docCreated;
+                return Promise.resolve(docCreated);
             }).catch((error) => {
                 if (error.response?.data?.errors) {
                     this.$listener(

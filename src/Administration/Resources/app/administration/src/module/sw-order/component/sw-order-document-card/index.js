@@ -160,6 +160,24 @@ Component.register('sw-order-document-card', {
         isDataLoading() {
             return this.isLoading || this.documentsLoading || this.cardLoading;
         },
+
+        showCardFilter() {
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return this.order?.documents?.length > 0;
+            }
+
+            return true;
+        },
+
+        showCreateDocumentButton() {
+            return !this.order?.documents?.length;
+        },
+
+        emptyStateTitle() {
+            return this.order?.documents?.length > 0
+                ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
+                : this.$tc('sw-order.documentCard.messageEmptyTitle');
+        },
     },
 
     watch: {
@@ -339,8 +357,33 @@ Component.register('sw-order-document-card', {
                     file,
                 );
 
-                if (response && additionalAction === 'download') {
+                if (!response) {
+                    return;
+                }
+
+                if (params.documentMediaFileId) {
+                    this.documentRepository.get(response.data.documentId, Shopware.Context.api)
+                        .then((documentData) => {
+                            documentData.documentMediaFileId = params.documentMediaFileId;
+                            this.documentRepository.save(documentData);
+                        });
+                }
+
+                if (additionalAction === 'download') {
                     this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
+                } else if (additionalAction === 'send') {
+                    const criteria = new Criteria(null, null);
+                    criteria.addAssociation('documentType');
+
+                    this.documentRepository.get(response.data.documentId, Shopware.Context.api, criteria)
+                        .then((documentData) => {
+                            if (!documentData) {
+                                return;
+                            }
+
+                            this.sendDocument = documentData;
+                            this.showSendDocumentModal = true;
+                        });
                 }
             } finally {
                 this.isLoadingDocument = false;

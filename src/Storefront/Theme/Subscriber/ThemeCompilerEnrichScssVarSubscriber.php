@@ -73,15 +73,36 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             }
 
             foreach ($card['elements'] as $element) {
-                if (
-                    !isset($element['config']['css'])
-                    || !\is_string($element['value'] ?? $element['defaultValue'])
-                ) {
+                if (!$this->hasCssValue($element)) {
                     continue;
                 }
 
                 $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
             }
         }
+    }
+
+    /**
+     * @param mixed $element
+     */
+    private function hasCssValue($element): bool
+    {
+        if (!\is_array($element)) {
+            return false;
+        }
+
+        if (!\is_array($element['config'])) {
+            return false;
+        }
+
+        if (!isset($element['config']['css'])) {
+            return false;
+        }
+
+        if (!\is_string($element['value'] ?? $element['defaultValue'])) {
+            return false;
+        }
+
+        return true;
     }
 }

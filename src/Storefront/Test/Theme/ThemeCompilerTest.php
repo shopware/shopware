@@ -759,6 +759,44 @@ PHP_EOL;
         static::assertSame(trim($expectedCssOutput), trim($actual));
     }
 
+    /**
+     * EnrichScssVarSubscriber doesn't throw an exception if we have corrupt element values.
+     * This can happen on updates from older version when the values in the administration where not checked before save
+     */
+    public function testOutputsPluginCssCorrupt(): void
+    {
+        $configService = $this->createMock(ConfigurationService::class);
+        $configService->method('getResolvedConfiguration')->willReturn([
+            'card' => [
+                'elements' => [
+                    new \DateTime(),
+                ],
+            ],
+        ]);
+
+        $storefrontPluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
+        $storefrontPluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('test'),
+            ])
+        );
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+
+        $event = new ThemeCompilerEnrichScssVariablesEvent(
+            ['any'],
+            TestDefaults::SALES_CHANNEL,
+            Context::createDefaultContext()
+        );
+
+        $backupEvent = clone $event;
+
+        $subscriber->enrichExtensionVars(
+            $event
+        );
+
+        static::assertEquals($backupEvent, $event);
+    }
+
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
     {
         if (EnvironmentHelper::getVariable('FEATURE_ALL')) {

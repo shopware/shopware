@@ -188,7 +188,7 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.4.12.0")
-     * @Route("/api/_action/order_transaction_capture_refund/{refundId}", name="api.action.order.order_transaction_capture_refund", methods={"POST"}, defaults={"_acl"={"order.editor"}})
+     * @Route("/api/_action/order_transaction_capture_refund/{refundId}", name="api.action.order.order_transaction_capture_refund", methods={"POST"}, defaults={"_acl"={"order_refund.editor"}})
      *
      * @throws RefundProcessException
      */
@@ -199,6 +199,14 @@ class OrderActionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @param array<string> $documentTypes
+     *
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Doctrine\DBAL\Exception
+     *
+     * @return array<string>
+     */
     private function getDocumentIds(string $entity, string $referencedId, array $documentTypes, bool $skipSentDocuments): array
     {
         if (!\in_array($entity, ['order', 'order_transaction', 'order_delivery'], true)) {

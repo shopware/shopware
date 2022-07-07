@@ -61,7 +61,7 @@ Component.register('sw-order-address-modal', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
             criteria.addAssociation('customFields');
 

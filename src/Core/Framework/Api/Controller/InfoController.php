@@ -2,20 +2,14 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
@@ -56,7 +50,7 @@ class InfoController extends AbstractController
 
     private IncrementGatewayRegistry $incrementGatewayRegistry;
 
-    private EntityRepositoryInterface $appRepository;
+    private Connection $connection;
 
     /**
      * @internal
@@ -68,7 +62,7 @@ class InfoController extends AbstractController
         Packages $packages,
         BusinessEventCollector $eventCollector,
         IncrementGatewayRegistry $incrementGatewayRegistry,
-        EntityRepositoryInterface $appRepository,
+        Connection $connection,
         ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
@@ -82,7 +76,7 @@ class InfoController extends AbstractController
         $this->cspTemplates = $cspTemplates;
         $this->eventCollector = $eventCollector;
         $this->incrementGatewayRegistry = $incrementGatewayRegistry;
-        $this->appRepository = $appRepository;
+        $this->connection = $connection;
     }
 
     /**
@@ -354,41 +348,18 @@ class InfoController extends AbstractController
             ];
         }
 
-        /** @var AppEntity $app */
-        foreach ($this->getActiveApps($context) as $app) {
-            $assets[$app->getName()] = [
-                'active' => $app->isActive(),
-                'integrationId' => $app->getIntegrationId(),
+        foreach ($this->getActiveApps() as $app) {
+            $assets[$app['name']] = [
+                'active' => (bool) $app['active'],
+                'integrationId' => $app['integrationId'],
                 'type' => 'app',
-                'baseUrl' => $app->getBaseAppUrl(),
-                'permissions' => $this->fetchAppPermissions($app),
-                'version' => $app->getVersion(),
+                'baseUrl' => $app['baseUrl'],
+                'permissions' => $app['privileges'],
+                'version' => $app['version'],
             ];
         }
 
         return $assets;
-    }
-
-    private function fetchAppPermissions(AppEntity $app): array
-    {
-        $privileges = [];
-        $aclRole = $app->getAclRole();
-        if ($aclRole === null) {
-            return $privileges;
-        }
-
-        foreach ($aclRole->getPrivileges() as $privilege) {
-            if (substr_count($privilege, ':') !== 1) {
-                $privileges['additional'][] = $privilege;
-
-                continue;
-            }
-
-            [ $entity, $key ] = \explode(':', $privilege);
-            $privileges[$key][] = $entity;
-        }
-
-        return $privileges;
     }
 
     private function getAdministrationStyles(Bundle $bundle): array
@@ -437,23 +408,36 @@ class InfoController extends AbstractController
         return $package->getUrl($url);
     }
 
-    private function getActiveApps(Context $context): AppCollection
+    private function getActiveApps(): array
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('aclRole');
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('active', true),
-                    new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('baseAppUrl', null)]),
-                ]
-            )
-        );
+        $apps = $this->connection->fetchAllAssociative('SELECT
+    app.name,
+    app.active,
+    LOWER(HEX(app.integration_id)) as integrationId,
+    app.base_app_url as baseUrl,
+    app.version,
+    ar.privileges as privileges
+FROM app
+LEFT JOIN acl_role ar on app.acl_role_id = ar.id
+WHERE app.active = 1 AND app.base_app_url is not null');
 
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+        return array_map(static function (array $item) {
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
-        return $apps;
+            $item['privileges'] = [];
+
+            foreach ($privileges as $privilege) {
+                if (substr_count($privilege, ':') !== 1) {
+                    $item['privileges']['additional'][] = $privilege;
+
+                    continue;
+                }
+
+                [ $entity, $key ] = \explode(':', $privilege);
+                $item['privileges'][$key][] = $entity;
+            }
+
+            return $item;
+        }, $apps);
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
@@ -56,7 +57,7 @@ class ProductPageTest extends TestCase
         $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
         $this->expectException(ProductNotFoundException::class);
-        $this->getPageLoader()->load($request, $context, $this->createCustomer());
+        $this->getPageLoader()->load($request, $context);
     }
 
     public function testItDoesLoadATestProduct(): void
@@ -167,6 +168,7 @@ class ProductPageTest extends TestCase
         static::assertCount(7, $page->getReviews());
         static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
         static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
+        static::assertNotNull($context->getCustomer());
         static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
 
         $matrix = $page->getReviews()->getMatrix();
@@ -201,6 +203,9 @@ class ProductPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
+        static::assertNotNull($page->getHeader());
+        static::assertNotNull($page->getHeader()->getNavigation());
+        static::assertNotNull($page->getHeader()->getNavigation()->getActive());
         static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
         static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());
     }
@@ -215,9 +220,34 @@ class ProductPageTest extends TestCase
                 'type' => 'product_detail',
                 'sections' => [],
             ],
+            'cover' => [
+                'id' => Uuid::randomHex(),
+                'position' => 0,
+                'media' => [
+                    'fileName' => 'cover-1',
+                ],
+            ],
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'media-1',
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 2,
+                    'media' => [
+                        'fileName' => 'media-2',
+                    ],
+                ],
+            ],
         ];
 
-        $product = $this->getRandomProduct($context, 10, false, $productCmsPageData);
+        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, function () use ($context, $productCmsPageData): ProductEntity {
+            return $this->getRandomProduct($context, 10, false, $productCmsPageData);
+        });
 
         static::assertEquals($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);
@@ -229,6 +259,7 @@ class ProductPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(ProductPage::class, $page);
+        static::assertInstanceOf(CmsPageEntity::class, $page->getCmsPage());
         static::assertEquals($cmsPageId, $page->getCmsPage()->getId());
 
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
@@ -304,6 +335,14 @@ class ProductPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
         $cmsPage = $page->getCmsPage();
         $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrittenByProduct')]);
+
+        static::assertNotNull($cmsPage);
+        static::assertIsIterable($cmsPage->getSections());
+        static::assertNotNull($cmsPage->getSections()->first());
+        static::assertIsIterable($cmsPage->getSections()->first()->getBlocks());
+        static::assertIsIterable($cmsPage->getSections()->first()->getBlocks()->getSlots());
+        static::assertNotNull($cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId));
+        static::assertNotNull($cmsPage->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId));
 
         static::assertEquals(
             $productCmsPageData['slotConfig'][$firstSlotId],

@@ -2246,36 +2246,6 @@ parameters:
 			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageLoaderTest.php
 
 		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
-			message: "#^Variable \\$writeException might not be defined\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Cms/SalesChannel/SalesChannelCmsPageRepositoryTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$time of function strtotime expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Cms/SlotDataResolver/Type/TextTypeDataResolverTest.php
@@ -11255,16 +11225,6 @@ parameters:
 			path: src/Storefront/Page/Product/Configurator/ProductCombinationFinder.php
 
 		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/ProductPageLoader.php
-
-		-
-			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/ProductPageLoader.php
-
-		-
 			message: "#^Parameter \\#4 \\$activeLanguage of class Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet constructor expects Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity, Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Pagelet/Header/HeaderPageletLoader.php
@@ -11858,71 +11818,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$variantIds has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getActive\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionEntity\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getFieldConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getNavigation\\(\\) on Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getSections\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Cannot call method getSlots\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsBlock\\\\CmsBlockCollection\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\ProductPageLoader\\:\\:load\\(\\) invoked with 3 parameters, 2 required\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
 
 		-
 			message: "#^Cannot call method getMetaTitle\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"

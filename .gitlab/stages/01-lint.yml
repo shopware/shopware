@@ -196,22 +196,29 @@ NPM CI:
 
 rufus:
   stage: lint
-  image: curlimages/curl:7.72.0
+  variables:
+    RUFUS_BRANCH: trunk
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
   rules:
     - !reference [ .rules, skip ]
+    # target branch is release branch -> rufus should have the same branch
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
+      variables:
+        RUFUS_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    # release branch -> rufus should also be a release branch
+    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
+      variables:
+        RUFUS_BRANCH: $CI_COMMIT_BRANCH
+    - !reference [ .rules, run ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
-  script:
-    - RUFUS_BRANCH=trunk
-    - PLATFORM_BRANCH="${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
-    - |
-      if [[ $CI_COMMIT_BRANCH = 6.* ]]; then
-        RUFUS_BRANCH=$CI_COMMIT_BRANCH
-      fi
-    - curl --request POST
-      --form "token=$CI_JOB_TOKEN"
-      --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}"
-      --form "ref=${RUFUS_BRANCH}"
-      "${CI_API_V4_URL}/projects/221/trigger/pipeline"
+  inherit:
+    variables:
+      - PLATFORM_BRANCH
+      - RUFUS_BRANCH
+  trigger:
+      project: shopware/6/product/rufus
+      branch: $RUFUS_BRANCH
+      strategy: depend

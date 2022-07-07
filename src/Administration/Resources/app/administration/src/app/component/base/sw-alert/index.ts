@@ -64,9 +64,18 @@ Component.register('sw-alert', {
             required: false,
             default: null,
         },
+        icon: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
     computed: {
         alertIcon(): string {
+            if (this.icon) {
+                return this.icon;
+            }
+
             const iconConfig: { [type: string]: string } = {
                 info: 'regular-info-circle',
                 warning: 'regular-exclamation-triangle',

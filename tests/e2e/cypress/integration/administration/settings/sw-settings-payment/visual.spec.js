@@ -15,7 +15,8 @@ describe('Payment: Visual testing', () => {
             });
     });
 
-    it('@base @navigation: navigate to payment module', () => {
+    // ToDo: NEXT-20936 - Find payment method in new list
+    it.skip('@base @navigation: navigate to payment module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
             method: 'POST'

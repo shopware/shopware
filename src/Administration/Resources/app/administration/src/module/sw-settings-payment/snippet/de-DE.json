@@ -4,6 +4,32 @@
       "mainMenuItemGeneral": "Zahlungsarten",
       "placeholderSearchBar": "Durchsuche alle Zahlungsarten ..."
     },
+    "overview": {
+      "deprecation-alert": {
+        "title": "Ein einfacheres Design für Zahlungsmethoden",
+        "message": "Wir haben die Verwaltung der Zahlungsarten in Ihrem Shop vereinfacht. Probiere das neue Design jetzt aus, das alte wird mit der nächsten Major-Version von Shopware 6 entfernt.",
+        "link": "Zum alten Design"
+      },
+      "openSortingModalButton": "Darstellungsreihenfolge im Bestellprozess ändern",
+      "editDetails": "Details bearbeiten",
+      "missingEditorPermission": "Du hast nicht die nötigen Zugriffsrechte, um Zahlarten zu bearbeiten",
+      "notification": {
+        "activationSuccess": "{name} wurde erfolgreich aktiviert.",
+        "deactivationSuccess": "{name} wurde erfolgreich deaktiviert.",
+        "activationError": "{name} konnte nicht aktiviert werden.",
+        "deactivationError": "{name} konnte nicht deaktiviert werden."
+      }
+    },
+    "deprecated-alert": {
+      "message": "Wir haben die Verwaltung der Zahlungsarten in Ihrem Shop vereinfacht.",
+      "link": "Zum neuen Design"
+    },
+    "sorting-modal": {
+      "modalTitle": "Darstellungsreihenfolge im Bestellprozess",
+      "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden.",
+      "saveSuccessful": "Reihenfolge der Zahlungsmethoden wurde aktualisiert.",
+      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsmethoden ist ein Fehler aufgetreten."
+    },
     "list": {
       "textHeadline": "Zahlungsarten",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Zahlungsart \"{name}\" löschen möchtest?",

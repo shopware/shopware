@@ -29,5 +29,16 @@ describe('components/base/sw-alert', () => {
 
         expect(wrapper.element).toMatchSnapshot();
     });
+
+    it('should use custom icon', async () => {
+        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+            stubs: ['sw-icon'],
+            propsData: {
+                icon: 'your-icon-here'
+            },
+        });
+
+        expect(wrapper.element).toMatchSnapshot();
+    });
 });
 

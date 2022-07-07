@@ -15,7 +15,7 @@ E2E:
         CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
         CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
         SHOPWARE_HTTP_CACHE_ENABLED: 0
-        cypress_usePercy: 'false'
+        CYPRESS_usePercy: 'false'
         CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH

@@ -14,6 +14,7 @@ Percy:
         CYPRESS_numTestsKeptInMemory: 0
         APP_ENV: e2e
         CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+        CYPRESS_grepTags: '-quarantined'
     rules:
         - if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
           when: never

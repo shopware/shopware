@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Script\ScriptEntity;
+use Symfony\Component\HttpKernel\KernelInterface;
+
 
 /**
  * @internal only for use by the app-system
@@ -22,14 +24,18 @@ class ScriptPersister
 
     private EntityRepositoryInterface $appRepository;
 
+    private KernelInterface $appKernel;
+
     public function __construct(
         ScriptFileReaderInterface $scriptReader,
         EntityRepositoryInterface $scriptRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepositoryInterface $appRepository,
+        KernelInterface $kernel
     ) {
         $this->scriptReader = $scriptReader;
         $this->scriptRepository = $scriptRepository;
         $this->appRepository = $appRepository;
+        $this->appKernel = $kernel;
     }
 
     public function updateScripts(string $appPath, string $appId, Context $context): void
@@ -116,9 +122,11 @@ class ScriptPersister
 
         $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
+        $basePath = $this->appKernel->getProjectDir();
+
         /** @var AppEntity $app */
         foreach ($apps as $app) {
-            $this->updateScripts($app->getPath(), $app->getId(), Context::createDefaultContext());
+            $this->updateScripts($basePath . \DIRECTORY_SEPARATOR . $app->getPath(), $app->getId(), Context::createDefaultContext());
         }
     }
 

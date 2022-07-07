@@ -36,8 +36,6 @@ class TemplateConfigAccessor
         $static = $this->getStatic();
 
         if (\array_key_exists($key, $static)) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', "The config variable {$key} has been deprecated and will be removed in v6.5.0.0");
-
             return $static[$key];
         }
 

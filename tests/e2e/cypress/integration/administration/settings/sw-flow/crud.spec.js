@@ -77,7 +77,7 @@ describe('Flow builder: Test crud operations', () => {
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 
-        cy.awaitAndCheckNotification('The flow could not be saved.');
+        cy.awaitAndCheckNotification('Flow could not be saved.');
 
         cy.get('.sw-flow-detail-general__general-name').type('Order placed');
         cy.get('.sw-flow-detail-general__general-name .sw-field__error')
@@ -95,7 +95,7 @@ describe('Flow builder: Test crud operations', () => {
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 
-        cy.awaitAndCheckNotification('The flow could not be saved.');
+        cy.awaitAndCheckNotification('Flow could not be saved.');
     });
 
     it('@settings: Update and read flow', () => {

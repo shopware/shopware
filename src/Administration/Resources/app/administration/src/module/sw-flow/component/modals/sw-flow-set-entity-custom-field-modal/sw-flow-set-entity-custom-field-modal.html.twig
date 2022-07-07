@@ -69,6 +69,17 @@
         </sw-entity-single-select>
         {% endblock %}
 
+        {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
+        <sw-single-select
+            v-if="customFieldId"
+            v-model="fieldOptionSelected"
+            class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
+            :options="fieldOptions"
+            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
+            :highlight-search-term="false"
+        />
+        {% endblock %}
+
         {% block sw_flow_set_entity_custom_field_modal_field_value %}
         <sw-form-field-renderer
             v-if="showFieldValue"
@@ -84,16 +95,6 @@
         </sw-form-field-renderer>
         {% endblock %}
 
-        {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
-        <sw-single-select
-            v-if="customFieldId"
-            v-model="fieldOptionSelected"
-            class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
-            :options="fieldOptions"
-            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
-            :highlight-search-term="false"
-        />
-        {% endblock %}
     </div>
     {% endblock %}
 

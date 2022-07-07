@@ -40,7 +40,7 @@ describe('Flow builder: add an affiliate and campaign code testing', () => {
         cy.get('.sw-flow-sequence-selector__add-action').click();
 
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Add affiliate and campaign code', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign affiliate and campaign code', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-affiliate-and-campaign-code-modal').should('be.visible');
 
         cy.get('#sw-field--affiliateCode-value').type('abc');

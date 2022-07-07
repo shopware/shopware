@@ -216,8 +216,13 @@
     &__popover {
         .sw-select-result__result-item-text {
             flex-direction: row !important;
+            text-transform: capitalize;
             align-items: center;
             font-size: $font-size-small;
+        }
+
+        .sw-single-select__selection-input {
+            text-transform: capitalize;
         }
 
         .sw-select-result .sw-icon-action {
@@ -236,6 +241,7 @@
             .sw-select-result__result-item-text,
             .sw-icon {
                 color: $color-gray-900;
+                text-transform: none;
             }
 
             img {

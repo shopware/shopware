@@ -1,13 +1,9 @@
 ---
-title:              Fix date-picker.plugin locale defaulting to de       # Required
+title:              fix Exception::__construct() in TreeBuildingNavigationRoute.php       # Required
 issue:              -                              # Required
 author:             Private                          # Optional for shopware employees, Required for external developers
 author_email:       enacrt@gmail.com                   # Optional for shopware employees, Required for external developers
 author_github:      @nacrt                                 # Optional
 ---
-# Storefront
-*  Fix `date-picker.plugin` locale defaulting to `de`
-__
-# Upgrade Information
-
-When desiring a `data-date-picker`, `locale` will now need to be specified if the desired output language is not `de`
+# Core
+*  fix ``Exception::__construct()`` in TreeBuildingNavigationRoute.php

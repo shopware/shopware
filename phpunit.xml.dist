@@ -6,7 +6,7 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
             <!--
                 DO NOT change this to a more generic structure.
@@ -121,11 +121,11 @@
         </testsuite>
 
         <testsuite name="unit">
-            <directory>tests/php-unit</directory>
+            <directory>tests/unit</directory>
         </testsuite>
 
         <testsuite name="integration">
-            <directory>tests/php-integration</directory>
+            <directory>tests/integration</directory>
         </testsuite>
 
         <testsuite name="docs">

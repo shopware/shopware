@@ -159,7 +159,7 @@ class ConfigurationServiceInFlagTest extends TestCase
                     1 => [
                         'name' => 'SwagExampleTest.card.withoutAnyConfig',
                         'type' => 'int',
-                        'config' => new \stdClass(),
+                        'config' => [],
                     ],
                     2 => [
                         'name' => 'SwagExampleTest.card.mailMethod',

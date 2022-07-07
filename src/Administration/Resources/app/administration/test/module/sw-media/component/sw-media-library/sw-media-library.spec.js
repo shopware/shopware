@@ -13,15 +13,20 @@ class Repository {
 
     #amounts = [];
 
-    #invocation = 0;
+    invocation = 0;
 
-    search() {
-        const desiredAmount = this.#amounts[this.#invocation];
-        this.#invocation += 1;
+    lastUsedCriteria;
+
+    search(criteria) {
+        const desiredAmount = this.#amounts[this.invocation];
+
+        this.invocation += 1;
+        this.lastUsedCriteria = criteria;
+
         const data = [];
         for (let i = 0; i < desiredAmount; i += 1) {
             data.push({
-                id: `${this.#entityName}-${this.#invocation}-${i}`,
+                id: `${this.#entityName}-${this.invocation}-${i}`,
                 getEntityName: () => this.#entityName
             });
         }
@@ -187,5 +192,38 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         // Check that the 'Load more' button disappeared
         loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
         expect(loadMoreButton.exists()).toBe(false);
+    });
+    it('should limit association loading to 25', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.nextMedia();
+
+        const usedCriteria = wrapper.vm.mediaRepository.lastUsedCriteria;
+
+        expect(wrapper.vm.mediaRepository.invocation).toBe(1);
+
+        [
+            'tags',
+            'productMedia.product',
+            'categories',
+            'productManufacturers.products',
+            'mailTemplateMedia.mailTemplate',
+            'documentBaseConfigs',
+            'avatarUser',
+            'paymentMethods',
+            'shippingMethods',
+            'cmsBlocks.section.page',
+            'cmsSections.page',
+            'cmsPages',
+        ].forEach(association => {
+            const associationParts = association.split('.');
+
+            let path = null;
+            associationParts.forEach(currentPart => {
+                path = path ? `${path}.${currentPart}` : currentPart;
+
+                expect(usedCriteria.getAssociation(path).getLimit()).toBe(25);
+            });
+        });
     });
 });

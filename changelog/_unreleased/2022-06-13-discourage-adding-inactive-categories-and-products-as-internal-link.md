@@ -11,4 +11,4 @@ author_github: NiklasLimberg
 * Added active state icon to `sw-sales-channel-defaults-select` as preview for the result item depending on new property `shouldShowActiveState` (defaults to false)
 * Added the `getActiveIconColor` method to `sw-entity-single-select/index.js`
 * Changed `sw-text-editor-link-menu/index.ts`to align link parsing with link creation
-* Changed the slot `actions` in `sw-tree-item.html.twig` to a `sw-vnode-renderer` in order to algin it with the other extension points
+* Changed the slot `actions` in `sw-tree-item.html.twig` to a `sw-vnode-renderer` in order to align it with the other extension points

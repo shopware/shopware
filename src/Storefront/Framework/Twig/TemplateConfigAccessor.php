@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;

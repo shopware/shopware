@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-
 /**
  * @internal only for use by the app-system
  */

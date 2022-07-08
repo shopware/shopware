@@ -22,6 +22,7 @@ final class EntitySchemaGeneratorTest extends TestCase
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
+        $definitionRegistry->register(new SimpleDefinition(), 'simple');
 
         $generator = new EntitySchemaGenerator();
         $definitions = $generator->getSchema($definitionRegistry->getDefinitions());
@@ -41,6 +42,7 @@ final class EntitySchemaGeneratorTest extends TestCase
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
+        $definitionRegistry->register(new SimpleDefinition(), 'simple');
 
         $generator = new EntitySchemaGenerator();
         $definitions = $generator->getSchema($definitionRegistry->getDefinitions());

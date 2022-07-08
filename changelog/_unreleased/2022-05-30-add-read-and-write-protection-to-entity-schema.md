@@ -1,5 +1,6 @@
 ---
 title: Add read and write protection to entity schema
+issue: NEXT-22321
 author: Joshua Behrens
 author_email: code@joshua-behrens
 author_github: @JoshuaBehrens

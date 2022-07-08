@@ -137,7 +137,11 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone) && !this.shouldDisplayEmptyState;
+            if (this.isLoading || this.shouldDisplayEmptyState) {
+                return false;
+            }
+
+            return !(this.itemLoaderDone && this.folderLoaderDone);
         },
     },
 
@@ -249,10 +253,14 @@ Component.register('sw-media-library', {
 
             if (nextMedia.status === 'fulfilled') {
                 this.items.push(...nextMedia.value);
+            } else {
+                this.itemLoaderDone = false;
             }
 
             if (nextFolders.status === 'fulfilled') {
                 this.subFolders.push(...nextFolders.value);
+            } else {
+                this.folderLoaderDone = false;
             }
 
             this.isLoading = false;
@@ -326,7 +334,7 @@ Component.register('sw-media-library', {
                 ]));
             }
 
-            const media = this.mediaRepository.search(criteria, Context.api);
+            const media = await this.mediaRepository.search(criteria, Context.api);
 
             this.itemLoaderDone = this.isLoaderDone(criteria, media);
 

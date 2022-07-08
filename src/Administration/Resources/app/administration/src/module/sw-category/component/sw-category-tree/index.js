@@ -240,7 +240,7 @@ Component.register('sw-category-tree', {
                 });
         },
 
-        onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
+        onUpdatePositions: Shopware.Utils.debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
             if (draggedItem.children.length > 0) {
                 draggedItem.children.forEach((child) => {
                     this.removeFromStore(child.id);
@@ -257,7 +257,7 @@ Component.register('sw-category-tree', {
 
                 this.sortable = this.allowEdit;
             });
-        },
+        }, 400),
 
         syncProducts(categoryId) {
             const criteria = new Criteria(1, 50);

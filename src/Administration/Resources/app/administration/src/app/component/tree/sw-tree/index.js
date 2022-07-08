@@ -384,10 +384,10 @@ Component.register('sw-tree', {
                 this.draggedItem.data.parentId = this.droppedItem.data.parentId;
             }
 
-            const tree = this.findTreeByParentId(this.draggedItem.parentId);
+            const tree = this.findTreeByParentId(oldParentId);
             this.updateSorting(tree);
 
-            if (this.draggedItem.parentId !== this.droppedItem.parentId) {
+            if (oldParentId !== this.droppedItem.parentId) {
                 const dropTree = this.findTreeByParentId(this.droppedItem.parentId);
                 this.updateSorting(dropTree);
             }
@@ -428,14 +428,13 @@ Component.register('sw-tree', {
 
             droppedComponent = targetTree[dropItemIdx];
 
-            if (!this.bindItemsToFolder && draggedComponent.parentId !== droppedComponent.parentId) {
+            if (!this.bindItemsToFolder || draggedComponent.parentId === droppedComponent.parentId) {
                 sourceTree.splice(dragItemIdx, 1);
-                targetTree.splice(dropItemIdx, 1, draggedComponent);
-                targetTree.splice(dropItemIdx + 1, 0, droppedComponent);
-                draggedComponent.parentId = droppedComponent.parentId;
-            } else if (draggedComponent.parentId === droppedComponent.parentId) {
-                targetTree.splice(dropItemIdx, 1, draggedComponent);
-                sourceTree.splice(dragItemIdx, 1, droppedComponent);
+                targetTree.splice(dropItemIdx, 0, draggedComponent);
+
+                if (draggedComponent.parentId !== droppedComponent.parentId) {
+                    draggedComponent.parentId = droppedComponent.parentId;
+                }
             }
 
             this.droppedItem = droppedComponent;

@@ -4,6 +4,15 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPo
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @method void                                             add(OrderTransactionCaptureRefundPositionEntity $entity)
+ * @method void                                             set(string $key, OrderTransactionCaptureRefundPositionEntity $entity)
+ * @method OrderTransactionCaptureRefundPositionEntity[]    getIterator()
+ * @method OrderTransactionCaptureRefundPositionEntity[]    getElements()
+ * @method OrderTransactionCaptureRefundPositionEntity|null get(string $key)
+ * @method OrderTransactionCaptureRefundPositionEntity|null first()
+ * @method OrderTransactionCaptureRefundPositionEntity|null last()
+ */
 class OrderTransactionCaptureRefundPositionCollection extends EntityCollection
 {
     public function getApiAlias(): string

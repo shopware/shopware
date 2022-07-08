@@ -76,6 +76,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
+            <argument>%kernel.project_dir%/</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">

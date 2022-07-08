@@ -68,7 +68,7 @@ class RuleConditionPersister
             $payload['identifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),
-                $manifest->getPath()
+                $app->getPath()
             );
             $payload['appId'] = $appId;
             $payload['active'] = $app->isActive();

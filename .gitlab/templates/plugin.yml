@@ -441,6 +441,7 @@ percy storefront:
 
 upload zip to store:
     stage: deploy
+    allow_failure: true
     environment:
         name: account.shopware.com
         url: 'https://account.shopware.com'

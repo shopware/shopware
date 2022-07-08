@@ -222,3 +222,32 @@ rufus:
       project: shopware/6/product/rufus
       branch: $RUFUS_BRANCH
       strategy: depend
+
+commercial:
+  stage: lint
+  variables:
+    COMMERCIAL_BRANCH: trunk
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+  rules:
+    - !reference [ .rules, skip ]
+    # target branch is release branch -> commercial should have the same branch
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
+      variables:
+        COMMERCIAL_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    # release branch -> commercial should also be a release branch
+    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
+      variables:
+        COMMERCIAL_BRANCH: $CI_COMMIT_BRANCH
+    - !reference [ .rules, run ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+  inherit:
+    variables:
+      - PLATFORM_BRANCH
+      - COMMERCIAL_BRANCH
+  trigger:
+    project: shopware/6/product/commercial
+    branch: $COMMERCIAL_BRANCH
+    strategy: depend

@@ -98,7 +98,7 @@
       "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
       "placeholderCanonicalProduct": "Wähle eine Variante aus ...",
       "helpTextMetaTitle": "Der Meta-Titel ist das wichtigste SEO-Element und sollte für jede Seite einzigartig sein. Du solltest Dich in der Länge auf max. 56 Zeichen begrenzen. Dein Schlüsselwort sollte idealerweise ganz vorne platziert werden.",
-      "helpTextMetaDescription": "Mit der Meta-Beschreibung bestätigst Du Deinen Kunden, dass sie in Deinem Shop richtig sind. Du schaffst Anreize, baust Vertrauen auf und forderst zu einer Aktion auf. Du solltest Dich auf max. 155 Zeichen begrenzen.",
+      "helpTextMetaDescription": "Mit der Meta-Beschreibung bestätigst Du Deinen Kunden, dass sie in Deinem Shop richtig sind. Du schaffst Anreize, baust Vertrauen auf und forderst zu einer Aktion auf. Du solltest Dich auf max. 155 Zeichen begrenzen. Shopware erlaubt eine maximale Länge von 255 Zeichen.",
       "helpTextKeywords": "Hier kannst Du optional drei bis fünf Schlüsselwörter definieren unter denen Dein Produkt gefunden werden soll."
     },
     "settingsForm": {

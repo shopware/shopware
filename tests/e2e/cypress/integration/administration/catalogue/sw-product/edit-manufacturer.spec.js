@@ -4,10 +4,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Edit manufacturer', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
+        cy.loginViaApi()
             .then(() => {
                 return cy.createProductFixture({
                     manufacturerId: null

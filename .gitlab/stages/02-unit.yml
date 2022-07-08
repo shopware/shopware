@@ -126,7 +126,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "commercial docs administration storefront checkout content framework profiling system elasticsearch migration"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch migration"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
@@ -178,7 +178,6 @@ PHP Full:
                 TEST_SUITES: "checkout content framework profiling system migration"
                 ALLOW_FAILURE: 'true'
     script:
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/commercial.git custom/plugins/SwagCommercial
         - >
             if [ "$DEPENDENCY_DEV" == "true" ]; then
                composer config minimum-stability dev

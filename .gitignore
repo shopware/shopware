@@ -12,6 +12,7 @@ Thumbs.db
 
 # PhpStorm-Project
 /.idea/
+/.fleet/
 
 # Composer
 /composer.phar
@@ -75,6 +76,7 @@ src/Docs/Command/wiki.secret
 /.psh.yml.override
 /.env
 .env.local
+.env.local.php
 .env.test
 .env.e2e
 .env.dev

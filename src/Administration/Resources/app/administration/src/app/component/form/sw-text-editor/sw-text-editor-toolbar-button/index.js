@@ -153,9 +153,12 @@ Component.register('sw-text-editor-toolbar-button', {
             const linkIconRightBound = linkIcon.getBoundingClientRect().right;
 
             const linkFlyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
-            const windowRightBound = this.$device.getViewportWidth();
 
-            const isOutOfRightBound = windowRightBound - linkFlyoutMenuRightBound;
+            const containerElement = this.getFlyoutMenuContainerElement(flyoutLinkMenu);
+
+            const containerRightBound = containerElement.getBoundingClientRect().right;
+
+            const isOutOfRightBound = containerRightBound - linkFlyoutMenuRightBound;
 
             let flyoutLinkLeftOffset = 0;
             let arrowPosition = 10;
@@ -168,5 +171,11 @@ Component.register('sw-text-editor-toolbar-button', {
             flyoutLinkMenu.style.setProperty('--flyoutLinkLeftOffset', `${flyoutLinkLeftOffset}px`);
             flyoutLinkMenu.style.setProperty('--arrow-position', `${arrowPosition}px`);
         },
+
+        getFlyoutMenuContainerElement(element) {
+            const modalParent = element.closest('.sw-modal__body');
+
+            return modalParent || window.document.body;
+        }
     },
 });

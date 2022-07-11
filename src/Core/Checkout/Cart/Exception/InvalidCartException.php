@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Exception;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,8 +18,12 @@ class InvalidCartException extends ShopwareHttpException
     {
         $this->cartErrors = $errors;
 
+        $message = $errors->map(function (Error $error) {
+            return $error->getCode() . ': ' . $error->getMessage();
+        });
+
         parent::__construct(
-            'The cart is invalid, got {{ errorCount }} error(s).',
+            'The cart is invalid, got {{ errorCount }} error(s).' . \PHP_EOL . \implode(\PHP_EOL, $message),
             ['errorCount' => $errors->count()]
         );
     }

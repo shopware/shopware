@@ -1,6 +1,6 @@
 ---
 title: make used HttpCache-class customizable
-issue: tba
+issue: NEXT-22356
 author: Sven Herrmann
 author_email: sven.herrmann@ianeo.de
 author_github: @SvenHerrmann

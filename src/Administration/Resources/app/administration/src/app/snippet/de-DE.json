@@ -560,7 +560,7 @@
       "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",
       "moduleFilter": "Modulfilter",
-      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsV2": "Keine genauen Übereinstimmungen mit \"{term}\" gefunden.",
       "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Konfiguration Deiner Suche.",
       "addNew": "neue hinzufügen"
     },
@@ -597,14 +597,14 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
-      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen..."
+      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen ..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
-        "placeholder": "Operator auswählen...",
+        "placeholder": "Operator auswählen ...",
         "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
         "equals": "Ist gleich | Sind gleich",
         "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
@@ -739,10 +739,10 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Fieldset wählen..."
+              "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen..."
+              "placeholder": "Zusatzfeld wählen ..."
             }
           }
         },
@@ -1164,7 +1164,7 @@
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen..."
+    "addNewRule": "Neue Regel erstellen ..."
   },
   "sw-shortcut-overview": {
     "title": "Tastenkürzel",

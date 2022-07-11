@@ -38,6 +38,12 @@ class ConfigurationServiceTest extends TestCase
         $this->configurationService->getConfiguration('InvalidNamespace', Context::createDefaultContext());
     }
 
+    public function testThatInvalidDomainException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->configurationService->getConfiguration('Invalid Domain', Context::createDefaultContext());
+    }
+
     public function testThatBundleWithoutConfigThrowsException(): void
     {
         $this->expectException(BundleConfigNotFoundException::class);
@@ -219,7 +225,7 @@ class ConfigurationServiceTest extends TestCase
                     1 => [
                         'name' => 'SwagExampleTest.config.withoutAnyConfig',
                         'type' => 'int',
-                        'config' => new \stdClass(),
+                        'config' => [],
                     ],
                     2 => [
                         'name' => 'SwagExampleTest.config.mailMethod',

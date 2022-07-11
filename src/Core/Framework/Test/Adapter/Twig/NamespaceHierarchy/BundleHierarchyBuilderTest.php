@@ -169,13 +169,9 @@ class BundleHierarchyBuilderTest extends TestCase
         $kernel = $this->createMock(KernelInterface::class);
         $bundles = [];
 
-        $bundleNameSetter = \Closure::bind(static function (Bundle $bundle, string $name): void {
-            $bundle->name = $name;
-        }, null, Bundle::class);
-
         foreach ($plugins as $plugin => $prio) {
             $bundle = $this->createMock(Bundle::class);
-            $bundleNameSetter($bundle, $plugin);
+            $bundle->method('getName')->willReturn($plugin);
             $bundle->method('getTemplatePriority')->willReturn($prio);
             $bundle->method('getPath')->willReturn(__DIR__ . '/../fixtures/Plugins/TestPlugin1/');
             $bundles[] = $bundle;

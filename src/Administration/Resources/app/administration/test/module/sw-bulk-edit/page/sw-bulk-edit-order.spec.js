@@ -1,6 +1,7 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import VueRouter from 'vue-router';
+import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/utils/sw-loader';
@@ -99,6 +100,10 @@ const router = new VueRouter({
     routes
 });
 
+function createEntityCollection(entities = []) {
+    return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
+}
+
 function createWrapper(isResponseError = false) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
@@ -163,6 +168,23 @@ function createWrapper(isResponseError = false) {
             validationService: {},
             repositoryFactory: {
                 create: (entity) => {
+                    if (entity === 'custom_field_set') {
+                        return {
+                            search: () => Promise.resolve(createEntityCollection([{
+                                id: 'field-set-id-1',
+                                name: 'example',
+                                customFields: [{
+                                    name: 'customFieldName',
+                                    type: 'text',
+                                    config: {
+                                        label: 'configFieldLabel'
+                                    }
+                                }]
+                            }])),
+                            get: () => Promise.resolve({ id: '' })
+                        };
+                    }
+
                     if (entity === 'state_machine_state') {
                         return {
                             searchIds: jest.fn()
@@ -236,7 +258,19 @@ function createWrapper(isResponseError = false) {
                 }
             },
             orderDocumentApiService: {
-                create: () => Promise.resolve(),
+                create: () => {
+                    return Promise.resolve();
+                },
+                download: () => {
+                    return Promise.resolve();
+                },
+                extendingDeprecatedService: () => {
+                    return Promise.resolve({
+                        data: {
+                            showWarning: false,
+                        },
+                    });
+                },
             },
             shortcutService: {
                 startEventListener: () => {},
@@ -250,7 +284,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
 
     beforeEach(() => {
-        jest.spyOn(console, 'log').mockImplementation(() => {});
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -288,7 +321,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should disable status mails and documents by default', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -298,8 +330,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should enable status mails when one of the status fields has changed', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
 
         await flushPromises();
@@ -320,8 +350,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should enable documents when status mails is enabled', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
 
         await flushPromises();
@@ -345,6 +373,112 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeFalsy();
     });
 
+    it('should call onCustomFieldsChange when a customField is changed', async () => {
+        wrapper = createWrapper();
+
+        const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+
+        await flushPromises();
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        wrapper.vm.onCustomFieldsChange.mockRestore();
+        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
+    });
+
+    it('should call onChangeDocument when a document field changed is changed', async () => {
+        wrapper = createWrapper();
+
+        const spyOnChangeDocument = jest.spyOn(wrapper.vm, 'onChangeDocument');
+
+        await flushPromises();
+
+        wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyOnChangeDocument).toHaveBeenCalledTimes(1);
+        wrapper.vm.onChangeDocument.mockRestore();
+    });
+
+    it('should push selected document types to payload when documents is enabled', async () => {
+        wrapper = createWrapper();
+
+        await flushPromises();
+
+        wrapper.setData({
+            bulkEditData: {
+                ...wrapper.vm.bulkEditData,
+                orderTransactions: {
+                    isChanged: true,
+                    value: '1'
+                },
+                documents: {
+                    isChanged: true,
+                    value: '1'
+                }
+            },
+            order: {
+                documents: {
+                    documentType: {
+                        credit_note: true
+                    }
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const { statusData } = wrapper.vm.onProcessData();
+
+        await wrapper.vm.$nextTick();
+
+        const changeDocumentTypes = statusData[0].documentTypes;
+
+        expect(changeDocumentTypes[0]).toBe('credit_note');
+    });
+
+    it('should not push selected document types to payload when documents is disable', async () => {
+        wrapper = createWrapper();
+
+        await flushPromises();
+
+        wrapper.setData({
+            bulkEditData: {
+                ...wrapper.vm.bulkEditData,
+                orderTransactions: {
+                    isChanged: true,
+                    value: '1'
+                },
+                documents: {
+                    isChanged: false
+                }
+            },
+            order: {
+                documents: {
+                    documentType: {
+                        credit_note: true
+                    }
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const { statusData } = wrapper.vm.onProcessData();
+
+        await wrapper.vm.$nextTick();
+
+        const changeDocumentTypes = statusData[0].documentTypes;
+
+        expect(changeDocumentTypes).toBeUndefined();
+    });
+
     it('should show empty state', async () => {
         wrapper = createWrapper();
 
@@ -355,6 +489,33 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+    });
+
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    it('should show documents warning alert', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoadedData: true,
+            showBulkEditDocumentWarning: false,
+            customFieldSets: [],
+        });
+
+        let warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
+
+        expect(warning.exists()).toBeFalsy();
+
+        await wrapper.setData({
+            showBulkEditDocumentWarning: true
+        });
+
+        warning = wrapper.find('.sw-bulk-edit-order-base__documents-warning');
+
+        expect(warning.exists()).toBeTruthy();
+
+        expect(warning.text()).toBe('sw-bulk-edit.order.documents.warning');
     });
 
     it('should open confirm modal', async () => {
@@ -478,38 +639,33 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
     });
 
-    it('should be able to create document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    it('should call check using deprecated method on creating component', async () => {
+        const activeFeatureFlags = global.activeFeatureFlags;
+
+        global.activeFeatureFlags = ['v6.5.0.0'];
 
         wrapper = createWrapper();
-        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
 
-        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
-        await wrapper.vm.$nextTick();
+        const shouldShowBulkEditDocumentWarningCall = jest.spyOn(wrapper.vm, 'shouldShowBulkEditDocumentWarning');
 
-        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        wrapper.find('.footer-right').find('button').trigger('click');
-        await flushPromises();
-        expect(wrapper.vm.$route.path).toEqual('/success');
+        await wrapper.vm.createdComponent();
 
-        wrapper.vm.orderDocumentApiService.create.mockRestore();
-    });
+        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(0);
 
-    it('should not be able to create document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = [];
 
-        wrapper = createWrapper();
-        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.reject());
+        await wrapper.vm.createdComponent();
 
-        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
-        await wrapper.vm.$nextTick();
+        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(1);
 
-        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        wrapper.find('.footer-right').find('button').trigger('click');
-        await flushPromises();
-        expect(wrapper.vm.$route.path).toEqual('/error');
+        await wrapper.setData({
+            isLoadedData: false,
+        });
 
-        wrapper.vm.orderDocumentApiService.create.mockRestore();
+        global.activeFeatureFlags = activeFeatureFlags;
     });
 
     it('should set route meta module when component created', () => {
@@ -524,28 +680,34 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.setRouteMetaModule.mockRestore();
     });
 
-    it('should call fetchStatusOptions when component created', () => {
+    it('should call fetchStatusOptions when component created', async () => {
         wrapper = createWrapper();
-        const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions').mockImplementation();
+        const fetchStatusOptionsSpy = jest.spyOn(wrapper.vm, 'fetchStatusOptions');
 
-        wrapper.vm.createdComponent();
+        await flushPromises();
+
+        expect(fetchStatusOptionsSpy).toHaveBeenCalledTimes(3);
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(1, 'orders.id');
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(2, 'orderTransactions.orderId');
         expect(fetchStatusOptionsSpy).toHaveBeenNthCalledWith(3, 'orderDeliveries.orderId');
 
-        const orderStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orders.id', [selectedOrderId]));
-        orderStateCriteria.addFilter(Shopware.Data.Criteria.equals('orders.versionId', Shopware.Context.api.liveVersionId));
+        const orderStateCriteria = new Criteria(1, null);
+        const { liveVersionId } = Shopware.Context.api;
+
+        expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(3);
+
+        orderStateCriteria.addFilter(Criteria.equalsAny('orders.id', [selectedOrderId]));
+        orderStateCriteria.addFilter(Criteria.equals('orders.versionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
 
-        const orderTransactionStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
-        orderTransactionStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderTransactions.orderVersionId', Shopware.Context.api.liveVersionId));
+        const orderTransactionStateCriteria = new Criteria(1, null);
+        orderTransactionStateCriteria.addFilter(Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
+        orderTransactionStateCriteria.addFilter(Criteria.equals('orderTransactions.orderVersionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
 
-        const orderDeliveryStateCriteria = new Shopware.Data.Criteria(1, null);
-        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
-        orderDeliveryStateCriteria.addFilter(Shopware.Data.Criteria.equals('orderDeliveries.orderVersionId', Shopware.Context.api.liveVersionId));
+        const orderDeliveryStateCriteria = new Criteria(1, null);
+        orderDeliveryStateCriteria.addFilter(Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
+        orderDeliveryStateCriteria.addFilter(Criteria.equals('orderDeliveries.orderVersionId', liveVersionId));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
 
         wrapper.vm.fetchStatusOptions.mockClear();
@@ -571,7 +733,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).toContain('sw-button--disabled');
 
         await wrapper.setData({
             isLoading: false,
@@ -590,6 +755,36 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
-        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').classes()).not.toContain('sw-button--disabled');
+    });
+
+    it('should get latest order status correctly', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.fetchStatusOptions = jest.fn();
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                orders: {
+                    isChanged: true,
+                },
+                orderTransactions: {
+                    isChanged: true,
+                },
+                orderDeliveries: {
+                    isChanged: true,
+                },
+                statusMails: {
+                    isChanged: false,
+                },
+            },
+        });
+
+        wrapper.vm.getLatestOrderStatus();
+
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderTransactions.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.order.id');
+        expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
+        wrapper.vm.fetchStatusOptions.mockRestore();
     });
 });

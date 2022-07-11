@@ -13,6 +13,10 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -33,6 +37,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -51,7 +56,7 @@ class SendMailActionTest extends TestCase
     /**
      * @dataProvider sendMailProvider
      */
-    public function testEmailSend(array $recipients, ?bool $hasFlowSettingAttachment = true, ?bool $hasOrderSettingAttachment = true): void
+    public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
         $orderRepository = $this->getContainer()->get('order.repository');
@@ -74,7 +79,7 @@ class SendMailActionTest extends TestCase
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => $recipients,
-            'documentTypeIds' => $hasFlowSettingAttachment ? [$this->getDocIdByType(DeliveryNoteGenerator::DELIVERY_NOTE)] : [],
+            'documentTypeIds' => $documentTypeIds,
         ]);
 
         $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
@@ -83,7 +88,7 @@ class SendMailActionTest extends TestCase
         $documentIdOlder = null;
         $documentIdNewer = null;
 
-        if ($hasFlowSettingAttachment || $hasOrderSettingAttachment) {
+        if (!empty($documentTypeIds) || $hasOrderSettingAttachment) {
             $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
             $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
         }
@@ -106,6 +111,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -161,7 +167,7 @@ class SendMailActionTest extends TestCase
                 static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()->getEmail() => $order->getOrderCustomer()->getFirstName() . ' ' . $order->getOrderCustomer()->getLastName()]);
         }
 
-        if ($hasFlowSettingAttachment) {
+        if (!empty($documentTypeIds)) {
             $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
             $documents = $documentRepository->search($criteria, $context);
 
@@ -189,9 +195,13 @@ class SendMailActionTest extends TestCase
                 'test2@example.com' => 'Overwrite',
             ],
         ]];
-        yield 'Test send mail without attachments' => [['type' => 'customer'], false];
-        yield 'Test send mail with attachments from order setting' => [['type' => 'customer'], false, true];
-        yield 'Test send mail with attachments from order setting and flow setting ' => [['type' => 'customer'], true, true];
+        yield 'Test send mail without attachments' => [['type' => 'customer'], []];
+        yield 'Test send mail with attachments from order setting' => [['type' => 'customer'], [], true];
+        yield 'Test send mail with attachments from order setting and flow setting ' => [
+            ['type' => 'customer'],
+            [$this->getDocIdByType(DeliveryNoteRenderer::TYPE)],
+            true,
+        ];
     }
 
     public function testUpdateMailTemplateTypeWithMailTemplateTypeIdIsNull(): void
@@ -239,6 +249,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -312,6 +323,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -381,6 +393,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -440,6 +453,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -503,6 +517,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -582,6 +597,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
             $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -699,8 +715,19 @@ class SendMailActionTest extends TestCase
         return $orderId;
     }
 
-    private function createDocumentWithFile(string $orderId, Context $context): string
+    private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+
+            $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
+            $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
+
+            static::assertNotNull($document);
+
+            return $document->getId();
+        }
+
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $documentStruct = $documentService->create(

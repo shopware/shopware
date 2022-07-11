@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -21,15 +20,7 @@ class PromotionHandlingTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
-
-    /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
-     */
-    private $context;
+    protected CartService $cartService;
 
     protected function setUp(): void
     {

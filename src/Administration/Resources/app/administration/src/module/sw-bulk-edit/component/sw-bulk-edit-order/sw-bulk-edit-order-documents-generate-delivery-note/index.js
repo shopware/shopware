@@ -8,12 +8,12 @@ Component.extend('sw-bulk-edit-order-documents-generate-delivery-note', 'sw-bulk
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit').orderDocuments.delivery_note;
+                return State.get('swBulkEdit').orderDocuments?.delivery_note?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocuments', {
+                State.commit('swBulkEdit/setOrderDocumentsValue', {
                     type: 'delivery_note',
-                    payload: generateData,
+                    value: generateData,
                 });
             },
         },

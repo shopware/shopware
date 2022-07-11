@@ -34,6 +34,11 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      */
+    protected $documentDate;
+
+    /**
+     * @var string|null
+     */
     protected $documentComment;
 
     /**
@@ -224,6 +229,11 @@ class DocumentConfiguration extends Struct
         return $this->documentComment;
     }
 
+    public function getDocumentDate(): ?string
+    {
+        return $this->documentDate;
+    }
+
     public function setDocumentComment(?string $documentComment): void
     {
         $this->documentComment = $documentComment;
@@ -247,6 +257,16 @@ class DocumentConfiguration extends Struct
     public function setPageSize(?string $pageSize): void
     {
         $this->pageSize = $pageSize;
+    }
+
+    public function merge(array $config): self
+    {
+        return DocumentConfigurationFactory::mergeConfiguration($this, $config);
+    }
+
+    public function buildName(): string
+    {
+        return $this->filenamePrefix . $this->documentNumber . $this->filenameSuffix;
     }
 
     public function getApiAlias(): string

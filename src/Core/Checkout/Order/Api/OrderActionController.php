@@ -402,6 +402,7 @@ Note: If you choose a transition which is not possible, you will get an error th
             'LOWER(hex(document.document_type_id)) as doc_type',
             'LOWER(hex(document.id)) as doc_id',
             'document.created_at as newest_date',
+            'document.sent as sent',
         ]);
         $query->from('document', 'document');
         $query->innerJoin('document', 'document_type', 'document_type', 'document.document_type_id = document_type.id');
@@ -420,10 +421,6 @@ Note: If you choose a transition which is not possible, you will get an error th
             $query->setParameter('orderId', $orderId);
         }
 
-        if ($skipSentDocuments) {
-            $query->andWhere('document.sent = 0');
-        }
-
         $query->andWhere('document_type.technical_name IN (:documentTypes)');
         $query->orderBy('document.created_at', 'DESC');
 
@@ -434,8 +431,15 @@ Note: If you choose a transition which is not possible, you will get an error th
         $documentsGroupByType = FetchModeHelper::group($documents);
 
         $documentIds = [];
-        foreach ($documentsGroupByType as $document) {
-            $documentIds[] = array_shift($document)['doc_id'];
+        foreach ($documentsGroupByType as $documents) {
+            // Latest document of type
+            $document = $documents[0];
+
+            if ($skipSentDocuments && $document['sent']) {
+                continue;
+            }
+
+            $documentIds[] = $document['doc_id'];
         }
 
         return $documentIds;

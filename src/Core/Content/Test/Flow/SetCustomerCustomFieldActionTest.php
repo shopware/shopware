@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -20,6 +21,10 @@ class SetCustomerCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;
     use CacheTestBehaviour;
+
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -82,6 +87,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
         $this->login($email, $password);
 
+        static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 

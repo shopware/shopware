@@ -1,7 +1,6 @@
 ---
 title: Allow sending email about status change and document
 issue: NEXT-19318
-flag: FEATURE_NEXT_17261
 ---
 # Core
 * Changed `orderStateTransition`, `orderTransactionStateTransition` and `orderDeliveryStateTransition` methods in `Checkout/Order/Api/OrderActionController.php` to allow sending emails with attached documents getting by `documentTypes`

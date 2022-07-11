@@ -7,15 +7,21 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,21 +32,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class DocumentController extends AbstractController
 {
     /**
-     * @var DocumentService
+     * @deprecated tag:v6.5.0 - $documentService property will be removed
      */
-    protected $documentService;
+    protected DocumentService $documentService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $documentRepository;
+    private DocumentGenerator $documentGenerator;
+
+    private DocumentMerger $documentMerger;
+
+    private EntityRepositoryInterface $documentRepository;
 
     /**
      * @internal
      */
-    public function __construct(DocumentService $documentService, EntityRepositoryInterface $documentRepository)
-    {
+    public function __construct(
+        DocumentService $documentService,
+        DocumentGenerator $documentGenerator,
+        DocumentMerger $documentMerger,
+        EntityRepositoryInterface $documentRepository
+    ) {
         $this->documentService = $documentService;
+        $this->documentGenerator = $documentGenerator;
+        $this->documentMerger = $documentMerger;
         $this->documentRepository = $documentRepository;
     }
 
@@ -88,7 +101,31 @@ class DocumentController extends AbstractController
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
-        $download = $request->query->getBoolean('download', false);
+        if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
+             */
+            if (!$context->isAllowed('document.viewer')) {
+                throw new MissingPrivilegeException(['document.viewer']);
+            }
+
+            $download = $request->query->getBoolean('download');
+
+            $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode);
+
+            if ($generatedDocument === null) {
+                return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+            }
+
+            return $this->createResponse(
+                $generatedDocument->getName(),
+                $generatedDocument->getContent(),
+                $download,
+                $generatedDocument->getContentType()
+            );
+        }
+
+        $download = $request->query->getBoolean('download');
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
@@ -129,12 +166,39 @@ class DocumentController extends AbstractController
         string $documentTypeName,
         Context $context
     ): Response {
+        if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
+             */
+            if (!$context->isAllowed('document.viewer')) {
+                throw new MissingPrivilegeException(['document.viewer']);
+            }
+
+            $config = $request->query->get('config');
+            $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
+
+            $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+            $download = $request->query->getBoolean('download');
+            $referencedDocumentId = $request->query->getAlnum('referencedDocumentId');
+
+            $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $referencedDocumentId, false, true);
+
+            $generatedDocument = $this->documentGenerator->preview($documentTypeName, $operation, $deepLinkCode, $context);
+
+            return $this->createResponse(
+                $generatedDocument->getName(),
+                $generatedDocument->getContent(),
+                $download,
+                $generatedDocument->getContentType()
+            );
+        }
+
         $config = $request->query->get('config');
         $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
-        $download = $request->query->getBoolean('download', false);
+        $download = $request->query->getBoolean('download');
 
         $generatedDocument = $this->documentService->preview(
             $orderId,
@@ -153,6 +217,58 @@ class DocumentController extends AbstractController
         );
     }
 
+    /**
+     * @Since("6.4.12.0")
+     * @OA\Get(
+     *     path="/_action/order/document/download",
+     *     summary="Download a documents",
+     *     description="Download a multiple documents in one pdf file.",
+     *     operationId="downloadDocuments",
+     *     tags={"Admin API", "Document Management"},
+     *     @OA\Parameter(
+     *         name="documentIds",
+     *         description="A list of document ids to download.",
+     *         @OA\Schema(type="array",
+     *               @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="The documents.",
+     *          @OA\MediaType(
+     *              mediaType="application/octet-stream",
+     *              @OA\Schema(
+     *                  type="string",
+     *                  format="binary"
+     *              )
+     *          )
+     *     )
+     * )
+     * @Route("/api/_action/order/document/download", name="api.action.download.documents", methods={"POST"}, defaults={"_acl"={"document.viewer"}})
+     */
+    public function downloadDocuments(Request $request, Context $context): Response
+    {
+        $documentIds = $request->get('documentIds', []);
+
+        if (!\is_array($documentIds) || empty($documentIds)) {
+            throw new InvalidRequestParameterException('documentIds');
+        }
+
+        $download = $request->query->getBoolean('download', true);
+        $combinedDocument = $this->documentMerger->merge($documentIds, $context);
+
+        if ($combinedDocument === null) {
+            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+        }
+
+        return $this->createResponse(
+            $combinedDocument->getName(),
+            $combinedDocument->getContent(),
+            $download,
+            $combinedDocument->getContentType()
+        );
+    }
+
     private function createResponse(string $filename, string $content, bool $forceDownload, string $contentType): Response
     {
         $response = new Response($content);
@@ -161,7 +277,7 @@ class DocumentController extends AbstractController
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename)
+            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename) ?? ''
         );
 
         $response->headers->set('Content-Type', $contentType);

@@ -1,7 +1,6 @@
 ---
 title: Generate order documents in bulk edit
 issue: NEXT-17486
-flag: FEATURE_NEXT_17261
 ---
 # Administration
 * Added `orderDocumentApiService` service in `src/core/service/api`.

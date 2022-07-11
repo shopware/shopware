@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -42,16 +43,23 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
+     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
      * @Route("/api/_action/customer-group-registration/accept/{customerId}", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
      */
-    public function accept(Request $request, Context $context): JsonResponse
+    public function accept(Request $request, Context $context, ?string $customerId = null): JsonResponse
     {
+        if ($customerId !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'customerId route parameter will be no longer required, use customerIds in body instead'
+            );
+        }
+
         $customerIds = $this->getRequestCustomerIds($request);
 
-        $silentError = $request->request->getBoolean('silentError', false);
+        $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
@@ -88,16 +96,23 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
+     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
      * @Route("/api/_action/customer-group-registration/decline/{customerId}", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
      */
-    public function decline(Request $request, Context $context): JsonResponse
+    public function decline(Request $request, Context $context, ?string $customerId = null): JsonResponse
     {
+        if ($customerId !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'customerId route parameter will be no longer required, use customerIds in body instead'
+            );
+        }
+
         $customerIds = $this->getRequestCustomerIds($request);
 
-        $silentError = $request->request->getBoolean('silentError', false);
+        $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
@@ -133,7 +148,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
+     * @feature-deprecated tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
      */
     private function getRequestCustomerIds(Request $request): array
     {

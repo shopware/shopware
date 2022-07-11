@@ -266,11 +266,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php
 
 		-
-			message: "#^Parameter \\#3 \\$filenameFallback of static method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderUtils\\:\\:makeDisposition\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Controller/DocumentController.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:\\$documentMediaFile \\(Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\) does not accept Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/DocumentEntity.php
@@ -281,36 +276,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentEntity.php
 
 		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/CreditNoteGenerator.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/DeliveryNoteGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentGenerator\\\\DocumentGeneratorRegistry\\:\\:\\$documentGenerators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentGenerator\\\\DocumentGeneratorInterface\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/DocumentGeneratorRegistry.php
-
-		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/InvoiceGenerator.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/StornoGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentGenerator\\\\StornoGenerator\\:\\:handlePrices\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentGenerator/StornoGenerator.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
@@ -319,11 +284,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\FileGenerator\\\\FileGeneratorRegistry\\:\\:\\$fileGenerators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\FileGenerator\\\\FileGeneratorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/FileGenerator/FileGeneratorRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\FileGenerator\\\\PdfGenerator\\:\\:generate\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/FileGenerator/PdfGenerator.php
 
 		-
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
@@ -556,26 +516,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupPackagerInterface\\:\\:getSequenceCount\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupSorterInterface\\:\\:getSequenceCount\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\QuantityPriceCalculator constructor invoked with 3 parameters, 2 required\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createQuantityPriceCalculator\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
 			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/LineItem/Group/ProductLineItemProviderTest.php
@@ -741,31 +681,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeResultStatement.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
-
-		-
-			message: "#^Cannot call method getTax\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:\\$context has no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DataAbstractionLayer\\\\Indexer\\\\PromotionExclusionIndexerTest\\:\\:\\$connection is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
@@ -774,16 +689,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DataAbstractionLayer\\\\Indexer\\\\PromotionExclusionIndexerTest\\:\\:\\$eventDispatcher is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
-
-		-
-			message: "#^Cannot call method getLabel\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
 
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null\\.$#"
@@ -824,16 +729,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Checkout/Test/Cart/SalesChannel/CartDeleteRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -944,21 +839,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\AccountServiceEventTest\\:\\:getEmailListenerClosure\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/AccountServiceEventTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Api/CustomerGroupRegistrationActionControllerTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity\\|null\\.$#"
-			count: 6
-			path: src/Core/Checkout/Test/Customer/Api/CustomerGroupRegistrationActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Customer/Api/CustomerGroupRegistrationActionControllerTest.php
 
 		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
@@ -1286,136 +1166,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerRemoteAddressSubscriberTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentApiTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentApiTest.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:executeQuery\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Cannot call method getPrices\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:\\$currencyFormatter is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:executeQuery\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getFirstName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getIsoCode\\(\\) on Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getLabel\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getLastName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getShippingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderDelivery\\\\OrderDeliveryCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getStreet\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method getZipcode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderAddress\\\\OrderAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method last\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method setCompanyTax\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Cannot call method setVatIds\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$needle of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
 			message: "#^PHPDoc tag @param has invalid value \\(array\\<string, string\\>\\)\\: Unexpected token \"\\\\n     \", expected variable at offset 87$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/Aggregate/OrderTransaction/OrderTransactionStateHandlerTest.php
@@ -1459,91 +1209,6 @@ parameters:
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/CancelOrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Order/SalesChannel/CancelOrderRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\CancelOrderRouteTest\\:\\:\\$customerRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/CancelOrderRouteTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method filterByType\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method getCustomerId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method getOrderCustomer\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method getPaymentMethodId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method last\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 6
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Cannot call method update\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 16
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:setServerParameter\\(\\) expects string, null given\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 10
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:\\$context has no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:\\$orderPersister is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:\\$stateMachineRegistry is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
 
 		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderDelivery\\\\OrderDeliveryCollection\\|null\\.$#"
@@ -1639,41 +1304,6 @@ parameters:
 			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
 			count: 3
 			path: src/Core/Checkout/Test/Promotion/Cart/PromotionCalculatorTest.php
-
-		-
-			message: "#^Cannot call method getWriteResults\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:\\$customerRepository is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:\\$customerRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:testGetCodePreview\\(\\) has parameter \\$codePattern with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:testGetCodePreview\\(\\) has parameter \\$expectedRegex with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
@@ -2121,16 +1751,6 @@ parameters:
 			path: src/Core/Content/Media/Event/MediaFileExtensionWhitelistEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileLoader\\:\\:loadMediaFile\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$fileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameValidator\\:\\:validateFileName\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileLoader.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Content/Media/File/FileSaver.php
@@ -2159,21 +1779,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:fetchFolder\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaFolderService.php
-
-		-
-			message: "#^Parameter \\#1 \\$folder of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaService\\:\\:createMediaInFolder\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Media/MediaService.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileFetcher\\:\\:fetchFileFromURL\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaService.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileFetcher\\:\\:fetchRequestData\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaService.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:\\$metadataLoader \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\MetadataLoaderInterface\\>\\) does not accept iterable\\.$#"
@@ -2681,126 +2286,6 @@ parameters:
 			path: src/Core/Content/Test/ContactForm/ContactFormRouteTest.php
 
 		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddCustomerAffiliateAndCampaignCodeActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddCustomerTagActionTest\\:\\:\\$flowLoader is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddOrderAffiliateAndCampaignCodeActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/AddOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/AddOrderTagActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddOrderTagActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderTagActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddOrderTagActionTest\\:\\:\\$flowLoader is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/AddOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerGroupActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerGroupActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerGroupActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\ChangeCustomerGroupActionTest\\:\\:\\$flowLoader is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerGroupActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerStatusActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerStatusActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerStatusActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\ChangeCustomerStatusActionTest\\:\\:\\$flowLoader is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/ChangeCustomerStatusActionTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\FlowActionTestSubscriber\\:\\:\\$actions has no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/FlowActionTestSubscriber.php
@@ -2839,216 +2324,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\FlowDispatcherTest\\:\\:\\$flowLoader is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/FlowDispatcherTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Cannot call method fetchFirstColumn\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Cannot call method insert\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Cannot call method upsert\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Action\\\\GenerateDocumentAction constructor invoked with 4 parameters, 3 required\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$array \\(array\\{documentType\\: 'customDoc', documentRangerType\\: 'document_example', custom\\: array\\{invoiceNumber\\: '1100'\\}\\}\\) to function array_filter does not contain falsy values, the array will always stay the same\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$array \\(array\\{documentTypes\\: array\\{array\\{documentType\\: string, documentRangerType\\: string, custom\\: array\\{invoiceNumber\\: '1100'\\}\\}, array\\{documentType\\: 'delivery_note', documentRangerType\\: 'document_delivery…'\\}\\}\\}\\) to function array_filter does not contain falsy values, the array will always stay the same\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:insertNumberRange\\(\\) expects Doctrine\\\\DBAL\\\\Connection, Doctrine\\\\DBAL\\\\Connection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:insertTranslations\\(\\) expects Doctrine\\\\DBAL\\\\Connection, Doctrine\\\\DBAL\\\\Connection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$documentService of class Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Action\\\\GenerateDocumentAction constructor expects Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService, Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$valueGenerator of class Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Action\\\\GenerateDocumentAction constructor expects Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGeneratorInterface, Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGeneratorInterface\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$connection of class Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Action\\\\GenerateDocumentAction constructor expects Doctrine\\\\DBAL\\\\Connection, Doctrine\\\\DBAL\\\\Connection\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$connection of method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:importTranslation\\(\\) expects Doctrine\\\\DBAL\\\\Connection, Doctrine\\\\DBAL\\\\Connection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/RemoveCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/RemoveCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/RemoveCustomerTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\RemoveOrderTagActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerCustomFieldActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetCustomerCustomFieldActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerGroupCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerGroupCustomFieldActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetCustomerGroupCustomFieldActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetCustomerGroupCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderCustomFieldActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetOrderCustomFieldActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderCustomFieldActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Cannot call method fetchColumn\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetOrderStateActionTest\\:\\:getPrePaymentMethodId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetOrderStateActionTest\\:\\:getStateId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetOrderStateActionTest\\:\\:getStateMachineState\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\SetOrderStateActionTest\\:\\:\\$flowLoader is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
 
 		-
 			message: "#^Cannot call method getPath\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity\\|null\\.$#"
@@ -7181,56 +6456,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createLanguage\\(\\) has parameter \\$fallbackId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 14
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$token of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextPersister\\:\\:load\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestBrowser\\:\\:setServerParameter\\(\\) expects array\\|object\\|string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 12
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:\\$manufacturerId is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:\\$productRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:\\$taxId is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 11
 			path: src/Core/Framework/Test/Api/Controller/UserControllerTest.php
@@ -10085,61 +9310,6 @@ parameters:
 			path: src/Core/Framework/Test/Update/Checkers/MysqlVersionCheckTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Services\\\\DownloadTest\\:\\:tmpFile\\(\\) invoked with 2 parameters, 0 required\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Services\\\\DownloadTest\\:\\:tmpFile\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Download\\:\\:setProgressCallback\\(\\) expects callable\\(\\)\\: mixed, array\\{PHPUnit\\\\Framework\\\\MockObject\\\\MockObject&stdClass, 'callback'\\} given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function ftruncate expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$size of function ftruncate expects int\\<0, max\\>, int given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$totalSize of method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Download\\:\\:downloadFile\\(\\) expects int, int\\<0, max\\>\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$hash of method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Download\\:\\:downloadFile\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Services\\\\DownloadTest\\:\\:\\$testFiles \\(array\\<string\\>\\) does not accept array\\<bool\\|string\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
-			message: "#^Trying to mock an undefined method callback\\(\\) on class stdClass\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/DownloadTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Update/Services/PluginCompatibilityTest.php
@@ -10703,11 +9873,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1610965670RemoveDeprecatedColumns\\:\\:updateDestructive\\(\\) expects Doctrine\\\\DBAL\\\\Connection, object\\|null given\\.$#"
 			count: 2
 			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1612442786ChangeVersionOfDocumentsTest\\:\\:getValidSalutationId\\(\\) should return string but returns array\\|string\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1612442786ChangeVersionOfDocumentsTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -11914,7 +11079,6 @@ parameters:
 			count: 1
 			path: src/Docs/Convert/WikiApiService.php
 
-
 		-
 			message: "#^Parameter \\#1 \\$categoryId of method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:deleteCategory\\(\\) expects string, int\\|string given\\.$#"
 			count: 1
@@ -12154,26 +11318,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CookieControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, int given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\DocumentControllerTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
 
 		-
 			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
@@ -12604,11 +11748,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:\\$salesChannel has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string\\|null, int given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Page/Account/DocumentPageTest.php
 
 		-
 			message: "#^Cannot call method getDefaultPaymentMethodId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
@@ -13094,3 +12233,7 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
+
+		-
+			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<(.*)>\\:\\:getMock\\(\\) contains unresolvable type.$#"
+			path: src\\\/*.php

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -22,6 +23,10 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     use OrderActionTrait;
     use CacheTestBehaviour;
     use AdminApiTestBehaviour;
+
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -87,7 +92,9 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         ]], Context::createDefaultContext());
 
         $browser = $this->createClient();
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $this->ids->get('customer'));
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$this->ids->get('customer')],
+        ]);
 
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = $this->getContainer()->get('customer_group.repository')

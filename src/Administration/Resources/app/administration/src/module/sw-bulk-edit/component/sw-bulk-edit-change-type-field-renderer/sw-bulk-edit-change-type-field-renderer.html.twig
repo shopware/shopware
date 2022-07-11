@@ -10,29 +10,8 @@
             :class="`sw-bulk-edit-change-field__container sw-bulk-edit-change-field-${formField.name}`"
         >
             {% block sw_bulk_edit_change_type_field_renderer_change_field %}
-            <template v-if="feature.isActive('FEATURE_NEXT_17261')">
-                <div class="sw-bulk-edit-change-field-renderer__change-field">
-                    {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
-                    <sw-field
-                        v-model="bulkEditData[formField.name].isChanged"
-                        class="sw-bulk-edit-change-field__change"
-                        type="checkbox"
-                        :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
-                        :help-text="formField.labelHelpText"
-                        :disabled="!!bulkEditData[formField.name].disabled"
-                        @change="onChangeValue($event, formField.name)"
-                    />
-                    {% endblock %}
-
-                    {% block sw_bulk_edit_change_type_field_renderer_change_field_subtitle %}
-                    <span v-if="formField.config.changeSubLabel">
-                        {{ formField.config.changeSubLabel }}
-                    </span>
-                    {% endblock %}
-                </div>
-            </template>
-
-            <template v-if="!feature.isActive('FEATURE_NEXT_17261')">
+            <div class="sw-bulk-edit-change-field-renderer__change-field">
+                {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
                 <sw-field
                     v-model="bulkEditData[formField.name].isChanged"
                     class="sw-bulk-edit-change-field__change"
@@ -42,7 +21,14 @@
                     :disabled="!!bulkEditData[formField.name].disabled"
                     @change="onChangeValue($event, formField.name)"
                 />
-            </template>
+                {% endblock %}
+
+                {% block sw_bulk_edit_change_type_field_renderer_change_field_subtitle %}
+                <span v-if="formField.config.changeSubLabel">
+                    {{ formField.config.changeSubLabel }}
+                </span>
+                {% endblock %}
+            </div>
             {% endblock %}
 
             {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field %}

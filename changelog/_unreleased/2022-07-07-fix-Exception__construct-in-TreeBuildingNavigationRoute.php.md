@@ -1,9 +1,9 @@
 ---
-title:              fix Exception::__construct() in TreeBuildingNavigationRoute.php       # Required
-issue:              -                              # Required
-author:             Private                          # Optional for shopware employees, Required for external developers
-author_email:       enacrt@gmail.com                   # Optional for shopware employees, Required for external developers
-author_github:      @nacrt                                 # Optional
+title:              fix Exception::__construct() in TreeBuildingNavigationRoute.php
+issue:              NEXT-22353
+author:             Private
+author_email:       enacrt@gmail.com
+author_github:      @nacrt
 ---
 # Core
 *  fix ``Exception::__construct()`` in TreeBuildingNavigationRoute.php

@@ -124,6 +124,7 @@ class InfoControllerTest extends TestCase
                 'additional' => ['user_change_me'],
             ],
             'version' => '1.0.0',
+            'name' => 'PHPUnit',
         ];
 
         $expected = [

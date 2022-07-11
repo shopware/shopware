@@ -356,6 +356,7 @@ class InfoController extends AbstractController
                 'baseUrl' => $app['baseUrl'],
                 'permissions' => $app['privileges'],
                 'version' => $app['version'],
+                'name' => $app['name'],
             ];
         }
 

@@ -1,6 +1,6 @@
 ---
 title: Remove inactive and deleted products from cart
-issue: NEXT-17002
+issue: NEXT-22182
 author: Micha Hobert
 author_email: info@the-cake-shop.de
 author_github: Isengo1989

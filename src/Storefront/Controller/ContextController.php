@@ -2,16 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
@@ -30,14 +28,9 @@ use Symfony\Component\Routing\RouterInterface;
 class ContextController extends StorefrontController
 {
     /**
-     * @var SalesChannelContextSwitcher
+     * @var ContextSwitchRoute
      */
-    private $contextSwitcher;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $domainRepository;
+    private $contextSwitchRoute;
 
     /**
      * @var RequestStack
@@ -50,25 +43,23 @@ class ContextController extends StorefrontController
     private $router;
 
     /**
-     * @var EntityRepositoryInterface
+     * @deprecated tag:v6.5.0 - $changeLanguageRoute will be removed
      */
-    private $customerRepository;
+    private AbstractChangeLanguageRoute $changeLanguageRoute;
 
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelContextSwitcher $contextSwitcher,
-        EntityRepositoryInterface $domainRepository,
-        EntityRepositoryInterface $customerRepository,
+        ContextSwitchRoute $contextSwitchRoute,
         RequestStack $requestStack,
-        RouterInterface $router
+        RouterInterface $router,
+        AbstractChangeLanguageRoute $changeLanguageRoute
     ) {
-        $this->contextSwitcher = $contextSwitcher;
-        $this->domainRepository = $domainRepository;
-        $this->customerRepository = $customerRepository;
+        $this->contextSwitchRoute = $contextSwitchRoute;
         $this->requestStack = $requestStack;
         $this->router = $router;
+        $this->changeLanguageRoute = $changeLanguageRoute;
     }
 
     /**
@@ -77,7 +68,7 @@ class ContextController extends StorefrontController
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->contextSwitcher->update($data, $context);
+        $this->contextSwitchRoute->switchContext($data, $context);
 
         return $this->createActionResponse($request);
     }
@@ -94,24 +85,27 @@ class ContextController extends StorefrontController
 
         $languageId = $request->request->get('languageId');
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('languageId', $languageId));
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
-        $criteria->setLimit(1);
-
-        /** @var SalesChannelDomainEntity|null $domain */
-        $domain = $this->domainRepository->search($criteria, $context->getContext())->first();
-        if ($domain === null) {
+        try {
+            $newTokenResponse = $this->contextSwitchRoute->switchContext(
+                new RequestDataBag([SalesChannelContextService::LANGUAGE_ID => $languageId]),
+                $context
+            );
+        } catch (ConstraintViolationException $e) {
             throw new LanguageNotFoundException($languageId);
         }
 
+        /** @deprecated tag:v6.5.0 - The automatic change of the customer language will be removed - NEXT-22283 */
         if ($context->getCustomer()) {
-            $this->customerRepository->update([
-                [
-                    'id' => $context->getCustomer()->getId(),
-                    'languageId' => $languageId,
-                ],
-            ], $context->getContext());
+            $this->changeLanguageRoute->change(
+                new RequestDataBag(
+                    [
+                        'id' => $context->getCustomer()->getId(),
+                        'languageId' => $languageId,
+                    ]
+                ),
+                $context,
+                $context->getCustomer()
+            );
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
@@ -124,6 +118,10 @@ class ContextController extends StorefrontController
 
         if (\is_string($params)) {
             $params = json_decode($params, true);
+        }
+
+        if ($newTokenResponse->getRedirectUrl() === null) {
+            return $this->redirectToRoute($route, $params);
         }
 
         /*
@@ -151,7 +149,11 @@ class ContextController extends StorefrontController
          * http://localhost:8080/fr
          * http://localhost:8080/de-DE
          */
-        $parsedUrl = parse_url($domain->getUrl());
+        $parsedUrl = parse_url($newTokenResponse->getRedirectUrl());
+
+        if (!$parsedUrl) {
+            throw new LanguageNotFoundException($languageId);
+        }
 
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
@@ -159,8 +161,10 @@ class ContextController extends StorefrontController
         $routerContext->setHost($parsedUrl['host']);
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
-        $this->requestStack->getMainRequest()
-            ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
+        if ($this->requestStack->getMainRequest()) {
+            $this->requestStack->getMainRequest()
+                ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
+        }
 
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
 

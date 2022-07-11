@@ -7,6 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Storefront\Framework\Routing\Router;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\RequestContext;
 
 /**
@@ -16,33 +20,16 @@ class ContextControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
+
+    private string $testBaseUrl;
+
+    private string $defaultBaseUrl;
+
+    private string $languageId;
 
     /**
-     * @var string
-     */
-    private $testBaseUrl;
-
-    /**
-     * @var string
-     */
-    private $defaultBaseUrl;
-
-    /**
-     * @var string
-     */
-    private $languageId;
-
-    /**
-     * @var RequestContext
-     */
-    private $lastRouteContext;
-
-    /**
-     * @var object|\Symfony\Bundle\FrameworkBundle\Routing\Router|null
+     * @var Router
      */
     private $router;
 
@@ -52,8 +39,6 @@ class ContextControllerTest extends TestCase
 
         /** @var RequestContext $context */
         $context = $this->router->getContext();
-
-        $this->lastRouteContext = clone $context;
 
         $this->languageId = Uuid::randomHex();
         $localeId = Uuid::randomHex();
@@ -118,7 +103,7 @@ class ContextControllerTest extends TestCase
         );
 
         $response = $this->browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertSame($this->testBaseUrl . '/', $response->headers->get('Location'));
     }
 
@@ -135,7 +120,51 @@ class ContextControllerTest extends TestCase
         );
 
         $response = $this->browser->getResponse();
-        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertSame($this->defaultBaseUrl . '/', $response->headers->get('Location'));
+    }
+
+    public function testConfigure(): void
+    {
+        $this->browser->request('GET', $this->testBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $contextSubscriber = new TestSubscriber();
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher->addSubscriber($contextSubscriber);
+
+        $this->browser->request(
+            'POST',
+            $this->testBaseUrl . '/checkout/configure',
+            ['languageId' => $this->languageId],
+            []
+        );
+
+        $response = $this->browser->getResponse();
+
+        $dispatcher->removeSubscriber($contextSubscriber);
+
+        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->languageId, $contextSubscriber::$switchEvent->getRequestDataBag()->get('languageId'));
+    }
+}
+
+/**
+ * @internal
+ */
+class TestSubscriber implements EventSubscriberInterface
+{
+    public static SalesChannelContextSwitchEvent $switchEvent;
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            SalesChannelContextSwitchEvent::class => 'onSwitch',
+        ];
+    }
+
+    public function onSwitch(SalesChannelContextSwitchEvent $event): void
+    {
+        self::$switchEvent = $event;
     }
 }

@@ -169,11 +169,10 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\ContextController">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

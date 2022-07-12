@@ -35,6 +35,14 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         return $this->parameters;
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function getParameter(string $key)
+    {
+        return $this->parameters[$key] ?? null;
+    }
+
     protected function getCommonErrorData(bool $withTrace = false): array
     {
         $error = [
@@ -66,6 +74,6 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
             $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $key)] = $value;
         }
 
-        return preg_replace(array_keys($regex), array_values($regex), $message);
+        return (string) preg_replace(array_keys($regex), array_values($regex), $message);
     }
 }

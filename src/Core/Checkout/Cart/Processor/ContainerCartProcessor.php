@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Processor;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -112,6 +114,10 @@ class ContainerCartProcessor implements CartProcessorInterface
         } elseif ($definition instanceof QuantityPriceDefinition) {
             $price = $this->quantityCalculator->calculate($definition, $context);
         } else {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::missingLineItemPrice($item->getId());
+            }
+
             throw new MissingLineItemPriceException($item->getId());
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -761,7 +762,9 @@ class StockUpdaterTest extends TestCase
 
         $cart = $this->cartService->add($cart, $factory->create($id, ['quantity' => $quantity]), $this->context);
 
-        static::assertSame($quantity, $cart->get($id)->getQuantity());
+        $item = $cart->get($id);
+        static::assertInstanceOf(LineItem::class, $item);
+        static::assertSame($quantity, $item->getQuantity());
 
         return $this->cartService->order($cart, $this->context, new RequestDataBag());
     }

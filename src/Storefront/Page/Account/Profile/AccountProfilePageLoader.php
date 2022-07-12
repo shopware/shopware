@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Profile;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -55,7 +56,7 @@ class AccountProfilePageLoader
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountProfilePage
     {
         if ($salesChannelContext->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $page = $this->genericLoader->load($request, $salesChannelContext);

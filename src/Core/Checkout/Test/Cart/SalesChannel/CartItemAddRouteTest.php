@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -174,7 +175,11 @@ class CartItemAddRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
-        static::assertSame('INSUFFICIENT_PERMISSION', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertSame('CHECKOUT__INSUFFICIENT_PERMISSION', $response['errors'][0]['code']);
+        } else {
+            static::assertSame('INSUFFICIENT_PERMISSION', $response['errors'][0]['code']);
+        }
     }
 
     public function testAddCustomWithPermission(): void

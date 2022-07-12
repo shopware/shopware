@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -21,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class LineItemFactoryRegistry
 {
     /**
-     * @var LineItemFactoryInterface[]
+     * @var LineItemFactoryInterface[]|iterable
      */
     private $handlers;
 
@@ -72,6 +73,10 @@ class LineItemFactoryRegistry
         $identifier = $data['id'];
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotFound($identifier);
+            }
+
             throw new LineItemNotFoundException($identifier);
         }
 
@@ -100,6 +105,10 @@ class LineItemFactoryRegistry
             if ($handler->supports($type)) {
                 return $handler;
             }
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            throw CartException::lineItemTypeNotSupported($type);
         }
 
         throw new LineItemTypeNotSupportedException($type);

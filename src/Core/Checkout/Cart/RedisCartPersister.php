@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
@@ -54,13 +55,13 @@ class RedisCartPersister extends AbstractCartPersister
         $value = $this->redis->get(self::PREFIX . $token);
 
         if ($value === false || !\is_string($value)) {
-            throw new CartTokenNotFoundException($token);
+            throw CartException::tokenNotFound($token);
         }
 
         try {
             $value = \unserialize($value);
         } catch (\Exception $e) {
-            throw new CartTokenNotFoundException($token);
+            throw CartException::tokenNotFound($token);
         }
 
         if (!isset($value['compressed'])) {
@@ -70,12 +71,16 @@ class RedisCartPersister extends AbstractCartPersister
         $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize((string) $value['content']);
 
         if (!\is_array($content)) {
-            throw new CartTokenNotFoundException($token);
+            throw CartException::tokenNotFound($token);
         }
 
         $cart = $content['cart'];
 
         if (!$cart instanceof Cart) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::deserializeFailed();
+            }
+
             throw new CartDeserializeFailedException();
         }
 

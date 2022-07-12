@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -204,7 +205,7 @@ class Cart extends Struct
         return $this;
     }
 
-    public function get(string $lineItemKey)
+    public function get(string $lineItemKey): ?LineItem
     {
         return $this->lineItems->get($lineItemKey);
     }
@@ -220,11 +221,21 @@ class Cart extends Struct
      */
     public function remove(string $key): void
     {
-        if (!$this->has($key)) {
+        $item = $this->get($key);
+
+        if (!$item) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotFound($key);
+            }
+
             throw new LineItemNotFoundException($key);
         }
 
-        if (!$this->get($key)->isRemovable()) {
+        if (!$item->isRemovable()) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotRemovable($key);
+            }
+
             throw new LineItemNotRemovableException($key);
         }
 

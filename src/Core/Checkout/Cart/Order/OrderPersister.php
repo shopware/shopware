@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -39,11 +40,11 @@ class OrderPersister implements OrderPersisterInterface
     public function persist(Cart $cart, SalesChannelContext $context): string
     {
         if ($cart->getErrors()->blockOrder()) {
-            throw new InvalidCartException($cart->getErrors());
+            throw CartException::invalidCart($cart->getErrors());
         }
 
         if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
         if ($cart->getLineItems()->count() <= 0) {
             throw new EmptyCartException();

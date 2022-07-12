@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -69,6 +70,10 @@ class SalesChannelContextRestorer
         }
 
         if ($order->getOrderCustomer() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('orderCustomer');
+            }
+
             throw new MissingOrderRelationException('orderCustomer');
         }
 
@@ -218,6 +223,10 @@ class SalesChannelContextRestorer
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('transactions');
+            }
+
             throw new MissingOrderRelationException('transactions');
         }
 

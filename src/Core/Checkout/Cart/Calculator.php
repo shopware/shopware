@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -120,6 +121,10 @@ class Calculator
             $definition->setQuantity($lineItem->getQuantity());
 
             return $this->quantityPriceCalculator->calculate($definition, $context);
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            throw CartException::missingLineItemPrice($lineItem->getId());
         }
 
         throw new MissingLineItemPriceException($lineItem->getId());

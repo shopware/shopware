@@ -98,6 +98,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
     }
@@ -123,6 +124,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         $this->lineItemRepository->update([
@@ -160,6 +162,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         static::expectException(WriteException::class);
@@ -192,6 +195,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         $this->lineItemRepository->update([
@@ -207,7 +211,9 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $cart = $this->cartService->add($cart, $factory->create($id, ['quantity' => $quantity]), $context);
 
-        static::assertSame($quantity, $cart->get($id)->getQuantity());
+        $item = $cart->get($id);
+        static::assertInstanceOf(LineItem::class, $item);
+        static::assertSame($quantity, $item->getQuantity());
 
         return $this->cartService->order($cart, $context, new RequestDataBag());
     }

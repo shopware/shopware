@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
@@ -67,7 +68,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     private function verify(string $orderId, SalesChannelContext $context): void
     {
         if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $criteria = new Criteria([$orderId]);

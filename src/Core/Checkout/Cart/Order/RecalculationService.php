@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -382,12 +384,13 @@ class RecalculationService
         }
     }
 
-    /**
-     * @throws OrderRecalculationException
-     */
     private function checkVersion(Entity $entity): void
     {
         if ($entity->getVersionId() === Defaults::LIVE_VERSION) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::canNotRecalculateLiveVersion($entity->getUniqueIdentifier());
+            }
+
             throw new OrderRecalculationException(
                 $entity->getUniqueIdentifier(),
                 'Live versions can\'t be recalculated. Please create a new version.'

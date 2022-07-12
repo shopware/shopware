@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
@@ -56,7 +57,7 @@ class AccountOrderDetailPageLoader
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderDetailPage
     {
         if (!$salesChannelContext->getCustomer()) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $orderId = (string) $request->get('id');

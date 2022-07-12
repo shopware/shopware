@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -96,7 +97,10 @@ class ProcessorTest extends TestCase
 
         static::assertCount(1, $calculated->getLineItems());
         static::assertTrue($calculated->has($id));
-        static::assertSame(119.99, $calculated->get($id)->getPrice()->getTotalPrice());
+        $item = $calculated->get($id);
+        static::assertInstanceOf(LineItem::class, $item);
+        static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
+        static::assertSame(119.99, $item->getPrice()->getTotalPrice());
 
         static::assertCount(1, $calculated->getDeliveries());
 
@@ -184,8 +188,10 @@ class ProcessorTest extends TestCase
         $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
 
         static::assertCount(3, $calculated->getLineItems());
-        static::assertNotEmpty($creditLineItem = $calculated->getLineItems()->filterType(LineItem::CREDIT_LINE_ITEM_TYPE)->first());
 
+        $creditLineItem = $calculated->getLineItems()->filterType(LineItem::CREDIT_LINE_ITEM_TYPE)->first();
+        static::assertInstanceOf(LineItem::class, $creditLineItem);
+        static::assertInstanceOf(CalculatedPrice::class, $creditLineItem->getPrice());
         static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
 
         $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
@@ -224,8 +230,12 @@ class ProcessorTest extends TestCase
 
         $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
 
-        static::assertNotEmpty($delivery = $calculated->getDeliveries()->first());
-        static::assertNotEmpty($shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->first());
+        $delivery = $calculated->getDeliveries()->first();
+
+        static::assertInstanceOf(Delivery::class, $delivery);
+
+        $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->first();
+        static::assertInstanceOf(CalculatedTax::class, $shippingCalculatedTaxes);
         static::assertEquals($taxForCustomItem, $shippingCalculatedTaxes->getTaxRate());
     }
 
@@ -278,6 +288,7 @@ class ProcessorTest extends TestCase
 
         $delivery = $calculated->getDeliveries()->first();
 
+        static::assertInstanceOf(Delivery::class, $delivery);
         static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
 
         $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {

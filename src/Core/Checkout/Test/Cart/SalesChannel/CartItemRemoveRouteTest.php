@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -63,7 +64,7 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'items' => [
                         [
                             'id' => $this->ids->get('p1'),
@@ -89,7 +90,7 @@ class CartItemRemoveRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(105, $response['price']['totalPrice']);
@@ -103,16 +104,20 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'ids' => [
                         $this->ids->get('p1'),
                     ],
                 ])
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertSame('CHECKOUT__CART_LINEITEM_NOT_REMOVABLE', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertSame('CHECKOUT__CART_LINE_ITEM_NOT_REMOVABLE', $response['errors'][0]['code']);
+        } else {
+            static::assertSame('CHECKOUT__CART_LINEITEM_NOT_REMOVABLE', $response['errors'][0]['code']);
+        }
     }
 
     public function testRemove(): void
@@ -124,7 +129,7 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'items' => [
                         [
                             'id' => $this->ids->get('p1'),
@@ -137,7 +142,7 @@ class CartItemRemoveRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -151,14 +156,14 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'ids' => [
                         $this->ids->get('p1'),
                     ],
                 ])
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertCount(0, $response['lineItems']);
         static::assertSame(0, $response['price']['totalPrice']);
@@ -174,7 +179,7 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'items' => [
                         [
                             'id' => $this->ids->get('p1'),
@@ -202,14 +207,14 @@ class CartItemRemoveRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
+                (string) json_encode([
                     'ids' => [
                         $this->ids->get('p1'),
                     ],
                 ])
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertCount(0, $response['lineItems']);
         static::assertSame(0, $response['price']['totalPrice']);

@@ -6,7 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -16,31 +17,22 @@ use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed
  */
 class ProductCombinationFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var string
-     */
-    private $productId;
+    private string $productId;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private array $optionIds = [];
 
-    private $optionIds = [];
+    private array $groupIds = [];
 
-    private $groupIds = [];
-
-    private $variantIds = [];
+    private array $variantIds = [];
 
     /**
      * @var SalesChannelContext
@@ -54,6 +46,7 @@ class ProductCombinationFinderTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $this->repository = $this->getContainer()->get('product.repository');
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)

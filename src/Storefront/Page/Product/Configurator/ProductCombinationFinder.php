@@ -3,24 +3,24 @@
 namespace Shopware\Storefront\Page\Product\Configurator;
 
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Class will be removed, use \Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute instead
+ */
 class ProductCombinationFinder
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private FindProductVariantRoute $findVariantRoute;
 
     /**
      * @internal
      */
-    public function __construct(SalesChannelRepositoryInterface $productRepository)
+    public function __construct(FindProductVariantRoute $findVariantRoute)
     {
-        $this->productRepository = $productRepository;
+        $this->findVariantRoute = $findVariantRoute;
     }
 
     /**
@@ -28,46 +28,22 @@ class ProductCombinationFinder
      */
     public function find(string $productId, ?string $wishedGroupId, array $options, SalesChannelContext $salesChannelContext): FoundCombination
     {
-        $variantId = $this->searchForOptions($productId, $salesChannelContext, $options);
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', FindProductVariantRoute::class)
+        );
 
-        if ($variantId !== null) {
-            return new FoundCombination($variantId, $options);
-        }
+        $result = $this->findVariantRoute->load(
+            $productId,
+            new Request(
+                [
+                    'switchedGroup' => $wishedGroupId,
+                    'options' => $options,
+                ]
+            ),
+            $salesChannelContext
+        );
 
-        while (\count($options) > 1) {
-            foreach ($options as $groupId => $_optionId) {
-                if ($groupId !== $wishedGroupId) {
-                    unset($options[$groupId]);
-
-                    break;
-                }
-            }
-
-            $variantId = $this->searchForOptions($productId, $salesChannelContext, $options);
-
-            if ($variantId) {
-                return new FoundCombination($variantId, $options);
-            }
-        }
-
-        throw new ProductNotFoundException($productId);
-    }
-
-    private function searchForOptions(
-        string $productId,
-        SalesChannelContext $salesChannelContext,
-        array $options
-    ): ?string {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('product.parentId', $productId))
-            ->setLimit(1);
-
-        foreach ($options as $optionId) {
-            $criteria->addFilter(new EqualsFilter('product.optionIds', $optionId));
-        }
-
-        $ids = $this->productRepository->searchIds($criteria, $salesChannelContext)->getIds();
-
-        return array_shift($ids);
+        return new FoundCombination($result->getFoundCombination()->getVariantId(), $result->getFoundCombination()->getOptions());
     }
 }

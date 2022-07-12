@@ -28,6 +28,7 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
                 Vue.set(state, name, {});
             }
 
+            Vue.set(state[name], 'name', name);
             Vue.set(state[name], 'baseUrl', baseUrl);
             Vue.set(state[name], 'permissions', permissions);
             Vue.set(state[name], 'version', version);
@@ -39,7 +40,7 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
 
     getters: {
         /**
-         * @deprecated tag:v6.5.0 - Will be removed use allActiveBaseUrls instead.
+         * @deprecated tag:v6.5.0 - Will be removed use privilegedExtensionBaseUrls instead.
          */
         allBaseUrls: state => {
             return Object.values(state).map(extension => {
@@ -67,6 +68,28 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
             });
 
             return privilegedBaseUrls;
+        },
+
+        privilegedExtensions: state => {
+            const acl = Shopware.Service('acl');
+            const privilegedForAllApps = acl.can('app.all');
+            const privelegedExtensions: Extension[] = [];
+
+            Object.keys(state).forEach((extensionName) => {
+                const extension = state[extensionName] as Extension;
+
+                if (!privilegedForAllApps && !acl.can(`app.${extensionName}`)) {
+                    return;
+                }
+
+                if (extension.hasOwnProperty('active') && extension.active === false) {
+                    return;
+                }
+
+                privelegedExtensions.push(extension);
+            });
+
+            return privelegedExtensions;
         },
     },
 };

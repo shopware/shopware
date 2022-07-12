@@ -8,6 +8,7 @@ use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -25,6 +26,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private const EXISTING_APP_NAME = 'existingappname';
     private const NONE_EXISTING_APP_NAME = 'noneexistingappname';
+    private const APP_URI = 'https://app.infra?location-id=settings-item&privileges=%7B%22read%22%3A%5B%22custom_entity_store%22%5D%2C%22create%22%3A%5B%22custom_entity_store%22%5D%2C%22update%22%3A%5B%22custom_entity_store%22%5D%2C%22delete%22%3A%5B%22custom_entity_store%22%5D%7D';
 
     private Context $context;
 
@@ -47,7 +49,8 @@ class AdminExtensionApiControllerTest extends TestCase
         $this->adminExtensionApiController = new AdminExtensionApiController(
             $this->executor,
             $container->get(ShopIdProvider::class),
-            $this->appRepository
+            $this->appRepository,
+            $container->get(QuerySigner::class)
         );
     }
 
@@ -127,6 +130,79 @@ class AdminExtensionApiControllerTest extends TestCase
                 [
                     'example.com',
                 ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerSignUri
+     */
+    public function testSignUri(RequestDataBag $requestDataBag, bool $expectAppNotFoundError): void
+    {
+        $this->appRepository->create([
+            [
+                'name' => self::EXISTING_APP_NAME,
+                'path' => \sprintf('custom/apps/%s', self::EXISTING_APP_NAME),
+                'active' => true,
+                'configurable' => false,
+                'version' => '0.0.1',
+                'label' => 'PHPUnit',
+                'appSecret' => 'PHPUnit',
+                'integration' => [
+                    'label' => 'PHPUnit',
+                    'accessKey' => 'foo',
+                    'secretAccessKey' => 'bar',
+                ],
+                'aclRole' => [
+                    'name' => self::EXISTING_APP_NAME,
+                    'privileges' => [],
+                ],
+            ],
+        ], $this->context);
+
+        if ($expectAppNotFoundError) {
+            $this->expectException(AppByNameNotFoundException::class);
+        }
+
+        $response = $this->adminExtensionApiController->signUri($requestDataBag, $this->context);
+
+        if ($expectAppNotFoundError) {
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = \json_decode($content, true);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('uri', $data);
+        static::assertStringStartsWith(self::APP_URI, $data['uri']);
+        static::assertStringContainsString('shop-id=', $data['uri']);
+        static::assertStringContainsString('shop-url=', $data['uri']);
+        static::assertStringContainsString('timestamp=', $data['uri']);
+        static::assertStringContainsString('sw-version=', $data['uri']);
+        static::assertStringContainsString('sw-context-language=', $data['uri']);
+        static::assertStringContainsString('sw-user-language=', $data['uri']);
+        static::assertStringContainsString('shopware-shop-signature=', $data['uri']);
+    }
+
+    public function providerSignUri(): array
+    {
+        return [
+            [
+                new RequestDataBag([
+                    'appName' => self::NONE_EXISTING_APP_NAME,
+                    'uri' => self::APP_URI,
+                ]),
+                true,
+            ],
+            [
+                new RequestDataBag([
+                    'appName' => self::EXISTING_APP_NAME,
+                    'uri' => self::APP_URI,
+                ]),
+                false,
             ],
         ];
     }

@@ -1,5 +1,5 @@
-import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import template from './sw-iframe-renderer.html.twig';
+import type { Extension } from '../../../state/extensions.store';
 
 /**
  * @private
@@ -12,6 +12,8 @@ import template from './sw-iframe-renderer.html.twig';
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 
+    inject: ['extensionSdkService'],
+
     props: {
         src: {
             type: String,
@@ -21,16 +23,22 @@ Shopware.Component.register('sw-iframe-renderer', {
             type: String,
             required: true,
         },
+        addQuerySign: {
+            type: Boolean,
+            required: true,
+        },
     },
 
     data(): {
         heightHandler: null | (() => void),
         locationHeight: null | number,
+        signedIframeSrc: null | string,
         } {
         return {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             heightHandler: null,
             locationHeight: null,
+            signedIframeSrc: null,
         };
     },
 
@@ -49,12 +57,16 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     computed: {
-        extension(): extension | undefined {
+        extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
 
             return Object.values(extensions).find((ext) => {
                 return ext.baseUrl === this.src;
             });
+        },
+
+        extensionIsApp(): boolean {
+            return this.extension?.type === 'app';
         },
 
         iFrameSrc(): string {
@@ -74,6 +86,29 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
 
             return '100%';
+        },
+    },
+
+    watch: {
+        extension: {
+            immediate: true,
+            handler(extension) {
+                if (!extension) {
+                    return;
+                }
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                this.extensionSdkService.signIframeSrc(extension.name, this.iFrameSrc).then((response) => {
+                    const uri = (response as { uri?: string})?.uri;
+
+                    if (!uri) {
+                        return;
+                    }
+
+                    this.signedIframeSrc = uri;
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                }).catch(() => {});
+            },
         },
     },
 });

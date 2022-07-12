@@ -14,7 +14,12 @@ use Shopware\Elasticsearch\Profiler\ClientProfiler;
  */
 class ClientProfilerTest extends TestCase
 {
-    public function testProfiling(): void
+    /**
+     * @dataProvider providerQueries
+     *
+     * @param string|string[] $index
+     */
+    public function testProfiling($index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
         $builder->setHandler(function () {
@@ -30,15 +35,28 @@ class ClientProfilerTest extends TestCase
 
         $profiler = new ClientProfiler($builder->build());
 
-        $request = ['index' => 'test', 'body' => ['query' => ['match_all' => []]]];
+        $request = ['index' => $index, 'body' => ['query' => ['match_all' => []]]];
         $profiler->search($request);
 
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
-        static::assertSame('http://localhost:9200/test/_search?', $requests[0]['url']);
+        static::assertSame($expectedUrl, $requests[0]['url']);
         static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
+    }
+
+    public function providerQueries(): iterable
+    {
+        yield 'index string' => [
+            'test',
+            'http://localhost:9200/test/_search?',
+        ];
+
+        yield 'index array' => [
+            ['test', 'test2'],
+            'http://localhost:9200/test,test2/_search?',
+        ];
     }
 }

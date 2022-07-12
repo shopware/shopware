@@ -12,15 +12,22 @@ class BenchExtension implements ExtensionInterface
 {
     public function load(Container $container): void
     {
-        $console = new ConsoleOutput();
-        $console->writeln('Creating database and import data');
+        if (isset($_SERVER['DATABASE_URL'])) {
+            $url = $_SERVER['DATABASE_URL'];
+        }
 
         (new TestBootstrapper())
+            ->setOutput(new ConsoleOutput())
             ->setForceInstall(true)
             ->setPlatformEmbedded(false)
+            ->setBypassFinals(false)
             ->bootstrap();
 
         (new Fixtures())->load();
+
+        if (isset($url)) {
+            $_SERVER['DATABASE_URL'] = $url;
+        }
     }
 
     public function configure(OptionsResolver $resolver): void

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
   `key` varchar(50) NOT NULL,
   `ids` longblob NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci        
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;        
         ';
 
         KernelLifecycleManager::getKernel()

@@ -19,7 +19,7 @@ class InvalidCartException extends ShopwareHttpException
         $this->cartErrors = $errors;
 
         $message = $errors->map(function (Error $error) {
-            return $error->getCode() . ': ' . $error->getMessage();
+            return $error->getId() . ': ' . $error->getMessage();
         });
 
         parent::__construct(

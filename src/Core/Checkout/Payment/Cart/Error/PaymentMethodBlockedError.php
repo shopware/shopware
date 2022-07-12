@@ -13,12 +13,14 @@ class PaymentMethodBlockedError extends Error
      */
     private $name;
 
-    public function __construct(string $name)
+    public function __construct(string $name, ?string $reason = null)
     {
         $this->name = $name;
+
         $this->message = sprintf(
-            'Payment method %s not available',
-            $name
+            'Payment method %s not available. Reason: %s',
+            $name,
+            $reason
         );
 
         parent::__construct($this->message);

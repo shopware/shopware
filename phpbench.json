@@ -1,7 +1,7 @@
 {
     "$schema":"./vendor/phpbench/phpbench/phpbench.schema.json",
     "core.extensions": ["Shopware\\Tests\\Bench\\BenchExtension"],
-    "runner.bootstrap": "src/Core/TestBootstrap.php",
+    "runner.bootstrap": "tests/bench/BenchBootstrap.php",
     "runner.path": "tests/bench/Cases",
     "runner.file_pattern": "*Bench.php",
     "runner.iterations": 10,

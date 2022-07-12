@@ -9,7 +9,7 @@ use PhpBench\Attributes as Bench;
 
 class ProductBench extends BenchCase
 {
-    #[Bench\Assert('mode(variant.time.avg) < 10 ms')]
+    #[Bench\Assert('mode(variant.time.avg) < 10ms')]
     public function bench_loading_a_simple_product(): void
     {
         $criteria = new Criteria(

@@ -101,6 +101,38 @@ PHP unit:
             - TESTSUITE: ["content", "checkout", "elasticsearch", "integration"]
               RUNNER_INSTANCE_TYPE: m5.large
 
+PHP bench:
+    extends: .base-no-setup
+    image: shopware/development:8.0-composer-2
+    stage: unit
+    needs: []
+    timeout: 30m
+    services:
+        -   name: mariadb:10.4
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: redis
+            alias: redis
+    variables:
+        APP_ENV: "dev"
+        RUNNER_INSTANCE_TYPE: m5.large
+        REDIS_URL: redis://redis:6379
+    rules:
+        # do not run in merge trains
+        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+          when: never
+        - changes:
+            - '**/*.php'
+            - '**/*.xml'
+            - 'composer.json'
+
+    before_script:
+        - composer install --optimize-autoloader --no-interaction
+        - mkdir -p config/jwt || true
+    script:
+        - php vendor/bin/phpbench run
+            --report=compressed
+
 PHP unit coverage:
     extends: .base-no-setup
     image: shopware/development:7.4-composer-2

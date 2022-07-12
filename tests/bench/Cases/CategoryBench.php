@@ -23,5 +23,4 @@ class CategoryBench extends BenchCase
             new Criteria()
         );
     }
-
 }

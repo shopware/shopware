@@ -42,6 +42,19 @@
             <argument>%shopware.cache.invalidation.country_route%</argument>
         </service>
 
+        <service id="Shopware\Core\System\Country\SalesChannel\CountryStateRoute" public="true">
+            <argument type="service" id="country_state.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\SalesChannel\CachedCountryStateRoute" decorates="Shopware\Core\System\Country\SalesChannel\CountryStateRoute" decoration-priority="-1000" public="true">
+            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CachedCountryStateRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.country_state_route%</argument>
+        </service>
+
         <service id="Shopware\Core\System\Country\CountryTaxFreeDeprecationUpdater">
             <argument>%shopware.deployment.blue_green%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

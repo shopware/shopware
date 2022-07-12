@@ -401,6 +401,18 @@ All available Hooks that can be used to load additional data.
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+#### country-sate-data-pagelet-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | country-sate-data-pagelet-loaded                         |
+| **Since**              | 6.4.8.0                        |
+| **Class**              | `Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook`                      |
+| **Description**        | Triggered when the CountryStateDataPagelet is loaded<br>                  |
+| **Available Data**     | pagelet: [`Shopware\Storefront\Pagelet\Country\CountryStateDataPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Country/CountryStateDataPagelet.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 #### menu-offcanvas-pagelet-loaded
 
 | <!-- -->               | <!-- -->                                |

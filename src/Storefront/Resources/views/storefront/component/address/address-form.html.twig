@@ -380,6 +380,7 @@
                                         {% endif %}
                                         value="{{ country.id }}"
                                         data-vat-id-required="{{ country.vatIdRequired }}"
+                                        data-state-required="{{ country.forceStateInRegistration }}"
                                         {% if feature('FEATURE_NEXT_15707') and  not country.shippingAvailable and disableNonShippableCountries %}
                                             disabled="disabled"
                                         {% endif %}>

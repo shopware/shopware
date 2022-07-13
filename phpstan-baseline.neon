@@ -11155,11 +11155,6 @@ parameters:
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
 
 		-
-			message: "#^Parameter \\#2 \\$request of method Shopware\\\\Storefront\\\\Controller\\\\ErrorController\\:\\:error\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/StorefrontSubscriber.php
-
-		-
 			message: "#^Cannot call method filterBySalesChannelId\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\MainCategory\\\\MainCategoryCollection\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRoute.php

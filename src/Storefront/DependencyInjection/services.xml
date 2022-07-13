@@ -178,16 +178,27 @@
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler"/>
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
-            <argument>%kernel.debug%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument>%kernel.debug%</argument>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

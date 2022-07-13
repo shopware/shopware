@@ -45,8 +45,6 @@ class TestBootstrapper
 
     public function bootstrap(): TestBootstrapper
     {
-        BypassFinals::enable();
-
         $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
@@ -61,6 +59,7 @@ class TestBootstrapper
         }
 
         $classLoader = $this->getClassLoader();
+        BypassFinals::enable();
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();

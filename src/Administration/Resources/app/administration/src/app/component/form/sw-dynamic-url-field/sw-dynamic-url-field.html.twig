@@ -61,7 +61,9 @@
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
             v-model="linkTarget"
+            class="sw-dynamic-url-field__entity-single-select"
             should-show-active-state
+            display-variants
             entity="product"
             :criteria="entityFilter"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"

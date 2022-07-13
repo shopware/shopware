@@ -61,12 +61,14 @@
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
             v-model="linkTarget"
+            class="sw-text-editor-link-menu__entity-single-select"
             entity="product"
             should-show-active-state
             :criteria="entityFilter"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
             show-clearable-button
+            display-variants
         />
         {% endblock %}
 

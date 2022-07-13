@@ -82,7 +82,18 @@ Component.register('sw-text-editor-link-menu', {
 
         entityFilter(): CriteriaType {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null),
+                    ],
+                ),
+            );
 
             return criteria;
         },

@@ -147,6 +147,15 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             $filePath,
             $productExportPartialGeneration->getOffset() > 0
         );
+        $this->productExportRepository->update(
+            [
+                [
+                    'id' => $productExport->getId(),
+                    'updatedAt' => new \DateTime(),
+                ],
+            ],
+            $salesChannelContext->getContext()
+        );
 
         if ($productExportPartialGeneration->getOffset() + $this->readBufferSize < $exportResult->getTotal()) {
             $this->messageBus->dispatch(
@@ -213,6 +222,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
             [
                 [
                     'id' => $productExport->getId(),
+                    'pausedSchedule' => false,
                     'generatedAt' => new \DateTime(),
                 ],
             ],

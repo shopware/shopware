@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\Struct\Specification\SpecificationInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -37,6 +38,11 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     private $messageBus;
 
     /**
+     * @var SpecificationInterface
+     */
+    private $exportStuckSpecification;
+
+    /**
      * @internal
      */
     public function __construct(
@@ -44,7 +50,8 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $productExportRepository,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        SpecificationInterface $exportStuckSpecification
     ) {
         parent::__construct($scheduledTaskRepository);
 
@@ -52,6 +59,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         $this->salesChannelRepository = $salesChannelRepository;
         $this->productExportRepository = $productExportRepository;
         $this->messageBus = $messageBus;
+        $this->exportStuckSpecification = $exportStuckSpecification;
     }
 
     public static function getHandledMessages(): iterable
@@ -111,7 +119,24 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                     if ($now->getTimestamp() - $productExport->getGeneratedAt()->getTimestamp() < $productExport->getInterval()) {
                         continue;
                     }
+
+                    if (!$this->exportStuckSpecification->isSatisfiedBy($productExport)
+                        && $productExport->isPausedSchedule()
+                    ) {
+                        continue;
+                    }
                 }
+
+                // "Lock" current product export process
+                $this->productExportRepository->update(
+                    [
+                        [
+                            'id' => $productExport->getId(),
+                            'pausedSchedule' => true,
+                        ],
+                    ],
+                    $salesChannelContext->getContext()
+                );
                 $this->messageBus->dispatch(new ProductExportPartialGeneration($productExport->getId(), $salesChannelId));
             }
         }

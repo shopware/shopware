@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
@@ -46,15 +47,15 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             $this->fileSystem->delete($filePath);
         }
 
-        $existingContent = '';
-        if ($append && $this->fileSystem->has($filePath)) {
-            $existingContent = $this->fileSystem->read($filePath);
+        if ($append) {
+            /**
+             * Method "writeAppend" is provided by AppendWrite filesystem plugin.
+             * @see \Shopware\Core\Framework\Adapter\Filesystem\Plugin\AppendWrite::handle
+             */
+            return $this->fileSystem->writeAppend($filePath, $content);
+        } else {
+            return $this->fileSystem->put($filePath, $content);
         }
-
-        return $this->fileSystem->put(
-            $filePath,
-            $existingContent . $content
-        );
     }
 
     public function isValidFile(string $filePath, ExportBehavior $behavior, ProductExportEntity $productExport): bool
@@ -72,16 +73,27 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             $this->fileSystem->delete($finalFilePath);
         }
 
-        $content = $this->fileSystem->readAndDelete($partialFilePath);
+        try {
+            if ((int)$this->fileSystem->getSize($partialFilePath) === 0) {
+                return false;
+            }
 
-        if ($content === false) {
+            /**
+             * Method "writeAppend" is provided by AppendWrite filesystem plugin.
+             * @see \Shopware\Core\Framework\Adapter\Filesystem\Plugin\AppendWrite::handle
+             */
+            $isHeaderWriteSuccessful = $this->fileSystem->write($finalFilePath, $headerContent);
+            $isBodyWriteSuccessful = $this->fileSystem->writeAppend(
+                $finalFilePath,
+                $this->fileSystem->readStream($partialFilePath)
+            );
+            $isFooterWriteSuccessful = $this->fileSystem->writeAppend($finalFilePath, $footerContent);
+            $this->fileSystem->delete($partialFilePath);
+
+            return $isHeaderWriteSuccessful && $isBodyWriteSuccessful && $isFooterWriteSuccessful;
+        } catch (FileNotFoundException $e) {
             return false;
         }
-
-        return $this->fileSystem->put(
-            $finalFilePath,
-            $headerContent . $content . $footerContent
-        );
     }
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool

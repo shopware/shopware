@@ -6,8 +6,13 @@
     <parameters>
         <parameter key="product_export.directory">export</parameter>
         <parameter key="product_export.read_buffer_size">100</parameter>
+        <parameter key="product_export.stuck_job_spec.idle_timeout">900</parameter>
     </parameters>
     <services>
+        <service id="Shopware\Core\Content\ProductExport\Struct\Specification\JobStuckSpecification">
+            <argument type="string">%product_export.stuck_job_spec.idle_timeout%</argument>
+        </service>
+
         <service id="Shopware\Core\Content\ProductExport\ProductExportDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -63,6 +68,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Struct\Specification\JobStuckSpecification"/>
             <tag name="messenger.message_handler"/>
         </service>
 

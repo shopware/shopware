@@ -80,12 +80,12 @@
 
         <service id="Shopware\Storefront\Controller\AuthController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

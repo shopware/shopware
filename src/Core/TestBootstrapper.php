@@ -59,7 +59,10 @@ class TestBootstrapper
         }
 
         $classLoader = $this->getClassLoader();
-        BypassFinals::enable();
+
+        if (class_exists(BypassFinals::class)) {
+            BypassFinals::enable();
+        }
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();

@@ -1,17 +1,21 @@
+from common.api import Api
+from common.context import Context
+from common.storefront import Storefront
 import os
 import sys
-import time
-from locust import FastHttpUser, task, between, constant,tag
-from bs4 import BeautifulSoup
-import locust_plugins
+from locust import FastHttpUser, task, between
+
+# Optional dependency
+try:
+    import locust_plugins
+except ImportError:
+    pass
 
 sys.path.append(os.path.dirname(__file__) + '/..')
 
-from common.storefront import Storefront
-from common.context import Context
-from common.api import Api
 
 context = Context()
+
 
 class Sync(FastHttpUser):
     fixed_count = 5
@@ -30,6 +34,7 @@ class Sync(FastHttpUser):
     @task
     def price_updates(self):
         self.api.update_prices(15)
+
 
 class Visitor(FastHttpUser):
     wait_time = between(2, 5)
@@ -82,6 +87,7 @@ class Visitor(FastHttpUser):
         page.select_sorting()
         page.view_products(3)
 
+
 class SurfWithOrder(FastHttpUser):
     wait_time = between(2, 5)
     weight = 6
@@ -89,7 +95,7 @@ class SurfWithOrder(FastHttpUser):
     @task
     def surf(self):
         page = Storefront(self.client, context)
-        page.register()      #instead of login, we register
+        page.register()  # instead of login, we register
         page.browse_account()
 
         # search products over listings
@@ -134,8 +140,10 @@ class SurfWithOrder(FastHttpUser):
         page.instant_order()
         page.logout()
 
+
 class FastOrder(FastHttpUser):
     weight = 4
+
     def on_start(self):
         self.page = Storefront(self.client, context)
         self.page.register()
@@ -147,4 +155,3 @@ class FastOrder(FastHttpUser):
         self.page.add_products_to_cart(3)
         self.page.instant_order()
         self.page.logout()
-

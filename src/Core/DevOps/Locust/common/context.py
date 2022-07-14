@@ -1,8 +1,8 @@
 import requests
-import csv
 import os
 import json
 from os.path import exists
+
 
 class Context:
 

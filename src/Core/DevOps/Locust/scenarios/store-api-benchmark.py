@@ -1,17 +1,21 @@
+from common.store_api import StoreApi
+from common.context import Context
 import random
 import os
 import sys
-import time
-from locust import FastHttpUser, task, between, constant,tag
-from bs4 import BeautifulSoup
-import locust_plugins
+from locust import FastHttpUser, task
+
+# Optional dependency
+try:
+    import locust_plugins
+except ImportError:
+    pass
 
 sys.path.append(os.path.dirname(__file__) + '/..')
 
-from common.context import Context
-from common.store_api import StoreApi
 
 context = Context()
+
 
 class Tester(FastHttpUser):
     def on_start(self):
@@ -40,4 +44,3 @@ class Tester(FastHttpUser):
         self.api.register()
         self.api.cart()
         self.api.order()
-

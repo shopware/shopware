@@ -25,6 +25,7 @@ use Shopware\Storefront\Event\ProductExportContentTypeEvent as StorefrontProduct
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -132,12 +133,13 @@ class ExportController
             throw $exportNotGeneratedException;
         }
 
-        $content = $this->fileSystem->read($filePath);
+        $stream = $this->fileSystem->readStream($filePath);
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 
-        return (new Response($content ? $content : null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
-            ->setCharset($encoding);
+        return new StreamedResponse(function () use ($stream): void {
+            \fpassthru($stream);
+        }, Response::HTTP_OK, ['Content-Type' => $contentType . ';charset=' . $encoding]);
     }
 
     private function getContentType(string $fileFormat): string

@@ -23,10 +23,6 @@ Shopware.Component.register('sw-iframe-renderer', {
             type: String,
             required: true,
         },
-        addQuerySign: {
-            type: Boolean,
-            required: true,
-        },
     },
 
     data(): {

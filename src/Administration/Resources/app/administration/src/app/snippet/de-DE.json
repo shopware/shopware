@@ -483,8 +483,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:",
-      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"

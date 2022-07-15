@@ -483,8 +483,8 @@
           "message": "Error while saving settings."
         }
       },
-      "labelDefaultFolder": "Default location for:",
-      "placeholderDefaultFolder": "Select a default location..."
+      "labelDefaultFolder": "Default media location for",
+      "placeholderDefaultFolder": "Select entity..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"

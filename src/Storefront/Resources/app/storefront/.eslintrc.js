@@ -9,11 +9,15 @@ module.exports = {
         'jquery': true,
         'node': true,
         'es6': true,
+        'jest/globals': true,
     },
     'globals': {
         'gtag': true,
         'bootstrap': true,
     },
+    plugins: [
+        'jest',
+    ],
     'parserOptions': {
         'ecmaVersion': 6,
         'sourceType': 'module',
@@ -28,5 +32,8 @@ module.exports = {
         'indent': ['warn', 4, {
             'SwitchCase': 1,
         }],
+        'jest/no-identical-title': 'warn',
+        'jest/no-focused-tests': 'error',
+        'jest/no-duplicate-hooks': 'error',
     },
 };

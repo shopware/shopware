@@ -82,7 +82,7 @@ describe('Product: Test variants', () => {
             .click();
     });
 
-    it('@catalogue @base: delete variants in modal', () => {
+    it('@catalogue @base: delete variants in modal', { tags: ['quarantined'] }, () => {
         cy.intercept({
             method: 'POST',
             url: 'api/_action/sync'

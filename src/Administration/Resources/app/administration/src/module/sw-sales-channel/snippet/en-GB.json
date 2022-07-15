@@ -57,7 +57,7 @@
       "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
       "messageAPIError": "Unable to generate API access key.",
-      "titleGeneralSettings": "General Settings",
+      "titleGeneralSettings": "General settings",
       "labelInputName": "Name",
       "labelInputActive": "Active",
       "labelInputShippingMethods": "Shipping methods",
@@ -229,7 +229,7 @@
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang integration",
-        "titleDescription": "The hreflang metatag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
+        "titleDescription": "The hreflang meta tag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
         "enableCheckbox": "Enable hreflang",
         "defaultDomain": "Default domain for hreflang",
         "domainSettings": {
@@ -237,13 +237,13 @@
           "byIso": "Localisation according to ISO standard",
           "byIsoHelpText": "The localization is done via the exact ISO. In addition to the language, the country of destination is also supplied.",
           "byAbbreviation": "Localisation according to language",
-          "byAbbreviationHelpText": "Localization is only done via the language. Here, several countries of destination are addressed via the output language"
+          "byAbbreviationHelpText": "Localisation is only done via the language. Here, several countries of destination are addressed via the output language"
         }
       },
       "analytics": {
         "cardTitle": "Google Analytics",
         "headline": "Google Analytics integration",
-        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the intergration.",
+        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the integration.",
         "fields": {
           "trackingId": {
             "label": "Tracking ID",

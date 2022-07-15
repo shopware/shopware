@@ -44,7 +44,7 @@
         "selectorTitle": "Add condition or actions",
         "selectorHelpTextTrueCondition": "These actions or conditions are applied if the expression on the left is \"true\".",
         "selectorHelpTextFalseCondition": "These actions or conditions are applied if the expression above is \"false\".",
-        "selectorHelpText": "Conditions refine a flow's initial trigger and can either be \"true\" or \"false\".<br/><br/>Actions attach to the trigger or the \"true\" or \"false\" side of a condition. They can be used to to send emails, create documents or add tags.",
+        "selectorHelpText": "Conditions refine a flow's initial trigger and can either be \"true\" or \"false\".<br/><br/>Actions attach to the trigger or the \"true\" or \"false\" side of a condition. They can be used to send emails, create documents or add tags.",
         "selectorTitleAddSequence": "Add sequence",
         "selectorHelpTextAddSequence": "Flows are started by a single trigger, but can consist of multiple sequences.<br/><br/>Sequences will be executed one after the other. You can end a flow completely at any stage by adding a \"stop\" action.",
         "selectorIfCondition": "Add condition (IF)",

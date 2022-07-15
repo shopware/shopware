@@ -1,9 +1,8 @@
 import random
-import json
 import uuid
 from faker import Faker
-import time
 from locust.exception import RescheduleTask
+
 
 class Api:
     context: None
@@ -37,15 +36,6 @@ class Api:
 
         if self.context.indexing_behavior:
             self.headers['indexing-behavior'] = self.context.indexing_behavior
-
-    def __get_headers():
-        return  {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'single-operation': 'true',
-            'Authorization': 'Bearer ' + self.context.token,
-            'indexing-skip': []
-        }
 
     def import_products(self, count):
         products = []

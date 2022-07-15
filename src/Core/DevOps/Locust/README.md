@@ -5,15 +5,21 @@
 Install locust on the machine which executes the benchmark. https://docs.locust.io/en/stable/installation.html
 
 Additionally, you have to install the following dependencies:
-- [Beautiful Soup](hhttps://pypi.org/project/beautifulsoup4/) - `pip install beautifulsoup4`
-- [Faker](https://faker.readthedocs.io/en/master/) - `pip install faker`
+- [Beautiful Soup](hhttps://pypi.org/project/beautifulsoup4/)
+- [Faker](https://faker.readthedocs.io/en/master/)
+- [Requests](hhttps://pypi.org/project/requests/)
+
+```shell
+> pip3 install -r requirements.txt
+```
 
 ## Setup
 
-To keep the test simple and flexible, the script needs some data from the API.
+To keep the test simple and flexible, the script reads all data from the database directly.
 The corresponding data can also be determined automatically from the `setup.php` file and written into the corresponding *.json files.
-To allow benchmarks on external machines, the data will be detected over the API.
-Therefore, you have to insert the oauth credentials into the `env.json` file into the oauth section.
+This allows benchmarks on external machines, without having direct access to the shop.
+To execute Admin API benchmarks, you have to insert the OAuth credentials into the `env.json` file in the OAuth section.
+
 ```json
 {
     "url": "http://sw6.dev.localhost",
@@ -32,20 +38,21 @@ composer run locust:init
 ```
 
 ## Environment
+
 The `env.json` file allows the following configurations:
-- `url`: The base url of the shopware api.
-- `oauth`: The oauth credentials.
+- `url`: The base URL of the Shopware API.
+- `oauth`: The OAuth credentials.
 - `wait`: The time in seconds to wait between requests. To disable wait time define `"wait": false`. The default value is `[3, 5]` which defines a minimal wait time of 3 seconds to a maximum of 5.
 - `aggregate`: If enabled, groups the requests by a logical key. Default `true`.
 - `indexing_behavior`: Allows to configure the indexing behavior. The default value is `false`. Allowed behavior values are: `disable-indexing`, `use-queue-indexing`
 - `category_page_limit`: 
 - `product_page_limit`: 
-- `track_ajax_requests`: Defines, if ajax requests should be tracked. Default `true`.
+- `track_ajax_requests`: Defines, if Ajax requests should be tracked. Default `true`.
 
 ## Enabled cache
 Since locust is a benchmark script, the caches should be enabled.
 Simply add the following section to one of your local configuration files in {root}/config/packages/*.yaml. 
-(Choose redis, if you have a multi app server setup)
+(Choose Redis, if you have a multi app server setup)
 
 ```yaml
 framework:
@@ -69,8 +76,8 @@ shopware:
 ```
 Only tags which are not invalidated again within the last 30 seconds will be invalidated. This prevents duplicate invalidation calls. The `count` property defines how many tags are invalidated at the same time.
 
-## Disabled csrf protection 
-To allow registrations and tracing the order process, the csrf protection has to be disabled. 
+## Disabled CSRF protection 
+To allow registrations and tracing the order process, the CSRF protection has to be disabled. 
 Simply add the following section to one of your local configuration files in {root}/config/packages/*.yaml
 
 ```yaml

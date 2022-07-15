@@ -209,5 +209,10 @@
         <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
     </services>
 </container>

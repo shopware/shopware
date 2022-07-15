@@ -86,7 +86,15 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
                 <product/>
                 <customer/>
             </related-entities>
-            <fields/>
+            <fields>
+                <bool name="bla_test">
+                    <label>Test</label>
+                </bool>
+                <bool name="bla_test2">
+                    <label>Test</label>
+                    <allow-customer-write>true</allow-customer-write>
+                </bool>
+            </fields>
         </custom-field-set>
     </custom-fields>
     <webhooks>

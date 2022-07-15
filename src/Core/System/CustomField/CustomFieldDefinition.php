@@ -41,22 +41,25 @@ class CustomFieldDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'allowCustomerWrites' => false,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new JsonField('config', 'config', [], []),
             new BoolField('active', 'active'),
             new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),
+            new BoolField('allow_customer_write', 'allowCustomerWrite'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
+            (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
-
-        $collection->add(
-            (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete())
-        );
-
-        return $collection;
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -58,6 +60,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      */
     private $systemConfigService;
 
+    private StoreApiCustomFieldMapper $storeApiCustomFieldMapper;
+
     /**
      * @internal
      */
@@ -66,13 +70,15 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         DataValidationFactoryInterface $addressValidationFactory,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        StoreApiCustomFieldMapper $storeApiCustomFieldMapper
     ) {
         $this->addressRepository = $addressRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->addressValidationFactory = $addressValidationFactory;
         $this->systemConfigService = $systemConfigService;
+        $this->storeApiCustomFieldMapper = $storeApiCustomFieldMapper;
     }
 
     public function getDecorated(): AbstractUpsertAddressRoute
@@ -148,6 +154,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
+
+        if ($data->get('customFields') instanceof RequestDataBag) {
+            $addressData['customFields'] = $this->storeApiCustomFieldMapper->map(
+                CustomerAddressDefinition::ENTITY_NAME,
+                $data->get('customFields')
+            );
+        }
 
         $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
         $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_ADDRESS_CREATE);

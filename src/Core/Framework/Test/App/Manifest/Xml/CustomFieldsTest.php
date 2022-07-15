@@ -28,6 +28,14 @@ class CustomFieldsTest extends TestCase
         static::assertEquals(['product', 'customer'], $customFieldSet->getRelatedEntities());
         static::assertTrue($customFieldSet->getGlobal());
 
-        static::assertCount(0, $customFieldSet->getFields());
+        static::assertCount(2, $customFieldSet->getFields());
+
+        $fields = $customFieldSet->getFields();
+
+        static::assertSame('bla_test', $fields[0]->getName());
+        static::assertFalse($fields[0]->isAllowCustomerWrite());
+
+        static::assertSame('bla_test2', $fields[1]->getName());
+        static::assertTrue($fields[1]->isAllowCustomerWrite());
     }
 }

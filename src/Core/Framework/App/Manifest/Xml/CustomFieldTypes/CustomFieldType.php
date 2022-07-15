@@ -23,6 +23,11 @@ abstract class CustomFieldType extends XmlElement
     protected $required = false;
 
     /**
+     * @var bool
+     */
+    protected $allowCustomerWrite = false;
+
+    /**
      * @var int
      */
     protected $position = 1;
@@ -54,6 +59,10 @@ abstract class CustomFieldType extends XmlElement
             $entityArray['config']['validation'] = 'required';
         }
 
+        if ($this->allowCustomerWrite) {
+            $entityArray['allowCustomerWrite'] = true;
+        }
+
         return array_merge_recursive($entityArray, $this->toEntityArray());
     }
 
@@ -82,6 +91,11 @@ abstract class CustomFieldType extends XmlElement
         return $this->helpText;
     }
 
+    public function isAllowCustomerWrite(): bool
+    {
+        return $this->allowCustomerWrite;
+    }
+
     abstract protected function toEntityArray(): array;
 
     protected static function parse(\DOMElement $element, ?array $translatableFields = null): array
@@ -92,7 +106,7 @@ abstract class CustomFieldType extends XmlElement
 
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
+        foreach ($element->attributes ?? [] as $attribute) {
             $values[$attribute->name] = $attribute->value;
         }
 

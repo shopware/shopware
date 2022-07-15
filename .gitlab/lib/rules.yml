@@ -8,7 +8,8 @@
           || $CI_MERGE_REQUEST_LABELS =~ /.*security::skip.*/ && $CI_JOB_STAGE == "security"
           || $CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/ && $CI_JOB_STAGE == "build"
           || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::skip.*/ && $CI_JOB_STAGE == "deploy"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"'
+          || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"
+          || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && ($CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint")'
         when: never
     # execute job if the all label for the stage is set
     run:

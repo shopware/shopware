@@ -19,6 +19,17 @@ class JwtCertificateGenerator
             throw new JwtCertificateGenerationException('Failed to generate key');
         }
 
+        // Ensure that the directories we should generate the public / private key exist.
+        $privateKeyDirectory = dirname($privateKeyPath);
+        if (!is_dir($privateKeyDirectory)) {
+            mkdir($privateKeyDirectory, 0777, true);
+        }
+
+        $publicKeyDirectory = dirname($publicKeyPath);
+        if (!is_dir($publicKeyDirectory)) {
+            mkdir($publicKeyDirectory, 0777, true);
+        }
+
         // export private key
         $result = openssl_pkey_export_to_file($key, $privateKeyPath, $passphrase);
         if ($result === false) {

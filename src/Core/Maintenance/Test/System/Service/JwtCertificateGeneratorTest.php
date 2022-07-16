@@ -19,18 +19,26 @@ class JwtCertificateGeneratorTest extends TestCase
 
     private string $publicPath;
 
+    private string $dirname;
+
     public function setUp(): void
     {
         $this->jwtCertificateGenerator = $this->getContainer()->get(JwtCertificateGenerator::class);
 
         $this->privatePath = __DIR__ . '/private.pem';
         $this->publicPath = __DIR__ . '/public.pem';
+
+        $this->dirname = "does-not-exist";
     }
 
     public function tearDown(): void
     {
         unlink($this->privatePath);
         unlink($this->publicPath);
+
+        if (is_dir($this->dirname)) {
+            rmdir($this->dirname);
+        }
     }
 
     public function testGenerate(): void
@@ -95,5 +103,18 @@ class JwtCertificateGeneratorTest extends TestCase
             1,
             openssl_verify($data, $signature, $publicCertificate)
         );
+    }
+
+    public function testGenerateInNonExistingDirectory(): void
+    {
+        // Update variables to point to a non-existing directory
+        $this->privatePath = __DIR__ . $this->dirname . "/private.pem";
+        $this->publicPath = __DIR__ . $this->dirname . "/public.pem";
+
+        static::assertFalse(is_dir($this->dirname));
+
+        // We can just call the other test methods, so we don't need to repeat their code.
+        $this->testGenerate();
+        $this->testGenerateWithoutPassphrase();
     }
 }

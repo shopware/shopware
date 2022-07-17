@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Struct\Specification;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 
-class JobStuckSpecification implements SpecificationInterface
+class JobStuckSpecification
 {
     /**
      * Maximum job idle time to be satisfied be stuck specification in seconds.
@@ -19,22 +19,12 @@ class JobStuckSpecification implements SpecificationInterface
        $this->maxIdleTimeout = $maxIdleTimeout;
     }
 
-    public function isSatisfiedBy($value): bool
+    public function isSatisfiedBy(ProductExportEntity $candidate): bool
     {
-        if (!$value instanceof ProductExportEntity) {
-            throw new \LogicException(
-                \sprintf(
-                    'ExportJobStuckSpecification requires %s as argument, %s is given.',
-                    ProductExportEntity::class,
-                    gettype($value)
-                )
-            );
-        }
-
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-        $exportUpdatedAt = $value->getUpdatedAt() ?? $now;
+        $exportUpdatedAt = $candidate->getUpdatedAt() ?? $now;
 
-        return $value->isPausedSchedule()
+        return $candidate->isPausedSchedule()
             && $now->getTimestamp() >= $exportUpdatedAt->getTimestamp() + $this->maxIdleTimeout;
     }
 }

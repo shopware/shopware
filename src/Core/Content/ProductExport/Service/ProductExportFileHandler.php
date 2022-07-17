@@ -3,13 +3,13 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Adapter\Filesystem\WriteAppend\AppendFilesystemInterface;
 
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
-    private FilesystemInterface $fileSystem;
+    private AppendFilesystemInterface $fileSystem;
 
     private string $exportDirectory;
 
@@ -17,7 +17,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
      * @internal
      */
     public function __construct(
-        FilesystemInterface $fileSystem,
+        AppendFilesystemInterface $fileSystem,
         string $exportDirectory
     ) {
         $this->fileSystem = $fileSystem;
@@ -47,15 +47,9 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             $this->fileSystem->delete($filePath);
         }
 
-        if ($append) {
-            /**
-             * Method "writeAppend" is provided by AppendWrite filesystem plugin.
-             * @see \Shopware\Core\Framework\Adapter\Filesystem\Plugin\AppendWrite::handle
-             */
-            return $this->fileSystem->writeAppend($filePath, $content);
-        } else {
-            return $this->fileSystem->put($filePath, $content);
-        }
+        return $append === true
+            ? $this->fileSystem->writeAppend($filePath, $content)
+            : $this->fileSystem->put($filePath, $content);
     }
 
     public function isValidFile(string $filePath, ExportBehavior $behavior, ProductExportEntity $productExport): bool
@@ -78,12 +72,8 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
                 return false;
             }
 
-            /**
-             * Method "writeAppend" is provided by AppendWrite filesystem plugin.
-             * @see \Shopware\Core\Framework\Adapter\Filesystem\Plugin\AppendWrite::handle
-             */
             $isHeaderWriteSuccessful = $this->fileSystem->write($finalFilePath, $headerContent);
-            $isBodyWriteSuccessful = $this->fileSystem->writeAppend(
+            $isBodyWriteSuccessful = $this->fileSystem->writeStreamAppend(
                 $finalFilePath,
                 $this->fileSystem->readStream($partialFilePath)
             );

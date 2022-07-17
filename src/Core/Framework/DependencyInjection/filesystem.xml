@@ -11,6 +11,9 @@
             <argument type="tagged" tag="shopware.filesystem.plugin"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\WriteAppend\AppendFilesystemFactory"
+                 parent="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory"/>
+
         <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.public%</argument>
@@ -41,6 +44,13 @@
             <argument>%shopware.filesystem.asset%</argument>
         </service>
 
+        <service class="Shopware\Core\Framework\Adapter\Filesystem\WriteAppend\AppendFilesystemInterface"
+                 id="shopware.filesystem.private.appendable"
+                 public="true">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\WriteAppend\AppendFilesystemFactory" method="factory"/>
+            <argument>%shopware.filesystem.private%</argument>
+        </service>
+
         <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.local">
             <tag name="shopware.filesystem.factory"/>
         </service>
@@ -59,9 +69,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch">
-            <tag name="shopware.filesystem.plugin" />
-        </service>
-        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\AppendWrite">
             <tag name="shopware.filesystem.plugin" />
         </service>
 

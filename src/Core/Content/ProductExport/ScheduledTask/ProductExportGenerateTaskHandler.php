@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Struct\Specification\SpecificationInterface;
+use Shopware\Core\Content\ProductExport\Struct\Specification\JobStuckSpecification;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -38,7 +38,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     private $messageBus;
 
     /**
-     * @var SpecificationInterface
+     * @var JobStuckSpecification
      */
     private $exportStuckSpecification;
 
@@ -51,7 +51,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $productExportRepository,
         MessageBusInterface $messageBus,
-        SpecificationInterface $exportStuckSpecification
+        JobStuckSpecification $exportStuckSpecification
     ) {
         parent::__construct($scheduledTaskRepository);
 

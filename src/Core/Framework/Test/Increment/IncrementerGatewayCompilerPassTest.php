@@ -86,6 +86,9 @@ class IncrementerGatewayCompilerPassTest extends TestCase
             {
             }
 
+            /**
+             * @return array<string, array<string, mixed>>
+             */
             public function list(string $cluster, int $limit = 5, int $offset = 0): array
             {
                 return [];

@@ -31,6 +31,7 @@ class BundleHierarchyBuilderTest extends TestCase
                 'version' => '0.0.1',
                 'label' => 'test',
                 'accessToken' => 'test',
+                'templateLoadPriority' => 2,
                 'integration' => [
                     'label' => 'test',
                     'writeAccess' => false,
@@ -52,10 +53,12 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals(array_merge(
-            ['SwagThemeTest'],
-            $this->getCoreNamespaceHierarchy()
-        ), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        $coreHierarchy = $this->getCoreNamespaceHierarchy();
+
+        static::assertSame([
+            ...$coreHierarchy,
+            'SwagThemeTest',
+        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveApps(): void
@@ -91,7 +94,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveAppTemplates(): void
@@ -128,7 +131,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesAppNamespacesWithNoTemplates(): void
@@ -158,11 +161,15 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertSame($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     /**
      * @dataProvider sortingProvider
+     *
+     * @param array<string, int> $plugins
+     * @param array<string, int> $apps
+     * @param array<int, string> $expectedSorting
      */
     public function testSortingOfTemplates(array $plugins, array $apps, array $expectedSorting): void
     {
@@ -200,6 +207,9 @@ class BundleHierarchyBuilderTest extends TestCase
         static::assertSame($expectedSorting, array_keys($builder->buildNamespaceHierarchy([])));
     }
 
+    /**
+     * @return iterable<string, array<array<int|string, int|string>>>
+     */
     public function sortingProvider(): iterable
     {
         yield 'all with default prio' => [
@@ -240,16 +250,16 @@ class BundleHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     private function getCoreNamespaceHierarchy(): array
     {
         $coreHierarchy = [
-            'Elasticsearch',
-            'Storefront',
-            'Administration',
             'Profiling',
+            'Elasticsearch',
+            'Administration',
             'Framework',
+            'Storefront',
         ];
         // Remove not installed core bundles from hierarchy
         return array_values(

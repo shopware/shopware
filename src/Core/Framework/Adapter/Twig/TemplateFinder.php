@@ -15,6 +15,9 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
     private LoaderInterface $loader;
 
+    /**
+     * @var string[]
+     */
     private array $namespaceHierarchy = [];
 
     private string $cacheDir;
@@ -91,7 +94,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             return $name;
         }
 
-        // Throw an useful error when the template cannot be found
+        // Throw a useful error when the template cannot be found
         if ($originalTemplate === null) {
             if ($ignoreMissing === true) {
                 return $templatePath;
@@ -130,6 +133,9 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         return $source ?: null;
     }
 
+    /**
+     * @return string[]
+     */
     private function getNamespaceHierarchy(): array
     {
         if ($this->namespaceHierarchy) {
@@ -142,6 +148,9 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
     }
 
+    /**
+     * @param string[] $queue
+     */
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {

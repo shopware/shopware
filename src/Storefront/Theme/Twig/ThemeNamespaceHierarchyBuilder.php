@@ -2,25 +2,37 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Service\ResetInterface;
 
-class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface
+class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {
+    /**
+     * @var array<int|string, bool>
+     */
     private array $themes = [];
 
     private ThemeInheritanceBuilderInterface $themeInheritanceBuilder;
 
+    private SalesChannelThemeLoader $salesChannelThemeLoader;
+
     /**
      * @internal
      */
-    public function __construct(ThemeInheritanceBuilderInterface $themeInheritanceBuilder)
-    {
+    public function __construct(
+        ThemeInheritanceBuilderInterface $themeInheritanceBuilder,
+        SalesChannelThemeLoader $salesChannelThemeLoader
+    ) {
         $this->themeInheritanceBuilder = $themeInheritanceBuilder;
+        $this->salesChannelThemeLoader = $salesChannelThemeLoader;
     }
 
     /**
@@ -31,6 +43,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         return [
             KernelEvents::REQUEST => 'requestEvent',
             KernelEvents::EXCEPTION => 'requestEvent',
+            DocumentTemplateRendererParameterEvent::class => 'onDocumentRendering',
         ];
     }
 
@@ -39,6 +52,31 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         $request = $event->getRequest();
 
         $this->themes = $this->detectedThemes($request);
+    }
+
+    public function onDocumentRendering(DocumentTemplateRendererParameterEvent $event): void
+    {
+        $parameters = $event->getParameters();
+
+        if (!\array_key_exists('context', $parameters)) {
+            return;
+        }
+
+        /** @var SalesChannelContext $context */
+        $context = $parameters['context'];
+
+        $themes = [];
+
+        $theme = $this->salesChannelThemeLoader->load($context->getSalesChannelId());
+
+        if (empty($theme['themeName'])) {
+            return;
+        }
+
+        $themes[$theme['themeName']] = true;
+        $themes['Storefront'] = true;
+
+        $this->themes = $themes;
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
@@ -50,6 +88,14 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         return $this->themeInheritanceBuilder->build($namespaceHierarchy, $this->themes);
     }
 
+    public function reset(): void
+    {
+        $this->themes = [];
+    }
+
+    /**
+     * @return array<int|string, bool>
+     */
     private function detectedThemes(Request $request): array
     {
         // get name if theme is not inherited

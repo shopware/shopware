@@ -24,6 +24,7 @@ describe('Storefront test data set', () => {
         cy.get('.home-link').click()
     });
 
+    // @todo remove skip after next-9476 is done
     it('@storefront: put cargohose from cms page into cart', { tags: ['quarantined'] }, () => {
         cy.visit('/Maenner/Hosen/');
 
@@ -57,7 +58,7 @@ describe('Storefront test data set', () => {
         });
     });
 
-    //@todo remove skip after next-9476 is done
+    // @todo remove skip after next-9476 is done
     it('@storefront: search cargohose', { tags: ['quarantined'] }, () => {
         cy.visit('/');
         cy.get('input[type="search"]').should('be.visible').clear().type('cargohose{enter}');
@@ -68,7 +69,7 @@ describe('Storefront test data set', () => {
         cy.get('.product-info').contains('Cargo').should('be.visible');
     });
 
-    //@todo remove skip after next-9476 is done
+    // @todo remove skip after next-9476 is done
     it('@storefront: search cargohose downarrow enter', { tags: ['quarantined'] }, () => {
         cy.visit('/');
 

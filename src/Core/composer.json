@@ -61,6 +61,8 @@
         "doctrine/dbal": "~2.13.8",
         "doctrine/inflector": "~1.4.4",
         "shopwarelabs/dompdf": "1.0.3",
+        "tecnickcom/tcpdf": "6.4.4",
+        "setasign/fpdi": "2.3.6",
         "enqueue/dbal": "~0.10.15",
         "enqueue/redis": "~0.10.9",
         "ezyang/htmlpurifier": "4.13.0",

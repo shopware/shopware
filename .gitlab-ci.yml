@@ -7,8 +7,8 @@ stages:
     - E2E
     # quarantined tests
     - quarantine
-    # search for vulnerabilities in code and dependencies
-    - security
+    # downstream pipelines trigger by this pipeline
+    - downstream
     # build artifacts used in deploy
     - build
     # deploy artifacts build in the `build` stage

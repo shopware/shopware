@@ -53,7 +53,7 @@ describe('Storefront test data set', () => {
 
             cy.get('.offcanvas').scrollIntoView()
 
-            cy.get('.offcanvas-close').should('be.visible').click();
+            cy.get('body > .offcanvas .offcanvas-close').should('be.visible').click();
             cy.get('.offcanvas').should('not.exist');
         });
     });

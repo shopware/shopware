@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import OffCanvasFilter from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 
@@ -10,24 +6,13 @@ describe('Offcanvas filter tests', () => {
     let mockDomElement = undefined;
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return [
-                    {
-                        refreshRegistry: () => {}
-                    }
-                ];
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
+        window.PluginManager.getPluginInstances = () => {
+            return [
+                {
+                    refreshRegistry: () => {}
+                }
+            ];
+        }
 
         document.$emitter = {
             unsubscribe: () => {},

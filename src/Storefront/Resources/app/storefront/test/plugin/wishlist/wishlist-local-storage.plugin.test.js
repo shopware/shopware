@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
@@ -21,20 +17,9 @@ describe('WishlistLocalStoragePlugin tests', () => {
 
         const mockElement = document.createElement('div');
 
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            getPluginInstances: () => {
-                return [guestLogoutBtn];
-            }
-        };
+        window.PluginManager.getPluginInstances = () => {
+            return [guestLogoutBtn];
+        }
 
         wishlistStoragePlugin = new WishlistLocalStoragePlugin(mockElement);
     });

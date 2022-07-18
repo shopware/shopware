@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 

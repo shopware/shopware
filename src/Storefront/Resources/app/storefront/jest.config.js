@@ -15,11 +15,17 @@ module.exports = {
     // Automatically clear mock calls and instances between every test
     clearMocks: true,
 
+    // Change default test environment from node to jsdom because we are testing a web application.
+    // @see https://jestjs.io/docs/configuration#testenvironment-string
+    testEnvironment: 'jsdom',
+
     globalTeardown: '<rootDir>test/globalTeardown.js',
 
     // The directory where Jest should output its coverage files
     collectCoverage: true,
+
     coverageDirectory: artifactsPath,
+
     coverageReporters: [
         'lcov',
         'text',
@@ -79,7 +85,7 @@ module.exports = {
         '^.+\\.html$': 'html-loader-jest',
     },
 
-    setupFiles: [
+    setupFilesAfterEnv: [
         '<rootDir>/jest.init.js',
     ],
 };

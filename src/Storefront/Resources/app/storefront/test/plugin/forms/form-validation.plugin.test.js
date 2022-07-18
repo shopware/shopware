@@ -17,15 +17,6 @@ describe('FormValidationPlugin tests', () => {
     }
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => new Map(),
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
-
         document.body.innerHTML = template;
 
         formValidationPlugin = createPlugin();

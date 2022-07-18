@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import template from './plugin-configuration.template.html';
 import Plugin from "../../../src/plugin-system/plugin.class";
@@ -19,17 +15,6 @@ describe('Load plugin configuration from empty array', () => {
 
     beforeEach(() => {
         document.body.innerHTML = template;
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
 
         configurationPlugin = new PluginConfigurationPlugin(
             document.querySelector('#test'),

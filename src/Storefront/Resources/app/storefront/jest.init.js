@@ -7,3 +7,32 @@ process.on('unhandledRejection', (reason) => {
 });
 
 global.bootstrap = bootstrap;
+
+// Global mocks for common window properties
+global.csrf = {
+    enabled: false,
+};
+
+global.router = {};
+
+/**
+ * Global mocks for "PluginManager" to avoid errors when testing JS Plugins.
+ * The "Plugin" base class (plugin-system/plugin.class.js) uses "window.PluginManager" methods internally.
+ * This leads to errors when instantiating "Plugin" classes in jest because "window.PluginManager" is undefined.
+ */
+global.PluginManager = {
+    getPluginInstancesFromElement: () => {
+        return new Map();
+    },
+    getPluginInstanceFromElement: () => {
+        return {};
+    },
+    getPlugin: () => {
+        return {
+            get: () => [],
+        };
+    },
+    getPluginInstances: () => {
+        return new Map();
+    },
+};

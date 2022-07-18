@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import Storage from 'src/helper/storage/storage.helper';
@@ -26,17 +22,6 @@ describe('Form Preserver tests', () => {
 
     beforeEach(() => {
         document.body.innerHTML = template;
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
 
         document.$emitter = {
             unsubscribe: () => {},

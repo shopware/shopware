@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import jQuery from 'jquery'
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 

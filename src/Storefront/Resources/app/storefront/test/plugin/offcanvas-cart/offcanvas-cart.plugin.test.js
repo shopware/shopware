@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 
 let fireRequestSpy;

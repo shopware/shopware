@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import NativeEventEmitter from 'src/helper/emitter.helper';
 

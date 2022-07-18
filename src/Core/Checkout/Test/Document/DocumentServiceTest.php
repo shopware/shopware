@@ -544,8 +544,8 @@ class DocumentServiceTest extends TestCase
         $customerNo = (string) $orderCustomer->getCustomerNumber();
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for Invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
 
         $this->getContainer()->get('order_customer.repository')->update([[
             'id' => $orderCustomer->getId(),
@@ -562,9 +562,9 @@ class DocumentServiceTest extends TestCase
         );
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for Invoice 9999', $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity

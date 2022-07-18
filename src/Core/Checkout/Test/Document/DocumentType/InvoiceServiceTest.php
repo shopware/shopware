@@ -351,6 +351,50 @@ class InvoiceServiceTest extends TestCase
         $assertClosure($processedTemplate, $vatId);
     }
 
+    public function testGenerateWhenUncheckedDisplayLineItems(): void
+    {
+        $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
+
+        $possibleTaxes = [7, 19, 22];
+        $cart = $this->generateDemoCart($possibleTaxes);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        static::assertNotNull($order->getLineItems());
+        $lineItem = $order->getLineItems()->first();
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => false,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+                'executiveDirector' => true,
+                'displayDivergentDeliveryAddress' => true,
+                'intraCommunityDelivery' => true,
+                'displayAdditionalNoteDelivery' => true,
+            ]
+        );
+
+        $context = Context::createDefaultContext();
+
+        $processedTemplate = $invoiceService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        static::assertNotNull($lineItem);
+        static::assertNotNull($lineItem->getLabel());
+        static::assertNotNull($lineItem->getPayload());
+        static::assertNotNull($lineItem->getPayload()['productNumber']);
+
+        static::assertStringNotContainsString($lineItem->getLabel(), $processedTemplate);
+        static::assertStringNotContainsString($lineItem->getPayload()['productNumber'], $processedTemplate);
+    }
+
     public function createDataProvider(): \Generator
     {
         $vatId = 'VAT-123123';

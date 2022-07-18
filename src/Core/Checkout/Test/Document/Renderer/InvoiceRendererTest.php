@@ -60,6 +60,8 @@ class InvoiceRendererTest extends TestCase
 
     /**
      * @dataProvider invoiceDataProvider
+     *
+     * @param array<int|string, int> $possibleTaxes
      */
     public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
@@ -138,6 +140,19 @@ class InvoiceRendererTest extends TestCase
                     'id' => $operation->getOrderId(),
                     'languageId' => $this->deLanguageId,
                 ]], $this->context);
+
+                $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
+                $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($operation->getOrderId());
+                static::assertNotNull($order);
+
+                $context = clone $this->context;
+                $context = $context->assign([
+                    'languageIdChain' => array_unique(array_filter([$this->deLanguageId, $this->context->getLanguageId()])),
+                ]);
+                $this->getContainer()->get('shipping_method.repository')->upsert([[
+                    'id' => $order->getDeliveries()->first()->getShippingMethod()->getId(),
+                    'name' => 'DE express',
+                ]], $context);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($order->getCurrency());
@@ -150,6 +165,7 @@ class InvoiceRendererTest extends TestCase
                     )) ?? '',
                     preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
+                static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
             },
         ];
 
@@ -292,6 +308,9 @@ class InvoiceRendererTest extends TestCase
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
+    /**
+     * @param array<int|string, int> $taxes
+     */
     private function generateDemoCart(array $taxes): Cart
     {
         $cart = $this->cartService->createNew('a-b-c', 'A');

@@ -13,6 +13,9 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container">
             {% block document_recipient %}
+                {# @deprecated tag:v6.5.0 - Will be removed #}
+                {% block document_recipient_sender %}{% endblock %}
+
                 {% if billingAddress.company %}
                     {{ billingAddress.company }}<br>
                 {% endif %}

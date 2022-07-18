@@ -123,6 +123,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="document.renderer"/>
         </service>
@@ -134,6 +135,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="document.renderer"/>
         </service>
@@ -146,6 +148,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="document.renderer"/>
         </service>
@@ -158,6 +161,7 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="document.renderer"/>
         </service>

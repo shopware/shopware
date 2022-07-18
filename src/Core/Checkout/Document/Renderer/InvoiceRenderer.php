@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -32,6 +33,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
@@ -41,7 +44,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         EventDispatcherInterface $eventDispatcher,
         DocumentTemplateRenderer $documentTemplateRenderer,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        string $rootDir
+        string $rootDir,
+        Connection $connection
     ) {
         $this->documentConfigLoader = $documentConfigLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -49,6 +53,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         $this->rootDir = $rootDir;
         $this->orderRepository = $orderRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->connection = $connection;
     }
 
     public function supports(): string
@@ -70,80 +75,87 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             return $result;
         }
 
-        $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
+        $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
-        // TODO: future implementation (only fetch required data and associations)
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
+            $criteria = OrderDocumentCriteriaFactory::create(explode(',', $ids), $rendererConfig->deepLinkCode);
+            $context = $context->assign([
+                'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+            ]);
 
-        /** @var OrderCollection $orders */
-        $orders = $this->orderRepository->search($criteria, $context)->getEntities();
+            // TODO: future implementation (only fetch required data and associations)
 
-        $this->eventDispatcher->dispatch(new InvoiceOrdersEvent($orders, $context));
+            /** @var OrderCollection $orders */
+            $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
-        foreach ($orders as $order) {
-            $orderId = $order->getId();
+            $this->eventDispatcher->dispatch(new InvoiceOrdersEvent($orders, $context));
 
-            try {
-                if (!\array_key_exists($orderId, $operations)) {
-                    continue;
-                }
+            foreach ($orders as $order) {
+                $orderId = $order->getId();
 
-                /** @var DocumentGenerateOperation $operation */
-                $operation = $operations[$orderId];
+                try {
+                    if (!\array_key_exists($orderId, $operations)) {
+                        continue;
+                    }
 
-                $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
+                    /** @var DocumentGenerateOperation $operation */
+                    $operation = $operations[$orderId];
 
-                $config->merge($operation->getConfig());
+                    $config = clone $this->documentConfigLoader->load(self::TYPE, $order->getSalesChannelId(), $context);
 
-                $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+                    $config->merge($operation->getConfig());
 
-                $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                    $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                $config->merge([
-                    'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
-                    'documentNumber' => $number,
-                    'custom' => [
-                        'invoiceNumber' => $number,
-                    ],
-                ]);
+                    $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-                // create version of order to ensure the document stays the same even if the order changes
-                $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
+                    $config->merge([
+                        'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+                        'documentNumber' => $number,
+                        'custom' => [
+                            'invoiceNumber' => $number,
+                        ],
+                    ]);
 
-                if ($operation->isStatic()) {
-                    $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                    // create version of order to ensure the document stays the same even if the order changes
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
+
+                    if ($operation->isStatic()) {
+                        $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+                        $result->addSuccess($orderId, $doc);
+
+                        continue;
+                    }
+
+                    /** @var LocaleEntity $locale */
+                    $locale = $order->getLanguage()->getLocale();
+
+                    $html = $this->documentTemplateRenderer->render(
+                        $template,
+                        [
+                            'order' => $order,
+                            'config' => $config,
+                            'rootDir' => $this->rootDir,
+                            'context' => $context,
+                        ],
+                        $context,
+                        $order->getSalesChannelId(),
+                        $order->getLanguageId(),
+                        $locale->getCode()
+                    );
+
+                    $doc = new RenderedDocument(
+                        $html,
+                        $number,
+                        $config->buildName(),
+                        $operation->getFileType(),
+                        $config->jsonSerialize(),
+                    );
+
                     $result->addSuccess($orderId, $doc);
-
-                    continue;
+                } catch (\Throwable $exception) {
+                    $result->addError($orderId, $exception);
                 }
-
-                /** @var LocaleEntity $locale */
-                $locale = $order->getLanguage()->getLocale();
-
-                $html = $this->documentTemplateRenderer->render(
-                    $template,
-                    [
-                        'order' => $order,
-                        'config' => $config,
-                        'rootDir' => $this->rootDir,
-                        'context' => $context,
-                    ],
-                    $context,
-                    $order->getSalesChannelId(),
-                    $order->getLanguageId(),
-                    $locale->getCode()
-                );
-
-                $doc = new RenderedDocument(
-                    $html,
-                    $number,
-                    $config->buildName(),
-                    $operation->getFileType(),
-                    $config->jsonSerialize(),
-                );
-
-                $result->addSuccess($orderId, $doc);
-            } catch (\Throwable $exception) {
-                $result->addError($orderId, $exception);
             }
         }
 

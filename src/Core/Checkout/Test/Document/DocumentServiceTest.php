@@ -591,6 +591,9 @@ class DocumentServiceTest extends TestCase
         return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<string, bool|int|string> $config
+     */
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);

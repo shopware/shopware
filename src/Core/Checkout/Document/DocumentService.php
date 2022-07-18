@@ -426,6 +426,9 @@ class DocumentService
         }
     }
 
+    /**
+     * @param array<string, int|string>|null $specificConfiguration
+     */
     private function getConfiguration(
         Context $context,
         string $documentTypeId,

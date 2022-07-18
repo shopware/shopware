@@ -85,6 +85,10 @@ class CreditNoteRendererTest extends TestCase
 
     /**
      * @dataProvider creditNoteRendererDataProvider
+     *
+     * @param array<int, int> $possibleTaxes
+     * @param array<int, int> $creditPrices
+     * @param array<string, int> $additionalConfig
      */
     public function testRender(
         array $possibleTaxes,
@@ -313,6 +317,9 @@ class CreditNoteRendererTest extends TestCase
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
     }
 
+    /**
+     * @param array<int, int> $taxes
+     */
     private function generateDemoCart(array $taxes): Cart
     {
         $cart = $this->cartService->createNew('a-b-c', 'A');
@@ -356,6 +363,9 @@ class CreditNoteRendererTest extends TestCase
         return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
+    /**
+     * @param array<int, int> $creditPrices
+     */
     private function generateCreditItems(Cart $cart, array $creditPrices): Cart
     {
         $lineItems = [];
@@ -423,6 +433,9 @@ class CreditNoteRendererTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, string|int>
+     */
     private function createDeliveryTimeData(): array
     {
         return [

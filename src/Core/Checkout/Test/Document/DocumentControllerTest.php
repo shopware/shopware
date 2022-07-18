@@ -548,6 +548,11 @@ class DocumentControllerTest extends TestCase
         return $order->first();
     }
 
+    /**
+     * @param array<string, string[]> $data
+     *
+     * @return mixed[]
+     */
     private function getDocumentIds(array $data): array
     {
         $ids = [];
@@ -560,7 +565,9 @@ class DocumentControllerTest extends TestCase
     }
 
     /**
-     * @param array<string> $documentIds
+     * @param array<string|int, string> $documentIds
+     *
+     * @return array<string|int, string|array<string, mixed>>
      */
     private function getDocumentByDocumentIds(array $documentIds): array
     {
@@ -575,6 +582,9 @@ class DocumentControllerTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, array<string, array<string, string>|string>> $documentTypes
+     */
     private function createDocuments(string $orderId, array $documentTypes, Context $context): DocumentIdCollection
     {
         $operations = [];

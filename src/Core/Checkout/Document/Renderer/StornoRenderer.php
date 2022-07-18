@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -37,6 +38,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
     private ReferenceInvoiceLoader $referenceInvoiceLoader;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
@@ -47,7 +50,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
         DocumentTemplateRenderer $documentTemplateRenderer,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         ReferenceInvoiceLoader $referenceInvoiceLoader,
-        string $rootDir
+        string $rootDir,
+        Connection $connection
     ) {
         $this->documentConfigLoader = $documentConfigLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -56,6 +60,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
         $this->orderRepository = $orderRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->referenceInvoiceLoader = $referenceInvoiceLoader;
+        $this->connection = $connection;
     }
 
     public function supports(): string
@@ -189,8 +194,12 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
     private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
     {
+        ['language_id' => $languageId] = $this->getOrdersLanguageId([$orderId], $versionId, $this->connection)[0];
+
         // Get the correct order with versioning from reference invoice
-        $versionContext = $context->createWithVersionId($versionId);
+        $versionContext = $context->createWithVersionId($versionId)->assign([
+            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+        ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
 

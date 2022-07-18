@@ -24,6 +24,9 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
 {% block document_recipient %}
+    {# @deprecated tag:v6.5.0 - Will be removed #}
+    {% block document_recipient_sender %}{% endblock %}
+
     {% if deliveryAddress.company %}
         {{ deliveryAddress.company }}<br>
     {% endif %}

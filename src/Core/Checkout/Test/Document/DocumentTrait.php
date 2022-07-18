@@ -144,6 +144,9 @@ trait DocumentTrait
         return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<string, array<string, string>|string> $config
+     */
     private function createDocument(string $documentType, string $orderId, array $config, Context $context): DocumentIdCollection
     {
         $operations = [];
@@ -153,6 +156,9 @@ trait DocumentTrait
         return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context)->getSuccess();
     }
 
+    /**
+     * @param array<string|bool, string|bool|int> $config
+     */
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);

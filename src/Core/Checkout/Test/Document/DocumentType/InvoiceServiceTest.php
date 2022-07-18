@@ -305,9 +305,9 @@ class InvoiceServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider createDataProvider
+     * @dataProvider invoiceGenerateVatIdProvider
      */
-    public function testGenerateWithVatIdsOfCustomer(\Closure $vatIdClosure, \Closure $companyTaxFreeClosure, \Closure $countryIsoClosure, \Closure $assertClosure): void
+    public function testGenerateWithVatIdsOfCustomer(\Closure $vatIdClosure, \Closure $assertClosure): void
     {
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
 
@@ -318,8 +318,6 @@ class InvoiceServiceTest extends TestCase
         $order = $this->getOrderById($orderId);
 
         $vatId = $vatIdClosure($order);
-        $companyTaxFreeClosure($order);
-        $countryIsoClosure($order);
 
         static::assertNotNull($deliveries = $order->getDeliveries());
         static::assertNotNull($shippingAddress = $deliveries->getShippingAddress());
@@ -395,24 +393,20 @@ class InvoiceServiceTest extends TestCase
         static::assertStringNotContainsString($lineItem->getPayload()['productNumber'], $processedTemplate);
     }
 
-    public function createDataProvider(): \Generator
+    public function invoiceGenerateVatIdProvider(): \Generator
     {
         $vatId = 'VAT-123123';
 
-        yield [
+        yield 'Generate an invoice with the customer has no VAT' => [
             function (OrderEntity $order) use ($vatId): string {
                 return $vatId;
-            },
-            function (OrderEntity $order): void {
-            },
-            function (OrderEntity $order): void {
             },
             function ($processedTemplate, $vatId): void {
                 static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
             },
         ];
 
-        yield [
+        yield 'Generate an invoice with the customer has to VAT with disabled company tax and a customer country is not part of the European Union' => [
             function (OrderEntity $order) use ($vatId): string {
                 static::assertNotNull($orderCustomer = $order->getOrderCustomer());
                 static::assertNotNull($customer = $orderCustomer->getCustomer());
@@ -420,55 +414,46 @@ class InvoiceServiceTest extends TestCase
 
                 return $vatId;
             },
-            function (OrderEntity $order): void {
-            },
-            function (OrderEntity $order): void {
-            },
             function ($processedTemplate, $vatId): void {
                 static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
             },
         ];
 
-        yield [
+        yield 'Generate an invoice with the customer has to VAT with enabled company tax and a customer country is not part of the European Union' => [
             function (OrderEntity $order) use ($vatId): string {
                 static::assertNotNull($orderCustomer = $order->getOrderCustomer());
                 static::assertNotNull($customer = $orderCustomer->getCustomer());
                 $customer->setVatIds([$vatId]);
 
-                return $vatId;
-            },
-            function (OrderEntity $order): void {
                 static::assertNotNull($addresses = $order->getAddresses());
                 static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
                 static::assertNotNull($country = $billingAddress->getCountry());
                 $country->getCompanyTax()->setEnabled(true);
-            },
-            function (OrderEntity $order): void {
+
                 static::assertNotNull($addresses = $order->getAddresses());
                 static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
                 static::assertNotNull($country = $billingAddress->getCountry());
                 $country->setId(Uuid::randomBytes());
+
+                return $vatId;
             },
             function ($processedTemplate, $vatId): void {
                 static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
             },
         ];
 
-        yield [
+        yield 'Generate an invoice with the customer has to VAT with company tax, and a customer country is part of the European Union' => [
             function (OrderEntity $order) use ($vatId): string {
                 static::assertNotNull($orderCustomer = $order->getOrderCustomer());
                 static::assertNotNull($customer = $orderCustomer->getCustomer());
                 $customer->setVatIds([$vatId]);
 
-                return $vatId;
-            },
-            function (OrderEntity $order): void {
                 static::assertNotNull($addresses = $order->getAddresses());
                 static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
                 static::assertNotNull($country = $billingAddress->getCountry());
                 $country->getCompanyTax()->setEnabled(true);
-            },
-            function (OrderEntity $order): void {
+
+                return $vatId;
             },
             function ($processedTemplate, $vatId): void {
                 static::assertStringContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
@@ -477,6 +462,8 @@ class InvoiceServiceTest extends TestCase
     }
 
     /**
+     * @param array<int, int> $taxes
+     *
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
@@ -623,6 +610,9 @@ class InvoiceServiceTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, string|int>
+     */
     private function createDeliveryTimeData(): array
     {
         return [

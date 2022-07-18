@@ -22,11 +22,14 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
      {% block document_side_info_date %}{% endblock %}
 
-     {% block document_side_info_storno_number %}
+     {# @deprecated tag:v6.5.0 - Will be removed #}
+     {% block document_side_info_storno_number %}{% endblock %}
+
+     {% block document_side_info_cancellation_number %}
          <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber} %}document.stornoNumber{% endtrans %}</td></tr>
      {% endblock %}
 
-     {% block document_side_info_storno_date %}
+     {% block document_side_info_cancellation_date %}
          <tr>
              <td>
                  {{ 'document.stornoDate'|trans({'%date%': config.documentDate|format_date(pattern="Y/MM/dd", locale=locale)})|sw_sanitize }}

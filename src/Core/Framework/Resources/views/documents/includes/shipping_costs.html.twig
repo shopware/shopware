@@ -15,19 +15,19 @@ All blocks of this template are available in the template which renders this tem
             {% if billingAddress.additionalAddressLine1 %}<br>{% endif %}
             {% if billingAddress.additionalAddressLine2 %}<br>{% endif %}
 
-        <tr class="line-item">
-            {% block document_line_item_table_shipping_position %}
-                {% if config.displayLineItemPosition %}
-                    <td>{{ nestedLineItems.count + 1 }}</td>
-                {% endif %}
-            {% endblock %}
+            <tr class="line-item">
+                {% block document_line_item_table_shipping_position %}
+                    {% if config.displayLineItemPosition %}
+                        <td>{{ nestedLineItems.count + 1 }}</td>
+                    {% endif %}
+                {% endblock %}
 
                 {% block document_line_item_table_shipping_number %}
-                    <td>{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }}</td>
+                    <td></td>
                 {% endblock %}
 
                 {% block document_line_item_table_shipping_label %}
-                    <td class="line-item-breakable">{{ order.deliveries.first.shippingMethod.name }}</td>
+                    <td class="line-item-breakable">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }} - {{ order.deliveries.first.shippingMethod.name }}</td>
                 {% endblock %}
 
                 {% block document_line_item_table_shipping_quantity %}

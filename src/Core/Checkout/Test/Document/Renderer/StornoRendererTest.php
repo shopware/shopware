@@ -74,6 +74,8 @@ class StornoRendererTest extends TestCase
 
     /**
      * @dataProvider stornoNoteRendererDataProvider
+     *
+     * @param array<string, string> $additionalConfig
      */
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
     {
@@ -214,6 +216,9 @@ class StornoRendererTest extends TestCase
         static::assertTrue($this->orderVersionExists($orderId, $operationStorno->getOrderVersionId()));
     }
 
+    /**
+     * @param array<int, int> $taxes
+     */
     private function generateDemoCart(array $taxes): Cart
     {
         $cart = $this->cartService->createNew('a-b-c', 'A');

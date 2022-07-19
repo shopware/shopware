@@ -1,4 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import swOrderState from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
 import 'src/app/component/data-grid/sw-data-grid';
 
@@ -163,7 +164,8 @@ function createWrapper() {
             'sw-product-variant-info': true,
             'sw-order-product-select': true,
             'router-link': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-order-add-items-modal': true,
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -179,6 +181,7 @@ function createWrapper() {
 
 describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel', () => {
     beforeAll(() => {
+        Shopware.State.registerModule('swOrder', swOrderState);
         Shopware.Service().register('cartStoreService', () => {
             return {
                 getLineItemTypes: () => {
@@ -188,7 +191,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
                         CUSTOM: 'custom',
                         PROMOTION: 'promotion'
                     });
-                }
+                },
+                getCart: () => {
+                    return Promise.resolve();
+                },
             };
         });
     });
@@ -377,5 +383,32 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
+    });
+
+    it('should be able to toggle add items modal', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            showItemsModal: false,
+        });
+        wrapper.vm.toggleAddItemsModal();
+        expect(wrapper.vm.showItemsModal).toBe(true);
+        expect(wrapper.find('sw-order-add-items-modal-stub')).toBeTruthy();
+
+        await wrapper.setData({
+            showItemsModal: true,
+        });
+        wrapper.vm.toggleAddItemsModal();
+        expect(wrapper.vm.showItemsModal).toBe(false);
+    });
+
+    it('should turn off modal after adding items finished', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.toggleAddItemsModal = jest.fn();
+
+        await wrapper.vm.addItemsFinished();
+
+        expect(wrapper.vm.toggleAddItemsModal).toHaveBeenCalledTimes(1);
+        wrapper.vm.toggleAddItemsModal.mockRestore();
     });
 });

@@ -465,6 +465,19 @@
         "textSameAsShippingAddress": "Same as shipping address"
       }
     },
+    "addItemsModal": {
+      "title": "Add items",
+      "tabProducts": {
+        "title": "Products"
+      },
+      "tabCustomItem": {
+        "title": "Custom item"
+      },
+      "tabCredit": {
+        "title": "Credit"
+      },
+      "buttonAddItems": "Add items"
+    },
     "itemModal": {
       "productGrid": {
         "columnAmount": "Total",

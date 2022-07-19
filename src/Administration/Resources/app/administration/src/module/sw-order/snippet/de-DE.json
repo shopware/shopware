@@ -465,6 +465,19 @@
         "textSameAsShippingAddress": "Wie Versandadresse"
       }
     },
+    "addItemsModal": {
+      "title": "Positionen hinzufügen",
+      "tabProducts": {
+        "title": "Produkte"
+      },
+      "tabCustomItem": {
+        "title": "Eigene Position"
+      },
+      "tabCredit": {
+        "title": "Gutschrift"
+      },
+      "buttonAddItems": "Positionen hinzufügen"
+    },
     "itemModal": {
       "productGrid": {
         "columnAmount": "Summe",

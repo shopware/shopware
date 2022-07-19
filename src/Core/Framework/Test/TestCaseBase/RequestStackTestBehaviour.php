@@ -29,6 +29,5 @@ trait RequestStackTestBehaviour
 
         return $requests;
     }
-
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

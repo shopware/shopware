@@ -45,5 +45,5 @@ trait QueueTestBehaviour
         ]);
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

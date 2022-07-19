@@ -21,5 +21,5 @@ trait TranslationTestBehaviour
         $translator->resetInjection();
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

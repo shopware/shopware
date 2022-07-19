@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CountryAddToSalesChannelTestBehaviour
 {
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     abstract protected function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string;
 

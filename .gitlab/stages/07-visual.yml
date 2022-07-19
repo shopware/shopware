@@ -23,7 +23,6 @@ Percy:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
-        - node -v && npm -v
         - composer run init:e2e:admin
         - composer run e2e:prepare
         - composer run e2e:admin:percy -- exec -- cypress run

@@ -261,7 +261,7 @@ trait AdminApiTestBehaviour
         $browser->setServerParameter('_integration_id', $id);
     }
 
-    abstract protected function getKernel(): KernelInterface;
+    abstract protected static function getKernel(): KernelInterface;
 
     protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {

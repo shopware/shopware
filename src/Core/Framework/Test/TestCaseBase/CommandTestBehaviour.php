@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 trait CommandTestBehaviour
 {
-    abstract protected function getKernel(): KernelInterface;
+    abstract protected static function getKernel(): KernelInterface;
 
     protected function runCommand(Command $command, InputInterface $input, OutputInterface $output, ?KernelInterface $kernel = null): void
     {

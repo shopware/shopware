@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait DataAbstractionLayerFieldTestBehaviour
 {
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     /**
      * @param class-string<EntityDefinition> ...$definitionClasses

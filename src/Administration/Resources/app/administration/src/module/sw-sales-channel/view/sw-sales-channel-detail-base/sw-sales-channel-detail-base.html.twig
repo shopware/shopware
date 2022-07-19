@@ -183,6 +183,7 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultCountry')"
             :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledCountry')"
+            should-show-active-state
         />
         {% endblock %}
 
@@ -229,6 +230,7 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')"
             :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledPaymentMethod')"
+            should-show-active-state
         />
         {% endblock %}
 
@@ -252,6 +254,7 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')"
             :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledShippingMethod')"
+            should-show-active-state
         />
         {% endblock %}
 

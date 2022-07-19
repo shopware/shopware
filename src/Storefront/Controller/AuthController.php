@@ -18,6 +18,9 @@ use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
@@ -54,6 +57,8 @@ class AuthController extends StorefrontController
 
     private AccountRecoverPasswordPageLoader $recoverPasswordPageLoader;
 
+    private SalesChannelContextServiceInterface $salesChannelContext;
+
     /**
      * @internal
      */
@@ -64,7 +69,8 @@ class AuthController extends StorefrontController
         AbstractLoginRoute $loginRoute,
         AbstractLogoutRoute $logoutRoute,
         StorefrontCartFacade $cartFacade,
-        AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
+        AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
+        SalesChannelContextServiceInterface $salesChannelContextService
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->sendPasswordRecoveryMailRoute = $sendPasswordRecoveryMailRoute;
@@ -73,6 +79,7 @@ class AuthController extends StorefrontController
         $this->logoutRoute = $logoutRoute;
         $this->cartFacade = $cartFacade;
         $this->recoverPasswordPageLoader = $recoverPasswordPageLoader;
+        $this->salesChannelContext = $salesChannelContextService;
     }
 
     /**
@@ -182,8 +189,24 @@ class AuthController extends StorefrontController
 
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
+            $cartBeforeNewContext = $this->cartFacade->get($token, $context);
+
+            $newContext = $this->salesChannelContext->get(
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $token,
+                    $context->getLanguageIdChain()[0],
+                    $context->getCurrencyId(),
+                    $context->getDomainId(),
+                    $context->getContext()
+                )
+            );
+
+            // Update the sales channel context for CacheResponseSubscriber
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $newContext);
+
             if (!empty($token)) {
-                $this->addCartErrors($this->cartFacade->get($token, $context));
+                $this->addCartErrors($cartBeforeNewContext);
 
                 return $this->createActionResponse($request);
             }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
@@ -35,6 +36,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->request('GET', '/api/product');
         $response = $browser->getResponse();
 
+        static::assertIsString($response->getContent());
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
     }
 
@@ -78,10 +80,11 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
         );
         $response = $browser->getResponse();
 
+        static::assertIsString($response->getContent());
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $data['errors'][0]['code']);
@@ -105,7 +108,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
         );
 
         static::assertEquals(204, $browser->getResponse()->getStatusCode());
@@ -138,11 +141,12 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             json_encode([
                 'name' => $newName,
-            ])
+            ], \JSON_THROW_ON_ERROR)
         );
 
         static::assertEquals(204, $browser->getResponse()->getStatusCode());
 
+        /** @var ProductEntity $product */
         $product = $productRepository->search(new Criteria(), $context)->getEntities()->get($productId);
 
         static::assertNotNull($product);
@@ -169,6 +173,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
+        static::assertIsString($browser->getResponse()->getContent());
         $data = json_decode($browser->getResponse()->getContent(), true);
 
         if (!\array_key_exists('access_token', $data)) {
@@ -180,7 +185,10 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
-    private function getProductData(string $productId, Context $context)
+    /**
+     * @return array{id: string, name: string, productNumber: string, stock: int, manufacturer: array<string, string>, price: list<array<string, mixed>>, tax: array<string, string>}
+     */
+    private function getProductData(string $productId, Context $context): array
     {
         return [
             'id' => $productId,

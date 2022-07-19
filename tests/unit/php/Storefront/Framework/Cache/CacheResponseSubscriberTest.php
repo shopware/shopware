@@ -531,4 +531,108 @@ class CacheResponseSubscriberTest extends TestCase
 
         static::assertSame('must-revalidate, public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
     }
+
+    /**
+     * @return array<string, array{
+     *     route: string,
+     *     requestMethod: string,
+     *     cookiesAmount: int,
+     *     cookieName: string,
+     *     assertCountErrorMessage: string,
+     *     assertEqualsErrorMessage: string
+     * }>
+     */
+    public function providerSetResponseCacheOnLogin(): iterable
+    {
+        yield 'Don\'t set the cache on no_login via post' => [
+            'route' => 'no.login',
+            'requestMethod' => Request::METHOD_POST,
+            'cookiesAmount' => 1,
+            'cookieName' => CacheResponseSubscriber::SYSTEM_STATE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 1 cookies set now!',
+            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::SYSTEM_STATE_COOKIE should be set as 1. cookie',
+        ];
+
+        yield 'Set cache on login via post' => [
+            'route' => 'frontend.account.login',
+            'requestMethod' => Request::METHOD_POST,
+            'cookiesAmount' => 2,
+            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
+            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+        ];
+
+        yield 'Set cache on no_login via get' => [
+            'route' => 'anything',
+            'requestMethod' => Request::METHOD_GET,
+            'cookiesAmount' => 2,
+            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
+            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+        ];
+
+        yield 'Set cache on login via get' => [
+            'route' => 'frontend.account.login',
+            'requestMethod' => Request::METHOD_GET,
+            'cookiesAmount' => 2,
+            'cookieName' => CacheResponseSubscriber::CONTEXT_CACHE_COOKIE,
+            'assertCountErrorMessage' => 'There should be 2 cookies set now!',
+            'assertEqualsErrorMessage' => 'CacheResponseSubscriber::CONTEXT_CACHE_COOKIE should be set as 2. cookie',
+        ];
+    }
+
+    /**
+     * @dataProvider providerSetResponseCacheOnLogin
+     */
+    public function testSetResponseCacheOnLogin(
+        string $route,
+        string $requestMethod,
+        int $cookiesAmount,
+        string $cookieName,
+        string $assertCountErrorMessage,
+        string $assertEqualsErrorMessage
+    ): void {
+        $subscriber = new CacheResponseSubscriber(
+            $this->createStub(CartService::class),
+            100,
+            true,
+            $this->createStub(MaintenanceModeResolver::class),
+            false,
+            null,
+            null
+        );
+
+        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext
+            ->method('getCustomer')
+            ->willReturn(new CustomerEntity());
+        $request = new Request();
+        $request->setMethod($requestMethod);
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            $salesChannelContext
+        );
+        $request->attributes->set('_route', $route);
+
+        $response = new Response();
+        $subscriber->setResponseCache(
+            new ResponseEvent(
+                $this->createMock(HttpKernelInterface::class),
+                $request,
+                HttpKernelInterface::MASTER_REQUEST,
+                $response
+            )
+        );
+
+        static::assertCount(
+            $cookiesAmount,
+            $response->headers->getCookies(),
+            $assertCountErrorMessage
+        );
+        static::assertEquals(
+            $cookieName,
+            $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
+            $assertEqualsErrorMessage
+        );
+    }
 }

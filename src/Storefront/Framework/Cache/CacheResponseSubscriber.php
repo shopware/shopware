@@ -121,7 +121,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $states = $this->updateSystemState($cart, $context, $request, $response);
 
-        if ($request->getMethod() !== Request::METHOD_GET) {
+        // We need to allow it on login, otherwise the state is wrong
+        if (!($route === 'frontend.account.login' || $request->getMethod() === Request::METHOD_GET)) {
             return;
         }
 
@@ -194,6 +195,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param list<string> $states
+     */
     private function hasInvalidationState(HttpCache $cache, array $states): bool
     {
         foreach ($states as $state) {
@@ -218,6 +222,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     /**
      * System states can be used to stop caching routes at certain states. For example,
      * the checkout routes are no longer cached if the customer has products in the cart or is logged in.
+     *
+     * @return list<string>
      */
     private function updateSystemState(Cart $cart, SalesChannelContext $context, Request $request, Response $response): array
     {
@@ -244,6 +250,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         return $states;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getSystemStates(Request $request, SalesChannelContext $context, Cart $cart): array
     {
         $states = [];
@@ -259,6 +268,11 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         return array_keys($states);
     }
 
+    /**
+     * @param array<string, int|bool> $states
+     *
+     * @return array<string, int|bool>
+     */
     private function switchState(array $states, string $key, bool $match): array
     {
         if ($match) {

@@ -29,6 +29,11 @@ trait OrderFixture
     use EntityFixturesBase;
     use BasicTestDataBehaviour;
 
+    /**
+     * @throws \JsonException
+     *
+     * @return list<array<string, mixed>>
+     */
     private function getOrderData(string $orderId, Context $context): array
     {
         $orderCustomerId = Uuid::randomHex();

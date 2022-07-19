@@ -33,6 +33,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -120,7 +121,8 @@ class ControllerRateLimiterTest extends TestCase
             $this->getContainer()->get(LoginRoute::class),
             $this->getContainer()->get(LogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            $this->getContainer()->get(SalesChannelContextService::class)
         );
         $controller->setContainer($this->getContainer());
 
@@ -151,7 +153,8 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            $this->getContainer()->get(SalesChannelContextService::class)
         );
         $controller->setContainer($this->getContainer());
         $controller->setTwig($this->getContainer()->get('twig'));
@@ -189,7 +192,8 @@ class ControllerRateLimiterTest extends TestCase
             $loginRoute,
             $this->createMock(AbstractLogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            $this->getContainer()->get(SalesChannelContextService::class)
         );
         $controller->setContainer($this->getContainer());
 
@@ -315,6 +319,9 @@ class ControllerRateLimiterTest extends TestCase
         }
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     private function createRequest(string $route, array $params = []): Request
     {
         $request = new Request();

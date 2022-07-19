@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CustomFieldTypeTestBehaviour
 {
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     protected function importCustomField(string $manifestPath): CustomFieldEntity
     {

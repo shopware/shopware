@@ -38,5 +38,5 @@ trait FilesystemBehaviour
         MemoryAdapterFactory::clearInstancesMemory();
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

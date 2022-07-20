@@ -176,23 +176,16 @@ class ProductSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var ProductEntity $product */
-        if ($product->getCmsPageId() !== null) {
+        if ($product->get('cmsPageId') !== null) {
             return;
         }
 
-        if ($salesChannelId) {
-            $cmsPageId = $this->systemConfigService->get(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $salesChannelId);
-        }
-
-        $cmsPageId = $cmsPageId ?? $this->systemConfigService->get(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT);
+        $cmsPageId = $this->systemConfigService->get(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $salesChannelId);
 
         if (!$cmsPageId) {
             return;
         }
 
-        /** @var string $cmsPageId */
-        $product->setCmsPageId($cmsPageId);
-        $product->setCmsPageIdSwitched(true);
+        $product->assign(['cmsPageId' => $cmsPageId]);
     }
 }

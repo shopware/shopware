@@ -3,11 +3,10 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Cms\Events\CmsPageBeforeDefaultChangeEvent;
-use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -30,12 +29,18 @@ class SystemConfigService
 {
     private Connection $connection;
 
-    private EntityRepository $systemConfigRepository;
+    private EntityRepositoryInterface $systemConfigRepository;
 
     private ConfigReader $configReader;
 
+    /**
+     * @var array<string, bool>
+     */
     private array $keys = ['all' => true];
 
+    /**
+     * @var array<mixed>
+     */
     private array $traces = [];
 
     private AbstractSystemConfigLoader $loader;
@@ -65,7 +70,7 @@ class SystemConfigService
     }
 
     /**
-     * @return array|bool|float|int|string|null
+     * @return array<mixed>|bool|float|int|string|null
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
@@ -135,6 +140,8 @@ class SystemConfigService
      * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
      *
      * gets all available shop configs and returns them as an array
+     *
+     * @return array<mixed>
      */
     public function all(?string $salesChannelId = null): array
     {
@@ -145,6 +152,8 @@ class SystemConfigService
      * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
      *
      * @throws InvalidDomainException
+     *
+     * @return array<mixed>
      */
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
@@ -211,21 +220,15 @@ class SystemConfigService
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
+     * @param array<mixed>|bool|float|int|string|null $value
      */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
         $key = trim($key);
-        $this->validate($key, $value, $salesChannelId);
+        $this->validate($key, $salesChannelId);
 
-        // fire event if default cms page is affected by this change
-        if (\in_array($key, CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys, true)) {
-            /** @var string|null $newDefault */
-            $newDefault = $value;
-
-            $event = new CmsPageBeforeDefaultChangeEvent($key, $newDefault, $salesChannelId);
-            $this->eventDispatcher->dispatch($event);
-        }
+        $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
+        $this->eventDispatcher->dispatch($event);
 
         $id = $this->getId($key, $salesChannelId);
         if ($value === null) {
@@ -237,9 +240,6 @@ class SystemConfigService
 
             return;
         }
-
-        $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
-        $this->eventDispatcher->dispatch($event);
 
         $data = [
             'id' => $id ?? Uuid::randomHex(),
@@ -272,6 +272,9 @@ class SystemConfigService
         $this->saveConfig($config, $prefix, $override);
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function saveConfig(array $config, string $prefix, bool $override): void
     {
         $relevantSettings = $this->getDomain($prefix);
@@ -302,6 +305,9 @@ class SystemConfigService
         $this->deleteExtensionConfiguration($bundle->getName(), $config);
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function deleteExtensionConfiguration(string $extensionName, array $config): void
     {
         $prefix = $extensionName . '.config.';
@@ -346,6 +352,9 @@ class SystemConfigService
         return $result;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -355,12 +364,10 @@ class SystemConfigService
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
-     *
      * @throws InvalidKeyException
      * @throws InvalidUuidException
      */
-    private function validate(string $key, $value, ?string $salesChannelId): void
+    private function validate(string $key, ?string $salesChannelId): void
     {
         $key = trim($key);
         if ($key === '') {

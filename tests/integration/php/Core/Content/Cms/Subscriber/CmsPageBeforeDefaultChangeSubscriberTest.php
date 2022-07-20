@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\Subscriber;
+namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Exception\DeletionOfOverallDefaultCmsPageException;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -16,6 +16,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 {
@@ -74,13 +76,22 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     public function testDeleteOverallDefaultThrow(): void
     {
         $cmsPage = Uuid::randomHex();
+        $exceptionWasThrown = false;
         $this->createCmsPage($cmsPage);
 
         // set overall default
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage, null);
 
-        static::expectException(DeletionOfOverallDefaultCmsPageException::class);
-        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, null);
+        try {
+            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, null);
+        } catch (CmsException $exception) {
+            static::assertEquals(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
+            $exceptionWasThrown = true;
+        } finally {
+            if (!$exceptionWasThrown) {
+                static::fail('Expected exception with error code ' . CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE . ' to be thrown.');
+            }
+        }
     }
 
     public function validDefaultCmsPageDataProvider(): \Generator

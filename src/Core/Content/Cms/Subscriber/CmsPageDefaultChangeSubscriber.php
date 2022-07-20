@@ -4,24 +4,21 @@ namespace Shopware\Core\Content\Cms\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Cms\Events\CmsPageBeforeDefaultChangeEvent;
-use Shopware\Core\Content\Cms\Exception\DeletionOfDefaultCmsPageException;
-use Shopware\Core\Content\Cms\Exception\DeletionOfOverallDefaultCmsPageException;
+use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var array<string>
+     */
     public static array $defaultCmsPageConfigKeys = [
         ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT,
         CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY,
@@ -29,62 +26,52 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 
     private Connection $connection;
 
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $systemConfigRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        SystemConfigService $systemConfigService,
-        EntityRepository $systemConfigRepository
+        Connection $connection
     ) {
         $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
-        $this->systemConfigRepository = $systemConfigRepository;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            CmsPageBeforeDefaultChangeEvent::class => 'validateChangeOfDefaultCmsPage',
+            BeforeSystemConfigChangedEvent::class => 'validateChangeOfDefaultCmsPage',
             BeforeDeleteEvent::class => 'beforeDeletion',
         ];
     }
 
     /**
-     * @throws DeletionOfDefaultCmsPageException
+     * @throws CmsException
      * @throws \JsonException
      */
     public function beforeDeletion(BeforeDeleteEvent $event): void
     {
-        $cmsPageIds = $event->getIds('cms_page');
+        $cmsPageIds = $event->getIds(CmsPageDefinition::ENTITY_NAME);
 
         // no cms page is affected by this deletion event
         if (empty($cmsPageIds)) {
             return;
         }
 
-        $defaultPages = $this->cmsPageIsDefault($cmsPageIds, $event->getContext());
+        $defaultPages = $this->cmsPageIsDefault($cmsPageIds);
 
         // count !== 0 indicates that there are some cms pages which would be deleted but are currently a default
         if (\count($defaultPages) !== 0) {
-            $ids = json_encode($defaultPages, \JSON_THROW_ON_ERROR);
-
-            throw new DeletionOfDefaultCmsPageException($ids);
+            throw CmsException::deletionOfDefault($defaultPages);
         }
     }
 
     /**
-     * @throws DeletionOfOverallDefaultCmsPageException
+     * @throws CmsException
      * @throws PageNotFoundException
      */
-    public function validateChangeOfDefaultCmsPage(CmsPageBeforeDefaultChangeEvent $event): void
+    public function validateChangeOfDefaultCmsPage(BeforeSystemConfigChangedEvent $event): void
     {
         $newDefaultCmsPageId = $event->getValue();
-        $systemConfigKey = $event->getSystemConfigKey();
+        $systemConfigKey = $event->getKey();
         $salesChannelId = $event->getSalesChannelId();
 
         if (!\in_array($systemConfigKey, self::$defaultCmsPageConfigKeys, true)) {
@@ -96,34 +83,56 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         if ($newDefaultCmsPageId === null && $salesChannelId === null) {
             $oldCmsPageId = $this->getCurrentOverallDefaultCmsPageId($systemConfigKey);
 
-            throw new DeletionOfOverallDefaultCmsPageException($oldCmsPageId);
+            throw CmsException::overallDefaultSystemConfigDeletion($oldCmsPageId);
+        }
+
+        if (!\is_string($newDefaultCmsPageId) && $newDefaultCmsPageId !== null) {
+            throw new PageNotFoundException('invalid page');
         }
 
         // prevent changing the default to an invalid cms page id
-        if ($newDefaultCmsPageId !== null && !$this->cmsPageExists($newDefaultCmsPageId)) {
+        if (\is_string($newDefaultCmsPageId) && !$this->cmsPageExists($newDefaultCmsPageId)) {
             throw new PageNotFoundException($newDefaultCmsPageId);
         }
     }
 
     private function getCurrentOverallDefaultCmsPageId(string $systemConfigKey): string
     {
-        return $this->systemConfigService->getString($systemConfigKey, null);
+        $result = $this->connection->fetchOne(
+            'SELECT configuration_value FROM system_config WHERE configuration_key = :configKey AND sales_channel_id is NULL;',
+            [
+                'configKey' => $systemConfigKey,
+            ]
+        );
+
+        $config = json_decode($result, true);
+
+        return $config['_value'];
     }
 
-    private function cmsPageIsDefault(array $cmsPageIds, Context $context): array
+    /**
+     * @param array<string> $cmsPageIds
+     *
+     * @return array<string>
+     */
+    private function cmsPageIsDefault(array $cmsPageIds): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter(
-            'configurationKey',
-            self::$defaultCmsPageConfigKeys
-        ));
+        $configurations = $this->connection->fetchAllAssociative(
+            'SELECT DISTINCT configuration_value FROM system_config WHERE configuration_key IN (:configKeys);',
+            [
+                'configKeys' => self::$defaultCmsPageConfigKeys,
+            ],
+            [
+                'configKeys' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
-        $results = $this->systemConfigRepository->search($criteria, $context)->getElements();
         $defaultIds = [];
+        foreach ($configurations as $configuration) {
+            $configValue = $configuration['configuration_value'];
+            $config = json_decode($configValue, true);
 
-        /** @var SystemConfigEntity $result */
-        foreach ($results as $result) {
-            $defaultIds[] = $result->getConfigurationValue();
+            $defaultIds[] = $config['_value'];
         }
 
         // returns from all provided cms pages the ones which are default

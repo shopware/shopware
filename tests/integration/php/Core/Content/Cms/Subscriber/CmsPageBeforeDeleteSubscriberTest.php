@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\Subscriber;
+namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\Exception\DeletionOfDefaultCmsPageException;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,6 +15,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 class CmsPageBeforeDeleteSubscriberTest extends TestCase
 {
@@ -57,26 +59,44 @@ class CmsPageBeforeDeleteSubscriberTest extends TestCase
     public function testDeleteOverallDefaultCmsPageThrow(): void
     {
         $cmsPageId = Uuid::randomHex();
+        $exceptionWasThrown = false;
         $this->createCmsPage($cmsPageId);
 
         // set cms page id as overall default
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPageId, null);
 
         // at this point we do not differentiate whether this is an overall default or not
-        static::expectException(DeletionOfDefaultCmsPageException::class);
-        $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
+        try {
+            $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
+        } catch (CmsException $exception) {
+            static::assertEquals(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
+            $exceptionWasThrown = true;
+        } finally {
+            if (!$exceptionWasThrown) {
+                static::fail('Expected exception with error code ' . CmsException::DELETION_OF_DEFAULT_CODE . ' to be thrown.');
+            }
+        }
     }
 
     public function testDeleteDefaultCmsPageThrow(): void
     {
         $cmsPageId = Uuid::randomHex();
+        $exceptionWasThrown = false;
         $this->createCmsPage($cmsPageId);
 
         // set cms page id as sales channel specific default
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPageId, TestDefaults::SALES_CHANNEL);
 
-        static::expectException(DeletionOfDefaultCmsPageException::class);
-        $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
+        try {
+            $this->cmsPageRepository->delete([['id' => $cmsPageId]], Context::createDefaultContext());
+        } catch (CmsException $exception) {
+            static::assertEquals(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
+            $exceptionWasThrown = true;
+        } finally {
+            if (!$exceptionWasThrown) {
+                static::fail('Expected exception with error code ' . CmsException::DELETION_OF_DEFAULT_CODE . ' to be thrown.');
+            }
+        }
     }
 
     private function createCmsPage(string $cmsPageId): void

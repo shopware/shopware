@@ -1,36 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull;
-use Shopware\Core\System\SystemConfig\SystemConfigEntity;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Migration\V6_4\Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull
  */
 class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $systemConfigRepository;
-
     public function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->systemConfigRepository = $this->getContainer()->get('system_config.repository');
+        $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testItSetsTheDefaultsInTheSystemConfig(): void
@@ -44,16 +38,19 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         ];
 
         foreach ($cmsPageTypes as $cmsPageType => $systemConfigKey) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('configurationKey', $systemConfigKey));
+            $result = $this->connection->fetchAssociative(
+                'SELECT configuration_key, configuration_value
+                FROM `system_config`
+                WHERE configuration_key = :systemConfigKey',
+                ['systemConfigKey' => $systemConfigKey]
+            );
+            static::assertNotFalse($result, 'A SQL select error occurred');
 
-            $expectedCmsPageId = $this->getDefaultCmsPageIdFromType($cmsPageType);
-
-            /** @var SystemConfigEntity $systemConfigEntry */
-            $systemConfigEntry = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
-
-            static::assertEquals($systemConfigKey, $systemConfigEntry->getConfigurationKey());
-            static::assertEquals($expectedCmsPageId, $systemConfigEntry->getConfigurationValue());
+            static::assertEquals($systemConfigKey, $result['configuration_key']);
+            static::assertEquals(
+                $this->getDefaultCmsPageIdFromType($cmsPageType),
+                (\json_decode($result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']
+            );
         }
     }
 
@@ -67,8 +64,8 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         static::assertNotNull($this->getCategoryIdWithDefaultCmsPage($categoryId));
 
         // it can be executed multiple times
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         // assert migration works as expected and cmsPageId is null
         static::assertNull($this->getCategoryIdWithDefaultCmsPage($categoryId));
@@ -94,23 +91,25 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
 
     private function getDefaultCmsPageIdFromType(string $cmsPageType): string
     {
-        $cmsPageId = $this->connection->fetchOne('
-            SELECT id
+        $cmsPageId = $this->connection->fetchOne(
+            'SELECT id
             FROM  cms_page
             WHERE type = :cmsPageType AND locked = 1
-            ORDER BY created_at ASC;
-       ', ['cmsPageType' => $cmsPageType]);
+            ORDER BY created_at ASC;',
+            ['cmsPageType' => $cmsPageType]
+        );
 
         return Uuid::fromBytesToHex($cmsPageId);
     }
 
     private function getCategoryIdWithDefaultCmsPage(string $categoryId): ?string
     {
-        return $this->connection->fetchOne('
-            SELECT cms_page_id
+        return $this->connection->fetchOne(
+            'SELECT cms_page_id
             FROM  category
             WHERE id = :categoryId
-            ORDER BY created_at ASC;
-       ', ['categoryId' => Uuid::fromHexToBytes($categoryId)]);
+            ORDER BY created_at ASC;',
+            ['categoryId' => Uuid::fromHexToBytes($categoryId)]
+        );
     }
 }

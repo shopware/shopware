@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
@@ -62,19 +63,9 @@ class ProductSliderTypeDataResolverTest extends TestCase
     private $context;
 
     /**
-     * @var string
+     * @var array<mixed>
      */
-    private $productIdWidth100;
-
-    /**
-     * @var string
-     */
-    private $productIdWidth150;
-
-    /**
-     * @var array
-     */
-    private $randomProductIds;
+    private array $randomProductIds;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|SystemConfigService
@@ -236,9 +227,12 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $slot->setFieldConfig($fieldConfig);
 
         $collection = $this->sliderResolver->collect($slot, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         static::assertCount(1, $collection->all());
         static::assertEquals('Shopware\Core\Content\Product\ProductDefinition', key($collection->all()));
+
+        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
         static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
 
         $expectedCriteria = new Criteria();
@@ -256,6 +250,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $expectedCriteria->setLimit(50);
 
         /** @var Criteria $criteria */
+        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
         foreach ($collection->getIterator()->current() as $criteria) {
             static::assertEquals($expectedCriteria->getSorting(), $criteria->getSorting());
             static::assertEquals($expectedCriteria->getLimit(), $criteria->getLimit());
@@ -370,25 +365,31 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         $productSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ProductSliderStruct|null $ProductSliderStruct */
-        $ProductSliderStruct = $slot->getData();
+        /** @var ProductSliderStruct|null $productSliderStruct */
+        $productSliderStruct = $slot->getData();
 
-        static::assertInstanceOf(ProductSliderStruct::class, $ProductSliderStruct);
+        static::assertInstanceOf(ProductSliderStruct::class, $productSliderStruct);
+
+        $products = $productSliderStruct->getProducts();
+        static::assertNotNull($products);
 
         /*
          * conditional assertions depending on if an product should be returned or not
          */
         if ($closeout && $hidden && $availableStock === 0) {
-            static::assertNull($ProductSliderStruct->getProducts()->first());
+            static::assertNull($products->first());
         } else {
-            $productId = $ProductSliderStruct->getProducts()->first()->getId();
+            $productEntity = $products->first();
+            static::assertNotNull($productEntity);
+
+            $productId = $productEntity->getId();
             static::assertSame($productId, $product->getId());
-            static::assertSame($product, $ProductSliderStruct->getProducts()->first());
+            static::assertSame($product, $products->first());
         }
     }
 
     /**
-     * @return array[] closeout, hidden, availableStock
+     * @return array<array<bool|int>> closeout, hidden, availableStock
      *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
      */
     public function enrichDataProvider(): array
@@ -438,6 +439,9 @@ class ProductSliderTypeDataResolverTest extends TestCase
         return $productRepository->search(new Criteria([$this->productStreamId]), $this->context)->first();
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');
@@ -474,9 +478,6 @@ class ProductSliderTypeDataResolverTest extends TestCase
                 ],
             ];
         }
-
-        $this->productIdWidth100 = $products[0]['id'];
-        $this->productIdWidth150 = $products[5]['id'];
 
         $productRepository->create($products, $this->context);
 

@@ -37,23 +37,19 @@ class CategorySubscriber implements EventSubscriberInterface
 
         /** @var CategoryEntity $category */
         foreach ($event->getEntities() as $category) {
+            $categoryCmsPageId = $category->getCmsPageId();
+
             // continue if cms page is given and was not set in the subscriber
-            if ($category->getCmsPageId() !== null && !$category->getCmsPageIdSwitched()) {
+            if ($categoryCmsPageId !== null && !$category->getCmsPageIdSwitched()) {
                 continue;
             }
 
             // continue if cms page is given and not the overall default
-            if ($category->getCmsPageId() !== null && $category->getCmsPageId() !== $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY)) {
+            if ($categoryCmsPageId !== null && $categoryCmsPageId !== $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY)) {
                 continue;
             }
 
-            // get default for specific sales channel
             $userDefault = $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId);
-
-            // get overall default if no one for the specific sales channel is given
-            if ($userDefault === null && $salesChannelId !== null) {
-                $userDefault = $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
-            }
 
             // cms page is not given in system config
             if ($userDefault === null) {

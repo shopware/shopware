@@ -24,13 +24,12 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends M
 
         // set system config key for products
         $this->setSystemConfig(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, Defaults::CMS_PRODUCT_DETAIL_PAGE, $connection);
+
+        $connection->executeStatement('UPDATE category SET cms_page_id = null WHERE cms_page_id = :defaultCmsPageId;', ['defaultCmsPageId' => Uuid::fromHexToBytes($cmsPageId)]);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $cmsPageId = $this->getDefaultCmsPageIdFromType('product_list', $connection);
-
-        $connection->executeStatement('UPDATE category SET cms_page_id = null WHERE cms_page_id = :defaultCmsPageId;', ['defaultCmsPageId' => Uuid::fromHexToBytes($cmsPageId)]);
     }
 
     private function setSystemConfig(string $key, string $value, Connection $connection): void

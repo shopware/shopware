@@ -41,6 +41,9 @@ class SystemConfigServiceTest extends TestCase
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function setGetDifferentTypesProvider(): array
     {
         return [
@@ -57,7 +60,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array|bool|int|float|string|null $expected
+     * @param array<mixed>|bool|int|float|string|null $expected
      * @dataProvider setGetDifferentTypesProvider
      */
     public function testSetGetDifferentTypes($expected): void
@@ -67,6 +70,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getStringProvider(): array
     {
         return [
@@ -83,7 +89,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array|bool|int|float|string|null $writtenValue
+     * @param array<mixed>|bool|int|float|string|null $writtenValue
      * @dataProvider getStringProvider
      */
     public function testGetString($writtenValue, string $expected): void
@@ -97,6 +103,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getIntProvider(): array
     {
         return [
@@ -113,7 +122,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array|bool|int|float|string|null $writtenValue
+     * @param array<mixed>|bool|int|float|string|null $writtenValue
      * @dataProvider getIntProvider
      */
     public function testGetInt($writtenValue, int $expected): void
@@ -127,6 +136,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getFloatProvider(): array
     {
         return [
@@ -143,7 +155,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array|bool|int|float|string|null $writtenValue
+     * @param array<mixed>|bool|int|float|string|null $writtenValue
      * @dataProvider getFloatProvider
      */
     public function testGetFloat($writtenValue, float $expected): void
@@ -157,6 +169,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getBoolProvider(): array
     {
         return [
@@ -174,7 +189,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array|bool|int|float|string|null $writtenValue
+     * @param array<mixed>|bool|int|float|string|null $writtenValue
      * @dataProvider getBoolProvider
      */
     public function testGetBool($writtenValue, bool $expected): void

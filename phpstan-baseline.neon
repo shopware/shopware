@@ -4221,41 +4221,6 @@ parameters:
 			path: src/Core/Content/Category/Aggregate/CategoryTranslation/CategoryTranslationEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:getBreadcrumb\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:getPlainBreadcrumb\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:setBreadcrumb\\(\\) has parameter \\$breadcrumb with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:setSlotConfig\\(\\) has parameter \\$slotConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:\\$breadcrumb type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\:\\:\\$slotConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryBreadcrumbUpdater\\:\\:buildBreadcrumb\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/DataAbstractionLayer/CategoryBreadcrumbUpdater.php
@@ -8256,46 +8221,6 @@ parameters:
 			path: src/Core/Content/Product/Exception/VariantNotFoundException.php
 
 		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getManufacturerIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getParentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getPriceIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getTaxIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\:\\:getUnitIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_intersect expects array, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/ProductCollection.php
-
-		-
 			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\)\\: mixed\\)\\|null, Closure\\(Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionEntity\\)\\: array\\{\\}\\|array\\{group\\: mixed, option\\: mixed\\} given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/ProductVariationBuilder.php
@@ -9174,26 +9099,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Seo\\\\HreflangLoaderParameter\\:\\:\\$routeParameters type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/HreflangLoaderParameter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SalesChannel\\\\SeoResolverData\\:\\:getEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SalesChannel/SeoResolverData.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SalesChannel\\\\SeoResolverData\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SalesChannel/SeoResolverData.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Seo\\\\SalesChannel\\\\SeoResolverData\\:\\:\\$entityMap type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SalesChannel/SeoResolverData.php
-
-		-
-			message: "#^Cannot call method add\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SalesChannel/StoreApiSeoResolver.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlEntity\\:\\:\\$isCanonical \\(bool\\) does not accept bool\\|null\\.$#"
@@ -11286,11 +11191,6 @@ parameters:
 			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:\\$config has no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
@@ -12271,51 +12171,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Cms/Type/ProductDetailCmsElementResolverTest.php
 
 		-
-			message: "#^Call to an undefined method Traversable\\<mixed, mixed\\>\\:\\:current\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\|null\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getIterator\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductSliderTypeDataResolverTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductSliderTypeDataResolverTest\\:\\:enrichDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductSliderTypeDataResolverTest\\:\\:\\$productIdWidth100 is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductSliderTypeDataResolverTest\\:\\:\\$productIdWidth150 is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cms\\\\Type\\\\ProductSliderTypeDataResolverTest\\:\\:\\$randomProductIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cms/Type/ProductSliderTypeDataResolverTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:assertSorting\\(\\) has parameter \\$case with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
@@ -12686,16 +12541,6 @@ parameters:
 			path: src/Core/Content/Test/Product/ProductVisibility/ProductVisibilityEntityTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Repository\\\\ProductSearchKeywordTest\\:\\:createProduct\\(\\) has parameter \\$searchKeyword with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Repository/ProductSearchKeywordTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertContains\\(\\) expects iterable, array\\<string\\>\\|null given\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Product/Repository/ProductSearchKeywordTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with '_score' and Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity will always evaluate to false\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Repository/ProductSearchScoringTest.php
@@ -12764,11 +12609,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationLoaderTest\\:\\:createProduct\\(\\) has parameter \\$variantOverrides with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\CachedProductDetailRouteTest\\:\\:createProduct\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/CachedProductDetailRouteTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductConfiguratorOrderTest\\:\\:ashuffle\\(\\) has no return type specified\\.$#"
@@ -13251,101 +13091,6 @@ parameters:
 			path: src/Core/Content/Test/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
 
 		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:optionCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:propertyCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testOptionSorting\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testOptionSorting\\(\\) has parameter \\$language with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testOptionSorting\\(\\) has parameter \\$product with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortProperties\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortProperties\\(\\) has parameter \\$product with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortProperties\\(\\) has parameter \\$unexpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortPropertiesPartial\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortPropertiesPartial\\(\\) has parameter \\$product with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testSortPropertiesPartial\\(\\) has parameter \\$unexpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testVariation\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testVariation\\(\\) has parameter \\$language with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:testVariation\\(\\) has parameter \\$product with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Subscriber\\\\ProductLoadedSubscriberTest\\:\\:variationCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Api\\\\ProductExportControllerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
@@ -13634,11 +13379,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Seo/SalesChannel/SeoUrlRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Seo/SalesChannel/StoreApiSeoResolverTest.php
 
 		-
 			message: "#^Cannot call method current\\(\\) on iterable\\.$#"
@@ -26346,26 +26086,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/InheritanceIndexerTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertContains\\(\\) expects iterable, array\\<string\\>\\|null given\\.$#"
-			count: 12
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/ManyToManyIdFieldIndexerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<string\\>\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/ManyToManyIdFieldIndexerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotContains\\(\\) expects iterable, array\\<string\\>\\|null given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/ManyToManyIdFieldIndexerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Indexing\\\\ManyToManyIdFieldIndexerTest\\:\\:\\$testData is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/ManyToManyIdFieldIndexerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdaterTest\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
@@ -31024,6 +30744,7 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
+
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicMappingEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -32745,56 +32466,6 @@ parameters:
 			path: src/Core/System/SystemConfig/SystemConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:deleteExtensionConfiguration\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getDomain\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getId\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getTrace\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:saveConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:set\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:\\$keys type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:\\$traces type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader\\:\\:elementToArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Util/ConfigReader.php
@@ -33428,56 +33099,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Facade\\\\SystemConfigFacadeTest\\:\\:getWithoutAppCases\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/SystemConfig/Facade/SystemConfigFacadeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:getBoolProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:getFloatProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:getIntProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:getStringProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:setGetDifferentTypesProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:testGetBool\\(\\) has parameter \\$writtenValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:testGetFloat\\(\\) has parameter \\$writtenValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:testGetInt\\(\\) has parameter \\$writtenValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:testGetString\\(\\) has parameter \\$writtenValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\SystemConfigServiceTest\\:\\:testSetGetDifferentTypes\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/SystemConfigServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\_fixtures\\\\MemoizedSystemConfigLoaderTest\\\\DecoratedMemoizedResetTestSystemConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -34723,11 +34344,6 @@ parameters:
 			message: "#^Cannot call method getZipCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$options has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Controller/ProductController.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\ScriptController\\:\\:renderStorefront\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
@@ -36240,21 +35856,6 @@ parameters:
 			path: src/Storefront/Test/Migration/Migration1595492054SeoUrlTemplateDataTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:\\$ids is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
@@ -36265,74 +35866,14 @@ parameters:
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:\\$salesChannel has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/CustomerGroupRegistrationTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\DocumentPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/DocumentPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\DocumentPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/DocumentPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\DocumentPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/DocumentPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\EditOrderPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\EditOrderPageTest\\:\\:createCustomPaymentMethod\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\EditOrderPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\EditOrderPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\LoginPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/LoginPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\LoginPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/LoginPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\LoginPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/LoginPageTest.php
 
 		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
@@ -36345,36 +35886,6 @@ parameters:
 			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderDetailPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderDetailPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderDetailPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OrderPageTest.php
-
-		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 2
 			path: src/Storefront/Test/Page/Account/OrderPageTest.php
@@ -36385,109 +35896,19 @@ parameters:
 			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionCollection\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
-
-		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\ProfilePageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/ProfilePageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\ProfilePageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/ProfilePageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\ProfilePageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Account/ProfilePageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\CartPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\CartPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\CartPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\ConfirmPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\ConfirmPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\ConfirmPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
 
 		-
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 4
 			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\FinishPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/FinishPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\FinishPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/FinishPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\FinishPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Checkout/FinishPageTest.php
 
 		-
 			message: "#^Constant Shopware\\\\Storefront\\\\Test\\\\Page\\\\Cms\\\\DefaultMediaResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
@@ -36505,22 +35926,7 @@ parameters:
 			path: src/Storefront/Test/Page/ErrorPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ErrorPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ErrorPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ErrorPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ErrorPageTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ErrorPageTest\\:\\:getPageLoader\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ErrorPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ErrorPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/ErrorPageTest.php
 
@@ -36530,57 +35936,12 @@ parameters:
 			path: src/Storefront/Test/Page/ErrorPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\GuestWishlistPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/GuestWishlistPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\GuestWishlistPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/GuestWishlistPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\GuestWishlistPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/GuestWishlistPageTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\LandingPage\\\\LandingPageLoaderTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\LandingPage\\\\LandingPageLoaderTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\LandingPage\\\\LandingPageLoaderTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
-
-		-
 			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\NavigationPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\NavigationPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/NavigationPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\NavigationPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/NavigationPageTest.php
 
@@ -36598,21 +35959,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinderTest\\:\\:\\$variantIds type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Product/Configurator/ProductCombinationFinderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\QuickView\\\\MinimalQuickViewPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/QuickView/MinimalQuickViewPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\QuickView\\\\MinimalQuickViewPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/QuickView/MinimalQuickViewPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\QuickView\\\\MinimalQuickViewPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/Product/QuickView/MinimalQuickViewPageTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Product\\\\Review\\\\RatingMatrixTest\\:\\:getDatabaseMatrixAggregationArray\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -36635,62 +35981,12 @@ parameters:
 			path: src/Storefront/Test/Page/Product/Review/RatingMatrixTest.php
 
 		-
-			message: "#^Cannot call method getSlots\\(\\) on iterable\\.$#"
-			count: 6
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ProductPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ProductPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\ProductPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/ProductPageTest.php
-
-		-
 			message: "#^Cannot call method getMetaTitle\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Test/Page/SearchPageTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\SearchPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/SearchPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\SearchPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/SearchPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\SearchPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/SearchPageTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/WishlistPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\WishlistPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/WishlistPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\WishlistPageTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Page/WishlistPageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\WishlistPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/WishlistPageTest.php
 
@@ -36705,17 +36001,7 @@ parameters:
 			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\\:\\:createLanguage\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
 
@@ -36726,11 +36012,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\\:\\:getDomains\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Pagelet\\\\HeaderPageletLoaderTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Pagelet/HeaderPageletLoaderTest.php
 

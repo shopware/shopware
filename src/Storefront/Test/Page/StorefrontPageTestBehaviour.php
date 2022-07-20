@@ -71,6 +71,8 @@ trait StorefrontPageTestBehaviour
 
     /**
      * @deprecated tag:v6.5.0 This assertion is useless. All loaders that require a customer take a non-null customer parameter
+     *
+     * @param array<mixed> $queryParams
      */
     protected function assertLoginRequirement(array $queryParams = []): void
     {
@@ -107,6 +109,9 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context, new RequestDataBag());
     }
 
+    /**
+     * @param array<int|string, mixed> $config
+     */
     protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, array $config = []): ProductEntity
     {
         $id = Uuid::randomHex();
@@ -217,6 +222,9 @@ trait StorefrontPageTestBehaviour
         ]);
     }
 
+    /**
+     * @param array<string, mixed>|null $salesChannelData
+     */
     protected function createSalesChannelContext(?array $salesChannelData = null): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();

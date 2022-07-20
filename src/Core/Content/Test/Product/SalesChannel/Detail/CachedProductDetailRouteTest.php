@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -188,15 +189,24 @@ class CachedProductDetailRouteTest extends TestCase
         ];
     }
 
-    private function createProduct($data = []): void
+    /**
+     * @param array<mixed> $data
+     */
+    private function createProduct(array $data = []): void
     {
+        $ids = new IdsCollection();
+
+        $tax = $this->context->getTaxRules()->first();
+
+        static::assertInstanceOf(TaxEntity::class, $tax);
+
         $product = array_merge(
             [
                 'name' => 'test',
                 'productNumber' => 'test',
                 'stock' => 10,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $this->context->getTaxRules()->first()->getId(), 'name' => 'test', 'taxRate' => 15],
+                'tax' => ['id' => $tax->getId(), 'name' => 'test', 'taxRate' => 15],
                 'visibilities' => [[
                     'salesChannelId' => $this->context->getSalesChannelId(),
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,

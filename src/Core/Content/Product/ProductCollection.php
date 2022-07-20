@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
@@ -14,6 +15,9 @@ use Shopware\Core\System\Unit\UnitCollection;
  */
 class ProductCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getParentIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -28,6 +32,9 @@ class ProductCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getTaxIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -42,6 +49,9 @@ class ProductCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getManufacturerIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -56,6 +66,9 @@ class ProductCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getUnitIds(): array
     {
         return $this->fmap(function (ProductEntity $product) {
@@ -97,12 +110,17 @@ class ProductCollection extends EntityCollection
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPriceIds(): array
     {
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $ids[] = $element->getPrices()->getIds();
+            if ($element->getPrices() !== null) {
+                $ids[] = $element->getPrices()->getIds();
+            }
         }
 
         return array_merge(...$ids);
@@ -113,21 +131,25 @@ class ProductCollection extends EntityCollection
         $rules = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $rules[] = $element->getPrices();
+            /** @var ProductPriceCollection $prices */
+            $prices = $element->getPrices();
+
+            $rules[] = (array) $prices;
         }
 
-        $rules = array_merge(...$rules);
+        /** @var array<ProductPriceEntity> $productPriceEntities */
+        $productPriceEntities = array_merge(...$rules);
 
-        return new ProductPriceCollection($rules);
+        return new ProductPriceCollection($productPriceEntities);
     }
 
     /**
-     * @param array<string> $optionIds
+     * @param list<string> $optionIds
      */
     public function filterByOptionIds(array $optionIds): self
     {
         return $this->filter(function (ProductEntity $product) use ($optionIds) {
-            $ids = $product->getOptionIds();
+            $ids = $product->getOptionIds() ?? [];
             $same = array_intersect($ids, $optionIds);
 
             return \count($same) === \count($optionIds);

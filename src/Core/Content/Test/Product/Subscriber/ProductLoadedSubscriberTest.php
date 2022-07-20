@@ -32,7 +32,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use function array_keys;
 use function array_values;
@@ -108,108 +107,11 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider loadProductDataProvider
-     */
-    public function testItSetsDefaultAsExpected(IdsCollection $ids, string $expectedCmsPageId, ?string $cmsPageId = null): void
-    {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $cmsPageType = 'product_detail';
-        $this->createCmsPage($ids->get('overall-default'), $cmsPageType);
-        $this->createCmsPage($ids->get('different-cms-page'), $cmsPageType);
-
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $ids->get('overall-default'));
-
-        $productId = $this->createProduct($cmsPageId);
-        $criteria = new Criteria([$productId]);
-
-        /** @var ProductEntity $product */
-        $product = $this->getContainer()
-            ->get('product.repository')
-            ->search($criteria, $ids->getContext())
-            ->first();
-
-        static::assertEquals($expectedCmsPageId, $product->getCmsPageId());
-    }
-
-    /**
-     * @dataProvider loadSalesChannelProductDataProvider
-     */
-    public function testItSetsSalesChannelDefaultAsExpected(IdsCollection $ids, string $expectedCmsPageId, ?string $salesChannelDefault = null, ?string $cmsPageId = null): void
-    {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
-        $cmsPageType = 'product_detail';
-        $this->createCmsPage($ids->get('overall-default'), $cmsPageType);
-        $this->createCmsPage($ids->get('different-cms-page'), $cmsPageType);
-
-        if ($salesChannelDefault) {
-            $this->createCmsPage($salesChannelDefault, $cmsPageType);
-        }
-
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $ids->get('overall-default'));
-        $systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $salesChannelDefault, TestDefaults::SALES_CHANNEL);
-
-        $productId = $this->createProduct($cmsPageId);
-        $criteria = new Criteria([$productId]);
-
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->getContainer()
-            ->get('sales_channel.product.repository')
-            ->search($criteria, $salesChannelContext)
-            ->first();
-
-        static::assertEquals($expectedCmsPageId, $salesChannelProduct->getCmsPageId());
-    }
-
-    public function loadProductDataProvider(): \Generator
-    {
-        $ids = new IdsCollection();
-
-        yield 'It uses default if none is given' => [
-            $ids,
-            $ids->get('overall-default'),
-            null,
-        ];
-
-        yield 'It does not set cms page id if already given' => [
-            $ids,
-            $ids->get('different-cms-page'),
-            $ids->get('different-cms-page'),
-        ];
-    }
-
-    public function loadSalesChannelProductDataProvider(): \Generator
-    {
-        $ids = new IdsCollection();
-
-        yield 'It uses default if none is given' => [
-            $ids,
-            $ids->get('overall-default'),
-            null,
-        ];
-
-        yield 'It uses overall default if no salesChannel default is given' => [
-            $ids,
-            $ids->get('overall-default'),
-            null,
-        ];
-
-        yield 'It does not set cms page id if already given' => [
-            $ids,
-            $ids->get('different-cms-page'),
-            $ids->get('sales-channel-default'),
-            $ids->get('different-cms-page'),
-        ];
-    }
-
-    /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
@@ -236,14 +138,17 @@ class ProductLoadedSubscriberTest extends TestCase
         );
         $subscriber->loaded($productLoadedEvent);
 
-        /** @var PropertyGroupCollection $propertyGroupCollection */
-        $propertyGroupCollection = $productEntity->getSortedProperties();
-        $sortedProperties = $propertyGroupCollection->getElements();
+        $sortedPropertiesCollection = $productEntity->getSortedProperties();
+
+        static::assertInstanceOf(PropertyGroupCollection::class, $sortedPropertiesCollection);
+
+        $sortedProperties = $sortedPropertiesCollection->getElements();
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
-            /** @var PropertyGroupOptionCollection $propertyGroupOptionCollection */
-            $propertyGroupOptionCollection = $sortedProperties[$expectedGroupKey]->getOptions();
-            $optionElements = $propertyGroupOptionCollection->getElements();
+            $optionElementsCollection = $sortedProperties[$expectedGroupKey]->getOptions();
+
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElementsCollection);
+            $optionElements = $optionElementsCollection->getElements();
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
@@ -262,6 +167,10 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
@@ -312,6 +221,9 @@ class ProductLoadedSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function propertyCases(): array
     {
         $ids = new TestDataCollection();
@@ -463,6 +375,11 @@ class ProductLoadedSubscriberTest extends TestCase
      * @param non-empty-array<string> $languageChain
      *
      * @dataProvider variationCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<string> $languageChain
+     * @param array<string> $language
      */
     public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
@@ -504,6 +421,9 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertEquals($expected, $variation);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function variationCases(): array
     {
         $ids = new TestDataCollection();
@@ -1182,6 +1102,10 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider optionCases
+     *
+     * @param array<mixed> $product
+     * @param array<string, string> $expected
+     * @param array<string, string> $language
      */
     public function testOptionSorting(array $product, array $expected, Criteria $criteria, array $language): void
     {
@@ -1212,6 +1136,9 @@ class ProductLoadedSubscriberTest extends TestCase
 
         /** @var PropertyGroupOptionCollection $options */
         $options = $productEntity->getOptions();
+
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
+
         $names = $options->map(function (PropertyGroupOptionEntity $option) {
             return [
                 'name' => $option->getName(),
@@ -1221,6 +1148,9 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertEquals($expected, array_values($names));
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function optionCases(): array
     {
         $ids = new TestDataCollection();
@@ -1316,12 +1246,6 @@ class ProductLoadedSubscriberTest extends TestCase
         $taxId = $this->getContainer()->get(Connection::class)
             ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
-        /** @var string $itemRoundingJson */
-        $itemRoundingJson = json_encode(new CashRoundingConfig(3, 0.01, true));
-
-        /** @var string $totalRoundingJson */
-        $totalRoundingJson = json_encode(new CashRoundingConfig(3, 0.01, true));
-
         $this->getContainer()->get('currency.repository')
             ->create([
                 [
@@ -1332,8 +1256,8 @@ class ProductLoadedSubscriberTest extends TestCase
                     'symbol' => 'XXX',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 3,
-                    'itemRounding' => json_decode($itemRoundingJson, true),
-                    'totalRounding' => json_decode($totalRoundingJson, true),
+                    'itemRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
+                    'totalRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
                 ],
             ], Context::createDefaultContext());
 
@@ -1449,38 +1373,16 @@ class ProductLoadedSubscriberTest extends TestCase
         }
     }
 
-    private function createProduct(?string $cmsPageId = null): string
+    /**
+     * @throws \JsonException
+     *
+     * @return array<mixed>
+     */
+    private function objectToArray(object $obj): array
     {
-        $productId = Uuid::randomHex();
+        $jsonString = \json_encode($obj, \JSON_THROW_ON_ERROR);
 
-        $product = [
-            'id' => $productId,
-            'cmsPageId' => $cmsPageId,
-            'productNumber' => Uuid::randomHex(),
-            'stock' => 1,
-            'name' => 'product',
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'name'],
-            'visibilities' => [[
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-            ]],
-        ];
-
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        return $productId;
-    }
-
-    private function createCmsPage(string $cmsPageId, string $type): void
-    {
-        $cmsPage = [
-            'id' => $cmsPageId,
-            'name' => 'test page',
-            'type' => $type,
-        ];
-
-        $this->getContainer()->get('cms_page.repository')->create([$cmsPage], Context::createDefaultContext());
+        return \json_decode($jsonString, true);
     }
 }
 

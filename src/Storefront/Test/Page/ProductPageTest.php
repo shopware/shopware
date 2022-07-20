@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -135,6 +137,8 @@ class ProductPageTest extends TestCase
 
     public function testItLoadsReviews(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
 
@@ -155,6 +159,8 @@ class ProductPageTest extends TestCase
 
     public function testItLoadsReviewsWithCustomer(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $product = $this->getRandomProduct($context);
 
@@ -340,23 +346,26 @@ class ProductPageTest extends TestCase
         static::assertIsIterable($cmsPage->getSections());
         static::assertNotNull($cmsPage->getSections()->first());
         static::assertIsIterable($cmsPage->getSections()->first()->getBlocks());
-        static::assertIsIterable($cmsPage->getSections()->first()->getBlocks()->getSlots());
-        static::assertNotNull($cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId));
-        static::assertNotNull($cmsPage->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId));
+
+        $blocks = $cmsPage->getSections()->first()->getBlocks();
+        static::assertInstanceOf(CmsBlockCollection::class, $blocks);
+        static::assertIsIterable($blocks->getSlots());
+        static::assertNotNull($blocks->getSlots()->get($firstSlotId));
+        static::assertNotNull($blocks->getSlots()->get($secondSlotId));
 
         static::assertEquals(
             $productCmsPageData['slotConfig'][$firstSlotId],
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getConfig()
+            $blocks->getSlots()->get($firstSlotId)->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getFieldConfig()
+            $blocks->getSlots()->get($firstSlotId)->getFieldConfig()
         );
 
         static::assertEquals(
             $productCmsPageData['slotConfig'][$secondSlotId],
-            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId)->getConfig()
+            $blocks->getSlots()->get($secondSlotId)->getConfig()
         );
     }
 

@@ -355,11 +355,6 @@ class ProductEntity extends Entity
     protected $cmsPageId;
 
     /**
-     * @var bool
-     */
-    protected $cmsPageIdSwitched = false;
-
-    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -1029,16 +1024,6 @@ class ProductEntity extends Entity
     /**
      * @return array<string, array<string, array<string, string>>>|null
      */
-    public function getCmsPageIdSwitched(): bool
-    {
-        return $this->cmsPageIdSwitched;
-    }
-
-    public function setCmsPageIdSwitched(bool $switched): void
-    {
-        $this->cmsPageIdSwitched = $switched;
-    }
-
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;

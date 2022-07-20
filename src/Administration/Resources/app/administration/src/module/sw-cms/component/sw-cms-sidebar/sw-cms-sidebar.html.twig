@@ -538,6 +538,28 @@
             {% endblock %}
         </div>
         {% endblock %}
+
+        <div
+            v-if="showDefaultLayoutSelection"
+            class="sw-cms-sidebar__layout-set-as-default-content"
+        >
+            <h3 class="sw-cms-sidebar__layout-set-as-default-headline">
+                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.headline') }}
+            </h3>
+
+            <p class="sw-cms-sidebar__layout-set-as-default-info-text">
+                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.infoText') }}
+            </p>
+
+            <sw-button
+                variant="ghost"
+                size="small"
+                class="sw-cms-sidebar__layout-set-as-default-open"
+                @click="onOpenLayoutSetAsDefault"
+            >
+                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.actionSetAsDefaultLayout') }}
+            </sw-button>
+        </div>
     </sw-sidebar-item>
     {% endblock %}
 

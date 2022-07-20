@@ -126,6 +126,7 @@ class ProductConfiguratorLoader
                 $options = new PropertyGroupOptionCollection();
                 $group->setOptions($options);
             }
+            $options->add($option);
 
             $options->add($option);
 
@@ -160,11 +161,9 @@ class ProductConfiguratorLoader
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
             $options = $group->getOptions();
-
             if ($options === null) {
                 continue;
             }
-
             $options->sort(
                 static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
                     $configuratorSettingA = $a->getConfiguratorSetting();
@@ -233,19 +232,20 @@ class ProductConfiguratorLoader
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<int|string, string>
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
         $keyMap = $groups->getOptionIdMap();
 
+        $optionIds = $product->getOptionIds() ?? [];
         $current = [];
 
         if ($product->getOptionIds() === null) {
             return $current;
         }
 
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($optionIds as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

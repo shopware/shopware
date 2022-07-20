@@ -1,24 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_5\Migration1651172963SetProductCmsPageToNullIfDefaultIsSet;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
-/** @internal */
+/**
+ * @internal
+ * @covers \Shopware\Core\Migration\V6_5\Migration1651172963SetProductCmsPageToNullIfDefaultIsSet
+ */
 class Migration1651172963SetProductCmsPageToNullIfDefaultIsSetTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 
     public function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testItSetsProductCmsPageIdToNull(): void
@@ -39,8 +43,8 @@ class Migration1651172963SetProductCmsPageToNullIfDefaultIsSetTest extends TestC
         static::assertEquals(1, $countAffectedRows);
 
         // should work as expected if executed multiple times
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         $result = $this->connection->fetchOne('
             SELECT id

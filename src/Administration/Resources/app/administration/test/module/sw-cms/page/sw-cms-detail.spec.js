@@ -53,7 +53,23 @@ function createWrapper() {
             'sw-loader': true,
             'sw-cms-section': true,
             'sw-cms-layout-assignment-modal': true,
-            'sw-cms-missing-element-modal': true
+            'sw-cms-missing-element-modal': true,
+            'sw-button': true,
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal-stub">
+                        <slot></slot>
+
+                        <div class="modal-footer">
+                            <slot name="modal-footer"></slot>
+                        </div>
+                    </div>
+                `
+            },
+            'sw-confirm-modal': {
+                template: '<div></div>',
+                props: ['text']
+            }
         },
         mocks: {
             $route: { params: { id: '1a' } },
@@ -87,7 +103,8 @@ function createWrapper() {
                 }
             },
             appCmsService: {},
-            cmsDataResolverService: {}
+            cmsDataResolverService: {},
+            systemConfigApiService: {}
         }
     });
 }
@@ -457,5 +474,65 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(State.currentDemoEntity).toMatchObject({ id: productID });
         expect(State.currentDemoProducts).toEqual([]);
+    });
+
+    it('should allow setting the default layout', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const idStub = 'some-id';
+        await wrapper.setData({
+            page: { id: idStub }
+        });
+
+        wrapper.vm.createNotificationError = () => {};
+
+        const saveSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveSpy;
+
+        expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
+        wrapper.find('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        wrapper.find('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('confirm');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        expect(saveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should allow setting the default layout', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.createNotificationError = () => {};
+
+        expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
+        wrapper.find('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        const confirmModal = wrapper.find('.sw-cms-detail__confirm-set-as-default-modal');
+
+        expect(confirmModal.props('text')).toBe('sw-cms.components.setDefaultLayoutModal.infoText');
+
+        confirmModal.vm.$emit('close');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        wrapper.find('sw-cms-sidebar-stub').vm.$emit('open-layout-set-as-default');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        wrapper.find('.sw-cms-detail__confirm-set-as-default-modal').vm.$emit('cancel');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
     });
 });

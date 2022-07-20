@@ -16,11 +16,10 @@ class Migration1651172963SetProductCmsPageToNullIfDefaultIsSet extends Migration
 
     public function update(Connection $connection): void
     {
-        // implement update
+        $connection->executeStatement('UPDATE product SET cms_page_id = null WHERE cms_page_id = :defaultCmsPageId;', ['defaultCmsPageId' => Uuid::fromHexToBytes(Defaults::CMS_PRODUCT_DETAIL_PAGE)]);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('UPDATE product SET cms_page_id = null WHERE cms_page_id = :defaultCmsPageId;', ['defaultCmsPageId' => Uuid::fromHexToBytes(Defaults::CMS_PRODUCT_DETAIL_PAGE)]);
     }
 }

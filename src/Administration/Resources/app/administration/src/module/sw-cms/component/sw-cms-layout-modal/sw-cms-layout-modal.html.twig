@@ -114,9 +114,10 @@
                     <sw-cms-list-item
                         :key="cmsPage.id"
                         :page="cmsPage"
+                        :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
                         @item-click="selectItem(cmsPage.id, cmsPage)"
                     />
-                {% endblock %}
+                    {% endblock %}
 
                 {% endblock %}
                 </div>
@@ -172,7 +173,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_type %}
             <template #column-type="{ item }">
-                {{ pageTypes[item.type] }}
+                {{ getPageType(item) }}
             </template>
             {% endblock %}
 

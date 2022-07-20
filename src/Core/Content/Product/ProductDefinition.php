@@ -77,7 +77,7 @@ class ProductDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product';
 
-    public const CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT = 'core.cms.default.product.product_detail';
+    public const CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT = 'core.cms.default_product_cms_page';
 
     public function getEntityName(): string
     {

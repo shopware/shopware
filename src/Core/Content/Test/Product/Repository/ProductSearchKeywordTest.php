@@ -45,8 +45,10 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
-        static::assertContains('Search Keyword', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
+        static::assertContains('Search Keyword', $customSearchKeywords);
     }
 
     public function testEditProductWithSearchKeyword(): void
@@ -60,7 +62,9 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
 
         $update = [
             'id' => $id,
@@ -74,10 +78,15 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getCustomSearchKeywords());
-        static::assertContains('Search Keyword Update', $product->getCustomSearchKeywords());
+        $customSearchKeywords = $product->getCustomSearchKeywords();
+        static::assertIsArray($customSearchKeywords);
+        static::assertContains('YTN', $customSearchKeywords);
+        static::assertContains('Search Keyword Update', $customSearchKeywords);
     }
 
+    /**
+     * @param array<string> $searchKeyword
+     */
     private function createProduct(string $id, array $searchKeyword): void
     {
         $data = [

@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'feature', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -38,6 +38,10 @@ Component.register('sw-cms-list', {
             listMode: 'grid',
             assignablePageTypes: ['categories', 'products'],
             searchConfigEntity: 'cms_page',
+            showLayoutSetAsDefaultModal: false,
+            defaultCategoryId: '',
+            defaultProductId: '',
+            newDefaultLayout: undefined,
         };
     },
 
@@ -158,6 +162,11 @@ Component.register('sw-cms-list', {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             this.loadGridUserSettings();
+
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
+            }
+
             this.setPageContext();
             this.resetList();
         },
@@ -250,9 +259,41 @@ Component.register('sw-cms-list', {
             ));
         },
 
-        /**
-         * Determines whether a given CMS layout ("page") is already in use.
-         */
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+            this.defaultProductId = response['core.cms.default_product_cms_page'];
+        },
+
+        onOpenLayoutSetAsDefault(page) {
+            this.newDefaultLayout = { id: page.id, type: page.type };
+            this.showLayoutSetAsDefaultModal = true;
+        },
+
+        onCloseLayoutSetAsDefault() {
+            this.newDefaultLayout = undefined;
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async onConfirmLayoutSetAsDefault() {
+            let configKey = 'category_cms_page';
+
+            const { id, type } = this.newDefaultLayout;
+            if (type === 'product_detail') {
+                this.defaultProductId = id;
+                configKey = 'product_cms_page';
+            } else {
+                this.defaultCategoryId = id;
+            }
+
+            await this.systemConfigApiService.saveValues({
+                [`core.cms.default_${configKey}`]: id,
+            });
+
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
         layoutIsLinked(pageId) {
             return this.linkedLayouts.some(page => page.id === pageId);
         },
@@ -464,6 +505,12 @@ Component.register('sw-cms-list', {
             };
         },
 
+        getPageType(page) {
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
+            return isDefault ? `${defaultText} - ${this.pageTypes[page.type]}` : this.pageTypes[page.type];
+        },
+
         getPageCategoryCount(page) {
             return Object.values(this.associatedCategoryBuckets).find((bucket) => {
                 return bucket.key === page.id;
@@ -474,6 +521,11 @@ Component.register('sw-cms-list', {
             return Object.values(this.associatedProductBuckets).find((bucket) => {
                 return bucket.key === page.id;
             })?.productCount?.count || 0;
+        },
+
+        getPageCount(page) {
+            const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
+            return pageCount > 0 ? pageCount : '-';
         },
 
         optionContextDeleteDisabled(page) {

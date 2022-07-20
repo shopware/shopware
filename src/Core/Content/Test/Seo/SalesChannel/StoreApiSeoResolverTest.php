@@ -48,7 +48,10 @@ class StoreApiSeoResolverTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true);
 
         static::assertNull($response['seoUrls']);
         static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
@@ -66,7 +69,10 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true);
 
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
@@ -88,7 +94,10 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true);
 
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);

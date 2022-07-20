@@ -75,7 +75,10 @@ class CustomerBuilder
         $this->defaultShippingAddress($shippingAddress);
 
         $this->defaultPaymentMethodId = self::connection()->fetchOne(
-            'SELECT LOWER(HEX(payment_method_id)) FROM sales_channel_payment_method WHERE sales_channel_id = :id LIMIT 1',
+            'SELECT LOWER(HEX(payment_method_id))
+                   FROM sales_channel_payment_method
+                   JOIN payment_method ON sales_channel_payment_method.payment_method_id = payment_method.id
+                   WHERE sales_channel_id = :id AND payment_method.active = true LIMIT 1',
             ['id' => Uuid::fromHexToBytes($salesChannelId)]
         );
     }

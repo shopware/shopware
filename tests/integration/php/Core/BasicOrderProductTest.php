@@ -12,12 +12,12 @@ use Shopware\Tests\Integration\Common\TestShortHands;
 /**
  * @internal
  */
-class ordering_a_basic_product_Test extends TestCase
+class BasicOrderProductTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TestShortHands;
 
-    public function test_order_flow(): void
+    public function testBasicOrderFlow(): void
     {
         $product = (new ProductBuilder(new IdsCollection(), 'p1'))
             ->stock(100)
@@ -28,7 +28,6 @@ class ordering_a_basic_product_Test extends TestCase
         $product->write($this->getContainer());
 
         $context = $this->getContext();
-
         $context = $this->login($context);
 
         // now we test that the product can be added to a customers cart

@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Bench;
 
-require __DIR__ . '/../../src/Core/TestBootstrapper.php';
+require __DIR__ . '/../../../src/Core/TestBootstrapper.php';
 
 use Shopware\Core\TestBootstrapper;
 

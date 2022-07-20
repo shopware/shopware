@@ -336,7 +336,7 @@
             "@setup",
             "@e2e:prepare"
         ],
-        "phpbench": "phpbench run --ref=main --report=compressed",
+        "phpbench": "phpbench run --report=compressed",
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
@@ -439,9 +439,9 @@
              "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
              "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
              "Shopware\\Core\\Test\\": "src/Core/Test/",
-             "Shopware\\Tests\\Unit\\": "tests/unit/",
-             "Shopware\\Tests\\Integration\\": "tests/integration/",
-             "Shopware\\Tests\\Bench\\": "tests/bench/"
+             "Shopware\\Tests\\Unit\\": "tests/unit/php/",
+             "Shopware\\Tests\\Integration\\": "tests/integration/php/",
+             "Shopware\\Tests\\Bench\\": "tests/performance/bench/"
         }
     }
 }

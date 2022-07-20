@@ -17,4 +17,8 @@
     &--inline {
         display: inline;
     }
+
+    &--disabled {
+        color: $color-gray-500;
+    }
 }

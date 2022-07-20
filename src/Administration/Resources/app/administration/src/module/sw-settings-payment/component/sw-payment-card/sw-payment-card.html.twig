@@ -7,33 +7,28 @@
     <div class="sw-payment-card_content">
 
         {% block sw_payment_card_preview %}
-        <sw-media-preview-v2
-            v-if="paymentMethod.mediaId"
+        <img
+            v-if="previewUrl"
             class="sw-payment-card__preview"
-            :source="paymentMethod.mediaId"
-        />
+            :src="previewUrl"
+            :alt="paymentMethod.media.translated.alt"
+        >
         {% endblock %}
 
         {% block sw_payment_card_description %}
-        <div class="sw-settings-payments-list__description sw-payment-card__payment-method-description">
+        <div class="sw-payment-card__description">
             <span v-html="paymentMethod.translated.description"></span>
         </div>
         {% endblock %}
 
         {% block sw_payment_card_link %}
         <sw-internal-link
-            v-if="acl.can('payment.editor')"
             :router-link="{ name: 'sw.settings.payment.detail', params: { id: paymentMethod.id }}"
+            :disabled="!acl.can('payment.editor')"
             hide-icon
         >
             {{ $tc('sw-settings-payment.overview.editDetails') }}
         </sw-internal-link>
-        <span
-            v-else
-            class="sw-internal-link sw-internal-link--disabled"
-        >
-            {{ $tc('sw-settings-payment.overview.editDetails') }}
-        </span>
         {% endblock %}
 
         {% block sw_payment_card_toggle %}
@@ -41,6 +36,7 @@
             v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
             :value="paymentMethod.active"
             :disabled="!acl.can('payment.editor')"
+            :label="$tc('sw-settings-payment.overview.activeToggle')"
             @change="setPaymentMethodActive(!paymentMethod.active)"
         />
         {% endblock %}

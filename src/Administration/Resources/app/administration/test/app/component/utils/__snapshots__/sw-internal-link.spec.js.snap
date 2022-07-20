@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`components/utils/sw-internal-link should renders correctly 1`] = `
+exports[`components/utils/sw-internal-link should render correctly 1`] = `
 <a
   class="sw-internal-link"
 >
@@ -10,4 +10,16 @@ exports[`components/utils/sw-internal-link should renders correctly 1`] = `
     small=""
   />
 </a>
+`;
+
+exports[`components/utils/sw-internal-link should render correctly when disabled 1`] = `
+<span
+  class="sw-internal-link sw-internal-link--disabled"
+>
+  test internal link 
+  <sw-icon-stub
+    name="regular-long-arrow-right"
+    small=""
+  />
+</span>
 `;

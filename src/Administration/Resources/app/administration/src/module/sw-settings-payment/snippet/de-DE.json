@@ -12,6 +12,7 @@
       },
       "openSortingModalButton": "Darstellungsreihenfolge im Bestellprozess ändern",
       "editDetails": "Details bearbeiten",
+      "activeToggle": "Aktiv",
       "missingEditorPermission": "Du hast nicht die nötigen Zugriffsrechte, um Zahlarten zu bearbeiten",
       "notification": {
         "activationSuccess": "{name} wurde erfolgreich aktiviert.",

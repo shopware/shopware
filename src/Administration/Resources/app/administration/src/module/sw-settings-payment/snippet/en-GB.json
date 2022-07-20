@@ -11,7 +11,8 @@
         "link": "Switch to old design"
       },
       "openSortingModalButton": "Edit display order in checkout",
-      "editDetails": "Edit detail",
+      "editDetails": "Edit details",
+      "activeToggle": "Active",
       "missingEditorPermission": "You don't have the permissions, to edit payment methods.",
       "notification": {
         "activationSuccess": "{name} successfully activated.",

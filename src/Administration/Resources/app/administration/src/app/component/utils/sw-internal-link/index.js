@@ -41,6 +41,12 @@ Component.register('sw-internal-link', {
             default: false,
         },
 
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         hideIcon: {
             type: Boolean,
             required: false,

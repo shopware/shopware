@@ -5,42 +5,27 @@ $sw-payment-card_content-gap: 20px;
 .sw-payment-card {
     .sw-payment-card_content {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
+        column-gap: $sw-payment-card_content-gap;
     }
 
     .sw-payment-card__preview {
-        width: 80px;
-        height: 80px;
-        position: relative;
+        max-width: 40px;
+        max-height: 40px;
         flex-shrink: 0;
-        border-radius: $border-radius-default;
-        margin-right: $sw-payment-card_content-gap;
     }
 
-    .sw-payment-card__payment-method-description {
+    .sw-payment-card__description {
         flex-grow: 1;
         margin-right: 36px;
     }
 
     .sw-field--switch {
         margin: 0;
-
-        .sw-field--switch__input {
-            padding: 8px 0;
-        }
-
-        .sw-field__switch-state {
-            top: 0;
-        }
     }
 
     .sw-internal-link {
         text-decoration: underline;
         flex-shrink: 0;
-        margin: 0 $sw-payment-card_content-gap;
-    }
-
-    .sw-internal-link.sw-internal-link--disabled {
-        color: $color-gray-500;
     }
 }

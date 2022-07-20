@@ -57,8 +57,6 @@ class EntityReaderTest extends TestCase
 
     private EntityRepositoryInterface $languageRepository;
 
-    private EntityRepositoryInterface $taxRepository;
-
     private string $deLanguageId;
 
     protected function setUp(): void
@@ -113,7 +111,7 @@ class EntityReaderTest extends TestCase
             ->create([$product->build()], Context::createDefaultContext());
 
         $criteria = new Criteria();
-        $criteria->addFields(['id', 'productNumber', 'name', 'categories.name']);
+        $criteria->addFields(['productNumber', 'name', 'categories.name']);
 
         $values = $this->getContainer()
             ->get('product.repository')
@@ -627,8 +625,11 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(2, $red->getPrices());
-        static::assertInstanceOf(ProductPriceCollection::class, $red->getPrices());
+        $productPriceCollection = $red->getPrices();
+        static::assertNotNull($productPriceCollection);
+
+        static::assertCount(2, $productPriceCollection);
+        static::assertInstanceOf(ProductPriceCollection::class, $productPriceCollection);
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -714,7 +715,9 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
         static::assertInstanceOf(ProductEntity::class, $red);
-        static::assertCount(2, $red->getPrices());
+        $productPriceCollection = $red->getPrices();
+        static::assertNotNull($productPriceCollection);
+        static::assertCount(2, $productPriceCollection);
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -795,21 +798,28 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $green);
 
         //validate parent view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
-        static::assertCount(2, $parent->getCategories());
-        static::assertTrue($parent->getCategories()->has($category1));
-        static::assertTrue($parent->getCategories()->has($category3));
+        $categoryCollectionParent = $parent->getCategories();
+        static::assertNotNull($categoryCollectionParent);
+        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
+        static::assertCount(2, $categoryCollectionParent);
+        static::assertTrue($categoryCollectionParent->has($category1));
+        static::assertTrue($categoryCollectionParent->has($category3));
 
         //validate red view data contains the categories of the parent
-        static::assertCount(2, $red->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
-        static::assertTrue($red->getCategories()->has($category1));
-        static::assertTrue($red->getCategories()->has($category3));
+        $categoryCollection = $red->getCategories();
+        static::assertNotNull($categoryCollection);
+
+        static::assertCount(2, $categoryCollection);
+        static::assertInstanceOf(CategoryCollection::class, $categoryCollection);
+        static::assertTrue($categoryCollection->has($category1));
+        static::assertTrue($categoryCollection->has($category3));
 
         //validate green view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
-        static::assertCount(1, $green->getCategories());
-        static::assertTrue($green->getCategories()->has($category2));
+        $categoryCollectionGreen = $green->getCategories();
+        static::assertNotNull($categoryCollectionGreen);
+        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
+        static::assertCount(1, $categoryCollectionGreen);
+        static::assertTrue($categoryCollectionGreen->has($category2));
 
         //####
         $criteria = new Criteria([$greenId, $parentId, $redId]);
@@ -832,19 +842,20 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $green);
 
         //validate parent contains own categories
-        static::assertCount(2, $parent->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
-        static::assertTrue($parent->getCategories()->has($category1));
-        static::assertTrue($parent->getCategories()->has($category3));
+        static::assertCount(2, $categoryCollectionParent);
+        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
+        static::assertTrue($categoryCollectionParent->has($category1));
+        static::assertTrue($categoryCollectionParent->has($category3));
 
         //validate red contains no own categories
-        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
-        static::assertCount(0, $red->getCategories());
+        $redCategories = $red->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $redCategories);
+        static::assertCount(0, $redCategories);
 
         //validate green contains own categories
-        static::assertCount(1, $green->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
-        static::assertTrue($green->getCategories()->has($category2));
+        static::assertCount(1, $categoryCollectionGreen);
+        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
+        static::assertTrue($categoryCollectionGreen->has($category2));
     }
 
     public function testInheritanceWithPaginatedManyToMany(): void
@@ -919,16 +930,20 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $green);
 
         //validate parent view data contains same categories
-        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
-        static::assertCount(2, $parent->getCategories());
-        static::assertTrue($parent->getCategories()->has($category1));
-        static::assertTrue($parent->getCategories()->has($category3));
+        $parentCategories = $parent->getCategories();
+        static::assertNotNull($parentCategories);
+        static::assertInstanceOf(CategoryCollection::class, $parentCategories);
+        static::assertCount(2, $parentCategories);
+        static::assertTrue($parentCategories->has($category1));
+        static::assertTrue($parentCategories->has($category3));
 
         //validate red view data contains the categories of the parent
-        static::assertCount(2, $red->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
-        static::assertTrue($red->getCategories()->has($category1));
-        static::assertTrue($red->getCategories()->has($category3));
+        $redCategories = $red->getCategories();
+        static::assertNotNull($redCategories);
+        static::assertCount(2, $redCategories);
+        static::assertInstanceOf(CategoryCollection::class, $redCategories);
+        static::assertTrue($redCategories->has($category1));
+        static::assertTrue($redCategories->has($category3));
 
         //validate green view data contains same categories
         static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
@@ -948,15 +963,19 @@ class EntityReaderTest extends TestCase
         $green = $products->get($greenId);
 
         //validate parent contains own categories
-        static::assertCount(2, $parent->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $parent->getCategories());
-        static::assertTrue($parent->getCategories()->has($category1));
-        static::assertTrue($parent->getCategories()->has($category3));
+        $parentCategories = $parent->getCategories();
+        static::assertNotNull($parentCategories);
+        static::assertCount(2, $parentCategories);
+        static::assertInstanceOf(CategoryCollection::class, $parentCategories);
+        static::assertTrue($parentCategories->has($category1));
+        static::assertTrue($parentCategories->has($category3));
 
         //validate green contains own categories
-        static::assertCount(1, $green->getCategories());
-        static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
-        static::assertTrue($green->getCategories()->has($category2));
+        $greenCategories = $green->getCategories();
+        static::assertNotNull($greenCategories);
+        static::assertCount(1, $greenCategories);
+        static::assertInstanceOf(CategoryCollection::class, $greenCategories);
+        static::assertTrue($greenCategories->has($category2));
 
         //validate red contains no own categories
         static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
@@ -1151,11 +1170,13 @@ class EntityReaderTest extends TestCase
         /** @var CustomerEntity $customer2 */
         $customer2 = $customers->get($id2);
 
-        static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
-        static::assertCount(2, $customer1->getAddresses());
+        $customer1Addresses = $customer1->getAddresses();
+        static::assertInstanceOf(CustomerAddressCollection::class, $customer1Addresses);
+        static::assertCount(2, $customer1Addresses);
 
-        static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
-        static::assertCount(1, $customer2->getAddresses());
+        $customer2Addresses = $customer2->getAddresses();
+        static::assertInstanceOf(CustomerAddressCollection::class, $customer2Addresses);
+        static::assertCount(1, $customer2Addresses);
     }
 
     public function testLoadOneToManySupportsSorting(): void
@@ -1253,10 +1274,12 @@ class EntityReaderTest extends TestCase
         );
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
-        static::assertCount(3, $customer2->getAddresses());
+        $customerAddressCollection = $customer2->getAddresses();
+        static::assertNotNull($customerAddressCollection);
+        static::assertCount(3, $customerAddressCollection);
         static::assertEquals(
             [$addressId6, $addressId5, $addressId4],
-            array_values($customer2->getAddresses()->getIds())
+            array_values($customerAddressCollection->getIds())
         );
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1270,14 +1293,18 @@ class EntityReaderTest extends TestCase
         /** @var CustomerEntity $customer2 */
         $customer2 = $customers->get($id2);
 
+        $customer1Addresses = $customer1->getAddresses();
+        static::assertNotNull($customer1Addresses);
         static::assertEquals(
             [$addressId3, $addressId1, $addressId2],
-            array_values($customer1->getAddresses()->getIds())
+            array_values($customer1Addresses->getIds())
         );
 
+        $customer2Addresses = $customer2->getAddresses();
+        static::assertNotNull($customer2Addresses);
         static::assertEquals(
             [$addressId4, $addressId5, $addressId6],
-            array_values($customer2->getAddresses()->getIds())
+            array_values($customer2Addresses->getIds())
         );
     }
 
@@ -1521,11 +1548,13 @@ class EntityReaderTest extends TestCase
         /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
         $products = $manufacturer->getProducts();
+        static::assertNotNull($products);
 
         static::assertEquals(1, $products->count());
         static::assertInstanceOf(ProductEntity::class, $products->first());
 
         $categories = $products->first()->getCategories();
+        static::assertNotNull($categories);
         static::assertEquals(1, $categories->count());
         static::assertInstanceOf(CategoryEntity::class, $categories->first());
     }
@@ -1780,14 +1809,18 @@ class EntityReaderTest extends TestCase
         /** @var CategoryEntity $category2 */
         $category2 = $categories->get($id2);
 
+        $category1Products = $category1->getProducts();
+        static::assertNotNull($category1Products);
         static::assertEquals(
             [$id3, $id1],
-            array_values($category1->getProducts()->getIds())
+            array_values($category1Products->getIds())
         );
 
+        $category2Products = $category2->getProducts();
+        static::assertNotNull($category2Products);
         static::assertEquals(
             [$id3, $id2],
-            array_values($category2->getProducts()->getIds())
+            array_values($category2Products->getIds())
         );
     }
 
@@ -1943,7 +1976,9 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($product, 'Product has not been created.');
         static::assertNotNull($product->getCover(), 'Cover was not fetched.');
         static::assertNotNull($product->getCover()->getMedia(), 'Media for cover was not fetched.');
-        static::assertCount(3, $product->getCover()->getMedia()->getThumbnails()->getElements(), 'Thumbnails were not fetched or is incomplete.');
+        $mediaThumbnailCollection = $product->getCover()->getMedia()->getThumbnails();
+        static::assertNotNull($mediaThumbnailCollection);
+        static::assertCount(3, $mediaThumbnailCollection->getElements(), 'Thumbnails were not fetched or is incomplete.');
     }
 
     public function testAddTranslationsAssociation(): void
@@ -1971,14 +2006,16 @@ class EntityReaderTest extends TestCase
 
         /** @var CategoryEntity $cat */
         $cat = $repo->search($criteria, Context::createDefaultContext())->first();
-        static::assertCount(2, $cat->getTranslations());
+        $catTranslations = $cat->getTranslations();
+        static::assertNotNull($catTranslations);
+        static::assertCount(2, $catTranslations);
 
         /** @var CategoryTranslationEntity $transDe */
-        $transDe = $cat->getTranslations()->filterByLanguageId($this->deLanguageId)->first();
+        $transDe = $catTranslations->filterByLanguageId($this->deLanguageId)->first();
         static::assertEquals('deutsch', $transDe->getName());
 
         /** @var CategoryTranslationEntity $transSystem */
-        $transSystem = $cat->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        $transSystem = $catTranslations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertEquals('system', $transSystem->getName());
     }
 
@@ -2243,7 +2280,9 @@ class EntityReaderTest extends TestCase
         /** @var CategoryEntity $result */
         $result = $this->categoryRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $urls = $result->getSeoUrls()->map(function (SeoUrlEntity $e) {
+        $seoUrlCollection = $result->getSeoUrls();
+        static::assertNotNull($seoUrlCollection);
+        $urls = $seoUrlCollection->map(function (SeoUrlEntity $e) {
             return $e->getSeoPathInfo();
         });
 
@@ -2275,7 +2314,9 @@ class EntityReaderTest extends TestCase
         $product = $this->productRepository->search($criteria, $context)->first();
 
         static::assertNotNull($product);
-        static::assertCount(0, $product->getMedia());
+        $productMediaCollection = $product->getMedia();
+        static::assertNotNull($productMediaCollection);
+        static::assertCount(0, $productMediaCollection);
     }
 
     public function casesToManyPaginated(): iterable
@@ -2433,10 +2474,14 @@ class EntityReaderTest extends TestCase
 
         $product = $productRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertNotNull($product->getMedia());
+        $media = $product->getMedia();
+        static::assertNotNull($media);
 
-        static::assertSame($expectedMedia, array_values($product->getMedia()->map(static function (ProductMediaEntity $m) {
-            return $m->getMedia()->getFileName();
+        static::assertSame($expectedMedia, array_values($media->map(static function (ProductMediaEntity $m) {
+            $mediaEntity = $m->getMedia();
+            static::assertNotNull($mediaEntity);
+
+            return $mediaEntity->getFileName();
         })));
     }
 

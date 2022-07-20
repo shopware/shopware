@@ -1966,16 +1966,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrl/SeoUrlEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:skipUpdate\\(\\) has parameter \\$existing with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:skipUpdate\\(\\) has parameter \\$seoUrl with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
 			message: "#^Cannot access an offset on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
@@ -5226,16 +5216,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
 		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:resolveField\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
 			message: "#^Call to an undefined method object\\:\\:getEntityClass\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
@@ -7494,86 +7474,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdaterTest\\:\\:fetch\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method filterByLanguageId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\Aggregate\\\\CategoryTranslation\\\\CategoryTranslationCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Reader\\\\EntityReaderTest\\:\\:\\$taxRepository is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
 
 		-
 			message: "#^Cannot call method getCount\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\Bucket\\|null\\.$#"
@@ -11030,11 +10930,6 @@ parameters:
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
 
 		-
-			message: "#^Cannot call method filterBySalesChannelId\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\MainCategory\\\\MainCategoryCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:__construct\\(\\) has parameter \\$arguments with no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
@@ -11458,26 +11353,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$expectedCount of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects int, int\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
-
-		-
-			message: "#^Cannot call method getCategoryId\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\MainCategory\\\\MainCategoryEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
-
-		-
-			message: "#^Cannot call method getMainCategories\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
-
-		-
-			message: "#^Cannot call method getSeoUrls\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/MainCategory/MainCategoryExtensionTest.php
 
 		-
 			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlCollection\\|null\\.$#"

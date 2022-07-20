@@ -29,6 +29,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Singl
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestDependencySubDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestRootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestSubDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDependencyDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationMappingDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -309,11 +312,37 @@ class EntityHydratorTest extends TestCase
         $structsWithoutWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
         static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
+        static::assertArrayHasKey('zipcode', $structsWithoutWarehouseZipcodeHydration->first()->get('warehouse')->all());
+        static::assertNull($structsWithoutWarehouseZipcodeHydration->first()->get('warehouse')->all()['zipcode']);
 
         $hydrator = new EntityHydrator($this->getContainer());
         $structsWithWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
-        static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
+        static::assertArrayHasKey('zipcode', $structsWithWarehouseZipcodeHydration->first()->get('warehouse')->all());
+        static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('warehouse')->all()['zipcode']);
+    }
+
+    public function testNotLoadedManyToManyAssociationsAreInitializedWithNullForArrayEntities(): void
+    {
+        $definition = $this->registerDefinition(
+            ToManyAssociationDefinition::class,
+            ToManyAssociationDependencyDefinition::class,
+            ToManyAssociationMappingDefinition::class
+        );
+
+        $id = Uuid::randomBytes();
+
+        $context = $this->createContext();
+
+        $rowWithoutToManyHydration = [
+            'test.id' => $id,
+        ];
+
+        $hydrator = new EntityHydrator($this->getContainer());
+        $structsWithoutToManyHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutToManyHydration], 'test', $context);
+        static::assertEquals(Uuid::fromBytesToHex($id), $structsWithoutToManyHydration->first()->getId());
+        static::assertArrayHasKey('toMany', $structsWithoutToManyHydration->first()->all());
+        static::assertNull($structsWithoutToManyHydration->first()->all()['toMany']);
     }
 
     private function addLanguage(string $id, ?string $rootLanguage): void

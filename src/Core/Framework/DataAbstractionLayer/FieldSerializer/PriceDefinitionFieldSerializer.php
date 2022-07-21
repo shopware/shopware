@@ -39,7 +39,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry
     ) {
-        parent::__construct($compositeHandler, $validator);
+        parent::__construct($validator, $compositeHandler);
 
         $this->ruleConditionRegistry = $ruleConditionRegistry;
     }

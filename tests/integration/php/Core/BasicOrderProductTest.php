@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core;
 
@@ -39,8 +39,7 @@ class BasicOrderProductTest extends TestCase
 
         $this->assertLineItemTotalPrice($cart, $product->id, 100);
 
-        $orderId = $this->mailListener(function(MailEventListener $listener) use ($cart, $context) {
-
+        $orderId = $this->mailListener(function (MailEventListener $listener) use ($cart, $context) {
             $orderId = $this->order($cart, $context);
 
             $listener->assertSent('order_confirmation_mail');

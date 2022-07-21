@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Bench\Cases;
 
+use PhpBench\Attributes as Bench;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Tests\Bench\BenchCase;
-use PhpBench\Attributes as Bench;
 use Symfony\Component\HttpFoundation\Request;
 
 class CategoryBench extends BenchCase

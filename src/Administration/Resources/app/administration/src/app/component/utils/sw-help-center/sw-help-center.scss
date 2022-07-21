@@ -52,5 +52,17 @@
     .sw-help-center__item h4 {
         margin: 0;
         font-weight: $font-weight-bold;
+        background-color: $color-gray-50;
+    }
+
+    .sw-help-center__documentation-item h4 {
+        margin: 0;
+        font-weight: $font-weight-bold;
+        line-height: 25px;
+    }
+
+    .sw-help-center__item {
+        display: flex;
+        gap: 16px;
     }
 }

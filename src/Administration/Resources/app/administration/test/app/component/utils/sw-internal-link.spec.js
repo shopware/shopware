@@ -26,8 +26,13 @@ describe('components/utils/sw-internal-link', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', () => {
+    it('should render correctly', () => {
         const wrapper = setup();
+        expect(wrapper.element).toMatchSnapshot();
+    });
+
+    it('should render correctly when disabled', () => {
+        const wrapper = setup({ disabled: true });
         expect(wrapper.element).toMatchSnapshot();
     });
 

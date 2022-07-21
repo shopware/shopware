@@ -44,8 +44,8 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const editLink = wrapper.find('.sw-internal-link');
-        expect(editLink.classes()).toContain('sw-internal-link--disabled');
+        const editLink = wrapper.find('sw-internal-link-stub');
+        expect(editLink.attributes().disabled).toBeTruthy();
 
         const activeToggle = wrapper.find('sw-switch-field-stub');
         expect(activeToggle.attributes().disabled).toBeTruthy();
@@ -56,7 +56,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         await wrapper.vm.$nextTick();
 
         const editLink = wrapper.find('sw-internal-link-stub');
-        expect(editLink.exists()).toBeTruthy();
+        expect(editLink.attributes().disabled).toBeFalsy();
 
         const activeToggle = wrapper.find('sw-switch-field-stub');
         expect(activeToggle.attributes().disabled).toBeFalsy();

@@ -15,6 +15,12 @@ Component.register('sw-payment-card', {
         },
     },
 
+    computed: {
+        previewUrl() {
+            return this.paymentMethod.media ? this.paymentMethod.media.url : null;
+        },
+    },
+
     methods: {
         async setPaymentMethodActive(active) {
             this.paymentMethod.active = active;

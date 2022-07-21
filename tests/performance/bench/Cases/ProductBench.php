@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Tests\Bench\BenchCase;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 class ProductBench extends BenchCase
 {
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]

@@ -27,6 +27,9 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
 class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**

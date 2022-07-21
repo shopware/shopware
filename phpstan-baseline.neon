@@ -11730,41 +11730,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileConfigLoaderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactoryTest\\:\\:getBundle\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest\\.php\\:117\\:\\:__construct\\(\\) has parameter \\$basePath with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest\\.php\\:117\\:\\:__construct\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest\\.php\\:126\\:\\:__construct\\(\\) has parameter \\$basePath with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest\\.php\\:126\\:\\:__construct\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactoryTest\\:\\:stripProjectDir\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$basePath of method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactoryTest\\:\\:getBundle\\(\\) expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
 			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\|null\\.$#"
 			count: 3
 			path: src/Storefront/Test/Theme/ThemeAppLifecycleHandlerTest.php

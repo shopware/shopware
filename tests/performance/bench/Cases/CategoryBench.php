@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Tests\Bench\BenchCase;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 class CategoryBench extends BenchCase
 {
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]

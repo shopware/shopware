@@ -8,6 +8,9 @@ use Shopware\Core\TestBootstrapper;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 class BenchExtension implements ExtensionInterface
 {
     public function load(Container $container): void

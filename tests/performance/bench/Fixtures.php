@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\FixtureLoader;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 class Fixtures
 {
     private static ?IdsCollection $ids = null;
@@ -30,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
   `key` varchar(50) NOT NULL,
   `ids` longblob NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;        
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ';
 
         KernelLifecycleManager::getKernel()

@@ -144,9 +144,6 @@ PHP unit coverage:
         APP_ENV: "test"
         FEATURE_ALL: "false"
     rules:
-        # do not run in merge trains - PHP Full should cover all tests
-        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
-          when: never
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - when: always

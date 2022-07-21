@@ -17,7 +17,7 @@ All blocks of this template are available in the template which renders this tem
         <tr class="line-item">
             {% block document_line_item_table_shipping_position %}
                 {% if config.displayLineItemPosition %}
-                    <td>{{ position }}</td>
+                    <td>{{ nestedLineItems.count + 1 }}</td>
                 {% endif %}
             {% endblock %}
 

@@ -8,7 +8,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\TestShortHands;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Common\TestShortHands;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class ProductCartTest extends TestCase
         // the product builder has a helper function to write the product values to the database, including all dependencies (rules, currencies, properties, etc)
         $builder->write($this->getContainer());
 
-        $context = $this->createContext($contextOptions);
+        $context = $this->getContext(Uuid::randomHex(), $contextOptions);
 
         // `addProductToCart` is a small generic helper method to create a product and add it into the cart within as one liner
         $cart = $this->addProductToCart($builder->id, $context);

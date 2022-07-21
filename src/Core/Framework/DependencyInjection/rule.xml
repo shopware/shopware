@@ -35,6 +35,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\SimpleRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Rule\SalesChannelRule">
             <tag name="shopware.rule.definition"/>
         </service>

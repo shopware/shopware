@@ -170,6 +170,7 @@
         "mbezhanov/faker-provider-collection": "~2.0.1",
         "nikic/php-parser": "~4.13.2",
         "opis/json-schema": "~1.0.19",
+        "phpbench/phpbench": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpstan/extension-installer": "^1.1.0",
         "phpstan/phpstan": "1.8.0",
@@ -335,7 +336,7 @@
             "@setup",
             "@e2e:prepare"
         ],
-
+        "phpbench": "phpbench run --report=compressed",
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
@@ -418,16 +419,17 @@
             "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
         },
         "exclude-from-classmap": [
-            "src/**/Test/"
+            "src/**/Test/",
+            "tests/"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
-             "Shopware\\Administration\\Test\\": "src/Administration/Test",
-             "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
-             "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
-             "Shopware\\Docs\\Test\\": "src/Docs/Test",
+            "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
+            "Shopware\\Administration\\Test\\": "src/Administration/Test",
+            "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
+            "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
+            "Shopware\\Docs\\Test\\": "src/Docs/Test",
              "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
              "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
              "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
@@ -436,7 +438,10 @@
              "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
              "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
              "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
-             "Shopware\\Core\\Test\\": "src/Core/Test/"
+             "Shopware\\Core\\Test\\": "src/Core/Test/",
+             "Shopware\\Tests\\Unit\\": "tests/unit/php/",
+             "Shopware\\Tests\\Integration\\": "tests/integration/php/",
+             "Shopware\\Tests\\Bench\\": "tests/performance/bench/"
         }
     }
 }

@@ -27,6 +27,22 @@ class Feature
         return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
     }
 
+    /**
+     * @return mixed|null
+     */
+    public static function fake(array $features, \Closure $closure)
+    {
+        $before = self::$registeredFeatures;
+
+        self::$registeredFeatures = $features;
+
+        $result = $closure();
+
+        self::$registeredFeatures = $before;
+
+        return $result;
+    }
+
     public static function isActive(string $feature): bool
     {
         $env = EnvironmentHelper::getVariable('APP_ENV', 'prod');

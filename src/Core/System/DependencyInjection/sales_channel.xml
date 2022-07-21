@@ -56,7 +56,7 @@
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_group.repository"/>
             <argument type="service" id="customer_address.repository"/>

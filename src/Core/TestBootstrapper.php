@@ -38,6 +38,8 @@ class TestBootstrapper
 
     private ?OutputInterface $output = null;
 
+    private bool $bypassFinals = true;
+
     /**
      * @var string[]
      */
@@ -60,7 +62,7 @@ class TestBootstrapper
 
         $classLoader = $this->getClassLoader();
 
-        if (class_exists(BypassFinals::class)) {
+        if (class_exists(BypassFinals::class) && $this->bypassFinals) {
             BypassFinals::enable();
         }
 
@@ -81,6 +83,13 @@ class TestBootstrapper
         } elseif ($this->forceInstallPlugins) {
             $this->installPlugins();
         }
+
+        return $this;
+    }
+
+    public function setBypassFinals(bool $bypassFinals): TestBootstrapper
+    {
+        $this->bypassFinals = $bypassFinals;
 
         return $this;
     }
@@ -145,7 +154,7 @@ class TestBootstrapper
         $dbUrlParts['path'] = $dbUrlParts['path'] ?? 'root';
 
         // allows using the same database during development, by setting TEST_TOKEN=none
-        if ($testToken !== 'none') {
+        if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
             $dbUrlParts['path'] .= '_' . ($testToken ?: 'test');
         }
 

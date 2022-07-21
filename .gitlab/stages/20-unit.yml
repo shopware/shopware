@@ -53,7 +53,7 @@ Jest (Storefront):
                 coverage_format: cobertura
                 path: build/artifacts/jest/cobertura-coverage.xml
 
-PHP coverage:
+PHP unit:
     extends: .base-no-setup
     image: shopware/development:7.4-composer-2
     stage: unit
@@ -84,30 +84,93 @@ PHP coverage:
         - composer install --optimize-autoloader --no-interaction
         - mkdir -p config/jwt || true
     script:
-        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
-        - php $PHP_OPTIONS vendor/bin/phpunit
+        - php vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit phpunit.junit.xml
             --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
             --testsuite "$TESTSUITE"
             --order-by default
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        reports:
+            junit: phpunit.junit.xml
+    parallel:
+        matrix:
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]
+            - TESTSUITE: ["content", "checkout", "elasticsearch", "integration"]
+              RUNNER_INSTANCE_TYPE: m5.large
+
+PHP bench:
+    extends: .base-no-setup
+    image: shopware/development:8.0-composer-2
+    stage: unit
+    needs: []
+    timeout: 30m
+    services:
+        -   name: mariadb:10.4
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: redis
+            alias: redis
+    variables:
+        APP_ENV: "dev"
+        RUNNER_INSTANCE_TYPE: m5.large
+        REDIS_URL: redis://redis:6379
+    rules:
+        # do not run in merge trains
+        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+          when: never
+        - changes:
+            - '**/*.php'
+            - '**/*.xml'
+            - 'composer.json'
+
+    before_script:
+        - composer install --optimize-autoloader --no-interaction
+        - mkdir -p config/jwt || true
+    script:
+        - php vendor/bin/phpbench run
+            --report=compressed
+
+PHP unit coverage:
+    extends: .base-no-setup
+    image: shopware/development:7.4-composer-2
+    stage: unit
+    needs: []
+    timeout: 10m
+    services: []
+    variables:
+        APP_ENV: "test"
+        FEATURE_ALL: "false"
+    rules:
+        # do not run in merge trains - PHP Full should cover all tests
+        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+          when: never
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - when: always
+    before_script:
+        - composer install --optimize-autoloader --no-interaction --quiet
+    script:
+        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+        - php $PHP_OPTIONS vendor/bin/phpunit
+            --configuration phpunit.xml.dist
+            --bootstrap vendor/autoload.php
+            --log-junit phpunit.junit.xml
+            --testsuite unit
             --coverage-text
             --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
-        when: always
-        paths:
-            - cobertura.xml
-        reports:
-            junit: phpunit.junit.xml
-            coverage_report:
-                coverage_format: cobertura
-                path: cobertura.xml
-    parallel:
-        matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,docs", "migration"]
-            - TESTSUITE: ["content", "checkout", "elasticsearch"]
-              RUNNER_INSTANCE_TYPE: m5.large
+      when: always
+      paths:
+        - cobertura.xml
+      reports:
+        junit: phpunit.junit.xml
+        coverage_report:
+          coverage_format: cobertura
+          path: cobertura.xml
 
 PHP Full:
     extends: .long-running
@@ -126,7 +189,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch migration"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch unit integration migration"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
@@ -170,12 +233,12 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
-                TEST_SUITES: "checkout content framework profiling system migration"
+                TEST_SUITES: "checkout content framework profiling system integration migration"
             -   MYSQL_IMAGE: mariadb:10.5
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
-                TEST_SUITES: "checkout content framework profiling system migration"
+                TEST_SUITES: "checkout content framework profiling system integation migration"
                 ALLOW_FAILURE: 'true'
     script:
         - >

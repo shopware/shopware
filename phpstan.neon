@@ -242,3 +242,7 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
         tags:
             - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+        tags:
+            - phpstan.rules.rule

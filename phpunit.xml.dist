@@ -6,7 +6,7 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
             <!--
                 DO NOT change this to a more generic structure.
@@ -24,6 +24,7 @@
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">custom/plugins/SwagCommercial</directory>
+
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -118,6 +119,15 @@
         <testsuite name="elasticsearch">
             <directory>src/Elasticsearch/Test</directory>
         </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/unit/php</directory>
+        </testsuite>
+
+        <testsuite name="integration">
+            <directory>tests/integration/php</directory>
+        </testsuite>
+
         <testsuite name="docs">
             <directory>src/Docs/Test</directory>
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
@@ -130,6 +140,7 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>custom/plugins/SwagCommercial</directory>
+            <directory>tests/unit/php</directory>
             <exclude>src/Recovery/Test</exclude>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>

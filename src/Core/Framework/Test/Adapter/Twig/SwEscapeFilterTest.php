@@ -19,7 +19,7 @@ class SwEscapeFilterTest extends TestCase
     /**
      * All character encodings supported by htmlspecialchars().
      */
-    protected $htmlSpecialChars = [
+    protected array $htmlSpecialChars = [
         '\'' => '&#039;',
         '"' => '&quot;',
         '<' => '&lt;',
@@ -27,7 +27,7 @@ class SwEscapeFilterTest extends TestCase
         '&' => '&amp;',
     ];
 
-    protected $htmlAttrSpecialChars = [
+    protected array $htmlAttrSpecialChars = [
         '\'' => '&#x27;',
         /* Characters beyond ASCII value 255 to unicode escape */
         'Ā' => '&#x0100;',
@@ -58,7 +58,7 @@ class SwEscapeFilterTest extends TestCase
         ' ' => '&#x20;',
     ];
 
-    protected $jsSpecialChars = [
+    protected array $jsSpecialChars = [
         /* HTML special chars - escape without exception to hex */
         '<' => '\\u003C',
         '>' => '\\u003E',
@@ -91,7 +91,7 @@ class SwEscapeFilterTest extends TestCase
         ' ' => '\\u0020',
     ];
 
-    protected $urlSpecialChars = [
+    protected array $urlSpecialChars = [
         /* HTML special chars - escape without exception to percent encoding */
         '<' => '%3C',
         '>' => '%3E',
@@ -126,7 +126,7 @@ class SwEscapeFilterTest extends TestCase
         '+' => '%2B',
     ];
 
-    protected $cssSpecialChars = [
+    protected array $cssSpecialChars = [
         /* HTML special chars - escape without exception to hex */
         '<' => '\\3C ',
         '>' => '\\3E ',
@@ -328,10 +328,12 @@ class SwEscapeFilterTest extends TestCase
 
     /**
      * @dataProvider provideCustomEscaperCases
+     *
+     * @param string|int|null $string
      * @runInSeparateProcess
      * custom escaper are cached inside twig, therefore this test has to run in seperate processes, where the custom escapers are not yet cached
      */
-    public function testCustomEscaper($expected, $string, $strategy): void
+    public function testCustomEscaper(string $expected, $string, string $strategy): void
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
         $twig->getExtension(EscaperExtension::class)->setEscaper('foo', 'Shopware\Core\Framework\Test\Adapter\Twig\foo_escaper_for_test');
@@ -339,7 +341,7 @@ class SwEscapeFilterTest extends TestCase
         static::assertSame($expected, sw_escape_filter($twig, $string, $strategy));
     }
 
-    public function provideCustomEscaperCases()
+    public function provideCustomEscaperCases(): array
     {
         return [
             ['fooUTF-8', 'foo', 'foo'],
@@ -371,7 +373,7 @@ class SwEscapeFilterTest extends TestCase
         static::assertSame($escapedJs, sw_escape_filter($twig, $obj, 'js', null, true));
     }
 
-    public function provideObjectsForEscaping()
+    public function provideObjectsForEscaping(): array
     {
         return [
             ['&lt;br /&gt;', '<br />', ['\Shopware\Core\Framework\Test\Adapter\Twig\Extension_TestClass' => ['js']]],
@@ -388,7 +390,7 @@ class SwEscapeFilterTest extends TestCase
      *
      * @return string UTF-8 literal string
      */
-    protected function codepointToUtf8($codepoint)
+    protected function codepointToUtf8($codepoint): string
     {
         if ($codepoint < 0x80) {
             return \chr($codepoint);
@@ -413,11 +415,14 @@ class SwEscapeFilterTest extends TestCase
     }
 }
 
-function foo_escaper_for_test(Environment $twig, $string, $charset)
+function foo_escaper_for_test(Environment $twig, ?string $string, ?string $charset): string
 {
     return $string . $charset;
 }
 
+/**
+ * @internal
+ */
 interface Extension_SafeHtmlInterface
 {
 }

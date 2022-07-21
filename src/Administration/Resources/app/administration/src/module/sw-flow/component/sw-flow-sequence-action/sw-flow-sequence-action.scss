@@ -170,6 +170,10 @@
         background: $color-shopware-brand-500;
         color: $color-white;
         margin-right: 9px;
+
+        .sw-icon {
+            padding: 0 !important;
+        }
     }
 
     &__select {
@@ -242,6 +246,7 @@
             .sw-icon {
                 color: $color-gray-900;
                 text-transform: none;
+                padding: 0 !important;
             }
 
             img {
@@ -263,5 +268,9 @@
         span {
             text-transform: capitalize;
         }
+    }
+
+    .sw-icon-action.sw-icon {
+        padding: 0 !important;
     }
 }

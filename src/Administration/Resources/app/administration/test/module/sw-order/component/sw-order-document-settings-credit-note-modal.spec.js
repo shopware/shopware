@@ -143,6 +143,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     let wrapper;
 
     beforeEach(() => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         wrapper = createWrapper();
     });
 

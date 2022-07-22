@@ -14,6 +14,7 @@
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
     <sw-select-field
         v-model="documentConfig.custom.invoiceNumber"
+        class="sw-order-document-settings-storno-modal__invoice-select"
         :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
         @change="onSelectInvoice"

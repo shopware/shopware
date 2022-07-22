@@ -470,7 +470,8 @@
         "columnAmount": "Total",
         "columnProductName": "Name",
         "columnProductNumber": "Product number",
-        "textEmptySearch": "No data for {name}"
+        "textEmptySearch": "No data for {name}",
+        "textValue": "Value..."
       },
       "customItem": {
         "labelName": "Name",

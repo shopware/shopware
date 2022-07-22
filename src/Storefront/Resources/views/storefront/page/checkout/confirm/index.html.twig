@@ -39,18 +39,16 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_notice %}
-                            {% if config('confirm.revocationNotice') %}
-                                <p class="revocation-notice">
-                                    {% block page_checkout_confirm_revocation_notice_link %}
-                                        <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
-                                           {{ dataBsToggleAttr }}="modal"
-                                           title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
-                                           data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
-                                            {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
-                                        </a>
-                                    {% endblock %}
-                                </p>
-                            {% endif %}
+                            <p class="revocation-notice">
+                                {% block page_checkout_confirm_revocation_notice_link %}
+                                    <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
+                                       {{ dataBsToggleAttr }}="modal"
+                                       title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
+                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
+                                        {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
+                                    </a>
+                                {% endblock %}
+                            </p>
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}

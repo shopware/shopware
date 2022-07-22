@@ -34,6 +34,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use DocumentGenerator instead
+ */
 class DocumentService
 {
     public const VERSION_NAME = 'document';
@@ -124,6 +127,11 @@ class DocumentService
         ?string $referencedDocumentId = null,
         bool $static = false
     ): DocumentIdStruct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
@@ -188,6 +196,11 @@ class DocumentService
 
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
         $generatedDocument = new GeneratedDocument();
@@ -235,6 +248,11 @@ class DocumentService
         DocumentConfiguration $config,
         Context $context
     ): GeneratedDocument {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
@@ -284,6 +302,11 @@ class DocumentService
         Context $context,
         Request $uploadedFileRequest
     ): DocumentIdStruct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
 

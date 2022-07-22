@@ -30,7 +30,7 @@ class TemplateLoaderTest extends TestCase
         sort($templates);
 
         static::assertEquals(
-            ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig'],
+            ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig', 'storefront/page/sitemap/sitemap.xml.twig'],
             $templates
         );
     }

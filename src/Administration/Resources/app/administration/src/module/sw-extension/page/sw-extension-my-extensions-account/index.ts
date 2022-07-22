@@ -50,7 +50,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
         },
 
         /**
-         * @depcreated tag:v6.5.0 - will be removed. Use shopwareExtensions.userInfo.email instead
+         * @deprecated tag:v6.5.0 - will be removed. Use shopwareExtensions.userInfo.email instead
          */
         shopwareId: {
             get() {
@@ -58,7 +58,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
             },
 
             /**
-             * @depcrecated tag:v6.5.0 - computed shopwareId will be readonly in future versions
+             * @deprecated tag:v6.5.0 - computed shopwareId will be readonly in future versions
              */
             set() {
                 Shopware.Utils.debug.warn(

@@ -153,11 +153,31 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(props.placeholder).toBe('sw-text-editor-toolbar.link.placeholderCategory');
         expect(props.criteria).toStrictEqual(
             expect.objectContaining({
-                sortings: [{ field: 'name', naturalSorting: false, order: 'ASC' }],
                 limit: 25,
                 page: 1,
             })
         );
+
+        const associations = props.criteria.associations;
+
+        expect(associations).toHaveLength(1);
+        expect(associations[0].association).toBe('options');
+
+        expect(associations[0].criteria.associations).toHaveLength(1);
+        expect(associations[0].criteria.associations[0].association).toBe('group');
+
+
+        expect(props.criteria.filters).toStrictEqual(expect.objectContaining(
+            [{
+                operator: 'OR',
+                queries: [
+                    { field: 'product.childCount', type: 'equals', value: 0 },
+                    { field: 'product.childCount', type: 'equals', value: null }
+                ],
+                type: 'multi'
+            }]
+        ));
+
         expect(props.categoriesCollection.length).toBe(1);
         expect(props.categoriesCollection[0]).toEqual(categoryData);
 

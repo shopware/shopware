@@ -443,6 +443,15 @@
         "illegalFilename": {
           "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        },
+        "invalidUrl": {
+          "message": "Die eingegebene URL ist ungültig."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -474,8 +483,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:",
-      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -551,7 +560,7 @@
       "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",
       "moduleFilter": "Modulfilter",
-      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsV2": "Keine genauen Übereinstimmungen mit \"{term}\" gefunden.",
       "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Konfiguration Deiner Suche.",
       "addNew": "neue hinzufügen"
     },
@@ -588,14 +597,14 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
-      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen..."
+      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen ..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
-        "placeholder": "Operator auswählen...",
+        "placeholder": "Operator auswählen ...",
         "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
         "equals": "Ist gleich | Sind gleich",
         "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
@@ -730,15 +739,80 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Fieldset wählen..."
+              "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen..."
+              "placeholder": "Zusatzfeld wählen ..."
             }
           }
         },
         "customerCustomFieldRule": "Kunde mit Zusatzfeld",
         "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ..."
+      }
+    },
+    "sw-condition-generic": {
+      "customerEmail": {
+        "email": {
+          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
+        }
+      },
+      "cartLineItemDimensionWidth": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
+        }
+      },
+      "cartLineItemDimensionHeight": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
+        }
+      },
+      "cartLineItemDimensionLength": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderLength"
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
+            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
+          }
+        }
+      },
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "@:global.day-of-week.monday",
+            "2": "@:global.day-of-week.tuesday",
+            "3": "@:global.day-of-week.wednesday",
+            "4": "@:global.day-of-week.thursday",
+            "5": "@:global.day-of-week.friday",
+            "6": "@:global.day-of-week.saturday",
+            "7": "@:global.day-of-week.sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
+            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeOfType": {
+          "options": {
+            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
+            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
+            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
+          }
+        }
+      },
+      "units": {
+        "dimension": "mm",
+        "weight": "kg",
+        "volume": "mm³"
       }
     },
     "sw-product-image": {
@@ -1090,7 +1164,7 @@
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen..."
+    "addNewRule": "Neue Regel erstellen ..."
   },
   "sw-shortcut-overview": {
     "title": "Tastenkürzel",

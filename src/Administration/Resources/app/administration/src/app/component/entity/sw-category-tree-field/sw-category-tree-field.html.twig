@@ -112,10 +112,11 @@
                             checkItem,
                             translationContext,
                             onChangeRoute,
-                            disableContextMenu
+                            disableContextMenu,
+                            selectedItemsPathIds,
+                            checkedItemIds,
                         }"
                     >
-                        {% block sw_category_tree_field_input_results_tree_item %}
                         <sw-tree-item
                             v-for="item in treeItems"
                             :key="item.id"
@@ -127,17 +128,14 @@
                             :sortable="false"
                             should-focus
                             :active-focus-id="selectedTreeItem.id"
-                            :mark-inactive="true"
+                            mark-inactive
+                            should-show-active-state
                             @check-item="onCheckItem"
                         >
-
-                            {% block sw_category_tree_field_input_results_tree_item_actions %}
                             <template #actions>
-                                <span></span></template>
-                            {% endblock %}
-
+                                <span></span>
+                            </template>
                         </sw-tree-item>
-                        {% endblock %}
                     </template>
                     {% endblock %}
                 </sw-tree>

@@ -1,0 +1,192 @@
+# requires /.gitlab/base.yml
+
+E2E:
+    extends:
+       - .long-running
+    stage: E2E
+    needs: []
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    variables:
+        APP_ENV: e2e
+        CYPRESS_baseUrl: "http://localhost:8000"
+        CYPRESS_localUsage: 1
+        CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+        CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
+        SHOPWARE_HTTP_CACHE_ENABLED: 0
+        CYPRESS_usePercy: 'false'
+        CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+        CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+        CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
+        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
+        CYPRESS_grepTags: '-quarantined'
+    parallel:
+        matrix:
+            -   TEST_DIRECTORY:
+                    - "cypress/integration/administration/settings/**/*"
+                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
+                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/administration/sdk-plugin/**/*"
+                    - "cypress/integration/storefront/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: ["false", "major"]
+            # firefox
+            -   TEST_DIRECTORY:
+                    - "cypress/integration/administration/settings/**/*"
+                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
+                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/storefront/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+    before_script:
+        - !reference [ .scripts, install-node, script ]
+        - cp public/.htaccess.dist public/.htaccess
+        - composer install -o --no-scripts
+        - mkdir -p config/jwt custom/plugins || true
+        - composer run init:db
+        - composer run init:js
+        - composer run init:e2e
+        - composer run e2e:sdk-plugin:fixture-to-plugin
+        - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install)'
+        - bin/console plugin:refresh
+        - bin/console plugin:install --activate TestPlugin
+        - composer run build:js
+        - bin/console theme:compile
+        - bin/console theme:change --all Storefront
+        - bin/console assets:install
+        - bin/console e2e:dump-db
+        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
+    script:
+        - >
+          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
+            export CYPRESS_INTERRUPT_ON_ERROR="true"
+          fi
+        - composer run e2e:cypress -- run
+            --browser chrome
+            --spec "$TEST_DIRECTORY"
+            --headless
+    after_script:
+        - !reference [.scripts, handle-failed-merge-train, after_script]
+        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
+        - composer run npm:e2e -- run combine-reports
+        - composer run npm:e2e -- run generate-report
+        - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
+        - mv tests/E2E/mochareports/ var/log/e2e/ || true
+        - !reference [.upload-junit-xml, after_script]
+    cache:
+      key:
+        files:
+          - tests/package-lock.json
+      paths:
+        - .Cypress
+      # only one job needs to upload
+      policy: pull
+    artifacts:
+        when: always
+        paths:
+            - var/log/*
+        reports:
+            junit: var/log/e2e/*.xml
+
+E2E quarantined:
+  extends: E2E
+  stage: quarantine
+  parallel:
+    matrix:
+      - TEST_DIRECTORY:
+         - 'cypress/integration/administration/**/*'
+         - 'cypress/integration/storefront/**/*'
+        CYPRESS_grepTags: 'quarantined'
+        BROWSER: 'chrome'
+        ALLOW_FAILURE: 'true'
+
+E2E install NL:
+    extends:
+      - .long-running
+    stage: E2E
+    needs: [ ]
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    variables:
+        APP_ENV: e2e
+        APP_DEBUG: 'true'
+        CYPRESS_baseUrl: "http://localhost:8000"
+        CYPRESS_localUsage: 1
+        CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+        CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
+        SHOPWARE_HTTP_CACHE_ENABLED: 0
+        cypress_usePercy: 'false'
+        E2E_PROJECT: recovery
+        CYPRESS_dbHost: database
+        CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+        CYPRESS_dbName: root
+        CYPRESS_locale: nl-NL
+        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
+    parallel:
+      matrix:
+        - FEATURE_ALL: 'false'
+        - FEATURE_ALL: 'major'
+          ALLOW_FAILURE: 'true'
+    script:
+        - apt-get update && apt-get -y install jq
+        - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
+        # fake version by using the latest tag if not set
+        - >
+          if [[ "$PLATFORM_VERSION" = "null" ]]; then
+            LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+            PLATFORM_VERSION="${LATEST_TAG#"v"}"
+            composer config version "$PLATFORM_VERSION"
+            composer update
+          fi
+        - rm .env install.lock || true
+        - mkdir -p config/packages || true
+        - >
+          cat > config/packages/ci.yaml <<EOF
+
+          shopware:
+            store:
+              frw: true
+          EOF
+        - composer run init:e2e
+        - mkdir -p var/dumps
+        - touch var/dumps/database_root.sql
+        - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
+        - composer run e2e:cypress -- run
+            --config retries=0
+            --browser chrome
+            --spec "cypress/integration/recovery/installer/install_nl.spec.js"
+            --headless
+        - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
+        - composer run e2e:prepare
+        - >
+          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
+            export CYPRESS_INTERRUPT_ON_ERROR="true"
+          fi
+        - composer run e2e:cypress -- run
+            --browser chrome
+            --spec "cypress/integration/scenarios/**/*.spec.js"
+            --headless
+    after_script:
+        - !reference [ .scripts, handle-failed-merge-train, after_script ]
+        - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true
+        - composer run npm:e2e -- run combine-reports
+        - composer run npm:e2e -- run generate-report
+        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
+        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
+        - !reference [ .upload-junit-xml, after_script ]
+    cache:
+      key:
+        files:
+          - tests/package-lock.json
+      paths:
+        - .Cypress
+      policy: pull-push
+    artifacts:
+        when: always
+        paths:
+            - var/log/*
+        reports:
+            junit: var/log/e2e/*.xml

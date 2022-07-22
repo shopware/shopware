@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -28,10 +27,6 @@ trait OrderActionTrait
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
-
-    private ?EntityRepositoryInterface $flowRepository;
-
-    private ?Connection $connection;
 
     private KernelBrowser $browser;
 
@@ -50,6 +45,8 @@ trait OrderActionTrait
 
     private function prepareCustomer(string $password, ?string $email = null, array $additionalData = []): void
     {
+        static::assertNotNull($this->customerRepository);
+
         $this->customerRepository->create([
             array_merge([
                 'id' => $this->ids->create('customer'),
@@ -76,7 +73,7 @@ trait OrderActionTrait
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ], $additionalData),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function login(?string $email = null, ?string $password = null): void
@@ -114,7 +111,7 @@ trait OrderActionTrait
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function submitOrder(): void
@@ -223,10 +220,10 @@ trait OrderActionTrait
                 'context' => '{}',
                 'payload' => '{}',
             ], $additionalData),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
-    private function getStateId(string $state, string $machine)
+    private function getStateId(string $state, string $machine): string
     {
         return $this->getContainer()->get(Connection::class)
             ->fetchColumn('
@@ -239,7 +236,7 @@ trait OrderActionTrait
             ', [
                 'state' => $state,
                 'machine' => $machine,
-            ]);
+            ]) ?: '';
     }
 
     private function createCustomField(string $name, string $entity, string $type = CustomFieldTypes::SELECT): string

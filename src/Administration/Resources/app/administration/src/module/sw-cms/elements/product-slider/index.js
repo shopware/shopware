@@ -63,38 +63,5 @@ Shopware.Service('cmsService').registerCmsElement({
             value: 10,
         },
     },
-    collect: function collect(elem) {
-        const context = Object.assign(
-            {},
-            Shopware.Context.api,
-            { inheritance: true },
-        );
-
-        const criteriaList = {};
-
-        Object.keys(elem.config).forEach((configKey) => {
-            if (['mapped', 'default', 'product_stream'].includes(elem.config[configKey].source)) {
-                return;
-            }
-
-            const entity = elem.config[configKey].entity;
-
-            if (entity && elem.config[configKey].value) {
-                const entityKey = entity.name;
-                const entityData = {
-                    value: [...elem.config[configKey].value],
-                    key: configKey,
-                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(1, 25),
-                    ...entity,
-                };
-
-                entityData.searchCriteria.setIds(entityData.value);
-                entityData.context = context;
-
-                criteriaList[`entity-${entityKey}`] = entityData;
-            }
-        });
-
-        return criteriaList;
-    },
+    collect: Shopware.Service('cmsService').getCollectFunction(),
 });

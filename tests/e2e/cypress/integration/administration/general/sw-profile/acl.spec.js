@@ -79,7 +79,7 @@ describe('Review: Test ACL privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');

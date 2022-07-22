@@ -31,25 +31,11 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
-
-    /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
-     */
-    private $context;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
@@ -196,11 +182,11 @@ class PromotionDiscountCompositionTest extends TestCase
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
 
-        /** @var PromotionEntity $promotion */
         static::assertInstanceOf(PromotionEntity::class, $promotion);
 
         // verify that the promotion has an total order count of 1 and the current customer is although tracked
         static::assertEquals(1, $promotion->getOrderCount());
+        static::assertNotNull($context->getCustomer());
         static::assertEquals(
             [$context->getCustomer()->getId() => 1],
             $promotion->getOrdersPerCustomerCount()
@@ -229,6 +215,7 @@ class PromotionDiscountCompositionTest extends TestCase
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
+        static::assertNotNull($context->getCustomer());
         // order promotion with two products and another customer
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 

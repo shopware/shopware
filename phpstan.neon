@@ -55,6 +55,11 @@ parameters:
             message: '#Service ".*" is private#'
             path: src/**/*Test.php
 
+        # ignore errors caused by static::markTestSkipped
+        -
+            message: '#Unreachable statement - code above always terminates.#'
+            path: src/**/*Test.php
+
         # Method gets always an EntityCollection
         -
             message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'
@@ -192,6 +197,12 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
+        # Can be removed with 6.5 release (NEXT-19158)
+        -
+            message: "#^PHPDoc tag @param references unknown parameter\\: \\$htmlEscape$#"
+            count: 1
+            path: src/Core/Framework/Adapter/Twig/StringTemplateRenderer.php
+
         # Method will get third parameter in 6.5
         -
             message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"
@@ -209,6 +220,15 @@ parameters:
             count: 2
             path: src/Storefront/Theme/ThemeService.php
 
+        # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
+        - '#Trait .* is used zero times and is not analysed.#'
+
+        # Bug in Phpstan Symfony: https://github.com/phpstan/phpstan-symfony/issues/286
+        -
+            message: '#Parameter \#1 \$expected of static method PHPUnit\\Framework\\Assert::assertSame\(\) contains unresolvable type#'
+            count: 4
+            path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
@@ -220,5 +240,9 @@ services:
             - phpstan.rules.rule
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
         tags:
             - phpstan.rules.rule

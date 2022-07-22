@@ -6,6 +6,7 @@ import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-inv
 import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-cancellation-invoice';
 import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note';
 import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note';
+import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents';
 import './component/sw-bulk-edit-custom-fields';
 import './component/sw-bulk-edit-change-type';
 import './component/sw-bulk-edit-change-type-field-renderer';

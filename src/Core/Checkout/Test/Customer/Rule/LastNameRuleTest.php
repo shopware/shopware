@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -167,13 +168,18 @@ class LastNameRuleTest extends TestCase
     /**
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(string $operator, bool $isMatching, string $customerLastName): void
+    public function testRuleMatching(string $operator, bool $isMatching, string $customerLastName, bool $noCustomer = false): void
     {
         $lastName = 'ky';
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $customer->setLastName($customerLastName);
+
+        if ($noCustomer) {
+            $customer = null;
+        }
+
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['lastName' => $lastName, 'operator' => $operator]);
@@ -186,16 +192,25 @@ class LastNameRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public function getMatchValues(): \Traversable
     {
-        return [
-            'operator_oq / not match / last name' => [Rule::OPERATOR_EQ, false, 'ky123'],
-            'operator_oq / match / last name' => [Rule::OPERATOR_EQ, true, 'ky'],
-            'operator_neq / match / last name' => [Rule::OPERATOR_NEQ, true, 'ky123'],
-            'operator_neq / not match / last name' => [Rule::OPERATOR_NEQ, false, 'ky'],
-            'operator_empty / not match / last name' => [Rule::OPERATOR_NEQ, false, 'ky'],
-            'operator_empty / match / last name' => [Rule::OPERATOR_EMPTY, true, ' '],
-        ];
+        yield 'operator_eq / not match / last name' => [Rule::OPERATOR_EQ, false, 'ky123'];
+        yield 'operator_eq / match / last name' => [Rule::OPERATOR_EQ, true, 'ky'];
+        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, 'ky', true];
+        yield 'operator_neq / match / last name' => [Rule::OPERATOR_NEQ, true, 'ky123'];
+        yield 'operator_neq / not match / last name' => [Rule::OPERATOR_NEQ, false, 'ky'];
+        yield 'operator_empty / not match / last name' => [Rule::OPERATOR_NEQ, false, 'ky'];
+        yield 'operator_empty / match / last name' => [Rule::OPERATOR_EMPTY, true, ' '];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 'ky', true];
+            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 'ky', true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 'ky', true];
+        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 'ky', true];
     }
 
     public function testUnsupportedValue(): void

@@ -76,7 +76,16 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
             $criteria = new Criteria();
             $criteria
-                ->addFilter(new EqualsFilter('generateByCronjob', true))
+                ->addAssociation('salesChannel')
+                ->addFilter(
+                    new MultiFilter(
+                        'AND',
+                        [
+                            new EqualsFilter('generateByCronjob', true),
+                            new EqualsFilter('salesChannel.active', true),
+                        ]
+                    )
+                )
                 ->addFilter(
                     new MultiFilter(
                         'OR',

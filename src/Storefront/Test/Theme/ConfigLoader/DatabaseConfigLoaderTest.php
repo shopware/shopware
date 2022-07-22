@@ -52,10 +52,13 @@ class DatabaseConfigLoaderTest extends TestCase
         $this->mediaRepository->create([$data], Context::createDefaultContext());
     }
 
+    /**
+     * NEXT-20034
+     *
+     * @group quarantined
+     */
     public function testMediaConfigurationLoading(): void
     {
-        static::markTestSkipped('NEXT-20034');
-
         self::setUpMedia();
 
         $theme = [[
@@ -93,6 +96,7 @@ class DatabaseConfigLoaderTest extends TestCase
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
+        static::assertNotNull($themeConfig);
 
         $mediaURL = EnvironmentHelper::getVariable('APP_URL') . '/media/fd/01/0e/testImage.png';
 
@@ -140,6 +144,7 @@ class DatabaseConfigLoaderTest extends TestCase
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
+        static::assertNotNull($themeConfig);
 
         $mediaURL = null;
 
@@ -187,6 +192,7 @@ class DatabaseConfigLoaderTest extends TestCase
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
+        static::assertNotNull($themeConfig);
 
         $mediaURL = self::MEDIA_ID;
 
@@ -261,7 +267,9 @@ class DatabaseConfigLoaderTest extends TestCase
 
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
-        $fields = $config->getThemeConfig()['fields'];
+        $themeConfig = $config->getThemeConfig();
+        static::assertNotNull($themeConfig);
+        $fields = $themeConfig['fields'];
 
         foreach ($expected as $field => $value) {
             static::assertArrayHasKey($field, $fields);

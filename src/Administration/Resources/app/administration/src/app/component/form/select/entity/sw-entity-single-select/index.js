@@ -72,9 +72,7 @@ Component.register('sw-entity-single-select', {
         context: {
             type: Object,
             required: false,
-            default() {
-                return Shopware.Context.api;
-            },
+            default: () => Shopware.Context.api,
         },
         selectionDisablingMethod: {
             type: Function,
@@ -117,9 +115,7 @@ Component.register('sw-entity-single-select', {
         advancedSelectionComponent: {
             type: String,
             required: false,
-            default() {
-                return '';
-            },
+            default: '',
         },
         advancedSelectionParameters: {
             type: Object,
@@ -127,6 +123,16 @@ Component.register('sw-entity-single-select', {
             default() {
                 return {};
             },
+        },
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        shouldShowActiveState: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -570,6 +576,14 @@ Component.register('sw-entity-single-select', {
             if (selectedItems.length > 0) {
                 this.setValue(selectedItems[0]);
             }
+        },
+
+        getActiveIconColor(item) {
+            if (item?.active) {
+                return item.active === true ? '#37d046' : '#d1d9e0';
+            }
+
+            return '#d1d9e0';
         },
     },
 });

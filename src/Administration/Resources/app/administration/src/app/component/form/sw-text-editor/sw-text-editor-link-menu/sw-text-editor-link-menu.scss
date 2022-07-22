@@ -4,4 +4,15 @@
     &__button-variant {
         margin-top: 10px;
     }
+
+    &__entity-single-select {
+        .sw-entity-single-select__selection {
+            display: flex;
+            align-items: center;
+        }
+
+        .sw-entity-single-select__selection-text {
+            max-width: 80%;
+        }
+    }
 }

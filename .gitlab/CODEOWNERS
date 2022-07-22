@@ -13,6 +13,9 @@
 /src/Storefront/Migration/                                      @product/engineering/platform-group/core
 /bin/                                                           @product/engineering/platform-group/core
 /public/                                                        @product/engineering/platform-group/core
+/tests/integration/                                             @product/engineering/platform-group/core
+/tests/unit/                                                    @product/engineering/platform-group/core
+/tests/bench/                                                   @product/engineering/platform-group/core
 /config/bundles.php                                             @product/engineering/platform-group/core
 /src/**/*Route.php                                              @product/engineering/platform-group/core
 /src/**/*Definition.php                                         @product/engineering/platform-group/core

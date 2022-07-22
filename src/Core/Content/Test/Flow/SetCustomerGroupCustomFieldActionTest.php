@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -23,6 +24,10 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     use CacheTestBehaviour;
     use AdminApiTestBehaviour;
 
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
+
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
@@ -31,7 +36,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -87,11 +92,13 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         ]], Context::createDefaultContext());
 
         $browser = $this->createClient();
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $this->ids->get('customer'));
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$this->ids->get('customer')],
+        ]);
 
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = $this->getContainer()->get('customer_group.repository')
-            ->search(new Criteria([$this->ids->get('customer_group')]), $this->ids->context)->first();
+            ->search(new Criteria([$this->ids->get('customer_group')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertEquals($customerGroup->getCustomFields(), $expect);

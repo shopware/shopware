@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -142,7 +143,7 @@ class EntityHydrator
 
     protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields): Entity
     {
-        /** @var ArrayStruct $foreignKeys */
+        /** @var ArrayStruct<string, mixed> $foreignKeys */
         $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
         $isPartial = self::$partial !== [];
 
@@ -154,6 +155,11 @@ class EntityHydrator
             }
 
             $key = $root . '.' . $property;
+
+            // initialize not loaded associations with null
+            if ($field instanceof AssociationField && $entity instanceof ArrayEntity) {
+                $entity->set($property, null);
+            }
 
             if ($field instanceof ParentAssociationField) {
                 continue;
@@ -250,7 +256,7 @@ class EntityHydrator
 
         $ids = array_map('strtolower', array_filter($ids));
 
-        /** @var ArrayStruct $mapping */
+        /** @var ArrayStruct<string, mixed> $mapping */
         $mapping = $entity->getExtension(EntityReader::INTERNAL_MAPPING_STORAGE);
 
         $mapping->set($field->getPropertyName(), $ids);

@@ -34,13 +34,13 @@ class ContactFormRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->ids->context);
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
     }
 
     public function testContactFormSendMail(): void
@@ -228,7 +228,7 @@ class ContactFormRouteTest extends TestCase
                 ],
             ],
         ];
-        $this->getContainer()->get('category.repository')->create($data, $this->ids->context);
+        $this->getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
 
         return [$contactCategoryId, $slotId];
     }
@@ -273,7 +273,7 @@ class ContactFormRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create($cmsData, $this->ids->context);
+        $this->getContainer()->get('cms_page.repository')->create($cmsData, Context::createDefaultContext());
     }
 
     private function createLandingPageData(): array
@@ -305,7 +305,7 @@ class ContactFormRouteTest extends TestCase
                 'slotConfig' => $slotConfig,
             ],
         ];
-        $this->getContainer()->get('landing_page.repository')->create($data, $this->ids->context);
+        $this->getContainer()->get('landing_page.repository')->create($data, Context::createDefaultContext());
 
         return [$landingPageId, $slotId];
     }
@@ -341,7 +341,7 @@ class ContactFormRouteTest extends TestCase
                 'slotConfig' => $slotConfig,
             ],
         ];
-        $this->getContainer()->get('product.repository')->create($data, $this->ids->context);
+        $this->getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
 
         return [$productId, $slotId];
     }

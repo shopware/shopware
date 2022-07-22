@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\Salutation\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -37,7 +36,7 @@ class SalutationRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),

@@ -16,6 +16,10 @@ Component.register('sw-bulk-edit-order-documents', {
     ],
 
     props: {
+        documents: {
+            type: Object,
+            required: true,
+        },
         value: {
             type: Object,
             required: true,

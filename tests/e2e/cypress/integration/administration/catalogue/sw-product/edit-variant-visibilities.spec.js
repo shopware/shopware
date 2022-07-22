@@ -52,7 +52,7 @@ describe('Product: Test variants visibilities', () => {
     });
 
     // NEXT-20024 - Flaky
-    it.skip('@catalogue: edit visibilities', () => {
+    it('@catalogue: edit visibilities', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

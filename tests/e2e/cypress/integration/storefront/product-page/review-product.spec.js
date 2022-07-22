@@ -27,7 +27,7 @@ describe('Test review function on Product page', () => {
     it('Should paginate and filter reviews', () => {
         cy.intercept({
             method: 'POST',
-            url: '/product/**/reviews'
+            url: '/product/**/reviews*'
         }).as('loadReviews');
 
         cy.get('.header-search-input').should('be.visible');

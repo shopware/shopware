@@ -8,8 +8,12 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.5.0 - SalesChannelCmsPageRepository will be removed.
+ */
 class SalesChannelCmsPageRepository
 {
     private EntityRepositoryInterface $cmsPageRepository;
@@ -24,6 +28,11 @@ class SalesChannelCmsPageRepository
 
     public function read(array $ids, SalesChannelContext $context): CmsPageCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $criteria = new Criteria($ids);
 
         return $this->readCmsPages($criteria, $context);
@@ -31,6 +40,11 @@ class SalesChannelCmsPageRepository
 
     public function getPagesByType(string $type, SalesChannelContext $context): CmsPageCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('cms_page.type', $type));
 
@@ -39,6 +53,11 @@ class SalesChannelCmsPageRepository
 
     private function readCmsPages(Criteria $criteria, SalesChannelContext $context): CmsPageCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $criteria->addAssociation('sections.backgroundMedia')
             ->addAssociation('sections.blocks.backgroundMedia')
             ->addAssociation('sections.blocks.slots');

@@ -139,7 +139,7 @@ export default class DatePickerPlugin extends Plugin {
     }
 
     /**
-     * Returns the format string used for display and databank friendly saving purposes
+     * Returns the format string used for display and database friendly saving purposes
      *
      * @ToDo NEXT-5602 - Remove this temporary solution until formats are linked to languages
      *

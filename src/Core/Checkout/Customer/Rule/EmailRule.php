@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -34,7 +36,11 @@ class EmailRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if ($this->email && mb_strpos($this->email, '*') !== false) {
@@ -55,6 +61,13 @@ class EmailRule extends Rule
     public function getName(): string
     {
         return 'customerEmail';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->stringField('email');
     }
 
     private function matchPartially(CustomerEntity $customer): bool

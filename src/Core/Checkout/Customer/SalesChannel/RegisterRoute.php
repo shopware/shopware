@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
@@ -37,12 +39,14 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -79,6 +83,8 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private SalesChannelContextServiceInterface $contextService;
 
+    private StoreApiCustomFieldMapper $customFieldMapper;
+
     /**
      * @internal
      */
@@ -93,7 +99,8 @@ class RegisterRoute extends AbstractRegisterRoute
         SalesChannelContextPersister $contextPersister,
         SalesChannelRepositoryInterface $countryRepository,
         Connection $connection,
-        SalesChannelContextServiceInterface $contextService
+        SalesChannelContextServiceInterface $contextService,
+        StoreApiCustomFieldMapper $customFieldMapper
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -106,6 +113,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->countryRepository = $countryRepository;
         $this->connection = $connection;
         $this->contextService = $contextService;
+        $this->customFieldMapper = $customFieldMapper;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -257,6 +265,10 @@ class RegisterRoute extends AbstractRegisterRoute
         $customer = $this->setDoubleOptInData($customer, $context);
 
         $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
+
+        if ($data->get('customFields') instanceof RequestDataBag) {
+            $customer['customFields'] = $this->customFieldMapper->map(CustomerDefinition::ENTITY_NAME, $data->get('customFields'));
+        }
 
         $this->customerRepository->create([$customer], $context->getContext());
 
@@ -427,9 +439,12 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getDomainUrls(SalesChannelContext $context): array
     {
+        /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
+        $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
+
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return rtrim($domainEntity->getUrl(), '/');
-        }, $context->getSalesChannel()->getDomains()->getElements());
+        }, $salesChannelDomainCollection->getElements());
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface
@@ -573,6 +588,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if (isset($mappedData['countryStateId']) && $mappedData['countryStateId'] === '') {
             $mappedData['countryStateId'] = null;
+        }
+
+        if ($addressData->get('customFields') instanceof RequestDataBag) {
+            $mappedData['customFields'] = $this->customFieldMapper->map(CustomerAddressDefinition::ENTITY_NAME, $addressData->get('customFields'));
         }
 
         return $mappedData;

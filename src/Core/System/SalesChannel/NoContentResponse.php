@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 class NoContentResponse extends StoreApiResponse
 {
     /**
-     * @var ArrayStruct
+     * @var ArrayStruct<string, mixed>
      */
     protected $object;
 

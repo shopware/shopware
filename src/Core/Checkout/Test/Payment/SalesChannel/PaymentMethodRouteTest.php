@@ -34,7 +34,7 @@ class PaymentMethodRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -209,6 +209,6 @@ class PaymentMethodRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('payment_method.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

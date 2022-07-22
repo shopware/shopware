@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -13,22 +12,22 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedHook;
+use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -43,8 +42,6 @@ class AuthController extends StorefrontController
 {
     private AccountLoginPageLoader $loginPageLoader;
 
-    private EntityRepositoryInterface $customerRecoveryRepository;
-
     private AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute;
 
     private AbstractResetPasswordRoute $resetPasswordRoute;
@@ -53,27 +50,29 @@ class AuthController extends StorefrontController
 
     private AbstractLogoutRoute $logoutRoute;
 
-    private CartService $cartService;
+    private StorefrontCartFacade $cartFacade;
+
+    private AccountRecoverPasswordPageLoader $recoverPasswordPageLoader;
 
     /**
      * @internal
      */
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
-        EntityRepositoryInterface $customerRecoveryRepository,
         AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute,
         AbstractResetPasswordRoute $resetPasswordRoute,
         AbstractLoginRoute $loginRoute,
         AbstractLogoutRoute $logoutRoute,
-        CartService $cartService
+        StorefrontCartFacade $cartFacade,
+        AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
     ) {
         $this->loginPageLoader = $loginPageLoader;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->sendPasswordRecoveryMailRoute = $sendPasswordRecoveryMailRoute;
         $this->resetPasswordRoute = $resetPasswordRoute;
         $this->loginRoute = $loginRoute;
         $this->logoutRoute = $logoutRoute;
-        $this->cartService = $cartService;
+        $this->cartFacade = $cartFacade;
+        $this->recoverPasswordPageLoader = $recoverPasswordPageLoader;
     }
 
     /**
@@ -184,7 +183,7 @@ class AuthController extends StorefrontController
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
             if (!empty($token)) {
-                $this->addCartErrors($this->cartService->getCart($token, $context));
+                $this->addCartErrors($this->cartFacade->get($token, $context));
 
                 return $this->createActionResponse($request);
             }
@@ -257,36 +256,47 @@ class AuthController extends StorefrontController
      */
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
-        $page = $this->loginPageLoader->load($request, $context);
+        /** @deprecated tag:v6.5.0 - call to loginPageLoader and $loginPage will be removed */
+        $loginPage = null;
+        if (!Feature::isActive('v6.5.0.0')) {
+            $loginPage = $this->loginPageLoader->load($request, $context);
+        }
+
+        /** @var ?string $hash */
         $hash = $request->get('hash');
 
-        if (!$hash) {
+        if (!$hash || !\is_string($hash)) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
-        $customerHashCriteria = new Criteria();
-        $customerHashCriteria->addFilter(new EqualsFilter('hash', $hash));
-
-        $customerRecovery = $this->customerRecoveryRepository
-            ->search($customerHashCriteria, $context->getContext())
-            ->first();
-
-        if ($customerRecovery === null) {
+        try {
+            $page = $this->recoverPasswordPageLoader->load($request, $context, $hash);
+        } catch (ConstraintViolationException $e) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
-        if (!$this->checkHash($hash, $context->getContext())) {
-            $this->addFlash(self::DANGER, $this->trans('account.passwordHashExpired'));
+        $this->hook(new AccountRecoverPasswordPageLoadedHook($page, $context));
+
+        if ($page->getHash() === null || $page->isHashExpired()) {
+            $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
+        if (Feature::isActive('v6.5.0.0')) {
+            return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
+                'page' => $page,
+                'formViolations' => $request->get('formViolations'),
+            ]);
+        }
+
+        /** @deprecated tag:v6.5.0 - page will be instance of AccountRecoverPasswordPage and $hash will be moved to $page.getHash() */
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
-            'page' => $page,
+            'page' => $loginPage,
             'hash' => $hash,
             'formViolations' => $request->get('formViolations'),
         ]);
@@ -324,17 +334,5 @@ class AuthController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
-    }
-
-    private function checkHash(string $hash, Context $context): bool
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('hash', $hash));
-
-        $recovery = $this->customerRecoveryRepository->search($criteria, $context)->first();
-
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
-
-        return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
 }

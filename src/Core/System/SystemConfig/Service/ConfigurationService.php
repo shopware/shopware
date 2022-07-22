@@ -103,9 +103,6 @@ class ConfigurationService
                 }
 
                 unset($field['type'], $field['name']);
-                if ($field === []) {
-                    $field = new \stdClass();
-                }
                 $newField['config'] = $field;
                 $card['elements'][$j] = $newField;
             }

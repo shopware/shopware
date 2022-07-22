@@ -4,6 +4,9 @@ const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic-line-item instead.
+ */
 Component.extend('sw-condition-line-item-of-manufacturer', 'sw-condition-base-line-item', {
     template,
     inheritAttrs: false,

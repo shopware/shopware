@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraint;
@@ -54,6 +56,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      */
     private $customerProfileValidationFactory;
 
+    private StoreApiCustomFieldMapper $storeApiCustomFieldMapper;
+
     /**
      * @internal
      */
@@ -61,12 +65,14 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        DataValidationFactoryInterface $customerProfileValidationFactory
+        DataValidationFactoryInterface $customerProfileValidationFactory,
+        StoreApiCustomFieldMapper $storeApiCustomFieldMapper
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->customerProfileValidationFactory = $customerProfileValidationFactory;
+        $this->storeApiCustomFieldMapper = $storeApiCustomFieldMapper;
     }
 
     public function getDecorated(): AbstractChangeCustomerProfileRoute
@@ -163,6 +169,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;
+        }
+
+        if ($data->get('customFields') instanceof RequestDataBag) {
+            $customerData['customFields'] = $this->storeApiCustomFieldMapper->map(
+                CustomerDefinition::ENTITY_NAME,
+                $data->get('customFields')
+            );
         }
 
         $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());

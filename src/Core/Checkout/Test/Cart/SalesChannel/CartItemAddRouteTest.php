@@ -47,7 +47,7 @@ class CartItemAddRouteTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -79,7 +79,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -108,7 +108,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
@@ -139,9 +139,9 @@ class CartItemAddRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(20, $response['price']['totalPrice']);
@@ -170,9 +170,9 @@ class CartItemAddRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(403, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+        static::assertSame(403, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('INSUFFICIENT_PERMISSION', $response['errors'][0]['code']);
     }
@@ -199,9 +199,9 @@ class CartItemAddRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(100, $response['price']['totalPrice']);
     }
@@ -254,9 +254,9 @@ class CartItemAddRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $cart = json_decode($this->browser->getResponse()->getContent(), true);
+        $cart = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertArrayHasKey('deliveries', $cart);
         static::assertCount(1, $deliveries = $cart['deliveries']);
@@ -333,7 +333,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(790, $response['price']['totalPrice']);
@@ -357,7 +357,7 @@ class CartItemAddRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->productRepository->create([
             [
@@ -373,7 +373,7 @@ class CartItemAddRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->productRepository->create([
             [
@@ -390,7 +390,7 @@ class CartItemAddRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function enableAdminAccess(): void

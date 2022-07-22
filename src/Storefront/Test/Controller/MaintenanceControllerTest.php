@@ -29,7 +29,7 @@ class MaintenanceControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -101,7 +101,7 @@ class MaintenanceControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('cms_page.repository')->create([$page], $this->ids->context);
+        $this->getContainer()->get('cms_page.repository')->create([$page], Context::createDefaultContext());
     }
 
     private function setMaintenanceMode(): void

@@ -5,6 +5,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic instead.
  * @public
  * @description Condition for the PromotionValueRule. This component must a be child of sw-condition-tree.
  * @status prototype

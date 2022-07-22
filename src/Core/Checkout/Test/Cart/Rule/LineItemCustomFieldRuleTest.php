@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -97,6 +98,22 @@ class LineItemCustomFieldRuleTest extends TestCase
         $this->setupRule(false, 'bool');
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => true]), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
+    }
+
+    public function testWithoutCustomField(): void
+    {
+        $this->setupRule(false, 'bool');
+        $scope = new LineItemScope($this->createLineItem(), $this->salesChannelContext);
+        static::assertFalse($this->rule->match($scope));
+
+        $this->rule->assign(['operator' => $this->rule::OPERATOR_NEQ]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            static::assertFalse($this->rule->match($scope));
+
+            return;
+        }
+
+        static::assertTrue($this->rule->match($scope));
     }
 
     public function testStringCustomField(): void

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -12,8 +11,10 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
@@ -49,16 +50,9 @@ class DocumentControllerTest extends TestCase
      */
     private $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -90,27 +84,28 @@ class DocumentControllerTest extends TestCase
         $orderId = $this->persistCart($cart);
         $fileName = 'invoice';
 
-        $document = $this->getContainer()->get(DocumentService::class)->create(
-            $orderId,
-            'invoice',
-            'pdf',
-            new DocumentConfiguration(),
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
+
+        $document = $this->getContainer()->get(DocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
             $context,
-            null,
-            true
-        );
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 
-        $documentIdStruct = $this->getContainer()->get(DocumentService::class)->uploadFileForDocument(
+        $documentIdStruct = $this->getContainer()->get(DocumentGenerator::class)->upload(
             $document->getId(),
             $context,
             $request
@@ -126,7 +121,7 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(200, $response->getStatusCode());
         static::assertEquals($expectedFileContent, $response->getContent());
         static::assertEquals($expectedContentType, $response->headers->get('content-type'));
 
@@ -152,7 +147,7 @@ class DocumentControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode());
 
         return $browser;
     }

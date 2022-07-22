@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -21,6 +22,10 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     use OrderActionTrait;
     use CacheTestBehaviour;
 
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
+
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
@@ -29,7 +34,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -70,8 +75,9 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 
         $this->login($email, $password);
 
+        static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), $this->ids->context)->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         static::assertEquals($customer->getAffiliateCode(), $expectData['affiliateCode']);
         static::assertEquals($customer->getCampaignCode(), $expectData['campaignCode']);

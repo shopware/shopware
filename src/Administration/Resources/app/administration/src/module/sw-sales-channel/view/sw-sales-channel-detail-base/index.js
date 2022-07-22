@@ -133,7 +133,7 @@ Component.register('sw-sales-channel-detail-base', {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
         },

@@ -156,11 +156,11 @@ class MailService extends AbstractMailService
         $template = $data['subject'];
 
         try {
-            $data['subject'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
+            $data['subject'] = $this->templateRenderer->render($template, $templateData, $context, false);
             $template = $data['senderName'];
-            $data['senderName'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
+            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
             foreach ($contents as $index => $template) {
-                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
+                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context, $index !== 'text/plain');
             }
         } catch (\Throwable $e) {
             $event = new MailErrorEvent(

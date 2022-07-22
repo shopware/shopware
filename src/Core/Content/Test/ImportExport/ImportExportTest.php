@@ -113,8 +113,8 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertSame($filesystem->getSize($this->getLogEntity($progress->getLogId())->getFile()->getPath()), $file->getSize());
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($exportFileTmp, $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
+        $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
+        file_put_contents($exportFileTmp, (string) $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
 
         $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $exportFileTmp, 'test.csv', null, false, true);
 
@@ -174,9 +174,9 @@ class ImportExportTest extends AbstractImportExportTest
 
         $categoryRepository->delete([['id' => $childId], ['id' => $betweenId], ['id' => $rootId]], Context::createDefaultContext());
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+        $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
 
-        file_put_contents($exportFileTmp, $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
+        file_put_contents($exportFileTmp, (string) $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
 
         $this->import(Context::createDefaultContext(), CategoryDefinition::ENTITY_NAME, $exportFileTmp, 'test.csv', null, false, true);
 
@@ -276,8 +276,8 @@ class ImportExportTest extends AbstractImportExportTest
 
         $repo->delete([['id' => $testData['id']]], Context::createDefaultContext());
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($exportFileTmp, $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
+        $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
+        file_put_contents($exportFileTmp, (string) $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
 
         $progress = $this->import($context, NewsletterRecipientDefinition::ENTITY_NAME, $exportFileTmp, 'test.csv', null, false, true);
 
@@ -288,10 +288,11 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertNotNull($actualNewsletter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testDefaultProperties(): void
     {
-        static::markTestSkipped('Fix random failure');
-
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('property_group.repository');
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
@@ -331,8 +332,8 @@ class ImportExportTest extends AbstractImportExportTest
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
         static::assertGreaterThan(0, $filesystem->getSize($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        file_put_contents($exportFileTmp, $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
+        $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
+        file_put_contents($exportFileTmp, (string) $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath()));
 
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('DELETE FROM `property_group`');

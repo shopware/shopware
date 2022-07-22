@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Newsletter\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -32,7 +31,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),

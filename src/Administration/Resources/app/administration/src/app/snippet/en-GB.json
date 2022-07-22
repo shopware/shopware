@@ -406,7 +406,7 @@
       "buttonFileUpload": "Upload file",
       "buttonUrlUpload": "Upload file from URL",
       "buttonSwitchToFileUpload": "Upload file from your computer",
-      "buttonSwitchToUrlUpload": "Upload file from url",
+      "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
       "notification": {
         "success": {
@@ -441,8 +441,17 @@
           "message": "Error while uploading file."
         },
         "illegalFilename": {
-          "title": "Invalid Filename",
+          "title": "Invalid filename",
           "message": "The filename \"{fileName}\" contains invalid characters."
+        },
+        "invalidFileType": {
+          "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
+        },
+        "invalidUrl": {
+          "message": "The provided URL is invalid."
         }
       },
       "caption": "Drag files here to upload"
@@ -474,8 +483,8 @@
           "message": "Error while saving settings."
         }
       },
-      "labelDefaultFolder": "Default location for:",
-      "placeholderDefaultFolder": "Select a default location..."
+      "labelDefaultFolder": "Default media location for",
+      "placeholderDefaultFolder": "Select entity..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"
@@ -546,13 +555,13 @@
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
-      "placeholderSearchShortcutInfo": "<strong>Tip:</strong> Press <span>f</span> to open the search from everywhere.",
+      "placeholderSearchShortcutInfo": "<strong>Tip:</strong> Press <span>f</span> to open the search from anywhere.",
       "moduleFiltersHeadline": "Module filters",
       "placeholderFilterShortcutInfo": "Type <span>#products</span> in the search to set the module filter.",
       "searchTypeAll": "All",
       "moduleFilter": "Module filter",
-      "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",
-      "messageNoResultsDetailV2": "You might want to try using different keywords or check the configuration of your search.",
+      "messageNoResultsV2": "No exact matches found for \"{term}\".",
+      "messageNoResultsDetailV2": "Try using different keywords or check your search configuration.",
       "addNew": "add new"
     },
     "sw-search-bar-item": {
@@ -629,7 +638,7 @@
         "differentAddressesRule": "Customer with deviating shipping address",
         "emailRule": {
           "label": "Customer email address",
-          "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character ..."
+          "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character..."
         },
         "isNewCustomerRule": "New customer",
         "lastNameRule": "Customer surname",
@@ -738,7 +747,72 @@
           }
         },
         "customerCustomFieldRule": "Customer with custom field",
-        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character ..."
+        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character..."
+      }
+    },
+    "sw-condition-generic": {
+      "customerEmail": {
+        "email": {
+          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
+        }
+      },
+      "cartLineItemDimensionWidth": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
+        }
+      },
+      "cartLineItemDimensionHeight": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
+        }
+      },
+      "cartLineItemDimensionLength": {
+        "amount": {
+          "placeholder": "@:sw-product.settingsForm.placeholderLength"
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
+            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
+          }
+        }
+      },
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "@:global.day-of-week.monday",
+            "2": "@:global.day-of-week.tuesday",
+            "3": "@:global.day-of-week.wednesday",
+            "4": "@:global.day-of-week.thursday",
+            "5": "@:global.day-of-week.friday",
+            "6": "@:global.day-of-week.saturday",
+            "7": "@:global.day-of-week.sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
+            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeOfType": {
+          "options": {
+            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
+            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
+            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
+          }
+        }
+      },
+      "units": {
+        "dimension": "mm",
+        "weight": "kg",
+        "volume": "mm³"
       }
     },
     "sw-product-image": {
@@ -816,12 +890,12 @@
       "user": "User | Users",
       "landing_page": "Landing page | Landing pages",
       "delivery_time": "Delivery time | Delivery times",
-      "import_export_profile": "Import/Export Profile | Import/Export Profiles",
+      "import_export_profile": "Import/export profile | Import/export profiles",
       "feature_set": "Template | Templates",
       "event_action": "Business events",
       "property_group": "Property group | Property groups",
       "document_base_config": "Document base config | Document base configs",
-      "product_feature_set": "New Template | New Templates",
+      "product_feature_set": "New template | New templates",
       "custom-field-set": "Custom field set",
       "store_settings": "Product sorting",
       "flow": "Flow Builder",
@@ -1085,7 +1159,7 @@
     "placeholderName": "Enter a rule name...",
     "labelPriority": "Priority",
     "placeholderPriority": "Prioritise this rule...",
-    "messageSaveSuccess": "The rule \"{name}\" has been saved.",
+    "messageSaveSuccess": "Rule \"{name}\" saved.",
     "messageSaveError": "An error occurred while saving rule \"{name}\".",
     "ruleCard": "Conditions"
   },
@@ -1198,7 +1272,7 @@
     "labelCustomFieldSetSelectSwitch": "Select custom field sets",
     "placeholderCustomFieldSetSelect": "Select custom field sets...",
     "labelCustomFieldSetSelect": "Custom field sets",
-    "messagePluginSets": "Plugin custom field sets (Can't be removed)"
+    "messagePluginSets": "Plugin custom field sets (can't be removed)"
   },
   "sw-rating-stars": {
     "ratingTooltipText": "{actual} of {max} stars"

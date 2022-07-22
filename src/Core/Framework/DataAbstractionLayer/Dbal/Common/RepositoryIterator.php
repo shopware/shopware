@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 
 class RepositoryIterator
 {
@@ -85,8 +86,7 @@ class RepositoryIterator
             throw new \RuntimeException('Expected string as last element of ids array');
         }
 
-        $increment = $ids->getDataFieldOfId($last, 'auto_increment');
-
+        $increment = $ids->getDataFieldOfId($last, Feature::isActive('v6.5.0.0') ? 'autoIncrement' : 'auto_increment');
         $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
 
         return $values;

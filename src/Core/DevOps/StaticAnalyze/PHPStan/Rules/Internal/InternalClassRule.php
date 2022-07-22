@@ -3,15 +3,15 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 
 /**
- * @implements Rule<Class_>
+ * @implements Rule<InClassNode>
  */
 class InternalClassRule implements Rule
 {
@@ -21,34 +21,34 @@ class InternalClassRule implements Rule
 
     public function getNodeType(): string
     {
-        return Class_::class;
+        return InClassNode::class;
     }
 
     /**
-     * @param Class_ $node
+     * @param InClassNode $node
      *
      * @return array<array-key, RuleError|string>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInternal($node) || $this->isAnonymous($node)) {
+        if ($this->isInternal($node)) {
             return [];
         }
 
-        if ($this->isTestClass($node, $scope)) {
+        if ($this->isTestClass($node)) {
             return ['Test classes must be flagged @internal to not be captured by the BC checker'];
         }
 
-        if ($this->isStorefrontController($scope)) {
+        if ($this->isStorefrontController($node)) {
             return ['Storefront controllers must be flagged @internal to not be captured by the BC checker. The BC promise is checked over the route annotation.'];
         }
 
         return [];
     }
 
-    private function isTestClass(Class_ $node, Scope $scope): bool
+    private function isTestClass(InClassNode $node): bool
     {
-        $namespace = (string) $node->namespacedName;
+        $namespace = $node->getClassReflection()->getName();
 
         if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
             return false;
@@ -58,18 +58,18 @@ class InternalClassRule implements Rule
             return true;
         }
 
-        if ($scope->getClassReflection() === null) {
+        if (\str_contains($namespace, '\\Tests\\')) {
+            return true;
+        }
+
+        if ($node->getClassReflection()->getParentClass() === null) {
             return false;
         }
 
-        if ($scope->getClassReflection()->getParentClass() === null) {
-            return false;
-        }
-
-        return $scope->getClassReflection()->getParentClass()->getName() === TestCase::class;
+        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 
-    private function isInternal(Class_ $class): bool
+    private function isInternal(InClassNode $class): bool
     {
         $doc = $class->getDocComment();
 
@@ -77,21 +77,12 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return \str_contains($doc->getText(), '@internal');
+        return \str_contains($doc->getText(), '@internal') || \str_contains($doc->getText(), 'reason:becomes-internal');
     }
 
-    private function isAnonymous(Class_ $node): bool
+    private function isStorefrontController(InClassNode $node): bool
     {
-        return ((string) $node->namespacedName) === '';
-    }
-
-    private function isStorefrontController(Scope $scope): bool
-    {
-        $class = $scope->getClassReflection();
-
-        if ($class === null) {
-            return false;
-        }
+        $class = $node->getClassReflection();
 
         if ($class->getParentClass() === null) {
             return false;

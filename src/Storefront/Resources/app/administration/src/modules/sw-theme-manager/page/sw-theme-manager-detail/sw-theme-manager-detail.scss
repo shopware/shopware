@@ -128,9 +128,10 @@
         .sw-media-upload-v2__header {
             flex-direction: row-reverse;
             position: relative;
-            top: -18px;
-            margin-bottom: -12px;
+            top: -28px;
+            margin-bottom: -24px;
             z-index: 99;
+            height: 24px;
         }
 
         .sw-inherit-wrapper__toggle-wrapper {
@@ -139,8 +140,36 @@
             width: fit-content;
         }
 
-        .sw-media-upload-v2__switch-mode {
-            position: absolute;
+        .sw-field__label {
+            @extend .sw-media-upload-v2__header;
+        }
+
+        &-switch,
+        &-checkbox {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 10px;
+            align-items: flex-start;
+
+            .sw-inherit-wrapper__toggle-wrapper {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 0;
+            }
+
+            .sw-field--switch__input {
+                padding: 0;
+            }
+
+            .sw-field--switch,
+            .sw-field--checkbox {
+                margin: 0;
+            }
+
+            .sw-field {
+                display: none;
+            }
         }
     }
 

@@ -21,6 +21,7 @@
     <div
         ref="dropzone"
         class="sw-file-input__dropzone"
+        :class="isDragActiveClass"
     >
 
         {% block sw_file_input_caption %}
@@ -61,6 +62,7 @@
                 class="sw-file-input__button"
                 variant="ghost"
                 size="small"
+                :disabled="disabled"
                 @click="onChooseButtonClick"
             >
                 {{ $tc('global.sw-file-input.buttonChoose') }}

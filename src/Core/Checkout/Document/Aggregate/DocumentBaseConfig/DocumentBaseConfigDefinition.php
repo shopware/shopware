@@ -41,6 +41,13 @@ class DocumentBaseConfigDefinition extends EntityDefinition
         return DocumentBaseConfigEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'global' => false,
+        ];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

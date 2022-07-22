@@ -1,0 +1,93 @@
+{% block sw_settings_payment_sorting_modal %}
+<sw-modal
+    class="sw-settings-payment-sorting-modal"
+    :title="$tc('sw-settings-payment.sorting-modal.modalTitle')"
+    @modal-close="closeModal"
+>
+
+    {% block sw_settings_payment_sorting_modal_content %}
+    <template #body>
+
+        {% block sw_settings_payment_sorting_modal_content_subtitle %}
+        <div class="sw-modal__body sw-settings-payment-sorting-modal__subtitle">
+            {{ $tc('sw-settings-payment.sorting-modal.subTitle') }}
+        </div>
+        {% endblock %}
+
+        {% block sw_settings_payment_sorting_modal_content_list %}
+        <div class="sw-modal__body">
+            <sw-sortable-list
+                class="sw-settings-payment-sorting-modal__payment-method-list"
+                :items="sortedPaymentMethods"
+                @itemsSorted="onSort"
+            >
+                {% block sw_settings_payment_sorting_modal_content_payment_method %}
+                <template #item="{ item: paymentMethod }">
+                    <div
+                        class="sw-settings-payment-sorting-modal__payment-method-list-item"
+                        :class="!paymentMethod.active ? 'is--disabled' : ''"
+                    >
+                        {% block sw_settings_payment_sorting_modal_content_payment_method_action %}
+                        <sw-icon
+                            class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
+                            name="default-action-drag-horizontal"
+                        />
+                        {% endblock %}
+                        {% block sw_settings_payment_sorting_modal_content_payment_method_icon %}
+                        <img
+                            v-if="isShopwareDefaultPaymentMethod(paymentMethod)"
+                            class="sw-settings-payment-sorting-modal__payment-method-list-item__icon"
+                            :src="'/administration/static/img/checkout/shopware_payment_method.svg' | asset"
+                            alt=""
+                        >
+                        <sw-media-preview-v2
+                            v-else
+                            class="sw-settings-payment-sorting-modal__payment-method-list-item__icon"
+                            :source="paymentMethod.media ? paymentMethod.media : null"
+                        />
+                        {% endblock %}
+                        {% block sw_settings_payment_sorting_modal_content_payment_method_name %}
+                        <div class="sw-settings-payment-sorting-modal__payment-method-list-item__name">
+                            {{ paymentMethod.translated.name }}
+                        </div>
+                        {% endblock %}
+                    </div>
+                </template>
+                {% endblock %}
+            </sw-sortable-list>
+        </div>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_sorting_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_settings_payment_sorting_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-settings-payment-sorting-modal__cancel-button"
+            @click="closeModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_settings_payment_sorting_modal_footer_save_button %}
+        <sw-button-process
+            class="sw-settings-payment-sorting-modal__save-button"
+            variant="primary"
+            :is-loading="isSaving"
+            :disabled="!acl.can('category.editor')"
+            :process-success="false"
+            @click="applyChanges"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+</sw-modal>
+{% endblock %}

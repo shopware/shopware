@@ -84,7 +84,7 @@ describe('Product: Edit in various ways', () => {
     });
 
     // NEXT-20024
-    it.skip('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', () => {
+    it('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 

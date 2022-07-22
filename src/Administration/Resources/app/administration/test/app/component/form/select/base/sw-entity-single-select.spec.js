@@ -14,13 +14,27 @@ import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-product-variant-info';
 
+const swOriginEntitySingleSelect = Shopware.Component.build('sw-entity-single-select');
+
 const fixture = [
-    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
-    { id: utils.createId(), name: 'second entry' },
-    { id: utils.createId(), name: 'third entry' }
+    {
+        id: utils.createId(),
+        name: 'first entry',
+        variation: [{ group: 'Size', option: 'M' }],
+        active: true,
+    },
+    {
+        id: utils.createId(),
+        name: 'second entry',
+        active: false,
+    },
+    {
+        id: utils.createId(),
+        name: 'third entry',
+        active: true,
+    }
 ];
 
-const swOriginEntitySingleSelect = Shopware.Component.build('sw-entity-single-select');
 const propertyFixture = [
     {
         id: utils.createId(),
@@ -69,7 +83,7 @@ function getPropertyCollection() {
     );
 }
 
-const createEntitySingleSelect = (customOptions) => {
+function createEntitySingleSelect(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {
@@ -94,7 +108,8 @@ const createEntitySingleSelect = (customOptions) => {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>',
+                props: ['size', 'color', 'name']
             },
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
@@ -123,7 +138,7 @@ const createEntitySingleSelect = (customOptions) => {
         ...options,
         ...customOptions
     });
-};
+}
 
 describe('components/sw-entity-single-select', () => {
     it('should be a Vue.js component', async () => {
@@ -225,6 +240,65 @@ describe('components/sw-entity-single-select', () => {
         const secondEntry = wrapper.find('.sw-select-option--1');
         expect(secondEntry.attributes('tooltip-message')).toBe('test message');
         expect(secondEntry.attributes('tooltip-disabled')).toBe('false');
+    });
+
+    it('should show active state of options if enabled', async () => {
+        const wrapper = createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'test',
+                shouldShowActiveState: false,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        let activeStateIcons = wrapper.findAll('.sw-entity-single-select__selection-active');
+
+        expect(activeStateIcons.length).toBe(0);
+
+        await wrapper.setProps({
+            shouldShowActiveState: true
+        });
+        await wrapper.vm.$nextTick();
+
+        activeStateIcons = wrapper.findAll('.sw-entity-single-select__selection-active');
+
+        const activeIconProps = {
+            color: '#37d046',
+            name: 'default-basic-shape-circle-filled',
+            size: '6'
+        };
+
+        const inActiveIconProps = {
+            color: '#d1d9e0',
+            name: 'default-basic-shape-circle-filled',
+            size: '6'
+        };
+
+        expect(activeStateIcons.length).toBe(3);
+        expect(activeStateIcons.at(0).props()).toStrictEqual(activeIconProps);
+        expect(activeStateIcons.at(1).props()).toStrictEqual(inActiveIconProps);
+        expect(activeStateIcons.at(2).props()).toStrictEqual(activeIconProps);
+
+        await wrapper.setProps({
+            shouldShowActiveState: false
+        });
+        await wrapper.vm.$nextTick();
+
+        activeStateIcons = wrapper.findAll('.sw-select-option .sw-entity-single-select__selection-active');
+
+        expect(activeStateIcons.length).toBe(0);
     });
 
     it('should have a reset option when it is defined an the value is null', async () => {

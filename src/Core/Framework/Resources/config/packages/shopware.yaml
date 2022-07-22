@@ -227,5 +227,6 @@ shopware:
             language_route: []
             currency_route: []
             country_route: []
+            country_state_route: []
             salutation_route: []
             sitemap_route: []

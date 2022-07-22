@@ -40,6 +40,18 @@ Component.register('sw-internal-link', {
             required: false,
             default: false,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideIcon: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

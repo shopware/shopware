@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -50,6 +51,12 @@ class LineItemPromotedRule extends Rule
         return [
             'isPromoted' => RuleConstraints::bool(),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->booleanField('isPromoted');
     }
 
     private function isItemMatching(LineItem $lineItem): bool

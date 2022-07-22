@@ -43,7 +43,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->salesChannelId = $this->ids->create('sales-channel');
 

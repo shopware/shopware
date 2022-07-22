@@ -1268,7 +1268,7 @@ class EntityAggregatorTest extends TestCase
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('product.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $repository->create([
             $this->getProduct('p-1', 't-1', 'm-1', 50, ['c-1', 'c-2'], '2019-01-01 10:11:00'),

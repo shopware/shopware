@@ -1,0 +1,21 @@
+.sw-bulk-edit-save-modal-success {
+    &__download-document-container {
+        width: 100%;
+        margin: 24px 0;
+    }
+
+    &__download-document {
+        display: flex;
+        align-items: center;
+        list-style: none;
+
+        &:not(:first-child) {
+            margin-top: 24px;
+        }
+
+        .label {
+            flex-grow: 1;
+            margin-right: 24px;
+        }
+    }
+}

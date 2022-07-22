@@ -2,7 +2,7 @@
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
     {% set maxLength = config('seo.descriptionMaxLength') %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 160, '…') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
 

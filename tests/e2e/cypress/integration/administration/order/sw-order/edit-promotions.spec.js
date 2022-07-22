@@ -110,7 +110,7 @@ describe('Order: Test promotions in existing orders', () => {
             .scrollIntoView();
     });
 
-    it.skip('@base @order: add automatic promotion to existing order', () => {
+    it('@base @order: add automatic promotion to existing order', { tags: ['quarantined'] }, () => {
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {

@@ -24,6 +24,7 @@ import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
 import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
+import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 
@@ -163,6 +164,7 @@ declare global {
         extensions: ExtensionsState,
         tabs: TabsState,
         extensionComponentSections: ExtensionComponentSectionsState,
+        paymentOverviewCardState: PaymentOverviewCardState,
         session: {
             currentUser: $TSFixMe,
             userPending: boolean,

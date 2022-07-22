@@ -69,6 +69,8 @@ class DocumentServiceTest extends TestCase
     {
         parent::setUp();
 
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->context = Context::createDefaultContext();
 
         $paymentMethod = $this->getAvailablePaymentMethod();
@@ -524,6 +526,7 @@ class DocumentServiceTest extends TestCase
         $stornoConfiguration = new DocumentConfiguration();
         $stornoConfiguration->assign([
             'custom' => [
+                'stornoNumber' => '10000',
                 'invoiceNumber' => $invoiceNumber,
             ],
         ]);
@@ -540,7 +543,7 @@ class DocumentServiceTest extends TestCase
         $customerNo = (string) $orderCustomer->getCustomerNumber();
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation  for invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
         static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
 
         $this->getContainer()->get('order_customer.repository')->update([[
@@ -558,7 +561,7 @@ class DocumentServiceTest extends TestCase
         );
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation  for invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
         static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
     }

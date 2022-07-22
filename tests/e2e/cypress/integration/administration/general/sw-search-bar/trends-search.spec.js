@@ -6,7 +6,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
     });
 
     // NEXT-20024
-    it.skip('@searchBar search frequently used modules', () => {
+    it('@searchBar search frequently used modules', { tags: ['quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/increment/user_activity?*`,
             method: 'GET'

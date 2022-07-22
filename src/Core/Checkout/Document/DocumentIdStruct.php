@@ -6,20 +6,17 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class DocumentIdStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $id;
 
-    /**
-     * @var string
-     */
-    protected $deepLinkCode;
+    protected string $deepLinkCode;
 
-    public function __construct(string $id, string $deepLinkCode)
+    protected ?string $mediaId;
+
+    public function __construct(string $id, string $deepLinkCode, ?string $mediaId = null)
     {
         $this->id = $id;
         $this->deepLinkCode = $deepLinkCode;
+        $this->mediaId = $mediaId;
     }
 
     public function getDeepLinkCode(): string
@@ -40,6 +37,11 @@ class DocumentIdStruct extends Struct
     public function setId(string $id): void
     {
         $this->id = $id;
+    }
+
+    public function getMediaId(): ?string
+    {
+        return $this->mediaId;
     }
 
     public function getApiAlias(): string

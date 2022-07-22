@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +19,10 @@ class SetOrderCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;
 
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
+
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
@@ -26,7 +31,7 @@ class SetOrderCustomFieldActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -79,7 +84,7 @@ class SetOrderCustomFieldActionTest extends TestCase
         $this->cancelOrder();
 
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), $this->ids->context)->first();
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), Context::createDefaultContext())->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertEquals($order->getCustomFields(), $expect);

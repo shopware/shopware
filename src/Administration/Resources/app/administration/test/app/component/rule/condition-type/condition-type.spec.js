@@ -3,9 +3,11 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
+import GenericConditionMixin from 'src/app/mixin/generic-condition.mixin';
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
+import ruleConditionsConfig from './_mocks/ruleConditionsConfig.json';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPath));
@@ -76,6 +78,9 @@ function createWrapperForComponent(componentName, props = {}) {
         },
         provide: {
             conditionDataProviderService: new ConditionDataProviderService(),
+            ruleConditionsConfigApiService: {
+                load: () => Promise.resolve()
+            },
             availableTypes: [],
             availableGroups: [],
             restrictedConditions: [],
@@ -92,7 +97,10 @@ function createWrapperForComponent(componentName, props = {}) {
         propsData: {
             condition: {},
             ...props
-        }
+        },
+        mixins: ['sw-condition-generic', 'sw-condition-generic-line-item'].includes(componentName) ? [
+            Shopware.Mixin.getByName('generic-condition')
+        ] : []
     });
 }
 
@@ -124,6 +132,9 @@ function getAllFields(wrapper) {
 
 describe('src/app/component/rule/condition-type/*.js', () => {
     beforeAll(() => {
+        Shopware.Mixin.register('generic-condition', GenericConditionMixin);
+        Shopware.State.commit('ruleConditionsConfig/setConfig', ruleConditionsConfig);
+
         return importAllConditionTypes();
     });
 

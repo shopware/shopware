@@ -26,7 +26,7 @@ class SeoUrlRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->createData();
     }
 
@@ -119,7 +119,7 @@ class SeoUrlRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -137,6 +137,6 @@ class SeoUrlRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('seo_url.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

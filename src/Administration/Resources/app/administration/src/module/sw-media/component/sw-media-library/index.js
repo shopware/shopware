@@ -137,7 +137,11 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone) && !this.shouldDisplayEmptyState;
+            if (this.isLoading || this.shouldDisplayEmptyState) {
+                return false;
+            }
+
+            return !(this.itemLoaderDone && this.folderLoaderDone);
         },
     },
 
@@ -249,10 +253,14 @@ Component.register('sw-media-library', {
 
             if (nextMedia.status === 'fulfilled') {
                 this.items.push(...nextMedia.value);
+            } else {
+                this.itemLoaderDone = false;
             }
 
             if (nextFolders.status === 'fulfilled') {
                 this.subFolders.push(...nextFolders.value);
+            } else {
+                this.folderLoaderDone = false;
             }
 
             this.isLoading = false;
@@ -266,20 +274,35 @@ Component.register('sw-media-library', {
             // always search without folderId criteria --> search for all items
             let criteria = new Criteria(this.pageItem, this.limit);
             criteria
-                .addAssociation('tags')
-                .addAssociation('productMedia.product')
-                .addAssociation('categories')
-                .addAssociation('productManufacturers.products')
-                .addAssociation('mailTemplateMedia.mailTemplate')
-                .addAssociation('documentBaseConfigs')
-                .addAssociation('avatarUser')
-                .addAssociation('paymentMethods')
-                .addAssociation('shippingMethods')
-                .addAssociation('cmsBlocks.section.page')
-                .addAssociation('cmsSections.page')
-                .addAssociation('cmsPages')
                 .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                 .setTerm(this.term);
+
+            // ToDo NEXT-22186 - will be replaced by a new overview
+            [
+                'tags',
+                'productMedia.product',
+                'categories',
+                'productManufacturers.products',
+                'mailTemplateMedia.mailTemplate',
+                'documentBaseConfigs',
+                'avatarUser',
+                'paymentMethods',
+                'shippingMethods',
+                'cmsBlocks.section.page',
+                'cmsSections.page',
+                'cmsPages',
+            ].forEach(association => {
+                const associationParts = association.split('.');
+
+                criteria.addAssociation(association);
+
+                let path = null;
+                associationParts.forEach(currentPart => {
+                    path = path ? `${path}.${currentPart}` : currentPart;
+
+                    criteria.getAssociation(path).setLimit(25);
+                });
+            });
 
             if (this.isValidTerm(this.term)) {
                 const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
@@ -311,7 +334,7 @@ Component.register('sw-media-library', {
                 ]));
             }
 
-            const media = this.mediaRepository.search(criteria, Context.api);
+            const media = await this.mediaRepository.search(criteria, Context.api);
 
             this.itemLoaderDone = this.isLoaderDone(criteria, media);
 

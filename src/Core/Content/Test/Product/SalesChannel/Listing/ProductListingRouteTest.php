@@ -52,7 +52,7 @@ class ProductListingRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->salesChannelContext = $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
         /** @var EntityRepositoryInterface $categoryRepository */
@@ -325,16 +325,16 @@ class ProductListingRouteTest extends TestCase
                 'field' => 'options.id',
                 'value' => $this->optionIds['red'],
             ]],
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
 
-        $this->categoryRepository->upsert([$data], $this->ids->context);
+        $this->categoryRepository->upsert([$data], Context::createDefaultContext());
         $this->categoryRepository->upsert([[
             'id' => $this->ids->get('category'),
             'productStreamId' => $productStreamId,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
 
         if ($mainVariant) {
-            $this->productRepository->upsert([['id' => $this->productId, 'mainVariantId' => $this->variantIds['greenL']]], $this->ids->context);
+            $this->productRepository->upsert([['id' => $this->productId, 'mainVariantId' => $this->variantIds['greenL']]], Context::createDefaultContext());
         }
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -357,6 +357,6 @@ class ProductListingRouteTest extends TestCase
             ];
         }
 
-        $this->productRepository->update($products, $this->ids->context);
+        $this->productRepository->update($products, Context::createDefaultContext());
     }
 }

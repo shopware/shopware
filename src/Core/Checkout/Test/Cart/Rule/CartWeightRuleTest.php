@@ -31,22 +31,42 @@ class CartWeightRuleTest extends TestCase
         $this->rule = new CartWeightRule();
     }
 
-    public function testIfMatchesCorrectOnEqualWeight(): void
-    {
-        $this->rule->assign(['weight' => 300, 'operator' => Rule::OPERATOR_EQ]);
+    /**
+     * @dataProvider getMatchingRuleTestData
+     */
+    public function testIfMatchesCorrectWithLineItem(
+        string $operator,
+        float $weight,
+        float $lineItemWeight1,
+        float $lineItemWeight2,
+        bool $expected,
+        bool $lineItem1WithoutDeliveryInfo = false,
+        bool $lineItem2WithoutDeliveryInfo = false
+    ): void {
+        $this->rule->assign(['weight' => $weight, 'operator' => $operator]);
 
         $match = $this->rule->match(new CartRuleScope(
-            $this->createCartDummy(),
+            $this->createCartDummy($lineItemWeight1, $lineItemWeight2, $lineItem1WithoutDeliveryInfo, $lineItem2WithoutDeliveryInfo),
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertTrue($match);
+        static::assertSame($expected, $match);
     }
 
-    public function testIfMatchesCorrectOnEqualWeightNested(): void
-    {
-        $this->rule->assign(['weight' => 300, 'operator' => Rule::OPERATOR_EQ]);
-        $cart = $this->createCartDummy();
+    /**
+     * @dataProvider getMatchingRuleTestData
+     */
+    public function testIfMatchesCorrectOnEqualWeightNested(
+        string $operator,
+        float $weight,
+        float $lineItemWeight1,
+        float $lineItemWeight2,
+        bool $expected,
+        bool $lineItem1WithoutDeliveryInfo = false,
+        bool $lineItem2WithoutDeliveryInfo = false
+    ): void {
+        $this->rule->assign(['weight' => $weight, 'operator' => $operator]);
+        $cart = $this->createCartDummy($lineItemWeight1, $lineItemWeight2, $lineItem1WithoutDeliveryInfo, $lineItem2WithoutDeliveryInfo);
         $childLineItemCollection = $cart->getLineItems();
 
         $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
@@ -58,40 +78,38 @@ class CartWeightRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertTrue($match);
+        static::assertSame($expected, $match);
     }
 
-    public function testIfMatchesUnequal(): void
+    public function getMatchingRuleTestData(): \Traversable
     {
-        $this->rule->assign(['weight' => 300, 'operator' => Rule::OPERATOR_NEQ]);
-
-        $match = $this->rule->match(new CartRuleScope(
-            $this->createCartDummy(),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertFalse($match);
-    }
-
-    public function testIfGreaterThanIsCorrect(): void
-    {
-        $this->rule->assign(['weight' => 300, 'operator' => Rule::OPERATOR_GT]);
-
-        $match = $this->rule->match(new CartRuleScope(
-            $this->createCartDummy(),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertFalse($match);
-
-        $this->rule->assign(['weight' => 200]);
-
-        $match = $this->rule->match(new CartRuleScope(
-            $this->createCartDummy(),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertTrue($match);
+        // OPERATOR_EQ
+        yield 'match / operator equals / same weight' => [Rule::OPERATOR_EQ, 600, 100, 100, true];
+        yield 'no match / operator equals / different weight' => [Rule::OPERATOR_EQ, 200, 100, 100, false];
+        yield 'match / operator equals / without delivery info of item 1' => [Rule::OPERATOR_EQ, 300, 100, 100, true, true];
+        yield 'match / operator equals / without delivery info of item 1 and 2' => [Rule::OPERATOR_EQ, 0, 100, 100, true, true, true];
+        // OPERATOR_NEQ
+        yield 'no match / operator not equals / same weight' => [Rule::OPERATOR_NEQ, 600, 100, 100, false];
+        yield 'match / operator not equals / different weight' => [Rule::OPERATOR_NEQ, 200, 100, 100, true];
+        yield 'match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 600, 100, 100, true, true];
+        yield 'no match / operator not equals / without delivery info of item 1' => [Rule::OPERATOR_NEQ, 300, 100, 100, false, true];
+        yield 'no match / operator not equals / without delivery info of item 1 and 2' => [Rule::OPERATOR_NEQ, 0, 100, 100, false, true, true];
+        // OPERATOR_GT
+        yield 'no match / operator greater than / lower weight' => [Rule::OPERATOR_GT, 700, 100, 100, false];
+        yield 'no match / operator greater than / same weight' => [Rule::OPERATOR_GT, 600, 100, 100, false];
+        yield 'match / operator greater than / higher weight' => [Rule::OPERATOR_GT, 200, 100, 100, true];
+        // OPERATOR_GTE
+        yield 'no match / operator greater than equals / lower weight' => [Rule::OPERATOR_GTE, 700, 100, 100, false];
+        yield 'match / operator greater than equals / same weight' => [Rule::OPERATOR_GTE, 600, 100, 100, true];
+        yield 'match / operator greater than equals / higher weight' => [Rule::OPERATOR_GTE, 200, 100, 100, true];
+        // OPERATOR_LT
+        yield 'match / operator lower than / lower weight' => [Rule::OPERATOR_LT, 700, 100, 100, true];
+        yield 'no match / operator lower  than / same weight' => [Rule::OPERATOR_LT, 600, 100, 100, false];
+        yield 'no match / operator lower than / higher weight' => [Rule::OPERATOR_LT, 200, 100, 100, false];
+        // OPERATOR_LTE
+        yield 'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 700, 100, 100, true];
+        yield 'match / operator lower than equals / same weight' => [Rule::OPERATOR_LTE, 600, 100, 100, true];
+        yield 'no match / operator lower than equals / higher weight' => [Rule::OPERATOR_LTE, 200, 100, 100, false];
     }
 
     public function testIfRuleIsConsistent(): void
@@ -126,11 +144,21 @@ class CartWeightRuleTest extends TestCase
         static::assertSame(Rule::OPERATOR_EQ, $result->getValue()['operator']);
     }
 
-    private function createCartDummy(): Cart
+    private function createCartDummy(?float $weight1, ?float $weight2, bool $lineItem1WithoutDeliveryInfo = false, bool $lineItem2WithoutDeliveryInfo = false): Cart
     {
+        $lineItem1 = $this->createLineItemWithDeliveryInfo(false, 3, $weight1);
+        if ($lineItem1WithoutDeliveryInfo) {
+            $lineItem1 = $this->createLineItem();
+        }
+
+        $lineItem2 = $this->createLineItemWithDeliveryInfo(false, 3, $weight2);
+        if ($lineItem2WithoutDeliveryInfo) {
+            $lineItem2 = $this->createLineItem();
+        }
+
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithDeliveryInfo(false, 3),
-            $this->createLineItemWithDeliveryInfo(true, 3),
+            $lineItem1,
+            $lineItem2,
         ]);
 
         return $this->createCart($lineItemCollection);

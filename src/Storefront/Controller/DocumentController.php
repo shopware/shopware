@@ -2,9 +2,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Account\Document\DocumentPageLoader;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -20,16 +21,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class DocumentController extends StorefrontController
 {
     /**
-     * @var DocumentPageLoader
+     * @deprecated tag:v6.5.0 - Property $documentPageLoader will be removed due to unused
      */
-    protected $documentPageLoader;
+    protected DocumentPageLoader $documentPageLoader;
+
+    private AbstractDocumentRoute $documentRoute;
 
     /**
      * @internal
      */
-    public function __construct(DocumentPageLoader $documentPageLoader)
+    public function __construct(DocumentPageLoader $documentPageLoader, AbstractDocumentRoute $documentRoute)
     {
         $this->documentPageLoader = $documentPageLoader;
+        $this->documentRoute = $documentRoute;
     }
 
     /**
@@ -38,7 +42,20 @@ class DocumentController extends StorefrontController
      */
     public function downloadDocument(Request $request, SalesChannelContext $context): Response
     {
-        $download = $request->query->getBoolean('download', false);
+        if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - $documentId request parameter will be injected as a third argument parameter
+             */
+            $documentId = $request->get('documentId', false);
+
+            if ($documentId === false) {
+                throw new MissingRequestParameterException('documentId');
+            }
+
+            return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'));
+        }
+
+        $download = $request->query->getBoolean('download');
 
         $documentPage = $this->documentPageLoader->load($request, $context);
 

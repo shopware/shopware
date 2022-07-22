@@ -3,6 +3,9 @@ import template from './sw-condition-line-item-dimension-length.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic-line-item instead.
+ */
 Component.extend('sw-condition-line-item-dimension-length', 'sw-condition-base-line-item', {
     template,
 

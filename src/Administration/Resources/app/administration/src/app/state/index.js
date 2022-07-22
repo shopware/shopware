@@ -17,6 +17,7 @@ import extensionSdkModules from './extension-sdk-module.store';
 import extensionMainModules from './main-module.store';
 import modals from './modals.store';
 import actionButtons from './action-button.store';
+import ruleConditionsConfig from './rule-conditions-config.store';
 
 export default {
     notification,
@@ -38,4 +39,5 @@ export default {
     modals,
     extensionMainModules,
     actionButtons,
+    ruleConditionsConfig,
 };

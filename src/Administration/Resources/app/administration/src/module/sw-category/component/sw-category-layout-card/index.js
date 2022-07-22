@@ -69,7 +69,7 @@ Component.register('sw-category-layout-card', {
 
         openInPagebuilder() {
             if (!this.cmsPage) {
-                this.$router.push({ name: 'sw.cms.create' });
+                this.$router.push({ name: 'sw.cms.create', params: { type: 'category', id: this.category.id } });
             } else {
                 this.$router.push({ name: 'sw.cms.detail', params: { id: this.category.cmsPageId } });
             }

@@ -36,7 +36,7 @@ class ProductListRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -160,7 +160,7 @@ class ProductListRouteTest extends TestCase
             ->build();
 
         $this->getContainer()->get('product.repository')
-            ->upsert([$product], $this->ids->context);
+            ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -200,7 +200,7 @@ class ProductListRouteTest extends TestCase
             ->build();
 
         $this->getContainer()->get('product.repository')
-            ->upsert([$product], $this->ids->context);
+            ->upsert([$product], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -290,7 +290,7 @@ class ProductListRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 
     private function setVisibilities(): void
@@ -306,6 +306,6 @@ class ProductListRouteTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
+            ->update($products, Context::createDefaultContext());
     }
 }

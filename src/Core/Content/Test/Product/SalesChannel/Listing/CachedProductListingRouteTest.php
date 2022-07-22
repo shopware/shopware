@@ -203,7 +203,7 @@ class CachedProductListingRouteTest extends TestCase
             },
             function (string $categoryId) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             2,
         ];
@@ -211,11 +211,11 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is invalidated if the updated product is linked to the category' => [
             function (string $categoryId) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('product'), 'name' => 'test'];
-                $this->getContainer()->get('product.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('product.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
@@ -223,11 +223,11 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is invalidated if the deleted product is linked to the category' => [
             function (string $categoryId) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA, self::assign($categoryId));
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('product')];
-                $this->getContainer()->get('product.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('product.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -240,11 +240,11 @@ class CachedProductListingRouteTest extends TestCase
                     ['manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test']]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('manufacturer'), 'name' => 'test'];
-                $this->getContainer()->get('product_manufacturer.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('product_manufacturer.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
@@ -257,11 +257,11 @@ class CachedProductListingRouteTest extends TestCase
                     ['manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test']]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('manufacturer')];
-                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -278,11 +278,11 @@ class CachedProductListingRouteTest extends TestCase
                     ]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('property'), 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
@@ -299,11 +299,11 @@ class CachedProductListingRouteTest extends TestCase
                     ]
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('property')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -311,9 +311,9 @@ class CachedProductListingRouteTest extends TestCase
         yield 'cache is not invalidated if the created product is not linked to the category' => [
             function (): void {
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId): void {
                 $product = self::DATA;
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             1,
         ];
@@ -321,11 +321,11 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is not invalidated if the updated product is not linked to the category' => [
             function (string $categoryId) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA);
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('product'), 'name' => 'test'];
-                $this->getContainer()->get('product.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('product.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -333,11 +333,11 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is not invalidated if the deleted product is not linked to the category' => [
             function (string $categoryId) use ($ids): void {
                 $product = array_merge(['id' => $ids->get('product')], self::DATA);
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('product')];
-                $this->getContainer()->get('product.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('product.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
@@ -345,18 +345,18 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is not invalidated if the updated manufacturer is not used as filter in the category listing' => [
             function (string $categoryId) use ($ids): void {
                 $this->getContainer()->get('product_manufacturer.repository')
-                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], $ids->getContext());
+                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], Context::createDefaultContext());
 
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId)
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('manufacturer-not-used'), 'name' => 'test'];
-                $this->getContainer()->get('product_manufacturer.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('product_manufacturer.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -364,18 +364,18 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Cache is not invalidated if the deleted manufacturer is not used as filter in the category listing' => [
             function (string $categoryId) use ($ids): void {
                 $this->getContainer()->get('product_manufacturer.repository')
-                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], $ids->getContext());
+                    ->create([['id' => $ids->get('manufacturer-not-used'), 'name' => 'test']], Context::createDefaultContext());
 
                 $product = array_merge(
                     self::DATA,
                     self::assign($categoryId)
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('manufacturer-not-used')];
-                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
@@ -386,7 +386,7 @@ class CachedProductListingRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property'), 'name' => 'red', 'group' => ['name' => 'color']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $product = array_merge(
@@ -394,11 +394,11 @@ class CachedProductListingRouteTest extends TestCase
                     self::assign($categoryId),
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $update = ['id' => $ids->get('property'), 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -409,7 +409,7 @@ class CachedProductListingRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property'), 'name' => 'red', 'group' => ['name' => 'color']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $product = array_merge(
@@ -417,11 +417,11 @@ class CachedProductListingRouteTest extends TestCase
                     self::assign($categoryId),
                 );
 
-                $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+                $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
             },
             function (string $categoryId) use ($ids): void {
                 $delete = ['id' => $ids->get('property')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];

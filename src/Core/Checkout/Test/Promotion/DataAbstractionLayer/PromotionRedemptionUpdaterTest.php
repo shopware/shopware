@@ -36,16 +36,13 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepositoryInterface $customerRepository;
-
     private Connection $connection;
 
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->ids = new TestDataCollection();
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
     }

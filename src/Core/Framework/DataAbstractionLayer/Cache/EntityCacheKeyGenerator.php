@@ -25,7 +25,7 @@ class EntityCacheKeyGenerator
 
     public function getSalesChannelContextHash(SalesChannelContext $context): string
     {
-        return md5(json_encode([
+        return md5((string) json_encode([
             $context->getSalesChannelId(),
             $context->getDomainId(),
             $context->getLanguageIdChain(),
@@ -37,7 +37,7 @@ class EntityCacheKeyGenerator
 
     public function getCriteriaHash(Criteria $criteria): string
     {
-        return md5(json_encode([
+        return md5((string) json_encode([
             $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getTerm(),

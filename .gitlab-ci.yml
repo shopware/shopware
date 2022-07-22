@@ -5,8 +5,10 @@ stages:
     - unit
     # cypress E2E tests
     - E2E
-    # search for vulnerabilities in code and dependencies
-    - security
+    # quarantined tests
+    - quarantine
+    # downstream pipelines trigger by this pipeline
+    - downstream
     # build artifacts used in deploy
     - build
     # deploy artifacts build in the `build` stage

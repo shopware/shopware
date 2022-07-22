@@ -1,17 +1,20 @@
+from common.context import Context
+from common.storefront import Storefront
 import os
 import sys
-import time
-from locust import FastHttpUser, task, between, constant,tag
-from bs4 import BeautifulSoup
-import locust_plugins
+from locust import FastHttpUser, task, between
+
+# Optional dependency
+try:
+    import locust_plugins
+except ImportError:
+    pass
 
 sys.path.append(os.path.dirname(__file__) + '/..')
 
-from common.storefront import Storefront
-from common.context import Context
-from common.api import Api
 
 context = Context()
+
 
 class Visitor(FastHttpUser):
     wait_time = between(2, 5)
@@ -48,6 +51,7 @@ class Visitor(FastHttpUser):
         # take a look to the top three hits
         page.view_products(3)
         page.go_to_next_page()
+
 
 class Nvidia(FastHttpUser):
     weight = 20

@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -16,18 +18,22 @@ class AttachmentLoader
 {
     private EntityRepositoryInterface $documentRepository;
 
-    private DocumentService $documentService;
+    private DocumentGenerator $documentGenerator;
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private DocumentService $documentService;
+
     public function __construct(
         EntityRepositoryInterface $documentRepository,
+        DocumentGenerator $documentGenerator,
         DocumentService $documentService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->documentRepository = $documentRepository;
-        $this->documentService = $documentService;
+        $this->documentGenerator = $documentGenerator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->documentService = $documentService;
     }
 
     public function load(array $documentIds, Context $context): array
@@ -43,6 +49,22 @@ class AttachmentLoader
         $entities = $this->documentRepository->search($criteria, $context);
 
         foreach ($entities as $document) {
+            if (Feature::isActive('v6.5.0.0')) {
+                $document = $this->documentGenerator->readDocument($document->getId(), $context);
+
+                if ($document === null) {
+                    continue;
+                }
+
+                $attachments[] = [
+                    'content' => $document->getContent(),
+                    'fileName' => $document->getName(),
+                    'mimeType' => $document->getContentType(),
+                ];
+
+                continue;
+            }
+
             $document = $this->documentService->getDocument($document, $context);
 
             $attachments[] = [

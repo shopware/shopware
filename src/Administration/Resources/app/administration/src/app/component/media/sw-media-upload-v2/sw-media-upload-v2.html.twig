@@ -64,7 +64,7 @@
 
     {% block sw_media_upload_v2_regular %}
     <div
-        v-if="variant == 'regular'"
+        v-if="variant == 'regular' || variant == 'small'"
         class="sw-media-upload-v2__content"
     >
         {% block sw_media_upload_v2_regular_header %}
@@ -127,10 +127,10 @@
         >
 
             {% block sw_media_upload_v2_preview %}
-            <template v-if="showPreview">
+            <template v-if="showPreview && variant === 'regular'">
                 {% block sw_media_upload_v2_regular_preview_file %}
                 <sw-media-preview-v2
-                    v-if="source || preview"
+                    v-if="(source || preview)"
                     class="sw-media-upload-v2__preview"
                     :source="source || preview"
                 />
@@ -148,7 +148,7 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <template v-if="!showPreview && variant === 'regular'">
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
                     <sw-icon name="regular-cloud-upload" />
@@ -161,7 +161,7 @@
             {% block sw_media_upload_v2_actions %}
             <div
                 class="sw-media-upload-v2__actions"
-                :class="{ 'has--source': source }"
+                :class="{ 'has--source': source, 'is--small': variant === 'small' }"
             >
 
                 <div
@@ -169,7 +169,7 @@
                     class="sw-media-upload-v2__file-info"
                 >
                     <div class="sw-media-upload-v2__file-headline">
-                        {{ source | mediaName }}
+                        {{ source | mediaName(source.name) }}
                     </div>
                     <sw-icon
                         v-if="!disabled"
@@ -192,28 +192,38 @@
 
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="isFileUpload">
+                        {% block sw_media_upload_v2_regular_media_sidebar_button %}
+                        <sw-button
+                            v-if="hasOpenMediaButtonListener"
+                            class="sw-media-upload-v2__button open-media-sidebar"
+                            :class="{ 'is--small': variant === 'small'}"
+                            variant="primary"
+                            size="small"
+                            :square="variant === 'small'"
+                            :disabled="disabled"
+                            @click="onClickOpenMediaSidebar"
+                        >
+                            <sw-icon
+                                v-if="variant === 'small'"
+                                name="regular-plus"
+                                size="16px"
+                            />
+                            <p v-else>
+                                {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
+                            </p>
+                        </sw-button>
+                        {% endblock %}
+
                         {% block sw_media_upload_v2_regular_upload_button %}
                         <sw-button
                             class="sw-media-upload-v2__button upload"
+                            :class="{ 'is--small': variant === 'small'}"
                             variant="ghost"
                             size="small"
                             :disabled="disabled"
                             @click="onClickUpload"
                         >
                             {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
-                        </sw-button>
-                        {% endblock %}
-
-                        {% block sw_media_upload_v2_regular_media_sidebar_button %}
-                        <sw-button
-                            v-if="hasOpenMediaButtonListener"
-                            class="sw-media-upload-v2__button open-media-sidebar"
-                            variant="primary"
-                            size="small"
-                            :disabled="disabled"
-                            @click="onClickOpenMediaSidebar"
-                        >
-                            {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
                         </sw-button>
                         {% endblock %}
                     </template>

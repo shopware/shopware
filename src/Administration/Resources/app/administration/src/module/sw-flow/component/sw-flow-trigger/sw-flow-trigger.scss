@@ -52,13 +52,16 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
         .sw-field__label label {
             font-size: $font-size-default;
-            text-transform: uppercase;
             font-weight: $font-weight-semi-bold;
         }
 
         .sw-block-field__block input {
-            text-transform: capitalize;
             text-overflow: ellipsis;
+            text-transform: capitalize;
+
+            &::placeholder {
+                text-transform: none;
+            }
         }
     }
 

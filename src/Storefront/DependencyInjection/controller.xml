@@ -80,12 +80,12 @@
 
         <service id="Shopware\Storefront\Controller\AuthController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -96,10 +96,10 @@
 
         <service id="Shopware\Storefront\Controller\CartLineItemController">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -169,11 +169,10 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\ContextController">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -341,11 +340,16 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
-            <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader"/>
+            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

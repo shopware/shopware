@@ -6,26 +6,34 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @property Context $context
+ *
  * @internal
  */
 class IdsCollection
 {
     /**
-     * @var Context
-     */
-    public $context;
-
-    /**
      * @var string[]
      */
     protected $ids = [];
 
-    public function __construct(?Context $context = null)
+    public function __construct(array $ids = [])
     {
-        if (!$context) {
-            $context = Context::createDefaultContext();
+        $this->ids = $ids;
+    }
+
+    /**
+     * @phpstan-ignore-next-line
+     *
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    public function __get($name)
+    {
+        if ($name === 'context') {
+            \trigger_deprecation('shopware/core', '', 'IdsCollection->context is deprecated. Use Context::createDefaultContext() instead');
+
+            return Context::createDefaultContext();
         }
-        $this->context = $context;
     }
 
     public function create(string $key): string
@@ -97,11 +105,6 @@ class IdsCollection
         $this->ids[$key] = $value;
     }
 
-    public function getContext(): Context
-    {
-        return $this->context;
-    }
-
     public function has(string $key): bool
     {
         return isset($this->ids[$key]);
@@ -116,5 +119,15 @@ class IdsCollection
         }
 
         return null;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, use Context::createDefaultContext() instead
+     */
+    public function getContext(): Context
+    {
+        \trigger_deprecation('shopware/core', '', 'IdsCollection->getContext is deprecated. Use Context::createDefaultContext() instead');
+
+        return Context::createDefaultContext();
     }
 }

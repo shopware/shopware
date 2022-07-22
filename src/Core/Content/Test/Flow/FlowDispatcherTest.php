@@ -51,7 +51,7 @@ class FlowDispatcherTest extends TestCase
 
         $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     protected function tearDown(): void

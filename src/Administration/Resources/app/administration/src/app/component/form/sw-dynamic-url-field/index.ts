@@ -2,6 +2,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
 import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-dynamic-url-field.html.twig';
+import './sw-dynamic-url-field.scss';
 
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -51,7 +52,18 @@ Component.register('sw-dynamic-url-field', {
 
         entityFilter(): CriteriaType {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null),
+                    ],
+                ),
+            );
 
             return criteria;
         },
@@ -64,11 +76,11 @@ Component.register('sw-dynamic-url-field', {
     watch: {
         value: {
             async handler(value): Promise<void> {
-                if (value === this.lastEmittedLink) {
+                if (value === this.lastEmittedLink || typeof value !== 'string') {
                     return;
                 }
 
-                const parsedResult = await this.parseLink(value as string);
+                const parsedResult = await this.parseLink(value);
                 this.linkCategory = parsedResult.type;
                 this.linkTarget = parsedResult.target;
             },

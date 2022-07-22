@@ -57,7 +57,11 @@ variables:
     dependencies: []
     rules:
         - !reference [.rules, skip]
+        - if: !reference [.rules, run-allow-failure, if ]
+          allow_failure: true
         - !reference [.rules, run]
+        - if: !reference [.rules, long-running-allow-failure, if ]
+          allow_failure: true
         - !reference [.rules, long-running]
 
 # sames as .long-running just without initializing shopware and starting a web server

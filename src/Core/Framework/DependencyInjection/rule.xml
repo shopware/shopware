@@ -35,6 +35,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\SimpleRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Rule\SalesChannelRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -47,5 +51,13 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\Api\RuleConfigController"
+                 public="true">
+            <argument type="tagged" tag="shopware.rule.definition"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

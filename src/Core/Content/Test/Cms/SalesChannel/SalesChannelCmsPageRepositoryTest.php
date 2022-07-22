@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -42,6 +43,7 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $this->pageRepository = $this->getContainer()->get(SalesChannelCmsPageRepository::class);
@@ -60,18 +62,20 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         /** @var CmsPageEntity $page */
         $page = $pageCollection->first();
 
+        static::assertNotNull($page->getSections());
         static::assertCount(2, $page->getSections());
 
         /** @var CmsSectionEntity $section */
         $section = $page->getSections()->first();
 
+        static::assertNotNull($section->getBlocks());
         static::assertCount(1, $section->getBlocks());
         static::assertEquals(1, $section->getPosition());
 
         /** @var CmsBlockEntity $block */
         $block = $section->getBlocks()->first();
 
-        static::assertCount(2, $block->getSlots());
+        static::assertCount(2, $block->getSlots() ?? []);
     }
 
     public function testSlotConfigStructureWithMissingProperties(): void
@@ -107,12 +111,17 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
             ],
         ];
 
+        $writeException = null;
+
         try {
             $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
         } catch (WriteException $writeException) {
         }
 
         $errors = [];
+
+        static::assertInstanceOf(WriteException::class, $writeException);
+
         foreach ($writeException->getErrors() as $error) {
             $errors[] = $error;
         }

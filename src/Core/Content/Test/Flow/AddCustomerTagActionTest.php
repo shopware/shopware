@@ -6,9 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
-use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -29,17 +27,15 @@ class AddCustomerTagActionTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
-
-    private ?AbstractFlowLoader $flowLoader;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -49,7 +45,7 @@ class AddCustomerTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -59,8 +55,6 @@ class AddCustomerTagActionTest extends TestCase
 
         // all business event should be inactive.
         $this->connection->executeStatement('DELETE FROM event_action;');
-
-        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
     }
 
     public function testAddCustomerTagAction(): void
@@ -184,7 +178,7 @@ class AddCustomerTagActionTest extends TestCase
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createDataTest(): void
@@ -202,6 +196,6 @@ class AddCustomerTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

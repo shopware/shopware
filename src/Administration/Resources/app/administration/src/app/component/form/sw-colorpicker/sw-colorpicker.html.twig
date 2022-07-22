@@ -105,12 +105,12 @@
                     :class="{ 'is--small': !alpha }"
                 >
                     <div
-                        class="sw-colorpicker__colorpicker-previewColor"
-                        :style="{ background: previewColorValue}"
-                    ></div>
-                    <div
                         class="sw-colorpicker__colorpicker-previewBackground"
                         :class="{ 'is--invalid': !isColorValid }"
+                    ></div>
+                    <div
+                        class="sw-colorpicker__colorpicker-previewColor"
+                        :style="{ background: previewColorValue}"
                     ></div>
                 </div>
                 {% endblock %}

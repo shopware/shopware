@@ -1,4 +1,5 @@
 const { Application, Feature } = Shopware;
+const isMajorFlagActive = Feature.isActive('v6.5.0.0');
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addAwarenessConfiguration(
@@ -114,49 +115,49 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'general',
     });
     ruleConditionService.addCondition('customerOrderCount', {
-        component: 'sw-condition-order-count',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-order-count',
         label: 'global.sw-condition.condition.orderCountRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerDaysSinceLastOrder', {
-        component: 'sw-condition-days-since-last-order',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-days-since-last-order',
         label: 'global.sw-condition.condition.daysSinceLastOrderRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('salesChannel', {
-        component: 'sw-condition-sales-channel',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-sales-channel',
         label: 'global.sw-condition.condition.salesChannelRule',
         scopes: ['global'],
         group: 'general',
     });
     ruleConditionService.addCondition('currency', {
-        component: 'sw-condition-currency',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-currency',
         label: 'global.sw-condition.condition.currencyRule',
         scopes: ['global'],
         group: 'general',
     });
     ruleConditionService.addCondition('language', {
-        component: 'sw-condition-language',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-language',
         label: 'global.sw-condition.condition.languageRule',
         scopes: ['global'],
         group: 'general',
     });
     ruleConditionService.addCondition('cartTaxDisplay', {
-        component: 'sw-condition-cart-tax-display',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-cart-tax-display',
         label: 'global.sw-condition.condition.cartTaxDisplay.label',
         scopes: ['checkout'],
         group: 'general',
     });
     ruleConditionService.addCondition('customerBillingCountry', {
-        component: 'sw-condition-billing-country',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-billing-country',
         label: 'global.sw-condition.condition.billingCountryRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerBillingStreet', {
-        component: 'sw-condition-billing-street',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-billing-street',
         label: 'global.sw-condition.condition.billingStreetRule',
         scopes: ['checkout'],
         group: 'customer',
@@ -168,73 +169,73 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
     ruleConditionService.addCondition('customerCustomerGroup', {
-        component: 'sw-condition-customer-group',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-customer-group',
         label: 'global.sw-condition.condition.customerGroupRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerTag', {
-        component: 'sw-condition-customer-tag',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-customer-tag',
         label: 'global.sw-condition.condition.customerTagRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerCustomerNumber', {
-        component: 'sw-condition-customer-number',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-customer-number',
         label: 'global.sw-condition.condition.customerNumberRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerDifferentAddresses', {
-        component: 'sw-condition-different-addresses',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-different-addresses',
         label: 'global.sw-condition.condition.differentAddressesRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerEmail', {
-        component: 'sw-condition-email',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-email',
         label: 'global.sw-condition.condition.emailRule.label',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerIsNewCustomer', {
-        component: 'sw-condition-is-new-customer',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-is-new-customer',
         label: 'global.sw-condition.condition.isNewCustomerRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerLastName', {
-        component: 'sw-condition-last-name',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-last-name',
         label: 'global.sw-condition.condition.lastNameRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerIsCompany', {
-        component: 'sw-condition-is-company',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-is-company',
         label: 'global.sw-condition.condition.isCompanyRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerIsGuest', {
-        component: 'sw-condition-is-guest',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-is-guest',
         label: 'global.sw-condition.condition.isGuestRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerIsNewsletterRecipient', {
-        component: 'sw-condition-is-newsletter-recipient',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-is-newsletter-recipient',
         label: 'global.sw-condition.condition.isNewsletterRecipient',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerShippingCountry', {
-        component: 'sw-condition-shipping-country',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-shipping-country',
         label: 'global.sw-condition.condition.shippingCountryRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('customerShippingStreet', {
-        component: 'sw-condition-shipping-street',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-shipping-street',
         label: 'global.sw-condition.condition.shippingStreetRule',
         scopes: ['checkout'],
         group: 'customer',
@@ -246,19 +247,19 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
     ruleConditionService.addCondition('customerLoggedIn', {
-        component: 'sw-condition-customer-logged-in',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-customer-logged-in',
         label: 'global.sw-condition.condition.customerLoggedInRule',
         scopes: ['checkout'],
         group: 'customer',
     });
     ruleConditionService.addCondition('cartCartAmount', {
-        component: 'sw-condition-cart-amount',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-cart-amount',
         label: 'global.sw-condition.condition.cartAmountRule',
         scopes: ['cart'],
         group: 'cart',
     });
     ruleConditionService.addCondition('cartPositionPrice', {
-        component: 'sw-condition-cart-position-price',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-cart-position-price',
         label: 'global.sw-condition.condition.cartPositionPrice',
         scopes: ['cart'],
         group: 'cart',
@@ -276,7 +277,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemOfType', {
-        component: 'sw-condition-line-item-of-type',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-of-type',
         label: 'global.sw-condition.condition.lineItemOfTypeRule.label',
         scopes: ['lineItem'],
         group: 'item',
@@ -305,19 +306,19 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         });
     }
     ruleConditionService.addCondition('cartLineItemsInCartCount', {
-        component: 'sw-condition-line-items-in-cart-count',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-line-items-in-cart-count',
         label: 'global.sw-condition.condition.lineItemsInCartCountRule',
         scopes: ['cart'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemTotalPrice', {
-        component: 'sw-condition-line-item-total-price',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-total-price',
         label: 'global.sw-condition.condition.lineItemTotalPriceRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemUnitPrice', {
-        component: 'sw-condition-line-item-unit-price',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-unit-price',
         label: 'global.sw-condition.condition.lineItemUnitPriceRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -329,31 +330,31 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartHasDeliveryFreeItem', {
-        component: 'sw-condition-cart-has-delivery-free-item',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-cart-has-delivery-free-item',
         label: 'global.sw-condition.condition.hasDeliveryFreeItemRule',
         scopes: ['cart'],
         group: 'item',
     });
     ruleConditionService.addCondition('dayOfWeek', {
-        component: 'sw-condition-day-of-week',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-day-of-week',
         label: 'global.sw-condition.condition.dayOfWeekRule',
         scopes: ['global'],
         group: 'general',
     });
     ruleConditionService.addCondition('cartWeight', {
-        component: 'sw-condition-weight-of-cart',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-weight-of-cart',
         label: 'global.sw-condition.condition.weightOfCartRule',
         scopes: ['cart'],
         group: 'cart',
     });
     ruleConditionService.addCondition('cartVolume', {
-        component: 'sw-condition-volume-of-cart',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-volume-of-cart',
         label: 'global.sw-condition.condition.volumeOfCartRule',
         scopes: ['cart'],
         group: 'cart',
     });
     ruleConditionService.addCondition('cartLineItemTag', {
-        component: 'sw-condition-line-item-tag',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-tag',
         label: 'global.sw-condition.condition.lineItemTagRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -371,13 +372,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemIsNew', {
-        component: 'sw-condition-line-item-is-new',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-is-new',
         label: 'global.sw-condition.condition.lineItemIsNewRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemOfManufacturer', {
-        component: 'sw-condition-line-item-of-manufacturer',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-of-manufacturer',
         label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -389,25 +390,25 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemCreationDate', {
-        component: 'sw-condition-line-item-creation-date',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-creation-date',
         label: 'global.sw-condition.condition.lineItemCreationDateRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemReleaseDate', {
-        component: 'sw-condition-line-item-release-date',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-release-date',
         label: 'global.sw-condition.condition.lineItemReleaseDateRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemClearanceSale', {
-        component: 'sw-condition-line-item-clearance-sale',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-clearance-sale',
         label: 'global.sw-condition.condition.lineItemClearanceSale',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemPromoted', {
-        component: 'sw-condition-line-item-promoted',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-promoted',
         label: 'global.sw-condition.condition.lineItemPromotedRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -419,73 +420,55 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemInProductStream', {
-        component: 'sw-condition-line-item-in-product-stream',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-in-product-stream',
         label: 'global.sw-condition.condition.lineItemInProductStreamRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemTaxation', {
-        component: 'sw-condition-line-item-taxation',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-taxation',
         label: 'global.sw-condition.condition.lineItemTaxationRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemDimensionWidth', {
-        component: 'sw-condition-line-item-dimension-width',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-dimension-width',
         label: 'global.sw-condition.condition.lineItemDimensionWidthRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemDimensionHeight', {
-        component: 'sw-condition-line-item-dimension-height',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-dimension-height',
         label: 'global.sw-condition.condition.lineItemDimensionHeightRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemDimensionLength', {
-        component: 'sw-condition-line-item-dimension-length',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-dimension-length',
         label: 'global.sw-condition.condition.lineItemDimensionLengthRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemDimensionWeight', {
-        component: 'sw-condition-line-item-dimension-weight',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-dimension-weight',
         label: 'global.sw-condition.condition.lineItemDimensionWeightRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemDimensionVolume', {
-        component: 'sw-condition-line-item-dimension-volume',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-dimension-volume',
         label: 'global.sw-condition.condition.lineItemDimensionVolumeRule',
         scopes: ['lineItem'],
         group: 'item',
     });
-    ruleConditionService.addCondition('cartLineItemOfManufacturer', {
-        component: 'sw-condition-line-item-of-manufacturer',
-        label: 'global.sw-condition.condition.lineItemOfManufacturerRule',
-        scopes: ['lineItem'],
-        group: 'item',
-    });
-    ruleConditionService.addCondition('cartLineItemPurchasePrice', {
-        component: 'sw-condition-line-item-purchase-price',
-        label: 'global.sw-condition.condition.lineItemPurchasePriceRule',
-        scopes: ['lineItem'],
-        group: 'item',
-    });
-    ruleConditionService.addCondition('cartLineItemCreationDate', {
-        component: 'sw-condition-line-item-creation-date',
-        label: 'global.sw-condition.condition.lineItemCreationDateRule',
-        scopes: ['lineItem'],
-        group: 'item',
-    });
     ruleConditionService.addCondition('cartLineItemListPrice', {
-        component: 'sw-condition-line-item-list-price',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-list-price',
         label: 'global.sw-condition.condition.lineItemListPriceRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemListPriceRatio', {
-        component: 'sw-condition-line-item-list-price-ratio',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-list-price-ratio',
         label: 'global.sw-condition.condition.lineItemListPriceRatioRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -497,13 +480,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemStock', {
-        component: 'sw-condition-line-item-stock',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-stock',
         label: 'global.sw-condition.condition.lineItemStockRule',
         scopes: ['lineItem'],
         group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemActualStock', {
-        component: 'sw-condition-line-item-actual-stock',
+        component: isMajorFlagActive ? 'sw-condition-generic-line-item' : 'sw-condition-line-item-actual-stock',
         label: 'global.sw-condition.condition.lineItemActualStockRule',
         scopes: ['lineItem'],
         group: 'item',
@@ -515,14 +498,14 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
     ruleConditionService.addCondition('paymentMethod', {
-        component: 'sw-condition-payment-method',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-payment-method',
         label: 'global.sw-condition.condition.paymentMethodRule',
         scopes: ['cart'],
         group: 'cart',
     });
 
     ruleConditionService.addCondition('shippingMethod', {
-        component: 'sw-condition-shipping-method',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-shipping-method',
         label: 'global.sw-condition.condition.shippingMethodRule',
         scopes: ['cart'],
         group: 'cart',
@@ -536,35 +519,35 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     ruleConditionService.addCondition('customerOrderTotalAmount', {
-        component: 'sw-condition-order-total-amount',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-order-total-amount',
         label: 'global.sw-condition.condition.orderTotalAmountRule',
         scopes: ['checkout'],
         group: 'customer',
     });
 
     ruleConditionService.addCondition('promotionLineItem', {
-        component: 'sw-condition-promotion-line-item',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-promotion-line-item',
         label: 'global.sw-condition.condition.promotionLineItemRule',
         scopes: ['cart'],
         group: 'promotion',
     });
 
     ruleConditionService.addCondition('promotionCodeOfType', {
-        component: 'sw-condition-promotion-code-of-type',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-promotion-code-of-type',
         label: 'global.sw-condition.condition.promotionCodeOfType',
         scopes: ['cart'],
         group: 'promotion',
     });
 
     ruleConditionService.addCondition('promotionsInCartCount', {
-        component: 'sw-condition-promotions-in-cart-count',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-promotions-in-cart-count',
         label: 'global.sw-condition.condition.promotionsInCartCountRule',
         scopes: ['cart'],
         group: 'promotion',
     });
 
     ruleConditionService.addCondition('promotionValue', {
-        component: 'sw-condition-promotion-value',
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-promotion-value',
         label: 'global.sw-condition.condition.promotionValueRule',
         scopes: ['cart'],
         group: 'promotion',

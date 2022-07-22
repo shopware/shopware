@@ -84,7 +84,7 @@ class MediaService
         bool $private = true
     ): string {
         if (!$mediaId) {
-            $mediaId = $this->createMediaInFolder($folder, $context, $private);
+            $mediaId = $this->createMediaInFolder($folder ?? '', $context, $private);
         }
 
         $this->fileSaver->persistFileToMedia($mediaFile, $filename, $mediaId, $context);
@@ -105,7 +105,7 @@ class MediaService
         $mediaFile = $this->fileFetcher->fetchBlob($blob, $extension, $contentType);
 
         if (!$mediaId) {
-            $mediaId = $this->createMediaInFolder($folder, $context, $private);
+            $mediaId = $this->createMediaInFolder($folder ?? '', $context, $private);
         }
 
         $this->fileSaver->persistFileToMedia($mediaFile, $filename, $mediaId, $context);
@@ -130,11 +130,12 @@ class MediaService
         }
 
         $contentType = $request->headers->get('content_type', '');
+
         if (str_starts_with($contentType, 'application/json')) {
-            return $this->fileFetcher->fetchFileFromURL($request, $tempFile);
+            return $this->fileFetcher->fetchFileFromURL($request, $tempFile ?: '');
         }
 
-        return $this->fileFetcher->fetchRequestData($request, $tempFile);
+        return $this->fileFetcher->fetchRequestData($request, $tempFile ?: '');
     }
 
     public function getAttachment(MediaEntity $media, Context $context): array

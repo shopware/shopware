@@ -44,7 +44,7 @@ class CartLoadRouteTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -92,7 +92,7 @@ class CartLoadRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $cart = new Cart('sales-channel', $this->ids->create('token'));
         $cart->add(new LineItem($this->ids->create('productId'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('productId')));
@@ -110,7 +110,7 @@ class CartLoadRouteTest extends TestCase
                         $ruleConditions,
                     ],
                 ],
-            ]], $this->ids->context);
+            ]], Context::createDefaultContext());
         }
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->get('token'));

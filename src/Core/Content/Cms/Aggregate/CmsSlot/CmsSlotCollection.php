@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @method void               add(CmsSlotEntity $entity)
+ * @method void               set(string $key, CmsSlotEntity $entity)
  * @method CmsSlotEntity[]    getIterator()
  * @method CmsSlotEntity[]    getElements()
  * @method CmsSlotEntity|null get(string $key)

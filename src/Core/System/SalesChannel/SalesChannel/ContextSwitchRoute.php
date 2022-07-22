@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -91,7 +92,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="Returns the context token. Use that as your `sw-context-token` header for subsequent requests.",
+     *          description="Returns the context token. Use that as your `sw-context-token` header for subsequent requests. Redirect if getRedirectUrl is set.",
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
@@ -167,9 +168,29 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             $customer && empty($context->getPermissions()) ? $customer->getId() : null
         );
 
+        // Language was switched - Check new Domain
+        $changeUrl = $this->checkNewDomain($parameters, $context);
+
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);
 
-        return new ContextTokenResponse($context->getToken());
+        return new ContextTokenResponse($context->getToken(), $changeUrl);
+    }
+
+    private function checkNewDomain(array $parameters, SalesChannelContext $context): ?string
+    {
+        if (
+            !isset($parameters[self::LANGUAGE_ID])
+            || $parameters[self::LANGUAGE_ID] === $context->getLanguageId()
+            || $context->getSalesChannel()->getDomains() === null
+        ) {
+            return null;
+        }
+
+        $domains = $context->getSalesChannel()->getDomains();
+        /** @var SalesChannelDomainEntity $langDomain */
+        $langDomain = $domains->filterByProperty('languageId', $parameters[self::LANGUAGE_ID])->first();
+
+        return $langDomain->getUrl();
     }
 }

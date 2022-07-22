@@ -1,7 +1,8 @@
 .rules:
     # skip job if the skip label for the stage is set
     skip:
-        if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/ && $CI_JOB_STAGE == "lint"
+        if: '($CI_MERGE_REQUEST_EVENT_TYPE != "merge_train" || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/) &&
+          ($CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/ && $CI_JOB_STAGE == "lint"
           || $CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/ && $CI_JOB_STAGE == "unit"
           || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ && $CI_JOB_STAGE == "E2E"
           || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::skip.*/ && $CI_JOB_STAGE == "quarantine"
@@ -9,7 +10,7 @@
           || $CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/ && $CI_JOB_STAGE == "build"
           || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::skip.*/ && $CI_JOB_STAGE == "deploy"
           || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && ($CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint")'
+          || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && ($CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint"))'
         when: never
     # execute job if the all label for the stage is set
     run:

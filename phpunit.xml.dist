@@ -23,7 +23,6 @@
             <directory suffix=".php">src/Elasticsearch</directory>
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">src/Core/Migration</directory>
-            <directory suffix=".php">custom/plugins/SwagCommercial</directory>
 
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
@@ -132,14 +131,10 @@
             <directory>src/Docs/Test</directory>
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
-        <testsuite name="commercial">
-            <directory>custom/plugins/SwagCommercial</directory>
-        </testsuite>
 
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
-            <directory>custom/plugins/SwagCommercial</directory>
             <directory>tests/unit/php</directory>
             <exclude>src/Recovery/Test</exclude>
             <exclude>src/Storefront/Test/Migration</exclude>

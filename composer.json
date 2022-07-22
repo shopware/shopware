@@ -25,11 +25,6 @@
         "branch-alias": {
             "dev-master": "6.4.x-dev",
             "dev-trunk": "6.4.x-dev"
-        },
-        "patches": {
-            "phpunit/phpunit": {
-                "Allow invalid directories in mapping": "src/Core/Test/Patches/phpunit-phpunit-src-textui-testsuitemapper-php.patch"
-            }
         }
     },
     "config": {

@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Common;
+namespace Shopware\Core\Test\Integration\Helper;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;

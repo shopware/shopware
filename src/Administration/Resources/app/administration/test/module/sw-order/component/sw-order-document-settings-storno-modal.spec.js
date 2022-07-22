@@ -116,6 +116,10 @@ function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-document-settings-storno-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+    });
+
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();

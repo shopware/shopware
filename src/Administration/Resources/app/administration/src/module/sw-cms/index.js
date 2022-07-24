@@ -1,5 +1,7 @@
 import './service/cms.service';
 import './service/cmsDataResolver.service';
+import './service/cms-block-favorites.service';
+import './service/cms-element-favorites.service';
 import './state/cms-page.state';
 import './mixin/sw-cms-element.mixin';
 import './mixin/sw-cms-state.mixin';

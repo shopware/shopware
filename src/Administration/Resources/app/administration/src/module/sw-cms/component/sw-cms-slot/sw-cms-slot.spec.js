@@ -30,6 +30,11 @@ async function createWrapper() {
                     }
                 }),
                 isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+            },
+            cmsElementFavorites: {
+                isFavorite() {
+                    return false;
+                }
             }
         }
     });

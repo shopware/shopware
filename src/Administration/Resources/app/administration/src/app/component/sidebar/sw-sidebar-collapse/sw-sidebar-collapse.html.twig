@@ -38,8 +38,8 @@
         @click="collapseItem"
     >
         <sw-icon
-            name="regular-chevron-right-xxs"
             class="sw-sidebar-collapse__button"
+            :name="`regular-chevron-${expandChevronDirection}-xxs`"
             :class="expandButtonClass"
         />
         <sw-icon

@@ -311,7 +311,7 @@ function storeSessionExpiredInterceptor(client) {
         const { config, response } = error;
         const code = response.data?.errors?.[0]?.code;
 
-        if (config.storeSessionRequestRetries >= maxRetryLimit) {
+        if (!code || (config.storeSessionRequestRetries >= maxRetryLimit)) {
             return Promise.reject(error);
         }
 

@@ -217,6 +217,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     private function processCriteria(Criteria $topCriteria, SalesChannelContext $salesChannelContext): void
     {
+        $event = new SalesChannelRepositoryProcessCriteriaEvent($this->definition, $topCriteria, $salesChannelContext);
+        $this->eventDispatcher->dispatch($event, $event->getName());
+
         if (!$this->definition instanceof SalesChannelDefinitionInterface) {
             return;
         }

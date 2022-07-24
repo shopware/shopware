@@ -123,7 +123,10 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-cms-slot .sw-cms-slot__element-action').click();
         cy.get('.sw-cms-slot__element-selection').should('be.visible');
 
-        cy.get('.sw-cms-el-preview-cross-selling').click();
+        cy.get('.sw-cms-el-preview-cross-selling + .element-selection__overlay-action-select').first().invoke('show');
+        cy.get('.sw-cms-el-preview-cross-selling + .element-selection__overlay-action-select').first().should('be.visible');
+        cy.get('.sw-cms-el-preview-cross-selling + .element-selection__overlay-action-select').first().click();
+
 
         cy.log('Select a product with cross selling data');
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');

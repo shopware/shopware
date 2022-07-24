@@ -139,6 +139,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     save: () => {}
                 })
             },
+            cmsBlockFavorites: {
+                isFavorite() {
+                    return false;
+                }
+            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return cmsBlockRegistry ?? {

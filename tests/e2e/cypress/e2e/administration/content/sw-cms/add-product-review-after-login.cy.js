@@ -65,7 +65,10 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.sw-cms-slot .sw-cms-slot__element-action').click();
         cy.get('.sw-cms-slot__element-selection').should('be.visible');
 
-        cy.get('.sw-cms-el-preview-product-description-reviews').click();
+        cy.get('.sw-cms-el-preview-product-description-reviews + .element-selection__overlay-action-select').first().invoke('show');
+        cy.get('.sw-cms-el-preview-product-description-reviews + .element-selection__overlay-action-select').first().should('be.visible');
+        cy.get('.sw-cms-el-preview-product-description-reviews + .element-selection__overlay-action-select').first().click();
+
 
         // Select a product
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');

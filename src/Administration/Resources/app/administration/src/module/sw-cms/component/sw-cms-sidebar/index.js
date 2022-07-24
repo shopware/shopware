@@ -20,6 +20,7 @@ export default {
         'cmsService',
         'repositoryFactory',
         'feature',
+        'cmsBlockFavorites',
     ],
 
     mixins: [
@@ -161,10 +162,34 @@ export default {
             return false;
         },
 
+        cmsBlocksBySelectedBlockCategory() {
+            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
+
+            if (this.currentBlockCategory === 'favorite') {
+                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
+            }
+
+            return result.filter(b => b.category === this.currentBlockCategory);
+        },
+
+        cmsBlockFavoritesTypes() {
+            return this.cmsBlockFavorites.getFavoriteBlockType();
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+                this.currentBlockCategory = 'favorite';
+            }
+        },
+
         onPageTypeChange(pageType) {
             this.$emit('page-type-change', pageType);
         },
@@ -518,6 +543,10 @@ export default {
             section.backgroundMedia = mediaItem;
 
             this.pageUpdate();
+        },
+
+        onToggleBlockFavorite(blockName) {
+            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
         },
 
         successfulUpload(media, section) {

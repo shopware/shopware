@@ -95,7 +95,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
             value: []
         };
 
-        const entity = service.createUserConfigEntity();
+        const entity = service.createUserConfigEntity(SalesChannelFavoritesService.USER_CONFIG_KEY);
 
         expect(entity).toMatchObject(expectedValues);
     });
@@ -111,7 +111,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     });
 
     it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria();
+        const criteria = service.getCriteria(SalesChannelFavoritesService.USER_CONFIG_KEY);
 
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'key', value: SalesChannelFavoritesService.USER_CONFIG_KEY });
         expect(criteria.filters).toContainEqual({ type: 'equals', field: 'userId', value: '8fe88c269c214ea68badf7ebe678ab96' });

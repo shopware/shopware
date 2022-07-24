@@ -88,6 +88,7 @@
         "pageTypeProduct": "Produktseite",
         "demoEntity": "Vorschau-Datensatz",
         "blockCategorySelection": "Block-Kategorie",
+        "blockCategoryFavorite": "Favoriten",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & Bild",
         "blockCategorySidebar": "Sidebar",
@@ -127,7 +128,8 @@
         "labelNavigation": "Navigation",
         "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
-        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
+        "blockFavoriteEmptyState": "Hier stehen Deine Favoriten. Favorisiere Blöcke mit einem Klick auf das Herz und finde dadurch schnell Deine meistgenutzten Blöcke wieder."
       },
       "notification": {
         "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",

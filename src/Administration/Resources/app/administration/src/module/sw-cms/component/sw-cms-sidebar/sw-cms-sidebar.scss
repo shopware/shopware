@@ -86,6 +86,20 @@
     &__navigator-confirm-modal-reminder {
         margin-top: 24px;
     }
+
+    .sw-cms-sidebar__block-preview-with-actions {
+        position: relative;
+
+        .sw-cms-sidebar__block-favorite {
+            right: 8px;
+            bottom: 8px;
+            position: absolute;
+
+            .sw-icon.sw-cms-sidebar__icon-cms-block-favorite {
+                color: $color-module-pink-800;
+            }
+        }
+    }
 }
 
 .sw-cms-sidebar__block-preview {
@@ -105,6 +119,10 @@
         box-shadow: none;
         border: 1px dashed $color-gray-300;
         background-color: $color-gray-50;
+
+        + .sw-cms-sidebar__block-favorite {
+            display: none;
+        }
     }
 
     &.is--drag-element,

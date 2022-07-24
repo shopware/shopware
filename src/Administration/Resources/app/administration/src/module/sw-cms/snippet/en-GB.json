@@ -88,6 +88,7 @@
         "pageTypeProduct": "Product page",
         "demoEntity": "Preview entity",
         "blockCategorySelection": "Block category",
+        "blockCategoryFavorite": "Favorites",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & images",
         "blockCategorySidebar": "Sidebar",
@@ -127,7 +128,8 @@
         "labelNavigation": "Navigation",
         "lockedNotification": "This is a locked default layout you may use for your content from the get-go. Note that you cannot edit this template! If you want to adapt the layout to your needs, just duplicate the layout and alter the duplicate.",
         "headlineEmptyState": "Space for creativity",
-        "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content."
+        "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
+        "blockFavoriteEmptyState": "This is where you'll find your favourite blocks. Click the heart-shaped symbol next to a block to mark them as favourites and conveniently collect them in one place."
       },
       "notification": {
         "pageInvalid": "Errors occured. Please check the error list in the editor.",

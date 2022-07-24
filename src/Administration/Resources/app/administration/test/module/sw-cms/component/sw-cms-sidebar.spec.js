@@ -117,6 +117,11 @@ function createWrapper() {
                     save: () => {}
                 })
             },
+            cmsBlockFavorites: {
+                isFavorite() {
+                    return false;
+                }
+            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {

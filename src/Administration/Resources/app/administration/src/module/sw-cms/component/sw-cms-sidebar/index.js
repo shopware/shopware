@@ -15,6 +15,7 @@ Component.register('sw-cms-sidebar', {
         'cmsService',
         'repositoryFactory',
         'feature',
+        'cmsBlockFavorites',
     ],
 
     mixins: [
@@ -132,10 +133,34 @@ Component.register('sw-cms-sidebar', {
             return this.pageConfigErrors.length > 0;
         },
 
+        cmsBlocksBySelectedBlockCategory() {
+            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
+
+            if (this.currentBlockCategory === 'favorite') {
+                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
+            }
+
+            return result.filter(b => b.category === this.currentBlockCategory);
+        },
+
+        cmsBlockFavoritesTypes() {
+            return this.cmsBlockFavorites.getFavoriteBlockType();
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
+                this.currentBlockCategory = 'favorite';
+            }
+        },
+
         onPageTypeChange() {
             this.$emit('page-type-change');
         },
@@ -487,6 +512,10 @@ Component.register('sw-cms-sidebar', {
             section.backgroundMedia = mediaItem;
 
             this.pageUpdate();
+        },
+
+        onToggleBlockFavorite(blockName) {
+            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
         },
 
         successfulUpload(media, section) {

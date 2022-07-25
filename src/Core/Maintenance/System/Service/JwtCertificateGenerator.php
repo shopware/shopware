@@ -8,7 +8,7 @@ class JwtCertificateGenerator
 {
     public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
     {
-        $key = openssl_pkey_new([
+        $key = \openssl_pkey_new([
             'digest_alg' => 'aes256',
             'private_key_type' => \OPENSSL_KEYTYPE_RSA,
             'encrypt_key' => (bool) $passphrase,
@@ -20,23 +20,23 @@ class JwtCertificateGenerator
         }
 
         // Ensure that the directories we should generate the public / private key exist.
-        $privateKeyDirectory = dirname($privateKeyPath);
-        if (!is_dir($privateKeyDirectory)) {
-            mkdir($privateKeyDirectory, 0777, true);
+        $privateKeyDirectory = \dirname($privateKeyPath);
+        if (!\is_dir($privateKeyDirectory)) {
+            \mkdir($privateKeyDirectory, 0755, true);
         }
 
-        $publicKeyDirectory = dirname($publicKeyPath);
-        if (!is_dir($publicKeyDirectory)) {
-            mkdir($publicKeyDirectory, 0777, true);
+        $publicKeyDirectory = \dirname($publicKeyPath);
+        if (!\is_dir($publicKeyDirectory)) {
+            \mkdir($publicKeyDirectory, 0755, true);
         }
 
         // export private key
-        $result = openssl_pkey_export_to_file($key, $privateKeyPath, $passphrase);
+        $result = \openssl_pkey_export_to_file($key, $privateKeyPath, $passphrase);
         if ($result === false) {
             throw new JwtCertificateGenerationException('Could not export private key to file');
         }
 
-        chmod($privateKeyPath, 0660);
+        \chmod($privateKeyPath, 0660);
 
         // export public key
         $keyData = openssl_pkey_get_details($key);
@@ -44,7 +44,7 @@ class JwtCertificateGenerator
             throw new JwtCertificateGenerationException('Failed to export public key');
         }
 
-        file_put_contents($publicKeyPath, $keyData['key']);
-        chmod($publicKeyPath, 0660);
+        \file_put_contents($publicKeyPath, $keyData['key']);
+        \chmod($publicKeyPath, 0660);
     }
 }

@@ -42,9 +42,15 @@
 
         <service id="Composer\Repository\PlatformRepository"/>
 
-        <service id="Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator">
-            <argument type="service" id="Composer\Repository\PlatformRepository"/>
+        <service id="Composer\Composer">
+            <factory class="Shopware\Core\Framework\Plugin\Composer\Factory" method="createComposer"/>
             <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+
+        <service id="Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator">
+            <argument type="service" id="Composer\Composer"/>
+            <argument type="service" id="Composer\Repository\PlatformRepository"/>
 
             <tag name="shopware.installer.requirement"/>
         </service>
@@ -56,8 +62,12 @@
         </service>
 
         <service id="Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator">
+            <argument type="service" id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
+
             <tag name="shopware.installer.requirement"/>
         </service>
+
+        <service id="Shopware\Core\Installer\Requirements\IniConfigReader"/>
 
         <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
 
@@ -73,9 +83,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
         </service>
 
         <service id="Shopware\Core\Installer\Controller\RequirementsController" public="true">
@@ -86,9 +93,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
         </service>
 
         <service id="Shopware\Core\Installer\Controller\LicenseController" public="true">
@@ -97,17 +101,11 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
-            </call>
         </service>
 
         <service id="Shopware\Core\Installer\Controller\DatabaseConfigurationController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
-            </call>
-            <call method="setTwig">
-                <argument type="service" id="twig"/>
             </call>
         </service>
     </services>

@@ -5,15 +5,12 @@ namespace Shopware\Core\Installer\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Environment;
 
 /**
  * @internal
  */
 abstract class InstallerController extends AbstractController
 {
-    private Environment $twig;
-
     private const ROUTES = [
         'installer.language-selection' => 'language-selection',
         'installer.requirements' => 'requirements',
@@ -24,26 +21,26 @@ abstract class InstallerController extends AbstractController
         'installer.finish' => 'finish',
     ];
 
-    public function setTwig(Environment $twig): void
-    {
-        $this->twig = $twig;
-    }
-
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function renderInstaller(string $view, array $parameters = []): Response
     {
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
-        if ($request === null) {
-            $request = new Request();
+        if ($request !== null) {
+            $parameters['menu'] = $this->getMenuData($request);
         }
 
-        $parameters['menu'] = $this->getMenuData($request);
-        $parameters['supportedLanguages'] = $this->container->getParameter('shopware.installer.supportedLanguages');
-        $parameters['shopware']['version'] = $this->container->getParameter('kernel.shopware_version');
+        $parameters['supportedLanguages'] = $this->getParameter('shopware.installer.supportedLanguages');
+        $parameters['shopware']['version'] = $this->getParameter('kernel.shopware_version');
 
         return $this->render($view, $parameters);
     }
 
+    /**
+     * @return array{label: string, active: bool, isCompleted: bool}[]
+     */
     private function getMenuData(Request $request): array
     {
         $currentFound = false;

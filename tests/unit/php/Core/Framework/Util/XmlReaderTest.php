@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
@@ -8,10 +8,13 @@ use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\Util\XmlReader
  */
 class XmlReaderTest extends TestCase
 {
     /**
+     * @param mixed $expected
+     *
      * @dataProvider phpizeTestCases
      */
     public function testPhpize($expected, string $value): void
@@ -66,7 +69,7 @@ class XmlReaderTest extends TestCase
             [6, '0b0110'],
         ];
 
-        if (version_compare(InstalledVersions::getVersion('symfony/config'), '5.4.2', '>=')) {
+        if (\version_compare(InstalledVersions::getVersion('symfony/config') ?? '', '5.4.2', '>=')) {
             // was fixed for 5.4.2: https://github.com/symfony/symfony/pull/44537
             yield from [
                 [-511, '-0777'],

@@ -32,6 +32,7 @@ class LicenseController extends InstallerController
 
         $error = null;
         $licenseAgreement = null;
+
         try {
             $licenseAgreement = $this->licenseFetcher->fetch($request);
         } catch (\Exception $e) {
@@ -42,7 +43,7 @@ class LicenseController extends InstallerController
             '@Installer/installer/license.html.twig',
             [
                 'licenseAgreement' => $licenseAgreement,
-                'error' => $error
+                'error' => $error,
             ]
         );
     }

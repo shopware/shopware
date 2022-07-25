@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort
  */
 class AfterSortTest extends TestCase
 {

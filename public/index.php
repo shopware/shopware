@@ -6,6 +6,7 @@ use Shopware\Core\Installer\InstallerKernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 if (\PHP_VERSION_ID < 70403) {
     header('Content-type: text/html; charset=utf-8', true, 503);
@@ -76,6 +77,10 @@ if (file_exists(dirname(__DIR__) . '/install.lock')) {
 
 $result = $kernel->handle($request);
 
-$result->getResponse()->send();
-
-$kernel->terminate($result->getRequest(), $result->getResponse());
+if ($result instanceof Response) {
+    $result->send();
+    $kernel->terminate($request, $result);
+} else {
+    $result->getResponse()->send();
+    $kernel->terminate($result->getRequest(), $result->getResponse());
+}

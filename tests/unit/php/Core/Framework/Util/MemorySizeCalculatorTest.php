@@ -1,19 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\Util\MemorySizeCalculator
  */
 class MemorySizeCalculatorTest extends TestCase
 {
     /**
      * @dataProvider memorySizeDataProvider
      */
-    public function testBytesConversion($limit, $bytes): void
+    public function testBytesConversion(string $limit, int $bytes): void
     {
         static::assertEquals($bytes, MemorySizeCalculator::convertToBytes($limit));
     }
@@ -24,6 +25,8 @@ class MemorySizeCalculatorTest extends TestCase
      *
      * See also:
      * https://github.com/symfony/symfony/blob/3a96e4cde6aa0c9e138bdfcce60564a2f396c070/src/Symfony/Component/HttpKernel/Tests/DataCollector/MemoryDataCollectorTest.php
+     *
+     * @return array{0: string, 1: int}[]
      */
     public function memorySizeDataProvider(): array
     {

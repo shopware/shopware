@@ -13,6 +13,13 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
     private const MEMORY_LIMIT_REQUIREMENT = '512M';
     private const OPCACHE_MEMORY_RECOMMENDATION = '256M';
 
+    private IniConfigReader $iniConfigReader;
+
+    public function __construct(IniConfigReader $iniConfigReader)
+    {
+        $this->iniConfigReader = $iniConfigReader;
+    }
+
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection
     {
         $checks->add($this->checkMaxExecutionTime());
@@ -24,7 +31,7 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
 
     private function checkMaxExecutionTime(): SystemCheck
     {
-        $configuredValue = \ini_get('max_execution_time');
+        $configuredValue = $this->iniConfigReader->get('max_execution_time');
 
         return new SystemCheck(
             'max_execution_time',
@@ -36,7 +43,7 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
 
     private function checkMemoryLimit(): SystemCheck
     {
-        $configuredValue = \ini_get('memory_limit');
+        $configuredValue = $this->iniConfigReader->get('memory_limit');
 
         $status = RequirementCheck::STATUS_ERROR;
         if (MemorySizeCalculator::convertToBytes($configuredValue) >= MemorySizeCalculator::convertToBytes(self::MEMORY_LIMIT_REQUIREMENT)) {
@@ -53,7 +60,8 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
 
     private function checkOpCache(): SystemCheck
     {
-        $configuredValue = \ini_get('opcache.memory_consumption');
+        $configuredValue = $this->iniConfigReader->get('opcache.memory_consumption');
+
         if ($configuredValue === '') {
             $configuredValue = '0';
         }
@@ -67,9 +75,8 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
         return new SystemCheck(
             'opcache.memory_consumption',
             $status,
-            self::MEMORY_LIMIT_REQUIREMENT,
+            self::OPCACHE_MEMORY_RECOMMENDATION,
             $configuredValue
         );
-
     }
 }

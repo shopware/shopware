@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Util\VersionParser;
 use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
@@ -36,11 +37,6 @@ class Kernel extends HttpKernel
      * @var string Fallback version if nothing is provided via kernel constructor
      */
     public const SHOPWARE_FALLBACK_VERSION = '6.4.9999999.9999999-dev';
-
-    /**
-     * @var string Regex pattern for validating Shopware versions
-     */
-    private const VALID_VERSION_PATTERN = '#^\d\.\d+\.\d+\.(\d+|x)(-\w+)?#';
 
     /**
      * @var Connection|null
@@ -90,7 +86,9 @@ class Kernel extends HttpKernel
 
         $this->pluginLoader = $pluginLoader;
 
-        $this->parseShopwareVersion($version);
+        $version = VersionParser::parseShopwareVersion($version);
+        $this->shopwareVersion = $version['version'];
+        $this->shopwareVersionRevision = $version['revision'];
         $this->cacheId = $cacheId;
         $this->projectDir = $projectDir;
     }
@@ -452,31 +450,5 @@ PHP;
         $route->setDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
 
         $routes->add('root.fallback', $route->getPath());
-    }
-
-    private function parseShopwareVersion(?string $version): void
-    {
-        // does not come from composer, was set manually
-        if ($version === null || mb_strpos($version, '@') === false) {
-            $this->shopwareVersion = self::SHOPWARE_FALLBACK_VERSION;
-            $this->shopwareVersionRevision = str_repeat('0', 32);
-
-            return;
-        }
-
-        [$version, $hash] = explode('@', $version);
-        $version = ltrim($version, 'v');
-        $version = str_replace('+', '-', $version);
-
-        /*
-         * checks if the version is a valid version pattern
-         * Shopware\Core\Framework\Test\KernelTest::testItCreatesShopwareVersion()
-         */
-        if (!preg_match(self::VALID_VERSION_PATTERN, $version)) {
-            $version = self::SHOPWARE_FALLBACK_VERSION;
-        }
-
-        $this->shopwareVersion = $version;
-        $this->shopwareVersionRevision = $hash;
     }
 }

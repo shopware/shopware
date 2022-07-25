@@ -11,7 +11,7 @@ abstract class RequirementCheck extends Struct
 {
     public const STATUS_SUCCESS = 'success';
     public const STATUS_ERROR = 'error';
-    public const STATUS_WARNING = 'warining';
+    public const STATUS_WARNING = 'warning';
 
     private const ALLOWED_STATUS = [self::STATUS_SUCCESS, self::STATUS_ERROR, self::STATUS_WARNING];
 
@@ -29,7 +29,7 @@ abstract class RequirementCheck extends Struct
             throw new \RuntimeException(\sprintf(
                 'Invalid status for RequirementCheck, got "%s", allowed values are "%s".',
                 $status,
-                implode(', ', self::ALLOWED_STATUS)
+                implode('", "', self::ALLOWED_STATUS)
             ));
         }
 

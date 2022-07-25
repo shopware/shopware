@@ -11,7 +11,6 @@ class SystemCheck extends RequirementCheck
 
     private string $installedValue;
 
-
     public function __construct(string $name, string $status, string $requiredValue, string $installedValue)
     {
         parent::__construct($name, $status);

@@ -24036,11 +24036,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Subscriber/PluginAclPrivilegesSubscriber.php
 
 		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/AssetService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginFinder\\:\\:loadLocalPlugins\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/PluginFinder.php
@@ -29121,11 +29116,6 @@ parameters:
 			path: src/Core/Framework/Test/Increment/IncrementerGatewayRegistryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\KernelTest\\:\\:provideVersions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/KernelTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:addDefaultLocale\\(\\) has parameter \\$lang with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
@@ -30821,91 +30811,6 @@ parameters:
 			path: src/Core/Framework/Test/Update/UpdateControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\ArrayNormalizerTest\\:\\:provideTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/ArrayNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\ArrayNormalizerTest\\:\\:testExpanding\\(\\) has parameter \\$flattened with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/ArrayNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\ArrayNormalizerTest\\:\\:testExpanding\\(\\) has parameter \\$nested with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/ArrayNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\ArrayNormalizerTest\\:\\:testFlattening\\(\\) has parameter \\$flattened with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/ArrayNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\ArrayNormalizerTest\\:\\:testFlattening\\(\\) has parameter \\$nested with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/ArrayNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:equalsDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:greaterThanDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:greaterThanOrEqualsDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:lessThanDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:lessThanOrEqualsDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\FloatComparatorTest\\:\\:notEqualsDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/FloatComparatorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\HtmlSanitizerTest\\:\\:\\$unfilteredString has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/HtmlSanitizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\MemorySizeCalculatorTest\\:\\:memorySizeDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/MemorySizeCalculatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\MemorySizeCalculatorTest\\:\\:testBytesConversion\\(\\) has parameter \\$bytes with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/MemorySizeCalculatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\MemorySizeCalculatorTest\\:\\:testBytesConversion\\(\\) has parameter \\$limit with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/MemorySizeCalculatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Util\\\\XmlReaderTest\\:\\:testPhpize\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/XmlReaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$version1 of function version_compare expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Util/XmlReaderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Validation\\\\HappyPathValidatorTest\\:\\:testValidator\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Validation/HappyPathValidatorTest.php
@@ -31719,11 +31624,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:\\$privileges type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/WebhookDispatcher.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:getProjectDir\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/HttpKernel.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no type specified\\.$#"

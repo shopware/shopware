@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\Util\FloatComparator
  */
 class FloatComparatorTest extends TestCase
 {
@@ -27,6 +28,9 @@ class FloatComparatorTest extends TestCase
         static::assertTrue(FloatComparator::cast($x) === 3.155);
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function equalsDataProvider(): array
     {
         return [
@@ -56,11 +60,14 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::notEquals($a, $b));
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function notEqualsDataProvider(): array
     {
         $equalsData = $this->equalsDataProvider();
 
-        return array_map(
+        return \array_map(
             function ($testData) {
                 return [$testData[0], $testData[1], !$testData[2]];
             },
@@ -76,6 +83,9 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::lessThan($a, $b));
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function lessThanDataProvider(): array
     {
         return [
@@ -109,6 +119,9 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::greaterThan($a, $b));
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function greaterThanDataProvider(): array
     {
         return [
@@ -141,6 +154,9 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::lessThanOrEquals($a, $b));
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function lessThanOrEqualsDataProvider(): array
     {
         return [
@@ -173,6 +189,9 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::greaterThanOrEquals($a, $b));
     }
 
+    /**
+     * @return array{0: float, 1: float, 2: bool}[]
+     */
     public function greaterThanOrEqualsDataProvider(): array
     {
         return [

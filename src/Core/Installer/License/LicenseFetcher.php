@@ -9,8 +9,15 @@ use Symfony\Component\HttpFoundation\Request;
 class LicenseFetcher
 {
     private Client $guzzle;
+
+    /**
+     * @var string[]
+     */
     private array $tosUrls;
 
+    /**
+     * @param string[] $tosUrls
+     */
     public function __construct(Client $guzzle, array $tosUrls)
     {
         $this->guzzle = $guzzle;

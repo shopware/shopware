@@ -15,7 +15,7 @@ class HtmlSanitizerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private $unfilteredString = '<div style="background-color:#0E75FB;">test</div>';
+    private string $unfilteredString = '<div style="background-color:#0E75FB;">test</div>';
 
     private HtmlSanitizer $sanitizer;
 

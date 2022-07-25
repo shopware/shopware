@@ -162,6 +162,6 @@ class DatabaseConnectionInformation extends Struct
 
     public function hasAdvancedSetting(): bool
     {
-        return $this->port !== 3306 || $this->sslCaPath || $this->sslCertPath || $this->sslCertKeyPath || $this->sslDontVerifyServerCert != null;
+        return $this->port !== 3306 || $this->sslCaPath || $this->sslCertPath || $this->sslCertKeyPath || $this->sslDontVerifyServerCert !== null;
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Core\Framework\Rule\Container;
+namespace Shopware\Tests\Unit\Core\Framework\Rule\Container;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;

@@ -130,10 +130,13 @@ class AssetService
 
         foreach ($files as $file) {
             $fs = fopen($file->getPathname(), 'rb');
-            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
-            if (\is_resource($fs)) {
-                fclose($fs);
+
+            if (!\is_resource($fs)) {
+                throw new \RuntimeException('Could not open file ' . $file->getPathname());
             }
+
+            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
+            fclose($fs);
         }
     }
 

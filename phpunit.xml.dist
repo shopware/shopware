@@ -20,7 +20,7 @@
             <directory suffix=".php">src/Core/Maintenance</directory>
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
-            <directory suffix=".php">src/Elasticsearch</directory>
+            <directory suffix=".php">src/Core/Installer</directory>
 
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
@@ -29,18 +29,22 @@
             <file>src/Core/PlatformRequest.php</file>
             <file>src/Core/SalesChannelRequest.php</file>
 
+            <directory suffix=".php">src/Elasticsearch</directory>
+
             <directory suffix=".php">src/Administration/Controller</directory>
             <directory suffix=".php">src/Administration/DependencyInjection</directory>
             <directory suffix=".php">src/Administration/Events</directory>
             <directory suffix=".php">src/Administration/Framework</directory>
+            <directory suffix=".php">src/Administration/Notification</directory>
             <directory suffix=".php">src/Administration/Service</directory>
             <directory suffix=".php">src/Administration/Snippet</directory>
+            <directory suffix=".php">src/Administration/System</directory>
             <file>src/Administration/Administration.php</file>
 
             <directory suffix=".php">src/Storefront/Checkout</directory>
             <directory suffix=".php">src/Storefront/Controller</directory>
             <directory suffix=".php">src/Storefront/DependencyInjection</directory>
-            <directory suffix=".php">src/Storefront/Events</directory>
+            <directory suffix=".php">src/Storefront/Event</directory>
             <directory suffix=".php">src/Storefront/Exception</directory>
             <directory suffix=".php">src/Storefront/Framework</directory>
             <directory suffix=".php">src/Storefront/Page</directory>

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Installer\Requirements;
 
+use Composer\Composer;
 use Composer\Repository\PlatformRepository;
-use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
@@ -13,25 +13,24 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
  */
 class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
 {
+    private Composer $composer;
+
     private PlatformRepository $systemEnvironment;
 
-    private string $projectDir;
-
-    public function __construct(PlatformRepository $systemEnvironment, string $projectDir)
+    public function __construct(Composer $composer, PlatformRepository $systemEnvironment)
     {
+        $this->composer = $composer;
         $this->systemEnvironment = $systemEnvironment;
-        $this->projectDir = $projectDir;
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection
     {
-        $composer = Factory::createComposer($this->projectDir);
-        $platform = $composer->getRepositoryManager()->getLocalRepository()->findPackage('shopware/platform', '*');
+        $platform = $this->composer->getRepositoryManager()->getLocalRepository()->findPackage('shopware/platform', '*');
         if (!$platform) {
-            $platform = $composer->getRepositoryManager()->getLocalRepository()->findPackage('shopware/core', '*');
+            $platform = $this->composer->getRepositoryManager()->getLocalRepository()->findPackage('shopware/core', '*');
         }
         if (!$platform) {
-            $platform = $composer->getPackage();
+            $platform = $this->composer->getPackage();
         }
 
         foreach ($platform->getRequires() as $require => $link) {
@@ -46,7 +45,7 @@ class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
                     $require,
                     RequirementCheck::STATUS_SUCCESS,
                     $link->getConstraint()->getPrettyString(),
-                    $result->getVersion()
+                    $result->getPrettyVersion()
                 ));
 
                 continue;
@@ -69,7 +68,7 @@ class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
                 $require,
                 RequirementCheck::STATUS_ERROR,
                 $link->getConstraint()->getPrettyString(),
-                $extension->getVersion()
+                $extension->getPrettyVersion()
             ));
         }
 

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Installer\Subscriber;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -20,6 +18,9 @@ class InstallerLocaleListener implements EventSubscriberInterface
      */
     private array $installerLanguages;
 
+    /**
+     * @param string[] $installerLanguages
+     */
     public function __construct(array $installerLanguages)
     {
         $this->installerLanguages = $installerLanguages;
@@ -28,7 +29,7 @@ class InstallerLocaleListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            RequestEvent::class => ['setInstallerLocale', 15]
+            RequestEvent::class => ['setInstallerLocale', 15],
         ];
     }
 

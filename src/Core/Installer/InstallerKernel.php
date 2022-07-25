@@ -3,18 +3,14 @@
 namespace Shopware\Core\Installer;
 
 use Composer\InstalledVersions;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\HttpKernelResult;
+use Shopware\Core\Framework\Util\VersionParser;
 use Shopware\Core\Kernel;
-use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -24,11 +20,6 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 class InstallerKernel extends HttpKernel
 {
     use MicroKernelTrait;
-
-    /**
-     * @var string Regex pattern for validating Shopware versions
-     */
-    private const VALID_VERSION_PATTERN = '#^\d\.\d+\.\d+\.(\d+|x)(-\w+)?#';
 
     private string $shopwareVersion;
 
@@ -46,7 +37,9 @@ class InstallerKernel extends HttpKernel
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
 
-        $this->parseShopwareVersion($version ?? Kernel::SHOPWARE_FALLBACK_VERSION);
+        $version = VersionParser::parseShopwareVersion($version);
+        $this->shopwareVersion = $version['version'];
+        $this->shopwareVersionRevision = $version['revision'];
     }
 
     /**
@@ -59,9 +52,6 @@ class InstallerKernel extends HttpKernel
         yield new Installer();
     }
 
-    /**
-     * @return string
-     */
     public function getProjectDir(): string
     {
         $r = new \ReflectionObject($this);
@@ -83,15 +73,10 @@ class InstallerKernel extends HttpKernel
         return $dir;
     }
 
-    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true)
-    {
-        $response = parent::handle($request, $type, $catch);
-
-        return new HttpKernelResult($request, $response);
-    }
-
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
      */
     protected function getKernelParameters(): array
     {
@@ -122,32 +107,6 @@ class InstallerKernel extends HttpKernel
 
     private function configureRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import(__DIR__ .'/Resources/config/routes.xml');
-    }
-
-    private function parseShopwareVersion(?string $version): void
-    {
-        // does not come from composer, was set manually
-        if ($version === null || mb_strpos($version, '@') === false) {
-            $this->shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-            $this->shopwareVersionRevision = str_repeat('0', 32);
-
-            return;
-        }
-
-        [$version, $hash] = explode('@', $version);
-        $version = ltrim($version, 'v');
-        $version = str_replace('+', '-', $version);
-
-        /*
-         * checks if the version is a valid version pattern
-         * Shopware\Core\Framework\Test\KernelTest::testItCreatesShopwareVersion()
-         */
-        if (!preg_match($this::VALID_VERSION_PATTERN, $version)) {
-            $version = Kernel::SHOPWARE_FALLBACK_VERSION;
-        }
-
-        $this->shopwareVersion = $version;
-        $this->shopwareVersionRevision = $hash;
+        $routes->import(__DIR__ . '/Resources/config/routes.xml');
     }
 }

@@ -304,7 +304,7 @@
         "lint": [
             "@stylelint",
             "@eslint",
-            "@ecs src/",
+            "@ecs",
             "@lint:changelog",
             "@lint:snippets"
         ],

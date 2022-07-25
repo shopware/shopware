@@ -10635,16 +10635,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/SalesChannel/ContextLoadRouteTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 11
-			path: src/Core/System/Test/SalesChannel/SalesChannel/ContextSwitchRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\ContextSwitchRouteTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/ContextSwitchRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\MyTestStruct\\:\\:__construct\\(\\) has parameter \\$bar with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/SalesChannel/StructEncoderTest.php

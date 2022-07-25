@@ -9,7 +9,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Common\TestShortHands;
+use Shopware\Core\Test\Integration\Traits\TestShortHands;
 
 /**
  * @internal

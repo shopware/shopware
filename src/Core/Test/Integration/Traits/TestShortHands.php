@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Common;
+namespace Shopware\Core\Test\Integration\Traits;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\TestDefaults;
 
 /**

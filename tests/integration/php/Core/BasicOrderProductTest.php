@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Common\MailEventListener;
-use Shopware\Tests\Integration\Common\TestShortHands;
+use Shopware\Core\Test\Integration\Helper\MailEventListener;
+use Shopware\Core\Test\Integration\Traits\TestShortHands;
 
 /**
  * @internal

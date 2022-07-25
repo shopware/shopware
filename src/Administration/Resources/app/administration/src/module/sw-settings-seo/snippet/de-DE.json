@@ -24,7 +24,9 @@
       "labelSalesChannelSelect": "Verkaufskanal",
       "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich.",
       "textUrlNoEntitiesForPreview": "Es ist kein(e) {entity} vorhanden, um eine Vorschau zu generieren. Bitte lege eine(s) an.",
-      "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für Routen der {entity}-Entität erstellt."
+      "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für Routen der {entity}-Entität erstellt.",
+      "headlineInfoMessageBoxEmptyProperties": "Info",
+      "textInfoMessageBoxEmptyProperties": "Achte bei der Verwendung von Variablen darauf, dass in den entsprechenden Feldern der Entitäten (Produkte, Landingpages oder Kategorien) auch Daten hinterlegt sind. Wenn Variablen auf leere Felder verweisen, wird für die zugehörigen Entitäten keine SEO-URL erstellt."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",

@@ -186,6 +186,8 @@ Component.register('sw-cms-sidebar', {
             const dragSectionIndex = dragData.sectionIndex;
             const dropSectionIndex = dropData.sectionIndex;
 
+            const dropSection = this.page.sections[dropSectionIndex];
+
             if (dragSectionIndex < 0 || dragSectionIndex >= this.page.sections.length ||
                 dropSectionIndex < 0 || dropSectionIndex >= this.page.sections.length) {
                 return;
@@ -202,7 +204,7 @@ Component.register('sw-cms-sidebar', {
             }
 
             // check if the section where the block is moved already has the block
-            const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            const dropSectionHasBlock = dropSection.blocks.has(dragData.block.id);
             if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
 
@@ -224,10 +226,16 @@ Component.register('sw-cms-sidebar', {
                     this.currentDragSectionIndex -= 1;
                 }
 
-                dragData.block.sectionId = this.page.sections[dropSectionIndex].id;
+                dragData.block.sectionId = dropSection.id;
 
-                await this.blockMoveSave(dragData.block, dropSectionIndex, removeIndex);
+                dropSection.blocks.add(dragData.block);
 
+                const oldSection = this.page.sections[removeIndex];
+                oldSection.blocks.remove(dragData.block.id);
+                oldSection._origin.blocks.remove(dragData.block.id);
+
+                this.refreshPosition(oldSection.blocks);
+                this.refreshPosition(dropSection.blocks);
                 return;
             }
 
@@ -237,10 +245,18 @@ Component.register('sw-cms-sidebar', {
 
             // move item inside the section
             this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
-
-            this.$emit('block-navigator-sort');
+            this.refreshPosition(dropSection.blocks);
         },
 
+        refreshPosition(elements) {
+            return elements.forEach((element, index) => {
+                element.position = index;
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Blocks will only be saved on clicking save
+         */
         async blockMoveSave(block, dropSectionIndex, removeIndex) {
             block.slots.forEach((slot) => {
                 Object.values(slot.config).forEach((configField) => {

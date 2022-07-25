@@ -4,30 +4,21 @@ import 'src/module/sw-cms/component/sw-cms-sidebar';
 import 'src/app/component/base/sw-button';
 import Vuex from 'vuex';
 
-const { EntityCollection } = Shopware.Data;
+const { EntityCollection, Entity } = Shopware.Data;
 
-function getBlockData(sectionId = '1111') {
+function getBlockData(id = '1a2b', position) {
     return {
-        id: 'a322757550914445a0ec3c1b23255754',
-        slots: [
-            {
-                blockId: 'a322757550914445a0ec3c1b23255754',
-                id: '41d71c21cfb346149c066b4ebeeb0dbf',
-                config: {
-                    content: {
-                        source: 'static',
-                        value: '<p>plp<p>'
-                    }
-                },
-                data: null,
-                slot: 'content',
-                type: 'text'
-            }
-        ],
-        sectionId,
-        position: 0,
-        sectionPosition: 0
+        id,
+        position,
+        sectionPosition: 0,
+        slots: [{
+            id: 'some-slot-id'
+        }]
     };
+}
+
+function getBlockCollection(blocks) {
+    return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
 function createWrapper() {
@@ -54,42 +45,44 @@ function createWrapper() {
         propsData: {
             page: {
                 sections: [
-                    {
-                        id: '1111',
+                    new Entity('1111', 'section', {
                         type: 'sidebar',
-                        blocks: new EntityCollection([
+                        blocks: getBlockCollection([
                             {
                                 id: '1a2b',
                                 sectionPosition: 'main',
-                                type: 'foo-bar'
+                                type: 'foo-bar',
+                                slots: []
                             },
                             {
                                 id: '3cd4',
                                 sectionPosition: 'sidebar',
-                                type: 'foo-bar'
+                                type: 'foo-bar',
+                                slots: []
                             },
                             {
                                 id: '5ef6',
                                 sectionPosition: 'sidebar',
-                                type: 'foo-bar-removed'
+                                type: 'foo-bar-removed',
+                                slots: []
                             },
                             {
                                 id: '7gh8',
                                 sectionPosition: 'main',
-                                type: 'foo-bar-removed'
+                                type: 'foo-bar-removed',
+                                slots: []
                             }
                         ])
-                    }, {
-                        id: '2222',
+                    }),
+                    new Entity('2222', 'section', {
                         type: 'sidebar',
-                        blocks: new EntityCollection([
-                            {
-                                id: 'abcd',
-                                sectionPosition: 'main',
-                                type: 'i-dont-care'
-                            }
-                        ])
-                    }
+                        blocks: getBlockCollection([{
+                            id: 'abcd',
+                            sectionPosition: 'main',
+                            type: 'some-type',
+                            slots: []
+                        }])
+                    })
                 ]
             }
         },
@@ -202,21 +195,62 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         });
     });
 
+    it('should correctly adjust the sectionId when drag sorting', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        const blockDrag = {
+            block: getBlockData('1a2b', 0),
+            sectionIndex: 0,
+            position: 0
+        };
+        const blockDrop = {
+            block: getBlockData('7gh8', 3),
+            sectionIndex: 0,
+        };
+
+        wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
+
+        const sections = wrapper.vm.page.sections;
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8', '1a2b']);
+        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd']);
+
+        sections[0].blocks.forEach((block, index) => {
+            expect(block.position).toBe(index);
+        });
+    });
+
+
     it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
         const wrapper = createWrapper();
+
         const blockDrag = {
-            block: getBlockData('1111'),
+            block: getBlockData('1a2b', 0),
             sectionIndex: 0
         };
         const blockDrop = {
-            block: getBlockData('2222'),
+            block: getBlockData('7gh8', 2),
             sectionIndex: 1
         };
 
-        await wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
+        wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
 
-        expect(wrapper.emitted()['block-navigator-sort'][0]).toEqual([true]);
-        expect(blockDrag.block.sectionId).toEqual(blockDrop.block.sectionId);
+        const sections = wrapper.vm.page.sections;
+        expect(Array.from(sections[0].blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+        expect(Array.from(sections[1].blocks.getIds())).toStrictEqual(['abcd', '1a2b']);
+
+        sections[0].blocks.forEach((block, index) => {
+            expect(block.position).toBe(index);
+        });
+
+        sections[1].blocks.forEach((block, index) => {
+            expect(block.position).toBe(index);
+        });
+
+        expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
+
+        expect(blockDrag.block.sectionId).toEqual('2222');
     });
 
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', () => {
@@ -283,7 +317,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const clonedBlock = wrapper.vm.cloneBlock(block, 'random_id');
 
-        expect(clonedBlock.id).toBe('a322757550914445a0ec3c1b23255754');
+        expect(clonedBlock.id).toBe('1a2b');
     });
 
     it('should keep the id when duplicating slots', () => {
@@ -297,7 +331,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const [slot] = newBlock.slots;
 
-        expect(slot.id).toBe('41d71c21cfb346149c066b4ebeeb0dbf');
+        expect(slot.id).toBe('some-slot-id');
     });
 
     it('should fire event to open layout assignment modal', async () => {
@@ -387,85 +421,50 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             dropIndex: 0,
             section: {
                 position: 0,
-                type: 'default',
-                locked: false,
-                name: null,
-                sizingMode: 'boxed',
-                mobileBehavior: 'wrap',
-                backgroundColor: null,
-                backgroundMediaId: null,
-                backgroundMediaMode: 'cover',
-                cssClass: null,
-                pageId: 'd4bab66b8ef349469e1b7faf48ad08f2',
-                customFields: null,
-                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                cmsPageVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                createdAt: '2022-02-15T14:35:19.754+00:00',
-                updatedAt: null,
-                apiAlias: null,
-                id: '19cc1c1505694be886e19652ad247c6b',
-                blocks: []
             },
             sectionPosition: 'main'
         };
 
         wrapper.vm.onBlockStageDrop(dragData, dropData);
 
-        const combinedData = JSON.stringify(wrapper.vm.page);
 
-        const expectedData = JSON.stringify({
-            sections: [
+        const expectedData = {
+            id: null,
+            slots: [
                 {
-                    id: '1111',
-                    type: 'sidebar',
-                    blocks: [
-                        {
-                            id: null,
-                            slots: [
-                                {
-                                    id: null,
-                                    slots: [],
-                                    blockId: null,
-                                    slot: 'image',
-                                    type: 'image',
-                                    config: {
-                                        displayMode: {
-                                            source: 'static',
-                                            value: 'standard'
-                                        },
-                                        media: {
-                                            value: 'preview_mountain_large.jpg',
-                                            source: 'default'
-                                        }
-                                    },
-                                    data: {
-                                        media: {
-                                            value: 'preview_mountain_large.jpg',
-                                            source: 'default'
-                                        }
-                                    }
-                                }
-                            ],
-                            type: 'image',
-                            position: 0,
-                            sectionPosition: 'main',
-                            sectionId: '19cc1c1505694be886e19652ad247c6b',
-                            marginBottom: '20px',
-                            marginTop: '20px',
-                            marginLeft: '20px',
-                            marginRight: '20px',
-                            sizingMode: 'boxed'
+                    id: null,
+                    blockId: null,
+                    slot: 'image',
+                    slots: [],
+                    type: 'image',
+                    config: {
+                        displayMode: {
+                            source: 'static',
+                            value: 'standard'
+                        },
+                        media: {
+                            value: 'preview_mountain_large.jpg',
+                            source: 'default'
                         }
-                    ]
-                },
-                {
-                    id: '2222',
-                    type: 'sidebar',
-                    blocks: []
+                    },
+                    data: {
+                        media: {
+                            value: 'preview_mountain_large.jpg',
+                            source: 'default'
+                        }
+                    }
                 }
-            ]
-        });
+            ],
+            type: 'image',
+            position: 0,
+            sectionPosition: 'main',
+            marginBottom: '20px',
+            marginTop: '20px',
+            marginLeft: '20px',
+            marginRight: '20px',
+            sizingMode: 'boxed'
+        };
 
-        expect(combinedData).toBe(expectedData);
+        expect(JSON.parse(JSON.stringify(wrapper.vm.page.sections[0].blocks[0]))).toStrictEqual(expectedData);
     });
 });

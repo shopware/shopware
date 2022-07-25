@@ -12,6 +12,7 @@ parameters:
     tmpDir: var/cache/phpstan
     paths:
         - src
+        - tests
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/composer/InstalledVersions.php # somehow we are affected by this https://github.com/phpstan/phpstan/issues/4482
@@ -50,15 +51,26 @@ parameters:
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
         -
             message: '#Service ".*" is not registered in the container\.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/**/*Test.php
         -
             message: '#Service ".*" is private#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/**/*Test.php
 
         # ignore errors caused by static::markTestSkipped
         -
             message: '#Unreachable statement - code above always terminates.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+
+        # benchmark tests create db tables on the fly
+        -
+            message: '#Query error:#'
+            paths:
+                - tests/performance/**/*.php
 
         # Method gets always an EntityCollection
         -

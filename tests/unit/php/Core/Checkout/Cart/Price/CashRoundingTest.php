@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
 /**
  * @covers \Shopware\Core\Checkout\Cart\Price\CashRounding
+ *
  * @internal
  */
 class CashRoundingTest extends TestCase
@@ -15,7 +16,7 @@ class CashRoundingTest extends TestCase
     /**
      * @dataProvider provider_german
      */
-    public function test_german(float $price, float $expected): void
+    public function testGerman(float $price, float $expected): void
     {
         $service = new CashRounding();
 
@@ -28,7 +29,7 @@ class CashRoundingTest extends TestCase
     /**
      * @dataProvider provider_hong_kong
      */
-    public function test_hong_kong(float $price, float $expected): void
+    public function testHongKong(float $price, float $expected): void
     {
         $service = new CashRounding();
 
@@ -41,7 +42,7 @@ class CashRoundingTest extends TestCase
     /**
      * @dataProvider provider_denmark
      */
-    public function test_denmark(float $price, float $expected): void
+    public function testDenmark(float $price, float $expected): void
     {
         $service = new CashRounding();
 
@@ -54,7 +55,7 @@ class CashRoundingTest extends TestCase
     /**
      * @dataProvider provider_italy
      */
-    public function test_italy(float $price, float $expected): void
+    public function testItaly(float $price, float $expected): void
     {
         $service = new CashRounding();
 
@@ -67,7 +68,7 @@ class CashRoundingTest extends TestCase
     /**
      * @dataProvider provider_sweden
      */
-    public function test_sweden(float $price, float $expected): void
+    public function testSweden(float $price, float $expected): void
     {
         $service = new CashRounding();
 

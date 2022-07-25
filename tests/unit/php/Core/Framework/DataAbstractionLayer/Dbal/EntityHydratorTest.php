@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -19,9 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldPlainTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
@@ -32,27 +31,52 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Singl
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDependencyDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationMappingDefinition;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator
  */
 class EntityHydratorTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use BasicTestDataBehaviour;
-    use DatabaseTransactionBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    private EntityHydrator $hydrator;
+
+    private StaticDefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    public function setUp(): void
+    {
+        $container = new ContainerBuilder();
+        $this->hydrator = new EntityHydrator($container);
+        $container->set(EntityHydrator::class, $this->hydrator);
+
+        $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                FkExtensionFieldTest::class,
+                CustomFieldPlainTestDefinition::class,
+                CustomFieldTestDefinition::class,
+                CustomFieldTestTranslationDefinition::class,
+                SingleEntityDependencyTestRootDefinition::class,
+                SingleEntityDependencyTestSubDefinition::class,
+                SingleEntityDependencyTestDependencyDefinition::class,
+                SingleEntityDependencyTestDependencySubDefinition::class,
+                ToManyAssociationDefinition::class,
+                ToManyAssociationDependencyDefinition::class,
+                ToManyAssociationMappingDefinition::class,
+                LanguageDefinition::class,
+                ProductDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+    }
 
     public function testFkExtensionFieldHydration(): void
     {
-        $definition = new FkExtensionFieldTest();
-        $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-
-        $hydrator = new EntityHydrator($this->getContainer());
+        $definition = $this->definitionInstanceRegistry->get(FkExtensionFieldTest::class);
 
         $id = Uuid::randomBytes();
         $normal = Uuid::randomBytes();
@@ -67,7 +91,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
         /** @var ArrayEntity|null $first */
@@ -92,9 +116,7 @@ class EntityHydratorTest extends TestCase
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void
     {
-        $definition = $this->registerDefinition(CustomFieldPlainTestDefinition::class);
-
-        $hydrator = new EntityHydrator($this->getContainer());
+        $definition = $this->definitionInstanceRegistry->get(CustomFieldPlainTestDefinition::class);
 
         $id = Uuid::randomBytes();
 
@@ -106,7 +128,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -120,9 +142,7 @@ class EntityHydratorTest extends TestCase
 
     public function testCustomFieldHydrationWithTranslationWithInheritance(): void
     {
-        $definition = $this->registerDefinition(CustomFieldTestDefinition::class, CustomFieldTestTranslationDefinition::class);
-
-        $hydrator = new EntityHydrator($this->getContainer());
+        $definition = $this->definitionInstanceRegistry->get(CustomFieldTestDefinition::class);
 
         $id = Uuid::randomBytes();
         $context = $this->createContext();
@@ -139,7 +159,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -159,7 +179,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
         $customFields = $first->get('customTranslated');
@@ -178,7 +198,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         $first = $structs->first();
 
         $customFields = $first->get('customTranslated');
@@ -188,9 +208,7 @@ class EntityHydratorTest extends TestCase
 
     public function testCustomFieldHydrationWithTranslationWithoutInheritance(): void
     {
-        $definition = $this->registerDefinition(CustomFieldTestDefinition::class, CustomFieldTestTranslationDefinition::class);
-
-        $hydrator = new EntityHydrator($this->getContainer());
+        $definition = $this->definitionInstanceRegistry->get(CustomFieldTestDefinition::class);
 
         $id = Uuid::randomBytes();
         $context = $this->createContext(false);
@@ -205,7 +223,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -216,9 +234,7 @@ class EntityHydratorTest extends TestCase
 
     public function testCustomFieldHydrationWithoutTranslationWithInheritance(): void
     {
-        $definition = $this->registerDefinition(CustomFieldTestDefinition::class, CustomFieldTestTranslationDefinition::class);
-
-        $hydrator = new EntityHydrator($this->getContainer());
+        $definition = $this->definitionInstanceRegistry->get(CustomFieldTestDefinition::class);
 
         $id = Uuid::randomBytes();
         $context = $this->createContext();
@@ -232,7 +248,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -249,7 +265,7 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
+        $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', $context);
         static::assertCount(1, $structs);
 
         $first = $structs->first();
@@ -261,12 +277,7 @@ class EntityHydratorTest extends TestCase
 
     public function testSingleEntityDependencyWithDifferentlyLoadedAssociations(): void
     {
-        $definition = $this->registerDefinition(
-            SingleEntityDependencyTestRootDefinition::class,
-            SingleEntityDependencyTestSubDefinition::class,
-            SingleEntityDependencyTestDependencyDefinition::class,
-            SingleEntityDependencyTestDependencySubDefinition::class,
-        );
+        $definition = $this->definitionInstanceRegistry->get(SingleEntityDependencyTestRootDefinition::class);
 
         $pickupPointId = Uuid::randomBytes();
         $warehouseId = Uuid::randomBytes();
@@ -308,15 +319,13 @@ class EntityHydratorTest extends TestCase
             'test.zipcode.country.iso' => 'DE',
         ];
 
-        $hydrator = new EntityHydrator($this->getContainer());
-        $structsWithoutWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
+        $structsWithoutWarehouseZipcodeHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
         static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
         static::assertArrayHasKey('zipcode', $structsWithoutWarehouseZipcodeHydration->first()->get('warehouse')->all());
         static::assertNull($structsWithoutWarehouseZipcodeHydration->first()->get('warehouse')->all()['zipcode']);
 
-        $hydrator = new EntityHydrator($this->getContainer());
-        $structsWithWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
+        $structsWithWarehouseZipcodeHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
         static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
         static::assertArrayHasKey('zipcode', $structsWithWarehouseZipcodeHydration->first()->get('warehouse')->all());
         static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('warehouse')->all()['zipcode']);
@@ -324,11 +333,7 @@ class EntityHydratorTest extends TestCase
 
     public function testNotLoadedManyToManyAssociationsAreInitializedWithNullForArrayEntities(): void
     {
-        $definition = $this->registerDefinition(
-            ToManyAssociationDefinition::class,
-            ToManyAssociationDependencyDefinition::class,
-            ToManyAssociationMappingDefinition::class
-        );
+        $definition = $this->definitionInstanceRegistry->get(ToManyAssociationDefinition::class);
 
         $id = Uuid::randomBytes();
 
@@ -338,46 +343,19 @@ class EntityHydratorTest extends TestCase
             'test.id' => $id,
         ];
 
-        $hydrator = new EntityHydrator($this->getContainer());
-        $structsWithoutToManyHydration = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutToManyHydration], 'test', $context);
+        $structsWithoutToManyHydration = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, [$rowWithoutToManyHydration], 'test', $context);
         static::assertEquals(Uuid::fromBytesToHex($id), $structsWithoutToManyHydration->first()->getId());
         static::assertArrayHasKey('toMany', $structsWithoutToManyHydration->first()->all());
         static::assertNull($structsWithoutToManyHydration->first()->all()['toMany']);
     }
 
-    private function addLanguage(string $id, ?string $rootLanguage): void
-    {
-        $translationCodeId = Uuid::randomHex();
-        $languageRepository = $this->getContainer()->get('language.repository');
-        $languageRepository->create(
-            [
-                [
-                    'id' => $id,
-                    'parentId' => $rootLanguage,
-                    'name' => $id,
-                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                    'translationCode' => [
-                        'id' => $translationCodeId,
-                        'name' => 'x-' . $translationCodeId,
-                        'code' => 'x-' . $translationCodeId,
-                        'territory' => $translationCodeId,
-                    ],
-                ],
-            ],
-            Context::createDefaultContext()
-        );
-    }
-
     private function createContext(bool $inheritance = true): Context
     {
-        $rootLanguageId = Uuid::randomHex();
-        $this->addLanguage($rootLanguageId, null);
-
         return new Context(
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [$rootLanguageId, Defaults::LANGUAGE_SYSTEM],
+            [Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM],
             Defaults::LIVE_VERSION,
             1.0,
             $inheritance

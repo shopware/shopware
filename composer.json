@@ -291,8 +291,8 @@
             "@eslint:admin",
             "@eslint:storefront"
         ],
-        "ecs": "ecs check",
-        "ecs-fix": "ecs check --fix",
+        "ecs": "ecs check src tests",
+        "ecs-fix": "ecs check --fix src tests",
         "lint:changelog": "@php bin/shopware changelog:check",
         "lint:snippets": "@php bin/shopware snippets:validate",
         "lint": [

@@ -160,7 +160,7 @@ PHP lint:
     before_script:
         - composer update --no-interaction
     script:
-        - composer run ecs -- src --no-progress-bar
+        - composer run ecs -- --no-progress-bar
         - composer run lint:changelog
         - composer run lint:snippets
         - composer run bc-check

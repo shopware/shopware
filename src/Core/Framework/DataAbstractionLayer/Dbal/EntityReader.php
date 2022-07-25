@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -115,8 +116,10 @@ class EntityReader implements EntityReaderInterface
         }
 
         if ($partial !== []) {
-            $fields = $definition->getFields()->filter(function (Field $field) use ($partial) {
-                if ($field->getFlag(PrimaryKey::class)) {
+            $fields = $definition->getFields()->filter(function (Field $field) use (&$partial) {
+                if ($field->getFlag(PrimaryKey::class) || $field instanceof ManyToManyIdField) {
+                    $partial[$field->getPropertyName()] = [];
+
                     return true;
                 }
 
@@ -171,7 +174,10 @@ class EntityReader implements EntityReaderInterface
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
             $parentAssociation = $definition->getFields()->get('parent');
-            $this->queryHelper->resolveField($parentAssociation, $definition, $root, $query, $context);
+
+            if ($parentAssociation !== null) {
+                $this->queryHelper->resolveField($parentAssociation, $definition, $root, $query, $context);
+            }
         }
 
         $addTranslation = false;
@@ -426,6 +432,8 @@ class EntityReader implements EntityReaderInterface
         $ref = $association->getReferenceDefinition()->getFields()->getByStorageName(
             $association->getReferenceField()
         );
+
+        \assert($ref instanceof Field);
 
         $propertyName = $ref->getPropertyName();
         if ($association instanceof ChildrenAssociationField) {
@@ -1167,6 +1175,21 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
+    private function addAssociationsToCriteriaFields(Criteria $criteria, array &$fields): void
+    {
+        if ($fields === []) {
+            return;
+        }
+
+        foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
+            if (!isset($fields[$fieldName])) {
+                $fields[$fieldName] = [];
+            }
+
+            $this->addAssociationsToCriteriaFields($fieldCriteria, $fields[$fieldName]);
+        }
+    }
+
     private function buildCriteriaFields(Criteria $criteria, EntityDefinition $definition): array
     {
         if (empty($criteria->getFields())) {
@@ -1174,6 +1197,8 @@ class EntityReader implements EntityReaderInterface
         }
 
         $fields = [];
+
+        $this->addAssociationsToCriteriaFields($criteria, $fields);
 
         foreach ($criteria->getFields() as $field) {
             $association = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $field, true);

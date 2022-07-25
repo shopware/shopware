@@ -181,11 +181,6 @@ parameters:
             count: 1
             path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
 
-        -
-            message: "#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
         # Invalid trait usage
         -
             message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"

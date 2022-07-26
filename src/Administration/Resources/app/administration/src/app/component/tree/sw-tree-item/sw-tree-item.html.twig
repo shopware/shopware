@@ -30,9 +30,10 @@
             {% block sw_tree_item_element_toggle_loader %}{% endblock %}
 
             {% block sw_tree_item_element_toggle_icon %}
+            {# @deprecated tag:v6.5.0 - Size can be removed #}
             <sw-icon
                 :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'"
-                size="18"
+                size="22"
             />
             {% endblock %}
         </div>
@@ -73,9 +74,10 @@
                 v-else
                 class="sw-tree-item__icon"
             >
+                {# @deprecated tag:v6.5.0 - Size can be removed #}
                 <sw-icon
                     name="regular-circle-xxs"
-                    size="18"
+                    size="17"
                 />
             </div>
         </slot>

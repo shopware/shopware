@@ -60,7 +60,7 @@ class DeliveryNoteRendererTest extends TestCase
     /**
      * @dataProvider deliveryNoteRendererDataProvider
      */
-    public function testRender(?string $deliveryNoteNumber = null, \Closure $assertionCallback): void
+    public function testRender(string $deliveryNoteNumber, \Closure $assertionCallback): void
     {
         $cart = $this->generateDemoCart(3);
 
@@ -105,7 +105,7 @@ class DeliveryNoteRendererTest extends TestCase
     {
         yield 'render delivery_note successfully' => [
             '2000',
-            function (string $deliveryNoteNumber, ?string $orderNumber = null, RenderedDocument $rendered): void {
+            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
                 $html = $rendered->getHtml();
                 static::assertStringContainsString('<html>', $html);
                 static::assertStringContainsString('</html>', $html);
@@ -117,7 +117,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
-            function (string $deliveryNoteNumber, ?string $orderNumber = null, RenderedDocument $rendered): void {
+            function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
                 static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
                 static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 

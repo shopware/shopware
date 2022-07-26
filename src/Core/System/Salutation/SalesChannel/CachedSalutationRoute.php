@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -77,31 +76,6 @@ class CachedSalutationRoute extends AbstractSalutationRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("salutation")
-     * @OA\Post(
-     *      path="/salutation",
-     *      summary="Fetch salutations",
-     *      description="Perform a filtered search for salutations.",
-     *      operationId="readSalutation",
-     *      tags={"Store API", "System & Context"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing salutations.",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/Salutation")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *     )
-     * )
      * @Route(path="/store-api/salutation", name="store-api.salutation", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\Context;
@@ -69,58 +68,6 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Post(
-     *      path="/product/{productId}/review",
-     *      summary="Save a product review",
-     *      description="Saves a review for a product. Reviews have to be activated in the settings.",
-     *      operationId="saveProductReview",
-     *      tags={"Store API","Product"},
-     *      @OA\Parameter(
-     *          name="productId",
-     *          description="Identifier of the product which is reviewed.",
-     *          @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\RequestBody(
-     *          @OA\JsonContent(
-     *              required={
-     *                  "title",
-     *                  "content",
-     *                  "points"
-     *              },
-     *              @OA\Property(
-     *                  property="name",
-     *                  type="string",
-     *                  description="The name of the review author. If not set, the first name of the customer is chosen."
-     *              ),
-     *              @OA\Property(
-     *                  property="email",
-     *                  type="string",
-     *                  description="The email address of the review author. If not set, the email of the customer is chosen."
-     *              ),
-     *              @OA\Property(
-     *                  property="title",
-     *                  description="The title of the review.",
-     *                  @OA\Schema(type="string", required=true, minLength=5)
-     *              ),
-     *              @OA\Property(
-     *                  property="content",
-     *                  description="The content of review.",
-     *                  @OA\Schema(type="string", required=true, minLength=40)
-     *              ),
-     *              @OA\Property(
-     *                  property="points",
-     *                  description="The review rating for the product.",
-     *                  @OA\Schema(type="integer", required=true, minimum=1, maximum=5)
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Success response indicating the review was saved successfuly."
-     *     )
-     * )
      * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse

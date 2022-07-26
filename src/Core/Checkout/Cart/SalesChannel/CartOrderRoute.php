@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -70,40 +69,6 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     /**
      * @Since("6.3.0.0")
-     * @OA\Post(
-     *      path="/checkout/order",
-     *      summary="Create an order from a cart",
-     *      description="Creates a new order from the current cart and deletes the cart.
-
-If you are using the [prepared payment flow](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/payments#2.1-prepare-payment-optional), this endpoint also receives additional transaction details. The exact name of the parameters depends on the implementation of the corresponding *payment handler*.",
-     *      operationId="createOrder",
-     *      tags={"Store API", "Order"},
-     *      @OA\RequestBody(
-     *          description="Contains additional metadata which is stored together with the order. It can also contain payment transaction details.",
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="customerComment",
-     *                  description="Adds a comment from the customer to the order.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="affiliateCode",
-     *                  description="The affiliate code can be used to track which referrer the customer came through. An example could be `Price-comparison-company-XY`.",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="campaignCode",
-     *                  description="The campaign code is used to track which action the customer came from. An example could be `Summer-Deals`",
-     *                  type="string"
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Order",
-     *          @OA\JsonContent(ref="#/components/schemas/Order")
-     *     )
-     * )
      * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use OpenApi\Annotations as OA;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -45,40 +44,6 @@ class ScriptStoreApiRoute
 
     /**
      * @Since("6.4.9.0")
-     * @OA\Post(
-     *      path="/store-api/script/{hook}",
-     *      summary="Access point for different api logics which are provided by apps over script hooks",
-     *      operationId="postScriptStoreApiRoute",
-     *      tags={"API","Script","Store API","App"},
-     *      @OA\Parameter(
-     *          name="hook",
-     *          description="Dynamic hook which used to build the hook name",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns different structures of results based on the called script.",
-     *     )
-     * )
-     * @OA\Get(
-     *      path="/store-api/script/{hook}",
-     *      summary="Access point for different api logics which are provided by apps over script hooks",
-     *      operationId="getScriptStoreApiRoute",
-     *      tags={"API","Script","Store API","App"},
-     *      @OA\Parameter(
-     *          name="hook",
-     *          description="Dynamic hook which used to build the hook name",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns different structures of results based on the called script.",
-     *     )
-     * )
      * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"}, requirements={"hook"=".+"})
      */
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response

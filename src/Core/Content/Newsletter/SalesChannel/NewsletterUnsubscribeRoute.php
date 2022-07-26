@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
@@ -64,30 +63,6 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/newsletter/unsubscribe",
-     *      summary="Remove a newsletter subscription",
-     *      description="Removes a newsletter recipient from the mailing lists.",
-     *      operationId="unsubscribeToNewsletter",
-     *      tags={"Store API", "Newsletter"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "email"
-     *              },
-     *              @OA\Property(
-     *                  property="email",
-     *                  type="string",
-     *                  description="Email address that should be removed from the mailing lists."
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Unsubscribing was successful.",
-     *     )
-     * )
      * @Route("/store-api/newsletter/unsubscribe", name="store-api.newsletter.unsubscribe", methods={"POST"})
      */
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse

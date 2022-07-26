@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
@@ -47,24 +46,6 @@ class CartLoadRoute extends AbstractCartLoadRoute
 
     /**
      * @Since("6.3.0.0")
-     * @OA\Get(
-     *      path="/checkout/cart",
-     *      summary="Fetch or create a cart",
-     *      description="Used to fetch the current cart or for creating a new one.",
-     *      operationId="readCart",
-     *      tags={"Store API", "Cart"},
-     *      @OA\Parameter(
-     *          name="name",
-     *          description="The name of the new cart. This parameter will only be used when creating a new cart.",
-     *          @OA\Schema(type="string"),
-     *          in="query",
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Cart",
-     *          @OA\JsonContent(ref="#/components/schemas/Cart")
-     *     )
-     * )
      * @Route("/store-api/checkout/cart", name="store-api.checkout.cart.read", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): CartResponse

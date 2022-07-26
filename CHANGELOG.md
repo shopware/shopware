@@ -88,6 +88,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 * [NEXT-22322 - Update storefront npm dependencies](/changelog/release-6-4-14-0/2022-07-14-update-storefront-npm-dependencies.md)
 * [NEXT-20062 - Theme configuration - config fields incorrect representation](/changelog/release-6-4-14-0/2022-7-6-theme-configuration-fields-incorrect-representation.md)
 * [NEXT-22504 - Fix button style issue in media upload component](/changelog/release-6-4-14-0/2022-07-25-fix-button-style-issue-in-media-upload-component.md)
+* [NEXT-22343 - Add action icon needs to be improved](/changelog/release-6-4-14-0/2022-07-21-add-action-icon-needs-to-be-improved.md)
+* [NEXT-22504 - Fix administration icon sizes](/changelog/release-6-4-14-0/2022-07-25-fix-administration-icon-sizes.md)
+* [NEXT-22504 - Remove unnecessary tree item action nesting](/changelog/release-6-4-14-0/2022-07-26-remove-margin-from-sw-tree-item-actons.md)
 
 ## 6.4.13.0
 *  [NEXT-13602 - Add create order button in customer order list](/changelog/release-6-4-13-0/2022-03-24-add-create-order-button-in-customer-order-list.md)

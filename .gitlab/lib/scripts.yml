@@ -5,6 +5,13 @@
         - curl https://get.volta.sh | bash
         - export PATH="~/.volta/bin:$PATH"
         - volta install "node@$NODE_VERSION"
+        - 'rm /usr/bin/{npm,node,npx}'
+        - ln -s ~/.volta/bin/node /usr/bin/node
+        - ln -s ~/.volta/bin/npm /usr/bin/npm
+        - ln -s ~/.volta/bin/npx /usr/bin/npx
+        - npm config set --global user 0
+        - npm config set --global unsafe-perm true
+        - node --version
   handle-failed-merge-train:
       after_script:
         - >

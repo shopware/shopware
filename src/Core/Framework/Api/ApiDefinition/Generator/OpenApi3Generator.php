@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -70,7 +72,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        $openApi = $this->openApiLoader->load($api);
+        $openApi = new OpenApi([]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $openApi = $this->openApiLoader->load($api);
+        }
         $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);

@@ -1,0 +1,18 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Struct": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "description": "Alias which can be used to restrict response fields. For more information see [includes](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#includes-apialias)."
+                    }
+                }
+            }
+        }
+    }
+}

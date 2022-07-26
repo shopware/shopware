@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -78,7 +79,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     public function generate(array $definitions, string $api, string $apiType): array
     {
-        $openApi = $this->openApiLoader->load($api);
+        $openApi = new OpenApi([]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $openApi = $this->openApiLoader->load($api);
+        }
         $this->openApiBuilder->enrich($openApi, $api);
         $forSalesChannel = $api === DefinitionService::STORE_API;
 

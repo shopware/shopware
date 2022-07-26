@@ -13,10 +13,13 @@ namespace Shopware\Tests\Integration\Common;
  */
 trait SnapshotTesting
 {
+    /**
+     * @param array<string, mixed>|list<mixed> $actual
+     */
     private function assertSnapshot(string $expectedSnapshotName, array $actual, string $message = ''): void
     {
         $class = new \ReflectionClass(static::class);
-        $baseDir = \dirname((string)$class->getFileName());
+        $baseDir = \dirname((string) $class->getFileName());
         $snapshot = $baseDir . '/_snapshots/' . $expectedSnapshotName . '.json';
         $envVar = $_SERVER['UPDATE_SNAPSHOTS'] ?? '';
         $runUpdate = $envVar !== 'false'
@@ -28,10 +31,11 @@ trait SnapshotTesting
                 $snapshot,
                 json_encode($actual, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES)
             );
+
             return;
         }
 
-        $baseline = json_decode((string)file_get_contents($snapshot), true, \JSON_THROW_ON_ERROR);
+        $baseline = json_decode((string) file_get_contents($snapshot), true, \JSON_THROW_ON_ERROR);
         static::assertSame($baseline, $actual, $message);
     }
 }

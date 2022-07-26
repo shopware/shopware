@@ -43,6 +43,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $missingRoutes = [];
 
         foreach ($this->routes as $route) {
+            if (!$this->isCoreRoute($route)) {
+                continue;
+            }
             $path = $route->getPath();
             if (!$this->isStoreApi($path)) {
                 continue;
@@ -93,6 +96,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $missingRoutes = [];
 
         foreach ($this->routes as $route) {
+            if (!$this->isCoreRoute($route)) {
+                continue;
+            }
             $path = $route->getPath();
             if (!$this->isAdminApi($path)) {
                 continue;
@@ -115,7 +121,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $missingRoutes[] = $path;
         }
         sort($missingRoutes);
-
 
         static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
         // Add missing routes under:
@@ -142,5 +147,12 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $controllerClass = strtok($route->getDefault('_controller'), ':');
 
         return $controllerClass === 'Shopware\Core\Framework\Api\Controller\ApiController';
+    }
+
+    private function isCoreRoute(Route $route): bool
+    {
+        $controllerClass = (string) strtok((string) $route->getDefault('_controller'), ':');
+
+        return strpos($controllerClass, 'Shopware\Core') === 0;
     }
 }

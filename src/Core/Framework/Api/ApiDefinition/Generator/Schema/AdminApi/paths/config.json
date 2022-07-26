@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_info\/config": {
+            "get": {
+                "tags": [
+                    "System Info & Healthcheck"
+                ],
+                "summary": "Get API information",
+                "description": "Get information about the API",
+                "operationId": "config",
+                "responses": {
+                    "200": {
+                        "description": "Returns information about the API.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/infoConfigResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

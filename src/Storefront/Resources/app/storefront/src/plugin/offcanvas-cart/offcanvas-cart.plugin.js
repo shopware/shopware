@@ -9,12 +9,15 @@ import Iterator from 'src/helper/iterator.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
+import Debouncer from 'src/helper/debouncer.helper';
 
 export default class OffCanvasCartPlugin extends Plugin {
 
     static options = {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
         changeProductQuantityTriggerSelector: '.js-offcanvas-cart-change-quantity',
+        changeProductQuantityTriggerNumberSelector: '.js-offcanvas-cart-change-quantity-number',
+        changeQuantityInputDelay: 350,
         addPromotionTriggerSelector: '.js-offcanvas-cart-add-promotion',
         cartItemSelector: '.js-cart-item',
         cartPromotionSelector: '.js-offcanvas-cart-promotion',
@@ -85,8 +88,21 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _registerChangeQuantityProductTriggerEvents() {
         const selects = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerSelector, false);
+        const numberInputs = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerNumberSelector, false);
+
         if (selects) {
             Iterator.iterate(selects, select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
+        }
+
+        // Quantity changes will be made with an input field
+        // instead of a select when `selectQuantityThreshold` is reached.
+        if (numberInputs) {
+            Iterator.iterate(numberInputs, (input) => {
+                input.addEventListener('change', Debouncer.debounce(
+                    this._onChangeProductQuantity.bind(this),
+                    this.options.changeQuantityInputDelay,
+                ));
+            });
         }
     }
 

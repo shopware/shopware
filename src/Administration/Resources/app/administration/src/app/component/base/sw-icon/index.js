@@ -95,6 +95,14 @@ Component.register('sw-icon', {
                 size = `${size}px`;
             }
 
+            if (this.isLegacyName) {
+                return {
+                    color: this.color,
+                    width: size,
+                    height: size,
+                };
+            }
+
             let additionalStyles = {};
 
             /**
@@ -106,7 +114,7 @@ Component.register('sw-icon', {
              */
             if (!this.feature.isActive('v6.5.0.0')) {
                 const legacyName = Object.entries(legacyIconMapping).find(([oldName, newName]) => {
-                    return (oldName === this.iconName) || (newName === this.iconName);
+                    return [oldName, newName].includes(this.iconName);
                 });
 
                 if (legacyName && legacySpaceMapping[legacyName[0]]) {

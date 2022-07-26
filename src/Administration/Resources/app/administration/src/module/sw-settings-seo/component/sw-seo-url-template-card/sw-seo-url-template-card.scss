@@ -38,16 +38,19 @@ $sw-seo-url-template-card-font-size-preview: $font-size-small;
         height: $font-size-default;
         line-height: $font-size-default;
 
-        &.icon--default {
-            &-basic-checkmark-line {
+        &.icon--regular {
+            &-checkmark {
                 color: $color-emerald-500;
+
+                // @deprecated tag:v6.5.0 - padding can be removed
+                padding: 0 !important;
             }
 
-            &-badge-warning {
+            &-exclamation-triangle {
                 color: $color-pumpkin-spice-500;
             }
 
-            &-basic-x-line {
+            &-times {
                 color: $color-crimson-500;
             }
         }

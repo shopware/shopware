@@ -490,7 +490,7 @@ Component.register('sw-admin-menu', {
 
             target.classList.add('is--flyout-enabled');
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -555,7 +555,7 @@ Component.register('sw-admin-menu', {
             }
 
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             // Remove previous flyout enabled

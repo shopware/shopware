@@ -516,6 +516,8 @@
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%storefront.reverse_proxy.enabled%</argument>
+            <argument>%storefront.http_cache.stale_while_revalidate%</argument>
+            <argument>%storefront.http_cache.stale_if_error%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

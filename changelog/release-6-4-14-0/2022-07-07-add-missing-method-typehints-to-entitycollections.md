@@ -1,6 +1,6 @@
 ---
 title: Add missing method typehints to `EntityCollection`s
-issue: NA
+issue: NEXT-22334
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

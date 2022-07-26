@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -7,6 +9,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer
  */
 class CustomerTransformerTest extends TestCase
 {

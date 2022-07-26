@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,10 +12,7 @@ class TestError extends Error
 {
     public const LEVEL_UNKNOWN = \PHP_INT_MAX;
 
-    /**
-     * @var int
-     */
-    private $level;
+    private int $level;
 
     private function __construct(int $level)
     {
@@ -37,14 +34,14 @@ class TestError extends Error
         return new self(self::LEVEL_NOTICE);
     }
 
-    public static function unknown()
+    public static function unknown(): self
     {
         return new self(self::LEVEL_UNKNOWN);
     }
 
     public function getId(): string
     {
-        return sha1('foo_' . $this->level . Uuid::randomHex());
+        return \sha1('foo_' . $this->level . Uuid::randomHex());
     }
 
     public function getMessageKey(): string

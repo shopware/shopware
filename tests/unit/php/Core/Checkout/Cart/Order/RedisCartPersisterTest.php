@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -17,6 +17,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\RedisCartPersister
  */
 class RedisCartPersisterTest extends TestCase
 {
@@ -126,9 +128,9 @@ class RedisCartPersisterTest extends TestCase
     {
         yield 'not existing' => [null, CartTokenNotFoundException::class];
         yield 'invalid serialize' => ['abc', CartTokenNotFoundException::class];
-        yield 'not cart serialize' => [serialize(new \ArrayObject()), CartTokenNotFoundException::class];
-        yield 'valid outer object, but invalid content' => [serialize(['compressed' => false, 'content' => serialize(new \ArrayObject())]), CartTokenNotFoundException::class];
-        yield 'valid outer object, but not cart' => [serialize(['compressed' => false, 'content' => serialize(['cart' => ''])]), CartDeserializeFailedException::class];
+        yield 'not cart serialize' => [\serialize(new \ArrayObject()), CartTokenNotFoundException::class];
+        yield 'valid outer object, but invalid content' => [\serialize(['compressed' => false, 'content' => \serialize(new \ArrayObject())]), CartTokenNotFoundException::class];
+        yield 'valid outer object, but not cart' => [\serialize(['compressed' => false, 'content' => \serialize(['cart' => ''])]), CartDeserializeFailedException::class];
     }
 
     public function testDelete(): void

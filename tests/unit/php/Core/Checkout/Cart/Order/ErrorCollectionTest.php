@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Error\ErrorCollection
  */
 class ErrorCollectionTest extends TestCase
 {

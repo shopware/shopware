@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Cart
  */
 class CartTest extends TestCase
 {

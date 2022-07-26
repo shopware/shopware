@@ -5686,11 +5686,6 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Framework\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Framework.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\EncryptedBus\\:\\:__construct\\(\\) has parameter \\$publicKey with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/EncryptedBus.php
@@ -5759,16 +5754,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getLocaleFromChangelogFile\\(\\) has parameter \\$file with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getBundles\\(\\) has parameter \\$kernelParameters with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getPluginInstance\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
 
 		-
 			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
@@ -10140,11 +10125,6 @@ parameters:
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiling\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Profiling.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Twig\\\\DoctrineExtension\\:\\:escapeFunction\\(\\) has parameter \\$parameter with no type specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Twig/DoctrineExtension.php
@@ -10823,11 +10803,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 2
 			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Elasticsearch\\:\\:\\$name has no type specified\\.$#"
-			count: 1
-			path: src/Elasticsearch/Elasticsearch.php
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<string\\>\\|null given\\.$#"

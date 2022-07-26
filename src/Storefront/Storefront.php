@@ -20,6 +20,9 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
 class Storefront extends Bundle implements ThemeInterface
 {
     /**

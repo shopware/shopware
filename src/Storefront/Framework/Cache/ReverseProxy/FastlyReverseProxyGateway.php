@@ -33,6 +33,9 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     protected string $tagPrefix;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix)
     {
         $this->client = $client;

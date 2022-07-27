@@ -1,8 +1,10 @@
+import os
+import sys
+sys.path.append(os.path.dirname(__file__) + '/..')
+
 from common.api import Api
 from common.context import Context
 from common.storefront import Storefront
-import os
-import sys
 from locust import FastHttpUser, task, between
 
 # Optional dependency
@@ -10,8 +12,6 @@ try:
     import locust_plugins
 except ImportError:
     pass
-
-sys.path.append(os.path.dirname(__file__) + '/..')
 
 
 context = Context()

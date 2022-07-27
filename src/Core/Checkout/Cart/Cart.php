@@ -205,7 +205,10 @@ class Cart extends Struct
         return $this;
     }
 
-    public function get(string $lineItemKey): ?LineItem
+    /**
+     * @return LineItem|null
+     */
+    public function get(string $lineItemKey)
     {
         return $this->lineItems->get($lineItemKey);
     }

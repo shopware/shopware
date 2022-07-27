@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -99,6 +100,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
@@ -143,6 +145,8 @@ class RecalculationService
 
         $this->validateOrder($order, $orderId);
 
+        \assert($order instanceof OrderEntity);
+
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $cart->add($lineItem);
@@ -185,6 +189,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
@@ -211,6 +216,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $options = [
             SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
@@ -258,6 +264,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $options = [
             SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
@@ -330,12 +337,15 @@ class RecalculationService
             return;
         }
 
-        $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $delivery->getDeliveryDate());
+        $calculatedPrice = $item->getPrice();
+        \assert($calculatedPrice instanceof CalculatedPrice);
+
+        $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $calculatedPrice, $delivery->getDeliveryDate());
 
         $delivery->getPositions()->add($position);
     }
 
-    private function fetchOrder(string $orderId, Context $context)
+    private function fetchOrder(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')

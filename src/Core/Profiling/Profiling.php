@@ -12,6 +12,9 @@ use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
 class Profiling extends Bundle
 {
     /**
@@ -38,7 +41,7 @@ class Profiling extends Bundle
         $this->container->get(Profiler::class);
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $locator = new FileLocator('Resources/config');
 

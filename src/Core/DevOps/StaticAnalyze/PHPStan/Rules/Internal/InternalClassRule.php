@@ -8,7 +8,10 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
+use Shopware\Storefront\Controller\StorefrontController;
 
 /**
  * @implements Rule<InClassNode>
@@ -41,6 +44,10 @@ class InternalClassRule implements Rule
 
         if ($this->isStorefrontController($node)) {
             return ['Storefront controllers must be flagged @internal to not be captured by the BC checker. The BC promise is checked over the route annotation.'];
+        }
+
+        if ($this->isBundle($node)) {
+            return ['Bundles must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -88,6 +95,21 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return $class->getParentClass()->getName() === 'Shopware\Storefront\Controller\StorefrontController';
+        return $class->getParentClass()->getName() === StorefrontController::class;
+    }
+
+    private function isBundle(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection();
+
+        if ($class->getParentClass() === null) {
+            return false;
+        }
+
+        if ($class->isAnonymous()) {
+            return false;
+        }
+
+        return $class->getParentClass()->getName() === Bundle::class && $class->getName() !== Plugin::class;
     }
 }

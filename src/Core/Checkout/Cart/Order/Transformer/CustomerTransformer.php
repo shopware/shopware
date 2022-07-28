@@ -34,6 +34,7 @@ class CustomerTransformer
             'company' => $customer->getCompany(),
             'customerNumber' => $customer->getCustomerNumber(),
             'remoteAddress' => $customer->getRemoteAddress(),
+            'customFields' => $customer->getCustomFields(),
         ];
     }
 }

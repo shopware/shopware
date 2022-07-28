@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
@@ -9,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer
  */
 class LineItemTransformerTest extends TestCase
 {

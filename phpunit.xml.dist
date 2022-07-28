@@ -49,9 +49,10 @@
             <directory suffix=".php">src/Storefront/Pagelet</directory>
             <directory suffix=".php">src/Storefront/Theme</directory>
             <file>src/Storefront/Storefront.php</file>
+            <file>src/Core/Test/FeatureFlagExtension.php</file>
+            <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
-            <directory suffix=".php">src/Core/Test</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
             <directory suffix=".php">src/Core/Checkout/Test</directory>
@@ -157,7 +158,7 @@
         <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
     </listeners>
     <!--Enable to see the db sideeffects of the tests. -->
-    <!--<extensions>
-        <extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension"></extension>
-    </extensions>-->
+    <extensions>
+        <extension class="Shopware\Core\Test\FeatureFlagExtension" />
+    </extensions>
 </phpunit>

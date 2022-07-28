@@ -1,22 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
+ * @coversNothing
  */
 class BasicDataUntouchedTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testBasicDataUntouched(): void
     {
         $loader = KernelLifecycleManager::getClassLoader();
+        /** @var string $file */
         $file = $loader->findFile(Migration1536233560BasicData::class);
 
         static::assertSame(

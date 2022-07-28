@@ -1,24 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1657011337AddFillableInStorefront;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\Migration1657011337AddFillableInStorefront
+ * @covers \Shopware\Core\Migration\V6_4\Migration1657011337AddFillableInStorefront
  */
 class Migration1657011337AddFillableInStorefrontTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testMultipleExecution(): void
     {
-        $con = $this->getContainer()->get(Connection::class);
+        $con = KernelLifecycleManager::getConnection();
 
         $m = new Migration1657011337AddFillableInStorefront();
         $m->update($con);
@@ -29,7 +27,7 @@ class Migration1657011337AddFillableInStorefrontTest extends TestCase
 
     public function testColumnGetsCreated(): void
     {
-        $con = $this->getContainer()->get(Connection::class);
+        $con = KernelLifecycleManager::getConnection();
 
         $con->executeStatement('ALTER TABLE `custom_field` DROP `allow_customer_write`;');
 
@@ -43,7 +41,7 @@ class Migration1657011337AddFillableInStorefrontTest extends TestCase
 
     private function columnExists(Connection $connection): bool
     {
-        $field = $connection->fetchColumn(
+        $field = $connection->fetchOne(
             'SHOW COLUMNS FROM `custom_field` WHERE `Field` LIKE :column;',
             ['column' => 'allow_customer_write']
         );

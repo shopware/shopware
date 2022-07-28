@@ -15,7 +15,7 @@ jobs:
       matrix:
         php-version: ["7.4", "8.0", "8.1"]
     env:
-      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs unit integration'
+      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs unit integration migration-tests'
       APP_ENV: test
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000

@@ -8190,21 +8190,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\KernelPluginIntegrationTest\\:\\:makeKernel\\(\\) should return Shopware\\\\Core\\\\Kernel but returns object\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\KernelPluginIntegrationTest\\:\\:\\$kernel \\(Shopware\\\\Core\\\\Kernel\\|null\\) does not accept object\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
@@ -8905,36 +8890,6 @@ parameters:
 			path: src/Core/Framework/Test/TestCaseBase/DatadogListener.php
 
 		-
-			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseBase\\\\KernelLifecycleManager\\:\\:bootKernel\\(\\) should return Shopware\\\\Core\\\\Kernel but returns Symfony\\\\Component\\\\HttpKernel\\\\KernelInterface\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseBase\\\\KernelLifecycleManager\\:\\:createKernel\\(\\) should return Symfony\\\\Component\\\\HttpKernel\\\\KernelInterface but returns object\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
-			message: "#^Parameter \\#1 \\$classname of function class_exists expects string, bool\\|float\\|int\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
-			message: "#^Service \"test\\.browser\" is not registered in the container\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
-			message: "#^Static property Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseBase\\\\KernelLifecycleManager\\:\\:\\$kernel \\(Shopware\\\\Core\\\\Kernel\\|null\\) does not accept Symfony\\\\Component\\\\HttpKernel\\\\KernelInterface\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseBase\\\\KernelTestBehaviourTest\\:\\:\\$kernelId has no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/TestCaseBase/KernelTestBehaviourTest.php
@@ -9328,11 +9283,6 @@ parameters:
 			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\Migration1614249488ChangeProductSortingsToCheapestPrice\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1614249488ChangeProductSortingsToCheapestPrice.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function sha1_file expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/BasicDataUntouchedTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$filename of function file_get_contents expects string, string\\|false given\\.$#"

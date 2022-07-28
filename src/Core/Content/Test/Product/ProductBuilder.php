@@ -176,14 +176,14 @@ class ProductBuilder
         return $this;
     }
 
-    public function price(float $gross, ?float $net = null, string $currencyKey = 'default', ?float $listPriceGross = null, ?float $listPriceNet = null): self
+    public function price(float $gross, ?float $net = null, string $currencyKey = 'default', ?float $listPriceGross = null, ?float $listPriceNet = null, bool $linked = false): self
     {
         $net = $net ?? $gross / 115 * 100;
 
         $price = [
             'gross' => $gross,
             'net' => $net,
-            'linked' => false,
+            'linked' => $linked,
         ];
 
         if ($listPriceGross !== null) {
@@ -192,7 +192,7 @@ class ProductBuilder
             $price['listPrice'] = [
                 'gross' => $listPriceGross,
                 'net' => $listPriceNet,
-                'linked' => false,
+                'linked' => $linked,
             ];
         }
 

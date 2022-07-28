@@ -6,9 +6,10 @@ use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,37 +32,24 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CmsController extends StorefrontController
 {
-    /**
-     * @var AbstractCmsRoute
-     */
-    private $cmsRoute;
+    private AbstractCmsRoute $cmsRoute;
 
-    /**
-     * @var AbstractCategoryRoute
-     */
-    private $categoryRoute;
+    private AbstractCategoryRoute $categoryRoute;
 
-    /**
-     * @var AbstractProductListingRoute
-     */
-    private $listingRoute;
+    private AbstractProductListingRoute $listingRoute;
 
-    /**
-     * @var AbstractProductDetailRoute
-     */
-    private $productRoute;
+    private AbstractProductDetailRoute $productRoute;
 
-    /**
-     * @var ProductReviewLoader
-     */
-    private $productReviewLoader;
-
-    /**
-     * @var ProductCombinationFinder
-     */
-    private $combinationFinder;
+    private ProductReviewLoader $productReviewLoader;
 
     private EventDispatcherInterface $eventDispatcher;
+
+    private AbstractFindProductVariantRoute $findVariantRoute;
+
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    private ProductCombinationFinder $productCombinationFinder;
 
     /**
      * @internal
@@ -72,7 +60,8 @@ class CmsController extends StorefrontController
         AbstractProductListingRoute $listingRoute,
         AbstractProductDetailRoute $productRoute,
         ProductReviewLoader $productReviewLoader,
-        ProductCombinationFinder $combinationFinder,
+        AbstractFindProductVariantRoute $findVariantRoute,
+        ProductCombinationFinder $productCombinationFinder,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->cmsRoute = $cmsRoute;
@@ -80,8 +69,9 @@ class CmsController extends StorefrontController
         $this->listingRoute = $listingRoute;
         $this->productRoute = $productRoute;
         $this->productReviewLoader = $productReviewLoader;
-        $this->combinationFinder = $combinationFinder;
         $this->eventDispatcher = $eventDispatcher;
+        $this->findVariantRoute = $findVariantRoute;
+        $this->productCombinationFinder = $productCombinationFinder;
     }
 
     /**
@@ -94,7 +84,7 @@ class CmsController extends StorefrontController
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
-            throw new MissingRequestParameterException('Parameter id missing');
+            throw new MissingRequestParameterException('id');
         }
 
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
@@ -117,7 +107,7 @@ class CmsController extends StorefrontController
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
-            throw new MissingRequestParameterException('Parameter navigationId missing');
+            throw new MissingRequestParameterException('navigationId');
         }
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
@@ -145,10 +135,6 @@ class CmsController extends StorefrontController
      */
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
-        if (!$navigationId) {
-            throw new MissingRequestParameterException('Parameter navigationId missing');
-        }
-
         // Allows to fetch only aggregations over the gateway.
         $request->request->set('only-aggregations', true);
 
@@ -182,23 +168,35 @@ class CmsController extends StorefrontController
      */
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {
-        if (!$productId) {
-            throw new MissingRequestParameterException('Parameter productId missing');
-        }
-
-        /** @var string $switchedOption */
-        $switchedOption = $request->query->get('switched');
-
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
-        $options = (string) $request->query->get('options');
-        /** @var array $newOptions */
-        $newOptions = \strlen($options) ? json_decode($options, true) : [];
+        /** @var array|null $options */
+        $options = json_decode($request->query->get('options', ''), true);
 
-        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
+        if (Feature::isActive('v6.5.0.0')) {
+            $variantResponse = $this->findVariantRoute->load(
+                $productId,
+                new Request(
+                    [
+                        'switchedGroup' => $request->query->get('switched'),
+                        'options' => $options ?? [],
+                    ]
+                ),
+                $context
+            );
 
-        $newProductId = $redirect->getVariantId();
+            $newProductId = $variantResponse->getFoundCombination()->getVariantId();
+        } else {
+            $finderResponse = $this->productCombinationFinder->find(
+                $productId,
+                $request->query->get('switched'),
+                $options ?? [],
+                $context
+            );
+
+            $newProductId = $finderResponse->getVariantId();
+        }
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();

@@ -4,10 +4,11 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -35,44 +36,32 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductController extends StorefrontController
 {
-    /**
-     * @var ProductPageLoader
-     */
-    private $productPageLoader;
+    private ProductPageLoader $productPageLoader;
 
-    /**
-     * @var ProductCombinationFinder
-     */
-    private $combinationFinder;
+    private FindProductVariantRoute $findVariantRoute;
 
-    /**
-     * @var MinimalQuickViewPageLoader
-     */
-    private $minimalQuickViewPageLoader;
+    private MinimalQuickViewPageLoader $minimalQuickViewPageLoader;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
+    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
-    /**
-     * @var ProductReviewLoader
-     */
-    private $productReviewLoader;
+    private ProductReviewLoader $productReviewLoader;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     private AbstractProductReviewSaveRoute $productReviewSaveRoute;
+
+    /**
+     * @deprecated tag:v6.5.0 - will be removed
+     */
+    private ProductCombinationFinder $productCombinationFinder;
 
     /**
      * @internal
      */
     public function __construct(
         ProductPageLoader $productPageLoader,
-        ProductCombinationFinder $combinationFinder,
+        ProductCombinationFinder $productCombinationFinder,
+        FindProductVariantRoute $findVariantRoute,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         AbstractProductReviewSaveRoute $productReviewSaveRoute,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
@@ -80,12 +69,13 @@ class ProductController extends StorefrontController
         SystemConfigService $systemConfigService
     ) {
         $this->productPageLoader = $productPageLoader;
-        $this->combinationFinder = $combinationFinder;
+        $this->findVariantRoute = $findVariantRoute;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
         $this->productReviewLoader = $productReviewLoader;
         $this->systemConfigService = $systemConfigService;
         $this->productReviewSaveRoute = $productReviewSaveRoute;
+        $this->productCombinationFinder = $productCombinationFinder;
     }
 
     /**
@@ -116,21 +106,36 @@ class ProductController extends StorefrontController
      */
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
-        $switchedOption = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
+        $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
 
-        $options = (string) $request->query->get('options');
-
-        try {
-            $newOptions = json_decode($options, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $jsonException) {
-            $newOptions = [];
-        }
+        /** @var array|null $options */
+        $options = json_decode($request->query->get('options', ''), true);
 
         try {
-            $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);
+            if (Feature::isActive('v6.5.0.0')) {
+                $variantResponse = $this->findVariantRoute->load(
+                    $productId,
+                    new Request(
+                        [
+                            'switchedGroup' => $switchedGroup,
+                            'options' => $options ?? [],
+                        ]
+                    ),
+                    $salesChannelContext
+                );
 
-            $productId = $redirect->getVariantId();
-        } catch (ProductNotFoundException $productNotFoundException) {
+                $productId = $variantResponse->getFoundCombination()->getVariantId();
+            } else {
+                $finderResponse = $this->productCombinationFinder->find(
+                    $productId,
+                    $switchedGroup,
+                    $options ?? [],
+                    $salesChannelContext
+                );
+
+                $productId = $finderResponse->getVariantId();
+            }
+        } catch (VariantNotFoundException|ProductNotFoundException $productNotFoundException) {
             //nth
         }
 

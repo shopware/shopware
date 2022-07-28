@@ -64,7 +64,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->openApiBuilder = $openApiBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
-        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi/';
+        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
         $this->openApi3Generator = $openApi3Generator;
     }
 
@@ -100,14 +100,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->addContentTypeParameter($openApi);
 
         $data = json_decode($openApi->toJson(), true);
+        $data['paths'] = $data['paths'] ?? [];
 
-        $finder = (new Finder())->in($this->schemaPath)->name('*.json');
+        $finder = (new Finder())->in($this->schemaPath . '/components/schemas')->name('*.json');
 
         foreach ($finder as $item) {
-            $name = str_replace('.json', '', $item->getFilename());
-
             $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['components']['schemas'][$name] = $readData;
+            $data['components']['schemas'] = \array_replace_recursive($data['components']['schemas'], $readData['components']['schemas']);
+        }
+
+        $finder = (new Finder())->in($this->schemaPath . '/paths')->name('*.json');
+
+        foreach ($finder as $item) {
+            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
+            $data['paths'] = \array_replace_recursive($data['paths'], $readData['paths']);
         }
 
         return $data;
@@ -184,6 +190,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 'description' => 'Accepted response content types',
             ]),
         ];
+
+        if (!is_iterable($openApi->paths)) {
+            return;
+        }
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {

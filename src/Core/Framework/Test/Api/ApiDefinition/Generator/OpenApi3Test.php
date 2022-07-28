@@ -82,7 +82,7 @@ class OpenApi3Test extends TestCase
         $client = new Client();
 
         try {
-            $response = $client->post('https://swagger:8080/validator/debug', [
+            $response = $client->post('http://swagger:8080/validator/debug', [
                 'json' => json_decode($response->getContent(), true),
                 'headers' => [
                     'Accept' => 'application/json',
@@ -106,7 +106,7 @@ class OpenApi3Test extends TestCase
         $client = new Client();
 
         try {
-            $response = $client->post('https://swagger:8080/validator/debug', [
+            $response = $client->post('http://swagger:8080/validator/debug', [
                 'json' => json_decode($response->getContent(), true),
                 'headers' => [
                     'Accept' => 'application/json',

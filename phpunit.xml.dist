@@ -21,8 +21,6 @@
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Elasticsearch</directory>
-            <directory suffix=".php">src/Core/Migration</directory>
-            <directory suffix=".php">src/Core/Migration</directory>
 
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
@@ -125,6 +123,10 @@
 
         <testsuite name="integration">
             <directory>tests/integration/php</directory>
+        </testsuite>
+
+        <testsuite name="migration-tests">
+            <directory>tests/migration</directory>
         </testsuite>
 
         <testsuite name="docs">

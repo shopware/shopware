@@ -53,12 +53,12 @@ parameters:
             message: '#Service ".*" is not registered in the container\.#'
             paths:
                 - src/**/*Test.php
-                - tests/**/*Test.php
+                - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
             paths:
                 - src/**/*Test.php
-                - tests/**/*Test.php
+                - tests/integration/**/*Test.php
 
         # ignore errors caused by static::markTestSkipped
         -

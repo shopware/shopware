@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
@@ -20,7 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class KernelLifecycleManager
 {
     /**
-     * @var string
+     * @var class-string<Kernel>
      */
     protected static $class;
 
@@ -102,7 +103,10 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029', ?string $projectDir = null): KernelInterface
+    /**
+     * @param class-string<Kernel>|null $kernelClass
+     */
+    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029', ?string $projectDir = null): Kernel
     {
         if ($kernelClass === null) {
             if (static::$class === null) {
@@ -122,7 +126,7 @@ class KernelLifecycleManager
         try {
             $existingConnection = null;
             if ($reuseConnection) {
-                $existingConnection = self::$connection;
+                $existingConnection = self::getConnection();
 
                 try {
                     $existingConnection->fetchAll('SELECT 1');
@@ -148,16 +152,26 @@ class KernelLifecycleManager
     }
 
     /**
-     * @throws \RuntimeException
-     * @throws \LogicException
+     * @return class-string<Kernel>
      */
     public static function getKernelClass(): string
     {
-        if (!class_exists($class = EnvironmentHelper::getVariable('KERNEL_CLASS', Kernel::class))) {
+        if (!class_exists($class = (string) EnvironmentHelper::getVariable('KERNEL_CLASS', Kernel::class))) {
             throw new \RuntimeException(
                 sprintf(
                     'Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',
                     $class,
+                    static::class
+                )
+            );
+        }
+
+        if (!is_a($class, Kernel::class, true)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Class "%s" must extend "%s". Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',
+                    $class,
+                    Kernel::class,
                     static::class
                 )
             );
@@ -183,5 +197,14 @@ class KernelLifecycleManager
         }
 
         static::$kernel = null;
+    }
+
+    public static function getConnection(): Connection
+    {
+        if (!static::$connection) {
+            static::$connection = MySQLFactory::create();
+        }
+
+        return static::$connection;
     }
 }

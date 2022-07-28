@@ -435,7 +435,8 @@
             "Shopware\\Core\\Test\\": "src/Core/Test/",
             "Shopware\\Tests\\Unit\\": "tests/unit/php/",
             "Shopware\\Tests\\Integration\\": "tests/integration/php/",
-            "Shopware\\Tests\\Bench\\": "tests/performance/bench/"
+            "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
+            "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
     }
 }

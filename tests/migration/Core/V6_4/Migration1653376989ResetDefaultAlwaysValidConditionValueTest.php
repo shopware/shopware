@@ -1,26 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1653376989ResetDefaultAlwaysValidConditionValue;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Migration\V6_4\Migration1653376989ResetDefaultAlwaysValidConditionValue
  */
 class Migration1653376989ResetDefaultAlwaysValidConditionValueTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testResetDefaultValwaysValidConditionValue(): void

@@ -335,12 +335,9 @@ Component.register('sw-custom-field-set-renderer', {
 
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
-            const customFieldsCriteria = new Criteria(1, null);
 
-            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
-
-            criteria
-                .addAssociation('customFields', customFieldsCriteria);
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },

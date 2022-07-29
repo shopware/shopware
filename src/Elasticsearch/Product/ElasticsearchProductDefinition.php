@@ -95,7 +95,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'autoIncrement' => EntityMapper::INT_FIELD,
                 'description' => EntityMapper::KEYWORD_FIELD,
                 'displayGroup' => EntityMapper::KEYWORD_FIELD,
+                'ean' => EntityMapper::KEYWORD_FIELD,
                 'height' => EntityMapper::FLOAT_FIELD,
+                'length' => EntityMapper::FLOAT_FIELD,
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
@@ -103,6 +105,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
+                'markAsTopseller' => EntityMapper::BOOLEAN_FIELD,
                 'name' => EntityMapper::KEYWORD_FIELD,
                 'options' => [
                     'type' => 'nested',
@@ -130,6 +133,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'sales' => EntityMapper::INT_FIELD,
                 'stock' => EntityMapper::INT_FIELD,
+                'availableStock' => EntityMapper::INT_FIELD,
                 'shippingFree' => EntityMapper::BOOLEAN_FIELD,
                 'taxId' => EntityMapper::KEYWORD_FIELD,
                 'tags' => [
@@ -257,10 +261,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'available' => (bool) $item['available'],
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
+                'markAsTopseller' => (bool) $item['markAsTopseller'],
                 'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : [], $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
+                'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
                 'stock' => (int) $item['stock'],
@@ -478,6 +484,8 @@ SELECT
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
     LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
     IFNULL(p.stock, pp.stock) AS stock,
+    IFNULL(p.ean, pp.ean) AS ean,
+    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
     p.purchase_prices as purchasePrices,
     p.price as price,
     p.auto_increment as autoIncrement,

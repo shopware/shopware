@@ -54,6 +54,9 @@ trait PromotionSetGroupTestFixtureBehaviour
         return $groupId;
     }
 
+    /**
+     * @param string[] $lineItemIds
+     */
     private function createRule(string $name, array $lineItemIds, ContainerInterface $container): string
     {
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

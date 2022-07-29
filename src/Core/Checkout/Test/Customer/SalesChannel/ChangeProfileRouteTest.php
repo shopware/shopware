@@ -302,6 +302,8 @@ class ChangeProfileRouteTest extends TestCase
 
     /**
      * @dataProvider dataProviderVatIds
+     * @param string[] $vatIds
+     * @param string[] $expectedVatIds
      */
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {

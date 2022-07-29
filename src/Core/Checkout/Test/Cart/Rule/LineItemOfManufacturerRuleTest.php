@@ -45,6 +45,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     * @param string[] $manufacturerIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $manufacturerIds,
@@ -76,6 +77,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     * @param string[] $manufacturerIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $manufacturerIds,
@@ -104,6 +106,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     * @param string[] $manufacturerIds
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $manufacturerIds,

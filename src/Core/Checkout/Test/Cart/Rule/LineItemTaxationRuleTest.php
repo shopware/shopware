@@ -43,6 +43,7 @@ class LineItemTaxationRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     * @param string[] $taxIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $taxIds,
@@ -74,6 +75,7 @@ class LineItemTaxationRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     * @param string[] $taxIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $taxIds,

@@ -50,6 +50,9 @@ class DifferentAddressesRule extends Rule
         return $billingAddress->getId() === $shippingAddress->getId();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

@@ -25,9 +25,9 @@ trait SalesChannelApiTestBehaviour
     use BasicTestDataBehaviour;
 
     /**
-     * @var array
+     * @var string[]
      */
-    protected $salesChannelIds = [];
+    protected array $salesChannelIds = [];
 
     /**
      * @var KernelBrowser|null
@@ -249,6 +249,11 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
+    /**
+     * @param array<mixed> $salesChannelOverride
+     *
+     * @return array<mixed>
+     */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         /** @var EntityRepositoryInterface $salesChannelRepository */

@@ -147,6 +147,9 @@ SQL;
         return $grouped;
     }
 
+    /**
+     * @param string[] $promotionIds
+     */
     private function getAllCustomerCounts(array $promotionIds): array
     {
         $allCustomerCounts = [];

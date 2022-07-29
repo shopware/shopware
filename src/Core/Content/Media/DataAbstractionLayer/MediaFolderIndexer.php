@@ -186,6 +186,9 @@ class MediaFolderIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param string[] $parentIds
+     */
     private function fetchChildren(array $parentIds): array
     {
         $childIds = $this->connection->fetchAll(

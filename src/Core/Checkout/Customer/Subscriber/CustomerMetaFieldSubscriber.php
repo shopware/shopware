@@ -68,6 +68,9 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         $this->updateCustomer($orderIds, true);
     }
 
+    /**
+     * @param string[] $orderIds
+     */
     private function updateCustomer(array $orderIds, bool $isDelete = false): void
     {
         if (empty($orderIds)) {

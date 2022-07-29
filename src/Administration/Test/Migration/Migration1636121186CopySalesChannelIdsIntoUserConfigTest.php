@@ -106,6 +106,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         }
     }
 
+    /**
+     * @param string[] $salesChannelIds
+     */
     private function fetchSalesChannelNames(array $salesChannelIds, string $languageId): array
     {
         return $this->connection->createQueryBuilder()

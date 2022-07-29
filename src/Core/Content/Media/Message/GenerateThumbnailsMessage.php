@@ -21,6 +21,9 @@ class GenerateThumbnailsMessage
         return $this->mediaIds;
     }
 
+    /**
+     * @param string[] $mediaIds
+     */
     public function setMediaIds(array $mediaIds): void
     {
         $this->mediaIds = $mediaIds;

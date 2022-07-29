@@ -54,6 +54,9 @@ class LineItemsInCartRule extends Rule
         return RuleComparison::uuids($identifiers, $this->identifiers, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

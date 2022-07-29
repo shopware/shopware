@@ -56,6 +56,9 @@ class LineItemRule extends Rule
         return $this->identifiers;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

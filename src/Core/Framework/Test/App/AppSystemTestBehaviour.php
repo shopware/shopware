@@ -47,6 +47,9 @@ trait AppSystemTestBehaviour
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getScriptTraces(): array
     {
         return $this->getContainer()

@@ -86,7 +86,7 @@ class Filesystem
         // set group-bit to writable
         $newPermission[2] = '7';
         $newPermission = octdec($newPermission);
-        chmod($fileInfo->getPathname(), $newPermission);
+        chmod($fileInfo->getPathname(), (int) $newPermission);
         clearstatcache(false, $fileInfo->getPathname());
     }
 
@@ -110,7 +110,7 @@ class Filesystem
             $newPermission[2] = '7';
         }
         $newPermission = octdec($newPermission);
-        chmod($fileInfo->getPathname(), $newPermission);
+        chmod($fileInfo->getPathname(), (int) $newPermission);
         clearstatcache(false, $fileInfo->getPathname());
     }
 }

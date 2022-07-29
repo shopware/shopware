@@ -30,6 +30,9 @@ class CheapestPriceUpdater
         $this->quantitySelector = $quantitySelector;
     }
 
+    /**
+     * @param string[] $parentIds
+     */
     public function update(array $parentIds, Context $context): void
     {
         $parentIds = array_unique(array_filter($parentIds));

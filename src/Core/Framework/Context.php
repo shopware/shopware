@@ -95,6 +95,7 @@ class Context extends Struct
 
     /**
      * @param string[] $languageIdChain
+     * @param string[] $ruleIds
      */
     public function __construct(
         ContextSource $source,
@@ -246,6 +247,9 @@ class Context extends Struct
         return true;
     }
 
+    /**
+     * @param string[] $ruleIds
+     */
     public function setRuleIds(array $ruleIds): void
     {
         $this->ruleIds = array_filter(array_values($ruleIds));

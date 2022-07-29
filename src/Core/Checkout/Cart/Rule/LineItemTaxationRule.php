@@ -23,6 +23,7 @@ class LineItemTaxationRule extends Rule
 
     /**
      * @internal
+     * @param string[] $taxIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
     {
@@ -56,6 +57,9 @@ class LineItemTaxationRule extends Rule
         return false;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

@@ -24,6 +24,9 @@ class AvailableCombinationResult extends Struct
 
     protected array $combinationDetails = [];
 
+    /**
+     * @param string[] $optionIds
+     */
     public function hasCombination(array $optionIds): bool
     {
         return isset($this->hashes[$this->calculateHash($optionIds)]);
@@ -31,6 +34,7 @@ class AvailableCombinationResult extends Struct
 
     /**
      * @deprecated tag:v6.5.0 - Parameter $available will be mandatory in future implementation
+     * @param string[] $optionIds
      */
     public function addCombination(array $optionIds, bool $available = true): void
     {
@@ -68,11 +72,17 @@ class AvailableCombinationResult extends Struct
         return $this->combinations;
     }
 
+    /**
+     * @param string[] $optionIds
+     */
     public function isAvailable(array $optionIds): bool
     {
         return $this->combinationDetails[$this->calculateHash($optionIds)]['available'] ?? false;
     }
 
+    /**
+     * @param string[] $optionIds
+     */
     private function calculateHash(array $optionIds): string
     {
         $optionIds = array_values($optionIds);

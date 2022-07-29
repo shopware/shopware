@@ -139,6 +139,9 @@ class OrderCustomerEntity extends Entity
         return $this->vatIds;
     }
 
+    /**
+     * @param string[] $vatIds
+     */
     public function setVatIds(array $vatIds): void
     {
         $this->vatIds = $vatIds;

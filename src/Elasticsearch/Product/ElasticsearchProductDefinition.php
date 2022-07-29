@@ -203,10 +203,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $groupIds = [];
         foreach ($data as $row) {
             foreach (json_decode($row['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
-                $groupIds[$id] = true;
+                $groupIds[(string) $id] = true;
             }
             foreach (json_decode($row['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
-                $groupIds[$id] = true;
+                $groupIds[(string) $id] = true;
             }
         }
 
@@ -579,6 +579,9 @@ SQL;
         return $customFields;
     }
 
+    /**
+     * @param string[] $propertyIds
+     */
     private function fetchPropertyGroups(array $propertyIds = []): array
     {
         $sql = 'SELECT LOWER(HEX(id)), LOWER(HEX(property_group_id)) FROM property_group_option WHERE id in (?)';

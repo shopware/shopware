@@ -45,6 +45,9 @@ class IsNewCustomerRule extends Rule
         return $customer->getFirstLogin()->format('Y-m-d') !== (new \DateTime())->format('Y-m-d');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

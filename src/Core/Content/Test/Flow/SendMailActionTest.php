@@ -55,6 +55,7 @@ class SendMailActionTest extends TestCase
 
     /**
      * @dataProvider sendMailProvider
+     * @param string[] $documentTypeIds
      */
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
@@ -87,10 +88,12 @@ class SendMailActionTest extends TestCase
 
         $documentIdOlder = null;
         $documentIdNewer = null;
+        $documentIds = [];
 
         if (!empty($documentTypeIds) || $hasOrderSettingAttachment) {
             $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
             $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
+            $documentIds[] = $documentIdNewer;
         }
 
         if ($hasOrderSettingAttachment) {
@@ -98,7 +101,7 @@ class SendMailActionTest extends TestCase
                 MailSendSubscriber::MAIL_CONFIG_EXTENSION,
                 new MailSendSubscriberConfig(
                     false,
-                    [$documentIdNewer],
+                    $documentIds,
                 )
             );
         }

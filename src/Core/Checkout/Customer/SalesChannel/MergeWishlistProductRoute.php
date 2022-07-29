@@ -122,6 +122,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     {
         $ids = array_unique(array_filter($data->get('productIds')->all()));
 
+        /** @var string[] $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
@@ -148,6 +149,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         return $upsertData;
     }
 
+    /**
+     * @param string[] $productIds
+     */
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
         $query = $this->connection->createQueryBuilder();

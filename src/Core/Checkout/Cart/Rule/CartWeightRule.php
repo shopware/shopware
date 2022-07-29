@@ -40,6 +40,9 @@ class CartWeightRule extends Rule
         return RuleComparison::numeric($this->calculateCartWeight($scope->getCart()), $this->weight, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

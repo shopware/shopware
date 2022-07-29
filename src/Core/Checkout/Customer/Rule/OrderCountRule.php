@@ -44,6 +44,9 @@ class OrderCountRule extends Rule
         return RuleComparison::numeric($customer->getOrderCount(), $this->count, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

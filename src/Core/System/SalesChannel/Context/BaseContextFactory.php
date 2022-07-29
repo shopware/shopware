@@ -320,6 +320,9 @@ class BaseContextFactory extends AbstractBaseContextFactory
         return ShippingLocation::createFromCountry($country);
     }
 
+    /**
+     * @param string[] $availableLanguageIds
+     */
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
         $current = $sessionOptions[SalesChannelContextService::LANGUAGE_ID] ?? $defaultLanguageId;

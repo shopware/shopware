@@ -22,6 +22,7 @@ class LanguageRule extends Rule
 
     /**
      * @internal
+     * @param string[] $languageIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
     {

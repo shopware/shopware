@@ -54,6 +54,9 @@ class LastNameRule extends Rule
         return RuleComparison::string($customer->getLastName(), $this->lastName ?? '', $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

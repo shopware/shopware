@@ -59,6 +59,9 @@ trait StorefrontSalesChannelTestHelper
         return $browser;
     }
 
+    /**
+     * @param string[] $languageIds
+     */
     public function createStorefrontSalesChannelContext(
         string $id,
         string $name,

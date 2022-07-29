@@ -25,6 +25,9 @@ class ChildCountUpdater
         $this->connection = $connection;
     }
 
+    /**
+     * @param string[] $parentIds
+     */
     public function update(string $entity, array $parentIds, Context $context): void
     {
         $definition = $this->registry->getByEntityName($entity);
@@ -38,6 +41,9 @@ class ChildCountUpdater
         });
     }
 
+    /**
+     * @param string[] $parentIds
+     */
     private function trySingleUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
     {
         $entity = $definition->getEntityName();

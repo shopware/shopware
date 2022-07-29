@@ -127,6 +127,9 @@ class ProductCollection extends EntityCollection
         return new ProductPriceCollection($rules);
     }
 
+    /**
+     * @param string[] $optionIds
+     */
     public function filterByOptionIds(array $optionIds): self
     {
         return $this->filter(function (ProductEntity $product) use ($optionIds) {

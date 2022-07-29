@@ -49,7 +49,7 @@ class PromotionCodeService
     /**
      * @throws PatternNotComplexEnoughException
      *
-     * @return array<string>
+     * @return string[]
      */
     public function generateIndividualCodes(string $pattern, int $amount, array $codeBlacklist = []): array
     {

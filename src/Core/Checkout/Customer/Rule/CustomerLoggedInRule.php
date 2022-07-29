@@ -34,6 +34,9 @@ class CustomerLoggedInRule extends Rule
         return $this->isLoggedIn === $loggedIn;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

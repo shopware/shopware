@@ -334,6 +334,9 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(72, $composition[1]['discount']);
     }
 
+    /**
+     * @param string[] $productIds
+     */
     private function orderWithPromotion(string $code, array $productIds, SalesChannelContext $context): string
     {
         $cart = $this->cartService->createNew($context->getToken());

@@ -307,6 +307,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         $this->writeViolationException($violations, $event);
     }
 
+    /**
+     * @param string[] $salesChannelIds
+     */
     private function fetchCurrentLanguageStates(array $salesChannelIds): array
     {
         return $this->connection->fetchAllAssociative(

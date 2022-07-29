@@ -62,6 +62,9 @@ class BillingStreetRule extends Rule
         return RuleComparison::string($address->getStreet(), $this->streetName ?? '', $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

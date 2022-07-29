@@ -129,6 +129,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
     /**
      * @dataProvider getCartScopeTestData
+     * @param string[] $categoryIds
      */
     public function testIfMatchesAllCorrectWithLineItemScope(
         array $categoryIdsProductA,
@@ -175,6 +176,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
     /**
      * @dataProvider getCartScopeTestMinimumShouldMatchData
+     * @param string[] $categoryIds
      */
     public function testIfMatchesMinimumCorrectWithLineItemScope(
         array $categoryIdsProductA,
@@ -225,6 +227,9 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
+    /**
+     * @param string[] $categoryIds
+     */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
         return ($this->createLineItem())->setPayloadValue('categoryIds', $categoryIds);

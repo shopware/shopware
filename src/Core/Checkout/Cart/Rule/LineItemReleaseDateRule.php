@@ -33,6 +33,9 @@ class LineItemReleaseDateRule extends Rule
         return 'cartLineItemReleaseDate';
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

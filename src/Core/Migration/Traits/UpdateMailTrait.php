@@ -136,6 +136,9 @@ trait UpdateMailTrait
         }
     }
 
+    /**
+     * @param string[] $languageIds
+     */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {
         return $connection->fetchAll(

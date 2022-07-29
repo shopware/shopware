@@ -31,6 +31,9 @@ class LanguageLocaleCodeProvider implements ResetInterface
         return $languages[$languageId]['code'];
     }
 
+    /**
+     * @param string[] $languageIds
+     */
     public function getLocalesForLanguageIds(array $languageIds): array
     {
         $languages = $this->getLanguages();

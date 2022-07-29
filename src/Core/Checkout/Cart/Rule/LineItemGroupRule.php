@@ -65,6 +65,9 @@ class LineItemGroupRule extends FilterRule
         return $results->hasFoundItems();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

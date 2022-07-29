@@ -40,6 +40,9 @@ class TreeUpdater
         $this->connection = $connection;
     }
 
+    /**
+     * @param string[] $updateIds
+     */
     public function batchUpdate(array $updateIds, string $entity, Context $context): void
     {
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
@@ -286,6 +289,9 @@ class TreeUpdater
         return $fetchedIds;
     }
 
+    /**
+     * @param string[] $updateIds
+     */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
     {
         if (empty($updateIds)) {

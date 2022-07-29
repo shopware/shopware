@@ -21,6 +21,10 @@ class MailSendSubscriberConfig extends Struct
      */
     protected $mediaIds = [];
 
+    /**
+     * @param string[] $documentIds
+     * @param string[] $mediaIds
+     */
     public function __construct(bool $skip, array $documentIds = [], array $mediaIds = [])
     {
         $this->skip = $skip;
@@ -48,11 +52,17 @@ class MailSendSubscriberConfig extends Struct
         return $this->mediaIds;
     }
 
+    /**
+     * @param string[] $documentIds
+     */
     public function setDocumentIds(array $documentIds): void
     {
         $this->documentIds = $documentIds;
     }
 
+    /**
+     * @param string[] $mediaIds
+     */
     public function setMediaIds(array $mediaIds): void
     {
         $this->mediaIds = $mediaIds;

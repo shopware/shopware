@@ -82,10 +82,11 @@ class DocumentControllerTest extends TestCase
             ]
         );
 
-        $this->salesChannelContext->setRuleIds([
-            $shippingMethod->getAvailabilityRuleId(),
-            $paymentMethod->getAvailabilityRuleId(),
-        ]);
+        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $paymentRuleId;
+        }
+        $this->salesChannelContext->setRuleIds($ruleIds);
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -558,6 +559,9 @@ class DocumentControllerTest extends TestCase
         return $ids;
     }
 
+    /**
+     * @param string[] $documentIds
+     */
     private function getDocumentByDocumentIds(array $documentIds): array
     {
         return $this->connection->fetchAllAssociative(

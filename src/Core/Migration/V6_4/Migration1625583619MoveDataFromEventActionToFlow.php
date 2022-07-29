@@ -206,6 +206,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         }
     }
 
+    /**
+     * @param string[] $salesChannelIds
+     */
     private function createSalesChannelRule(Connection $connection, array $salesChannelIds, string $createdAt): string
     {
         $salesChannelName = $this->getSalesChannelName($connection, $salesChannelIds);
@@ -317,6 +320,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         ];
     }
 
+    /**
+     * @param string[] $salesChannelIds
+     */
     private function getSalesChannelName(Connection $connection, array $salesChannelIds): string
     {
         $salesChannelName = $connection->fetchFirstColumn(

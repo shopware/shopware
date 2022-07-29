@@ -414,6 +414,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @param string[] $affectedRoleIds
+     */
     private function loadPrivileges(string $eventName, array $affectedRoleIds): void
     {
         $roles = $this->connection->fetchAll('

@@ -291,6 +291,9 @@ abstract class EntityDefinition
         return $this->primaryKeys = $fields;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getDefaults(): array
     {
         return [];

@@ -399,6 +399,9 @@ class SendMailAction extends FlowAction
         }
     }
 
+    /**
+     * @param string[] $documentIds
+     */
     private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
     {
         $criteria = new Criteria($documentIds);
@@ -412,6 +415,9 @@ class SendMailAction extends FlowAction
         return $this->mappingAttachmentsInfo($documents, $attachments, $context);
     }
 
+    /**
+     * @param string[] $documentTypeIds
+     */
     private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
         $documents = $this->connection->fetchAllAssociative(
@@ -462,6 +468,9 @@ class SendMailAction extends FlowAction
         return $attachments;
     }
 
+    /**
+     * @param string[] $documentIds
+     */
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {

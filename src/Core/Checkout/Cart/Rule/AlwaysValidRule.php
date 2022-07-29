@@ -17,6 +17,9 @@ class AlwaysValidRule extends Rule
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [];

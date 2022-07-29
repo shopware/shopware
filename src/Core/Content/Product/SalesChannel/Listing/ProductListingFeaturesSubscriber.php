@@ -510,6 +510,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param string[] $groupIds
+     */
     private function getPropertyFilter(Request $request, ?array $groupIds = null): Filter
     {
         $ids = $this->getPropertyIds($request);

@@ -6,10 +6,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 trait EntityCustomFieldsTrait
 {
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
-    protected $customFields;
+    protected ?array $customFields;
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getCustomFields(): ?array
     {
         return $this->customFields;

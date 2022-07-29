@@ -36,6 +36,9 @@ class AttachmentLoader
         $this->documentService = $documentService;
     }
 
+    /**
+     * @param string[] $documentIds
+     */
     public function load(array $documentIds, Context $context): array
     {
         $attachments = [];

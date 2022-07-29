@@ -23,6 +23,7 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @internal
+     * @param string[] $manufacturerIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
     {
@@ -60,6 +61,9 @@ class LineItemOfManufacturerRule extends Rule
         return false;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

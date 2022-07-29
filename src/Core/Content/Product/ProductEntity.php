@@ -924,6 +924,9 @@ class ProductEntity extends Entity
         return $this->streamIds;
     }
 
+    /**
+     * @param string[] $streamIds
+     */
     public function setStreamIds(?array $streamIds): void
     {
         $this->streamIds = $streamIds;
@@ -934,6 +937,9 @@ class ProductEntity extends Entity
         return $this->optionIds;
     }
 
+    /**
+     * @param string[] $optionIds
+     */
     public function setOptionIds(?array $optionIds): void
     {
         $this->optionIds = $optionIds;
@@ -944,6 +950,9 @@ class ProductEntity extends Entity
         return $this->propertyIds;
     }
 
+    /**
+     * @param string[] $propertyIds
+     */
     public function setPropertyIds(?array $propertyIds): void
     {
         $this->propertyIds = $propertyIds;
@@ -1134,6 +1143,9 @@ class ProductEntity extends Entity
         return $this->blacklistIds;
     }
 
+    /**
+     * @param string[] $blacklistIds
+     */
     public function setBlacklistIds(?array $blacklistIds): void
     {
         $this->blacklistIds = $blacklistIds;
@@ -1144,6 +1156,9 @@ class ProductEntity extends Entity
         return $this->whitelistIds;
     }
 
+    /**
+     * @param string[] $whitelistIds
+     */
     public function setWhitelistIds(?array $whitelistIds): void
     {
         $this->whitelistIds = $whitelistIds;
@@ -1174,6 +1189,9 @@ class ProductEntity extends Entity
         return $this->tagIds;
     }
 
+    /**
+     * @param string[] $tagIds
+     */
     public function setTagIds(array $tagIds): void
     {
         $this->tagIds = $tagIds;
@@ -1468,6 +1486,9 @@ class ProductEntity extends Entity
         return $this->categoryIds;
     }
 
+    /**
+     * @param string[] $categoryIds
+     */
     public function setCategoryIds(?array $categoryIds): void
     {
         $this->categoryIds = $categoryIds;

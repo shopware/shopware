@@ -187,6 +187,9 @@ class CategoryIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
+    /**
+     * @param string[] $categoryIds
+     */
     private function fetchChildren(array $categoryIds, string $versionId): array
     {
         $query = $this->connection->createQueryBuilder();

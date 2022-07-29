@@ -26,6 +26,9 @@ class CartTaxDisplayRule extends Rule
         return $this->taxDisplay === $scope->getSalesChannelContext()->getTaxState();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

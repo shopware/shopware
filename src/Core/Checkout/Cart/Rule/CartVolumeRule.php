@@ -46,6 +46,9 @@ class CartVolumeRule extends Rule
         return RuleComparison::numeric($this->calculateCartVolume($scope->getCart()), $this->volume, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

@@ -265,6 +265,9 @@ class PluginCompatibility
         return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
     }
 
+    /**
+     * @param string[] $pluginIds
+     */
     private function fetchInactivePlugins(array $pluginIds, Context $context): PluginCollection
     {
         $criteria = new Criteria($pluginIds);
@@ -276,6 +279,9 @@ class PluginCompatibility
         return $collection;
     }
 
+    /**
+     * @param string[] $pluginIds
+     */
     private function fetchInactiveExtensions(array $pluginIds, Context $context): ExtensionCollection
     {
         $criteria = new Criteria($pluginIds);

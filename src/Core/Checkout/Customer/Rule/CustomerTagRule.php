@@ -56,6 +56,9 @@ class CustomerTagRule extends Rule
         return RuleComparison::uuids($this->extractTagIds($customer), $this->identifiers, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

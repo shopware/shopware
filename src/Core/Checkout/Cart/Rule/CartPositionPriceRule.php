@@ -38,6 +38,9 @@ class CartPositionPriceRule extends Rule
         return RuleComparison::numeric($scope->getCart()->getPrice()->getPositionPrice(), $this->amount, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

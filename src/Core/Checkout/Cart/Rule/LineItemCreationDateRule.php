@@ -33,6 +33,9 @@ class LineItemCreationDateRule extends Rule
         return 'cartLineItemCreationDate';
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

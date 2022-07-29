@@ -3241,6 +3241,9 @@ class ProductRepositoryTest extends TestCase
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
     }
 
+    /**
+     * @param string[] $ruleIds
+     */
     private function createContext(array $ruleIds = []): Context
     {
         return new Context(new SystemSource(), $ruleIds);

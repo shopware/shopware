@@ -41,6 +41,9 @@ class IsCompanyRule extends Rule
         return !$customer->getCompany();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

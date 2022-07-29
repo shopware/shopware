@@ -370,6 +370,9 @@ class Listing
      */
     public $optionIds;
 
+    /**
+     * @param string[] $optionIds
+     */
     public function __construct(array $ids, array $optionIds)
     {
         $this->ids = $ids;

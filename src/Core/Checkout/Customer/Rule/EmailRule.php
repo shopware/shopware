@@ -50,6 +50,9 @@ class EmailRule extends Rule
         return $this->matchExact($customer);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

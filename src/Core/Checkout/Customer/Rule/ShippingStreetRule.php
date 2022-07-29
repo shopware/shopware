@@ -54,6 +54,9 @@ class ShippingStreetRule extends Rule
         return RuleComparison::string($location->getStreet(), $this->streetName ?? '', $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

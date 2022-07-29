@@ -124,6 +124,9 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
     }
 
+    /**
+     * @param array<string, array<mixed>> $taggedServiceIds
+     */
     private function formatData(
         array $taggedServiceIds,
         ContainerBuilder $container

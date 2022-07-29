@@ -24,6 +24,7 @@ class CustomerGroupRule extends Rule
 
     /**
      * @internal
+     * @param string[] $customerGroupIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
     {
@@ -41,6 +42,9 @@ class CustomerGroupRule extends Rule
         return RuleComparison::uuids([$scope->getSalesChannelContext()->getCurrentCustomerGroup()->getId()], $this->customerGroupIds, $this->operator);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

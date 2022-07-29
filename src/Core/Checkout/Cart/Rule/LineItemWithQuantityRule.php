@@ -53,6 +53,9 @@ class LineItemWithQuantityRule extends Rule
         return false;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return [

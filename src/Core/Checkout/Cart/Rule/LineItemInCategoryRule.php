@@ -21,6 +21,7 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @internal
+     * @param string[] $categoryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
     {
@@ -54,6 +55,9 @@ class LineItemInCategoryRule extends Rule
         return false;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         $constraints = [

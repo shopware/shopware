@@ -16,6 +16,9 @@ class TestHook extends Hook
 
     private static array $deprecatedServices;
 
+    /**
+     * @param string[] $serviceIds
+     */
     public function __construct(
         string $name,
         Context $context,

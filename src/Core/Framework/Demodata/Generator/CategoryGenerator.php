@@ -74,6 +74,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param string[] $pageIds
+     */
     private function createCategory(DemodataContext $context, array $pageIds, array $tags, string $parentId, ?string $afterId, int $max, int $current): array
     {
         $id = Uuid::randomHex();
@@ -179,6 +182,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
     }
 
+    /**
+     * @param string[] $pageIds
+     */
     private function createCategories(DemodataContext $context, array $pageIds, array $tags, int $count, string $id, int $max, int $current): array
     {
         $children = [];

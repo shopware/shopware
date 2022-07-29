@@ -180,6 +180,9 @@ class NavigationRoute extends AbstractNavigationRoute
         return $categories;
     }
 
+    /**
+     * @param string[] $childIds
+     */
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
         $parentIds = array_filter(explode('|', $path ?? ''));

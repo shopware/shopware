@@ -523,6 +523,9 @@ class PromotionEntity extends Entity
         return $this->exclusionIds;
     }
 
+    /**
+     * @param string[] $exclusionIds
+     */
     public function setExclusionIds(array $exclusionIds): void
     {
         $this->exclusionIds = $exclusionIds;

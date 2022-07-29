@@ -7,7 +7,7 @@ use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
 class Commerce extends FakerCommerce
 {
     /**
-     * @var array<string, array<string>>
+     * @var array<string, string[]>
      */
     protected static $productName = [
         'adjective' => ['Small', 'Ergonomic', 'Rustic', 'Intelligent', 'Gorgeous', 'Incredible', 'Fantastic', 'Practical', 'Sleek', 'Awesome', 'Enormous', 'Mediocre', 'Synergistic', 'Heavy Duty', 'Lightweight', 'Aerodynamic', 'Durable'],

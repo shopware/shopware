@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Test\Annotation\ActiveFeatures;
 
 /**
  * @internal
@@ -105,5 +106,31 @@ class FeatureTest extends TestCase
 
         static::assertArrayNotHasKey('FEATURE_NEXT_0000', $_SERVER);
         static::assertArrayNotHasKey('v6.4.5.0', $_SERVER);
+    }
+
+    /**
+     * @covers ::triggerDeprecationOrThrow
+     */
+    public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
+    {
+        Feature::resetRegisteredFeatures();
+
+        // no throw
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+
+        // make phpunit happy
+        static::assertTrue(true);
+    }
+
+    /**
+     * @covers ::triggerDeprecationOrThrow
+     *
+     * @ActiveFeatures("v6.5.0.0")
+     */
+    public function testTriggerDeprecationOrThrowThrows(): void
+    {
+        static::expectException(\RuntimeException::class);
+
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 }

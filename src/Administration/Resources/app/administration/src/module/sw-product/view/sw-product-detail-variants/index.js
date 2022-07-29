@@ -133,10 +133,7 @@ Component.register('sw-product-detail-variants', {
         loadGroups() {
             return new Promise((resolve) => {
                 this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria(1, 25);
-                    groupCriteria
-                        .setLimit(100)
-                        .setPage(1);
+                    const groupCriteria = new Criteria(1, null);
 
                     this.groupRepository.search(groupCriteria).then((searchResult) => {
                         this.groups = searchResult;

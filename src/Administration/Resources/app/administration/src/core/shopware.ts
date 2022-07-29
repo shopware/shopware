@@ -123,6 +123,7 @@ class ShopwareClass {
             extend: AsyncComponentFactory.extend,
             override: AsyncComponentFactory.override,
             build: AsyncComponentFactory.build,
+            wrapComponentConfig: AsyncComponentFactory.wrapComponentConfig,
             getTemplate: AsyncComponentFactory.getComponentTemplate,
             getComponentRegistry: AsyncComponentFactory.getComponentRegistry,
             getComponentHelper: AsyncComponentFactory.getComponentHelper,

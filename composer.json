@@ -25,11 +25,6 @@
         "branch-alias": {
             "dev-master": "6.4.x-dev",
             "dev-trunk": "6.4.x-dev"
-        },
-        "patches": {
-            "phpunit/phpunit": {
-                "Allow invalid directories in mapping": "src/Core/Test/Patches/phpunit-phpunit-src-textui-testsuitemapper-php.patch"
-            }
         }
     },
     "config": {
@@ -179,7 +174,6 @@
         "phpstan/phpstan-symfony": "1.2.5",
         "phpunit/php-code-coverage": "~9.2.14",
         "phpunit/phpunit": "~9.5.17",
-        "cweagans/composer-patches": "^1.7",
         "smalot/pdfparser": "~0.14.0",
         "staabm/phpstan-dba": "0.2.29",
         "symfony/browser-kit": "~5.4.0",
@@ -297,14 +291,14 @@
             "@eslint:admin",
             "@eslint:storefront"
         ],
-        "ecs": "ecs check",
-        "ecs-fix": "ecs check --fix",
+        "ecs": "ecs check src tests",
+        "ecs-fix": "ecs check --fix src tests",
         "lint:changelog": "@php bin/shopware changelog:check",
         "lint:snippets": "@php bin/shopware snippets:validate",
         "lint": [
             "@stylelint",
             "@eslint",
-            "@ecs src/",
+            "@ecs",
             "@lint:changelog",
             "@lint:snippets"
         ],
@@ -430,18 +424,19 @@
             "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
             "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
             "Shopware\\Docs\\Test\\": "src/Docs/Test",
-             "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
-             "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
-             "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
-             "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",
-             "Shopware\\Core\\DevOps\\Test\\": "src/Core/DevOps/Test/",
-             "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
-             "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
-             "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
-             "Shopware\\Core\\Test\\": "src/Core/Test/",
-             "Shopware\\Tests\\Unit\\": "tests/unit/php/",
-             "Shopware\\Tests\\Integration\\": "tests/integration/php/",
-             "Shopware\\Tests\\Bench\\": "tests/performance/bench/"
+            "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
+            "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
+            "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
+            "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",
+            "Shopware\\Core\\DevOps\\Test\\": "src/Core/DevOps/Test/",
+            "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
+            "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
+            "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
+            "Shopware\\Core\\Test\\": "src/Core/Test/",
+            "Shopware\\Tests\\Unit\\": "tests/unit/php/",
+            "Shopware\\Tests\\Integration\\": "tests/integration/php/",
+            "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
+            "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
     }
 }

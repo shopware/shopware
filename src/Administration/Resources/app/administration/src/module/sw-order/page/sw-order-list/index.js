@@ -116,9 +116,9 @@ Component.register('sw-order-list', {
             return criteria;
         },
 
-        listFilters() {
+        listFilterOptions() {
             if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return this.filterFactory.create('order', {
+                return {
                     'sales-channel-filter': {
                         property: 'salesChannel',
                         label: this.$tc('sw-order.filters.salesChannelFilter.label'),
@@ -221,10 +221,10 @@ Component.register('sw-order-list', {
                         criteria: this.productCriteria,
                         displayVariants: true,
                     },
-                });
+                };
             }
 
-            return this.filterFactory.create('order', {
+            return {
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -315,7 +315,11 @@ Component.register('sw-order-list', {
                     criteria: this.productCriteria,
                     displayVariants: true,
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('order', this.listFilterOptions);
         },
 
         productCriteria() {

@@ -1,12 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Bench\Cases;
 
+use PhpBench\Attributes as Bench;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Tests\Bench\BenchCase;
-use PhpBench\Attributes as Bench;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 class ProductBench extends BenchCase
 {
     #[Bench\Assert('mode(variant.time.avg) < 10ms')]

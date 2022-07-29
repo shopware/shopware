@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Bench;
 
@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @internal - only for performance benchmarks
+ */
 #[BeforeMethods(['setup'])]
 #[AfterMethods(['tearDown'])]
 abstract class BenchCase

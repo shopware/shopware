@@ -304,10 +304,9 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"
-                 decorates="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
-
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader.inner"/>
+        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"
@@ -448,7 +447,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader">
@@ -516,6 +515,8 @@
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%storefront.reverse_proxy.enabled%</argument>
+            <argument>%storefront.http_cache.stale_while_revalidate%</argument>
+            <argument>%storefront.http_cache.stale_if_error%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

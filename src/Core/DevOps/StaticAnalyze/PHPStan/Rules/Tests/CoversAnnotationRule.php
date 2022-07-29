@@ -42,7 +42,7 @@ class CoversAnnotationRule implements Rule
     {
         $namespace = $node->getClassReflection()->getName();
 
-        if (!\str_contains($namespace, 'Shopware\\Tests\\Unit\\')) {
+        if (!\str_contains($namespace, 'Shopware\\Tests\\Unit\\') && !\str_contains($namespace, 'Shopware\\Tests\\Migration\\')) {
             return false;
         }
 
@@ -61,6 +61,6 @@ class CoversAnnotationRule implements Rule
             return false;
         }
 
-        return \str_contains($doc->getText(), '@covers');
+        return \str_contains($doc->getText(), '@covers') || \str_contains($doc->getText(), '@coversNothing');
     }
 }

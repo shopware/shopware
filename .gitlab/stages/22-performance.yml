@@ -30,49 +30,12 @@ Lighthouse (Administration):
         paths:
             - build/artifacts/lighthouse-results
 
-Lighthouse (Storefront):
-    extends: .base
-    stage: unit
-    needs: []
-    allow_failure: true
-    services:
-        -   name: mariadb:10.3
-            alias: database
-    variables:
-        APP_ENV: prod
-        DD_API_KEY: "$DATADOG_API_KEY"
-        ALLOW_FAILURE: 'true'
-    rules:
-        - !reference [ .rules, skip ]
-        - !reference [ .rules, run ]
-        - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-          when: never
-        - changes:
-              - 'src/Storefront/**/*'
-              - .gitlab/stages/02-unit.yml
-          when: never
-        - when: always
-    script:
-        - APP_ENV=prod bin/console framework:demodata
-        - APP_ENV=prod bin/console dal:refresh:index
-        - cd $STOREFRONT_PATH
-        - node createlighthouserc.js
-        - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
-        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedInMobile.json
-        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedIn.json
-        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedInMobile.json
-        - node lighthouse-tests.js
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
-    artifacts:
-        when: always
-        paths:
-            - build/artifacts
-
 Lighthouse Server (Storefront):
     extends: .base
     stage: unit
     needs: []
     allow_failure: true
+    timeout: 1h
     services:
         -   name: mariadb:10.3
             alias: database
@@ -82,11 +45,9 @@ Lighthouse Server (Storefront):
         ALLOW_FAILURE: 'true'
     rules:
         - !reference [ .rules, skip ]
-        - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-          when: never
-        - changes:
-              - 'src/Storefront/**/*'
-              - .gitlab/stages/02-unit.yml
+        # only run on protected refs like trunk and the version branches, if it's not a merge request
+        - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
+          allow_failure: true
     script:
         - APP_ENV=prod bin/console framework:demodata
         - APP_ENV=prod bin/console dal:refresh:index

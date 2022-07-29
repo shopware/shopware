@@ -30,8 +30,14 @@ class DatadogListener implements TestListener
     use TestListenerDefaultImplementation;
     private const THRESHOLD = 2;
 
+    /**
+     * @var array<class-string, float>
+     */
     private array $testRunTime = [];
 
+    /**
+     * @var array<array<mixed>>
+     */
     private array $failedTests = [];
 
     private bool $isShutdownHandlerRegistered = false;
@@ -123,6 +129,9 @@ class DatadogListener implements TestListener
         $this->sendLogs($data);
     }
 
+    /**
+     * @param array<mixed> $logs
+     */
     private function sendLogs(array $logs): void
     {
         if ($logs === []) {
@@ -130,6 +139,10 @@ class DatadogListener implements TestListener
         }
 
         $ch = curl_init('https://http-intake.logs.datadoghq.eu/v1/input');
+        if (!$ch) {
+            return;
+        }
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($logs, JSON_THROW_ON_ERROR));

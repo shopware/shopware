@@ -6,15 +6,17 @@ Jest (Administration):
     extends: .base
     stage: unit
     needs: []
-    services:
-        -   name: mariadb:10.3
-            alias: database
+    services: []
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
         - when: always
+    before_script:
+      - composer install --no-scripts --no-plugins --quiet
+      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json 2>/dev/null
+      - !reference [ .scripts, install-node, script ]
+      - (cd $ADMIN_PATH && npm ci)
     script:
-        - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - npm --prefix $ADMIN_PATH run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
@@ -31,16 +33,19 @@ Jest (Storefront):
     extends: .base
     stage: unit
     needs: []
-    services:
-        -   name: mariadb:10.3
-            alias: database
+    services: []
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - when: always
+    variables:
+      NODE_VERSION: 12
+    before_script:
+      - composer install --no-scripts --no-plugins --quiet
+      - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
+      - !reference [ .scripts, install-node, script ]
+      - (cd $STOREFRONT_PATH && npm ci)
     script:
-        - export NODE_VERSION=12
-        - !reference [.scripts, install-node, script]
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
@@ -150,12 +155,50 @@ PHP unit coverage:
     before_script:
         - composer install --optimize-autoloader --no-interaction --quiet
     script:
-        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --bootstrap vendor/autoload.php
             --log-junit phpunit.junit.xml
             --testsuite unit
+            --coverage-text
+            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+      when: always
+      paths:
+        - cobertura.xml
+      reports:
+        junit: phpunit.junit.xml
+        coverage_report:
+          coverage_format: cobertura
+          path: cobertura.xml
+
+PHP migration coverage:
+    extends: .base-no-setup
+    image: shopware/development:7.4-composer-2
+    stage: unit
+    needs: []
+    timeout: 10m
+    services:
+        -   name: mariadb:10.4
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    variables:
+        APP_ENV: "test"
+        FEATURE_ALL: "false"
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - when: always
+    before_script:
+        - composer install --optimize-autoloader --no-interaction --quiet
+    script:
+        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+        - php $PHP_OPTIONS vendor/bin/phpunit
+            --configuration tests/migration/phpunit.xml
+            --log-junit phpunit.junit.xml
+            --testsuite migration-tests
             --coverage-text
             --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
@@ -186,7 +229,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch unit integration migration"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large

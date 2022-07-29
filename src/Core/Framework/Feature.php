@@ -28,17 +28,37 @@ class Feature
     }
 
     /**
+     * @param string[] $features
+     *
      * @return mixed|null
      */
     public static function fake(array $features, \Closure $closure)
     {
         $before = self::$registeredFeatures;
+        $serverVarsBackup = $_SERVER;
 
-        self::$registeredFeatures = $features;
+        $result = null;
 
-        $result = $closure();
+        try {
+            self::$registeredFeatures = [];
+            foreach ($_SERVER as $key => $value) {
+                if (str_starts_with($key, 'v6.') || $key === 'PERFORMANCE_TWEAKS' || str_starts_with($key, 'FEATURE_')) {
+                    // set to false so that $_ENV is not checked
+                    $_SERVER[$key] = false;
+                }
+            }
 
-        self::$registeredFeatures = $before;
+            if ($features) {
+                foreach ($features as $feature) {
+                    $_SERVER[Feature::normalizeName($feature)] = true;
+                }
+            }
+
+            $result = $closure();
+        } finally {
+            self::$registeredFeatures = $before;
+            $_SERVER = $serverVarsBackup;
+        }
 
         return $result;
     }
@@ -153,7 +173,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (self::isActive($majorFlag) || !self::has($majorFlag)) {
+        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 

@@ -337,12 +337,6 @@ export default {
         'padding-bottom': '0px',
         'padding-left': '5px',
     },
-    'icons-default-arrow-simple-left': {
-        'padding-top': '5px',
-        'padding-right': '0px',
-        'padding-bottom': '5px',
-        'padding-left': '0px',
-    },
     'icons-default-arrow-simple-long-right': {
         'padding-top': '0px',
         'padding-right': '0px',
@@ -602,10 +596,10 @@ export default {
         'padding-left': '0px',
     },
     'icons-default-basic-x-line': {
-        'padding-top': '3px',
-        'padding-right': '3px',
-        'padding-bottom': '3px',
-        'padding-left': '3px',
+        'padding-top': '2px',
+        'padding-right': '2px',
+        'padding-bottom': '2px',
+        'padding-left': '2px',
     },
     'icons-default-basic-x-wide': {
         'padding-top': '1px',
@@ -683,12 +677,6 @@ export default {
         'padding-top': '0px',
         'padding-right': '0px',
         'padding-bottom': '0px',
-        'padding-left': '0px',
-    },
-    'icons-default-communication-envelope': {
-        'padding-top': '3px',
-        'padding-right': '0px',
-        'padding-bottom': '3px',
         'padding-left': '0px',
     },
     'icons-default-communication-forward': {
@@ -798,12 +786,6 @@ export default {
         'padding-right': '0px',
         'padding-bottom': '0px',
         'padding-left': '0px',
-    },
-    'icons-default-device-server': {
-        'padding-top': '2px',
-        'padding-right': '1px',
-        'padding-bottom': '2px',
-        'padding-left': '1px',
     },
     'icons-default-device-tablet': {
         'padding-top': '3px',
@@ -1856,10 +1838,7 @@ export default {
         'padding-left': '4px',
     },
     'icons-small-arrow-small-down': {
-        'padding-top': '6px',
-        'padding-right': '4px',
-        'padding-bottom': '5px',
-        'padding-left': '4px',
+        padding: '6px',
     },
     'icons-small-arrow-small-external': {
         'padding-top': '0px',
@@ -1880,10 +1859,10 @@ export default {
         'padding-left': '1px',
     },
     'icons-small-arrow-small-right': {
-        'padding-top': '4px',
-        'padding-right': '4px',
-        'padding-bottom': '3px',
-        'padding-left': '6px',
+        'padding-top': '7px',
+        'padding-right': '7px',
+        'padding-bottom': '6px',
+        'padding-left': '10px',
     },
     'icons-small-arrow-small-up': {
         'padding-top': '5px',
@@ -2006,10 +1985,10 @@ export default {
         'padding-left': '2px',
     },
     'icons-small-default-plus-line-small': {
-        'padding-top': '4px',
-        'padding-right': '4px',
-        'padding-bottom': '4px',
-        'padding-left': '4px',
+        'padding-top': '3px',
+        'padding-right': '3px',
+        'padding-bottom': '3px',
+        'padding-left': '3px',
     },
     'icons-small-default-plus-square': {
         'padding-top': '0px',

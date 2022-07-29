@@ -68,6 +68,8 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('http_cache')
                     ->children()
+                        ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
+                        ->scalarNode('stale_if_error')->defaultValue(null)->end()
                         ->arrayNode('ignored_url_parameters')->scalarPrototype()->end()
                     ->end()
                 ->end()

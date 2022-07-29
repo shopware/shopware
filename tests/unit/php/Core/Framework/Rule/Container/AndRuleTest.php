@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 /**
  * @covers \Shopware\Core\Framework\Rule\Container\AndRule
  * @covers \Shopware\Core\Framework\Rule\Container\Container
+ *
  * @internal
  */
 class AndRuleTest extends TestCase
@@ -20,18 +21,18 @@ class AndRuleTest extends TestCase
     /**
      * @dataProvider cases
      */
-    public function test_rule_logic(AndRule $rule, bool $matching): void
+    public function testRuleLogic(AndRule $rule, bool $matching): void
     {
         $scope = $this->createMock(RuleScope::class);
         static::assertSame($matching, $rule->match($scope));
     }
 
-    public function test_and_rule_name_is_still_the_same(): void
+    public function testAndRuleNameIsStillTheSame(): void
     {
         static::assertSame('andContainer', (new AndRule())->getName());
     }
 
-    public function test_i_can_add_rules_afterwards(): void
+    public function testICanAddRulesAfterwards(): void
     {
         $rule = new AndRule([new TrueRule()]);
         $rule->addRule(new TrueRule());
@@ -42,7 +43,7 @@ class AndRuleTest extends TestCase
         static::assertEquals([new FalseRule()], $rule->getRules());
     }
 
-    public function test_constraints_are_still_the_same(): void
+    public function testConstraintsAreStillTheSame(): void
     {
         static::assertEquals(
             ['rules' => [new ArrayOfType(Rule::class)]],
@@ -54,7 +55,7 @@ class AndRuleTest extends TestCase
     {
         yield 'Test with single matching rule' => [
             new AndRule([new TrueRule()]),
-            true
+            true,
         ];
 
         yield 'Test with multiple matching rule' => [
@@ -62,12 +63,12 @@ class AndRuleTest extends TestCase
                 new TrueRule(),
                 new TrueRule(),
             ]),
-            true
+            true,
         ];
 
         yield 'Test with single not matching rule' => [
             new AndRule([new FalseRule()]),
-            false
+            false,
         ];
 
         yield 'Test with multiple not matching rule' => [
@@ -75,7 +76,7 @@ class AndRuleTest extends TestCase
                 new TrueRule(),
                 new FalseRule(),
             ]),
-            false
+            false,
         ];
 
         yield 'Test with matching and not matching rule' => [
@@ -83,7 +84,7 @@ class AndRuleTest extends TestCase
                 new TrueRule(),
                 new FalseRule(),
             ]),
-            false
+            false,
         ];
     }
 }

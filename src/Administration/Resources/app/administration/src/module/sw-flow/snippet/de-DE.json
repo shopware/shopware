@@ -14,7 +14,8 @@
       "labelColumnName": "Name",
       "labelColumnTrigger": "Auslöser",
       "labelColumnDescription": "Beschreibung",
-      "confirmText": "Soll der Eintrag wirklich gelöscht werden?",
+      "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
+      "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
       "emptyStateTitle": "Noch keine Flows erstellt",
       "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
       "download": "Herunterladen"

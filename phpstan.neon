@@ -6,12 +6,13 @@ parameters:
     phpVersion: 70400
     level: 8
     treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
     paths:
         - src
+        - tests
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/composer/InstalledVersions.php # somehow we are affected by this https://github.com/phpstan/phpstan/issues/4482
@@ -44,21 +45,30 @@ parameters:
         - src/Core/Framework/Adapter/Twig/functions.php
 
     ignoreErrors:
-        # We won't type all arrays/iterables for now
-        - '#no value type specified in iterable type#'
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
         -
             message: '#Service ".*" is not registered in the container\.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/integration/**/*Test.php
 
         # ignore errors caused by static::markTestSkipped
         -
             message: '#Unreachable statement - code above always terminates.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+
+        # benchmark tests create db tables on the fly
+        -
+            message: '#Query error:#'
+            paths:
+                - tests/performance/**/*.php
 
         # Method gets always an EntityCollection
         -
@@ -180,11 +190,6 @@ parameters:
             message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
             count: 1
             path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
-
-        -
-            message: "#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
 
         # Invalid trait usage
         -

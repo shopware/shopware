@@ -2,13 +2,16 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -47,11 +50,15 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
     {
+        $criteria->addFilter(new EqualsFilter('active', true));
+
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = \func_num_args() === 2 ? func_get_arg(1) : null;
 
-        $criteria->addAssociation('mainCategories.category');
-        $criteria->addAssociation('categories');
+        if (!Feature::isActive('v6.5.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $criteria->addAssociation('mainCategories.category');
+            $criteria->addAssociation('categories');
+        }
 
         if ($salesChannel && Feature::isActive('FEATURE_NEXT_13410')) {
             $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannel->getId()));
@@ -60,15 +67,17 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
-        if (!$product instanceof ProductEntity) {
+        if (!$product instanceof ProductEntity && !$product instanceof PartialEntity) {
             throw new \InvalidArgumentException('Expected ProductEntity');
         }
 
         $productJson = $product->jsonSerialize();
 
-        $mainCategory = $this->extractMainCategory($product, $salesChannel);
-        if ($mainCategory !== null) {
-            $productJson['mainCategory'] = $mainCategory->jsonSerialize();
+        if (!Feature::isActive('v6.5.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $mainCategory = $this->extractMainCategory($product, $salesChannel);
+            if ($mainCategory !== null) {
+                $productJson['mainCategory'] = $mainCategory->jsonSerialize();
+            }
         }
 
         return new SeoUrlMapping(
@@ -80,16 +89,19 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    private function extractMainCategory(ProductEntity $product, ?SalesChannelEntity $salesChannel): ?CategoryEntity
+    /**
+     * @deprecated tag:v6.5.0 - Use product.categories.sortByPosition().first.translated.name in the seo url template instead
+     */
+    private function extractMainCategory(Entity $product, ?SalesChannelEntity $salesChannel): ?CategoryEntity
     {
         $mainCategory = null;
-        if ($salesChannel !== null) {
-            $mainCategoryEntity = $product->getMainCategories()->filterBySalesChannelId($salesChannel->getId())->first();
+        if ($salesChannel !== null && $product->get('mainCategories') instanceof MainCategoryCollection) {
+            $mainCategoryEntity = $product->get('mainCategories')->filterBySalesChannelId($salesChannel->getId())->first();
             $mainCategory = $mainCategoryEntity !== null ? $mainCategoryEntity->getCategory() : null;
         }
 
-        if ($mainCategory === null) {
-            $mainCategory = $product->getCategories() ? $product->getCategories()->sortByPosition()->first() : null;
+        if ($mainCategory === null && $product->get('categories') instanceof CategoryCollection) {
+            $mainCategory = $product->get('categories')->sortByPosition()->first();
         }
 
         return $mainCategory;

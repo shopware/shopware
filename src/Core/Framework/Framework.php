@@ -40,6 +40,9 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
 class Framework extends Bundle
 {
     public function getContainerExtension(): Extension
@@ -53,7 +56,7 @@ class Framework extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');
-        $environment = $container->getParameter('kernel.environment');
+        $environment = (string) $container->getParameter('kernel.environment');
 
         $this->buildConfig($container, $environment);
 
@@ -148,7 +151,7 @@ class Framework extends Bundle
         ];
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $cacheDir = $container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {

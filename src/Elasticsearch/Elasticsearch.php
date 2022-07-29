@@ -20,10 +20,11 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
 class Elasticsearch extends Bundle
 {
-    protected $name = 'Elasticsearch';
-
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

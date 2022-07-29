@@ -89,7 +89,7 @@ Shopware.Component.register('sw-iframe-renderer', {
         extension: {
             immediate: true,
             handler(extension) {
-                if (!extension) {
+                if (!extension || !this.extensionIsApp) {
                     return;
                 }
 

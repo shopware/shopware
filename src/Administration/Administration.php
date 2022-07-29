@@ -8,6 +8,9 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * @internal
+ */
 class Administration extends Bundle
 {
     public function build(ContainerBuilder $container): void

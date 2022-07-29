@@ -156,5 +156,14 @@ Component.register('sw-flow-list', {
         selectionChange(selection) {
             this.selectedItems = Object.values(selection);
         },
+
+        deleteWarningMessage() {
+            return `${this.$tc('sw-flow.list.warningDeleteText')} ${this.$tc('sw-flow.list.confirmText')}`;
+        },
+
+        bulkDeleteWarningMessage(selectionCount) {
+            return `${this.$tc('sw-flow.list.warningDeleteText')}
+            ${this.$tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount })}`;
+        },
     },
 });

@@ -41,7 +41,7 @@ trait ImportTranslationsTrait
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            $connection->executeUpdate($sql, $data);
+            $connection->executeStatement($sql, $data);
         }
 
         foreach ($germanIds as $id) {
@@ -50,7 +50,7 @@ trait ImportTranslationsTrait
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            $connection->executeUpdate($sql, $data);
+            $connection->executeStatement($sql, $data);
         }
 
         return new TranslationWriteResult($englishIds, $germanIds);
@@ -58,7 +58,7 @@ trait ImportTranslationsTrait
 
     protected function getLanguageIds(Connection $connection, string $locale): array
     {
-        $ids = $connection->fetchAll('
+        $ids = $connection->fetchAllAssociative('
             SELECT LOWER(HEX(`language`.id)) as id
             FROM `language`
             INNER JOIN locale

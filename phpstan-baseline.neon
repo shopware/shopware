@@ -48206,6 +48206,7 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Parameter \\#1 \\$expectedCount of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects int, int\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/DataAbstractionLayer/Indexing/SeoUrlIndexerTest.php
@@ -48227,6 +48228,9 @@ parameters:
 
 		-
 			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlCollection\\|null\\.$#"
+=======
+			message: "#^Cannot access offset 'item_rounding' on array\\<string, mixed\\>\\|false\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 3
 			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
 
@@ -48251,6 +48255,7 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:upsertProduct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
@@ -48347,6 +48352,9 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+=======
+			message: "#^Cannot access offset 'CONSTRAINT_NAME' on array\\<string, mixed\\>\\|false\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 1
 			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
 
@@ -48363,6 +48371,7 @@ parameters:
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:\\$salesChannelIds type has no value type specified in iterable type array\\.$#"
 			count: 1
+<<<<<<< HEAD
 			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
 
 		-
@@ -48409,6 +48418,14 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:testMatchingTokenTerms\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
+=======
+			path: src/Core/Migration/Test/Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableTest.php
+
+		-
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity\\|null\\.$#"
+			count: 2
+			path: src/Core/Migration/Test/Migration1610523204AddInheritanceForProductCmsPageTest.php
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:testMatchingWithTokenFilter\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
@@ -48441,6 +48458,7 @@ parameters:
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
@@ -48459,6 +48477,11 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\AccountOrderPageLoaderTest\\:\\:\\$salesChannel has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/AccountOrderPageLoaderTest.php
+=======
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
+			count: 2
+			path: src/Core/Migration/Test/Migration1618900427FixTotalRoundingTest.php
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\CustomerGroupRegistrationTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
@@ -48531,6 +48554,7 @@ parameters:
 			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\EditOrderPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/EditOrderPageTest.php
@@ -48577,6 +48601,9 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\LoginPageTest\\:\\:createContext\\(\\) has parameter \\$salesChannel with no value type specified in iterable type array\\.$#"
+=======
+			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 1
 			path: src/Storefront/Test/Page/Account/LoginPageTest.php
 
@@ -48626,6 +48653,7 @@ parameters:
 			path: src/Storefront/Test/Page/Account/OrderDetailPageTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OrderPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/OrderPageTest.php
@@ -48669,6 +48697,11 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:createContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
+=======
+			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
+			count: 2
+			path: src/Core/Migration/Test/Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest.php
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:createContext\\(\\) has parameter \\$salesChannel with no value type specified in iterable type array\\.$#"
@@ -48681,6 +48714,7 @@ parameters:
 			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\OverviewPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/OverviewPageTest.php
@@ -48692,6 +48726,9 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
+=======
+			message: "#^Offset mixed does not exist on array\\|null\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 1
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
 
@@ -48701,6 +48738,7 @@ parameters:
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:createContext\\(\\) has parameter \\$salesChannel with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
@@ -48712,16 +48750,23 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\PaymentMethodPageTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
+=======
+			message: "#^Unsafe call to private method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest\\:\\:assertDefaultInList\\(\\) through static\\:\\:\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 1
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
 
 		-
+<<<<<<< HEAD
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Account\\\\ProfilePageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
+=======
+			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
+>>>>>>> ea1240fdbf (NEXT-22679 - Migrate Migration Tests)
 			count: 1
 			path: src/Storefront/Test/Page/Account/ProfilePageTest.php
 
@@ -48770,6 +48815,11 @@ parameters:
 			count: 1
 			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
 
+        -
+			message: "#^Cannot access offset 'config' on array\\<string, mixed\\>\\|false\\.$#"
+			count: 1
+			path: src/Storefront/Test/Page/Checkout/CartPageTest.php
+
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\ConfirmPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
 			count: 1
@@ -48799,6 +48849,11 @@ parameters:
 			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
 			count: 4
 			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
+
+        -
+        	message: "#^Access to an undefined property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1639992771MoveDataFromEventActionToFlow\\:\\:\\$internal\\.$#"
+			count: 2
+			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\Checkout\\\\FinishPageTest\\:\\:assertLoginRequirement\\(\\) has parameter \\$queryParams with no value type specified in iterable type array\\.$#"
@@ -48870,6 +48925,11 @@ parameters:
 			count: 1
 			path: src/Storefront/Test/Page/ErrorPageTest.php
 
+        -
+			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
+			count: 1
+			path: src/Storefront/Test/Page/ErrorPageTest.php
+
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Page\\\\ErrorPageTest\\:\\:\\$systemConfigRepository is never read, only written\\.$#"
 			count: 1
@@ -48887,6 +48947,11 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\GuestWishlistPageTest\\:\\:createContext\\(\\) has parameter \\$salesChannel with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Page/GuestWishlistPageTest.php
+
+        -
+			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/GuestWishlistPageTest.php
 
@@ -48929,6 +48994,11 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Page\\\\LandingPage\\\\LandingPageLoaderTest\\:\\:getRandomProduct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/LandingPage/LandingPageLoaderTest.php
+
+        -
+        	message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
+			count: 12
+			path: src/Core/Migration/Test/MigrationForeignDefaultLanguageTest.php
 
 		-
 			message: "#^Cannot call method getVars\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"

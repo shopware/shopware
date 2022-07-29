@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DependencyInjection\CompilerPass;
+namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass
  */
 class EntityCompilerPassTest extends TestCase
 {
@@ -43,6 +44,9 @@ class EntityCompilerPassTest extends TestCase
         // Make sure the correct aliases have been set
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerRepository'));
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerAddressRepository'));
+
+        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerRepository'));
+        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerAddressRepository'));
     }
 
     public function testEntityRepositoryAutowiringForAlreadyDefinedRepositories(): void
@@ -74,5 +78,6 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $productRepository'));
+        static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $productRepository'));
     }
 }

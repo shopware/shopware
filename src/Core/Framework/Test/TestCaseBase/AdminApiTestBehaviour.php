@@ -65,6 +65,10 @@ trait AdminApiTestBehaviour
         $this->kernelBrowser = null;
     }
 
+    /**
+     * @param array<string> $scopes
+     * @param array<string>|null $permissions
+     */
     public function createClient(
         ?KernelInterface $kernel = null,
         bool $enableReboot = false,
@@ -118,9 +122,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @throws InvalidUuidException
-     * @throws \RuntimeException
-     * @throws DBALException
+     * @param array<string> $scopes
+     * @param array<string>|null $aclPermissions
      */
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
@@ -263,6 +266,10 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
+    /**
+     * @param array<string> $scopes
+     * @param array<string>|null $permissions
+     */
     protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {
         if ($this->kernelBrowser) {

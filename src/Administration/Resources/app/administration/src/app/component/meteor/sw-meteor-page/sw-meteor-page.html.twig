@@ -20,6 +20,10 @@
             </div>
 
             <div class="sw-meteor-page__head-area-global-actions">
+                {% block sw_meteor_page_help_center %}
+                <sw-help-center />
+                {% endblock %}
+
                 {% block sw_meteor_page_notification_center %}
                 <sw-notification-center />
                 {% endblock %}

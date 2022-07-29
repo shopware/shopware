@@ -200,6 +200,7 @@ function createWrapper(productEntityOverride) {
             'sw-text-editor': true,
             'sw-language-switch': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-icon': true,
             'sw-multi-tag-select': true,
             'sw-entity-tag-select': true,

@@ -9,6 +9,7 @@ function createWrapper(slotsData = {}) {
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-meteor-page-context': true,
             'sw-meteor-navigation': true,
             'sw-tabs': Shopware.Component.build('sw-tabs'),
@@ -156,5 +157,12 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
 
         const pageContent = wrapper.find('.sw-meteor-page__content');
         expect(pageContent.text()).toBe('Lorem Ipsum');
+    });
+
+    it('should contain sw-help-center and sw-notification-center', async () => {
+        const globalActions = wrapper.get('.sw-meteor-page__head-area-global-actions');
+
+        expect(globalActions.get('sw-help-center-stub').exists()).toBe(true);
+        expect(globalActions.get('sw-notification-center-stub').exists()).toBe(true);
     });
 });

@@ -25,6 +25,10 @@
             class="sw-page__top-bar-actions"
             :style="topBarActionStyles"
         >
+            {% block sw_page_help_center %}
+            <sw-help-center />
+            {% endblock %}
+
             {% block sw_page_notification_center %}
             <sw-notification-center />
             {% endblock %}

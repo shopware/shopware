@@ -153,13 +153,13 @@ function createWrapper(isResponseError = false) {
             'sw-text-editor': true,
             'sw-language-switch': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-icon': true,
             'sw-help-text': true,
             'sw-alert': true,
             'sw-label': true,
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-
         },
         props: {
             title: 'Foo bar'

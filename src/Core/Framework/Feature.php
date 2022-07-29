@@ -173,7 +173,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (self::isActive($majorFlag) || !self::has($majorFlag)) {
+        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 

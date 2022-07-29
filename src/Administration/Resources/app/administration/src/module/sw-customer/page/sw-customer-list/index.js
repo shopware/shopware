@@ -107,8 +107,8 @@ Component.register('sw-customer-list', {
             return criteria;
         },
 
-        listFilters() {
-            return this.filterFactory.create('customer', {
+        listFilterOptions() {
+            return {
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -171,7 +171,11 @@ Component.register('sw-customer-list', {
                     label: this.$tc('sw-customer.filter.tags.label'),
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('customer', this.listFilterOptions);
         },
     },
 

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,13 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FindProductVariantRoute extends AbstractFindProductVariantRoute
 {
-    private SalesChannelRepository $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        SalesChannelRepository $productRepository
+        SalesChannelRepositoryInterface $productRepository
     ) {
         $this->productRepository = $productRepository;
     }

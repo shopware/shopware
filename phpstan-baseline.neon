@@ -3806,26 +3806,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryPositionCollectionTest.php
 
 		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
-
-		-
-			message: "#^Cannot call method getShippingCosts\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\Delivery\\|null\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
-
-		-
-			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Delivery\\\\DeliveryProcessorTest\\:\\:\\$contextPersister is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryProcessorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartFacadeHelperTest\\:\\:testPriceFactory\\(\\) has parameter \\$prices with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Facade/CartFacadeHelperTest.php
@@ -3944,91 +3924,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$context of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderPersister\\:\\:persist\\(\\) expects Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Order/OrderPersisterTest.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 5
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getAffiliateCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getAmountTotal\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getCampaignCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getCustomerComment\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getLineItems\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getOrderDateTime\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax\\|null\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Order\\\\RecalculationServiceTest\\:\\:addProduct\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Order\\\\RecalculationServiceTest\\:\\:addProduct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Order\\\\RecalculationServiceTest\\:\\:createDeliveryTime\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Order\\\\RecalculationServiceTest\\:\\:persistCart\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 10
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Cart/Order/RecalculationServiceTest.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\QuantityPriceCalculator constructor invoked with 3 parameters, 2 required\\.$#"

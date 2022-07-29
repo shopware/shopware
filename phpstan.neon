@@ -6,7 +6,7 @@ parameters:
     phpVersion: 70400
     level: 8
     treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan

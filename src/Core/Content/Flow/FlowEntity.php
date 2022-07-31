@@ -26,6 +26,8 @@ class FlowEntity extends Entity
 
     protected int $priority;
 
+    protected bool $locked;
+
     /**
      * @internal
      *
@@ -127,5 +129,15 @@ class FlowEntity extends Entity
     public function setSequences(FlowSequenceCollection $sequences): void
     {
         $this->sequences = $sequences;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
     }
 }

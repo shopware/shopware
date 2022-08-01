@@ -334,8 +334,7 @@
 
                                                                     <template v-else-if="mapSwFieldTypes(field.type)">
                                                                         <sw-inherit-wrapper
-                                                                            :helpText="field.helpText && (field.type === 'switch' || field.type === 'checkbox') ? field.helpText : null"
-                                                                            :class="['sw-field-id-' + fieldName, 'sw-inherit-wrapper-' + field.type]"
+                                                                            :class="'sw-field-id-' + fieldName"
                                                                             v-model="currentThemeConfig[fieldName].value"
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
@@ -360,8 +359,7 @@
 
                                                                     <template v-else-if="themeConfig[fieldName].editable !== false">
                                                                         <sw-inherit-wrapper
-                                                                                :helpText="field.helpText && (field.type === 'switch' || field.type === 'checkbox') ? field.helpText : null"
-                                                                                :class="['sw-field-id-' + fieldName, 'sw-inherit-wrapper-' + field.type]"
+                                                                                :class="'sw-field-id-' + fieldName"
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"

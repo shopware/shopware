@@ -1,6 +1,6 @@
 ---
 title: Fix info text on SQL to Redis migration
-issue: -
+issue: NEXT-22156
 author: Micha Hobert
 author_email: info@the-cake-shop.de
 author_github: Isengo1989

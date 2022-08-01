@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class TaskScheduler
@@ -29,15 +30,19 @@ class TaskScheduler
      */
     private $bus;
 
+    private ParameterBagInterface $parameterBag;
+
     /**
      * @internal
      */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
+        ParameterBagInterface $parameterBag
     ) {
         $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->bus = $bus;
+        $this->parameterBag = $parameterBag;
     }
 
     public function queueScheduledTasks(): void
@@ -127,6 +132,10 @@ class TaskScheduler
                 'Tried to schedule "%s", but class does not extend ScheduledTask',
                 $taskClass
             ));
+        }
+
+        if (!$taskClass::shouldRun($this->parameterBag)) {
+            return;
         }
 
         $task = new $taskClass();

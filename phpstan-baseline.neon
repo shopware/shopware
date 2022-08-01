@@ -36681,16 +36681,6 @@ parameters:
 			path: src/Core/Framework/Test/ScheduledTask/ScheduledTaskHandlerTest.php
 
 		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Messenger\\\\MessageBusInterface\\:\\:expects\\(\\)\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/ScheduledTask/Scheduler/TaskSchedulerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\Scheduler\\\\TaskSchedulerTest\\:\\:nonScheduledStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ScheduledTask/Scheduler/TaskSchedulerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\fixtures\\\\DummyScheduledTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/ScheduledTask/fixtures/DummyScheduledTaskHandler.php

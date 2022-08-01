@@ -85,7 +85,7 @@ class PreparedPaymentService
                 return;
             }
 
-            $paymentHandler = $this->getPaymentHandlerFromTransaction($transaction);
+            $paymentHandler = $this->getPaymentHandlerFromTransaction($transaction, $salesChannelContext);
 
             if (!($paymentHandler instanceof PreparedPaymentHandlerInterface)
                 || $preOrderStruct === null) {
@@ -115,12 +115,20 @@ class PreparedPaymentService
         return $transactions->last();
     }
 
-    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction): PaymentHandlerInterface
+    private function getPaymentHandlerFromTransaction(OrderTransactionEntity $transaction, SalesChannelContext $salesChannelContext): PaymentHandlerInterface
     {
         $paymentMethod = $transaction->getPaymentMethod();
         if ($paymentMethod === null) {
             throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
         }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('prepared-payment-handler');
+        $criteria->addAssociation('app');
+        $criteria->addFilter(new EqualsFilter('paymentMethodId', $paymentMethod->getId()));
+
+        $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         if (!$paymentHandler) {

@@ -49,14 +49,20 @@
         line-height: 22px;
     }
 
+    .sw-help-center__item p {
+        margin-bottom: 8px;
+    }
+
+    .sw-help-center__item p + .sw-button {
+        margin-top: 4px;
+    }
+
     .sw-help-center__item h4 {
-        margin: 0;
+        margin-bottom: 4px;
         font-weight: $font-weight-bold;
-        background-color: $color-gray-50;
     }
 
     .sw-help-center__documentation-item h4 {
-        margin: 0;
-        font-weight: $font-weight-bold;
+        margin-bottom: 0;
     }
 }

@@ -1,11 +1,12 @@
 {% block sw_help_center %}
 <sw-context-button
     class="sw-help-center"
+    menu-horizontal-align="left"
     :menu-width="360"
     :auto-close="false"
     :additional-context-menu-classes="{'sw-help-center__context-menu': true}"
-    menu-horizontal-align="left"
     :auto-close-outside-click="true"
+    :z-index="1000"
 >
     <template #button>
         {% block sw_help_center_context_button_button_slot %}

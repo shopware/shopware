@@ -160,8 +160,12 @@ class CustomerCustomFieldRule extends Rule
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
-        if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+        $isSwitchOrBoolField = \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+        if ($isSwitchOrBoolField && (is_bool($renderedFieldValue) || is_null($renderedFieldValue))) {
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
+        }
+        if ($isSwitchOrBoolField && is_string($renderedFieldValue)) {
+            return mb_strtolower($renderedFieldValue) === 'true';
         }
 
         return $renderedFieldValue;

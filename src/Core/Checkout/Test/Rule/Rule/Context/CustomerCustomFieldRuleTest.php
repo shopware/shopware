@@ -73,6 +73,42 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($this->scope));
     }
 
+    public function testBooleanCustomFieldTrue(): void
+    {
+        $this->setupRule(true, 'bool');
+        $this->setCustomerCustomFields([
+            self::CUSTOM_FIELD_NAME => true,
+        ]);
+        static::assertTrue($this->rule->match($this->scope));
+    }
+
+    public function testBooleanCustomFieldTrueWhenIsRuleIsSetupAsString(): void
+    {
+        $this->setupRule('true', 'bool');
+        $this->setCustomerCustomFields([
+            self::CUSTOM_FIELD_NAME => true,
+        ]);
+        static::assertTrue($this->rule->match($this->scope));
+    }
+
+    public function testBooleanCustomFieldFalseWhenIsRuleIsSetupAsString(): void
+    {
+        $this->setupRule('false', 'bool');
+        $this->setCustomerCustomFields([
+            self::CUSTOM_FIELD_NAME => false,
+        ]);
+        static::assertTrue($this->rule->match($this->scope));
+    }
+
+    public function testBooleanCustomFieldInvalidAsString(): void
+    {
+        $this->setupRule('true', 'bool');
+        $this->setCustomerCustomFields([
+            self::CUSTOM_FIELD_NAME => false
+        ]);
+        static::assertFalse($this->rule->match($this->scope));
+    }
+
     public function testBooleanCustomFieldNull(): void
     {
         $this->setupRule(null, 'bool');

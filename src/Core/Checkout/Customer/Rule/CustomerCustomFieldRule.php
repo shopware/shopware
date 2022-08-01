@@ -138,7 +138,7 @@ class CustomerCustomFieldRule extends Rule
      */
     private function getValue(array $customFields, array $renderedField)
     {
-        if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+        if ($this->isSwitchOrBoolField($renderedField)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
                 return $customFields[$renderedField['name']];
             }
@@ -160,10 +160,21 @@ class CustomerCustomFieldRule extends Rule
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
-        if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+        if ($this->isSwitchOrBoolField($renderedField) && is_string($renderedFieldValue)) {
+            return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($this->isSwitchOrBoolField($renderedField)) {
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
         }
 
         return $renderedFieldValue;
+    }
+
+    /**
+     * @param array<string, string> $renderedField
+     */
+    private function isSwitchOrBoolField(array $renderedField): bool
+    {
+        return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
     }
 }

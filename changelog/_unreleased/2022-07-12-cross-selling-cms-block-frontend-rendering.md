@@ -1,10 +1,9 @@
+---
 title: CMS-Cross-Selling Block Frontend Rendering
-issue: Cross-Selling block is not being rendered in the frontend if you change the element within the block
-flag:
+issue: NEXT-22699
 author: Joschi Mehta
 author_email: ninja@ig-academy.com
 author_github: NinjaArmy
 ---
-___
 # Storefront
-*  Elements are now being displayed in the frontend if you change the element within the cross-selling block
+*  Changed `Resources/views/storefront/block/cms-block-cross-selling.html.twig` and removed/adjusted check for `cross-selling` cms element.

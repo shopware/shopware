@@ -16,6 +16,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  * @covers \Shopware\Core\Migration\V6_3\Migration1595422169AddProductSorting
+ *
+ * @phpstan-type Sorting array{url_key: string, fields:string, priority: string, label: string}
  */
 class Migration1595422169ProductSortingTest extends TestCase
 {
@@ -134,6 +136,9 @@ class Migration1595422169ProductSortingTest extends TestCase
         $connection->beginTransaction();
     }
 
+    /**
+     * @return Sorting[]
+     */
     private function migrationCases(): array
     {
         return [
@@ -146,7 +151,7 @@ class Migration1595422169ProductSortingTest extends TestCase
                         'priority' => 0,
                         'naturalSorting' => 0,
                     ],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'priority' => '1',
                 'label' => 'A-Z',
             ],
@@ -165,13 +170,16 @@ class Migration1595422169ProductSortingTest extends TestCase
                         'priority' => 0,
                         'naturalSorting' => 0,
                     ],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'priority' => '0',
                 'label' => 'Custom Sort',
             ],
         ];
     }
 
+    /**
+     * @param Sorting[] $sortings
+     */
     private function insert(array $sortings): void
     {
         foreach ($sortings as $sorting) {
@@ -196,9 +204,13 @@ class Migration1595422169ProductSortingTest extends TestCase
         }
     }
 
+    /**
+     * @return Sorting[]
+     */
     private function fetchSortings(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var Sorting[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT `product_sorting`.url_key,
                    `product_sorting`.fields,
                    `product_sorting`.priority,
@@ -208,6 +220,8 @@ class Migration1595422169ProductSortingTest extends TestCase
                 ON `product_sorting`.id = `product_sorting_translation`.product_sorting_id
             ORDER BY `product_sorting`.priority DESC;
         ');
+
+        return $result;
     }
 
     private function fetchSystemConfig(): string

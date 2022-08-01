@@ -83,7 +83,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     }
 
     /**
-     * @return array|false
+     * @return array<string, mixed>|false
      */
     private function getColumnInfo(string $table, string $column)
     {
@@ -104,7 +104,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     }
 
     /**
-     * @return array|false
+     * @return array<string, mixed>|false
      */
     private function getTriggerInfo(string $triggerName)
     {

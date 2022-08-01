@@ -62,6 +62,9 @@ class Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest extends Test
         }
     }
 
+    /**
+     * @return string[][]
+     */
     public function providerTestMailTemplateMigration(): array
     {
         return [

@@ -21,6 +21,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
  * @internal
  * @group slow
  * @covers \Shopware\Core\Migration\V6_3\Migration1590758953ProductFeatureSet
+ *
+ * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}
  */
 class Migration1590758953ProductFeatureSetTest extends TestCase
 {
@@ -65,6 +67,8 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     /**
      * @dataProvider tableInformationProvider
+     *
+     * @param DbColumn[] $expectedColumns
      */
     public function testTablesAreComplete(string $table, array $expectedColumns): void
     {
@@ -140,6 +144,9 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         static::assertEquals($expectedTranslations, $actual);
     }
 
+    /**
+     * @return array{0: string, 1: DbColumn[]}[]
+     */
     public function tableInformationProvider(): array
     {
         return [
@@ -166,12 +173,15 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         ];
     }
 
+    /**
+     * @return DbColumn
+     */
     private static function getColumn(string $name, Type $type, ?bool $notNull = false): array
     {
         return [
             'name' => $name,
             'type' => $type,
-            'notnull' => $notNull,
+            'notnull' => (bool) $notNull,
         ];
     }
 
@@ -188,6 +198,9 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
             ->hasNativeJsonType() ? new JsonType() : new TextType();
     }
 
+    /**
+     * @return DbColumn[]
+     */
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection
@@ -204,6 +217,9 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         }, $columns);
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     private function fetchDefaultFeatureSet(): array
     {
         return (array) $this->connection->fetchAssociative(
@@ -211,6 +227,9 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, mixed>[]
+     */
     private function fetchFeatureSetTranslation(): array
     {
         return $this->connection->fetchAllAssociative(

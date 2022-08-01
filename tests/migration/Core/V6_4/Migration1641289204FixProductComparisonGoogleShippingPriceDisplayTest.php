@@ -34,6 +34,8 @@ class Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest exte
     }
 
     /**
+     * @param array{old_template: string, expectedTemplate: string} $testData
+     *
      * @dataProvider dataProvider
      */
     public function testMigration(array $testData): void
@@ -65,10 +67,13 @@ class Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest exte
         static::assertSame($this->newTemplate, $entryAfterRun1['body']);
     }
 
+    /**
+     * @return array{old_template: string, expectedTemplate: string}[][]
+     */
     public function dataProvider(): array
     {
-        $old_template = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_old.xml.twig');
-        $new_template = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_new.xml.twig');
+        $old_template = (string) file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_old.xml.twig');
+        $new_template = (string) file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_new.xml.twig');
 
         return [
             [['old_template' => 'testData', 'expectedTemplate' => 'testData']],
@@ -76,6 +81,9 @@ class Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest exte
         ];
     }
 
+    /**
+     * @return array{body: string, updatedAt: string|null}
+     */
     private function getCurrentBodyAndUpdateTimestamp(string $id): array
     {
         $SQL = <<<'SQL'
@@ -84,7 +92,10 @@ class Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest exte
             WHERE id = ?
         SQL;
 
-        return (array) $this->connection->fetchAssociative($SQL, [$id]);
+        /** @var array{body: string, updatedAt: string|null} $result */
+        $result = $this->connection->fetchAssociative($SQL, [$id]);
+
+        return $result;
     }
 
     private function prepareOldDatabaseEntry(string $body): string

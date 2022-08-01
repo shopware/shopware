@@ -31,7 +31,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
 
         $listInvoiceData = $this->getListInvoiceData();
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'] ?? '[]', true);
+            $invoiceConfig = json_decode($invoiceData['config'], true);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
@@ -41,7 +41,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );
-            static::assertFalse(isset($invoiceData['deliveryCountries']));
+            static::assertFalse(isset($invoiceConfig['deliveryCountries']));
         }
         $migration = new Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel();
         $migration->update($this->connection);
@@ -72,7 +72,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         $listInvoiceData = $this->getListInvoiceData();
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'] ?? '[]', true);
+            $invoiceConfig = json_decode($invoiceData['config'], true);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
@@ -85,14 +85,20 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         }
     }
 
+    /**
+     * @return array{id: string, config: string}[]
+     */
     private function getListInvoiceData(): array
     {
-        return $this->connection->fetchAllAssociative(
+        /** @var array{id: string, config: string}[] $result */
+        $result = $this->connection->fetchAllAssociative(
             'SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
             LEFT JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
             WHERE `document_type`.`technical_name` = :documentName',
             ['documentName' => InvoiceGenerator::INVOICE]
         );
+
+        return $result;
     }
 
     private function createDocumentBaseConfigDataTest(): void

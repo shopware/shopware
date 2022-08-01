@@ -300,7 +300,7 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
             ['code' => 'de-LU']
         );
 
-        /** @var array $deLuLanguage */
+        /** @var array<string, mixed> $deLuLanguage */
         $deLuLanguage = $this->connection->fetchAssociative(
             'SELECT * FROM `language` WHERE `name` = :name',
             ['name' => self::GERMAN_LANGUAGE_NAME]
@@ -437,20 +437,34 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
         static::assertEquals($deStopwords, json_decode($fields));
     }
 
+    /**
+     * @return array{array_key: string, language_id: string, name: string}[]
+     */
     private function fetchLanguageIds(): array
     {
-        return $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as array_key, id as language_id, name FROM language ORDER BY name');
+        /** @var array{array_key: string, language_id: string, name: string}[] $result */
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) as array_key, id as language_id, name FROM language ORDER BY name'
+        );
+
+        return $result;
     }
 
+    /**
+     * @return array{array_key: string, language_id: string, name: string}[]
+     */
     private function fetchProductSearchConfigs(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{array_key: string, language_id: string, name: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT LOWER(HEX(product_search_config.language_id)) as array_key, product_search_config.language_id as language_id, language.name as name
             FROM product_search_config
             INNER JOIN language
                 ON language.id = product_search_config.language_id
             ORDER BY language.name
         ');
+
+        return $result;
     }
 
     private function runMigration(): void
@@ -459,25 +473,37 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
         $migration->update($this->connection);
     }
 
+    /**
+     * @return array{and_logic: string, min_search_length: string, field: string}[]
+     */
     private function fetchConfigFields(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{and_logic: string, min_search_length: string, field: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT config.and_logic, config.min_search_length, config_field.field
             FROM product_search_config as config
             INNER JOIN product_search_config_field as config_field
                 ON config.id = config_field.product_search_config_id
             ORDER BY config_field.field ASC
         ');
+
+        return $result;
     }
 
+    /**
+     * @return array{array_key: string, excluded_terms: string}[]
+     */
     private function fetchExcludedTerms(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{array_key: string, excluded_terms: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT LOWER(language.name) as array_key, config.excluded_terms as terms
             FROM product_search_config as config
             INNER JOIN language
                 ON language.id = config.language_id
         ');
+
+        return $result;
     }
 
     private function getLocaleId(string $code): string

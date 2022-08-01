@@ -45,7 +45,7 @@ class Migration1626241110PromotionPreventCombinationTest extends TestCase
 
         $migration->update($this->connection);
 
-        /** @var array $promotion */
+        /** @var array<string, mixed> $promotion */
         $promotion = $this->connection->fetchAssociative('SELECT * FROM `promotion` WHERE `code` = \'phpUnit\';');
         static::assertArrayHasKey('prevent_combination', $promotion);
         static::assertFalse((bool) $promotion['prevent_combination']);

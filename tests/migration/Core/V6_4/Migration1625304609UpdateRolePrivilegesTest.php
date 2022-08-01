@@ -112,11 +112,19 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         ]);
     }
 
+    /**
+     * @return string[]
+     */
     private function getAllApps(Connection $connection): array
     {
         return $connection->executeQuery('SELECT name FROM `app`')->fetchFirstColumn();
     }
 
+    /**
+     * @param string[] $appNames
+     *
+     * @return string[]
+     */
     private function getAppPrivileges(array $appNames): array
     {
         $privileges = [

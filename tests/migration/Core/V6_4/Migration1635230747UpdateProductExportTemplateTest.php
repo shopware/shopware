@@ -27,6 +27,8 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
     }
 
     /**
+     * @param array{old_template: string, expectedTemplate: string} $testData
+     *
      * @dataProvider dataProvider
      */
     public function testMigrationOverridesTemplatesWithLeadingSpaces(array $testData): void
@@ -44,8 +46,12 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
         }
     }
 
+    /**
+     * @return array{old_template: string, expectedTemplate: string}[][]
+     */
     public function dataProvider(): array
     {
+        /** @var array<string, string> $templates */
         $templates = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/templates.php';
 
         return [
@@ -59,6 +65,9 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
         ];
     }
 
+    /**
+     * @return array{body: string, updatedAt: string|null}
+     */
     private function getCurrentBodyAndUpdateTimestamp(string $id): array
     {
         $getProductExportSQL = '
@@ -67,7 +76,10 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
             WHERE id = ?
         ';
 
-        return (array) $this->connection->fetchAssociative($getProductExportSQL, [$id]);
+        /** @var array{body: string, updatedAt: string|null} $result */
+        $result = $this->connection->fetchAssociative($getProductExportSQL, [$id]);
+
+        return $result;
     }
 
     private function prepareOldDatabaseEntry(string $body): string

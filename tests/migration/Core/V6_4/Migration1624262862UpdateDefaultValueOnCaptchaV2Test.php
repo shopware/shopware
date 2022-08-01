@@ -23,6 +23,9 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
      */
     private const CAPTCHA_NAME = 'basicCaptcha';
 
+    /**
+     * @var array<string, array{name: string, isActive: bool, config?: array<string, mixed>}>
+     */
     private array $captchaItems = [
         'honeypot' => [
             'name' => 'Honeypot',

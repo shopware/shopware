@@ -19,8 +19,14 @@ class Migration1631703921MigrateLineItemsInCartRuleTest extends TestCase
 
     private Migration1631703921MigrateLineItemsInCartRule $migration;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $testRule;
 
+    /**
+     * @var array<string, mixed>
+     */
     private array $testCondition;
 
     public function setUp(): void
@@ -62,11 +68,17 @@ class Migration1631703921MigrateLineItemsInCartRuleTest extends TestCase
         $this->removeTestConditions();
     }
 
+    /**
+     * @return array<string, mixed>[]
+     */
     private function getLineItemsInCartRuleConditions(): array
     {
         return $this->connection->fetchAllAssociative('SELECT * FROM rule_condition WHERE type="cartLineItemsInCart"');
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     private function getTestRule(): array
     {
         return (array) $this->connection->fetchAssociative('SELECT * FROM rule WHERE id = :id', [

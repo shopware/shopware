@@ -30,10 +30,8 @@ class Migration1626442868Test extends TestCase
 
     private Connection $connection;
 
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    public function setUp(): void
     {
-        parent::__construct($name, $data, $dataName);
-
         $this->connection = KernelLifecycleManager::getConnection();
 
         $this->oldDescriptionStorefront = $this->getDescription(self::SALES_CHANNEL_STOREFRONT);

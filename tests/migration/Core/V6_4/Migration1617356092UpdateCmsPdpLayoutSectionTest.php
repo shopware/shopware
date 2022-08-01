@@ -28,10 +28,7 @@ class Migration1617356092UpdateCmsPdpLayoutSectionTest extends TestCase
     private const FK_CATEGORY_INDEX = 'fk.category.cms_page_id';
     private const FK_PRODUCT_INDEX = 'fk.product.cms_page_id';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -114,7 +111,7 @@ class Migration1617356092UpdateCmsPdpLayoutSectionTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContainsEquals(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation, true, 512, \JSON_THROW_ON_ERROR), $expectedSlotTranslations);
         }
     }
 
@@ -128,29 +125,37 @@ class Migration1617356092UpdateCmsPdpLayoutSectionTest extends TestCase
         $migrationUpdate->update($this->connection);
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchSlotConfigs(): array
     {
-        $slotIds = $this->connection->fetchAllAssociative('
+        /** @var string[] $slotIds */
+        $slotIds = $this->connection->fetchFirstColumn('
             SELECT id
             FROM cms_slot
             WHERE type = "image-gallery" OR type = "manufacturer-logo"
         ');
 
-        $slotIds = array_column($slotIds, 'id');
-
-        return $this->connection->fetchAllAssociative('
+        return $this->connection->fetchFirstColumn('
             SELECT config
             FROM cms_slot_translation
             WHERE cms_slot_id IN (:slotId)
         ', ['slotId' => $slotIds], ['slotId' => Connection::PARAM_STR_ARRAY]);
     }
 
+    /**
+     * @return array{margin_top: string, margin_bottom: string, margin_left: string, margin_right: string, type: string}[]
+     */
     private function fetchCmsBlocks(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{margin_top: string, margin_bottom: string, margin_left: string, margin_right: string, type: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT margin_top, margin_bottom, margin_left, margin_right, type
             FROM cms_block
         ');
+
+        return $result;
     }
 
     private function rollbackMigrationChanges(): void

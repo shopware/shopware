@@ -91,7 +91,7 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContainsEquals(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation, true, 512, \JSON_THROW_ON_ERROR), $expectedSlotTranslations);
         }
     }
 
@@ -103,9 +103,12 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
         $migrationUpdate->update($this->connection);
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchCmsSlotTranslation(): array
     {
-        return $this->connection->fetchAllAssociative('
+        return $this->connection->fetchFirstColumn('
             SELECT config
             FROM cms_slot_translation
             ORDER BY created_at

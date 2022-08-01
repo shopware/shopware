@@ -21,14 +21,14 @@ class Migration1605861407RuleAssociationsToRestrictTest extends TestCase
         $migration = new Migration1605861407RuleAssociationsToRestrict();
         $migration->update($conn);
 
-        /** @var array $foreignKeyInfoUpdated */
+        /** @var array<string, mixed> $foreignKeyInfoUpdated */
         $foreignKeyInfoUpdated = $conn->fetchAssociative('SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = "product_price" AND REFERENCED_TABLE_NAME = "rule" AND CONSTRAINT_SCHEMA = "' . $database . '";');
 
         static::assertNotEmpty($foreignKeyInfoUpdated);
         static::assertEquals($foreignKeyInfoUpdated['CONSTRAINT_NAME'], 'fk.product_price.rule_id');
         static::assertEquals($foreignKeyInfoUpdated['DELETE_RULE'], 'RESTRICT');
 
-        /** @var array $foreignKeyInfoUpdated */
+        /** @var array<string, mixed>[] $foreignKeyInfoUpdated */
         $foreignKeyInfoUpdated = $conn->fetchAllAssociative('SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = "shipping_method_price" AND REFERENCED_TABLE_NAME = "rule" AND CONSTRAINT_SCHEMA = "' . $database . '" ORDER BY CONSTRAINT_NAME;');
 
         static::assertNotEmpty($foreignKeyInfoUpdated);
@@ -39,7 +39,7 @@ class Migration1605861407RuleAssociationsToRestrictTest extends TestCase
         static::assertEquals($foreignKeyInfoUpdated[0]['CONSTRAINT_NAME'], 'fk.shipping_method_price.calculation_rule_id');
         static::assertEquals($foreignKeyInfoUpdated[0]['DELETE_RULE'], 'RESTRICT');
 
-        /** @var array $foreignKeyInfoUpdated */
+        /** @var array<string, mixed> $foreignKeyInfoUpdated */
         $foreignKeyInfoUpdated = $conn->fetchAssociative('SELECT * FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = "payment_method" AND REFERENCED_TABLE_NAME = "rule" AND CONSTRAINT_SCHEMA = "' . $database . '";');
 
         static::assertNotEmpty($foreignKeyInfoUpdated);

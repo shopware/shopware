@@ -53,7 +53,7 @@ class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
 
         $connection->insert('log_entry', $payload);
 
-        /** @var array $logEntry */
+        /** @var array{message: string} $logEntry */
         $logEntry = $connection->fetchAssociative(
             'SELECT `message` FROM `log_entry` WHERE `id` = :id',
             ['id' => $logEntryId],
@@ -86,7 +86,7 @@ class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
 
     private function checkLogEntryMessageColumnType(Connection $connection): void
     {
-        /** @var array $messageColumn */
+        /** @var array{DATA_TYPE: string} $messageColumn */
         $messageColumn = $connection->fetchAssociative('
             SELECT DATA_TYPE
             FROM INFORMATION_SCHEMA.COLUMNS

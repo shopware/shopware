@@ -147,8 +147,12 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         );
     }
 
+    /**
+     * @return string[]
+     */
     private function getMailTemplateTypeIds(): array
     {
+        /** @var string[] $result */
         $result = $this->connection->createQueryBuilder()
             ->select('id')
             ->from('mail_template_type')
@@ -158,11 +162,14 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             ->setParameter('cancellation', MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE)
             ->setParameter('deliveryNote', MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE)
             ->execute()
-            ->fetchAllAssociativeIndexed();
+            ->fetchFirstColumn();
 
-        return \array_keys($result);
+        return $result;
     }
 
+    /**
+     * @param string[] $associatedIds
+     */
     private function deleteRowsByReferencedId(array $associatedIds, string $table, string $associationField): void
     {
         $query = $this->connection->createQueryBuilder()->delete($table);
@@ -176,6 +183,11 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         $query->execute();
     }
 
+    /**
+     * @param string[] $typeIds
+     *
+     * @return string[]
+     */
     private function getTemplateIds(array $typeIds): array
     {
         $query = $this->connection->createQueryBuilder()->select('id')->from('mail_template');
@@ -186,7 +198,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
                 ->setParameter($parameter, $typeId, ParameterType::BINARY);
         }
 
-        return \array_keys($query->execute()->fetchAllAssociativeIndexed());
+        return $query->execute()->fetchFirstColumn();
     }
 
     private function changeDefaultLanguageToDutch(): void

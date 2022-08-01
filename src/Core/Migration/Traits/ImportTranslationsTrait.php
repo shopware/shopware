@@ -56,9 +56,12 @@ trait ImportTranslationsTrait
         return new TranslationWriteResult($englishIds, $germanIds);
     }
 
+    /**
+     * @return string[]
+     */
     protected function getLanguageIds(Connection $connection, string $locale): array
     {
-        $ids = $connection->fetchAllAssociative('
+        $ids = $connection->fetchFirstColumn('
             SELECT LOWER(HEX(`language`.id)) as id
             FROM `language`
             INNER JOIN locale
@@ -66,6 +69,6 @@ trait ImportTranslationsTrait
                 AND locale.code = :locale
         ', ['locale' => $locale]);
 
-        return array_unique(array_filter(array_column($ids, 'id')));
+        return array_unique(array_filter($ids));
     }
 }

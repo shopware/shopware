@@ -21,8 +21,7 @@ class Migration1602494495SetUsersAsAdminsTest extends TestCase
         $migration = new Migration1602494495SetUsersAsAdmins();
         $migration->update($conn);
 
-        /** @var array $adminUsers */
-        $adminUsers = $conn->fetchAssociative('SELECT * FROM `user`');
-        static::assertTrue(\count($adminUsers) >= 1, 'Minimum one user admin user should be registered, non found');
+        $adminUsers = (int) $conn->fetchOne('SELECT COUNT(*) FROM `user`');
+        static::assertTrue($adminUsers >= 1, 'Minimum one user admin user should be registered, non found');
     }
 }

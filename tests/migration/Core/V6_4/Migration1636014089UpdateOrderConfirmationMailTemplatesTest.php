@@ -118,8 +118,12 @@ class Migration1636014089UpdateOrderConfirmationMailTemplatesTest extends TestCa
         );
     }
 
+    /**
+     * @return array{content_plain: string, content_html: string}[]
+     */
     private function fetchMailData(string $languageId): array
     {
+        /** @var array{content_plain: string, content_html: string}[] $mailData */
         $mailData = $this->connection->fetchAllAssociative(
             'SELECT `content_plain`, `content_html` FROM `mail_template_translation` WHERE `mail_template_id` = :templateId AND `language_id` = :languageId AND `updated_at` IS NULL',
             [

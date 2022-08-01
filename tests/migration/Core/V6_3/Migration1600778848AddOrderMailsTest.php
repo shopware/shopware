@@ -14,6 +14,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  * @covers \Shopware\Core\Migration\V6_3\Migration1600778848AddOrderMails
+ *
+ * @phpstan-type Mail array{id-key: string, type: string, language: string, content: string, system_default: int, updated_at: ?\DateTimeInterface, translations: array<string, array<string, mixed>>}
  */
 class Migration1600778848AddOrderMailsTest extends TestCase
 {
@@ -23,6 +25,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
     /**
      * @dataProvider providerEnglish
+     *
+     * @param Mail $initial
+     * @param array<string, string> $expected
      */
     public function testEnglishAsDefault(array $initial, array $expected, IdsCollection $ids): void
     {
@@ -49,6 +54,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
     /**
      * @dataProvider providerGerman
+     *
+     * @param Mail $initial
+     * @param array<string, string> $expected
      */
     public function testGermanAsDefault(array $initial, array $expected, IdsCollection $ids): void
     {
@@ -81,6 +89,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
     /**
      * @dataProvider providerEnglish
+     *
+     * @param Mail $initial
+     * @param array<string, string> $expected
      */
     public function testFranceAsDefault(array $initial, array $expected, IdsCollection $ids): void
     {
@@ -113,6 +124,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
     /**
      * @dataProvider providerOnlyFrance
+     *
+     * @param Mail $initial
+     * @param array<string, string> $expected
      */
     public function testOnlyFrance(array $initial, array $expected, IdsCollection $ids): void
     {
@@ -386,6 +400,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
         }
     }
 
+    /**
+     * @param Mail $mail
+     */
     private function createMail(array $mail, IdsCollection $ids): void
     {
         $id = $ids->create($mail['id-key']);
@@ -474,6 +491,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ->fetchOne('SELECT id FROM locale WHERE code = :code', ['code' => $code]);
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     private function getMails(): array
     {
         $mails = KernelLifecycleManager::getConnection()
@@ -495,6 +515,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
         return FetchModeHelper::groupUnique($mails);
     }
 
+    /**
+     * @return Mail
+     */
     private function createOrderMail(IdsCollection $ids): array
     {
         return [
@@ -512,6 +535,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
         ];
     }
 
+    /**
+     * @return Mail
+     */
     private function createPaymentConfirmed(IdsCollection $ids): array
     {
         return [
@@ -529,6 +555,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
         ];
     }
 
+    /**
+     * @return Mail
+     */
     private function createPaymentCancelled(IdsCollection $ids): array
     {
         return [

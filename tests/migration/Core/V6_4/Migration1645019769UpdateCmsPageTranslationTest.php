@@ -29,17 +29,17 @@ class Migration1645019769UpdateCmsPageTranslationTest extends TestCase
         $migration = new Migration1645019769UpdateCmsPageTranslation();
         $migration->update($this->connection);
 
-        $cmsPageTranslations = $this->fetchLockedCmsPageTranslationsByName('Default listing layout');
-        static::assertCount(1, $cmsPageTranslations);
+        $cmsPageTranslations = $this->fetchLockedCmsPageTranslationsCountByName('Default listing layout');
+        static::assertSame(1, $cmsPageTranslations);
 
-        $cmsPageTranslations = $this->fetchLockedCmsPageTranslationsByName('Default listing layout with sidebar');
-        static::assertCount(1, $cmsPageTranslations);
+        $cmsPageTranslations = $this->fetchLockedCmsPageTranslationsCountByName('Default listing layout with sidebar');
+        static::assertSame(1, $cmsPageTranslations);
     }
 
-    private function fetchLockedCmsPageTranslationsByName(string $cmsPageTranslationName): array
+    private function fetchLockedCmsPageTranslationsCountByName(string $cmsPageTranslationName): int
     {
-        return $this->connection->fetchAll(
-            'SELECT `cms_page_id`, `cms_page_version_id`, `language_id`
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(`cms_page_id`)
             FROM `cms_page_translation` INNER JOIN `cms_page` ON `cms_page_translation`.`cms_page_id` = `cms_page`.`id`
             WHERE `name` = :cmsPageTranslationName AND `locked` = 1 AND `cms_page_translation`.`updated_at` IS NULL',
             [

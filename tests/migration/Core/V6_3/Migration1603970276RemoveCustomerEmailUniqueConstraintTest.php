@@ -20,7 +20,7 @@ class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCas
         $migration = new Migration1603970276RemoveCustomerEmailUniqueConstraint();
         $migration->update($conn);
 
-        /** @var array $indexes */
+        /** @var array<string, mixed>[] $indexes */
         $indexes = $conn->fetchAllAssociative('SHOW INDEX FROM `customer`;');
 
         $emailUniqueConstraint = array_filter($indexes, function (array $index) {

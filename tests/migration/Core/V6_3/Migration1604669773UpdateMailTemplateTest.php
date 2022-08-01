@@ -138,6 +138,9 @@ EOF;
         static::assertSame($oldMails, $newMails);
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     private function getMails(): array
     {
         $sql = <<<'EOF'

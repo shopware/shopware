@@ -48,6 +48,9 @@ class Migration1643724178ChangePromotionCodesProfileTest extends TestCase
         ], $mapping);
     }
 
+    /**
+     * @return array<array<string, string|int>>
+     */
     private function getPromotionCodesProfileMapping(): array
     {
         return json_decode($this->connection->fetchOne('SELECT `mapping` FROM `import_export_profile` WHERE `source_entity` = "promotion_individual_code"'), true, 512, \JSON_THROW_ON_ERROR);

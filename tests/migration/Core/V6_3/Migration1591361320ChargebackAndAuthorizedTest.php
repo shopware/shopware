@@ -71,9 +71,13 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
         $this->connection->executeStatement("DELETE FROM state_machine_state WHERE technical_name = 'authorized'");
     }
 
+    /**
+     * @return array{action_name: string, from_state_name: string, to_state_name: string}[]
+     */
     private function fetchTransitions(): array
     {
-        return $this->connection->fetchAllAssociative("
+        /** @var array{action_name: string, from_state_name: string, to_state_name: string}[] $result */
+        $result = $this->connection->fetchAllAssociative("
 SELECT trans.action_name, from_state.technical_name as from_state, to_state.technical_name as to_state
 FROM state_machine_transition trans
 	INNER JOIN state_machine_state from_state
@@ -89,6 +93,8 @@ AND (
 ORDER BY trans.action_name, from_state.technical_name, to_state.technical_name
 ;
         ");
+
+        return $result;
     }
 
     /**

@@ -15,6 +15,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  * @covers \Shopware\Core\Migration\V6_3\Migration1592978289ProductCustomFieldSets
+ *
+ * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}
  */
 class Migration1592978289ProductCustomFieldSetsTest extends TestCase
 {
@@ -61,6 +63,8 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
 
     /**
      * @dataProvider tableInformationProvider
+     *
+     * @param DbColumn[] $expectedColumns
      */
     public function testTablesAreComplete(string $table, array $expectedColumns): void
     {
@@ -72,6 +76,9 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
         static::assertEquals($expectedColumns, $actualColumns);
     }
 
+    /**
+     * @return array{0: string, 1: DbColumn[]}[]
+     */
     public function tableInformationProvider(): array
     {
         return [
@@ -86,15 +93,21 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
         ];
     }
 
+    /**
+     * @return DbColumn
+     */
     private static function getColumn(string $name, Type $type, ?bool $notNull = false): array
     {
         return [
             'name' => $name,
             'type' => $type,
-            'notnull' => $notNull,
+            'notnull' => (bool) $notNull,
         ];
     }
 
+    /**
+     * @return DbColumn[]
+     */
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection

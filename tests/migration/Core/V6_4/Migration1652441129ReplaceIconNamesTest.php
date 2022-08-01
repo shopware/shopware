@@ -74,6 +74,9 @@ class Migration1652441129ReplaceIconNamesTest extends TestCase
         }
     }
 
+    /**
+     * @return string[][]
+     */
     private function getAfterMigrationExpectation(): array
     {
         return [

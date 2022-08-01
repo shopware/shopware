@@ -73,12 +73,8 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         static::assertContainsEquals($expectedPage, $page);
 
         $expectedPageTranslation = [
-            [
-                'name' => 'Standard Produktseite-Layout',
-            ],
-            [
-                'name' => 'Default product page Layout',
-            ],
+            'Standard Produktseite-Layout',
+            'Default product page Layout',
         ];
         foreach ($pageTranslations as $pageTranslation) {
             static::assertContainsEquals($pageTranslation, $expectedPageTranslation);
@@ -224,7 +220,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContainsEquals(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation, true), $expectedSlotTranslations);
         }
     }
 
@@ -234,54 +230,84 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         $migration->update($this->connection);
     }
 
+    /**
+     * @return array{type: string, locked: string}[]
+     */
     private function fetchCmsPage(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{type: string, locked: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT type, locked
             FROM cms_page
             ORDER BY created_at
         ');
+
+        return $result;
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchCmsPageTranslation(): array
     {
-        return $this->connection->fetchAllAssociative('
+        return $this->connection->fetchFirstColumn('
             SELECT name
             FROM cms_page_translation
             ORDER BY created_at
         ');
     }
 
+    /**
+     * @return array{type: string, position: string}[]
+     */
     private function fetchCmsSection(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{type: string, position: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT position, type
             FROM cms_section
             ORDER BY created_at
         ');
+
+        return $result;
     }
 
+    /**
+     * @return array<string, string>[]
+     */
     private function fetchCmsBlock(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array<string, string>[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT locked, position, type, name, margin_top, margin_bottom, margin_left, margin_right, background_media_mode
             FROM cms_block
             ORDER BY created_at
         ');
+
+        return $result;
     }
 
+    /**
+     * @return array{locked: string, type: string, slot: string, version_id: string}[]
+     */
     private function fetchCmsSlot(): array
     {
-        return $this->connection->fetchAllAssociative('
+        /** @var array{locked: string, type: string, slot: string, version_id: string}[] $result */
+        $result = $this->connection->fetchAllAssociative('
             SELECT locked, type, slot, version_id
             FROM cms_slot
             ORDER BY created_at
         ');
+
+        return $result;
     }
 
+    /**
+     * @return string[]
+     */
     private function fetchCmsSlotTranslation(): array
     {
-        return $this->connection->fetchAllAssociative('
+        return $this->connection->fetchFirstColumn('
             SELECT config
             FROM cms_slot_translation
             ORDER BY created_at

@@ -51,6 +51,9 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
         }
     }
 
+    /**
+     * @return array<string, array<array<string, mixed>>>
+     */
     public function dataProvider(): array
     {
         return [
@@ -93,6 +96,10 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
     }
 
     /**
+     * @param array<string, mixed> $payload
+     * @param array<string, mixed> $customerTaxExpected
+     * @param array<string, mixed> $companyTaxExpected
+     *
      * @dataProvider dataProvider
      */
     public function testCountryCreateTrigger(
@@ -119,7 +126,7 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
 
         $this->connection->insert('country', $data);
 
-        /** @var array $country */
+        /** @var array{tax_free: string, company_tax_free: string, customer_tax: string, company_tax: string} $country */
         $country = $this->connection->fetchAssociative(
             'SELECT tax_free, company_tax_free, customer_tax, company_tax FROM country WHERE id = :id',
             ['id' => $id]
@@ -140,6 +147,10 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
     }
 
     /**
+     * @param array<string, mixed> $payload
+     * @param array<string, mixed> $customerTaxExpected
+     * @param array<string, mixed> $companyTaxExpected
+     *
      * @dataProvider dataProvider
      */
     public function testCountryUpdateTrigger(
@@ -211,7 +222,7 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
             }
         }
 
-        /** @var array $country */
+        /** @var array{tax_free: string, company_tax_free: string, customer_tax: string, company_tax: string} $country */
         $country = $this->connection->fetchAssociative(
             'SELECT tax_free, company_tax_free, customer_tax, company_tax FROM country WHERE id = :id',
             ['id' => $id]

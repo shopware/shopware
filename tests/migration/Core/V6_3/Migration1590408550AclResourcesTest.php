@@ -76,6 +76,8 @@ CREATE TABLE `acl_resource` (
 
     /**
      * @dataProvider migrationCases
+     *
+     * @param array<string, string[]> $roles
      */
     public function testMigration(array $roles): void
     {
@@ -96,6 +98,9 @@ CREATE TABLE `acl_resource` (
         static::assertEquals($roles, $actual);
     }
 
+    /**
+     * @return array<string, array<string, string[]>[]>
+     */
     public function migrationCases(): array
     {
         return [
@@ -123,6 +128,9 @@ CREATE TABLE `acl_resource` (
         ];
     }
 
+    /**
+     * @param array<string, string[]> $roles
+     */
     private function insert(array $roles): void
     {
         foreach ($roles as $name => $privileges) {
@@ -147,8 +155,12 @@ CREATE TABLE `acl_resource` (
         }
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     private function fetchRoles(): array
     {
+        /** @var array{name: string, priv: string}[] $roles */
         $roles = $this->connection->fetchAllAssociative("
             SELECT `role`.name,
             CONCAT(`resource`.`resource`, ':', `resource`.`privilege`) as priv

@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
@@ -24,11 +25,11 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
+    private EntityRepositoryInterface $eventActionRepository;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     public function setUp(): void
     {
@@ -75,7 +76,6 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
         $this->eventActionRepository->create($data, Context::createDefaultContext());
 
         $migration = new Migration1639992771MoveDataFromEventActionToFlow();
-        $migration->internal = true;
         $migration->update($this->connection);
 
         $flows = $this->connection->fetchFirstColumn('SELECT `event_name` FROM `flow`');
@@ -102,7 +102,6 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
         $this->createEventActionWithSalesChannelAndRule();
 
         $migration = new Migration1639992771MoveDataFromEventActionToFlow();
-        $migration->internal = true;
         $migration->update($this->connection);
 
         $criteria = new Criteria();
@@ -113,7 +112,8 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
-        static::assertSame(3, $flowSequences->count());
+        static::assertInstanceOf(FlowSequenceCollection::class, $flowSequences);
+        static::assertCount(3, $flowSequences);
 
         foreach ($flowSequences->getElements() as $flowSequence) {
             if ($flowSequence->getActionName() === null) {

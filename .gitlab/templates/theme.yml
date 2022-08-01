@@ -150,7 +150,7 @@ default:
 build zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.7
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     rules:
         - exists:
@@ -188,7 +188,7 @@ build zip:
 validate zip:
     stage: test
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.7
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none
@@ -328,7 +328,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.7
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none

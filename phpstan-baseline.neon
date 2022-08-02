@@ -1821,6 +1821,12 @@ parameters:
 			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:isSwitchOrBoolField\\(\\) has parameter \\$renderedField with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php
+
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerCustomFieldRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Rule/CustomerCustomFieldRule.php

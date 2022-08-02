@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet;
 
 use Shopware\Core\Framework\Plugin;
 

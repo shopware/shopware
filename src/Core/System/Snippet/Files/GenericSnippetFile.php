@@ -2,40 +2,31 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
-class GenericSnippetFile implements SnippetFileInterface
+class GenericSnippetFile extends AbstractSnippetFile
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
+
+    private string $path;
+
+    private string $iso;
+
+    private string $author;
+
+    private bool $isBase;
+
+    private string $technicalName;
 
     /**
-     * @var string
+     * @deprecated tag:v6.5.0 - parameter $technicalName will be required
      */
-    private $path;
-
-    /**
-     * @var string
-     */
-    private $iso;
-
-    /**
-     * @var string
-     */
-    private $author;
-
-    /**
-     * @var bool
-     */
-    private $isBase;
-
-    public function __construct(string $name, string $path, string $iso, string $author, bool $isBase)
+    public function __construct(string $name, string $path, string $iso, string $author, bool $isBase, ?string $technicalName = null)
     {
         $this->name = $name;
         $this->path = $path;
         $this->iso = $iso;
         $this->author = $author;
         $this->isBase = $isBase;
+        $this->technicalName = $technicalName ?? '';
     }
 
     public function getName(): string
@@ -61,5 +52,15 @@ class GenericSnippetFile implements SnippetFileInterface
     public function isBase(): bool
     {
         return $this->isBase;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(string $technicalName): void
+    {
+        $this->technicalName = $technicalName;
     }
 }

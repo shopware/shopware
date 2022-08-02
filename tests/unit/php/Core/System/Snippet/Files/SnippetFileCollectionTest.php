@@ -1,25 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Files;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
+use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal
+ * @covers \Shopware\Core\System\Snippet\Files\SnippetFileCollection
  */
 class SnippetFileCollectionTest extends TestCase
 {
-    public static function tearDownAfterClass(): void
-    {
-        foreach (glob(__DIR__ . '/../Mock/_fixtures/*.json') as $mockFile) {
-            unlink($mockFile);
-        }
-    }
-
     public function testGet(): void
     {
         $collection = $this->getCollection();
@@ -28,6 +21,8 @@ class SnippetFileCollectionTest extends TestCase
         $result_de_DE = $collection->get('storefront.de-DE');
         $result_NA = $collection->get('not.available');
 
+        static::assertNotNull($result_en_GB);
+        static::assertNotNull($result_de_DE);
         static::assertSame('en-GB', $result_en_GB->getIso());
         static::assertSame('de-DE', $result_de_DE->getIso());
         static::assertNull($result_NA);
@@ -90,33 +85,34 @@ class SnippetFileCollectionTest extends TestCase
         static::assertTrue($result_de_DE->isBase());
     }
 
-    public function testGetListSortedByIso(): void
+    public function testToArray(): void
     {
         $collection = $this->getCollection();
-        $method = ReflectionHelper::getMethod(SnippetFileCollection::class, 'getListSortedByIso');
+        $result = $collection->toArray();
 
-        $result = $method->invoke($collection);
+        static::assertCount(3, $result);
 
-        static::assertCount(2, $result);
-        static::assertArrayHasKey('de-DE', $result);
-        static::assertCount(2, $result['de-DE']);
-        static::assertArrayHasKey('en-GB', $result);
-        static::assertCount(1, $result['en-GB']);
-    }
+        $resultDe = array_filter(/**
+         * @param array<string, bool|string> $item
+         */ $result, function (array $item) {
+            return $item['iso'] === 'de-DE';
+        });
 
-    public function testHasFileForPath(): void
-    {
-        $collection = $this->getCollection();
+        $resultEn = array_filter(/**
+         * @param array<string, bool|string> $item
+         */ $result, function (array $item) {
+            return $item['iso'] === 'en-GB';
+        });
 
-        static::assertTrue($collection->hasFileForPath(__DIR__ . '/../Mock/_fixtures/storefront.de-DE.json'));
-        static::assertFalse($collection->hasFileForPath(__DIR__ . '/test.json'));
+        static::assertCount(2, $resultDe);
+        static::assertCount(1, $resultEn);
     }
 
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection();
-        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
-        $collection->add(new MockSnippetFile('storefront.de-DE_extension', 'de-DE', '{}', false));
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true, 'SwagPlugin'));
+        $collection->add(new MockSnippetFile('storefront.de-DE_extension', 'de-DE', '{}', false, 'SwagPlugin'));
         $collection->add(new MockSnippetFile('storefront.en-GB', 'en-GB', '{}', true));
 
         return $collection;

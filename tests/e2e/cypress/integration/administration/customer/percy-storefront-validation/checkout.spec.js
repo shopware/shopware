@@ -71,6 +71,8 @@ describe('Checkout: Visual tests', () => {
             cy.contains('.header-cart-total', '49.98');
             cy.get('.header-cart-total').click();
             cy.get('.offcanvas').should('be.visible');
+            cy.get('.loader').should('not.exist');
+            cy.contains('Continue shopping').should('be.visible');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot('[Checkout] Offcanvas',

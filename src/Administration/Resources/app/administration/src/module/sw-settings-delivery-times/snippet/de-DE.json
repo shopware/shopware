@@ -19,6 +19,7 @@
       "columnUnit": "Einheit",
       "columnMin": "Minimum",
       "columnMax": "Maximum",
+      "columnUnit_hour": "Stunde",
       "columnUnit_day": "Tag",
       "columnUnit_week": "Woche",
       "columnUnit_month": "Monat",

@@ -57,6 +57,13 @@ try {
 } catch (\Exception $e) {
     // if DB is not set up the phpstan-dba extension won't work
     // in that case we ignore it and skip the extension, during CI it will run at last
+    $config = new RuntimeConfiguration();
+    $config->stringifyTypes(true);
+
+    QueryReflection::setupReflector(
+        new NullReflector(),
+        $config
+    );
 }
 
 $databaseUrl = $_SERVER['DATABASE_URL'];

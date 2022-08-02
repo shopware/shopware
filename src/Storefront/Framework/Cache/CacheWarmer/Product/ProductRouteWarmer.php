@@ -35,7 +35,10 @@ class ProductRouteWarmer implements CacheRouteWarmer
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
         $query = $iterator->getQuery();
         $query
-            ->innerJoin('`product`', '`product_visibility`', 'pv',
+            ->innerJoin(
+                '`product`', 
+                '`product_visibility`', 
+                'pv',
                 'pv.sales_channel_id = :salesChannelId
                 AND pv.product_id = `product`.id
                 AND pv.product_version_id = `product`.version_id

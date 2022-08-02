@@ -19,7 +19,6 @@ Lighthouse (Administration):
         - !reference [ .rules, long-running ]
         - changes:
             - 'src/Administration/Resources/app/administration/**/*'
-            - .gitlab/stages/02-unit.yml
     script:
         - APP_ENV=prod bin/console framework:demodata
         - APP_ENV=prod bin/console dal:refresh:index

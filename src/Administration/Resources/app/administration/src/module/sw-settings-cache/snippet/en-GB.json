@@ -40,7 +40,7 @@
       }
     },
     "modal": {
-      "title": "Clear Caches",
+      "title": "Clear caches",
       "message": "Are you sure you want to clear all caches?",
       "actions": {
         "cancel": "Cancel",

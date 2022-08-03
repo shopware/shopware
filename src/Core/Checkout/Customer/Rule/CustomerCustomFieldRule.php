@@ -170,6 +170,9 @@ class CustomerCustomFieldRule extends Rule
         return $renderedFieldValue;
     }
 
+    /**
+     * @param array<string, string> $renderedField
+     */
     private function isSwitchOrBoolField(array $renderedField): bool
     {
         return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);

@@ -13,7 +13,7 @@ class AppAction
     private const VERSION_VALIDATE_REGEX = '/^[0-9]+\.[0-9]+\.[0-9]+$/';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $ids;
 
@@ -34,7 +34,7 @@ class AppAction
     private string $actionId;
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     public function __construct(
         string $targetUrl,
@@ -108,7 +108,7 @@ class AppAction
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     private function setIds(array $ids): void
     {

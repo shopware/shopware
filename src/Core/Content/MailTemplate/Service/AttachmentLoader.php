@@ -37,7 +37,7 @@ class AttachmentLoader
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     public function load(array $documentIds, Context $context): array
     {

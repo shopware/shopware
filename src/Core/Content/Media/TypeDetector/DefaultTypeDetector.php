@@ -17,7 +17,7 @@ class DefaultTypeDetector implements TypeDetectorInterface
             return $previouslyDetectedType;
         }
 
-        /** @var string[]|false $mime */
+        /** @var array<string>|false $mime */
         $mime = explode('/', $mediaFile->getMimeType());
 
         if ($mime === false) {

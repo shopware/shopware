@@ -308,7 +308,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param string[] $salesChannelIds
+     * @param array<string> $salesChannelIds
      */
     private function fetchCurrentLanguageStates(array $salesChannelIds): array
     {

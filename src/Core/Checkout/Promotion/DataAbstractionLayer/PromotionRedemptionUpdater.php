@@ -148,7 +148,7 @@ SQL;
     }
 
     /**
-     * @param string[] $promotionIds
+     * @param array<string> $promotionIds
      */
     private function getAllCustomerCounts(array $promotionIds): array
     {

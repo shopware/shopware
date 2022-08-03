@@ -31,7 +31,7 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param string[] $parentIds
+     * @param array<string> $parentIds
      */
     public function update(array $parentIds, Context $context): void
     {

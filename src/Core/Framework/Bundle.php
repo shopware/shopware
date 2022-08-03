@@ -94,7 +94,7 @@ abstract class Bundle extends SymfonyBundle
     /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function getActionEventClasses(): array
     {

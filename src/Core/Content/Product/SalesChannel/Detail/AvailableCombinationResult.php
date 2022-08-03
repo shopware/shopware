@@ -25,7 +25,7 @@ class AvailableCombinationResult extends Struct
     protected array $combinationDetails = [];
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function hasCombination(array $optionIds): bool
     {
@@ -35,7 +35,7 @@ class AvailableCombinationResult extends Struct
     /**
      * @deprecated tag:v6.5.0 - Parameter $available will be mandatory in future implementation
      *
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function addCombination(array $optionIds, bool $available = true): void
     {
@@ -74,7 +74,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function isAvailable(array $optionIds): bool
     {
@@ -82,7 +82,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     private function calculateHash(array $optionIds): string
     {

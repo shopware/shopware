@@ -41,7 +41,7 @@ class TreeUpdater
     }
 
     /**
-     * @param string[] $updateIds
+     * @param array<string> $updateIds
      */
     public function batchUpdate(array $updateIds, string $entity, Context $context): void
     {
@@ -290,7 +290,7 @@ class TreeUpdater
     }
 
     /**
-     * @param string[] $updateIds
+     * @param array<string> $updateIds
      */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
     {

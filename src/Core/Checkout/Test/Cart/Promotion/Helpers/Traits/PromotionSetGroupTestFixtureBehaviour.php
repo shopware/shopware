@@ -55,7 +55,7 @@ trait PromotionSetGroupTestFixtureBehaviour
     }
 
     /**
-     * @param string[] $lineItemIds
+     * @param array<string> $lineItemIds
      */
     private function createRule(string $name, array $lineItemIds, ContainerInterface $container): string
     {

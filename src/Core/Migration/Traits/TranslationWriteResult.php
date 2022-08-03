@@ -5,12 +5,12 @@ namespace Shopware\Core\Migration\Traits;
 class TranslationWriteResult
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $englishLanguages;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $germanLanguages;
 
@@ -21,7 +21,7 @@ class TranslationWriteResult
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getEnglishLanguages(): array
     {
@@ -29,7 +29,7 @@ class TranslationWriteResult
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getGermanLanguages(): array
     {

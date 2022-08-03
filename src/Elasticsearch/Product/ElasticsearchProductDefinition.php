@@ -580,7 +580,7 @@ SQL;
     }
 
     /**
-     * @param string[] $propertyIds
+     * @param array<string> $propertyIds
      */
     private function fetchPropertyGroups(array $propertyIds = []): array
     {

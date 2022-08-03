@@ -267,7 +267,7 @@ class ProductEntity extends Entity
     protected $variantRestrictions;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $configuratorGroupConfig;
 
@@ -472,7 +472,7 @@ class ProductEntity extends Entity
     protected $customFieldSetSelectionActive;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $customSearchKeywords;
 
@@ -925,7 +925,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $streamIds
+     * @param array<string>|null $streamIds
      */
     public function setStreamIds(?array $streamIds): void
     {
@@ -938,7 +938,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $optionIds
+     * @param array<string>|null $optionIds
      */
     public function setOptionIds(?array $optionIds): void
     {
@@ -951,7 +951,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $propertyIds
+     * @param array<string>|null $propertyIds
      */
     public function setPropertyIds(?array $propertyIds): void
     {
@@ -1144,7 +1144,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $blacklistIds
+     * @param array<string>|null $blacklistIds
      */
     public function setBlacklistIds(?array $blacklistIds): void
     {
@@ -1157,7 +1157,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $whitelistIds
+     * @param array<string>|null $whitelistIds
      */
     public function setWhitelistIds(?array $whitelistIds): void
     {
@@ -1190,7 +1190,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $tagIds
+     * @param array<string> $tagIds
      */
     public function setTagIds(array $tagIds): void
     {
@@ -1487,7 +1487,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[]|null $categoryIds
+     * @param array<string>|null $categoryIds
      */
     public function setCategoryIds(?array $categoryIds): void
     {

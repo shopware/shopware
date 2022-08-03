@@ -17,7 +17,7 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
     private EntityRepositoryInterface $salutationRepository;
 
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheSalutations = [];
 

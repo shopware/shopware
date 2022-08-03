@@ -19,7 +19,7 @@ class DownloadTest extends TestCase
     private ?int $errorMask = null;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $testFiles = [];
 

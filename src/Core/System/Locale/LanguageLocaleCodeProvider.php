@@ -32,7 +32,7 @@ class LanguageLocaleCodeProvider implements ResetInterface
     }
 
     /**
-     * @param string[] $languageIds
+     * @param array<string> $languageIds
      */
     public function getLocalesForLanguageIds(array $languageIds): array
     {

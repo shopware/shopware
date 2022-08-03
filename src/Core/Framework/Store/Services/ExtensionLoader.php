@@ -39,7 +39,7 @@ class ExtensionLoader
     private ?EntityRepositoryInterface $themeRepository;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     private ?array $installedThemeNames = null;
 
@@ -152,7 +152,7 @@ class ExtensionLoader
     }
 
     /**
-     * @param string[] $languageIds
+     * @param array<string> $languageIds
      */
     public function getLocalesCodesFromLanguageIds(array $languageIds): array
     {
@@ -199,7 +199,7 @@ class ExtensionLoader
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getInstalledThemeNames(Context $context): array
     {
@@ -295,7 +295,7 @@ class ExtensionLoader
     /**
      * @param array<string, mixed> $data
      *
-     * @return array<string, StoreCollection|string[]|null>
+     * @return array<string, StoreCollection|array<string>|null>
      */
     private function replaceCollections(array $data): array
     {

@@ -11,7 +11,7 @@ namespace Shopware\Core\Test\Annotation;
 final class ActiveFeatures
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     public array $features;
 }

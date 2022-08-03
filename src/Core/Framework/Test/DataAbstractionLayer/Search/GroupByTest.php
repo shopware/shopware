@@ -174,7 +174,7 @@ class GroupByTest extends TestCase
 class TestData
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $ids = [];
 

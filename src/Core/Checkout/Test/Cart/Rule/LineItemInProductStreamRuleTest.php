@@ -47,8 +47,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     /**
      * @dataProvider getLineItemScopeTestData
      *
-     * @param string[] $streamIds
-     * @param string[] $lineItemProductStreamIds
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemProductStreamIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $streamIds,
@@ -83,8 +83,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      *
-     * @param string[] $streamIds
-     * @param string[] $lineItemCategoryIds
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $streamIds,
@@ -115,8 +115,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      *
-     * @param string[] $streamIds
-     * @param string[] $lineItemCategoryIds
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $streamIds,
@@ -194,7 +194,7 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @param string[] $streamIds
+     * @param array<string> $streamIds
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {

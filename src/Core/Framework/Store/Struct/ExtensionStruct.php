@@ -70,7 +70,7 @@ class ExtensionStruct extends Struct
     /**
      * languages property from store
      *
-     * @var string[]
+     * @var array<string>
      */
     protected array $languages = [];
 
@@ -276,7 +276,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getLanguages(): ?array
     {
@@ -284,7 +284,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @param string[] $languages
+     * @param array<string> $languages
      */
     public function setLanguages(array $languages): void
     {

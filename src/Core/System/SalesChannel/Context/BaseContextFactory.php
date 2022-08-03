@@ -321,7 +321,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     }
 
     /**
-     * @param string[] $availableLanguageIds
+     * @param array<string> $availableLanguageIds
      */
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {

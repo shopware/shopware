@@ -156,7 +156,7 @@ class PromotionEntity extends Entity
     protected $ordersPerCustomerCount;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $exclusionIds;
 
@@ -524,7 +524,7 @@ class PromotionEntity extends Entity
     }
 
     /**
-     * @param string[] $exclusionIds
+     * @param array<string> $exclusionIds
      */
     public function setExclusionIds(array $exclusionIds): void
     {

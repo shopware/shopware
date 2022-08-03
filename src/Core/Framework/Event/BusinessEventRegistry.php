@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event;
 class BusinessEventRegistry
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $classes = [];
 

@@ -47,8 +47,8 @@ class LineItemInCategoryRuleTest extends TestCase
     /**
      * @dataProvider getLineItemScopeTestData
      *
-     * @param string[] $categoryIds
-     * @param string[] $lineItemCategoryIds
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $categoryIds,
@@ -83,8 +83,8 @@ class LineItemInCategoryRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      *
-     * @param string[] $categoryIds
-     * @param string[] $lineItemCategoryIds
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $categoryIds,
@@ -115,8 +115,8 @@ class LineItemInCategoryRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      *
-     * @param string[] $categoryIds
-     * @param string[] $lineItemCategoryIds
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $categoryIds,
@@ -194,7 +194,7 @@ class LineItemInCategoryRuleTest extends TestCase
     }
 
     /**
-     * @param string[] $categoryIds
+     * @param array<string> $categoryIds
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {

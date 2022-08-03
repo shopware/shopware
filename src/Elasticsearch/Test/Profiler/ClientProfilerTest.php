@@ -17,7 +17,7 @@ class ClientProfilerTest extends TestCase
     /**
      * @dataProvider providerQueries
      *
-     * @param string|string[] $index
+     * @param string|array<string> $index
      */
     public function testProfiling($index, string $expectedUrl): void
     {

@@ -33,7 +33,7 @@ class OrderDeliveryEntity extends Entity
     protected $shippingMethodId;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $trackingCodes;
 
@@ -113,7 +113,7 @@ class OrderDeliveryEntity extends Entity
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getTrackingCodes(): array
     {
@@ -121,7 +121,7 @@ class OrderDeliveryEntity extends Entity
     }
 
     /**
-     * @param string[] $trackingCodes
+     * @param array<string> $trackingCodes
      */
     public function setTrackingCodes(array $trackingCodes): void
     {

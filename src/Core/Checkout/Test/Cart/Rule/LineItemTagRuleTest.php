@@ -406,7 +406,7 @@ class LineItemTagRuleTest extends TestCase
     }
 
     /**
-     * @param string[] $tagIds
+     * @param array<string> $tagIds
      */
     private function createLineItemTagRule(array $tagIds, string $operator = Rule::OPERATOR_EQ): LineItemTagRule
     {

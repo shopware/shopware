@@ -32,7 +32,7 @@ class WriteContext
     private $languages;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     private $languageCodeIdMapping;
 

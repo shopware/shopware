@@ -68,7 +68,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
     }
 
     /**
-     * @param string[] $snippetSetIds
+     * @param array<string> $snippetSetIds
      */
     private function clearCache(array $snippetSetIds): void
     {

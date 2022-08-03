@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $ids;
 

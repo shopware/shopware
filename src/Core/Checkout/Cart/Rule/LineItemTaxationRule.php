@@ -15,7 +15,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 class LineItemTaxationRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $taxIds;
 
@@ -24,7 +24,7 @@ class LineItemTaxationRule extends Rule
     /**
      * @internal
      *
-     * @param string[] $taxIds
+     * @param array<string> $taxIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
     {

@@ -22,7 +22,7 @@ class GenerateThumbnailsMessage
     }
 
     /**
-     * @param string[] $mediaIds
+     * @param array<string> $mediaIds
      */
     public function setMediaIds(array $mediaIds): void
     {

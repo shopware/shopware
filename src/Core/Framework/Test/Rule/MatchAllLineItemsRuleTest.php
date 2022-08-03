@@ -130,7 +130,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     /**
      * @dataProvider getCartScopeTestData
      *
-     * @param string[] $categoryIds
+     * @param array<string> $categoryIds
      */
     public function testIfMatchesAllCorrectWithLineItemScope(
         array $categoryIdsProductA,
@@ -178,7 +178,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     /**
      * @dataProvider getCartScopeTestMinimumShouldMatchData
      *
-     * @param string[] $categoryIds
+     * @param array<string> $categoryIds
      */
     public function testIfMatchesMinimumCorrectWithLineItemScope(
         array $categoryIdsProductA,
@@ -230,7 +230,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param string[] $categoryIds
+     * @param array<string> $categoryIds
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {

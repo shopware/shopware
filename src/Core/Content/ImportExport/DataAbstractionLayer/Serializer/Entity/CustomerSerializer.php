@@ -23,17 +23,17 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     private EntityRepositoryInterface $salesChannelRepository;
 
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheCustomerGroups = [];
 
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cachePaymentMethods = [];
 
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheSalesChannels = [];
 

@@ -187,7 +187,7 @@ class MediaFolderIndexer extends EntityIndexer
     }
 
     /**
-     * @param string[] $parentIds
+     * @param array<string> $parentIds
      */
     private function fetchChildren(array $parentIds): array
     {
@@ -207,11 +207,11 @@ class MediaFolderIndexer extends EntityIndexer
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getParentIds(array $ids): array
     {
-        /** @var string[] $parentIds */
+        /** @var array<string> $parentIds */
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],

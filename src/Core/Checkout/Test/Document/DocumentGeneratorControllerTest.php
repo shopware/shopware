@@ -455,7 +455,7 @@ class DocumentGeneratorControllerTest extends TestCase
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     private function getDocumentByDocumentIds(array $documentIds): array
     {

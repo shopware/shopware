@@ -25,7 +25,7 @@ class TemplateGroup
     private $salesChannels;
 
     /**
-     * @param string[] $salesChannelIds
+     * @param array<string> $salesChannelIds
      */
     public function __construct(string $languageId, string $template, array $salesChannelIds, array $salesChannels = [])
     {

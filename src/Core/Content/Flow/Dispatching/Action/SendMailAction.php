@@ -400,7 +400,7 @@ class SendMailAction extends FlowAction
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
     {
@@ -416,7 +416,7 @@ class SendMailAction extends FlowAction
     }
 
     /**
-     * @param string[] $documentTypeIds
+     * @param array<string> $documentTypeIds
      */
     private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
@@ -469,7 +469,7 @@ class SendMailAction extends FlowAction
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {

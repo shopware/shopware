@@ -212,7 +212,7 @@ class MappingService extends AbstractMappingService
         }
 
         // try to guess associations
-        /** @var string[] $mappedKeyParts */
+        /** @var array<string> $mappedKeyParts */
         $mappedKeyParts = explode(
             ' ',
             strtolower(

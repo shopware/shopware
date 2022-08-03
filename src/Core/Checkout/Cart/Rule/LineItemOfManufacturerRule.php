@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemOfManufacturerRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $manufacturerIds;
 
@@ -24,7 +24,7 @@ class LineItemOfManufacturerRule extends Rule
     /**
      * @internal
      *
-     * @param string[] $manufacturerIds
+     * @param array<string> $manufacturerIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
     {

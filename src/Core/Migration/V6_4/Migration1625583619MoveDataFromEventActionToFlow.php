@@ -207,7 +207,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
     }
 
     /**
-     * @param string[] $salesChannelIds
+     * @param array<string> $salesChannelIds
      */
     private function createSalesChannelRule(Connection $connection, array $salesChannelIds, string $createdAt): string
     {
@@ -321,7 +321,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
     }
 
     /**
-     * @param string[] $salesChannelIds
+     * @param array<string> $salesChannelIds
      */
     private function getSalesChannelName(Connection $connection, array $salesChannelIds): string
     {

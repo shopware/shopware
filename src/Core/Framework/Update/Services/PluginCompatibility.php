@@ -266,7 +266,7 @@ class PluginCompatibility
     }
 
     /**
-     * @param string[] $pluginIds
+     * @param array<string> $pluginIds
      */
     private function fetchInactivePlugins(array $pluginIds, Context $context): PluginCollection
     {
@@ -280,7 +280,7 @@ class PluginCompatibility
     }
 
     /**
-     * @param string[] $pluginIds
+     * @param array<string> $pluginIds
      */
     private function fetchInactiveExtensions(array $pluginIds, Context $context): ExtensionCollection
     {

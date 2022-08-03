@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Update\Services;
 class Filesystem
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $VCSDirs = [
         '.git',

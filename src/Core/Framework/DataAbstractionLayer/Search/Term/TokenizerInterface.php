@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 interface TokenizerInterface
 {
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function tokenize(string $string): array;
 }

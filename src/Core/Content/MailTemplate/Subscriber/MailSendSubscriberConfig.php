@@ -12,18 +12,18 @@ class MailSendSubscriberConfig extends Struct
     protected $skip;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $documentIds = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $mediaIds = [];
 
     /**
-     * @param string[] $documentIds
-     * @param string[] $mediaIds
+     * @param array<string> $documentIds
+     * @param array<string> $mediaIds
      */
     public function __construct(bool $skip, array $documentIds = [], array $mediaIds = [])
     {
@@ -53,7 +53,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     public function setDocumentIds(array $documentIds): void
     {
@@ -61,7 +61,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @param string[] $mediaIds
+     * @param array<string> $mediaIds
      */
     public function setMediaIds(array $mediaIds): void
     {

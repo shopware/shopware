@@ -67,7 +67,7 @@ class CartTaxTest extends TestCase
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
      *
-     * @param string[] $vatIds
+     * @param array<string> $vatIds
      */
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyEuro(
         string $testCase,
@@ -149,7 +149,7 @@ class CartTaxTest extends TestCase
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
      *
-     * @param string[] $vatIds
+     * @param array<string> $vatIds
      */
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyCHF(
         string $testCase,

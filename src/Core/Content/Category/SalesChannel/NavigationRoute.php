@@ -181,7 +181,7 @@ class NavigationRoute extends AbstractNavigationRoute
     }
 
     /**
-     * @param string[] $childIds
+     * @param array<string> $childIds
      */
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {

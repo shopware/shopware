@@ -140,7 +140,7 @@ class OrderCustomerEntity extends Entity
     }
 
     /**
-     * @param string[] $vatIds
+     * @param array<string> $vatIds
      */
     public function setVatIds(array $vatIds): void
     {

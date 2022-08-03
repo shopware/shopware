@@ -188,7 +188,7 @@ class CategoryIndexer extends EntityIndexer
     }
 
     /**
-     * @param string[] $categoryIds
+     * @param array<string> $categoryIds
      */
     private function fetchChildren(array $categoryIds, string $versionId): array
     {

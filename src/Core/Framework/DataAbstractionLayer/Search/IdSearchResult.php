@@ -61,7 +61,7 @@ class IdSearchResult extends Struct
     }
 
     /**
-     * @return array[]|string[]
+     * @return array[]|array<string>
      */
     public function getIds(): array
     {

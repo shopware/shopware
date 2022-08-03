@@ -68,7 +68,7 @@ class TemplatePersister
 
     private function deleteOldTemplates(TemplateCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

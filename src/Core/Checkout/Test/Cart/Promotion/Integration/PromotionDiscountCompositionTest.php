@@ -335,7 +335,7 @@ class PromotionDiscountCompositionTest extends TestCase
     }
 
     /**
-     * @param string[] $productIds
+     * @param array<string> $productIds
      */
     private function orderWithPromotion(string $code, array $productIds, SalesChannelContext $context): string
     {

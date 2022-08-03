@@ -12,7 +12,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 class CurrencyRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $currencyIds;
 
@@ -24,7 +24,7 @@ class CurrencyRule extends Rule
     /**
      * @internal
      *
-     * @param string[]|null $currencyIds
+     * @param array<string>|null $currencyIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
     {

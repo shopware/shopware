@@ -166,7 +166,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param string[] $salesChannelIds
+     * @param array<string> $salesChannelIds
      */
     private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
     {

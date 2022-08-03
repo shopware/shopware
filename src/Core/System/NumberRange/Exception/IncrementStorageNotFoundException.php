@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 class IncrementStorageNotFoundException extends ShopwareHttpException
 {
     /**
-     * @param string[] $availableStorages
+     * @param array<string> $availableStorages
      */
     public function __construct(string $configuredStorage, array $availableStorages)
     {

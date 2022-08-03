@@ -25,7 +25,7 @@ trait SalesChannelApiTestBehaviour
     use BasicTestDataBehaviour;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $salesChannelIds = [];
 

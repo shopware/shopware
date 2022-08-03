@@ -14,7 +14,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 class LanguageRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $languageIds;
 
@@ -23,7 +23,7 @@ class LanguageRule extends Rule
     /**
      * @internal
      *
-     * @param string[]|null $languageIds
+     * @param array<string>|null $languageIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
     {

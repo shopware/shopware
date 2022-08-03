@@ -22,7 +22,7 @@ class CartTestHook extends Hook implements CartAware
     private Cart $cart;
 
     /**
-     * @param string[] $serviceIds
+     * @param array<string> $serviceIds
      */
     public function __construct(string $name, Cart $cart, SalesChannelContext $context, array $data = [], array $serviceIds = [])
     {

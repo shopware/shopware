@@ -43,7 +43,7 @@ final class DocumentMerger
     }
 
     /**
-     * @param string[] $documentIds
+     * @param array<string> $documentIds
      */
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {

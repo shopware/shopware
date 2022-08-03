@@ -69,7 +69,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param string[] $orderIds
+     * @param array<string> $orderIds
      */
     private function updateCustomer(array $orderIds, bool $isDelete = false): void
     {

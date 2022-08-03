@@ -22,7 +22,7 @@ class Context extends Struct
     public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
-     * @var string[]
+     * @var array<string>
      *
      * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
@@ -94,8 +94,8 @@ class Context extends Struct
     protected $rounding;
 
     /**
-     * @param string[] $languageIdChain
-     * @param string[] $ruleIds
+     * @param array<string> $languageIdChain
+     * @param array<string> $ruleIds
      */
     public function __construct(
         ContextSource $source,
@@ -248,7 +248,7 @@ class Context extends Struct
     }
 
     /**
-     * @param string[] $ruleIds
+     * @param array<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {

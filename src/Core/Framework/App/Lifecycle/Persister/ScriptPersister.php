@@ -81,7 +81,7 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -98,7 +98,7 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -124,7 +124,7 @@ class ScriptPersister
 
     private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

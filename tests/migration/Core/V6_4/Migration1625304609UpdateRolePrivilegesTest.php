@@ -113,7 +113,7 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getAllApps(Connection $connection): array
     {
@@ -121,9 +121,9 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
     }
 
     /**
-     * @param string[] $appNames
+     * @param array<string> $appNames
      *
-     * @return string[]
+     * @return array<string>
      */
     private function getAppPrivileges(array $appNames): array
     {

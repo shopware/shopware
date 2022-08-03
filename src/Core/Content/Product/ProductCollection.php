@@ -128,7 +128,7 @@ class ProductCollection extends EntityCollection
     }
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function filterByOptionIds(array $optionIds): self
     {

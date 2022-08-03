@@ -14,7 +14,7 @@ trait ExtensionBehaviour
         $appRepository = $this->getContainer()->get('app.repository');
         $idResult = $appRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $idResult->getIds();
         if (\count($ids)) {
             $appRepository->delete(array_map(function (string $id) {

@@ -65,15 +65,13 @@ class DocumentGeneratorController extends AbstractController
      *             @OA\Property(
      *                 property="config",
      *                 description="Additional configuration. At least a unique `documentNumber` should be provided",
-     *                 type="array",
-     *                 @OA\Items(type="object",
-     *                      @OA\Property(
-     *                          property="documentNumber",
-     *                          description="A unique incremental number for the document. The `api.action.number-range.reserve` route can be used to fetch a free number. The type parameter for that route should match the document type, for example `document_invoice`, check the `number_range_type` entity for more types.",
-     *                          type="string"
-     *                      ),
-     *                      @OA\AdditionalProperties(type="string")
-     *                 )
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="documentNumber",
+     *                     description="A unique incremental number for the document. The `api.action.number-range.reserve` route can be used to fetch a free number. The type parameter for that route should match the document type, for example `document_invoice`, check the `number_range_type` entity for more types.",
+     *                     type="string"
+     *                 ),
+     *                 @OA\AdditionalProperties(type="string")
      *             ),
      *             @OA\Property(
      *                 property="referenced_document_id",

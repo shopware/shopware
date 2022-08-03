@@ -125,15 +125,7 @@ class Api:
 
             text = response.json()
 
-            try:
-                if ("INSERT INTO `product_translation`" in text['errors'][0]['detail']):
-                    raise RescheduleTask()
-                if ("Deadlock found when trying to get lock" in text['errors'][0]['detail']):
-                    raise RescheduleTask()
-            except (IndexError):
-                pass
-
-            raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)
+            response.failure('Sync error: ' + str(response.status_code) + ' ' + response.text)
 
     def __define_updaters(self, excludes):
         skips = []
@@ -144,11 +136,4 @@ class Api:
         return ','.join(skips)
 
     def __get_ids(self, count):
-        ids = []
-
-        while len(ids) < count:
-            id = random.choice(self.context.product_ids)
-            if id not in ids:
-                ids.append(id)
-
-        return ids
+        return random.sample(self.context.product_ids, count)

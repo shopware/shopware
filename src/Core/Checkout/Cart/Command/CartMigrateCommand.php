@@ -34,6 +34,8 @@ class CartMigrateCommand extends Command
 
     private bool $compress;
 
+    private int $expireDays;
+
     private RedisConnectionFactory $factory;
 
     /**
@@ -41,12 +43,13 @@ class CartMigrateCommand extends Command
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct($redis, Connection $connection, bool $compress, RedisConnectionFactory $factory)
+    public function __construct($redis, Connection $connection, bool $compress, int $expireDays, RedisConnectionFactory $factory)
     {
         parent::__construct();
         $this->redis = $redis;
         $this->connection = $connection;
         $this->compress = $compress;
+        $this->expireDays = $expireDays;
         $this->factory = $factory;
     }
 
@@ -214,7 +217,8 @@ class CartMigrateCommand extends Command
 
                 $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 
-                $values[$key] = \serialize([
+                $values[$key] = $row['token'];
+                $value = \serialize([
                     'compressed' => $this->compress,
                     'content' => $content,
                     // used for migration
@@ -231,9 +235,9 @@ class CartMigrateCommand extends Command
                     'line_item_count' => $row['line_item_count'],
                     'created_at' => $row['created_at'],
                 ]);
-            }
 
-            $this->redis->mset($values);
+                $this->redis->set($key, $value, ['EX' => $this->expireDays * 86400]);
+            }
 
             $this->progress->advance(\count($values));
         }

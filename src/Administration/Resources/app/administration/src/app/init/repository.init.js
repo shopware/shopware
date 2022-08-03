@@ -18,8 +18,14 @@ export default function initializeRepositoryFactory(container) {
         },
     }).then(({ data }) => {
         const entityDefinitionFactory = factoryContainer.entityDefinition;
-        Object.keys(data).forEach((entityName) => {
-            entityDefinitionFactory.add(entityName, data[entityName]);
+        const customEntityDefinitionService = serviceContainer.customEntityDefinitionService;
+
+        Object.entries(data).forEach(([key, value]) => {
+            entityDefinitionFactory.add(key, value);
+
+            if (key.startsWith('custom_entity_')) {
+                customEntityDefinitionService.addConfig(value);
+            }
         });
 
         const hydrator = new EntityHydrator();

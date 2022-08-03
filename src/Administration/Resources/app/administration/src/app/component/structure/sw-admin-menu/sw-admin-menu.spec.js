@@ -49,9 +49,27 @@ async function createWrapper(options = {}) {
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
             },
-            acl: { can: (privilege) => {
-                return privilege !== 'shouldReturnFalse';
-            } }
+            acl: {
+                can: (privilege) => {
+                    return privilege !== 'shouldReturnFalse';
+                }
+            },
+            customEntityDefinitionService: {
+                getMenuEntries: () => {
+                    const entityName = 'customEntityName';
+                    return [{
+                        id: `custom-entity/${entityName}`,
+                        label: `${entityName}.moduleTitle`,
+                        moduleType: 'plugin',
+                        path: 'sw.custom.entity.index',
+                        params: {
+                            entityName: entityName,
+                        },
+                        position: 100,
+                        parent: 'sw.second.top.level',
+                    }];
+                }
+            }
         },
         ...options
     });
@@ -169,11 +187,11 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             element2
         ], ['foo'], [element2]);
 
-        expect(element1.classList.contains('bar')).toBeTruthy();
-        expect(element1.classList.contains('foo')).toBeFalsy();
+        expect(element1.classList.contains('bar')).toBe(true);
+        expect(element1.classList.contains('foo')).toBe(false);
 
-        expect(element2.classList.contains('bar')).toBeTruthy();
-        expect(element2.classList.contains('foo')).toBeTruthy();
+        expect(element2.classList.contains('bar')).toBe(true);
+        expect(element2.classList.contains('foo')).toBe(true);
     });
 
     it('should be able to check if a mouse position is in a polygon', async () => {
@@ -188,13 +206,13 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             x: 10,
             y: 300
         };
-        expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBeTruthy();
+        expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBe(true);
 
         const outsideMousePosition = {
             x: 1,
             y: 1
         };
-        expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBeFalsy();
+        expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBe(false);
     });
 
     it('should get polygon from menu item', async () => {
@@ -222,16 +240,21 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
 
-        expect(childMenuEntries).toHaveLength(3);
+        expect(childMenuEntries).toHaveLength(4);
         expect(childMenuEntries.wrappers.map((childMenuEntry) => {
             return childMenuEntry.props('entry');
         })).toEqual([
             expect.objectContaining({
                 id: 'sw.second.level.first'
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 id: 'sw.second.level.second'
-            }), expect.objectContaining({
+            }),
+            expect.objectContaining({
                 id: 'sw.second.level.last'
+            }),
+            expect.objectContaining({
+                id: 'custom-entity/customEntityName'
             })
         ]);
     });
@@ -338,7 +361,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             level: 2
         };
 
-        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBeTruthy();
+        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(true);
 
         entry = {
             path: 'sw.bar.index',
@@ -351,7 +374,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             level: 2
         };
 
-        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBeFalsy();
+        expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBe(false);
     });
 
     it('positioning of flyout should respect top app border', async () => {

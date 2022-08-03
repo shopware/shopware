@@ -44,6 +44,7 @@ import SearchPreferencesService from 'src/app/service/search-preferences.service
 import RecentlySearchService from 'src/app/service/recently-search.service';
 import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
+import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -84,6 +85,9 @@ Object.keys(allInitializers).forEach((key) => {
 Application
     .addServiceProvider('feature', () => {
         return new FeatureService(Feature);
+    })
+    .addServiceProvider('customEntityDefinitionService', () => {
+        return new CustomEntityDefinitionService();
     })
     .addServiceProvider('menuService', () => {
         return new MenuService(factoryContainer.module);

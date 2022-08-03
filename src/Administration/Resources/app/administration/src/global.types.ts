@@ -37,6 +37,7 @@ import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
+import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
@@ -112,6 +113,7 @@ declare global {
         feature: FeatureService,
         menuService: $TSFixMe,
         privileges: $TSFixMe,
+        customEntityDefinitionService: CustomEntityDefinitionService,
         acl: AclService,
         jsonApiParserService: $TSFixMe,
         validationService: $TSFixMe,

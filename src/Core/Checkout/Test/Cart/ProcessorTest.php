@@ -381,6 +381,11 @@ class ProcessorTest extends TestCase
         $processor->process($cart, $this->context, new CartBehavior());
     }
 
+    /**
+     * @param array<string|int, mixed|null> $tax
+     *
+     * @return array<string, mixed|null>
+     */
     private function createDummyProduct(string $id, array $tax, int $stock = 10): array
     {
         return [
@@ -427,6 +432,9 @@ class PersistentError extends Error
         return false;
     }
 
+    /**
+     * @return array<string|int, mixed|null>
+     */
     public function getParameters(): array
     {
         return [];

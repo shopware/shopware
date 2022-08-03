@@ -42,6 +42,8 @@ class LineItemFactoryRegistry
     private $eventDispatcher;
 
     /**
+     * @param LineItemFactoryInterface[]|iterable $handlers
+     *
      * @internal
      */
     public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
@@ -52,6 +54,9 @@ class LineItemFactoryRegistry
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
         if (!isset($data['id'])) {
@@ -68,6 +73,9 @@ class LineItemFactoryRegistry
         return $lineItem;
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     public function update(Cart $cart, array $data, SalesChannelContext $context): void
     {
         $identifier = $data['id'];
@@ -114,6 +122,9 @@ class LineItemFactoryRegistry
         throw new LineItemTypeNotSupportedException($type);
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     private function validate(array $data): void
     {
         $this->validator->validate($data, $this->validatorDefinition);

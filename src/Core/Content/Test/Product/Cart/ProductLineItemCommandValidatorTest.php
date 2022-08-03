@@ -259,6 +259,9 @@ class ProductLineItemCommandValidatorTest extends TestCase
         return $customerId;
     }
 
+    /**
+     * @param array<string|int, mixed|null> $config
+     */
     private function createProduct(array $config = []): string
     {
         $id = Uuid::randomHex();

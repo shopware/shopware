@@ -8,10 +8,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $parameters = [];
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)
     {
         $this->parameters = $parameters;
@@ -30,6 +33,9 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         yield $this->getCommonErrorData($withTrace);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;
@@ -43,6 +49,9 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         return $this->parameters[$key] ?? null;
     }
 
+    /**
+     * @return array{status: numeric-string, code: string, title: mixed, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
+     */
     protected function getCommonErrorData(bool $withTrace = false): array
     {
         $error = [
@@ -62,16 +71,20 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         return $error;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function parse(string $message, array $parameters = []): string
     {
         $regex = [];
+
         foreach ($parameters as $key => $value) {
             if (\is_array($value)) {
                 continue;
             }
 
-            $key = preg_replace('/[^a-z]/i', '', $key);
-            $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $key)] = $value;
+            $formattedKey = preg_replace('/[^a-z]/i', '', $key);
+            $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $formattedKey)] = $value;
         }
 
         return (string) preg_replace(array_keys($regex), array_values($regex), $message);

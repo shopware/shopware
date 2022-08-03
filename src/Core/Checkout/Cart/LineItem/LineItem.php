@@ -28,7 +28,7 @@ class LineItem extends Struct
     public const CONTAINER_LINE_ITEM = 'container';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $payload = [];
 
@@ -251,6 +251,9 @@ class LineItem extends Struct
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
@@ -289,7 +292,7 @@ class LineItem extends Struct
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
+     * @param mixed|null $value
      *
      * @throws InvalidPayloadException
      */
@@ -309,6 +312,8 @@ class LineItem extends Struct
     }
 
     /**
+     * @param array<string, mixed> $payload
+     *
      * @throws InvalidPayloadException
      */
     public function setPayload(array $payload): self
@@ -330,6 +335,9 @@ class LineItem extends Struct
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function replacePayload(array $payload): self
     {
         $this->payload = array_replace_recursive($this->payload, $payload);

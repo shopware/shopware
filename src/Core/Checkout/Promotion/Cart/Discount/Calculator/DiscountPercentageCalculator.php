@@ -84,6 +84,9 @@ class DiscountPercentageCalculator
         return new DiscountCalculatorResult($calculatedPrice, $composition);
     }
 
+    /**
+     * @return DiscountCompositionItem[]
+     */
     private function getCompositionItems(float $percentage, DiscountPackageCollection $packages): array
     {
         $items = [];

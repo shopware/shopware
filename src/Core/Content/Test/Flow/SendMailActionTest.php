@@ -55,7 +55,8 @@ class SendMailActionTest extends TestCase
 
     /**
      * @dataProvider sendMailProvider
-     * @param string[] $documentTypeIds
+     *
+     * @param string[]|null $documentTypeIds
      */
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {

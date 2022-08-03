@@ -23,6 +23,7 @@ class LineItemInProductStreamRule extends Rule
 
     /**
      * @internal
+     *
      * @param string[] $streamIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
@@ -57,9 +58,6 @@ class LineItemInProductStreamRule extends Rule
         return false;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         $constraints = [

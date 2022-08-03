@@ -38,9 +38,6 @@ class CartAmountRule extends Rule
         return RuleComparison::numeric($scope->getCart()->getPrice()->getTotalPrice(), $this->amount, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

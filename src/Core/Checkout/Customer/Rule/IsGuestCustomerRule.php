@@ -38,9 +38,6 @@ class IsGuestCustomerRule extends Rule
         return !$customer->getGuest();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

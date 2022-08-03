@@ -46,6 +46,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     *
      * @param string[] $categoryIds
      * @param string[] $lineItemCategoryIds
      */
@@ -81,6 +82,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
      * @param string[] $categoryIds
      * @param string[] $lineItemCategoryIds
      */
@@ -112,6 +114,7 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
      * @param string[] $categoryIds
      * @param string[] $lineItemCategoryIds
      */

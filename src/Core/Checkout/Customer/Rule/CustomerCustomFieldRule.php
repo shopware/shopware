@@ -53,9 +53,6 @@ class CustomerCustomFieldRule extends Rule
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

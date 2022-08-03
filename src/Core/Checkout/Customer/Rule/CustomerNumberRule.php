@@ -54,9 +54,6 @@ class CustomerNumberRule extends Rule
         return RuleComparison::stringArray($customer->getCustomerNumber(), array_map('strtolower', $this->numbers), $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

@@ -2466,11 +2466,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionExclusionUpdater\\:\\:deleteFromJSON\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionExclusionUpdater\\:\\:getExclusionIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
@@ -2581,29 +2576,9 @@ parameters:
 			path: src/Core/Checkout/Promotion/PromotionEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionCodeOfTypeRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Rule/PromotionCodeOfTypeRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionLineItemRule\\:\\:__construct\\(\\) has parameter \\$identifiers with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Rule/PromotionLineItemRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionLineItemRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Rule/PromotionLineItemRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionValueRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Rule/PromotionValueRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionsInCartCountRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Rule/PromotionsInCartCountRule.php
 
 		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -2894,16 +2869,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\CartTaxTest\\:\\:dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/CartTaxTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Common\\\\FalseRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Common/FalseRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Common\\\\TrueRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Common/TrueRule.php
 
 		-
 			message: "#^Cannot call method getShippingCosts\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\Delivery\\|null\\.$#"
@@ -26986,22 +26951,7 @@ parameters:
 			path: src/Core/Framework/Rule/Api/RuleConfigController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\Container\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Container/Container.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\MatchAllLineItemsRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Container/MatchAllLineItemsRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\ZipCodeRule\\:\\:__construct\\(\\) has parameter \\$zipCodes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Container/ZipCodeRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\ZipCodeRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/Container/ZipCodeRule.php
 
@@ -27009,16 +26959,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\ZipCodeRule\\:\\:getMatches\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/Container/ZipCodeRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\DateRangeRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/DateRangeRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/Rule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\:\\:jsonSerialize\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -27191,16 +27131,6 @@ parameters:
 			path: src/Core/Framework/Rule/RuleConstraints.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\SalesChannelRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/SalesChannelRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:render\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/ScriptRule.php
@@ -27219,21 +27149,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\ScriptRule\\:\\:\\$values type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/ScriptRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\SimpleRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/SimpleRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\TimeRangeRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/TimeRangeRule.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\WeekdayRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/WeekdayRule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:__construct\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
@@ -36226,11 +36141,6 @@ parameters:
 			path: src/Core/System/Currency/CurrencyFormatter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\Rule\\\\CurrencyRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Currency/Rule/CurrencyRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Currency/SalesChannel/CachedCurrencyRoute.php
@@ -36504,11 +36414,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Rule\\\\LanguageRule\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/Rule/LanguageRule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\SalesChannel\\\\CachedLanguageRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"

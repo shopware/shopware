@@ -102,9 +102,6 @@ class DaysSinceLastOrderRule extends Rule
         return RuleComparison::numeric((int) $interval->days, $this->daysPassed, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         $constraints = [

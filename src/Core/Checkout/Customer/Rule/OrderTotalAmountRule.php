@@ -38,9 +38,6 @@ class OrderTotalAmountRule extends Rule
         return RuleComparison::numeric($customer->getOrderTotalAmount(), $this->amount, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

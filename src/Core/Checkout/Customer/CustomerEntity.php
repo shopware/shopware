@@ -505,7 +505,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @param string[] $vatIds
+     * @param string[]|null $vatIds
      */
     public function setVatIds(?array $vatIds): void
     {
@@ -604,7 +604,8 @@ class CustomerEntity extends Entity
 
     /**
      * @internal
-     * @param string[] $newsletterSalesChannelIds
+     *
+     * @param string[]|null $newsletterSalesChannelIds
      */
     public function setNewsletterSalesChannelIds(?array $newsletterSalesChannelIds): void
     {

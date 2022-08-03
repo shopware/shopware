@@ -43,9 +43,6 @@ class CartHasDeliveryFreeItemRule extends Rule
         return $hasFreeDeliveryItems === $this->allowed;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

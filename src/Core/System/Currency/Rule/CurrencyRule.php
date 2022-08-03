@@ -23,7 +23,8 @@ class CurrencyRule extends Rule
 
     /**
      * @internal
-     * @param string[] $currencyIds
+     *
+     * @param string[]|null $currencyIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
     {

@@ -34,6 +34,7 @@ class AvailableCombinationResult extends Struct
 
     /**
      * @deprecated tag:v6.5.0 - Parameter $available will be mandatory in future implementation
+     *
      * @param string[] $optionIds
      */
     public function addCombination(array $optionIds, bool $available = true): void

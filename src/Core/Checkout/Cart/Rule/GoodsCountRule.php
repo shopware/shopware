@@ -51,9 +51,6 @@ class GoodsCountRule extends FilterRule
         return RuleComparison::numeric((float) $goods->count(), (float) $this->count, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

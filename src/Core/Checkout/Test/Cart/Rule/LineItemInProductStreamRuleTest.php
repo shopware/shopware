@@ -46,6 +46,7 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     *
      * @param string[] $streamIds
      * @param string[] $lineItemProductStreamIds
      */
@@ -81,6 +82,7 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
      * @param string[] $streamIds
      * @param string[] $lineItemCategoryIds
      */
@@ -112,6 +114,7 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
      * @param string[] $streamIds
      * @param string[] $lineItemCategoryIds
      */

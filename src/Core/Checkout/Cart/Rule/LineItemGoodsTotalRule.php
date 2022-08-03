@@ -51,9 +51,6 @@ class LineItemGoodsTotalRule extends FilterRule
         return RuleComparison::numeric($goods->getTotalQuantity(), $this->count, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

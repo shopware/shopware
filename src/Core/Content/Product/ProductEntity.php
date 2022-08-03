@@ -925,7 +925,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $streamIds
+     * @param string[]|null $streamIds
      */
     public function setStreamIds(?array $streamIds): void
     {
@@ -938,7 +938,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $optionIds
+     * @param string[]|null $optionIds
      */
     public function setOptionIds(?array $optionIds): void
     {
@@ -951,7 +951,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $propertyIds
+     * @param string[]|null $propertyIds
      */
     public function setPropertyIds(?array $propertyIds): void
     {
@@ -1144,7 +1144,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $blacklistIds
+     * @param string[]|null $blacklistIds
      */
     public function setBlacklistIds(?array $blacklistIds): void
     {
@@ -1157,7 +1157,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $whitelistIds
+     * @param string[]|null $whitelistIds
      */
     public function setWhitelistIds(?array $whitelistIds): void
     {
@@ -1487,7 +1487,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param string[] $categoryIds
+     * @param string[]|null $categoryIds
      */
     public function setCategoryIds(?array $categoryIds): void
     {

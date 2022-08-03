@@ -109,6 +109,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
     /**
      * @deprecated tag:v6.5.0 - Will be deleted, use getFullBreadcrumb instead.
+     *
      * @param string[] $categoryIds
      */
     public function getCategoryTypes(array $categoryIds, Context $context): array

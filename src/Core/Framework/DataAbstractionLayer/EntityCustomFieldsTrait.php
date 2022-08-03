@@ -8,7 +8,7 @@ trait EntityCustomFieldsTrait
     /**
      * @var array<mixed>|null
      */
-    protected ?array $customFields;
+    protected $customFields;
 
     /**
      * @return array<mixed>|null

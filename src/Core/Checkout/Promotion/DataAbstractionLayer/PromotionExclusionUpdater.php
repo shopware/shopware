@@ -97,8 +97,11 @@ class PromotionExclusionUpdater
      * deletes all referenced exclusions in all promotions that id is not in excludeThisIds
      * returns affected hex uuids
      *
-     * @throws \Doctrine\DBAL\DBALException
      * @param string[] $excludeThisIds
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return string[]
      */
     private function deleteFromJSON(string $deleteId, array $excludeThisIds): array
     {
@@ -172,9 +175,10 @@ class PromotionExclusionUpdater
     /**
      * sets all ids in onlyAddThisExistingIds as exclusion in promotion with id
      *
+     * @param string[] $onlyAddThisExistingIds
+     *
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
-     * @param string[] $onlyAddThisExistingIds
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
@@ -242,6 +246,7 @@ class PromotionExclusionUpdater
 
     /**
      * helper function to convert hex array values to a binary array
+     *
      * @param string[] $hexIds
      */
     private function convertHexArrayToByteArray(array $hexIds): array

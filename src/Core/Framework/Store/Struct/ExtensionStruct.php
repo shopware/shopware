@@ -276,7 +276,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return string[]
+     * @return string[]|null
      */
     public function getLanguages(): ?array
     {

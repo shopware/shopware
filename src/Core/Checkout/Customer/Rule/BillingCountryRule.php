@@ -25,7 +25,8 @@ class BillingCountryRule extends Rule
 
     /**
      * @internal
-     * @param string[] $countryIds
+     *
+     * @param string[]|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
@@ -72,9 +73,6 @@ class BillingCountryRule extends Rule
         return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         $constraints = [

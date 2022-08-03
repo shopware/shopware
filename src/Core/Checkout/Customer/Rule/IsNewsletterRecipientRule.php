@@ -40,9 +40,6 @@ class IsNewsletterRecipientRule extends Rule
         return !$this->matchIsNewsletterRecipient($customer, $scope->getSalesChannelContext());
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         return [

@@ -569,7 +569,7 @@ class OrderEntity extends Entity
     }
 
     /**
-     * @param string[] $ruleIds
+     * @param string[]|null $ruleIds
      */
     public function setRuleIds(?array $ruleIds): void
     {

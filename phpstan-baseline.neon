@@ -22601,31 +22601,6 @@ parameters:
 			path: src/Core/Framework/Api/Sync/SyncResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncService\\:\\:convertToApiVersion\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Sync/SyncService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncService\\:\\:convertToApiVersion\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Sync/SyncService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncService\\:\\:getWrittenEntities\\(\\) has parameter \\$grouped with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Sync/SyncService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncService\\:\\:getWrittenEntities\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Sync/SyncService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncService\\:\\:getWrittenEntitiesByEvent\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Sync/SyncService.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\ActionButtonTranslation\\\\ActionButtonTranslationCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/ActionButton/ActionButtonLoader.php
@@ -25724,26 +25699,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityProtection\\\\WriteProtection\\:\\:getAllowedScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityProtection/WriteProtection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\:\\:delete\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\:\\:update\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\:\\:upsert\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityRepository.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -29284,31 +29239,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEvent\\:\\:jsonSerialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/NestedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:getRegisteredFeatures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:registerFeature\\(\\) has parameter \\$metaData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:registerFeatures\\(\\) has parameter \\$registeredFeatures with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:\\$registeredFeatures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Feature.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Framework\\:\\:getCoreMigrationPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -35334,46 +35264,6 @@ parameters:
 			message: "#^Cannot access offset 'mail_id' on array\\<string, mixed\\>\\|false\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/Event/EventAction/EventActionSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:featureAllDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:testIsActive\\(\\) has parameter \\$env with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:testIsActive\\(\\) has parameter \\$featureConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:\\$appEnvValue has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:\\$customCacheId has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:\\$featureAllValue has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:\\$fixtureFlags has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\FeatureTest\\:\\:\\$indicator has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/FeatureFlag/FeatureTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\FeatureFlag\\\\IdleFeatureFlagTest\\:\\:\\$featureAllValue has no type specified\\.$#"

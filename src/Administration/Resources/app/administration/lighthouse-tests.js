@@ -146,7 +146,7 @@ async function main() {
         ],
         // For debugging:
         // headless: false,
-        slowMo: 50,
+        // slowMo: 0,
     });
 
     // Login into the admin so that we don't get redirected to login page
@@ -154,6 +154,8 @@ async function main() {
 
     // Test cases for lighthouse
     const testCases = {
+        // Initial test is not representative. It is just for warming up the backend caches.
+        _initial: async () => `${APP_URL}/admin#/sw/dashboard/index`,
         dashboard: async () => `${APP_URL}/admin#/sw/dashboard/index`,
         productListing: async () => `${APP_URL}/admin#/sw/product/index`,
         productDetail: async () => {
@@ -190,7 +192,21 @@ async function main() {
                 width: 1360,
                 height: 768,
             },
+            throttlingMethod: 'simulate',
+            throttling: {
+                cpuSlowdownMultiplier: 0,
+                downloadThroughputKbps: 16000,
+                requestLatencyMs: 50,
+                rttMs: 50,
+                throughputKbps: 16000,
+                uploadThroughputKbps: 6000,
+            },
         });
+
+        // Don't report results for the initial test
+        if (testName === '_initial') {
+            return;
+        }
 
         lighthouseTests.push({
             testName: testName,

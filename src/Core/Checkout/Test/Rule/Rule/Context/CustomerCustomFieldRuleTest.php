@@ -82,27 +82,36 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    public function testBooleanCustomFieldTrueWhenIsRuleIsSetupAsString(): void
+    /**
+     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsTrueProvider
+     */
+    public function testBooleanCustomFieldTrueWhenIsRuleIsSetupAsString(string $value): void
     {
-        $this->setupRule('true', 'bool');
+        $this->setupRule($value, 'bool');
         $this->setCustomerCustomFields([
             self::CUSTOM_FIELD_NAME => true,
         ]);
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    public function testBooleanCustomFieldFalseWhenIsRuleIsSetupAsString(): void
+    /**
+     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsFalseProvider
+     */
+    public function testBooleanCustomFieldFalseWhenIsRuleIsSetupAsString(string $value): void
     {
-        $this->setupRule('false', 'bool');
+        $this->setupRule($value, 'bool');
         $this->setCustomerCustomFields([
             self::CUSTOM_FIELD_NAME => false,
         ]);
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    public function testBooleanCustomFieldInvalidAsString(): void
+    /**
+     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsTrueProvider
+     */
+    public function testBooleanCustomFieldInvalidAsString(string $value): void
     {
-        $this->setupRule('true', 'bool');
+        $this->setupRule($value, 'bool');
         $this->setCustomerCustomFields([
             self::CUSTOM_FIELD_NAME => false
         ]);
@@ -178,6 +187,35 @@ class CustomerCustomFieldRuleTest extends TestCase
             'testBooleanCustomFieldInvalid' => [false, 'bool', true, false],
             'testStringCustomField' => ['my_test_value', 'string', 'my_test_value', true],
             'testStringCustomFieldInvalid' => ['my_test_value', 'string', 'my_invalid_value', false],
+        ];
+    }
+
+    /**
+     * @return array<array<string>>
+     */
+    public function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
+    {
+        return [
+            ['yes'],
+            ['True'],
+            ['1'],
+            ['true'],
+            ['yes '],
+        ];
+    }
+
+    /**
+     * @return array<array<string>>
+     */
+    public function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
+    {
+        return [
+            ['no'],
+            ['False'],
+            ['0'],
+            ['false'],
+            ['no '],
+            ['some string'],
         ];
     }
 

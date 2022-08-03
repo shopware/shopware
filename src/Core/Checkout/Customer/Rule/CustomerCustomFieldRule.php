@@ -161,7 +161,7 @@ class CustomerCustomFieldRule extends Rule
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
         if ($this->isSwitchOrBoolField($renderedField) && is_string($renderedFieldValue)) {
-            return mb_strtolower($renderedFieldValue) === 'true';
+            return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);
         }
         if ($this->isSwitchOrBoolField($renderedField)) {
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder

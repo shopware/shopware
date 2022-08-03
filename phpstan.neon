@@ -64,11 +64,12 @@ parameters:
             paths:
                 - src/**/*Test.php
 
-        # benchmark tests create db tables on the fly
+        # benchmark tests create db tables on the fly, migration cases also work with DDL
         -
             message: '#Query error:#'
             paths:
                 - tests/performance/**/*.php
+                - tests/migration/**/*.php
 
         # Method gets always an EntityCollection
         -
@@ -249,5 +250,10 @@ services:
             - phpstan.rules.rule
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
         tags:
             - phpstan.rules.rule

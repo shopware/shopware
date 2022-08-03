@@ -1,6 +1,69 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.14.0
+## Deprecate old document generation endpoint, introduce new bulk order's documents generator endpoint
+
+* Endpoint and payload:
+```
+POST /api/_action/order/document/{documentType}/create
+[
+    {
+        "fileType": "pdf",
+        "orderId": "012cd563cf8e4f0384eed93b5201cc98",
+        "static": true,
+        "config": {
+            "documentComment": "Some comment",
+            "documentNumber": "1002",
+            "documentDate": "2021-12-13T00:00:00.000Z"
+        }
+    }, 
+    {        
+        "fileType": "pdf",
+        "orderId": "012cd563cf8e4f0384eed93b5201cc99",
+        "static": true,
+        "config": {
+            "documentComment": "Another comment",
+            "documentNumber": "1003",
+            "documentDate": "2021-12-13T00:00:00.000Z"
+        }
+    }
+]
+```
+
+## New bulk order's documents downloading endpoint
+
+This endpoint is used for merging multiple documents at one pdf file and download the merged pdf file
+
+* Endpoint and payload:
+```
+POST /api/_action/order/document/download
+{
+    "documentIds": [
+        "012cd563cf8e4f0384eed93b5201cc98",
+        "075fb241b769444bb72431f797fd5776",
+    ],
+}
+```
+
+## New Store-Api route to download document
+
+* Use `/store-api/document/download/{documentId}/{deepLinkCode}` route to download generated document of the given id
+
+## Deprecation of DocumentPageLoader
+
+* The `\Shopware\Storefront\Page\Account\Document\DocumentPageLoader` and its page, page loaded event was deprecated and will be removed in v6.5.0.0 due to unused, please use the newly added `\Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute` instead to download generated document. 
+
+## Deprecation of Document generators, introduce Document renderer services
+
+* All the document generators in `Shopware\Core\Checkout\Document\DocumentGenerator` (tagged as `document.generator`) will be deprecated and will be removed in v6.5.0.0, please adjust your changes if you're touching these services, you might want to decorate `Shopware\Core\Checkout\Document\Renderer\*` (tagged as `document.renderer`) instead
+* If you need to manipulate the fetched orders in renderer services, you can listen to according events which extends from `Shopware\Core\Checkout\Document\Event\DocumentOrderEvent`
+## Replacing old icons
+## Update `requestStateData` method in `form-country-state-select.plugin.js`
+The method `requestStateData` will require the third parameter `stateRequired` to be set from the calling instance.
+It will no longer be provided by the endpoint of `frontend.country.country-data`.
+The value can be taken from the selected country option in `data-state-required`
+
 # 6.4.13.0
 ## Added new plugin config field
 

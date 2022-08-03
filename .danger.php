@@ -235,6 +235,39 @@ return (new Config())
             );
         }
     })
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $newRepoUseInFrontend = array_merge(
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+        );
+
+
+
+        if (count($newRepoUseInFrontend) > 0) {
+            $errorFiles = [];
+            foreach ($newRepoUseInFrontend as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
+                }
+            }
+
+            if (count($errorFiles) === 0) {
+                return;
+            }
+
+            $context->failure(
+                'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).' .
+                ' Use Store-Api Routes instead.<br/>' .
+                print_r($errorFiles, true)
+            );
+        }
+    })
     ->after(function (Context $context) {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');

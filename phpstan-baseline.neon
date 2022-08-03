@@ -321,11 +321,6 @@ parameters:
 			path: src/Administration/Test/Migration/Migration1636121186CopySalesChannelIdsIntoUserConfigTest.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Migration\\\\Migration1636121186CopySalesChannelIdsIntoUserConfigTest\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Test/Migration/Migration1636121186CopySalesChannelIdsIntoUserConfigTest.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Migration\\\\Migration1636121186CopySalesChannelIdsIntoUserConfigTest\\:\\:getSalesChannelFixture\\(\\) has parameter \\$merge with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Migration/Migration1636121186CopySalesChannelIdsIntoUserConfigTest.php
@@ -15357,11 +15352,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:getDocumentId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
 
@@ -36681,16 +36671,6 @@ parameters:
 			path: src/Core/Framework/Test/ScheduledTask/ScheduledTaskHandlerTest.php
 
 		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Messenger\\\\MessageBusInterface\\:\\:expects\\(\\)\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/ScheduledTask/Scheduler/TaskSchedulerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\Scheduler\\\\TaskSchedulerTest\\:\\:nonScheduledStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ScheduledTask/Scheduler/TaskSchedulerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ScheduledTask\\\\fixtures\\\\DummyScheduledTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/ScheduledTask/fixtures/DummyScheduledTaskHandler.php
@@ -38521,91 +38501,6 @@ parameters:
 			path: src/Core/Migration/Test/DateTimeTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\ImportTranslationTraitTest\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/ImportTranslationTraitTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590408550AclResourcesTest\\:\\:fetchRoles\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590408550AclResourcesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590408550AclResourcesTest\\:\\:insert\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590408550AclResourcesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590408550AclResourcesTest\\:\\:migrationCases\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590408550AclResourcesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590408550AclResourcesTest\\:\\:testMigration\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590408550AclResourcesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:fetchDefaultFeatureSet\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:fetchDefaultFeatureSet\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:fetchFeatureSetTranslation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:fetchTableInformation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:getColumn\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:tableInformationProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1590758953ProductFeatureSetTest\\:\\:testTablesAreComplete\\(\\) has parameter \\$expectedColumns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1590758953ProductFeatureSetTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1591361320ChargebackAndAuthorizedTest\\:\\:fetchTransitions\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1591361320ChargebackAndAuthorizedTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1592978289ProductCustomFieldSetsTest\\:\\:fetchTableInformation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1592978289ProductCustomFieldSetsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1592978289ProductCustomFieldSetsTest\\:\\:getColumn\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1592978289ProductCustomFieldSetsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1592978289ProductCustomFieldSetsTest\\:\\:tableInformationProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1592978289ProductCustomFieldSetsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1592978289ProductCustomFieldSetsTest\\:\\:testTablesAreComplete\\(\\) has parameter \\$expectedColumns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1592978289ProductCustomFieldSetsTest.php
-
-		-
 			message: "#^Cannot access offset 'item_rounding' on array\\<string, mixed\\>\\|false\\.$#"
 			count: 3
 			path: src/Core/Migration/Test/Migration1594104496CashRoundingTest.php
@@ -38651,36 +38546,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1594104496CashRoundingTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1595422169ProductSortingTest\\:\\:fetchSortings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1595422169ProductSortingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1595422169ProductSortingTest\\:\\:insert\\(\\) has parameter \\$sortings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1595422169ProductSortingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1595422169ProductSortingTest\\:\\:migrationCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1595422169ProductSortingTest.php
-
-		-
-			message: "#^Cannot access offset 'Create Table' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 3
-			path: src/Core/Migration/Test/Migration1595492052SeoUrlTest.php
-
-		-
-			message: "#^Cannot access offset 'Create Table' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 3
-			path: src/Core/Migration/Test/Migration1595492053SeoUrlTemplateTest.php
-
-		-
-			message: "#^Cannot access offset 'Create Table' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 3
-			path: src/Core/Migration/Test/Migration1595919251MainCategoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1599134496FixImportExportProfilesForGermanLanguageTest\\:\\:getEnglishData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1599134496FixImportExportProfilesForGermanLanguageTest.php
@@ -38694,146 +38559,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1599134496FixImportExportProfilesForGermanLanguageTest\\:\\:getPolishAndEnglishData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1599134496FixImportExportProfilesForGermanLanguageTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:createMail\\(\\) has parameter \\$mail with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:createOrderMail\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:createPaymentCancelled\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:createPaymentConfirmed\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:getMails\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:providerEnglish\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:providerGerman\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:providerOnlyFrance\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testEnglishAsDefault\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testEnglishAsDefault\\(\\) has parameter \\$initial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testFranceAsDefault\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testFranceAsDefault\\(\\) has parameter \\$initial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testGermanAsDefault\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testGermanAsDefault\\(\\) has parameter \\$initial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testOnlyFrance\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1600778848AddOrderMailsTest\\:\\:testOnlyFrance\\(\\) has parameter \\$initial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1600778848AddOrderMailsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, array\\<string, mixed\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1602494495SetUsersAsAdminsTest.php
-
-		-
-			message: "#^Cannot access offset 'Create Table' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest.php
-
-		-
-			message: "#^Cannot access offset 'path' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest\\:\\:createCustomer\\(\\) has parameter \\$additionalData with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest\\:\\:\\$ids is never written, only read\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1603293043FixCurrencyTypoTest\\:\\:migrationCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1603293043FixCurrencyTypoTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1603293043FixCurrencyTypoTest\\:\\:setEnLanguageAvailability\\(\\) has parameter \\$available with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1603293043FixCurrencyTypoTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1603293043FixCurrencyTypoTest\\:\\:\\$englishLanguageLocale has no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1603293043FixCurrencyTypoTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1603293043FixCurrencyTypoTest\\:\\:\\$languageIdEnglish has no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1603293043FixCurrencyTypoTest.php
-
-		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1603970276RemoveCustomerEmailUniqueConstraintTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1604499476AddDefaultSettingConfigValueForContactFormTest\\:\\:testDoesNotOverwriteValuesWhenAlreadyConfigured\\(\\) has parameter \\$configPresent with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1604499476AddDefaultSettingConfigValueForContactFormTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1604669773UpdateMailTemplateTest\\:\\:getMails\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1604669773UpdateMailTemplateTest.php
 
 		-
 			message: "#^Cannot access offset 'CONSTRAINT_NAME' on array\\<string, mixed\\>\\|false\\.$#"
@@ -38854,91 +38579,6 @@ parameters:
 			message: "#^Variable \\$documentConfig in PHPDoc tag @var does not exist\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableTest.php
-
-		-
-			message: "#^Cannot access offset 'CONSTRAINT_NAME' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1605861407RuleAssociationsToRestrictTest.php
-
-		-
-			message: "#^Cannot access offset 'DELETE_RULE' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1605861407RuleAssociationsToRestrictTest.php
-
-		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 3
-			path: src/Core/Migration/Test/Migration1605861407RuleAssociationsToRestrictTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581275AddProductSearchConfigurationTest\\:\\:ENGLISH_LANGUAGE_NAME is unused\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581275AddProductSearchConfigurationTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581275AddProductSearchConfigurationTest\\:\\:GERMAN_LANGUAGE_NAME is unused\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581275AddProductSearchConfigurationTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581276AddProductSearchConfigurationDefaultsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581276AddProductSearchConfigurationDefaultsTest\\:\\:fetchConfigFields\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581276AddProductSearchConfigurationDefaultsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581276AddProductSearchConfigurationDefaultsTest\\:\\:fetchExcludedTerms\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581276AddProductSearchConfigurationDefaultsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581276AddProductSearchConfigurationDefaultsTest\\:\\:fetchLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581276AddProductSearchConfigurationDefaultsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1607581276AddProductSearchConfigurationDefaultsTest\\:\\:fetchProductSearchConfigs\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1607581276AddProductSearchConfigurationDefaultsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsBlock\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsPage\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsPageTranslation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsSection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsSlot\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1609140710AddCmsPdpLayoutTest\\:\\:fetchCmsSlotTranslation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1609140710AddCmsPdpLayoutTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest\\:\\:getListInvoiceData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity\\|null\\.$#"
@@ -38986,54 +38626,9 @@ parameters:
 			path: src/Core/Migration/Test/Migration1610523548FixCustomerColumnsTest.php
 
 		-
-			message: "#^Cannot call method fetchAssoc\\(\\) on object\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Cannot call method fetchColumn\\(\\) on object\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1610965670RemoveDeprecatedColumnsTest\\:\\:getColumnInfo\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1610965670RemoveDeprecatedColumnsTest\\:\\:getTriggerInfo\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1610965670RemoveDeprecatedColumns\\:\\:updateDestructive\\(\\) expects Doctrine\\\\DBAL\\\\Connection, object\\|null given\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1610965670RemoveDeprecatedColumnsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1611732852UpdateCmsPdpLayoutTest\\:\\:fetchCmsSlotTranslation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1611732852UpdateCmsPdpLayoutTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1614765170UpdateAppModulesWithNavigationInformationTest\\:\\:insertAppWithModule\\(\\) has parameter \\$modules with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1614765170UpdateAppModulesWithNavigationInformationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1617356092UpdateCmsPdpLayoutSectionTest\\:\\:fetchCmsBlocks\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1617356092UpdateCmsPdpLayoutSectionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1617356092UpdateCmsPdpLayoutSectionTest\\:\\:fetchSlotConfigs\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1617356092UpdateCmsPdpLayoutSectionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1618900427FixTotalRoundingTest.php
 
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
@@ -39116,106 +38711,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1620374229UpdateCustomFieldNameInProductStreamTableTest.php
 
 		-
-			message: "#^Cannot access offset 'company_tax' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Cannot access offset 'company_tax_free' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Cannot access offset 'customer_tax' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Cannot access offset 'tax_free' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryCreateTrigger\\(\\) has parameter \\$companyTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryCreateTrigger\\(\\) has parameter \\$customerTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryCreateTrigger\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryUpdateTrigger\\(\\) has parameter \\$companyTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryUpdateTrigger\\(\\) has parameter \\$customerTaxExpected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest\\:\\:testCountryUpdateTrigger\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1624262862UpdateDefaultValueOnCaptchaV2Test\\:\\:\\$captchaItems type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1624262862UpdateDefaultValueOnCaptchaV2Test.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1624262862UpdateDefaultValueOnCaptchaV2Test\\:\\:\\$connection is unused\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1624262862UpdateDefaultValueOnCaptchaV2Test.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:createAclRole\\(\\) has parameter \\$aclRoleId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:createAclUserRole\\(\\) has parameter \\$aclRoleId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:createAclUserRole\\(\\) has parameter \\$userId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:createUser\\(\\) has parameter \\$userId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:getAllApps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:getAppPrivileges\\(\\) has parameter \\$appNames with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625304609UpdateRolePrivilegesTest\\:\\:getAppPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625304609UpdateRolePrivilegesTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625505190AddOrderTotalAmountToCustomerTableTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1625505190AddOrderTotalAmountToCustomerTableTest.php
@@ -39281,51 +38776,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1625819412ChangeOrderCreatedByIdConstraintTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotFalse\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625831469AddImportExportCrossSellingProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625831469AddImportExportCrossSellingProfileTest\\:\\:getCrossSellingProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625831469AddImportExportCrossSellingProfileTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\<string, mixed\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626241110PromotionPreventCombinationTest.php
-
-		-
-			message: "#^Cannot call method executeStatement\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626442868Test.php
-
-		-
-			message: "#^Cannot call method fetchFirstColumn\\(\\) on object\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626442868Test.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1626442868Test\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626442868Test.php
-
-		-
-			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1626442868AddGermanSalesChannelDescription\\:\\:update\\(\\) expects Doctrine\\\\DBAL\\\\Connection, object\\|null given\\.$#"
-			count: 3
-			path: src/Core/Migration/Test/Migration1626442868Test.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotFalse\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626696809AddImportExportCustomerProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1626696809AddImportExportCustomerProfileTest\\:\\:getCustomerProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1626696809AddImportExportCustomerProfileTest.php
-
-		-
 			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
 			count: 2
 			path: src/Core/Migration/Test/Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest.php
@@ -39339,16 +38789,6 @@ parameters:
 			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
 			count: 2
 			path: src/Core/Migration/Test/Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotFalse\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1627562945AddImportExportPromotionCodesProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1627562945AddImportExportPromotionCodesProfileTest\\:\\:getPromoCodeProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1627562945AddImportExportPromotionCodesProfileTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1627929168UpdatePriceFieldInProductTableTest\\:\\:createProduct\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
@@ -39379,16 +38819,6 @@ parameters:
 			message: "#^Variable \\$customer in PHPDoc tag @var does not match assigned variable \\$product\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1627929168UpdatePriceFieldInProductTableTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1627983652AddOrderExportProfileTest\\:\\:getProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1627983652AddOrderExportProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1628519513AddUnconfirmedTransactionStateTest\\:\\:fetchTransitions\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1628519513AddUnconfirmedTransactionStateTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest\\:\\:assertDefaultInList\\(\\) has parameter \\$actualList with no value type specified in iterable type array\\.$#"
@@ -39424,36 +38854,6 @@ parameters:
 			message: "#^Unsafe call to private method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest\\:\\:assertDefaultInList\\(\\) through static\\:\\:\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1630485317UpdateContactFormMailTemplatesTest\\:\\:getMails\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1630485317UpdateContactFormMailTemplatesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1631703921MigrateLineItemsInCartRuleTest\\:\\:getLineItemsInCartRuleConditions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1631703921MigrateLineItemsInCartRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1631703921MigrateLineItemsInCartRuleTest\\:\\:getTestRule\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1631703921MigrateLineItemsInCartRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1631703921MigrateLineItemsInCartRuleTest\\:\\:getTestRule\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1631703921MigrateLineItemsInCartRuleTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1631703921MigrateLineItemsInCartRuleTest\\:\\:\\$testCondition type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1631703921MigrateLineItemsInCartRuleTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1631703921MigrateLineItemsInCartRuleTest\\:\\:\\$testRule type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1631703921MigrateLineItemsInCartRuleTest.php
 
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
@@ -39496,61 +38896,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1632215760MoveDataFromEventActionToFlowTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1632721037OrderDocumentMailTemplateTest\\:\\:deleteRowsByReferencedId\\(\\) has parameter \\$associatedIds with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1632721037OrderDocumentMailTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1632721037OrderDocumentMailTemplateTest\\:\\:getMailTemplateTypeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1632721037OrderDocumentMailTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1632721037OrderDocumentMailTemplateTest\\:\\:getTemplateIds\\(\\) has parameter \\$typeIds with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1632721037OrderDocumentMailTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1632721037OrderDocumentMailTemplateTest\\:\\:getTemplateIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1632721037OrderDocumentMailTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest\\:\\:providerTestMailTemplateMigration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1635230747UpdateProductExportTemplateTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1635230747UpdateProductExportTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1635230747UpdateProductExportTemplateTest\\:\\:getCurrentBodyAndUpdateTimestamp\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1635230747UpdateProductExportTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1635230747UpdateProductExportTemplateTest\\:\\:getCurrentBodyAndUpdateTimestamp\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1635230747UpdateProductExportTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1635230747UpdateProductExportTemplateTest\\:\\:testMigrationOverridesTemplatesWithLeadingSpaces\\(\\) has parameter \\$testData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1635230747UpdateProductExportTemplateTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1636014089UpdateOrderConfirmationMailTemplatesTest\\:\\:fetchMailData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636014089UpdateOrderConfirmationMailTemplatesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1636014089UpdateOrderConfirmationMailTemplatesTest\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636014089UpdateOrderConfirmationMailTemplatesTest.php
-
-		-
 			message: "#^Cannot access offset 'config' on array\\<string, mixed\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1636362839FlowBuilderGenerateMultipleDocTest.php
@@ -39559,116 +38904,6 @@ parameters:
 			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1636362839FlowBuilderGenerateMultipleDocTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotFalse\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636449347AddImportExportAdvancedPricesProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1636449347AddImportExportAdvancedPricesProfileTest\\:\\:getAdvancedPricesProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636449347AddImportExportAdvancedPricesProfileTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotFalse\\(\\) with false will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636971615AddImportExportPromotionDiscountProfileTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1636971615AddImportExportPromotionDiscountProfileTest\\:\\:getPromotionDiscountsProfileId\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1636971615AddImportExportPromotionDiscountProfileTest.php
-
-		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1639992771MoveDataFromEventActionToFlow\\:\\:\\$internal\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method executeStatement\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method fetchAllAssociative\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method fetchFirstColumn\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method fetchOne\\(\\) on Doctrine\\\\DBAL\\\\Connection\\|null\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Cannot call method search\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$connection of method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1639992771MoveDataFromEventActionToFlow\\:\\:update\\(\\) expects Doctrine\\\\DBAL\\\\Connection, Doctrine\\\\DBAL\\\\Connection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:getCurrentBodyAndUpdateTimestamp\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:getCurrentBodyAndUpdateTimestamp\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:testMigration\\(\\) has parameter \\$testData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:\\$newTemplate \\(string\\) does not accept string\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest\\:\\:\\$oldTemplate \\(string\\) does not accept string\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1642732351AddAppFlowActionIdTest\\:\\:createAclRole\\(\\) has parameter \\$aclRoleId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1642732351AddAppFlowActionIdTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1643724178ChangePromotionCodesProfileTest\\:\\:getPromotionCodesProfileMapping\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1643724178ChangePromotionCodesProfileTest.php
 
 		-
 			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -39714,21 +38949,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\|null given\\.$#"
 			count: 4
 			path: src/Core/Migration/Test/Migration1643878976AddCaptureRefundStateMachinesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1645019769UpdateCmsPageTranslationTest\\:\\:fetchLockedCmsPageTranslationsByName\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1645019769UpdateCmsPageTranslationTest.php
-
-		-
-			message: "#^Cannot access offset 'DATA_TYPE' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1647443222AllowLongLogEntryMessagesTest.php
-
-		-
-			message: "#^Cannot access offset 'message' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1647443222AllowLongLogEntryMessagesTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
@@ -39784,16 +39004,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest\\:\\:\\$flowRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsentTest\\:\\:\\$connection is unused\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsentTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1652441129ReplaceIconNamesTest\\:\\:getAfterMigrationExpectation\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1652441129ReplaceIconNamesTest.php
 
 		-
 			message: "#^Cannot access offset 'id' on array\\<string, mixed\\>\\|false\\.$#"
@@ -39887,11 +39097,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Traits\\\\StateMachineMigrationImporter\\:\\:createOrSkipExistingStateMachineStateTransitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Traits/StateMachineMigrationImporter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Traits\\\\StateMachineMigrationImporter\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Traits/StateMachineMigrationImporter.php
 
@@ -40131,11 +39336,6 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1595422169AddProductSorting.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1595422169AddProductSorting\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1595422169AddProductSorting.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1595553089FixOrderConfirmationMailForAllPayloads\\:\\:fetchSystemMailTemplateAvailableEntitiesFromType\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1595553089FixOrderConfirmationMailForAllPayloads.php
@@ -40211,11 +39411,6 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1599822061MigrateOrderMails.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600338271AddTopsellerSorting\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1600338271AddTopsellerSorting.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600338271AddTopsellerSorting\\:\\:getTopsellerSorting\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1600338271AddTopsellerSorting.php
@@ -40224,11 +39419,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600349343AddDeliveryStateTransitions\\:\\:fetchMissingOrderDeliveryStates\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1600349343AddDeliveryStateTransitions.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600778848AddOrderMails\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1600778848AddOrderMails.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600778848AddOrderMails\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40251,11 +39441,6 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1602822727AddVatHandlingIntoCountryTable.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1604669773UpdateMailTemplate\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1604669773UpdateMailTemplate.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1604669773UpdateMailTemplate\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1604669773UpdateMailTemplate.php
@@ -40264,11 +39449,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1604669773UpdateMailTemplate\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1604669773UpdateMailTemplate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607500561UpdateSignUpMailTemplateTranslation\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1607500561UpdateSignUpMailTemplateTranslation.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607500561UpdateSignUpMailTemplateTranslation\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40281,24 +39461,9 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1607500561UpdateSignUpMailTemplateTranslation.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607581275AddProductSearchConfiguration\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1607581275AddProductSearchConfiguration.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607581276AddProductSearchConfigurationDefaults\\:\\:getConfigFieldDefaultData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1607581276AddProductSearchConfigurationDefaults.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607581276AddProductSearchConfigurationDefaults\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1607581276AddProductSearchConfigurationDefaults.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1604585230UpdateOrderMailsForCashRounding\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1604585230UpdateOrderMailsForCashRounding.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1604585230UpdateOrderMailsForCashRounding\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40309,16 +39474,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1604585230UpdateOrderMailsForCashRounding\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1604585230UpdateOrderMailsForCashRounding.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1609140710AddCmsPdpLayout\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1609140710AddCmsPdpLayout.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1610621999UpdateDateOfDefaultMailTemplates\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1610621999UpdateDateOfDefaultMailTemplates.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1610621999UpdateDateOfDefaultMailTemplates\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40351,11 +39506,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1614765170UpdateAppModulesWithNavigationInformation.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1617864895UpdateMailTemplateForNestedLineItems\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1617864895UpdateMailTemplateForNestedLineItems.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1617864895UpdateMailTemplateForNestedLineItems\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1617864895UpdateMailTemplateForNestedLineItems.php
@@ -40369,11 +39519,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1617935350ActiveCaptchasV2\\:\\:\\$captchaItems type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1617935350ActiveCaptchasV2.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1619428555AddDefaultMailFooter\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1619428555AddDefaultMailFooter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1620634856UpdateRolePrivileges\\:\\:fixRolePrivileges\\(\\) has parameter \\$rolePrivileges with no value type specified in iterable type array\\.$#"
@@ -40401,11 +39546,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1624262862UpdateDefaultValueOnCaptchaV2.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1624967118updateMailTemplatesWithOptionalSalutation\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1624967118updateMailTemplatesWithOptionalSalutation.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1624967118updateMailTemplatesWithOptionalSalutation\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1624967118updateMailTemplatesWithOptionalSalutation.php
@@ -40429,16 +39569,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625304609UpdateRolePrivileges\\:\\:getAppPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1625304609UpdateRolePrivileges.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625465756DefaultSalutation\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625465756DefaultSalutation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625554302UpdateMailTemplateForContactForm\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625554302UpdateMailTemplateForContactForm.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625554302UpdateMailTemplateForContactForm\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40501,31 +39631,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1625583619MoveDataFromEventActionToFlow.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625831469AddImportExportCrossSellingProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625831469AddImportExportCrossSellingProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1626696809AddImportExportCustomerProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1626696809AddImportExportCustomerProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1627562945AddImportExportPromotionCodesProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1627562945AddImportExportPromotionCodesProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1627983652AddOrderExportProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1627983652AddOrderExportProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1630485317UpdateContactFormMailTemplates\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1630485317UpdateContactFormMailTemplates.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1630485317UpdateContactFormMailTemplates\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1630485317UpdateContactFormMailTemplates.php
@@ -40534,16 +39639,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1630485317UpdateContactFormMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1630485317UpdateContactFormMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1632721037OrderDocumentMailTemplate\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1632721037OrderDocumentMailTemplate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1635147952ShowShippingCostsInCartAnMailTemplates\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1635147952ShowShippingCostsInCartAnMailTemplates.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1635147952ShowShippingCostsInCartAnMailTemplates\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40556,11 +39651,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1635147952ShowShippingCostsInCartAnMailTemplates.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636014089UpdateOrderConfirmationMailTemplates\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1636014089UpdateOrderConfirmationMailTemplates.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636014089UpdateOrderConfirmationMailTemplates\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1636014089UpdateOrderConfirmationMailTemplates.php
@@ -40569,21 +39659,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636014089UpdateOrderConfirmationMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1636014089UpdateOrderConfirmationMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636449347AddImportExportAdvancedPricesProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1636449347AddImportExportAdvancedPricesProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636971615AddImportExportPromotionDiscountProfile\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1636971615AddImportExportPromotionDiscountProfile.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1638514913RemovedUnusedVarsInMailTemplates\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1638514913RemovedUnusedVarsInMailTemplates.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1638514913RemovedUnusedVarsInMailTemplates\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -40634,11 +39709,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1648803451FixInvalidMigrationOfBusinessEventToFlow\\:\\:\\$sequenceUpdate type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1648803451FixInvalidMigrationOfBusinessEventToFlow.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1652345915UpdateSubjectMailTemplate\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1652345915UpdateSubjectMailTemplate.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1652345915UpdateSubjectMailTemplate\\:\\:getTranslationIds\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
@@ -46716,77 +45786,17 @@ parameters:
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountPaymentControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountPaymentControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountPaymentControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountProfileControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountProfileControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountProfileControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountProfileControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:createCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AddressControllerTest.php
 
@@ -46816,21 +45826,6 @@ parameters:
 			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:authorizeSalesChannelBrowser\\(\\) has parameter \\$salesChannelOverride with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
@@ -46852,21 +45847,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:createSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CaptchaControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CaptchaControllerTest.php
 
@@ -46896,21 +45876,6 @@ parameters:
 			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:createStorefrontSalesChannelContext\\(\\) has parameter \\$languageIds with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
@@ -46924,21 +45889,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:errorDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CmsControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CmsControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CmsControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CmsControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CmsControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CmsControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ContextControllerTest\\:\\:authorizeSalesChannelBrowser\\(\\) has parameter \\$salesChannelOverride with no value type specified in iterable type array\\.$#"
@@ -47016,21 +45966,6 @@ parameters:
 			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:\\$salesChannelIds type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
@@ -47039,21 +45974,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CookieControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\DocumentControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\DocumentControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\DocumentControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/DocumentControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ErrorControllerTest\\:\\:authorizeSalesChannelBrowser\\(\\) has parameter \\$salesChannelOverride with no value type specified in iterable type array\\.$#"
@@ -47111,69 +46031,9 @@ parameters:
 			path: src/Storefront/Test/Controller/FormControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\FormControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\FormControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\FormControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\FormControllerTest\\:\\:\\$salesChannelIds type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/FormControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\LandingPageControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/LandingPageControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\LandingPageControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/LandingPageControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\LandingPageControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/LandingPageControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\MaintenanceControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/MaintenanceControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\MaintenanceControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/MaintenanceControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\MaintenanceControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/MaintenanceControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NavigationControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NavigationControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NavigationControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NavigationControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NavigationControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NavigationControllerTest.php
 
 		-
 			message: "#^Cannot call method getCustomer\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\|null\\.$#"
@@ -47202,21 +46062,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NewsletterControllerTest\\:\\:createSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NewsletterControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NewsletterControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\NewsletterControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/NewsletterControllerTest.php
 
@@ -47276,21 +46121,6 @@ parameters:
 			path: src/Storefront/Test/Controller/ProductControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ProductControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ProductControllerTest\\:\\:variantProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ProductControllerTest.php
@@ -47321,42 +46151,12 @@ parameters:
 			path: src/Storefront/Test/Controller/RegisterControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\RegisterControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\RegisterControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\RegisterControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/RegisterControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:getRegistrationData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ScriptControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:getScriptTraces\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ScriptControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ScriptControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/ScriptControllerTest.php
 
@@ -47381,21 +46181,6 @@ parameters:
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SearchControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SearchControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SearchControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SearchControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SearchControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SearchControllerTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
@@ -47404,21 +46189,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringNotContainsString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/SearchControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SitemapControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SitemapControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SitemapControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SitemapControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\SitemapControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/SitemapControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StoreApiProxyControllerTest\\:\\:authorizeSalesChannelBrowser\\(\\) has parameter \\$salesChannelOverride with no value type specified in iterable type array\\.$#"
@@ -47501,39 +46271,9 @@ parameters:
 			path: src/Storefront/Test/Controller/StorefrontControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontRoutingTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontRoutingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontRoutingTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontRoutingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\StorefrontRoutingTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/StorefrontRoutingTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/StorefrontRoutingTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WellKnownControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WellKnownControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WellKnownControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
@@ -47567,21 +46307,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:createSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/WishlistControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\WishlistControllerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/WishlistControllerTest.php
 
@@ -47777,21 +46502,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:getControllerEventMock\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Captcha\\\\CaptchaRouteListenerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Captcha/CaptchaRouteListenerTest.php
 
@@ -48342,21 +47052,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:createSalesChannel\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:request\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:tokenize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\CsrfRouteListenerTest\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Integration/CsrfRouteListenerTest.php
 

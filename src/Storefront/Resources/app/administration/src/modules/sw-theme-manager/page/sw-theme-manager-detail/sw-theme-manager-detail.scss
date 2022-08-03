@@ -139,38 +139,6 @@
             position: relative;
             width: fit-content;
         }
-
-        .sw-field__label {
-            @extend .sw-media-upload-v2__header;
-        }
-
-        &-switch,
-        &-checkbox {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-end;
-            gap: 10px;
-            align-items: flex-start;
-
-            .sw-inherit-wrapper__toggle-wrapper {
-                display: flex;
-                gap: 8px;
-                margin-bottom: 0;
-            }
-
-            .sw-field--switch__input {
-                padding: 0;
-            }
-
-            .sw-field--switch,
-            .sw-field--checkbox {
-                margin: 0;
-            }
-
-            .sw-field {
-                display: none;
-            }
-        }
     }
 
     &__content-skeleton {

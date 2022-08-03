@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
@@ -68,30 +67,6 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 
     /**
     * @Since("6.3.4.0")
-    * @OA\Post(
-    *      path="/customer/wishlist/add/{productId}",
-    *      summary="Add a product to a wishlist",
-    *      description="Adds a product to a customers wishlist.
-
-    **Important constraints**
-
-    * Anonymous (not logged-in) customers can not have wishlists.
-    * The wishlist feature has to be activated.",
-    *      operationId="addProductOnWishlist",
-    *      tags={"Store API", "Wishlist"},
-    *      @OA\Parameter(
-    *        name="productId",
-    *        in="path",
-    *        description="Identifier of the product to be added.",
-    *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-    *        required=true
-    *      ),
-    *      @OA\Response(
-    *          response="200",
-    *          description="Returns a success response.",
-    *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-    *     )
-    * )
      * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"}, defaults={"_loginRequired"=true})
     */
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

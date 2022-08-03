@@ -1,0 +1,75 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/country-state/{countryId}": {
+            "post": {
+                "tags": [
+                    "System & Context",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch the states of a country",
+                "description": "Perform a filtered search the states for a country",
+                "operationId": "readCountryState",
+                "parameters": [
+                  {
+                    "name": "countryId",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    }
+                  }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing countries.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CountryState"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

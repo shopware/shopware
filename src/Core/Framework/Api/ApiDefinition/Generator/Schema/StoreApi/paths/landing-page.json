@@ -1,0 +1,78 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/landing-page/{landingPageId}": {
+            "post": {
+                "tags": [
+                    "Content",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a landing page with the resolved CMS page",
+                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "operationId": "readLandingPage",
+                "parameters": [
+                    {
+                        "name": "landingPageId",
+                        "in": "path",
+                        "description": "Identifier of the landing page.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "allOf": [
+                                            {
+                                                "properties": {
+                                                    "slots": {
+                                                        "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            {
+                                                "$ref": "#/components/schemas/ProductListingCriteria"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The loaded landing page with cms page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LandingPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

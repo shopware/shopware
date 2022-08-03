@@ -1,0 +1,60 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/search-suggest": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search for products (suggest)",
+                "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
+                "operationId": "searchSuggest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "required": [
+                                            "search"
+                                        ],
+                                        "properties": {
+                                            "search": {
+                                                "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingFlags"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a product listing containing all products and additional fields.\n\nNote: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListingResult"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

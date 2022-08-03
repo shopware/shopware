@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
@@ -81,40 +80,6 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/recovery-password-confirm",
-     *      summary="Reset a password with recovery credentials",
-     *      description="This operation is Step 2 of the password reset flow. It is required to conduct Step 1 ""Send a password recovery mail"" in order to obtain the required credentials for this step.Resets a customer's password using credentials from a password recovery mail as a validation.",
-     *      operationId="recoveryPassword",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "hash",
-     *                  "newPassword",
-     *                  "newPasswordConfirm"
-     *              },
-     *              @OA\Property(
-     *                  property="hash",
-     *                  description="Parameter from the link in the confirmation mail sent in Step 1",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPassword",
-     *                  description="New password for the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="newPasswordConfirm",
-     *                  description="Confirmation of the new password",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
      */
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse

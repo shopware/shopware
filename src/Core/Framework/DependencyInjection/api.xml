@@ -144,7 +144,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
-            <argument type="service" id="router"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

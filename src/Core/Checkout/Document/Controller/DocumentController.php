@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\Controller;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
@@ -59,44 +58,6 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Get(
-     *     path="/_action/document/{documentId}/{deepLinkCode}",
-     *     summary="Download a document",
-     *     description="Download a document by its identifier and deep link code.",
-     *     operationId="downloadDocument",
-     *     tags={"Admin API", "Document Management"},
-     *     @OA\Parameter(
-     *         name="documentId",
-     *         description="Identifier of the document to be downloaded.",
-     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *         in="path",
-     *         required=true
-     *     ),
-     *     @OA\Parameter(
-     *         name="deepLinkCode",
-     *         description="A unique hash code which was generated when the document was created.",
-     *         @OA\Schema(type="string"),
-     *         in="path",
-     *         required=true
-     *     ),
-     *     @OA\Parameter(
-     *         name="download",
-     *         description="This parameter controls the `Content-Disposition` header. If set to `true` the header will be set to `attachment` else `inline`.",
-     *         @OA\Schema(type="boolean", default=false),
-     *         in="query",
-     *     ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The document.",
-     *          @OA\MediaType(
-     *              mediaType="application/octet-stream",
-     *              @OA\Schema(
-     *                  type="string",
-     *                  format="binary"
-     *              )
-     *          )
-     *     )
-     * )
      * @Route("/api/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"})
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
@@ -219,31 +180,6 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.4.12.0")
-     * @OA\Get(
-     *     path="/_action/order/document/download",
-     *     summary="Download a documents",
-     *     description="Download a multiple documents in one pdf file.",
-     *     operationId="downloadDocuments",
-     *     tags={"Admin API", "Document Management"},
-     *     @OA\Parameter(
-     *         name="documentIds",
-     *         description="A list of document ids to download.",
-     *         @OA\Schema(type="array",
-     *               @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The documents.",
-     *          @OA\MediaType(
-     *              mediaType="application/octet-stream",
-     *              @OA\Schema(
-     *                  type="string",
-     *                  format="binary"
-     *              )
-     *          )
-     *     )
-     * )
      * @Route("/api/_action/order/document/download", name="api.action.download.documents", methods={"POST"}, defaults={"_acl"={"document.viewer"}})
      */
     public function downloadDocuments(Request $request, Context $context): Response

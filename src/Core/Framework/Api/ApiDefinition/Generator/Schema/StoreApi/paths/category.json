@@ -1,0 +1,129 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/category": {
+            "post": {
+                "tags": [
+                    "Category",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a list of categories",
+                "description": "Perform a filtered search for categories.",
+                "operationId": "readCategoryList",
+                "parameters": [],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing categories.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Category"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/category/{navigationId}": {
+            "post": {
+                "tags": [
+                    "Category",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a single category",
+                "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
+                "operationId": "readCategory",
+                "parameters": [
+                    {
+                        "name": "navigationId",
+                        "in": "path",
+                        "description": "Identifier of the category to be fetched",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "slots",
+                        "in": "query",
+                        "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The loaded category with cms page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Category"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

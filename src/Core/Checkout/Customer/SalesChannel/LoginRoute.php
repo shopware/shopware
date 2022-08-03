@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -73,34 +72,6 @@ class LoginRoute extends AbstractLoginRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/login",
-     *      summary="Log in a customer",
-     *      description="Logs in customers given their credentials.",
-     *      operationId="loginCustomer",
-     *      tags={"Store API", "Login & Registration"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "username",
-     *                  "password"
-     *              },
-     *              @OA\Property(property="username", description="Email", type="string"),
-     *              @OA\Property(property="password", description="Password", type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="A successful login returns a context token which is associated with the logged in user. Use that as your `sw-context-token` header for subsequent requests.",
-     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
-     *     ),
-     *      @OA\Response(
-     *          response="401",
-     *          description="If credentials are incorrect an error is returned",
-     *          @OA\JsonContent(ref="#/components/schemas/failure")
-     *     )
-     * )
      * @Route(path="/store-api/account/login", name="store-api.account.login", methods={"POST"})
      */
     public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse

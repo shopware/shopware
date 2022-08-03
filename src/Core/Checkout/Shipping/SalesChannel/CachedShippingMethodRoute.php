@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheKeyEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -72,41 +71,6 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("shipping_method")
-     * @OA\Post(
-     *      path="/shipping-method",
-     *      summary="Fetch shipping methods",
-     *      description="Perform a filtered search for shipping methods.",
-     *      operationId="readShippingMethod",
-     *      tags={"Store API", "Payment & Shipping"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          name="onlyAvailable",
-     *          description="List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
-     *          @OA\Schema(type="boolean"),
-     *          in="query"
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="object",
-     *              @OA\Property(
-     *                  property="total",
-     *                  type="integer",
-     *                  description="Total amount"
-     *              ),
-     *              @OA\Property(
-     *                  property="aggregations",
-     *                  type="object",
-     *                  description="aggregation result"
-     *              ),
-     *              @OA\Property(
-     *                  property="elements",
-     *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/ShippingMethod")
-     *              )
-     *          )
-     *     )
-     * )
      * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse

@@ -18,6 +18,18 @@ if (\PHP_VERSION_ID < 70403) {
 
 $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
+
+//if (!file_exists(dirname(__DIR__) . '/install.lock')) {
+//    $basePath = 'recovery/install';
+//    $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
+//    $baseURL = rtrim($baseURL, '/');
+//    $installerURL = $baseURL . '/' . $basePath . '/index.php';
+//    if (strpos($_SERVER['REQUEST_URI'], $basePath) === false) {
+//        header('Location: ' . $installerURL);
+//        exit;
+//    }
+//}
+
 if (is_file(dirname(__DIR__) . '/files/update/update.json') || is_dir(dirname(__DIR__) . '/update-assets')) {
     header('Content-type: text/html; charset=utf-8', true, 503);
     header('Status: 503 Service Temporarily Unavailable');

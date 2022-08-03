@@ -5,12 +5,12 @@ namespace Shopware\Recovery\Install\Command;
 use Doctrine\DBAL\Connection;
 use Pimple\Container;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Install\DatabaseInteractor;
-use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
@@ -92,7 +92,7 @@ class InstallCommand extends Command
 
         /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
         $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
-        $blueGreenDeploymentService->setEnvironmentVariable();
+        $blueGreenDeploymentService->setEnvironmentVariable($conn);
 
         $skipImport = $databaseInitializer->hasShopwareTables($connectionInfo->getDatabaseName())
             && $input->getOption('no-skip-import')

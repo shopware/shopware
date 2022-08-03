@@ -3,8 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Installer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
 use Shopware\Core\Kernel;
+use Shopware\Core\TestBootstrapper;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\TwigBundle\TwigBundle;
 
 /**
  * @internal
@@ -12,7 +16,7 @@ use Shopware\Core\Kernel;
  */
 class InstallerKernelTest extends TestCase
 {
-    public function testItParsesVersion(): void
+    public function testItCorrectlyConfiguresTheContainer(): void
     {
         $kernel = new InstallerKernel('test', false);
 
@@ -22,10 +26,21 @@ class InstallerKernelTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $kernel->getContainer()->getParameter('kernel.shopware_version')
         );
+        // the default revision changes per commit, if it is set we expect that it is correct
+        static::assertTrue($kernel->getContainer()->hasParameter('kernel.shopware_version_revision'));
 
-        static::assertSame(
-            '00000000000000000000000000000000',
-            $kernel->getContainer()->getParameter('kernel.shopware_version_revision')
+        static::assertEquals(
+            [
+                'FrameworkBundle' => FrameworkBundle::class,
+                'TwigBundle' => TwigBundle::class,
+                'Installer' => Installer::class,
+            ],
+            $kernel->getContainer()->getParameter('kernel.bundles')
         );
+
+        static::assertSame((new TestBootstrapper())->getProjectDir(), $kernel->getContainer()->getParameter('kernel.project_dir'));
+
+        static::assertTrue($kernel->getContainer()->getParameter('container.dumper.inline_class_loader'));
+        static::assertTrue($kernel->getContainer()->getParameter('container.dumper.inline_factories'));
     }
 }

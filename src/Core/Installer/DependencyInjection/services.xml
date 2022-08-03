@@ -104,9 +104,22 @@
         </service>
 
         <service id="Shopware\Core\Installer\Controller\DatabaseConfigurationController" public="true">
+            <argument type="service" id="translator"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="string">%kernel.project_dir%</argument>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
     </services>
 </container>

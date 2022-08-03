@@ -5,7 +5,7 @@
         <h2>{{ "shopware.installer.license_agreement_header"|trans }}</h2>
     </div>
 
-    <form action="{{ url('installer.license') }}" method="post">
+    <form action="{{ url('installer.license') }}" id="license-agreement" method="post">
         <div class="card__body">
             {% if error %}
                 <div class="alert alert-error">
@@ -27,7 +27,11 @@
 
         <div class="card__footer flex-container">
             <a href="{{ url('installer.requirements') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
-            <button type="submit" class="btn btn-primary flex-item flex-right">{{ "shopware.installer.forward"|trans }}</button>
+            <button type="submit"
+                    class="btn btn-primary flex-item flex-right"
+                    onclick="document.getElementById('license-agreement').classList.add('is--submitted')">
+                {{ "shopware.installer.forward"|trans }}
+            </button>
         </div>
     </form>
 {% endblock %}

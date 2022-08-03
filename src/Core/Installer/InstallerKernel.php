@@ -29,6 +29,7 @@ class InstallerKernel extends HttpKernel
     {
         parent::__construct($environment, $debug);
 
+        // @codeCoverageIgnoreStart - not testable, as static calls cannot be mocked
         if (InstalledVersions::isInstalled('shopware/platform')) {
             $version = InstalledVersions::getVersion('shopware/platform')
                 . '@' . InstalledVersions::getReference('shopware/platform');
@@ -36,6 +37,7 @@ class InstallerKernel extends HttpKernel
             $version = InstalledVersions::getVersion('shopware/core')
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
+        // @codeCoverageIgnoreEnd
 
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
@@ -105,7 +107,7 @@ class InstallerKernel extends HttpKernel
         $loader->load($confDir . '/{services}_' . $this->environment . Kernel::CONFIG_EXTS, 'glob');
     }
 
-    private function configureRoutes(RoutingConfigurator $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__ . '/Resources/config/routes.xml');
     }

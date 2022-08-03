@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\HttpClient\Client;
@@ -19,7 +20,6 @@ use Shopware\Recovery\Common\Utils;
 use Shopware\Recovery\Install\ContainerProvider;
 use Shopware\Recovery\Install\Requirements;
 use Shopware\Recovery\Install\RequirementsPath;
-use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Struct\AdminUser;
@@ -320,7 +320,7 @@ function getApplication(KernelInterface $kernel): App
 
         /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
         $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
-        $blueGreenDeploymentService->setEnvironmentVariable();
+        $blueGreenDeploymentService->setEnvironmentVariable($container->offsetGet('dbal'));
 
         $service = new DatabaseInitializer($container->offsetGet('dbal'));
 

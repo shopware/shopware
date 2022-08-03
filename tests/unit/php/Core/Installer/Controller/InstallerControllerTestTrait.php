@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
@@ -25,10 +24,8 @@ trait InstallerControllerTestTrait
         $requestStack = new RequestStack();
         $requestStack->push(new Request([], [], ['_route' => 'installer.language-selection']));
         $container->set('request_stack', $requestStack);
-        $container->set('parameter_bag', new ParameterBag([
-            'shopware.installer.supportedLanguages' => ['en', 'de'],
-            'kernel.shopware_version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-        ]));
+        $container->setParameter('shopware.installer.supportedLanguages', ['en', 'de']);
+        $container->setParameter('kernel.shopware_version', Kernel::SHOPWARE_FALLBACK_VERSION);
 
         foreach ($services as $id => $service) {
             $container->set($id, $service);

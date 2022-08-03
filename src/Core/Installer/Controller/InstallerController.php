@@ -3,6 +3,7 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,8 +33,11 @@ abstract class InstallerController extends AbstractController
             $parameters['menu'] = $this->getMenuData($request);
         }
 
-        $parameters['supportedLanguages'] = $this->getParameter('shopware.installer.supportedLanguages');
-        $parameters['shopware']['version'] = $this->getParameter('kernel.shopware_version');
+        /** @var ContainerInterface $container */
+        $container = $this->container;
+
+        $parameters['supportedLanguages'] = $container->getParameter('shopware.installer.supportedLanguages');
+        $parameters['shopware']['version'] = $container->getParameter('kernel.shopware_version');
 
         return $this->render($view, $parameters);
     }

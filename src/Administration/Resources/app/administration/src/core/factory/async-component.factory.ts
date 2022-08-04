@@ -14,6 +14,7 @@ export default {
     extend,
     override,
     build,
+    wrapComponentConfig,
     getComponentTemplate,
     getComponentRegistry,
     getOverrideRegistry,
@@ -127,6 +128,20 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
 
     return true;
 }
+
+/* eslint-disable max-len */
+/**
+ * This method is just for adding TypeScript support to component configuration and provides a this context.
+ *
+ * Function overload to support all vue component object variations.
+ */
+// @ts-expect-error
+function wrapComponentConfig<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): ComponentConfig;
+function wrapComponentConfig<V extends Vue, Data, Methods, Computed, Props>(componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): ComponentConfig;
+function wrapComponentConfig(componentConfiguration: ComponentConfig<Vue>): ComponentConfig {
+    return componentConfiguration;
+}
+/* eslint-enable max-len */
 
 /**
  * Register a new component.

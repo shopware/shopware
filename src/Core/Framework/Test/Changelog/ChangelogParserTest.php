@@ -84,7 +84,7 @@ class ChangelogParserTest extends TestCase
         static::assertSame($expectedData['major'], $logEntry->getNextMajorVersionChanges());
         $lines = file($outFile);
 
-        /** @var string[] $templateLines */
+        /** @var array<string> $templateLines */
         $templateLines = explode(\PHP_EOL, $logEntry->toTemplate());
 
         foreach ($lines as $index => $line) {

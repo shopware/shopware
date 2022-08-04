@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Framework\Context;
@@ -57,30 +56,6 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
 
     /**
      * @Since("6.4.14.0")
-     * @OA\Post(
-     *      path="/account/customer-recovery-is-expired",
-     *      summary="Checks if the customer recovery entry for a given hash is expired.",
-     *      description="This can be used to validate a provided hash has a valid and not expired customer recovery hash.",
-     *      operationId="getCustomerRecoveryIsExpired",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "hash"
-     *              },
-     *              @OA\Property(
-     *                  property="hash",
-     *                  description="Parameter from the link in the confirmation mail sent in Step 1",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a CustomerRecoveryIsExpiredResponse that indicates if the hash is expired or not.",
-     *          @OA\JsonContent(ref="#/components/schemas/ArrayStruct")
-     *     )
-     * )
      * @Route(path="/store-api/account/customer-recovery-is-expired", name="store-api.account.customer.recovery.is.expired", methods={"POST"})
      */
     public function load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse

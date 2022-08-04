@@ -58,14 +58,14 @@ class OpenApi3Test extends TestCase
         $client = new Client();
 
         try {
-            $response = $client->post('http://swagger:8080/validator/debug', [
+            $response = $client->post('http://127.0.0.1:8080/validator/debug', [
                 'json' => json_decode($response->getContent(), true),
                 'headers' => [
                     'Accept' => 'application/json',
                 ],
             ]);
         } catch (ClientException | ConnectException $e) {
-            static::markTestSkipped('Cannot reach validator swagger service: ' . $e->getMessage());
+            static::markTestSkipped('Cannot reach validator 127.0.0.1 service: ' . $e->getMessage());
         }
 
         $content = json_decode((string) $response->getBody(), true);
@@ -82,14 +82,14 @@ class OpenApi3Test extends TestCase
         $client = new Client();
 
         try {
-            $response = $client->post('https://swagger:8080/validator/debug', [
+            $response = $client->post('http://127.0.0.1:8080/validator/debug', [
                 'json' => json_decode($response->getContent(), true),
                 'headers' => [
                     'Accept' => 'application/json',
                 ],
             ]);
         } catch (ClientException | ConnectException $e) {
-            static::markTestSkipped('Cannot reach validator swagger service: ' . $e->getMessage());
+            static::markTestSkipped('Cannot reach validator 127.0.0.1 service: ' . $e->getMessage());
         }
 
         $content = json_decode((string) $response->getBody(), true);
@@ -106,14 +106,14 @@ class OpenApi3Test extends TestCase
         $client = new Client();
 
         try {
-            $response = $client->post('https://swagger:8080/validator/debug', [
+            $response = $client->post('http://127.0.0.1:8080/validator/debug', [
                 'json' => json_decode($response->getContent(), true),
                 'headers' => [
                     'Accept' => 'application/json',
                 ],
             ]);
         } catch (ClientException | ConnectException $e) {
-            static::markTestSkipped('Cannot reach validator swagger service: ' . $e->getMessage());
+            static::markTestSkipped('Cannot reach validator 127.0.0.1 service: ' . $e->getMessage());
         }
 
         $content = json_decode((string) $response->getBody(), true);

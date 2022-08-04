@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
@@ -64,39 +63,6 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("product")
-     * @OA\Post(
-     *      path="/search-suggest",
-     *      summary="Search for products (suggest)",
-     *      description="Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
-     *      operationId="searchSuggest",
-     *      tags={"Store API","Product"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/ProductListingFlags"),
-     *                  @OA\Schema(type="object",
-     *                      required={
-     *                          "search"
-     *                      },
-     *                      @OA\Property(
-     *                          property="search",
-     *                          description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
-     *                          type="string"
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a product listing containing all products and additional fields.
-
-Note: Aggregations, currentFilters and availableSortings are empty in this response. If you need them to display a listing, use the /search route instead.",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
-     *     )
-     * )
      * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse

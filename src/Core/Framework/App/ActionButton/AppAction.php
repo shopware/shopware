@@ -13,7 +13,7 @@ class AppAction
     private const VERSION_VALIDATE_REGEX = '/^[0-9]+\.[0-9]+\.[0-9]+$/';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $ids;
 

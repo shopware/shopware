@@ -32,7 +32,7 @@ class AppLifecycleIterator
     }
 
     /**
-     * @param string[] $installAppNames Apps that should be installed
+     * @param array<string> $installAppNames Apps that should be installed
      *
      * @return list<array{manifest: Manifest, exception: \Exception}>
      */

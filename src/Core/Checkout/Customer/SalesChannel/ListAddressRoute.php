@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -51,19 +50,6 @@ class ListAddressRoute extends AbstractListAddressRoute
     /**
      * @Since("6.3.2.0")
      * @Entity("customer_address")
-     * @OA\Post(
-     *      path="/account/list-address",
-     *      summary="Fetch addresses of a customer",
-     *      description="Lists all addresses of the current customer and allows filtering them based on a criteria.",
-     *      operationId="listAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CustomerAddress"))
-     *     )
-     * )
      * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse

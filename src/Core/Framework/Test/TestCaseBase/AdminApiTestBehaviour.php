@@ -20,12 +20,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
 trait AdminApiTestBehaviour
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $apiUsernames = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $apiIntegrations = [];
 

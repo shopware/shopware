@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -70,31 +69,6 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Patch(
-     *      path="/context",
-     *      summary="Modify the current context",
-     *      description="Used for switching the context. A typical example would be changing the language or changing the currency.",
-     *      operationId="updateContext",
-     *      tags={"Store API","System & Context"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(property="currencyId", description="Currency", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="languageId", description="Language", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="countryId", description="Country", type="string", pattern="^[0-9a-f]{32}$"),
-     *              @OA\Property(property="countryStateId", description="Country State", type="string", pattern="^[0-9a-f]{32}$")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns the context token. Use that as your `sw-context-token` header for subsequent requests. Redirect if getRedirectUrl is set.",
-     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
-     *     )
-     * )
      * @Route("/store-api/context", name="store-api.switch-context", methods={"PATCH"})
      */
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse

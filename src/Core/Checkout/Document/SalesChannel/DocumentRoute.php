@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -38,19 +37,6 @@ final class DocumentRoute extends AbstractDocumentRoute
     /**
      * @Since("6.4.12.0")
      * @Entity("document")
-     * @OA\Post(
-     *      path="/document/download",
-     *      summary="Download generated document",
-     *      description="Returns blob file of a generated document to download.",
-     *      operationId="download",
-     *      tags={"Store API", "Document"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns the document information and blob to download.",
-     *          @OA\JsonContent(ref="#/components/schemas/Document")
-     *     )
-     * )
      * @Route("/store-api/document/download/{documentId}/{deepLinkCode}", name="store-api.document.download", methods={"GET", "POST"}, defaults={"_acl"={"document.viewer"}, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response

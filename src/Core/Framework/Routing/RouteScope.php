@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RouteScope extends AbstractRouteScope
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $allowedPaths = ['_wdt', '_profiler', '_error'];
 

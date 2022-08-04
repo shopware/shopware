@@ -22,7 +22,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     private array $toBeUpdated = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $toBeDeleted = [];
 
@@ -85,7 +85,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getToBeDeleted(): array
     {
@@ -100,7 +100,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAppNames(): array
     {

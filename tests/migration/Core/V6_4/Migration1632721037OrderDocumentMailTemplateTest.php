@@ -148,11 +148,11 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getMailTemplateTypeIds(): array
     {
-        /** @var string[] $result */
+        /** @var array<string> $result */
         $result = $this->connection->createQueryBuilder()
             ->select('id')
             ->from('mail_template_type')
@@ -168,7 +168,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
     }
 
     /**
-     * @param string[] $associatedIds
+     * @param array<string> $associatedIds
      */
     private function deleteRowsByReferencedId(array $associatedIds, string $table, string $associationField): void
     {
@@ -184,9 +184,9 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
     }
 
     /**
-     * @param string[] $typeIds
+     * @param array<string> $typeIds
      *
-     * @return string[]
+     * @return array<string>
      */
     private function getTemplateIds(array $typeIds): array
     {

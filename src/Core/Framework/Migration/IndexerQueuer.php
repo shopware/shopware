@@ -21,7 +21,7 @@ class IndexerQueuer
     }
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getIndexers(): array
     {

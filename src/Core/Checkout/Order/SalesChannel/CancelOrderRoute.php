@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
@@ -43,31 +42,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
 
     /**
     * @Since("6.2.0.0")
-    * @OA\Post(
-    *      path="/order/state/cancel",
-    *      summary="Cancel an order",
-    *      description="Cancels an order. The order state will be set to 'cancelled'.",
-    *      operationId="cancelOrder",
-    *      tags={"Store API", "Order"},
-    *      @OA\RequestBody(
-    *          required=true,
-    *          @OA\JsonContent(
-    *              @OA\Property(
-    *                  property="orderId",
-    *                  description="The identifier of the order to be canceled.",
-    *                  type="string"
-    *              )
-    *          )
-    *      ),
-    *      @OA\Response(
-    *          response="200",
-    *          description="Returns the state of the state machine
-
-    example: More information about the state machine can be found in the corresponding guide: [Using the state machine](https://developer.shopware.com/docs/guides/plugins/plugins/checkout/order/using-the-state-machine)",
-    *          @OA\JsonContent(ref="#/components/schemas/StateMachineState")
-    *     )
-    * )
-     * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
+    * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
     */
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {

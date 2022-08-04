@@ -17,12 +17,12 @@ class PaymentMethod extends XmlElement
     protected string $identifier;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $name = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $description = [];
 
@@ -93,7 +93,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getName(): array
     {
@@ -101,7 +101,7 @@ class PaymentMethod extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getDescription(): array
     {

@@ -20,7 +20,7 @@ class CustomerTagRule extends Rule
     protected $operator;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $identifiers;
 

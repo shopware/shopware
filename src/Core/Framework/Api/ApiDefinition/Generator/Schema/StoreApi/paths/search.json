@@ -1,0 +1,62 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/search": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search for products",
+                "description": "Performs a search for products which can be used to display a product listing.",
+                "operationId": "searchPage",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "required": [
+                                            "search"
+                                        ],
+                                        "properties": {
+                                            "search": {
+                                                "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingFlags"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a product listing containing all products and additional fields to display a listing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListingResult"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

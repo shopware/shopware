@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CustomFieldService implements EventSubscriberInterface
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     private $customFields;
 
@@ -88,7 +88,7 @@ class CustomFieldService implements EventSubscriberInterface
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getCustomFields(): array
     {

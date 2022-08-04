@@ -177,6 +177,9 @@ class CustomerGroupRegistrationActionController
         return $customerIds;
     }
 
+    /**
+     * @param array<string> $customerIds
+     */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): array
     {
         $criteria = new Criteria($customerIds);

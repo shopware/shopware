@@ -19,7 +19,7 @@ class ComposerPluginLoaderTest extends TestCase
     /**
      * Backing up current InstalledVersions state to left it out as it was
      *
-     * @var array{root: array{name: string, version: string, reference: string, pretty_version: string, aliases: string[], dev: bool, install_path: string, type: string}, versions: array<string, array{dev_requirement: bool, pretty_version?: string, version?: string, aliases?: string[], reference?: string, replaced?: string[], provided?: string[], install_path?: string, type?: string}>}|null
+     * @var array{root: array{name: string, version: string, reference: string, pretty_version: string, aliases: array<string>, dev: bool, install_path: string, type: string}, versions: array<string, array{dev_requirement: bool, pretty_version?: string, version?: string, aliases?: array<string>, reference?: string, replaced?: array<string>, provided?: array<string>, install_path?: string, type?: string}>}|null
      */
     private ?array $packages = null;
 

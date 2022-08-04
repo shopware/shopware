@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/cms/{id}": {
+            "post": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Fetch and resolve a CMS page",
+                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "operationId": "readCms",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identifier of the CMS page to be resolved",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "slots": {
+                                                "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The loaded cms page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CmsPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

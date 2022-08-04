@@ -60,9 +60,9 @@ class ClassNamespaceTest extends TestCase
     }
 
     /**
-     * @param string[] $basePathParts
+     * @param array<string> $basePathParts
      *
-     * @return string[]
+     * @return array<string>
      */
     private function extractProductionNamespaceParts(SplFileInfo $file, array $basePathParts): array
     {

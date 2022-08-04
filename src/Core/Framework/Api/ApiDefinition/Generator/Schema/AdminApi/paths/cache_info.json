@@ -1,0 +1,42 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/cache_info": {
+            "get": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Get cache information",
+                "description": "Get information about the cache configuration",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Information about the cache state.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "environment": {
+                                            "description": "The active environment.",
+                                            "type": "string"
+                                        },
+                                        "httpCache": {
+                                            "description": "State of the HTTP cache.",
+                                            "type": "boolean"
+                                        },
+                                        "cacheAdapter": {
+                                            "description": "The active cache adapter.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

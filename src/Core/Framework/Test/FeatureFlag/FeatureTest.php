@@ -18,15 +18,18 @@ class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public static $featureAllValue;
+    public static string $featureAllValue;
 
-    public static $appEnvValue;
+    public static string $appEnvValue;
 
-    public static $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
-    private $indicator;
+    private ?\stdClass $indicator;
 
-    private $fixtureFlags = [
+    /**
+     * @var string[]
+     */
+    private array $fixtureFlags = [
         'FEATURE_NEXT_101',
         'FEATURE_NEXT_102',
     ];
@@ -211,18 +214,23 @@ class FeatureTest extends TestCase
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($features);
 
-        Feature::registerFeatures(array_merge(array_keys(Feature::getAll(false)), ['FEATURE_NEXT_102']));
+        /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFeatures */
+        $registeredFeatures = array_merge(array_keys(Feature::getAll(false)), ['FEATURE_NEXT_102']);
+        Feature::registerFeatures($registeredFeatures);
 
         $actualFeatures = Feature::getRegisteredFeatures();
-        static::assertSame($features['FEATURE_NEXT_101'], $actualFeatures['FEATURE_NEXT_101']);
+        static::assertEquals($features['FEATURE_NEXT_101'], $actualFeatures['FEATURE_NEXT_101']);
 
         $expectedFeatureFlags = [
             'FEATURE_NEXT_101' => true,
             'FEATURE_NEXT_102' => false,
         ];
-        static::assertSame($expectedFeatureFlags, Feature::getAll(false));
+        static::assertEquals($expectedFeatureFlags, Feature::getAll(false));
     }
 
+    /**
+     * @return array{0: string, 1: bool}[]
+     */
     public function featureAllDataProvider(): array
     {
         return [
@@ -570,6 +578,9 @@ class FeatureTest extends TestCase
     }
 
     /**
+     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $featureConfig
+     * @param array<string, string> $env
+     *
      * @dataProvider isActiveDataProvider
      */
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
@@ -592,6 +603,7 @@ class FeatureTest extends TestCase
     {
         //init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll(false));
+        /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFlags */
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
         Feature::registerFeatures($registeredFlags);

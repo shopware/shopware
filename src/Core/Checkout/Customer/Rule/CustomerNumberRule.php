@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CustomerNumberRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $numbers;
 

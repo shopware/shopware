@@ -7,7 +7,7 @@ use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
 class QueryBuilder extends DBALQueryBuilder
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $states = [];
 

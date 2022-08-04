@@ -10,13 +10,13 @@ class CopyBatchInput
     private $sourceFile;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $targetFiles;
 
     /**
      * @param string|resource $sourceFile
-     * @param string[]        $targetFiles
+     * @param array<string>        $targetFiles
      */
     public function __construct($sourceFile, array $targetFiles)
     {
@@ -39,7 +39,7 @@ class CopyBatchInput
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getTargetFiles(): array
     {

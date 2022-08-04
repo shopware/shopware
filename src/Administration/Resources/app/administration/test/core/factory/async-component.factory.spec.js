@@ -2412,4 +2412,17 @@ describe('core/factory/async-component.factory.ts', () => {
         const secondSuccess = ComponentFactory.registerComponentHelper('test', () => {});
         expect(secondSuccess).toBe(false);
     });
+
+    it('should return the same input config as output config', async () => {
+        const inputConfig = {
+            data() {
+                return {
+                    test: 'data'
+                };
+            }
+        };
+
+        const outputConfig = ComponentFactory.wrapComponentConfig(inputConfig);
+        expect(inputConfig).toBe(outputConfig);
+    });
 });

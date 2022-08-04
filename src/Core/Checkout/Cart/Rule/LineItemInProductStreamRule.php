@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemInProductStreamRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $streamIds;
 
@@ -23,6 +23,8 @@ class LineItemInProductStreamRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $streamIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
     {

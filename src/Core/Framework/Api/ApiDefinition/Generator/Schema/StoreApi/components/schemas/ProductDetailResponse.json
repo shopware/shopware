@@ -1,0 +1,25 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductDetailResponse": {
+                "type": "object",
+                "description": "Represents a product along with detailed information required to display a variant selection.",
+                "properties": {
+                    "product": {
+                        "$ref": "#\/components\/schemas\/Product"
+                    },
+                    "configurator": {
+                        "type": "array",
+                        "description": "List of property groups with their corresponding options and information on how to display them.",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/PropertyGroup"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_info\/openapi3.json": {
+            "get": {
+                "tags": [
+                    "System Info & Healthcheck"
+                ],
+                "summary": "Get OpenAPI Specification",
+                "description": "Get information about the API in OpenAPI format.",
+                "operationId": "api-info",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type of the api",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "jsonapi",
+                                "json"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns information about the API."
+                    }
+                }
+            }
+        }
+    }
+}

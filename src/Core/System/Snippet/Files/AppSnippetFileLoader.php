@@ -62,7 +62,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param string[] $nameParts
+     * @param array<string> $nameParts
      */
     private function createSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): ?GenericSnippetFile
     {
@@ -77,7 +77,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param string[] $nameParts
+     * @param array<string> $nameParts
      */
     private function getSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {
@@ -91,7 +91,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param string[] $nameParts
+     * @param array<string> $nameParts
      */
     private function getBaseSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {

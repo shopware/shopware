@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -62,30 +61,6 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
 
     /**
      * @Since("6.4.14.0")
-     * @OA\Post(
-     *      path="/account/change-language",
-     *      summary="Change the customer's language.",
-     *      description="Changes the language of the logged in customer",
-     *      operationId="changeLanguage",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "languageId"
-     *              },
-     *              @OA\Property(
-     *                  property="language",
-     *                  description="New languageId",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/account/change-language", name="store-api.account.change-language", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

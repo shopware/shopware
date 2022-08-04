@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -31,10 +29,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -44,25 +40,12 @@ class DeliveryProcessorTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var Connection|object|null
-     */
-    private $connection;
-
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
      * @var SalesChannelContext
      */
     private $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -103,14 +86,20 @@ class DeliveryProcessorTest extends TestCase
         static::assertCount(1, $calculatedCart->getDeliveries());
 
         // Price was recalculated
+        static::assertNotNull($calculatedCart->getDeliveries()->first());
         static::assertSame(5.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
 
         // Tax was recalculated
+        static::assertNotNull($calculatedCart->getDeliveries()->first());
         static::assertCount(1, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes());
+        static::assertNotNull($calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes()->first());
         static::assertSame(5.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes()->first()->getPrice());
     }
 
-    public function testProcessShouldSkipPriceRecalculation(): void
+    /**
+     * @dataProvider  createDataProvider
+     */
+    public function testProcessShouldSkipPriceRecalculation(CalculatedPrice $calculatedPrice, float $totalPrice): void
     {
         $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
 
@@ -127,7 +116,7 @@ class DeliveryProcessorTest extends TestCase
                     new DeliveryDate(new \DateTimeImmutable('now'), new \DateTimeImmutable('now')),
                     new ShippingMethodEntity(),
                     new ShippingLocation(new CountryEntity(), null, null),
-                    new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                    $calculatedPrice
                 ),
             ]
         ));
@@ -154,69 +143,20 @@ class DeliveryProcessorTest extends TestCase
         static::assertCount(1, $calculatedCart->getDeliveries());
 
         // Price was not recalculated
-        static::assertSame(1.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
+        static::assertNotNull($calculatedCart->getDeliveries()->first());
+        static::assertSame($totalPrice, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
     }
 
-    public function testProcessShouldSetPriceByManualValue(): void
+    public function createDataProvider(): \Generator
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        yield [
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            0.0,
+        ];
 
-        $cartDataCollection = new CartDataCollection();
-        $cartDataCollection->set(
-            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
-            $this->salesChannelContext->getShippingMethod()
-        );
-        $originalCart = new Cart('original', 'original');
-        $originalCart->setDeliveries(new DeliveryCollection(
-            [
-                new Delivery(
-                    new DeliveryPositionCollection(),
-                    new DeliveryDate(new \DateTimeImmutable('now'), new \DateTimeImmutable('now')),
-                    new ShippingMethodEntity(),
-                    new ShippingLocation(new CountryEntity(), null, null),
-                    new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                ),
-            ]
-        ));
-
-        $originalCart->addExtension(
-            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
-            new CalculatedPrice(99.0, 99.0, new CalculatedTaxCollection(), new TaxRuleCollection())
-        );
-
-        $calculatedCart = new Cart('calculated', 'calculated');
-
-        // Adding 2 line items to cart with a different tax rate (19 and 10)
-        $firstLineItem = new LineItem('first', LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $firstLineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
-        $firstLineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
-            new CalculatedTax(5, 19, 5),
-        ]), new TaxRuleCollection()));
-
-        $secondLineItem = new LineItem('second', LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $secondLineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
-        $secondLineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
-            new CalculatedTax(5, 10, 5),
-        ]), new TaxRuleCollection()));
-
-        $calculatedCart->setLineItems(new LineItemCollection([$firstLineItem, $secondLineItem]));
-
-        $cartBehavior = new CartBehavior([]);
-
-        static::assertCount(0, $calculatedCart->getDeliveries());
-
-        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
-
-        // Deliveries were built
-        static::assertCount(1, $calculatedCart->getDeliveries());
-
-        // Price is set by manual value
-        $shippingCosts = $calculatedCart->getDeliveries()->first()->getShippingCosts();
-        static::assertSame(99.0, $shippingCosts->getTotalPrice());
-
-        // Tax rate is now mixed
-        static::assertCount(2, $shippingCosts->getCalculatedTaxes());
-        static::assertEquals(19.0, $shippingCosts->getCalculatedTaxes()->first()->getTaxRate());
-        static::assertEquals(10.0, $shippingCosts->getCalculatedTaxes()->last()->getTaxRate());
+        yield [
+            new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            1.0,
+        ];
     }
 }

@@ -42,6 +42,9 @@ final class DocumentMerger
         $this->documentGenerator = $documentGenerator;
     }
 
+    /**
+     * @param array<string> $documentIds
+     */
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
         if (empty($documentIds)) {

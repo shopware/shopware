@@ -31,7 +31,7 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
         $container->getAlias(CacheStore::class)->setPublic(true);
 
         if ($container->getParameter('storefront.reverse_proxy.fastly.enabled')) {
-            $container->setDefinition(AbstractReverseProxyGateway::class, $container->getDefinition(FastlyReverseProxyGateway::class));
+            $container->setAlias(AbstractReverseProxyGateway::class, FastlyReverseProxyGateway::class);
         }
     }
 }

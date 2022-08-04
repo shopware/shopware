@@ -193,7 +193,7 @@ class OrderEntity extends Entity
     protected $customerComment;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $ruleIds = [];
 
@@ -568,6 +568,9 @@ class OrderEntity extends Entity
         return $this->ruleIds;
     }
 
+    /**
+     * @param array<string>|null $ruleIds
+     */
     public function setRuleIds(?array $ruleIds): void
     {
         $this->ruleIds = $ruleIds;

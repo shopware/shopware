@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
@@ -66,23 +65,6 @@ class LogoutRoute extends AbstractLogoutRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/logout",
-     *      summary="Log out a customer",
-     *      description="Logs out a customer.",
-     *      operationId="logoutCustomer",
-     *      tags={"Store API", "Login & Registration"},
-     *      @OA\Response(
-     *          response="200",
-     *          description="A successful logout returns a context token for the anonymous user. Use that as your `sw-context-token` header for subsequent requests.",
-     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
-     *     ),
-     *      @OA\Response(
-     *          response="403",
-     *          description="If the user is not logged in, a 403 error is returned.",
-     *          ref="#/components/responses/403"
-     *     )
-     * )
      * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse

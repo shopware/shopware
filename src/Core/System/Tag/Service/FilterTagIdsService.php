@@ -65,7 +65,7 @@ class FilterTagIdsService
 
         $query = $this->criteriaQueryBuilder->build($query, $this->tagDefinition, $criteria, $context);
 
-        /** @var string[] $select */
+        /** @var array<string> $select */
         $select = array_merge(['LOWER(HEX(`tag`.`id`))'], $query->getQueryPart('select'));
         $query->select($select);
         $query->addGroupBy('`tag`.`id`');

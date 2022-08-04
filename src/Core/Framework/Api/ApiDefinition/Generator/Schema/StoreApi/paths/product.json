@@ -1,0 +1,338 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/product/{productId}/cross-selling": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "Fetch cross-selling groups of a product",
+        "description": "This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+        "operationId": "readProductCrossSellings",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found cross sellings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossSellingElementCollection"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/product/{productId}": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "Fetch a single product",
+        "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+        "operationId": "readProductDetail",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product information along with variant groups and options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/product": {
+      "post": {
+        "tags": [
+          "Product",
+          "Endpoints supporting Criteria "
+        ],
+        "summary": "Fetch a list of products",
+        "description": "List products that match the given criteria. For performance ressons a limit should always be set.",
+        "operationId": "readProduct",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Criteria"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entity search result containing products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "properties": {
+                        "elements": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Product"
+                          }
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EntitySearchResult"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/product/{productId}/reviews": {
+      "post": {
+        "tags": [
+          "Product",
+          "Endpoints supporting Criteria "
+        ],
+        "summary": "Fetch product reviews",
+        "description": "Perform a filtered search for product reviews.",
+        "operationId": "readProductReviews",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier of the product.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Criteria"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entity search result containing product reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "properties": {
+                        "elements": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ProductReview"
+                          }
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EntitySearchResult"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/product/{productId}/review": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "Save a product review",
+        "description": "Saves a review for a product. Reviews have to be activated in the settings.",
+        "operationId": "saveProductReview",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier of the product which is reviewed.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "title",
+                  "content",
+                  "points"
+                ],
+                "properties": {
+                  "name": {
+                    "description": "The name of the review author. If not set, the first name of the customer is chosen.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "description": "The email address of the review author. If not set, the email of the customer is chosen.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "description": "The title of the review."
+                  },
+                  "content": {
+                    "description": "The content of review."
+                  },
+                  "points": {
+                    "description": "The review rating for the product."
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success response indicating the review was saved successfuly."
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/product/{productId}/find-variant": {
+      "post": {
+        "tags": [
+          "Product"
+        ],
+        "summary": "Search for a matching variant by product options.",
+        "description": "Performs a search for product variants and returns the best matching variant.",
+        "operationId": "searchProductVariantIds",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "options"
+                ],
+                "properties": {
+                  "options": {
+                    "description": "The options parameter for the variant to find.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "switchedGroup": {
+                    "description": "The id of the option group that has been switched.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns an FoundCombination struct containing the ids matching the search.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindProductVariantRouteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

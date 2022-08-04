@@ -86,7 +86,7 @@ class Cart extends Struct
     private $data;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $ruleIds = [];
 
@@ -313,7 +313,7 @@ class Cart extends Struct
     }
 
     /**
-     * @param string[] $ruleIds
+     * @param array<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
@@ -321,7 +321,7 @@ class Cart extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRuleIds(): array
     {

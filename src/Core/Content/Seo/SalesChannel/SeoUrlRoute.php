@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -39,36 +38,6 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("seo_url")
-     * @OA\Post(
-     *      path="/seo-url",
-     *      summary="Fetch SEO routes",
-     *      description="Perform a filtered search for seo urls.",
-     *      operationId="readSeoUrl",
-     *      tags={"Store API", "Sitemap & Routes"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing seo urls.",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/SeoUrl")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *     ),
-     *     @OA\Response(
-     *          response="404",
-     *          ref="#/components/responses/404"
-     *     )
-     * )
-     *
      * @Route("/store-api/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse

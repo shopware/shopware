@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -81,23 +80,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Get(
-     *     path="/_info/openapi3.json",
-     *     summary="Get OpenAPI Specification",
-     *     description="Get information about the API in OpenAPI format.",
-     *     operationId="api-info",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Parameter(
-     *         name="type",
-     *         description="Type of the api",
-     *         @OA\Schema(type="string", enum={"jsonapi", "json"}),
-     *         in="query"
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns information about the API."
-     *     )
-     * )
      * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
      */
     public function info(Request $request): JsonResponse
@@ -156,18 +138,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Get(
-     *     path="/_info/events.json",
-     *     summary="Get Business events",
-     *     description="Get a list of about the business events.",
-     *     operationId="business-events",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a list of about the business events.",
-     *         @OA\JsonContent(ref="#/components/schemas/businessEventsResponse")
-     *     )
-     * )
      * @Route("/api/_info/events.json", name="api.info.business-events", methods={"GET"})
      */
     public function businessEvents(Context $context): JsonResponse
@@ -207,18 +177,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Get(
-     *     path="/_info/config",
-     *     summary="Get API information",
-     *     description="Get information about the API",
-     *     operationId="config",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns information about the API.",
-     *         @OA\JsonContent(ref="#/components/schemas/infoConfigResponse")
-     *     )
-     * )
      * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
      *
      * @deprecated tag:v6.5.0 $context param will be required
@@ -250,24 +208,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.3.5.0")
-     * @OA\Get(
-     *     path="/_info/version",
-     *     summary="Get the Shopware version",
-     *     description="Get the version of the Shopware instance",
-     *     operationId="infoShopwareVersion",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns the version of the Shopware instance.",
-     *         @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="version",
-     *                  description="The Shopware version.",
-     *                  type="string"
-     *              )
-     *          )
-     *     )
-     * )
      * @Route("/api/_info/version", name="api.info.shopware.version", methods={"GET"})
      * @Route("/api/v1/_info/version", name="api.info.shopware.version_old_version", methods={"GET"})
      */
@@ -280,18 +220,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.4.5.0")
-     * @OA\Get(
-     *     path="/_info/flow-actions.json",
-     *     summary="Get actions for flow builder",
-     *     description="Get a list of action for flow builder.",
-     *     operationId="flow-actions",
-     *     tags={"Admin API", "System Info & Healthcheck"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a list of action for flow builder.",
-     *         @OA\JsonContent(ref="#/components/schemas/flowBulderActionsResponse")
-     *     )
-     * )
      * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
      */
     public function flowActions(Context $context): JsonResponse

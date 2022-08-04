@@ -35,7 +35,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function get(): ?array
     {
@@ -78,7 +78,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getPrefixes(): array
     {

@@ -77,7 +77,7 @@ class RequestTransformer implements RequestTransformerInterface
     private $decorated;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $whitelist = [
         '/_wdt/',

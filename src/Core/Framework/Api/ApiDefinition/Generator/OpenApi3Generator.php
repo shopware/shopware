@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -58,7 +60,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $this->pathBuilder = $pathBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
-        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi/';
+        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
     }
 
     public function supports(string $format, string $api): bool
@@ -70,7 +72,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        $openApi = $this->openApiLoader->load($api);
+        $openApi = new OpenApi([]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $openApi = $this->openApiLoader->load($api);
+        }
         $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);
@@ -111,14 +116,19 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         $data = json_decode($openApi->toJson(), true);
+        $data['paths'] = $data['paths'] ?? [];
 
-        $finder = (new Finder())->in($this->schemaPath)->name('*.json');
+        $finder = (new Finder())->in($this->schemaPath . '/components/schemas')->name('*.json');
 
         foreach ($finder as $item) {
-            $name = str_replace('.json', '', $item->getFilename());
-
             $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['components']['schemas'][$name] = $readData;
+            $data['components']['schemas'] = \array_replace_recursive($data['components']['schemas'], $readData['components']['schemas']);
+        }
+        $finder = (new Finder())->in($this->schemaPath . '/paths')->name('*.json');
+
+        foreach ($finder as $item) {
+            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
+            $data['paths'] = \array_replace($data['paths'], $readData['paths']);
         }
 
         return $data;

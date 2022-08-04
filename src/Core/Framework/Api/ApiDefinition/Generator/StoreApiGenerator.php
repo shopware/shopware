@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -64,7 +65,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->openApiBuilder = $openApiBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
-        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi/';
+        $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
         $this->openApi3Generator = $openApi3Generator;
     }
 
@@ -78,7 +79,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     public function generate(array $definitions, string $api, string $apiType): array
     {
-        $openApi = $this->openApiLoader->load($api);
+        $openApi = new OpenApi([]);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $openApi = $this->openApiLoader->load($api);
+        }
         $this->openApiBuilder->enrich($openApi, $api);
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
@@ -100,14 +104,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->addContentTypeParameter($openApi);
 
         $data = json_decode($openApi->toJson(), true);
+        $data['paths'] = $data['paths'] ?? [];
 
-        $finder = (new Finder())->in($this->schemaPath)->name('*.json');
+        $finder = (new Finder())->in($this->schemaPath . '/components/schemas')->name('*.json');
 
         foreach ($finder as $item) {
-            $name = str_replace('.json', '', $item->getFilename());
-
             $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['components']['schemas'][$name] = $readData;
+            $data['components']['schemas'] = \array_replace_recursive($data['components']['schemas'], $readData['components']['schemas']);
+        }
+
+        $finder = (new Finder())->in($this->schemaPath . '/paths')->name('*.json');
+
+        foreach ($finder as $item) {
+            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
+            $data['paths'] = \array_replace_recursive($data['paths'], $readData['paths']);
         }
 
         return $data;
@@ -184,6 +194,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 'description' => 'Accepted response content types',
             ]),
         ];
+
+        if (!is_iterable($openApi->paths)) {
+            return;
+        }
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
@@ -38,23 +37,6 @@ class ScriptApiRoute
 
     /**
      * @Since("6.4.9.0")
-     * @OA\Post(
-     *      path="/script/{hook}",
-     *      summary="Access point for different api logics which are provided by apps over script hooks",
-     *      operationId="scriptApiRoute",
-     *      tags={"API","Script", "App"},
-     *      @OA\Parameter(
-     *          name="hook",
-     *          description="Dynamic hook which used to build the hook name",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns different structures of results based on the called script.",
-     *     )
-     * )
      * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"}, requirements={"hook"=".+"})
      */
     public function execute(string $hook, Request $request, Context $context): Response

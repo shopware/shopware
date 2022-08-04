@@ -20,12 +20,12 @@ class RedisReverseProxyGateway extends AbstractReverseProxyGateway
     protected array $singlePurge;
 
     /**
-     * @var array{'method': string, 'headers': array<string, string>, 'urls': string[]}
+     * @var array{'method': string, 'headers': array<string, string>, 'urls': array<string>}
      */
     protected array $entirePurge;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $hosts;
 
@@ -61,7 +61,7 @@ LUA;
     /**
      * @param \Redis|\RedisCluster $redis
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
-     * @param array{'method': string, 'headers': array<string, string>, 'urls': string[]} $entirePurge
+     * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
     public function __construct(array $hosts, array $singlePurge, array $entirePurge, int $concurrency, $redis, Client $client)
     {
@@ -74,7 +74,7 @@ LUA;
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      *
      * @deprecated tag:v6.5.0 - Parameter $response will be required
      */
@@ -93,7 +93,7 @@ LUA;
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      */
     public function invalidate(array $tags): void
     {

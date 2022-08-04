@@ -57,8 +57,6 @@ base-uri 'self';
     </monolog:config>
 
     <services>
-        <service id="templating.loader.wrapped" alias="templating.loader"/>
-
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>

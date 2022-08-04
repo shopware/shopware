@@ -136,8 +136,8 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/database-configuration');
+            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);
         $session = new Session(new MockArraySessionStorage());
@@ -145,7 +145,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $response = $this->controller->databaseConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/database-configuration', $response->getTargetUrl());
+        static::assertSame('/installer/database-import', $response->getTargetUrl());
 
         static::assertTrue($session->has(DatabaseConnectionInformation::class));
     }
@@ -233,8 +233,8 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/database-configuration');
+            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);
         $session = new Session(new MockArraySessionStorage());
@@ -242,7 +242,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $response = $this->controller->databaseConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/database-configuration', $response->getTargetUrl());
+        static::assertSame('/installer/database-import', $response->getTargetUrl());
 
         static::assertTrue($session->has(DatabaseConnectionInformation::class));
     }

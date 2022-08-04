@@ -9,9 +9,9 @@ class BlueGreenDeploymentService
 {
     public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
 
-    public function setEnvironmentVariable(Connection $connection): void
+    public function setEnvironmentVariable(Connection $connection): bool
     {
-        $_SERVER[self::ENV_NAME] = $_ENV[self::ENV_NAME] = $_SESSION[self::ENV_NAME] = $this->checkIfMayCreateTrigger($connection);
+        return $_SERVER[self::ENV_NAME] = $_ENV[self::ENV_NAME] = $this->checkIfMayCreateTrigger($connection);
     }
 
     private function checkIfMayCreateTrigger(Connection $connection): bool

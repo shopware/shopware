@@ -23706,54 +23706,9 @@ parameters:
 			path: src/Core/Framework/Migration/MakeVersionableMigrationHelper.php
 
 		-
-			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:getExecutableDestructiveMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:getExecutableMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:getMigrationData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:getMigrationSteps\\(\\) should return array\\<Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\> but returns array\\<Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\>\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:migrateDestructiveInPlace\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:migrateInPlace\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollectionLoader\\:\\:__construct\\(\\) has parameter \\$migrationSources with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/MigrationCollectionLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationRuntime\\:\\:getExecutableDestructiveMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationRuntime.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationRuntime\\:\\:getExecutableMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationRuntime.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:__construct\\(\\) has parameter \\$namespaces with no value type specified in iterable type iterable\\.$#"

@@ -86,7 +86,10 @@ class DatabaseConfigurationController extends InstallerController
 
             $session->set(DatabaseConnectionInformation::class, $connectionInfo);
 
-            $this->blueGreenDeploymentService->setEnvironmentVariable($connection);
+            $session->set(
+                BlueGreenDeploymentService::ENV_NAME,
+                $this->blueGreenDeploymentService->setEnvironmentVariable($connection)
+            );
 
             if ($this->setupDatabaseAdapter->getTableCount($connection, $connectionInfo->getDatabaseName())) {
                 $connectionInfo->setDatabaseName('');
@@ -113,7 +116,7 @@ class DatabaseConfigurationController extends InstallerController
             ]);
         }
 
-        return $this->redirectToRoute('installer.database-configuration');
+        return $this->redirectToRoute('installer.database-import');
     }
 
     /**

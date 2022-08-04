@@ -2,12 +2,8 @@
 
 {% block base_content %}
     <div class="card__title">
-        <h2>{{ "shopware.installer.license_agreement_header"|trans }}</h2>
-    </div>
-    <div class="card__title">
         <h2>{{ "shopware.installer.database-configuration_header"|trans }}</h2>
     </div>
-
 
     <form
         action="{{ url('installer.database-configuration') }}"
@@ -95,9 +91,7 @@
                     name="databaseName"
                     id="databaseName"
                     required="required"
-                    onfocus="
-                        fetchDatabaseInformation('{{ url('installer.database-information') }}');
-                    "
+                    onfocus="fetchDatabaseInformation();"
                 />
             </p>
             <div id="non-empty-db-warning" class="alert alert-warning is--hidden">
@@ -132,9 +126,9 @@
     </form>
 
     <script>
-        async function fetchDatabaseInformation(url) {
+        async function fetchDatabaseInformation() {
             const form = new FormData(document.getElementById('database-configuration'));
-            const response = await fetch(url, {
+            const response = await fetch('{{ url('installer.database-information') }}', {
                 method: 'POST',
                 body: form,
             })
@@ -143,7 +137,7 @@
                 return;
             }
 
-            const data =  await response.json();
+            const data = await response.json();
 
             if (Object.entries(data).length === 0) {
                 return;

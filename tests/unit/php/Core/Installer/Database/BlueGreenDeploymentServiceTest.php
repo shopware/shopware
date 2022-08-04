@@ -29,7 +29,6 @@ class BlueGreenDeploymentServiceTest extends TestCase
 
         static::assertTrue($_ENV[BlueGreenDeploymentService::ENV_NAME]);
         static::assertTrue($_SERVER[BlueGreenDeploymentService::ENV_NAME]);
-        static::assertTrue($_SESSION[BlueGreenDeploymentService::ENV_NAME]);
         static::assertTrue(EnvironmentHelper::getVariable(BlueGreenDeploymentService::ENV_NAME));
     }
 
@@ -51,7 +50,6 @@ class BlueGreenDeploymentServiceTest extends TestCase
 
         static::assertFalse($_ENV[BlueGreenDeploymentService::ENV_NAME]);
         static::assertFalse($_SERVER[BlueGreenDeploymentService::ENV_NAME]);
-        static::assertFalse($_SESSION[BlueGreenDeploymentService::ENV_NAME]);
         static::assertFalse(EnvironmentHelper::getVariable(BlueGreenDeploymentService::ENV_NAME));
     }
 }

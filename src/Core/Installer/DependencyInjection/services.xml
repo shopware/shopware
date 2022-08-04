@@ -116,10 +116,30 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Installer\Controller\DatabaseImportController" public="true">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\DatabaseMigrator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
 
         <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
 
         <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
+
+        <service id="Shopware\Core\Installer\Database\DatabaseMigrator">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+            <argument type="service" id="Shopware\Core\Installer\Database\MigrationCollectionFactory"/>
+            <argument type="string">%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Database\MigrationCollectionFactory">
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
     </services>
 </container>

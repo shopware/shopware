@@ -1,60 +1,62 @@
 
-rufus:
+.downstream-trunk:
   stage: downstream
-  needs: []
+  needs: [ ]
   variables:
-    RUFUS_BRANCH: trunk
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+  inherit:
+    default: false
+    variables:
+      - PLATFORM_BRANCH
   rules:
     - !reference [ .rules, skip ]
-    # target branch is release branch -> rufus should have the same branch
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      variables:
-        RUFUS_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-    # release branch -> rufus should also be a release branch
+      when: never
     - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      variables:
-        RUFUS_BRANCH: $CI_COMMIT_BRANCH
+      when: never
     - !reference [ .rules, run ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
-  inherit:
-    variables:
-      - PLATFORM_BRANCH
-      - RUFUS_BRANCH
+
+.downstream-release:
+  stage: downstream
+  image: curlimages/curl:7.72.0
+  needs: [ ]
+  variables:
+    DOWNSTREAM_BRANCH: trunk
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+  rules:
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
+    - when: never
+  before_script:
+    - if [ "${CI_PIPELINE_SOURCE}" = 'merge_request_event' ]; then export DOWNSTREAM_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"; else export DOWNSTREAM_BRANCH="${CI_COMMIT_BRANCH}"; fi
+  script:
+    - curl --request POST
+        --form "token=${CI_JOB_TOKEN}"
+        --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}"
+        --form "ref=${DOWNSTREAM_BRANCH}"
+        "${CI_API_V4_URL}/projects/${DOWNSTREAM_PROJECT_PATH}/trigger/pipeline"
+
+rufus trunk:
+  extends: .downstream-trunk
   trigger:
     project: shopware/6/product/rufus
-    branch: $RUFUS_BRANCH
+    branch: trunk
     strategy: depend
 
-commercial:
-  stage: downstream
-  needs: []
-  variables:
-    COMMERCIAL_BRANCH: trunk
-    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
-  rules:
-    - !reference [ .rules, skip ]
-    # target branch is release branch -> commercial should have the same branch
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      variables:
-        COMMERCIAL_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-    # release branch -> commercial should also be a release branch
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      variables:
-        COMMERCIAL_BRANCH: $CI_COMMIT_BRANCH
-    - !reference [ .rules, run ]
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-    - when: manual
-      allow_failure: true
-  inherit:
-    variables:
-      - PLATFORM_BRANCH
-      - COMMERCIAL_BRANCH
+commercial trunk:
+  extends: .downstream-trunk
   trigger:
     project: shopware/6/product/commercial
-    branch: $COMMERCIAL_BRANCH
+    branch: trunk
     strategy: depend
+
+trigger downstream build:
+  extends: .downstream-release
+  parallel:
+    matrix:
+      - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]

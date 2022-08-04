@@ -60,6 +60,8 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should not be able to save the property', async () => {
@@ -72,6 +74,8 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should be able to save the property', async () => {
@@ -89,5 +93,7 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapper.destroy();
     });
 });

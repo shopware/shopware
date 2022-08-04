@@ -166,20 +166,22 @@ const createWrapper = (privileges = []) => {
 
 describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     let wrapper;
-    beforeEach(() => {
-        wrapper = createWrapper();
-    });
 
     afterEach(() => {
-        wrapper.destroy();
+        if (wrapper) {
+            wrapper.destroy();
+        }
+
         jest.clearAllMocks();
     });
 
     it('should be a Vue.js component', async () => {
+        wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to add an item to the attachment', async () => {
+        wrapper = createWrapper();
         await wrapper.setData({ mailTemplateMedia: [] });
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -187,6 +189,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be unable to add an item to the attachment exist this item', async () => {
+        wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -198,10 +202,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be success to get media columns', async () => {
+        wrapper = createWrapper();
         expect(wrapper.vm.getMediaColumns().length).toBe(1);
     });
 
     it('should be success to upload an attachment', async () => {
+        wrapper = createWrapper();
         await wrapper.setData({
             mailTemplate: {
                 media: new EntityCollection(
@@ -221,6 +227,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be return if the user upload duplicated the attachment', async () => {
+        wrapper = createWrapper();
         await wrapper.setData({ mailTemplate: mailTemplateMock });
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
@@ -229,8 +236,21 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to delete media', async () => {
+        wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
         await wrapper.setData({
-            mailTemplateMedia: [mailTemplateMediaMock]
+            mailTemplateMedia: [mailTemplateMediaMock],
+            mailTemplate: {
+                media: new EntityCollection(
+                    '/media',
+                    'media',
+                    null,
+                    { isShopwareContext: true },
+                    mediaMock,
+                    mediaMock.length,
+                    null
+                )
+            }
         });
 
         wrapper.vm.successfulUpload({ targetId: 'mailTemplateMediaTestId' });

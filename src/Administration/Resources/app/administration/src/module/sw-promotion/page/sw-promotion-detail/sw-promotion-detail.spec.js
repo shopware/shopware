@@ -100,8 +100,11 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
 
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -113,6 +116,8 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-detail__save-action');
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should enable the save button when privilege does not exist', async () => {
@@ -126,5 +131,7 @@ describe('src/module/sw-promotion/page/sw-promotion-detail', () => {
 
         const saveButton = wrapper.find('.sw-promotion-detail__save-action');
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapper.destroy();
     });
 });

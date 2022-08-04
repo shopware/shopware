@@ -102,11 +102,17 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         wrapper = createWrapper();
     });
 
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
     it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to edit the customer', async () => {
+        await wrapper.destroy();
+
         const wrapperWithPrivileges = createWrapper();
         await wrapperWithPrivileges.setData({
             isLoading: false
@@ -118,9 +124,13 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
+
+        wrapperWithPrivileges.destroy();
     });
 
     it('should be able to edit the customer', async () => {
+        await wrapper.destroy();
+
         const wrapperWithPrivileges = createWrapper([
             'customer.editor'
         ]);
@@ -132,6 +142,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+
+        wrapperWithPrivileges.destroy();
     });
 
     it('should accept customer registration button called', async () => {
@@ -155,6 +167,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should have company validation when customer type is commercial', async () => {
+        await wrapper.destroy();
+
         const wrapperWithPrivileges = createWrapper([
             'customer.editor'
         ]);

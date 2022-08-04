@@ -138,6 +138,21 @@ Component.register('sw-event-action-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-event-action-detail__businessEvents',
+                path: 'businessEvents',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-event-action-detail__eventAction',
+                path: 'eventAction',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-event-action-detail__recipients',
+                path: 'recipients',
+                scope: this,
+            });
             this.loadData();
         },
 

@@ -119,15 +119,21 @@ function createWrapper(eventActionId = null, privileges = []) {
 }
 
 describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
+    let wrapper;
+
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
     it('should be instantiated', async () => {
-        const wrapper = createWrapper();
+        wrapper = createWrapper();
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render all fields', async () => {
-        const wrapper = createWrapper();
+        wrapper = createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-event-action-detail__business-event-select').exists()).toBeTruthy();
@@ -139,7 +145,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should load existing event action', async () => {
-        const wrapper = createWrapper('12345');
+        wrapper = createWrapper('12345');
         await flushPromises();
 
         // Expect to call `event_action` repository get with id
@@ -159,7 +165,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should create new event action when no id is given', async () => {
-        const wrapper = createWrapper();
+        wrapper = createWrapper();
         await flushPromises();
 
         // Expect to call `event_action` repository create with shopware context
@@ -177,7 +183,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should load and filter business events', async () => {
-        const wrapper = createWrapper();
+        wrapper = createWrapper();
         await flushPromises();
 
         // Expect to call businessEventService to load all business events
@@ -204,7 +210,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should perform save action', async () => {
-        const wrapper = createWrapper('54321');
+        wrapper = createWrapper('54321');
         await flushPromises();
 
         // Change the event name
@@ -231,7 +237,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
      * Test is skipped due to the component error landing in the jest error stack and therefor always failing this test.
      */
     it('should not perform save action when no mail template id is given', async () => {
-        const wrapper = createWrapper('54321');
+        wrapper = createWrapper('54321');
         await flushPromises();
 
 
@@ -256,7 +262,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should convert recipients array on save', async () => {
-        const wrapper = createWrapper('1337');
+        wrapper = createWrapper('1337');
         await flushPromises();
 
         await wrapper.setData({
@@ -281,7 +287,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should detect recipients are not be changed', async () => {
-        const wrapper = createWrapper('54321');
+        wrapper = createWrapper('54321');
         await flushPromises();
 
         expect(wrapper.vm.recipients).toEqual([
@@ -302,7 +308,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should update recipients when local variable recipients is changed', async () => {
-        const wrapper = createWrapper('54321');
+        wrapper = createWrapper('54321');
         await flushPromises();
 
         wrapper.vm.onUpdateRecipientsList([]);
@@ -314,7 +320,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should disable all interactive buttons and fields with viewer privileges', async () => {
-        const wrapper = createWrapper('54321', [
+        wrapper = createWrapper('54321', [
             'event_action.viewer'
         ]);
         await flushPromises();
@@ -331,7 +337,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
     });
 
     it('should enable all interactive buttons and fields with editor privileges', async () => {
-        const wrapper = createWrapper('54321', [
+        wrapper = createWrapper('54321', [
             'event_action.viewer',
             'event_action.editor'
         ]);

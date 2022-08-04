@@ -77,7 +77,7 @@ function createWrapper(privileges = [], orderSumToday = null) {
 }
 
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
-    let wrapper = createWrapper();
+    let wrapper;
 
     beforeAll(() => {
         Shopware.State.registerModule('session', {

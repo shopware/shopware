@@ -192,6 +192,11 @@ Component.register('sw-users-permissions-user-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-user-detail__currentUser',
+                path: 'currentUser',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.languageId) {

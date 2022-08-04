@@ -108,6 +108,11 @@ Component.register('sw-review-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-review-detail__review',
+                path: 'review',
+                scope: this,
+            });
             if (this.$route.params.id) {
                 this.reviewId = this.$route.params.id;
 

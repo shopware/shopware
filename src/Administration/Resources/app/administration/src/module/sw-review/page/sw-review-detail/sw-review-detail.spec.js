@@ -103,6 +103,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should not be able to save the review', async () => {
@@ -111,6 +112,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should be able to save the review', async () => {
@@ -125,6 +127,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+        wrapper.destroy();
     });
 
     it('should not be able to edit review fields', async () => {
@@ -139,6 +142,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeTruthy();
         expect(activeField.attributes().disabled).toBeTruthy();
         expect(commentField.attributes().disabled).toBeTruthy();
+        wrapper.destroy();
     });
 
     it('should be able to edit review fields', async () => {
@@ -155,5 +159,6 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeFalsy();
         expect(activeField.attributes().disabled).toBeFalsy();
         expect(commentField.attributes().disabled).toBeFalsy();
+        wrapper.destroy();
     });
 });

@@ -103,6 +103,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
+
+        wrapper.destroy();
     });
 
     it('should disable all inputs and disallow saving', async () => {
@@ -117,6 +119,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         // check that they are all disabled
         expect(fields.wrappers.every(field => field.props().disabled)).toEqual(true);
+        wrapper.destroy();
     });
 
 
@@ -135,5 +138,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
         // now check that the salechannel is disabled
         expect(wrapper.get('[label="sw-newsletter-recipient.general.salesChannel"]').props().disabled).toBe(true);
+        wrapper.destroy();
     });
 });

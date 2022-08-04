@@ -155,6 +155,11 @@ Component.register('sw-product-stream-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-stream-detail__productStream',
+                path: 'productStream',
+                scope: this,
+            });
             this.languageId = Context.api.languageId;
             if (this.productStreamId) {
                 this.getProductCustomFields();

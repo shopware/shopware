@@ -47,6 +47,11 @@ Component.register('sw-newsletter-recipient-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-newsletter-recipient-detail__newsletterRecipient',
+                path: 'newsletterRecipient',
+                scope: this,
+            });
             this.isLoading = true;
             const recipientCriteria = new Criteria(1, 1);
 

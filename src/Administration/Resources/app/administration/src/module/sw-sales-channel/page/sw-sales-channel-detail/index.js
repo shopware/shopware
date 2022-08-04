@@ -151,6 +151,11 @@ Component.register('sw-sales-channel-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-sales-channel-detail__salesChannel',
+                path: 'salesChannel',
+                scope: this,
+            });
             this.loadEntityData();
             this.loadProductExportTemplates();
         },

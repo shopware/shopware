@@ -123,6 +123,11 @@ Component.register('sw-manufacturer-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-manufacturer-detail__manufacturer',
+                path: 'manufacturer',
+                scope: this,
+            });
             if (this.manufacturerId) {
                 this.loadEntityData();
                 return;

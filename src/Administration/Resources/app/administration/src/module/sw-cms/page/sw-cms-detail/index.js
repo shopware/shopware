@@ -325,6 +325,11 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-cms-detail__cms',
+                path: 'page',
+                scope: this,
+            });
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];

@@ -119,6 +119,11 @@ Component.register('sw-property-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-property-group-detail__propertyGroup',
+                path: 'propertyGroup',
+                scope: this,
+            });
             this.loadEntityData();
             this.loadCustomFieldSets();
         },

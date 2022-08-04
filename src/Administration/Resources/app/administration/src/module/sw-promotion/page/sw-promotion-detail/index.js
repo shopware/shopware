@@ -151,6 +151,11 @@ Component.register('sw-promotion-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-promotion-detail__promotion',
+                path: 'promotion',
+                scope: this,
+            });
             this.isLoading = true;
             this.$root.$on('promotion-save-start', this.onShouldSave);
             if (!this.promotionId) {

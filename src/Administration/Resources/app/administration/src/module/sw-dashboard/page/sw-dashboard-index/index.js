@@ -341,6 +341,16 @@ Component.register('sw-dashboard-index', {
          * @deprecated tag:v6.5.0 - won't call getHistoryOrderData nor fetchTodayData after FEATURE_NEXT_18187 is removed
          */
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-dashboard-detail__todayOrderData',
+                path: 'todayOrderData',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-dashboard-detail__statisticDateRanges',
+                path: 'statisticDateRanges',
+                scope: this,
+            });
             this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
 
             if (this.feature.isActive('FEATURE_NEXT_18187')) {

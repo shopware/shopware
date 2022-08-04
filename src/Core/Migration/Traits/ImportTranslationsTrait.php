@@ -57,7 +57,7 @@ trait ImportTranslationsTrait
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     protected function getLanguageIds(Connection $connection, string $locale): array
     {

@@ -25,7 +25,7 @@ class AppService
     }
 
     /**
-     * @param string[] $installAppNames - Apps that should be installed
+     * @param array<string> $installAppNames - Apps that should be installed
      */
     public function doRefreshApps(bool $activateInstalled, Context $context, array $installAppNames = []): array
     {

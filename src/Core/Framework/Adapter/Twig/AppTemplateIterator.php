@@ -38,7 +38,7 @@ class AppTemplateIterator implements \IteratorAggregate
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getDatabaseTemplatePaths(): array
     {

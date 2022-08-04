@@ -28,7 +28,7 @@ class Feature
     }
 
     /**
-     * @param string[] $features
+     * @param array<string> $features
      *
      * @return mixed|null
      */

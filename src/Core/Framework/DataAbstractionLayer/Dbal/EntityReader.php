@@ -381,7 +381,7 @@ class EntityReader implements EntityReaderInterface
         $ids = [];
         $property = $association->getPropertyName();
         foreach ($collection as $struct) {
-            /** @var string[] $tmp */
+            /** @var array<string> $tmp */
             $tmp = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE)->get($property);
             foreach ($tmp as $id) {
                 $ids[] = $id;

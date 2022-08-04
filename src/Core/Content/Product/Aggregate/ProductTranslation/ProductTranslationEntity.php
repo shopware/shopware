@@ -61,7 +61,7 @@ class ProductTranslationEntity extends TranslationEntity
     protected $slotConfig;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $customSearchKeywords;
 

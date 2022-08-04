@@ -154,7 +154,7 @@ class SalesChannelCreateCommand extends Command
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return $ids[0];
@@ -170,7 +170,7 @@ class SalesChannelCreateCommand extends Command
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return $ids[0];
@@ -186,7 +186,7 @@ class SalesChannelCreateCommand extends Command
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return $ids[0];
@@ -221,7 +221,7 @@ class SalesChannelCreateCommand extends Command
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        /** @var string[] $categories */
+        /** @var array<string> $categories */
         $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return $categories[0];

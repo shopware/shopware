@@ -11,12 +11,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 class OpenApiPathsEvent extends Event
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $paths;
 
     /**
-     * @param string[] $paths
+     * @param array<string> $paths
      */
     public function __construct(array $paths)
     {
@@ -33,7 +33,7 @@ class OpenApiPathsEvent extends Event
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getPaths(): array
     {

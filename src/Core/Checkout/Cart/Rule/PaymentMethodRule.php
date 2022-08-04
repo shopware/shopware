@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class PaymentMethodRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $paymentMethodIds;
 

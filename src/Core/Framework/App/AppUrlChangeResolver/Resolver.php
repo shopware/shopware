@@ -38,7 +38,7 @@ class Resolver
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAvailableStrategies(): array
     {

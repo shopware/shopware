@@ -100,7 +100,7 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -116,7 +116,7 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -139,7 +139,7 @@ class RuleConditionPersister
 
     private function deleteConditionScripts(AppScriptConditionCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

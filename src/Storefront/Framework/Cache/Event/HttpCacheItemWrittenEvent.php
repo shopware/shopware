@@ -15,7 +15,7 @@ class HttpCacheItemWrittenEvent extends Event
     private $item;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $tags;
 

@@ -40,7 +40,7 @@ class EntityHydrator
     private static array $hydrated = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private static array $manyToOne = [];
 

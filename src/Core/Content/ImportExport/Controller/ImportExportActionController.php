@@ -178,7 +178,7 @@ class ImportExportActionController extends AbstractController
      */
     public function download(Request $request, Context $context): Response
     {
-        /** @var string[] $params */
+        /** @var array<string> $params */
         $params = $request->query->all();
         $definition = new DataValidationDefinition();
         $definition->add('fileId', new NotBlank(), new Type('string'));

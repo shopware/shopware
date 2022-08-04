@@ -27,12 +27,12 @@ class CreatePageCommand extends Command
     private $productRepository;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $products;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $categories;
 
@@ -42,7 +42,7 @@ class CreatePageCommand extends Command
     private $categoryRepository;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private $media;
 

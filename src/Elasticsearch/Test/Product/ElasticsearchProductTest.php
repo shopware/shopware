@@ -475,7 +475,7 @@ class ElasticsearchProductTest extends TestCase
      * @depends testIndexing
      * @dataProvider multiFilterWithOneToManyRelationProvider
      *
-     * @param string[] $expectedProducts
+     * @param array<string> $expectedProducts
      * @param Filter $filter
      */
     public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void

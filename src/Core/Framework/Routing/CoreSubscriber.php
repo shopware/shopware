@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class CoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $cspTemplates;
 

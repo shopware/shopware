@@ -126,11 +126,11 @@ class Migration1617356092UpdateCmsPdpLayoutSectionTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchSlotConfigs(): array
     {
-        /** @var string[] $slotIds */
+        /** @var array<string> $slotIds */
         $slotIds = $this->connection->fetchFirstColumn('
             SELECT id
             FROM cms_slot

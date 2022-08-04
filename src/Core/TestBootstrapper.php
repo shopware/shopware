@@ -41,7 +41,7 @@ class TestBootstrapper
     private bool $bypassFinals = true;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $activePlugins = [];
 

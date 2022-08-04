@@ -171,6 +171,9 @@ class Entity extends Struct
         $this->updatedAt = $updatedAt;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();

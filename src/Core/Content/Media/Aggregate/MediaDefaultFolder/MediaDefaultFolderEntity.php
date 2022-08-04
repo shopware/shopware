@@ -13,7 +13,7 @@ class MediaDefaultFolderEntity extends Entity
     use EntityCustomFieldsTrait;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $associationFields;
 

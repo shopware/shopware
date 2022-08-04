@@ -240,7 +240,7 @@ class BundleHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getCoreNamespaceHierarchy(): array
     {

@@ -23,7 +23,7 @@ class RestrictDeleteViolationException extends ShopwareHttpException
         $usagesStrings = [];
 
         /** @var string $entityName */
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         foreach ($restriction->getRestrictions() as $entityName => $ids) {
             $name = $entityName;
             $usages[] = [

@@ -258,7 +258,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string[] $affectedRoleIds
+     * @param array<string> $affectedRoleIds
      */
     private function callWebhooksSynchronous(
         WebhookCollection $webhooksForEvent,
@@ -322,7 +322,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string[] $affectedRoleIds
+     * @param array<string> $affectedRoleIds
      */
     private function dispatchWebhooksToQueue(
         WebhookCollection $webhooksForEvent,
@@ -414,6 +414,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string> $affectedRoleIds
+     */
     private function loadPrivileges(string $eventName, array $affectedRoleIds): void
     {
         $roles = $this->connection->fetchAll('

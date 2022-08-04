@@ -27,7 +27,7 @@ class PromotionIndividualCodeEntity extends Entity
     protected $promotion;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $payload;
 
@@ -71,7 +71,7 @@ class PromotionIndividualCodeEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getPayload(): ?array
     {
@@ -79,7 +79,7 @@ class PromotionIndividualCodeEntity extends Entity
     }
 
     /**
-     * @param string[]|null $payload
+     * @param array<string>|null $payload
      */
     public function setPayload(?array $payload): void
     {

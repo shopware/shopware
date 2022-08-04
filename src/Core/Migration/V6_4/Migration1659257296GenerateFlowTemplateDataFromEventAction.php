@@ -10,11 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class Migration1659256507GenerateFlowTemplateDataFromEventAction extends MigrationStep
+class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1659256507;
+        return 1659257296;
     }
 
     public function update(Connection $connection): void

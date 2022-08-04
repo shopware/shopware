@@ -5,11 +5,11 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1659256355AddLockedFieldToFlowTable extends MigrationStep
+class Migration1659256999AddLockedFieldToFlowTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1659256355;
+        return 1659256999;
     }
 
     public function update(Connection $connection): void

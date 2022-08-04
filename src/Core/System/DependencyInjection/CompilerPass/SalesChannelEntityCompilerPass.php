@@ -116,6 +116,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             if (isset($entityNames['fallBack'])) {
                 $repositoryNameMap[$entityNames['fallBack']] = $repositoryId;
             }
+
+            $container->registerAliasForArgument(SalesChannelRepository::class, $entityNames['entityName'] . '.repository', $repositoryId);
         }
 
         $definitionRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);

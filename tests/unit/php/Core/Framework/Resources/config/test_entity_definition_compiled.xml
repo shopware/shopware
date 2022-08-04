@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults public="true"/>
+
+        <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry">
+            <argument type="string"/>
+            <argument type="string"/>
+            <argument type="string"/>
+            <argument type="string"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\CountryDefinition"
+                 class="Shopware\Core\System\Country\CountryDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\SalesChannel\SalesChannelCountryDefinition"
+                 class="Shopware\Core\System\Country\SalesChannel\SalesChannelCountryDefinition">
+            <tag name="shopware.sales_channel.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition"
+                 class="Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel\SalesChannelCountryStateDefinition"
+                 class="Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel\SalesChannelCountryStateDefinition">
+            <tag name="shopware.sales_channel.entity.definition"/>
+        </service>
+    </services>
+</container>

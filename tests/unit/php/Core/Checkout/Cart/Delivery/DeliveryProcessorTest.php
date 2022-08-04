@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -23,31 +25,24 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor
  */
 class DeliveryProcessorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
         $shippingMethodPriceEntity->setUniqueIdentifier('test');
@@ -56,52 +51,16 @@ class DeliveryProcessorTest extends TestCase
         $this->salesChannelContext->getShippingMethod()->setPrices(new ShippingMethodPriceCollection([$shippingMethodPriceEntity]));
     }
 
-    public function testProcessShouldRecalculateAll(): void
-    {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
-
-        $cartDataCollection = new CartDataCollection();
-        $cartDataCollection->set(
-            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
-            $this->salesChannelContext->getShippingMethod()
-        );
-        $originalCart = new Cart('original', 'original');
-        $calculatedCart = new Cart('calculated', 'calculated');
-
-        $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $lineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
-        $lineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
-            new CalculatedTax(5, 19, 5),
-        ]), new TaxRuleCollection()));
-
-        $calculatedCart->setLineItems(new LineItemCollection([$lineItem]));
-
-        $cartBehavior = new CartBehavior();
-
-        static::assertCount(0, $calculatedCart->getDeliveries());
-
-        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
-
-        // Deliveries were built
-        static::assertCount(1, $calculatedCart->getDeliveries());
-
-        // Price was recalculated
-        static::assertNotNull($calculatedCart->getDeliveries()->first());
-        static::assertSame(5.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
-
-        // Tax was recalculated
-        static::assertNotNull($calculatedCart->getDeliveries()->first());
-        static::assertCount(1, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes());
-        static::assertNotNull($calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes()->first());
-        static::assertSame(5.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getCalculatedTaxes()->first()->getPrice());
-    }
-
     /**
      * @dataProvider  createDataProvider
      */
     public function testProcessShouldSkipPriceRecalculation(CalculatedPrice $calculatedPrice, float $totalPrice): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $container = $this->createMock(DeliveryBuilder::class);
+        $calculator = $this->createMock(DeliveryCalculator::class);
+        $repository = $this->createMock(EntityRepository::class);
+
+        $deliveryProcessor = new DeliveryProcessor($container, $calculator, $repository);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(

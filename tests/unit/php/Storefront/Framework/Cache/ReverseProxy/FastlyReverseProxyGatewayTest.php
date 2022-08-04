@@ -60,6 +60,16 @@ class FastlyReverseProxyGatewayTest extends TestCase
         static::assertSame('foo bla', $resp->headers->get('surrogate-key'));
     }
 
+    public function testTagWithInstanceTag(): void
+    {
+        $resp = new Response();
+
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', 'sw-1234');
+        $gateway->tag(['foo', 'bla'], '', $resp);
+
+        static::assertSame('foo bla sw-1234', $resp->headers->get('surrogate-key'));
+    }
+
     /**
      * @param string[] $tags
      *
@@ -137,6 +147,24 @@ class FastlyReverseProxyGatewayTest extends TestCase
         static::assertSame('/service/test/purge_all', $lastRequest->getRequestTarget());
         static::assertSame('POST', $lastRequest->getMethod());
         static::assertFalse($lastRequest->hasHeader('surrogate-key'));
+        static::assertSame(['key'], $lastRequest->getHeader('Fastly-Key'));
+    }
+
+    public function testBanAllWithInstanceTag(): void
+    {
+        $this->mockHandler->append(new GuzzleResponse(200, []));
+
+        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', 'sw-1234');
+        $gateway->banAll();
+        $gateway->__destruct();
+
+        $lastRequest = $this->mockHandler->getLastRequest();
+        static::assertNotNull($lastRequest);
+        static::assertSame('/service/test/purge', $lastRequest->getRequestTarget());
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertTrue($lastRequest->hasHeader('surrogate-key'));
+        static::assertSame(['sw-1234'], $lastRequest->getHeader('surrogate-key'));
+
         static::assertSame(['key'], $lastRequest->getHeader('Fastly-Key'));
     }
 

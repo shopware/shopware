@@ -37,10 +37,12 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
      */
     private array $tagBuffer = [];
 
+    private string $instanceTag;
+
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix)
+    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag = '')
     {
         $this->client = $client;
         $this->serviceId = $serviceId;
@@ -48,6 +50,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->softPurge = $softPurge;
         $this->concurrency = $concurrency;
         $this->tagPrefix = $tagPrefix;
+        $this->instanceTag = $instanceTag;
     }
 
     public function __destruct()
@@ -67,6 +70,10 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
      */
     public function tag(array $tags, string $url/*, Response $response */): void
     {
+        if ($this->instanceTag !== '') {
+            $tags[] = $this->instanceTag;
+        }
+
         /** @var Response|null $response */
         $response = \func_num_args() === 3 ? func_get_arg(2) : null;
 
@@ -115,6 +122,12 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     public function banAll(): void
     {
+        if ($this->instanceTag !== '') {
+            $this->invalidate([$this->instanceTag]);
+
+            return;
+        }
+
         $this->client->post(sprintf('%s/service/%s/purge_all', self::API_URL, $this->serviceId), [
             'headers' => [
                 'Fastly-Key' => $this->apiKey,

@@ -740,6 +740,10 @@
                                     "type": "boolean",
                                     "default": false
                                 },
+                                "instance_tag": {
+                                    "type": "string",
+                                    "default": ""
+                                },
                                 "api_key": {
                                     "type": "string",
                                     "title": "Fastly API key"

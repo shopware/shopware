@@ -9,12 +9,20 @@ abstract class AbstractReverseProxyGateway
     abstract public function getDecorated(): AbstractReverseProxyGateway;
 
     /**
+     * @param string[] $tags
+     *
      * @deprecated tag:v6.5.0 - Parameter $response will be required
      */
     abstract public function tag(array $tags, string $url/*, Response $response */): void;
 
+    /**
+     * @param string[] $tags
+     */
     abstract public function invalidate(array $tags): void;
 
+    /**
+     * @param string[] $urls
+     */
     abstract public function ban(array $urls): void;
 
     /**

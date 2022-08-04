@@ -40681,56 +40681,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:ban\\(\\) has parameter \\$urls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/AbstractReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:invalidate\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/AbstractReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/AbstractReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:ban\\(\\) has parameter \\$urls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:invalidate\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:prefixTags\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:prefixTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:tag\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway\\:\\:__construct\\(\\) has parameter \\$hosts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/RedisReverseProxyGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway\\:\\:ban\\(\\) has parameter \\$urls with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/RedisReverseProxyGateway.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\ReverseProxyCache\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
@@ -41719,31 +41669,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\HttpCacheIntegrationTest\\:\\:\\$originalHttpCacheValue has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Cache/HttpCacheIntegrationTest.php
-
-		-
-			message: "#^Cannot call method getHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 4
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/FastlyReverseProxyGatewayTest.php
-
-		-
-			message: "#^Cannot call method getMethod\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/FastlyReverseProxyGatewayTest.php
-
-		-
-			message: "#^Cannot call method getRequestTarget\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/FastlyReverseProxyGatewayTest.php
-
-		-
-			message: "#^Cannot call method hasHeader\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/FastlyReverseProxyGatewayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\:\\:banAll\\(\\) invoked with 1 parameter, 0 required\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/ReverseProxy/FastlyReverseProxyGatewayTest.php
 
 		-
 			message: "#^Call to an undefined method Redis\\:\\:expects\\(\\)\\.$#"
@@ -44409,38 +44334,3 @@ parameters:
 			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Storefront\\\\Controller\\\\ProductControllerTestClass\\:\\:\\$forwardToRouteParameters type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/unit/php/Storefront/Controller/ProductControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:cashHashProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:headerCases\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:maintenanceRequest\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:notCacheableRequestProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:providerCurrencyChange\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:testMaintenanceRequest\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheResponseSubscriberTest\\:\\:\\$hashes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Storefront/Framework/Cache/CacheResponseSubscriberTest.php

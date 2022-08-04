@@ -7,7 +7,6 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function array_chunk;
@@ -34,6 +33,11 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     protected string $tagPrefix;
 
     /**
+     * @var array<string, string>
+     */
+    private array $tagBuffer = [];
+
+    /**
      * @internal
      */
     public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix)
@@ -46,23 +50,23 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->tagPrefix = $tagPrefix;
     }
 
+    public function __destruct()
+    {
+        $this->flushTags();
+    }
+
     public function getDecorated(): AbstractReverseProxyGateway
     {
         throw new DecorationPatternException(self::class);
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Parameter $response will be required
+     * @inerhitDoc
+     *
+     * @deprecated tag:v6.5.0 - Parameter $response will be required reason:class-hierarchy-change
      */
     public function tag(array $tags, string $url/*, Response $response */): void
     {
-        if (\func_num_args() < 3 || !func_get_arg(2) instanceof Response) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Method `tag()` in "FastlyReverseProxyGateway" expects third parameter of type `Response` in v6.5.0.0.'
-            );
-        }
-
         /** @var Response|null $response */
         $response = \func_num_args() === 3 ? func_get_arg(2) : null;
 
@@ -75,14 +79,12 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     public function invalidate(array $tags): void
     {
-        foreach (array_chunk($tags, self::MAX_TAG_INVALIDATION) as $part) {
-            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
-                'headers' => [
-                    'Fastly-Key' => $this->apiKey,
-                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
-                    'fastly-soft-purge' => $this->softPurge,
-                ],
-            ]);
+        foreach ($tags as $tag) {
+            $this->tagBuffer[$tag] = $tag;
+        }
+
+        if (\count($this->tagBuffer) >= self::MAX_TAG_INVALIDATION) {
+            $this->flushTags();
         }
     }
 
@@ -121,6 +123,11 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         ]);
     }
 
+    /**
+     * @param string[] $tags
+     *
+     * @return string[]
+     */
     private function prefixTags(array $tags): array
     {
         if ($this->tagPrefix === '') {
@@ -132,5 +139,20 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         return array_map(static function (string $tag) use ($prefix) {
             return $prefix . $tag;
         }, $tags);
+    }
+
+    private function flushTags(): void
+    {
+        foreach (array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
+            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
+                'headers' => [
+                    'Fastly-Key' => $this->apiKey,
+                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
+                    'fastly-soft-purge' => $this->softPurge,
+                ],
+            ]);
+        }
+
+        $this->tagBuffer = [];
     }
 }

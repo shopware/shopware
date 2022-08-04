@@ -16,25 +16,28 @@ use Symfony\Component\Security\Csrf\TokenStorage\SessionTokenStorage;
 
 trait StorefrontControllerTestBehaviour
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function request(string $method, string $path, array $data): Response
     {
-        /** @var Session $session */
-        $session = KernelLifecycleManager::getKernel()->getContainer()->get('session');
-        // Init the session service for csrf processing
-        $session->all();
-
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
 
         return $browser->getResponse();
     }
 
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
     public function tokenize(string $route, array $data): array
     {
         $requestStack = new RequestStack();
         $request = new Request();
         /** @var Session $session */
-        $session = $this->getContainer()->get('session');
+        $session = $this->getSession();
         $request->setSession($session);
         $requestStack->push($request);
 

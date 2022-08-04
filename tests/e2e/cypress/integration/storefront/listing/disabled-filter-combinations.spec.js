@@ -9,7 +9,7 @@ describe('Test product filters get disabled if a combination is not possible', (
             cy.visit('/admin#/sw/settings/listing/index');
             cy.contains('Disable filter options without results').click();
             cy.get('.sw-settings-listing__save-action').click();
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+            cy.get('.icon--regular-checkmark-xs').should('be.visible');
         })
        .then(() => {
             return cy.searchViaAdminApi({

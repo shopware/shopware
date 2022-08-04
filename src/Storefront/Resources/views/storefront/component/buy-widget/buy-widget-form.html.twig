@@ -16,24 +16,62 @@
                 <div class="{{ formRowClass }} buy-widget-container">
                     {% block buy_widget_buy_quantity_container %}
                         <div class="col-4">
+                            {% set selectQuantityThreshold = 100 %}
                             {% block buy_widget_buy_quantity %}
-                                <select name="lineItems[{{ product.id }}][quantity]"
-                                        class="{{ formSelectClass }} product-detail-quantity-select">
-                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
-                                        <option value="{{ quantity }}">
-                                            {{ quantity }}
-                                            {% if quantity == 1 %}
-                                                {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
-                                            {% else %}
-                                                {% if product.translated.packUnitPlural %}
-                                                    {{ product.translated.packUnitPlural }}
-                                                {% elseif product.translated.packUnit %}
-                                                    {{ product.translated.packUnit }}
+                                {% if (product.calculatedMaxPurchase - product.minPurchase) / product.purchaseSteps > selectQuantityThreshold %}
+                                    {% block buy_widget_buy_quantity_input_group %}
+                                        <div class="input-group">
+                                            {% block buy_widget_buy_quantity_input %}
+                                                <input
+                                                    type="number"
+                                                    name="lineItems[{{ product.id }}][quantity]"
+                                                    class="form-control product-detail-quantity-input"
+                                                    min="{{ product.minPurchase }}"
+                                                    max="{{ product.calculatedMaxPurchase }}"
+                                                    step="{{ product.purchaseSteps }}"
+                                                    value="{{ product.minPurchase }}"
+                                                />
+                                            {% endblock %}
+                                            {% block buy_widget_buy_quantity_input_unit %}
+                                                {% if product.translated.packUnit %}
+                                                    {% if not feature('v6.5.0.0') %}
+                                                        <div class="input-group-append">
+                                                    {% endif %}
+                                                        <span class="input-group-text">
+                                                            {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
+                                                                {{ product.translated.packUnitPlural }}
+                                                            {% elseif product.translated.packUnit %}
+                                                                {{ product.translated.packUnit }}
+                                                            {% endif %}
+                                                        </span>
+                                                    {% if not feature('v6.5.0.0') %}
+                                                        </div>
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                {% else %}
+                                    {% block buy_widget_buy_quantity_select %}
+                                        <select name="lineItems[{{ product.id }}][quantity]"
+                                                class="{{ formSelectClass }} product-detail-quantity-select">
+                                            {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
+                                                <option value="{{ quantity }}">
+                                                    {{ quantity }}
+                                                    {% if quantity == 1 %}
+                                                        {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
+                                                    {% else %}
+                                                        {% if product.translated.packUnitPlural %}
+                                                            {{ product.translated.packUnitPlural }}
+                                                        {% elseif product.translated.packUnit %}
+                                                            {{ product.translated.packUnit }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% endblock %}
+                                {% endif %}
                             {% endblock %}
                         </div>
                     {% endblock %}

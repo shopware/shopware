@@ -111,14 +111,14 @@
             }
         }
 
-        .icon--small-arrow-large-right {
+        .icon--regular-chevron-right-s {
             position: absolute;
             bottom: -8px;
             right: -6px;
             color: $color-gray-500;
         }
 
-        &:not(:last-child) .icon--small-default-plus-line-medium {
+        &:not(:last-child) .icon--regular-plus-xs {
             display: none;
         }
 

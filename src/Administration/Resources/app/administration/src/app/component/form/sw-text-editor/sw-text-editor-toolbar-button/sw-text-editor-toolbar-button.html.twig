@@ -19,7 +19,7 @@
             />
             <sw-icon
                 v-if="buttonConfig.children"
-                name="default-arrow-head-down"
+                name="regular-chevron-down"
                 size="8"
             />
         </div>
@@ -75,10 +75,11 @@
             >
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
+                    {# @deprecated tag:v6.5.0 - Size can be removed #}
                     <sw-icon
                         v-if="child.icon"
                         :name="child.icon"
-                        size="16"
+                        size="18"
                     />
                     <div
                         v-else

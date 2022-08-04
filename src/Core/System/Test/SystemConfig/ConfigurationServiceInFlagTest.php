@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use SwagExampleTest\SwagExampleTest;
 use SwagInvalidTest\SwagInvalidTest;
@@ -22,11 +23,11 @@ class ConfigurationServiceInFlagTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public static $appEnvValue;
+    public static string $appEnvValue;
 
-    public static $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
-    private $fixtureFlags = [
+    private array $fixtureFlags = [
         'FEATURE_NEXT_101',
         'FEATURE_NEXT_102',
     ];
@@ -36,7 +37,7 @@ class ConfigurationServiceInFlagTest extends TestCase
      */
     private $configurationService;
 
-    private static $featureAllValue;
+    private static string $featureAllValue;
 
     public static function setUpBeforeClass(): void
     {
@@ -111,7 +112,8 @@ class ConfigurationServiceInFlagTest extends TestCase
             $this->getTestPlugins(),
             new ConfigReader(),
             $this->getContainer()->get(AppLoader::class),
-            $this->getContainer()->get('app.repository')
+            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(SystemConfigService::class)
         );
     }
 
@@ -157,7 +159,7 @@ class ConfigurationServiceInFlagTest extends TestCase
                     1 => [
                         'name' => 'SwagExampleTest.card.withoutAnyConfig',
                         'type' => 'int',
-                        'config' => new \stdClass(),
+                        'config' => [],
                     ],
                     2 => [
                         'name' => 'SwagExampleTest.card.mailMethod',

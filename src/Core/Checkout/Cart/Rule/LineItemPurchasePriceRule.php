@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -58,7 +59,7 @@ class LineItemPurchasePriceRule extends Rule
     {
         $constraints = [
             'operator' => RuleConstraints::numericOperators(),
-            'isNet' => RuleConstraints::bool(true),
+            'isNet' => RuleConstraints::bool(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
@@ -66,6 +67,7 @@ class LineItemPurchasePriceRule extends Rule
         }
 
         $constraints['amount'] = RuleConstraints::float();
+        $constraints['isNet'] = RuleConstraints::bool(true);
 
         return $constraints;
     }
@@ -78,7 +80,7 @@ class LineItemPurchasePriceRule extends Rule
     {
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
 
-        if (!$purchasePriceAmount || !$this->amount) {
+        if ((!$purchasePriceAmount || !$this->amount) && !Feature::isActive('v6.5.0.0')) {
             return $this->operator === self::OPERATOR_EMPTY;
         }
 

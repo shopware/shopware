@@ -43,7 +43,7 @@ class CartItemUpdateRouteTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -367,7 +367,7 @@ class CartItemUpdateRouteTest extends TestCase
     {
         $this->enableAdminAccess();
 
-        $this->ids->context->setRuleIds([
+        Context::createDefaultContext()->setRuleIds([
             $this->ids->create('rule-a'),
             $this->ids->create('rule-b'),
         ]);
@@ -408,11 +408,11 @@ class CartItemUpdateRouteTest extends TestCase
         $this->getContainer()->get('rule.repository')->create([
             ['id' => $this->ids->get('rule-a'), 'name' => 'testA', 'priority' => 1, 'payload' => serialize(new AndRule([new CartAmountRule(Rule::OPERATOR_GTE, 0)]))],
             ['id' => $this->ids->get('rule-b'), 'name' => 'testB', 'priority' => 2, 'payload' => serialize(new AndRule([new CartAmountRule(Rule::OPERATOR_NEQ, 0)]))],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('product.repository')->create(
             [$data],
-            $this->ids->context
+            Context::createDefaultContext()
         );
 
         $this->browser
@@ -486,7 +486,7 @@ class CartItemUpdateRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->productRepository->create([
             [
@@ -502,7 +502,7 @@ class CartItemUpdateRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function enableAdminAccess(): void

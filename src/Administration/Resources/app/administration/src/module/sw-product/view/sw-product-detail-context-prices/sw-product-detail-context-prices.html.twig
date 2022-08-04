@@ -47,30 +47,10 @@
                         class="sw-product-detail-context-prices__toolbar-selection"
                         size="small"
                         rule-aware-group-key="productPrices"
+                        :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                        :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                         @save-rule="onRuleChange($event, priceGroup.ruleId)"
-                    >
-                        <template
-                            #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
-                        >
-                            <li
-                                is="sw-select-result"
-                                v-tooltip="tooltipConfig(item)"
-                                :selected="isSelected(item)"
-                                :disabled="!!priceRuleGroups[item.id] || isRuleRestricted(item)"
-                                v-bind="{ item, index }"
-                                @item-select="setValue"
-                            >
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </template>
-                            </li>
-                        </template>
-                    </sw-select-rule-create>
+                    />
 
                     {# @deprecated tag:v6.5.0 - component `sw-entity-single-select` will be removed, use `sw-select-rule-create` instead #}
                     <sw-entity-single-select
@@ -388,7 +368,7 @@
                     >
                         {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
                         <sw-icon
-                            name="default-arrow-simple-right"
+                            name="regular-long-arrow-right"
                             small
                         />
                     </router-link>
@@ -445,6 +425,8 @@
                 :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                 :disabled="isInherited || !acl.can('product.editor')"
                 rule-aware-group-key="productPrices"
+                :restricted-rule-ids="Object.keys(priceRuleGroups)"
+                :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
                 @save-rule="onAddNewPriceGroup($event)"
             />
 

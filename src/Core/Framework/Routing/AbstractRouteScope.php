@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class AbstractRouteScope
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $allowedPaths = [];
 

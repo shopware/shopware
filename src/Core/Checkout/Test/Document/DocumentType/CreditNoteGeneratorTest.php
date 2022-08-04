@@ -28,13 +28,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -65,28 +65,25 @@ class CreditNoteGeneratorTest extends TestCase
     private $context;
 
     /**
-     * @var Connection|object
+     * @var Connection
      */
     private $connection;
 
-    /**
-     * @var CurrencyFormatter
-     */
-    private $currencyFormatter;
-
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
     }
 
     public function testGenerateCreditNotWithCustomerGroupNet(): void
     {
         $this->setSalesChannelContext(self::CUSTOMER_GROUP_NET);
 
+        static::assertNotNull($this->salesChannelContext->getCustomer());
         $this->getContainer()->get('customer.repository')->update([
             [
                 'id' => $this->salesChannelContext->getCustomer()->getId(),
@@ -131,6 +128,7 @@ class CreditNoteGeneratorTest extends TestCase
     {
         $this->setSalesChannelContext(self::CUSTOMER_GROUP_GROSS);
 
+        static::assertNotNull($this->salesChannelContext->getCustomer());
         $this->getContainer()->get('customer.repository')->update([
             [
                 'id' => $this->salesChannelContext->getCustomer()->getId(),
@@ -167,7 +165,8 @@ class CreditNoteGeneratorTest extends TestCase
             $context
         );
 
-        $taxAmount = $order->getLineItems()->getPrices()->sum()->getCalculatedTaxes()->getAmount();
+        static::assertNotNull($lineItems = $order->getLineItems());
+        $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
 
         static::assertEquals($order->getPrice()->getTotalPrice(), -$creditPrice);
         static::assertEquals($order->getAmountNet(), -($creditPrice - $taxAmount));
@@ -210,6 +209,7 @@ class CreditNoteGeneratorTest extends TestCase
 
         $lineItems = $order->getLineItems();
 
+        static::assertNotNull($lineItems);
         static::assertCount(\count($creditPrices), $lineItems);
 
         foreach ($lineItems as $lineItem) {
@@ -531,10 +531,8 @@ class CreditNoteGeneratorTest extends TestCase
 
     /**
      * @throws InconsistentCriteriaIdsException
-     *
-     * @return mixed|null
      */
-    private function getOrderById(string $orderId)
+    private function getOrderById(string $orderId): OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -546,7 +544,7 @@ class CreditNoteGeneratorTest extends TestCase
             ->search($criteria, $this->context)
             ->get($orderId);
 
-        static::assertNotNull($orderId);
+        static::assertNotNull($order);
 
         return $order;
     }

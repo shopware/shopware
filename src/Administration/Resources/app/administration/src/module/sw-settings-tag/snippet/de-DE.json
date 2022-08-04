@@ -36,16 +36,40 @@
       "bulkMergeTimeNotice": "Abhänging von der Anzahl der Zuordnungen, kann dieser Prozess mehr Zeit benötigen.",
       "bulkMergeInto": "in",
       "placeholderTagName": "Tag-Namen eingeben ...",
-      "connections": {
-        "products": "Produkte | Produkt | Produkte",
-        "media": "Medien | Medium | Medien",
-        "categories": "Kategorien | Kategorie | Kategorien",
-        "customers": "Kunden | Kunde | Kunden",
-        "orders": "Bestellungen | Bestellung | Bestellungen",
-        "shippingMethods": "Versandarten |  Versandart |  Versandarten",
-        "newsletterRecipients": "Newsletterempfänger | Newsletterempfänger | Newsletterempfänger",
-        "landingPages": "Landingpages | Landingpage | Landingpages",
-        "rules": "Regeln | Regel | Regeln"
+      "assignments": {
+        "header": {
+          "products": "Produktzuweisungen",
+          "media": "Medienzuweisungen",
+          "categories": "Kategoriezuweisungen",
+          "customers": "Kundenzuweisungen",
+          "orders": "Bestellungszuweisungen",
+          "shippingMethods": "Versandartenzuweisungen",
+          "newsletterRecipients": "Newsletterempfänger-Zuweisungen",
+          "landingPages": "Landingpagezuweisungen",
+          "rules": "Regelzuweisungen"
+        },
+        "content": {
+          "products": "Produkte | Produkt | Produkte",
+          "media": "Medien | Medium | Medien",
+          "categories": "Kategorien | Kategorie | Kategorien",
+          "customers": "Kunden | Kunde | Kunden",
+          "orders": "Bestellungen | Bestellung | Bestellungen",
+          "shippingMethods": "Versandarten | Versandart | Versandarten",
+          "newsletterRecipients": "Newsletterempfänger",
+          "landingPages": "Landingpages | Landingpage | Landingpages",
+          "rules": "Regeln | Regel | Regeln"
+        },
+        "filter": {
+          "products": "Produkt",
+          "media": "Medien",
+          "categories": "Kategorie",
+          "customers": "Kunde",
+          "orders": "Bestellung",
+          "shippingMethods": "Versandart",
+          "newsletterRecipients": "Newsletterempfänger",
+          "landingPages": "Landingpage",
+          "rules": "Regel"
+        }
       }
     },
     "detail": {
@@ -57,7 +81,16 @@
         "searchPlaceholder": "Entitäten durchsuchen ...",
         "assignments": "zugewiesen",
         "selected": "zugewiesene Entitäten",
-        "showSelected": "Nicht-zugewiesene Entitäten ausblenden"
+        "showSelected": "Nicht-zugewiesene Entitäten ausblenden",
+        "products": "Produkte",
+        "media": "Medien",
+        "categories": "Kategorien",
+        "customers": "Kunden",
+        "orders": "Bestellungen",
+        "shippingMethods": "Versandarten",
+        "newsletterRecipients": "Newsletterempfänger",
+        "landingPages": "Landingpages",
+        "rules": "Regeln"
       }
     }
   },

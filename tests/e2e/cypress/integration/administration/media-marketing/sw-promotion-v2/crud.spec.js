@@ -10,6 +10,8 @@ describe('Promotion v2: Test crud operations', () => {
             return cy.createDefaultFixture('promotion');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -69,8 +71,15 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-conditions__rules-exclusion-selection')
             .typeMultiSelectAndCheck('Thunder Tuesday');
 
-        cy.get('.sw-promotion-v2-conditions__rule-select-customer')
-            .typeMultiSelectAndCheck('All customers');
+        // Test the sw-entity-advanced-selection-modal
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 1);
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer').click();
+        cy.get('.sw-many-to-many-select-filtering__advanced-selection').click();
+        cy.get('.sw-data-grid__row:contains("All customers") .sw-field--checkbox:not(.is--disabled):not(.sw-data-grid__select-all)').click();
+        cy.get('.sw-entity-advanced-selection-modal__button-apply').click();
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 2);
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').contains('All customers');
+
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .type('{esc}');
         cy.get('.sw-promotion-v2-cart-condition-form__rule-select-cart')
@@ -101,28 +110,27 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Verify conditions
-        cy.get(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`)
-            .contains('Storefront');
-        cy.get(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`)
-            .contains('Thunder Tuesday');
+        cy.contains(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`,
+            'Storefront');
+        cy.contains(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`,
+            'Thunder Tuesday');
 
-        cy.get(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`)
-            .contains('All customers');
-        cy.get('.sw-promotion-v2-conditions__rule-select-customer');
-        cy.get(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`)
-            .contains('Always valid (Default)');
-        cy.get(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`)
-            .contains('All customers');
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer .sw-select-selection-list li').should('have.length', 2);
+        cy.contains(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`,
+            'All customers');
+        cy.contains(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`,
+            'Always valid (Default)');
+        cy.contains(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`,
+            'All customers');
 
         // Verify Set-Group
-        cy.get(`${groupSelector}#sw-field--group-packagerKey`)
-            .contains('Amount (net)');
+        cy.contains(`${groupSelector}#sw-field--group-packagerKey`, 'Amount (net)');
         cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-value input`)
             .should('contain.value', '5.5');
-        cy.get(`${groupSelector}#sw-field--group-sorterKey`)
-            .contains('Price, descending');
-        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules ${multiSelectFirstSelector}`)
-            .contains('Always valid (Default)');
+        cy.contains(`${groupSelector}#sw-field--group-sorterKey`,
+            'Price, descending');
+        cy.contains(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules ${multiSelectFirstSelector}`,
+            'Always valid (Default)');
 
         // Configure Discounts
         cy.get('.sw-tabs-item[title="Discounts"]')
@@ -150,20 +158,38 @@ describe('Promotion v2: Test crud operations', () => {
         // Verify discounts
         cy.get('.sw-promotion-discount-component')
             .should('be.visible');
-        cy.get('#sw-field--discount-scope')
-            .contains('Set group-1');
-        cy.get('#sw-field--discount-type')
-            .contains('Absolute');
+        cy.contains('#sw-field--discount-scope', 'Set group-1');
+        cy.contains('#sw-field--discount-type', 'Absolute');
         cy.get('.sw-promotion-discount-component__discount-value input')
             .should('have.value', 10.5);
 
         // Verify promotion in listing
         cy.get('.sw-promotion-v2-detail__cancel-action').click();
 
-        cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').contains('Funicular prices');
+        cy.contains('.sw-data-grid__cell--name > .sw-data-grid__cell-content', 'Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('1 January 2222, 00:00');
-        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('2 February 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
+    });
+
+    it('@base @marketing: create promotion in non system language', () => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/promotion`,
+            method: 'POST'
+        }).as('getData');
+
+        cy.waitFor('.sw-language-switch');
+
+        cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
+        cy.wait('@getData').its('response.statusCode').should('equal', 200);
+
+        cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
+        cy.get('.sw-promotion-v2-list__smart-bar-button-add').click();
+
+        cy.get('.sw_language-info__info').should('be.visible');
+        cy.get('.sw_language-info__info').contains('"New promotion" is displayed in the system default language. Always maintain new data in your chosen system default language.');
+
+        cy.get('.sw-language-switch__select').should('have.class', 'is--disabled');
     });
 
     it('@base @marketing: delete promotion', () => {
@@ -179,9 +205,8 @@ describe('Promotion v2: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
-            'Are you sure you want to delete this item?'
-        );
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
+            'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product

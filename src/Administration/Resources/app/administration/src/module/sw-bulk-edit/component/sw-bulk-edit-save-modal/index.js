@@ -6,8 +6,6 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-save-modal', {
     template,
 
-    inject: ['feature'],
-
     props: {
         itemTotal: {
             required: true,
@@ -121,10 +119,7 @@ Component.register('sw-bulk-edit-save-modal', {
         },
 
         beforeUnloadListener(event) {
-            if (
-                !this.feature.isActive('FEATURE_NEXT_17261') ||
-                !this.isLoading
-            ) {
+            if (!this.isLoading) {
                 return '';
             }
 

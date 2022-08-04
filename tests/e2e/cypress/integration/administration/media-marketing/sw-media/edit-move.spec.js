@@ -17,6 +17,8 @@ describe('Media: Move folder and image', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -31,7 +33,7 @@ describe('Media: Move folder and image', () => {
             '',
             true
         );
-        cy.get(page.elements.smartBarHeader).contains('1st folder');
+        cy.contains(page.elements.smartBarHeader, '1st folder');
         cy.setEntitySearchable('media', ['fileName', 'title']);
         // Upload image in folder
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
@@ -69,9 +71,9 @@ describe('Media: Move folder and image', () => {
             true
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('2nd folder');
-        cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).contains('1st folder');
-        cy.get(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`).contains('sw-test-image.png');
+        cy.contains(page.elements.smartBarHeader, '2nd folder');
+        cy.contains(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`, '1st folder');
+        cy.contains(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`, 'sw-test-image.png');
 
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
@@ -81,8 +83,8 @@ describe('Media: Move folder and image', () => {
             true
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('1st folder');
-        cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`)
-            .contains('sw-login-background.png');
+        cy.contains(page.elements.smartBarHeader, '1st folder');
+        cy.contains(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`,
+            'sw-login-background.png');
     });
 });

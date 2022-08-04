@@ -11,7 +11,9 @@
     },
     "system-config": {
       "labelSalesChannelSelect": "Sales Channel",
-      "inherited": "Inherited"
+      "inherited": "Inherited",
+      "compileNotice": "This configuration holds fields that can be used in a theme. Please compile the theme for these changes to be visible.",
+      "scssHelpText": "SCSS variable name: "
     }
   },
   "sw-privileges": {

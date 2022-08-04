@@ -5,6 +5,7 @@ import { ACTION } from '../../constant/flow.constant';
 
 const { Component, Mixin, Context, State } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-flow-detail', {
@@ -51,10 +52,6 @@ Component.register('sw-flow-detail', {
 
         flowRepository() {
             return this.repositoryFactory.create('flow');
-        },
-
-        flowChanges() {
-            return this.flowRepository.hasChanges(this.flow);
         },
 
         isNewFlow() {
@@ -118,7 +115,7 @@ Component.register('sw-flow-detail', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
@@ -144,7 +141,13 @@ Component.register('sw-flow-detail', {
         },
 
         ...mapState('swFlowState', ['flow']),
-        ...mapGetters('swFlowState', ['sequences', 'mailTemplateIds', 'customFieldSetIds', 'customFieldIds']),
+        ...mapGetters('swFlowState', [
+            'sequences',
+            'mailTemplateIds',
+            'customFieldSetIds',
+            'customFieldIds',
+            'hasFlowChanged',
+        ]),
         ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
@@ -159,7 +162,12 @@ Component.register('sw-flow-detail', {
     },
 
     beforeRouteLeave(to, from, next) {
-        if (this.flowChanges) {
+        if (this.flow._isNew) {
+            next();
+            return;
+        }
+
+        if (this.hasFlowChanged) {
             this.nextRoute = next;
             this.showLeavePageWarningModal = true;
         } else {
@@ -213,6 +221,7 @@ Component.register('sw-flow-detail', {
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
+                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
                     this.getDataForActionDescription();
                 })
                 .catch(() => {

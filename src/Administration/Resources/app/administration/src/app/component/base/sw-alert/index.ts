@@ -64,17 +64,26 @@ Component.register('sw-alert', {
             required: false,
             default: null,
         },
+        icon: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
     computed: {
         alertIcon(): string {
+            if (this.icon) {
+                return this.icon;
+            }
+
             const iconConfig: { [type: string]: string } = {
-                info: 'default-badge-info',
-                warning: 'default-badge-warning',
-                error: 'default-badge-error',
-                success: 'default-basic-checkmark-circle',
+                info: 'regular-info-circle',
+                warning: 'regular-exclamation-triangle',
+                error: 'regular-times-hexagon',
+                success: 'regular-check-circle',
             };
 
-            return iconConfig[this.variant] || 'default-bell-bell';
+            return iconConfig[this.variant] || 'regular-bell';
         },
 
         hasActionSlot(): boolean {

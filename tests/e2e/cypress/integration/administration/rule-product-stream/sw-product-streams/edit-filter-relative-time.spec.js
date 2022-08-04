@@ -35,12 +35,14 @@ describe('Dynamic product group: Test relative time filters', () => {
     it('@base @rule: can preview products with relative time filters', () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
             `${productStreamPage.elements.dataGridRow}--0`
         );
-        cy.get(productStreamPage.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         productStreamPage.fillFilterWithSelect(
@@ -53,8 +55,18 @@ describe('Dynamic product group: Test relative time filters', () => {
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').should('contain', 'Preview (2)');
             cy.get('.sw-data-grid .sw-data-grid__cell--name').should('contain', 'First product');
@@ -73,8 +85,18 @@ describe('Dynamic product group: Test relative time filters', () => {
         );
         cy.get('#sw-field--stringValue').typeAndCheck('5');
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').should('contain', 'Preview (1)');
             cy.get('.sw-data-grid .sw-data-grid__cell--name').should('contain', 'Third product');

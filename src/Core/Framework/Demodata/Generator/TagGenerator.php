@@ -39,7 +39,7 @@ class TagGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $payload[] = [
                 'id' => Uuid::randomHex(),
-                'name' => $context->getFaker()->productName . ' Tag',
+                'name' => $context->getFaker()->format('productName') . ' Tag',
             ];
         }
 

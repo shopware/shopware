@@ -13,6 +13,8 @@ describe('Theme: Test Inheritance', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,14 +30,15 @@ describe('Theme: Test Inheritance', () => {
             cy.createDefaultFixture('theme', {id: childThemeId, parentThemeId: themeId}, 'theme-inheritance').then(() => {
                 cy.createDefaultFixture('theme-child', {parentId: themeId, childId: childThemeId}).then(() => {
                     cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+                    cy.get('.sw-skeleton').should('not.exist');
+                    cy.get('.sw-loader').should('not.exist');
                 })
             })
         });
 
         // show list of themes
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Inherited Theme')
+            .contains('.sw-theme-list-item__title', 'Inherited Theme')
             .click();
 
         cy.intercept({
@@ -47,8 +50,7 @@ describe('Theme: Test Inheritance', () => {
         cy.contains('.sw-card__title', 'Media').scrollIntoView();
 
         // check inheritance text
-        cy.get('.sw-theme-manager-detail__inheritance-text')
-            .contains('E2E Theme');
+        cy.contains('.sw-theme-manager-detail__inheritance-text', 'E2E Theme');
 
         cy.contains('.sw-inherit-wrapper__inheritance-label', 'Background').scrollIntoView();
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-background-color .sw-colorpicker__input').should('have.value', '#aaa');
@@ -71,8 +73,7 @@ describe('Theme: Test Inheritance', () => {
 
         // go to default theme and change value
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         // {selectall} selects all in the element (like strg+a) @see https://docs.cypress.io/api/commands/type#Arguments
@@ -80,7 +81,7 @@ describe('Theme: Test Inheritance', () => {
 
         cy.get('.sw_theme_manager_detail__save-action').click();
 
-        cy.get('.sw-modal__footer .sw-button__content').contains('Save').click();
+        cy.contains('.sw-modal__footer .sw-button__content', 'Save').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
@@ -91,8 +92,7 @@ describe('Theme: Test Inheritance', () => {
 
         // got to inherited theme and check inherited value
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Inherited Theme')
+            .contains('.sw-theme-list-item__title', 'Inherited Theme')
             .click();
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#a1a1a1');
@@ -100,8 +100,7 @@ describe('Theme: Test Inheritance', () => {
         cy.get('.smart-bar__back-btn').click();
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('E2E Theme')
+            .contains('.sw-theme-list-item__title', 'E2E Theme')
             .click();
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-inheritance-switch--is-inherited').click();
@@ -118,8 +117,16 @@ describe('Theme: Test Inheritance', () => {
         cy.get('.smart-bar__back-btn').click();
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Inherited Theme')
+            .contains('.sw-theme-list-item__title', 'Inherited Theme')
+            .click();
+
+        //remove media
+        cy.contains('.sw-card__title', 'Media').scrollIntoView();
+        cy.get('.sw-inherit-wrapper__inheritance-label')
+            .contains('Desktop')
+            .parent()
+            .parent()
+            .find('.sw-media-upload-v2__remove-icon')
             .click();
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#b2b2b2');
@@ -147,7 +154,21 @@ describe('Theme: Test Inheritance', () => {
 
         cy.get('.sw-theme-list-item')
             .get('.sw-theme-list-item__title')
-            .contains('E2E Theme')
+            .contains('Inherited Theme')
+            .click();
+
+        cy.contains('.sw-card__title', 'Media').scrollIntoView();
+
+        cy.get('.sw-inherit-wrapper__inheritance-label')
+            .contains('Desktop')
+            .parent()
+            .parent()
+            .find('.sw-inheritance-switch--is-not-inherited');
+
+        cy.get('.smart-bar__back-btn').click();
+
+        cy.get('.sw-theme-list-item')
+            .contains('.sw-theme-list-item__title', 'E2E Theme')
             .click();
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').type('{selectall}').type('#000');

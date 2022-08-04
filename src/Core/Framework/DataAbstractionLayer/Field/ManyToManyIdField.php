@@ -17,6 +17,7 @@ class ManyToManyIdField extends ListField
         string $associationName
     ) {
         parent::__construct($storageName, $propertyName, IdField::class);
+        $this->setStrict(true);
         $this->associationName = $associationName;
         $this->addFlags(new WriteProtected());
     }

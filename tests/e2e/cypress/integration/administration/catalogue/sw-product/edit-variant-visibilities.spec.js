@@ -46,11 +46,13 @@ describe('Product: Test variants visibilities', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     // NEXT-20024 - Flaky
-    it.skip('@catalogue: edit visibilities', () => {
+    it('@catalogue: edit visibilities', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -84,8 +86,8 @@ describe('Product: Test variants visibilities', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Green');
-        cy.get('.sw-data-grid__body').contains('Green').click();
+        cy.contains('.sw-data-grid__body', 'Green');
+        cy.contains('.sw-data-grid__body', 'Green').click();
 
         // remove inherited
         cy.get('.sw-product-detail__select-visibility')

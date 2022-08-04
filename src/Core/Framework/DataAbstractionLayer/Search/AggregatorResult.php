@@ -7,8 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class AggregatorResult extends Struct
 {

@@ -3,6 +3,8 @@ describe('Login / Registration: Test show operations on templates', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

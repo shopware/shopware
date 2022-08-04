@@ -41,7 +41,7 @@ describe('Checkout: Visual tests', () => {
             // Product detail
             cy.get('.header-search-input')
                 .type(product.name);
-            cy.get('.search-suggest-product-name').contains(product.name);
+            cy.contains('.search-suggest-product-name', product.name);
             cy.get('.search-suggest-product-name').click();
 
             // Take snapshot for visual testing
@@ -53,7 +53,7 @@ describe('Checkout: Visual tests', () => {
 
             // Off canvas
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-price`).contains('49.98');
+            cy.contains(`${lineItemSelector}-price`, '49.98');
             cy.get('.offcanvas').should('be.visible');
             cy.contains('Continue shopping').should('be.visible');
 
@@ -68,16 +68,18 @@ describe('Checkout: Visual tests', () => {
 
             //  total should now be updated
             cy.get('.header-cart-total').scrollIntoView();
-            cy.get('.header-cart-total').contains('49.98');
+            cy.contains('.header-cart-total', '49.98');
             cy.get('.header-cart-total').click();
             cy.get('.offcanvas').should('be.visible');
+            cy.get('.loader').should('not.exist');
+            cy.contains('Continue shopping').should('be.visible');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot('[Checkout] Offcanvas',
-                `${page.elements.offCanvasCart}.is-open`,
-                {widths: [375, 1920]});
+                page.elements.offCanvasCart,
+                { widths: [375, 1920] });
 
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
+            cy.contains(`${lineItemSelector}-label`, product.name);
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -94,17 +96,17 @@ describe('Checkout: Visual tests', () => {
             cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
             // Confirm
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot('[Checkout] Confirm', '.confirm-tos', {widths: [375, 1920]});
 
             cy.get('.checkout-confirm-tos-label').scrollIntoView();
             cy.get('.checkout-confirm-tos-label').click(1, 1);
-            cy.get('.confirm-address').contains('Pep Eroni');
-            cy.get(`${lineItemSelector}-details-container ${lineItemSelector}-label`).contains(product.name);
-            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
-            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
+            cy.contains('.confirm-address', 'Pep Eroni');
+            cy.contains(`${lineItemSelector}-details-container ${lineItemSelector}-label`, product.name);
+            cy.contains(`${lineItemSelector}-total-price`, product.price[0].gross);
+            cy.contains(`${lineItemSelector}-total-price`, product.price[0].gross);
 
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();

@@ -1,0 +1,105 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Cart": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "Name of the cart - for example `guest-cart`",
+                                "type": "string"
+                            },
+                            "token": {
+                                "description": "Context token identifying the cart and the user session",
+                                "type": "string"
+                            },
+                            "price": {
+                                "type": "object",
+                                "properties": {
+                                    "netPrice": {
+                                        "description": "Net price of the cart",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "totalPrice": {
+                                        "description": "Total price of the cart, including shipping costs, discounts and taxes",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "positionPrice": {
+                                        "description": "Price for all line items in the cart",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "taxStatus": {
+                                        "description": "Tax calculation for the cart. One of `gross`, `net` or `tax-free`",
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "lineItems": {
+                                "description": "All items within the cart",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#\/components\/schemas\/LineItem"
+                                }
+                            },
+                            "errors": {
+                                "type": "array",
+                                "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "level": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "transactions": {
+                                "description": "A list of all payment transactions associated with the current cart.",
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "paymentMethodId": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "modified": {
+                                "type": "boolean"
+                            },
+                            "customerComment": {
+                                "type": "string",
+                                "description": "A comment that can be added to the cart."
+                            },
+                            "affiliateCode": {
+                                "type": "string",
+                                "description": "An affiliate tracking code"
+                            },
+                            "campaignCode": {
+                                "type": "string",
+                                "description": "A campaign tracking code"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

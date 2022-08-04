@@ -35,6 +35,8 @@ describe('Order: Test promotions in existing orders', () => {
                 salesChannelId = data.id;
 
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -72,7 +74,7 @@ describe('Order: Test promotions in existing orders', () => {
             method: 'POST'
         }).as('orderRemovePromotionCall');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -80,7 +82,7 @@ describe('Order: Test promotions in existing orders', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
             cy.contains('Edit').click();
         });
 
@@ -104,12 +106,11 @@ describe('Order: Test promotions in existing orders', () => {
             page.changeActiveTab('general');
         });
 
-        cy.get('.sw-data-grid__row--1')
-            .scrollIntoView()
-            .contains('GET5');
+        cy.contains('.sw-data-grid__row--1', 'GET5')
+            .scrollIntoView();
     });
 
-    it.skip('@base @order: add automatic promotion to existing order', () => {
+    it('@base @order: add automatic promotion to existing order', { tags: ['quarantined'] }, () => {
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {
@@ -138,7 +139,7 @@ describe('Order: Test promotions in existing orders', () => {
             method: 'POST'
         }).as('toggleAutomaticPromotionsCall');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -146,7 +147,7 @@ describe('Order: Test promotions in existing orders', () => {
         );
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
             cy.contains('Edit').click();
         });
 
@@ -180,9 +181,8 @@ describe('Order: Test promotions in existing orders', () => {
             page.changeActiveTab('general');
         });
 
-        cy.get('.sw-data-grid__row--1')
-            .scrollIntoView()
-            .contains('Automatic promotion');
+        cy.contains('.sw-data-grid__row--1', 'Automatic promotion')
+            .scrollIntoView();
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
             page.changeActiveTab('details');

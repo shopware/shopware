@@ -36,7 +36,7 @@ class AccountOrderPageLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->salesChannel = $this->createSalesChannelContext();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');

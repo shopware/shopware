@@ -4,7 +4,21 @@ describe('Review: Test ACL privileges', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/_info/config`,
+                    method: 'GET'
+                }).as('infoCall');
+
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+
+                cy.wait('@infoCall');
+
+                cy.contains('.smart-bar__header', 'Your profile');
+                cy.contains('.sw-card__title', 'Profile information');
+                cy.get('#sw-field--user-username').should('be.visible');
+                cy.get('.sw-loader').should('not.exist');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -16,11 +30,13 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open review without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-review-list').should('not.exist');
 
         // see menu without review menu item
@@ -39,13 +55,22 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/profile/index`);
-        });
 
-        cy.get('#sw-field--email')
-            .should('be.visible')
-            .click()
-            .clear()
-            .type('changed@shopware.com');
+            cy.contains('.smart-bar__header', 'Your profile');
+            cy.contains('.sw-card__title', 'Profile information');
+            cy.get('#sw-field--user-username').should('be.visible');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
+        cy.get('#sw-field--email').should('be.visible');
+        cy.get('#sw-field--email').scrollIntoView();
+        if(Cypress.isBrowser('chrome')) {
+            cy.get('#sw-field--email').realHover();
+        }
+        cy.get('#sw-field--email').click();
+        cy.get('#sw-field--email').clear();
+        cy.get('#sw-field--email').type('changed@shopware.com');
 
         cy.get('.sw-profile__save-action')
             .should('be.visible')
@@ -54,8 +79,7 @@ describe('Review: Test ACL privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');

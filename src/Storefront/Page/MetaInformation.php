@@ -46,6 +46,11 @@ class MetaInformation extends Struct
      */
     protected $robots = '';
 
+    /**
+     * @var string|null
+     */
+    protected $canonical;
+
     public function getMetaTitle(): string
     {
         return $this->metaTitle;
@@ -124,5 +129,15 @@ class MetaInformation extends Struct
     public function setRobots(string $robots): void
     {
         $this->robots = $robots;
+    }
+
+    public function getCanonical(): ?string
+    {
+        return $this->canonical;
+    }
+
+    public function setCanonical(?string $canonical): void
+    {
+        $this->canonical = $canonical;
     }
 }

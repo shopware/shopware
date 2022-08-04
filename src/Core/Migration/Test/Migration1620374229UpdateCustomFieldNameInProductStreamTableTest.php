@@ -74,7 +74,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(
@@ -114,7 +114,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(
@@ -154,7 +154,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
             ],
         ];
 
-        $writtenEvent = $this->productStreamRepository->create([$stream], $ids->getContext());
+        $writtenEvent = $this->productStreamRepository->create([$stream], Context::createDefaultContext());
 
         $productStreamIndexer = $this->getContainer()->get(ProductStreamIndexer::class);
         $productStreamIndexer->handle(

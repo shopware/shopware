@@ -37,15 +37,23 @@ describe('Product creation via UI and private customer registration', () => {
 
         // Saleschannel initial settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/listing/index');
         cy.setSalesChannel('E2E install test');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Standard', '5', '4');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/payment/index');
         cy.setPaymentMethod('Cash on delivery');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('E2E install test')
             .selectPaymentMethodForSalesChannel('Cash on delivery')
@@ -53,6 +61,8 @@ describe('Product creation via UI and private customer registration', () => {
 
         // Create product via UI
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
         cy.get('.sw-button.sw-button--primary').click();
         cy.get('#sw-field--product-name').typeAndCheck('Product-5');
@@ -75,13 +85,14 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('.sw-product-category-form [type="checkbox"]').should('be.checked');
         cy.get('.sw-button-process__content').click();
         cy.wait('@createProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan');
+        cy.contains('.sw-button-process__content', 'Opslaan');
 
         // Check from product in admin
         cy.get('a.smart-bar__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Product-5');
-        cy.get(`.sw-data-grid__row--0 .sw-data-grid__cell--name`).contains('Product-5');
+        cy.contains(`.sw-data-grid__row--0 .sw-data-grid__cell--name`, 'Product-5');
         cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Register as private customer
@@ -108,34 +119,34 @@ describe('Product creation via UI and private customer registration', () => {
             cy.get('.header-search-input').should('be.visible').type('Product-5');
             cy.contains('.search-suggest-product-name', 'Product-5').click();
             cy.get('.product-detail-buy .btn-buy').click();
-            cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product-5');
+            cy.get('.offcanvas').should('be.visible');
+            cy.contains(`${lineItemSelector}-label`, 'Product-5');
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product-5');
-            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('14,99');
+            cy.contains(`${lineItemSelector}-details-container [title]`, 'Product-5');
+            cy.contains(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`, '14,99');
             cy.get(`${lineItemSelector}-delivery-date`).should('be.visible');
-            cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
+            cy.contains('.col-5.checkout-aside-summary-total', '19,99');
             cy.get('a[title="Proceed to checkout"]').click();
-            cy.get('.confirm-address').contains('Test Tester');
-            cy.get(`${lineItemSelector}-label`).contains('Product-5');
+            cy.contains('.confirm-address', 'Test Tester');
+            cy.contains(`${lineItemSelector}-label`, 'Product-5');
             cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
-            cy.get(`${lineItemSelector}-total-price`).contains('14,99');
-            cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
+            cy.contains(`${lineItemSelector}-total-price`, '14,99');
+            cy.contains('.col-5.checkout-aside-summary-total', '19,99');
             cy.get(`${lineItemSelector}-delivery-date`).should('be.visible');
             cy.get('.checkout-customer-comment-control').should('be.visible');
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
             cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
             cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 
             // Verify order
             cy.visit('/account/order');
-            cy.get('.order-item-header').contains('10000');
+            cy.contains('.order-item-header', '10000');
             cy.contains('View').click();
-            cy.get('.order-item-total-value').contains('14,99');
-            cy.get('.order-item-detail-summary').contains('19,99');
+            cy.contains('.order-item-total-value', '14,99');
+            cy.contains('.order-item-detail-summary', '19,99');
         });
     });
 });

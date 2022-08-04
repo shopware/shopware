@@ -106,6 +106,8 @@ describe('Order: Read order', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -133,7 +135,7 @@ describe('Order: Read order', () => {
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
             // assert save successful
-            cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('2');
+            cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content', '2');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
@@ -155,8 +157,8 @@ describe('Order: Read order', () => {
             cy.get(page.elements.smartBarSave).click();
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
-            cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content`)
-                .contains('2');
+            cy.contains(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content`,
+                '2');
         });
     });
 
@@ -188,12 +190,12 @@ describe('Order: Read order', () => {
             // Get correct quantity of both items
             cy.get('.sw-data-grid__row--1')
                 .within(() => {
-                    cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10');
+                    cy.contains('.sw-data-grid__cell--quantity .sw-data-grid__cell-content', '10');
                 });
 
             cy.get('.sw-data-grid__row--0')
                 .within(() => {
-                    cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1');
+                    cy.contains('.sw-data-grid__cell--quantity .sw-data-grid__cell-content', '1');
                 });
         });
 
@@ -219,12 +221,12 @@ describe('Order: Read order', () => {
 
             cy.get(`${page.elements.dataGridRow}--1`)
                 .within(() => {
-                    cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10');
+                    cy.contains('.sw-data-grid__cell--quantity .sw-data-grid__cell-content', '10');
                 });
 
             cy.get(`${page.elements.dataGridRow}--0`)
                 .within(() => {
-                    cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1');
+                    cy.contains('.sw-data-grid__cell--quantity .sw-data-grid__cell-content', '1');
                 });
         });
     });
@@ -481,10 +483,10 @@ describe('Order: Read order', () => {
 
             // check that the changes have been persisted
             // currency and formatting independently regex for the price
-            cy.get('.sw-data-grid__cell--unitPrice').contains(/1[,.]?337/);
+            cy.contains('.sw-data-grid__cell--unitPrice', /1[,.]?337/);
 
-            cy.get('.sw-data-grid__cell--quantity').contains('10');
-            cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10\s%/);
+            cy.contains('.sw-data-grid__cell--quantity', '10');
+            cy.contains('.sw-data-grid__cell--price-taxRules\\[0\\]', /10\s%/);
 
             // currency and formatting independently regex for the price
             assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /1[,.]?215[.,]45/);
@@ -511,9 +513,9 @@ describe('Order: Read order', () => {
 
             // check that the changes have been persisted
             // currency and formatting independently regex for the price
-            cy.get('.sw-data-grid__cell--unitPrice').contains(/1[,.]?337/);
-            cy.get('.sw-data-grid__cell--quantity').contains('10');
-            cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10\s%/);
+            cy.contains('.sw-data-grid__cell--unitPrice', /1[,.]?337/);
+            cy.contains('.sw-data-grid__cell--quantity', '10');
+            cy.contains('.sw-data-grid__cell--price-taxRules\\[0\\]', /10\s%/);
 
             // currency and formatting independently regex for the price
             assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /1[,.]?215[.,]45/);

@@ -20,7 +20,9 @@ Component.register('sw-cms-el-config-product-listing', {
             filters: [],
             filterPropertiesTerm: '',
             properties: [],
-            page: 1,
+            propertiesPage: 1,
+            propertiesLimit: 6,
+            propertiesTotal: 0,
         };
     },
 
@@ -51,7 +53,9 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         propertyCriteria() {
-            const criteria = new Criteria(this.page, 6);
+            const criteria = new Criteria(this.propertiesPage, this.propertiesLimit);
+
+            criteria.setTerm(this.filterPropertiesTerm);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equals('filterable', true));
@@ -132,25 +136,36 @@ Component.register('sw-cms-el-config-product-listing', {
             },
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - Use properties directly
+        */
         displayedProperties() {
-            if (this.filterPropertiesTerm === '') {
-                return this.properties;
-            }
-
-            const properties = [];
-            const searchTerm = new RegExp(this.filterPropertiesTerm, 'gi');
-
-            this.properties.forEach((property) => {
-                if (property.name.search(searchTerm) > -1) {
-                    properties.push(property);
-                }
-            });
-
-            return properties;
+            return this.properties;
         },
 
         showPropertySelection() {
             return !this.properties.length < 1;
+        },
+
+        gridColumns() {
+            return [
+                {
+                    property: 'status',
+                    label: 'sw-cms.elements.productListing.config.filter.gridHeaderStatus',
+                    disabled: this.showFilterGrid,
+                    width: '70px',
+                },
+                {
+                    property: 'name',
+                    label: 'sw-cms.elements.productListing.config.filter.gridHeaderName',
+                },
+            ];
+        },
+
+        gridClasses() {
+            return {
+                'is--disabled': this.showFilterGrid,
+            };
         },
     },
 
@@ -247,6 +262,8 @@ Component.register('sw-cms-el-config-product-listing', {
         loadFilterableProperties() {
             return this.propertyRepository.search(this.propertyCriteria)
                 .then(properties => {
+                    this.propertiesTotal = properties.total;
+
                     this.properties = this.sortProperties(properties);
                 });
         },
@@ -263,19 +280,17 @@ Component.register('sw-cms-el-config-product-listing', {
                 property.active = this.element.config.propertyWhitelist.value.includes(property.id);
             });
 
-            if (properties) {
-                properties.sort((a, b) => {
-                    if (a.active === b.active) {
-                        return 0;
-                    }
+            properties.sort((a, b) => {
+                if (a.active === b.active || !a.active === !b.active) {
+                    return 0;
+                }
 
-                    if (a.active) {
-                        return -1;
-                    }
+                if (a.active) {
+                    return -1;
+                }
 
-                    return 1;
-                });
-            }
+                return 1;
+            });
 
             return properties;
         },
@@ -334,11 +349,14 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         onFilterProperties() {
+            this.propertiesPage = 1;
+
             return this.loadFilterableProperties();
         },
 
-        onPageChange({ page }) {
-            this.page = page;
+        onPropertiesPageChange({ limit, page }) {
+            this.propertiesLimit = limit;
+            this.propertiesPage = page;
 
             return this.loadFilterableProperties();
         },

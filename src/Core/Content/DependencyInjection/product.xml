@@ -292,6 +292,10 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
+
         <!-- decorated by resolve criteria route -->
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute.inner"/>

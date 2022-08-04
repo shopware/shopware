@@ -20,6 +20,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -47,6 +49,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -55,9 +59,12 @@ describe('Flow builder: Test acl privilege', () => {
         }).as('updateData');
 
         cy.get('.sw-flow-list').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed');
@@ -70,8 +77,11 @@ describe('Flow builder: Test acl privilege', () => {
             true
         );
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // Verify correct detail page
-        cy.get('.smart-bar__header h2').contains('Order placed');
+        cy.contains('.smart-bar__header h2', 'Order placed');
 
         cy.get('#sw-field--flow-name').clearTypeAndCheck('Order placed v2');
         cy.get('.sw-flow-detail__tab-flow').click();
@@ -90,11 +100,16 @@ describe('Flow builder: Test acl privilege', () => {
 
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify updated element
         cy.get(page.elements.smartBarBack).click({force: true});
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v2');
     });
@@ -117,6 +132,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -128,7 +145,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -145,11 +162,10 @@ describe('Flow builder: Test acl privilege', () => {
 
         // Verify successful save
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.smart-bar__header h2').contains('Order placed v1');
+        cy.contains('.smart-bar__header h2', 'Order placed v1');
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click({force: true});
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v1');
     });
@@ -168,6 +184,8 @@ describe('Flow builder: Test acl privilege', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -191,8 +209,7 @@ describe('Flow builder: Test acl privilege', () => {
             true
         );
 
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

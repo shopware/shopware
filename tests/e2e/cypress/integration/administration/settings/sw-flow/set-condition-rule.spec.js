@@ -15,6 +15,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
     it('@settings: create new rule for condition sequence', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
 
@@ -27,7 +29,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v2');
@@ -68,21 +70,22 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-rule-modal__save-button').click();
         cy.get('.sw-flow-rule-modal').should('not.exist');
 
-        cy.get('.sw-flow-sequence-condition__rule-name').contains('Time rule');
+        cy.contains('.sw-flow-sequence-condition__rule-name', 'Time rule');
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-        cy.get('.sw-flow-leave-page-modal').should('be.visible');
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Time rule');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Time rule');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Time rule').should('be.visible');
     });
 
     it('@settings: update rule for condition sequence', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
 
@@ -90,7 +93,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v2');
@@ -107,7 +110,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-sequence-condition__selection-rule')
             .typeSingleSelect('All customers', '.sw-flow-sequence-condition__selection-rule');
 
-        cy.get('.sw-flow-sequence-condition__rule-name').contains('All customers');
+        cy.contains('.sw-flow-sequence-condition__rule-name', 'All customers');
 
         // Change rule
         cy.get('.sw-flow-sequence-condition__rule-context-button').click();
@@ -116,7 +119,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-sequence-condition__selection-rule')
             .typeSingleSelect('Sunday sales', '.sw-flow-sequence-condition__selection-rule');
 
-        cy.get('.sw-flow-sequence-condition__rule-name').contains('Sunday sales');
+        cy.contains('.sw-flow-sequence-condition__rule-name', 'Sunday sales');
 
         // Edit rule
         cy.get('.sw-flow-sequence-condition__rule-context-button').click();
@@ -126,9 +129,9 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-rule-modal').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-condition-type-select').contains('Day of the week');
-        cy.get('.sw-condition-operator-select').contains('Is equal to');
-        cy.get('.sw-condition-tree').contains('Sunday');
+        cy.contains('.sw-condition-type-select', 'Day of the week');
+        cy.contains('.sw-condition-operator-select', 'Is equal to');
+        cy.contains('.sw-condition-tree', 'Sunday');
 
         cy.get('.sw-flow-rule-modal__tab-detail').click();
         cy.get('.sw-flow-rule-modal__name').clear();
@@ -137,16 +140,15 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.get('.sw-flow-rule-modal__save-button').click();
         cy.get('.sw-flow-rule-modal').should('not.exist');
 
-        cy.get('.sw-flow-sequence-condition__rule-name').contains('Weekend sales');
+        cy.contains('.sw-flow-sequence-condition__rule-name', 'Weekend sales');
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-        cy.get('.sw-flow-leave-page-modal').should('be.visible');
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Weekend sales');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Weekend sales');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Weekend sales').should('be.visible');
     });
 });

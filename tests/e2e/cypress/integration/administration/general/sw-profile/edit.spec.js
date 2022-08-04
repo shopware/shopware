@@ -13,8 +13,8 @@ describe('Profile module', () => {
 
                 cy.wait('@infoCall');
 
-                cy.get('.smart-bar__header').contains('Your profile');
-                cy.get('.sw-card__title').contains('Profile information');
+                cy.contains('.smart-bar__header', 'Your profile');
+                cy.contains('.sw-card__title', 'Profile information');
                 cy.get('#sw-field--user-username').should('be.visible');
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -37,8 +37,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -68,8 +67,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -91,7 +89,7 @@ describe('Profile module', () => {
 
     it('@base @general: profile change avatar', () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
-            .first()
+            .eq(1)
             .click()
 
         // Add avatar to profile
@@ -114,8 +112,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');

@@ -23,6 +23,9 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
 {
     private HtmlSanitizer $sanitizer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,

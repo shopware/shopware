@@ -11,7 +11,7 @@ window.Shopware = Shopware;
 
 const DeviceHelper = require('src/app/plugin/device-helper.plugin').default;
 const ValidationService = require('src/core/service/validation.service').default;
-const iconComponents = require('src/app/assets/icons/icons').default;
+const iconComponents = require('src/app/assets/icons/icons').default.legacy;
 const VuexModules = require('src/app/state/index').default;
 const ShortcutService = require('src/app/service/shortcut.service').default;
 
@@ -80,6 +80,13 @@ iconComponents.forEach((component) => {
 Shopware.Application
     .addServiceProvider('iconNames', () => {
         return iconNames;
+    })
+    .addServiceProvider('feature', () => {
+        return {
+            isActive: () => {
+                return false;
+            },
+        };
     })
     .addServiceProvider('shortcutService', () => {
         return ShortcutService(factoryContainer.shortcut);

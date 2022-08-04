@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
@@ -55,42 +54,6 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Patch(
-     *      path="/account/address/default-shipping/{addressId}",
-     *      summary="Change a customer's default shipping address",
-     *      description="Updates the default (preselected) shipping addresses of a customer.",
-     *      operationId="defaultShippingAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\Parameter(
-     *        name="addressId",
-     *        in="path",
-     *        description="Address ID",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description=""
-     *     )
-     * )
-     * @OA\Patch(
-     *      path="/account/address/default-billing/{addressId}",
-     *      summary="Change a customer's default billing address",
-     *      description="Updates the default (preselected) billing addresses of a customer.",
-     *      operationId="defaultBillingAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\Parameter(
-     *        name="addressId",
-     *        in="path",
-     *        description="Address ID",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description=""
-     *     )
-     * )
      * @Route(path="/store-api/account/address/default-shipping/{addressId}", name="store-api.account.address.change.default.shipping", methods={"PATCH"}, defaults={"type"="shipping", "_loginRequired"=true})
      * @Route(path="/store-api/account/address/default-billing/{addressId}", name="store-api.account.address.change.default.billing", methods={"PATCH"}, defaults={"type" = "billing", "_loginRequired"=true})
      */

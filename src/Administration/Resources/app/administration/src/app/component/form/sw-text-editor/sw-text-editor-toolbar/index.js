@@ -189,10 +189,8 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         beforeUnmountedComponent() {
-            const body = document.querySelector('body');
-
-            if (body.contains(this.$el)) {
-                body.removeChild(this.$el);
+            if (this.$el?.parentElement?.contains(this.$el)) {
+                this.$el.parentElement.removeChild(this.$el);
             }
         },
 
@@ -285,6 +283,7 @@ Component.register('sw-text-editor-toolbar', {
                 button.value = this.currentLink?.url ?? '';
                 button.newTab = this.currentLink?.newTab ?? false;
                 button.displayAsButton = this.currentLink?.displayAsButton ?? false;
+                button.buttonVariant = this.currentLink?.buttonVariant ?? 'primary';
             }
 
             this.$set(button, 'active', !!this.activeTags.includes(button.tag));
@@ -380,10 +379,14 @@ Component.register('sw-text-editor-toolbar', {
                 }
 
                 if (parentNode.tagName === 'A') {
+                    const buttonType = parentNode.classList.contains('btn-secondary') ? 'secondary' : 'primary';
+                    const buttonSizeSuffix = parentNode.classList.contains('btn-sm') ? '-sm' : '';
+
                     this.currentLink = {
                         url: parentNode.getAttribute('href'),
                         newTab: parentNode.target === '_blank',
                         displayAsButton: parentNode.classList.contains('btn'),
+                        buttonVariant: `${buttonType}${buttonSizeSuffix}`,
                     };
                 }
 
@@ -436,6 +439,7 @@ Component.register('sw-text-editor-toolbar', {
                     button.value,
                     target,
                     button.displayAsButton,
+                    button.buttonVariant,
                 );
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);

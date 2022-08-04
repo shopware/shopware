@@ -292,10 +292,12 @@ describe('Order: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@order: check filter function and display listing correctly', () => {
+    it('@order: check filter function and display listing correctly', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -336,7 +338,7 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('#document-filter').find('select').select('true');
         cy.wait('@filterOrder')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('0');
+        cy.contains('.sw-page__smart-bar-amount', '0');
 
         cy.get('#document-filter').find('select').select('false');
         cy.wait('@filterOrder')
@@ -350,15 +352,17 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('#status-filter .sw-entity-multi-select').scrollIntoView();
         cy.get('#status-filter .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1' });
 
-        cy.get('.sw-page__smart-bar-amount').contains('1');
+        cy.contains('.sw-page__smart-bar-amount', '1');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@order: check reset filter', () => {
+    it('@order: check reset filter', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
 
@@ -429,6 +433,6 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.get('.sw-sidebar-item__headline a').should('not.be.visible');
 
-        cy.get('.sw-page__smart-bar-amount').contains('9');
+        cy.contains('.sw-page__smart-bar-amount', '9');
     });
 });

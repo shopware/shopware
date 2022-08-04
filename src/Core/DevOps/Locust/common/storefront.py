@@ -1,11 +1,12 @@
 import random
-import json
 import uuid
 import time
+import requests
 from bs4 import BeautifulSoup
 
+
 class Storefront:
-    def __init__(self, client, context, url = '', previous = None, params = {}, name = 'home-page'):
+    def __init__(self, client, context, url='', previous=None, params={}, name='home-page'):
         self.client = client
         self.context = context
         self.previous = previous

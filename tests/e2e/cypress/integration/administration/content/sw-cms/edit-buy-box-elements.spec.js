@@ -29,6 +29,8 @@ describe('CMS: Check usage and editing of buy box elements', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -68,7 +70,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');
-        cy.get('.sw-product-variant-info__specification').contains('green').click();
+        cy.contains('.sw-product-variant-info__specification', 'green').click();
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
         cy.get('.sw-cms-el-buy-box__price').first().contains('€111.00');
 
@@ -79,14 +81,16 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
@@ -101,20 +105,20 @@ describe('CMS: Check usage and editing of buy box elements', () => {
             /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-details-characteristics` instead */
             const variantCharacteristicsSelector = win.features['v6.5.0.0'] ? '.line-item-details-characteristics' : '.cart-item-characteristics';
 
-            cy.get('.product-detail-price').contains('€111');
-            cy.get('.product-detail-ordernumber').contains('TEST.2');
+            cy.contains('.product-detail-price', '€111');
+            cy.contains('.product-detail-ordernumber', 'TEST.2');
             cy.get('.product-detail-configurator-option-label[title="red"]').click();
 
             // Wait for reloading product variant
             cy.wait('@loadData').its('response.statusCode').should('equal', 200);
-            cy.get('.product-detail-ordernumber').contains('TEST.1');
+            cy.contains('.product-detail-ordernumber', 'TEST.1');
 
             // Off canvas
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.get(`${lineItemSelector}-price`).contains('€111');
-            cy.get(`${variantCharacteristicsSelector}`).contains('color');
-            cy.get(`${variantCharacteristicsSelector}-option`).contains('red');
+            cy.contains(`${lineItemSelector}-price`, '€111');
+            cy.contains(`${variantCharacteristicsSelector}`, 'color');
+            cy.contains(`${variantCharacteristicsSelector}-option`, 'red');
             cy.get(`${lineItemSelector}-label[title="Variant product"]`).should('be.visible');
         });
     });
@@ -165,7 +169,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-cms-slot:nth-of-type(2) .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
         cy.get('.sw-cms-el-config-buy-box .sw-entity-single-select').type('Variant product');
-        cy.get('.sw-product-variant-info__specification').contains('blue').click();
+        cy.contains('.sw-product-variant-info__specification', 'blue').click();
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
         cy.get('.sw-cms-el-buy-box__price').first().contains('€111.00');
 
@@ -176,14 +180,16 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
@@ -193,7 +199,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.gallery-slider-image')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
-        cy.get('.product-detail-price').contains('€111');
-        cy.get('.product-detail-ordernumber').contains('TEST.3');
+        cy.contains('.product-detail-price', '€111');
+        cy.contains('.product-detail-ordernumber', 'TEST.3');
     });
 });

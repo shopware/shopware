@@ -23,6 +23,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -59,7 +61,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         // create new customer via UI
         cy.fixture('customer-scenario3').then(customer => {
             cy.get('.sw-button.sw-button--primary.sw-customer-list__button-create').click();
-            cy.get('h2').contains('Nieuwe klant').should('be.visible');
+            cy.contains('h2', 'Nieuwe klant').should('be.visible');
             cy.get('.sw-customer-base-form__account-type-select')
                 .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
             cy.get('.sw-customer-base-form__salutation-select')
@@ -106,6 +108,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // make manual order
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
 
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
@@ -127,10 +131,11 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
             .dblclick().type('credit');
         cy.get('[placeholder="0"]').click().type('2');
         cy.get('button[title="Opslaan"]').click();
-        cy.get('.sw-description-list > :nth-child(2)').contains('8');
+        cy.contains('.sw-description-list > :nth-child(2)', '8');
         cy.contains('Bestelling opslaan').click();
 
         // deny payment reminder
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.wait('@save-proxy').its('response.statusCode').should('equal', 200);
         cy.get('.sw-order-create__remind-payment-modal-decline').click();
@@ -143,12 +148,16 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // verify the new customer's order from the products page
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__cell--price-EUR > .sw-data-grid__cell-content')
             .should('include.text', '10,00');
 
         // verify the new customer's order from the order page
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
-        cy.get('h2').contains('Bestellingen').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('h2', 'Bestellingen').should('be.visible');
         cy.get('.sw-order-list__manual-order-label .sw-label__caption')
             .should('include.text', 'Handmatige bestelling');
         cy.get('.sw-data-grid__cell--amountTotal > .sw-data-grid__cell-content').should('be.visible')

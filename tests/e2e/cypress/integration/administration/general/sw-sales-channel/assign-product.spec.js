@@ -25,6 +25,8 @@ describe('Sales Channel: Test product assignment operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -51,7 +53,13 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         // Add basic data to product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.smart-bar__header h2').should('be.visible');
+        cy.get(productPage.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.contains('.smart-bar__header h2', 'New product');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('First Product');
 
@@ -68,7 +76,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Assign root category in tree field
         cy.get('.sw-category-tree__input-field').focus().type('Home');
         // wait for the result list to update
-        cy.get('.sw-category-tree-field__results_popover').contains('Home');
+        cy.contains('.sw-category-tree-field__results_popover', 'Home');
         cy.get('.sw-category-tree__input-field').focus().type('{enter}');
 
         cy.get(productPage.elements.productSaveAction).click();
@@ -77,12 +85,12 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         // Go to sales channel Storefront
         salesChannelPage.openSalesChannel('Storefront', 1);
-        cy.get('.sw-tabs-item').contains('Products').click();
+        cy.contains('.sw-tabs-item', 'Products').click();
         cy.get('.sw-empty-state__actions').click();
 
         // Open product assignment modal
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('First Product');
+        cy.contains('.sw-modal__body .sw-data-grid__row--0 .sw-data-grid__cell--name', 'First Product');
         cy.get('.sw-modal__body .sw-data-grid__row--0 .sw-field--checkbox').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
@@ -92,19 +100,18 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-data-grid').should('be.visible');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('First Product');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'First Product');
 
         // Go to storefront for checking
         cy.visit('/');
 
         cy.get('input[name=search]').type('First Product');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('First Product')
+        cy.contains('.search-suggest-product-name', 'First Product')
             .click();
 
-        cy.get('.product-detail-name').contains('First Product');
-        cy.get('.product-detail-price').contains('10.00');
+        cy.contains('.product-detail-name', 'First Product');
+        cy.contains('.product-detail-price', '10.00');
     });
 
     it('@general: assign product from category to sales channel', () => {
@@ -130,7 +137,14 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         // Add basic data to product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.smart-bar__header h2').should('be.visible');
+        cy.get(productPage.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.contains('.smart-bar__header h2', 'New product');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('First Product');
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
@@ -151,12 +165,12 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         // Go to sales channel Storefront
         salesChannelPage.openSalesChannel('Storefront', 1);
-        cy.get('.sw-tabs-item').contains('Products').click();
+        cy.contains('.sw-tabs-item', 'Products').click();
         cy.get('.sw-empty-state__actions').click();
 
         // Open product assignment modal
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body .sw-tabs-item').contains('Category selection').click();
+        cy.contains('.sw-modal__body .sw-tabs-item', 'Category selection').click();
 
         // Search Test category
         cy.get('.sw-sales-channel-product-assignment-categories .sw-simple-search-field').type('Test');
@@ -169,18 +183,17 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-data-grid').should('be.visible');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('First Product');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'First Product');
 
         // Go to storefront for checking
         cy.visit('/');
 
         cy.get('input[name=search]').type('First Product');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('First Product')
+        cy.contains('.search-suggest-product-name', 'First Product')
             .click();
 
-        cy.get('.product-detail-name').contains('First Product');
-        cy.get('.product-detail-price').contains('10.00');
+        cy.contains('.product-detail-name', 'First Product');
+        cy.contains('.product-detail-price', '10.00');
     });
 });

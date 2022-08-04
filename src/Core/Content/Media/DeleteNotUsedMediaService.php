@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -65,13 +66,16 @@ class DeleteNotUsedMediaService
         while ($defaultFolders = $iterator->fetch()) {
             /** @var MediaDefaultFolderEntity $defaultFolder */
             foreach ($defaultFolders as $defaultFolder) {
-                if ($defaultFolder->getFolder()->getConfiguration()->isNoAssociation()) {
+                if ($this->isNoAssociation($defaultFolder)) {
+                    /** @var MediaFolderEntity $folder */
+                    $folder = $defaultFolder->getFolder();
+
                     $criteria->addFilter(
                         new MultiFilter(
                             'OR',
                             [
                                 new NotFilter('AND', [
-                                    new EqualsFilter('mediaFolderId', $defaultFolder->getFolder()->getId()),
+                                    new EqualsFilter('mediaFolderId', $folder->getId()),
                                 ]),
                                 new EqualsFilter('mediaFolderId', null),
                             ]
@@ -82,12 +86,24 @@ class DeleteNotUsedMediaService
                 }
                 foreach ($defaultFolder->getAssociationFields() as $associationField) {
                     $criteria->addFilter(
-                        new EqualsFilter("media.${associationField}.id", null)
+                        new EqualsFilter("media.{$associationField}.id", null)
                     );
                 }
             }
         }
 
         return $criteria;
+    }
+
+    private function isNoAssociation(MediaDefaultFolderEntity $defaultFolder): bool
+    {
+        $folder = $defaultFolder->getFolder();
+        \assert($folder !== null);
+
+        $configuration = $folder->getConfiguration();
+
+        \assert($configuration !== null);
+
+        return (bool) $configuration->isNoAssociation();
     }
 }

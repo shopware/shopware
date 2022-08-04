@@ -33,12 +33,15 @@ describe('Storefront: test registration with country settings & invalid inputs',
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
-        cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
+        cy.contains(`.sw-data-grid__cell--name`, 'Netherlands').click();
         cy.get('input[name="sw-field--country-checkVatIdPattern"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Should not validate registration with wrong VAT-ID format
@@ -58,7 +61,7 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get('#billingAddressAddressCountry').select('Netherlands');
         cy.get('.btn.btn-lg.btn-primary').click();
         cy.wait('@registerCustomer').its('response.statusCode').should('equal', 200);
-        cy.get('.invalid-feedback').contains('does not have the correct format').should('be.visible');
+        cy.contains('.invalid-feedback', 'does not have the correct format').should('be.visible');
         cy.url().should('include', 'account/register');
     });
 
@@ -75,16 +78,19 @@ describe('Storefront: test registration with country settings & invalid inputs',
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click({ force: true });
 
         // Ensure we are on detail page of country "Netherlands"
-        cy.get('.smart-bar__header h2').contains('Netherlands').should('be.visible');
+        cy.contains('.smart-bar__header h2', 'Netherlands').should('be.visible');
         cy.get('[name="sw-field--country-vatIdRequired"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveCountrySettings').its('response.statusCode').should('equal', 204);
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Ensure vatIdRequired is checked
@@ -118,15 +124,25 @@ describe('Storefront: test registration with country settings & invalid inputs',
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.goToSalesChannelDetail('E2E install test')
             .selectCountryForSalesChannel('Germany');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Germany');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-version__title').click();
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Should not validate registration without state selection

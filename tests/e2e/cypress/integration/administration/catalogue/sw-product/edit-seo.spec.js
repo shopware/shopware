@@ -28,6 +28,8 @@ describe('Product: Edit in various ways', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -82,7 +84,7 @@ describe('Product: Edit in various ways', () => {
     });
 
     // NEXT-20024
-    it.skip('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', () => {
+    it('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 
@@ -111,6 +113,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -133,6 +138,9 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -195,6 +203,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -217,6 +228,9 @@ describe('Product: Edit in various ways', () => {
         // Verify updated product
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -265,6 +279,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('#salesChannelSelect')
             .scrollIntoView()
             .typeSingleSelectAndCheck(
@@ -303,6 +320,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
 
@@ -326,6 +346,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@updateProduct')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
@@ -346,7 +369,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').should('be.visible');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').contains('Green');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').realHover();
-        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link .icon--default-text-editor-link').should('be.visible');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link .icon--regular-link-xs').should('be.visible');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').click();
 
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
@@ -386,7 +409,9 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('#salesChannelSelect')
             .scrollIntoView()
             .typeSingleSelectAndCheck(

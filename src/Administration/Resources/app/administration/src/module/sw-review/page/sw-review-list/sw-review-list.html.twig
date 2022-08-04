@@ -125,7 +125,7 @@
         {% block sw_review_list_empty_state %}
         <sw-empty-state
             v-if="!isLoading && !total"
-            icon="default-documentation-file"
+            icon="regular-file-text"
             :title="$tc('sw-review.list.messageEmpty')"
             :subline="$tc('sw-review.list.messageEmptySubline')"
         />
@@ -139,7 +139,7 @@
 
             {% block sw_review_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-review.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

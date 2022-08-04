@@ -97,9 +97,9 @@ class AvailableCombinationLoaderTest extends TestCase
             )
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$products], $this->ids->context);
+        $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
 
-        $result = $this->loader->load($this->ids->get('a.0'), $this->ids->context, TestDefaults::SALES_CHANNEL);
+        $result = $this->loader->load($this->ids->get('a.0'), Context::createDefaultContext(), TestDefaults::SALES_CHANNEL);
 
         foreach ($result->getCombinations() as $combination) {
             static::assertEquals($expected, $result->isAvailable($combination));

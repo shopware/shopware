@@ -6,7 +6,7 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
             <!--
                 DO NOT change this to a more generic structure.
@@ -21,6 +21,7 @@
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Elasticsearch</directory>
+
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
@@ -46,15 +47,17 @@
             <directory suffix=".php">src/Storefront/Pagelet</directory>
             <directory suffix=".php">src/Storefront/Theme</directory>
             <file>src/Storefront/Storefront.php</file>
+            <file>src/Core/Test/FeatureFlagExtension.php</file>
+            <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
-            <directory suffix=".php">src/Core/Test</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
             <directory suffix=".php">src/Core/Checkout/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
-            <directory suffix=".php">src/Core/Migration</directory>
+            <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Profiling/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
 
@@ -62,6 +65,8 @@
 
             <directory suffix=".php">src/Administration/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
+            <directory suffix=".php">./vendor</directory>
+            <directory suffix=".php">./var</directory>
         </exclude>
       </coverage>
     <php>
@@ -112,6 +117,19 @@
         <testsuite name="elasticsearch">
             <directory>src/Elasticsearch/Test</directory>
         </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/unit/php</directory>
+        </testsuite>
+
+        <testsuite name="integration">
+            <directory>tests/integration/php</directory>
+        </testsuite>
+
+        <testsuite name="migration-tests">
+            <directory>tests/migration</directory>
+        </testsuite>
+
         <testsuite name="docs">
             <directory>src/Docs/Test</directory>
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
@@ -120,6 +138,7 @@
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
+            <directory>tests/unit/php</directory>
             <exclude>src/Recovery/Test</exclude>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
@@ -141,7 +160,7 @@
         <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
     </listeners>
     <!--Enable to see the db sideeffects of the tests. -->
-    <!--<extensions>
-        <extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension"></extension>
-    </extensions>-->
+    <extensions>
+        <extension class="Shopware\Core\Test\FeatureFlagExtension" />
+    </extensions>
 </phpunit>

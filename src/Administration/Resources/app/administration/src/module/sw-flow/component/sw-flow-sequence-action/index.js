@@ -1,4 +1,5 @@
 import orderBy from 'lodash/orderBy';
+import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import { ACTION, ACTION_GROUP, GENERAL_GROUP } from '../../constant/flow.constant';
@@ -77,13 +78,13 @@ Component.register('sw-flow-sequence-action', {
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: action?.app?.name,
+                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
                         label: action?.app?.label,
                     });
                 }
             }
 
-            return groups;
+            return sortBy(groups, ['label']);
         },
 
         sequenceData() {
@@ -364,7 +365,7 @@ Component.register('sw-flow-sequence-action', {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: appAction.app?.name,
+                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
                 };
             }
 
@@ -416,7 +417,7 @@ Component.register('sw-flow-sequence-action', {
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
                 return `${this.$tc('sw-flow.actions.labelTo', 0, {
-                    entity: config.entity,
+                    entity: this.capitalize(config.entity),
                 })}<br>${this.$tc('sw-flow.actions.labelTag', 0, {
                     tagNames: this.convertTagString(Object.values(config.tagIds)),
                 })}`;
@@ -497,22 +498,18 @@ Component.register('sw-flow-sequence-action', {
                 return this.documentTypes.find(item => item.technicalName === type.documentType)?.translated?.name;
             });
 
-            return this.$tc('sw-flow.modals.document.documentDescription', 0, {
-                documentType: this.convertTagString(documentType),
-            });
+            return this.convertTagString(documentType);
         },
 
         getCustomerGroupDescription(config) {
             const customerGroup = this.customerGroups.find(item => item.id === config.customerGroupId);
-            return `${this.$tc('sw-flow.modals.customerGroup.customerGroupDescription', 0, {
-                customerGroup: customerGroup?.translated?.name,
-            })}`;
+            return customerGroup?.translated?.name;
         },
 
         getCustomerStatusDescription(config) {
             return config.active
-                ? this.$tc('sw-flow.modals.customerStatus.customerStatusDescriptionActive')
-                : this.$tc('sw-flow.modals.customerStatus.customerStatusDescriptionInactive');
+                ? this.$tc('sw-flow.modals.customerStatus.active')
+                : this.$tc('sw-flow.modals.customerStatus.inactive');
         },
 
         getMailSendDescription(config) {
@@ -526,8 +523,8 @@ Component.register('sw-flow-sequence-action', {
 
             if (mailDescription) {
                 // Truncate description string
-                mailDescription = mailDescription.length > 30
-                    ? `${mailDescription.substring(0, 30)}...`
+                mailDescription = mailDescription.length > 60
+                    ? `${mailDescription.substring(0, 60)}...`
                     : mailDescription;
 
                 mailSendDescription = `${mailSendDescription}<br>${this.$tc('sw-flow.actions.labelDescription', 0, {
@@ -556,22 +553,26 @@ Component.register('sw-flow-sequence-action', {
 
         getAffiliateAndCampaignCodeDescription(config) {
             let description = this.$tc('sw-flow.actions.labelTo', 0, {
-                entity: config.entity,
+                entity: this.capitalize(config.entity),
             });
 
             if (config.affiliateCode.upsert || config.affiliateCode.value != null) {
                 description = `${description}<br>${this.$tc('sw-flow.actions.labelAffiliateCode', 0, {
-                    affiliateCode: config.affiliateCode.value ? config.affiliateCode.value : 'null',
+                    affiliateCode: config.affiliateCode.value || '',
                 })}`;
             }
 
             if (config.campaignCode.upsert || config.campaignCode.value != null) {
                 description = `${description}<br>${this.$tc('sw-flow.actions.labelCampaignCode', 0, {
-                    campaignCode: config.campaignCode.value ? config.campaignCode.value : 'null',
+                    campaignCode: config.campaignCode.value || '',
                 })}`;
             }
 
             return description;
+        },
+
+        capitalize(msg) {
+            return `${msg.slice(0, 1).toUpperCase()}${msg.slice(1)}`;
         },
 
         getAppFlowActionDescription(config, actionName) {
@@ -650,8 +651,19 @@ Component.register('sw-flow-sequence-action', {
 
         isAppDisabled(appAction) {
             if (!appAction) return false;
-
             return !appAction.app.active;
+        },
+
+        getStopFlowIndex(actions) {
+            const indexes = actions.map((item, index) => {
+                if (item.group === GENERAL_GROUP) {
+                    return index;
+                }
+
+                return false;
+            }).filter(item => item > 0);
+
+            return indexes.pop() || actions.length;
         },
 
         sortActionOptions(actions) {
@@ -666,7 +678,9 @@ Component.register('sw-flow-sequence-action', {
                 actions.push(actions.splice(actions.findIndex(el => el.group === GENERAL_GROUP), 1)[0]);
             });
 
-            actions.push(stopAction);
+            actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
+            const stopFlowIndex = this.getStopFlowIndex(actions) + 1;
+            actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
         },

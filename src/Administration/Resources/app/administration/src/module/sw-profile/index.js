@@ -12,7 +12,7 @@ Module.register('sw-profile', {
     title: 'sw-profile.general.headlineProfile',
     description: 'sw-profile.general.description',
     color: '#9AA8B5',
-    icon: 'default-avatar-single',
+    icon: 'regular-user',
     entity: 'user',
 
     routes: {

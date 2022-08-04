@@ -15,6 +15,8 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
     it('@settings: create mail template for send mail action', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const page = new SettingsPageObject();
         cy.intercept({
@@ -31,7 +33,7 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v2');
@@ -69,22 +71,21 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.get('.sw-flow-create-mail-template-modal__save-button').click();
         cy.get('.sw-flow-create-mail-template-modal').should('not.exist');
 
-        cy.get('.sw-flow-mail-send-modal__mail-template-select')
-            .contains('Successful feedback description - Contact form');
+        cy.contains('.sw-flow-mail-send-modal__mail-template-select',
+            'Successful feedback description - Contact form');
 
         cy.get('.sw-flow-mail-send-modal__save-button').click();
-        cy.get('.sw-flow-sequence-action__action-name').contains('Send email');
-        cy.get('.sw-flow-sequence-action__action-description').contains('Template: Contact form');
+        cy.contains('.sw-flow-sequence-action__action-name', 'Send email');
+        cy.contains('.sw-flow-sequence-action__action-description', 'Template: Contact form');
 
         // Save
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
-        cy.get('.sw-flow-leave-page-modal').should('be.visible');
-        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get('.sw-empty-state').should('not.exist');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
@@ -95,10 +96,10 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
         cy.wait('@getMailTemplateAfterSearch').its('response.statusCode').should('equal', 200);
 
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--mailTemplateType-name`).should('be.visible')
-            .contains('Contact form');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--mailTemplateType-name`, 'Contact form')
+            .should('be.visible');
 
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`).should('be.visible')
-            .contains('Successful feedback description');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`, 'Successful feedback description')
+            .should('be.visible');
     });
 });

@@ -17,7 +17,7 @@ class TemplateLoader extends AbstractTemplateLoader
         'documents',
     ];
 
-    private const ALLOWED_FILE_EXTENSIONS = '*.html.twig';
+    private const ALLOWED_FILE_EXTENSIONS = '*.twig';
 
     /**
      * {@inheritdoc}

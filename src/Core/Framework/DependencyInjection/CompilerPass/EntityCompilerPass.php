@@ -77,6 +77,7 @@ class EntityCompilerPass implements CompilerPassInterface
             }
             $repository->setPublic(true);
             $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
+            $container->registerAliasForArgument($repositoryId, EntityRepository::class);
 
             $repositoryNameMap[$entity] = $repositoryId;
         }

@@ -19,7 +19,7 @@ Module.register('sw-settings-tax', {
     title: 'sw-settings-tax.general.mainMenuItemGeneral',
     description: 'Tax section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'tax',
 
@@ -60,7 +60,7 @@ Module.register('sw-settings-tax', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.tax.index',
-        icon: 'default-chart-pie',
+        icon: 'regular-chart-pie',
         privilege: 'tax.viewer',
     },
 });

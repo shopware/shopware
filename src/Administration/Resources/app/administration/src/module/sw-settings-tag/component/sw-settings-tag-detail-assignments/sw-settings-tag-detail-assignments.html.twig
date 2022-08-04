@@ -62,6 +62,7 @@
                             <sw-button
                                 class="associations-grid__row"
                                 :class="{ 'is--selected': item.entity === selectedEntity }"
+                                :disabled="isLoading"
                                 @click.prevent="onAssignmentChange(item)"
                             >
                                 <sw-icon

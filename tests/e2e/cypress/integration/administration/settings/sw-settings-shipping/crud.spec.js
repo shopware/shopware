@@ -10,6 +10,8 @@ describe('Shipping: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -33,10 +35,9 @@ describe('Shipping: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click({ force: true });
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Automated test shipping');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`).should('be.visible')
-            .contains('1');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Automated test shipping')
+            .should('be.visible');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`, '1').should('be.visible');
     });
 
     it('@base @settings: update and read shipping method', () => {
@@ -51,7 +52,7 @@ describe('Shipping: Test crud operations', () => {
         cy.setEntitySearchable('shipping_method', 'name');
 
         // Edit base data
-        cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
+        cy.contains('.sw-data-grid__cell-value', 'Luftpost').click();
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         page.createShippingMethodTax();
         page.createShippingMethodPriceRule();
@@ -62,10 +63,10 @@ describe('Shipping: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Wasserpost');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`).should('be.visible')
-            .contains('1');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`, 'Wasserpost')
+            .should('be.visible');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`, '1')
+            .should('be.visible');
     });
 
     it('@base @settings: delete shipping method', () => {
@@ -88,8 +89,7 @@ describe('Shipping: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you really want to delete the shipping method "Luftpost"?');
+        cy.contains('.sw-modal__body', 'Are you sure you really want to delete the shipping method "Luftpost"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

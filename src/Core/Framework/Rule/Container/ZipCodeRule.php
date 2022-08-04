@@ -16,7 +16,7 @@ abstract class ZipCodeRule extends Rule
     protected string $operator;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $zipCodes;
 

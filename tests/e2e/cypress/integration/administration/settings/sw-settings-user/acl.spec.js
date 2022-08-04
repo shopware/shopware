@@ -22,6 +22,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-users-permissions-user-listing')
@@ -35,8 +37,8 @@ describe('User: Test acl privileges', () => {
 
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
-        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username')
-            .contains('maxmuster');
+        cy.contains('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username',
+            'maxmuster');
 
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username a')
             .click();
@@ -68,6 +70,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
@@ -78,8 +82,8 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
 
-        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username')
-            .contains('maxmuster');
+        cy.contains('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username',
+            'maxmuster');
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username a')
             .click();
 
@@ -97,8 +101,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -147,6 +150,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
@@ -172,8 +177,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -228,6 +232,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // create a new user
@@ -259,8 +265,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -298,6 +303,8 @@ describe('User: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Requests we want to wait for later
@@ -350,8 +357,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -383,8 +389,7 @@ describe('User: Test acl privileges', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Warning');
+        cy.contains('.sw-modal__title', 'Warning');
 
         cy.get('.sw-modal__footer > .sw-button--danger')
             .should('be.disabled');

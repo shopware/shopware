@@ -11,7 +11,7 @@ Module.register('sw-integration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'integration',
 
@@ -29,7 +29,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'default-action-settings',
+        icon: 'regular-cog',
         privilege: 'integration.viewer',
     },
 });

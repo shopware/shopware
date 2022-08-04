@@ -24,6 +24,9 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected $writeExtractor;
 
+    /**
+     * @internal
+     */
     public function __construct(
         WriteCommandExtractor $writeExtractor
     ) {
@@ -46,12 +49,22 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath());
         }
 
+        /** @var Field $keyField */
         $keyField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
         $reference = $field->getReferenceDefinition();
 
         if ($keyField instanceof FkField) {
             $referenceField = $field->getReferenceField();
             $pkField = $reference->getFields()->getByStorageName($referenceField);
+            if ($pkField === null) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Could not find reference field "%s" in definition "%s"',
+                        $referenceField,
+                        \get_class($reference)
+                    )
+                );
+            }
 
             //id provided? otherwise set new one to return it and yield the id into the FkField
             if (isset($value[$pkField->getPropertyName()])) {
@@ -64,6 +77,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
             $data[$keyField->getPropertyName()] = $id;
         } else {
             $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $field->getStorageName());
+            /** @var Field $keyField */
             $keyField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
             $value[$keyField->getPropertyName()] = $id;

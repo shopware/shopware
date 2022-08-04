@@ -12,6 +12,17 @@ return [
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // internal has been removed
         '**/src/Core/Checkout/Payment/Exception/ValidatePreparedPaymentException.php', // internal has been removed
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
+        // temporary to make Bundles internal
+        '**/src/Administration/Administration.php',
+        '**/src/Storefront/Storefront.php',
+        '**/src/Core/Framework/Framework.php',
+        '**/src/Core/Checkout/Checkout.php',
+        '**/src/Core/Maintenance/Maintenance.php',
+        '**/src/Core/DevOps/DevOps.php',
+        '**/src/Core/Profiling/Profiling.php',
+        '**/src/Core/System/System.php',
+        '**/src/Core/Content/Content.php',
+        '**/src/Elasticsearch/Elasticsearch.php',
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
@@ -38,11 +49,15 @@ return [
         'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\IsNewDetector#isNew()',
         'The parameter \\$definition of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IteratorFactory#createIterator()',
         'The return type of Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteEventSubscriber',
+        'The return type of Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure()',
         'These ancestors of Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook have been removed',
 
         'The annotation "RouteScope" has been removed',
         'The annotation "LoginRequired" has been removed',
         'The annotation "ContextTokenRequired" has been removed',
         'The annotation "Acl" has been removed',
+
+        // temporary to fix types in final methods
+        'Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader',
     ],
 ];

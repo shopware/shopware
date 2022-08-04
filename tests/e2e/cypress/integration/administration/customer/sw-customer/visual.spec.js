@@ -33,6 +33,8 @@ describe('Customer:  Visual test', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -57,9 +59,11 @@ describe('Customer:  Visual test', () => {
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.get('.sw-select__selection').contains('English');
+        cy.contains('.sw-select__selection', 'English');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Customer] Create', '.sw-customer-create', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -91,13 +95,13 @@ describe('Customer:  Visual test', () => {
         // Verify new customer in detail
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
+        cy.get('.icon--regular-checkmark-xs').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.get('.sw-card-section--secondary').contains('English');
+        cy.contains('.sw-card-section--secondary', 'English');
         cy.contains('Account').click();
         cy.get('.sw-tooltip').should('not.exist');
         cy.prepareAdminForScreenshot();
@@ -144,8 +148,8 @@ describe('Customer:  Visual test', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+        cy.contains(`${page.elements.customerMetaData}-customer-name`,
+            `Mr. ${customer.firstName} ${customer.lastName}`);
 
         // Open and edit existing customer
 

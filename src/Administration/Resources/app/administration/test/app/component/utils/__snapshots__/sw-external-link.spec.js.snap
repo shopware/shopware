@@ -10,7 +10,7 @@ exports[`components/utils/sw-external-link should render correctly 1`] = `
   test external link 
   <sw-icon-stub
     class="sw-external-link__icon"
-    name="small-arrow-small-external"
+    name="regular-external-link-s"
     size="10px"
   />
 </a>

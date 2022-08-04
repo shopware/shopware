@@ -13,6 +13,8 @@ describe('Flow builder: flow detail page', () => {
             })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -51,8 +53,8 @@ describe('Flow builder: flow detail page', () => {
 
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
 
-        cy.get('#sw-field--flow-name').contains('Custom name').should('not.exist');
-        cy.get('#sw-field--flow-description').contains('Custom description').should('not.exist');
+        cy.contains('#sw-field--flow-name', 'Custom name').should('not.exist');
+        cy.contains('#sw-field--flow-description', 'Custom description').should('not.exist');
         cy.get('.sw-flow-detail__tab-flow').click();
 
         cy.get('.sw-flow-sequence-action__header .sw-flow-sequence-action__context-button').click();

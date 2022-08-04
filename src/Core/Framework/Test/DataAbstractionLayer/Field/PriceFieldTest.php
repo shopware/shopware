@@ -66,7 +66,7 @@ EOF;
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             [
@@ -93,7 +93,7 @@ EOF;
             ->insert($definition, $data, $context);
 
         $entity = $this->getContainer()->get(EntityReaderInterface::class)
-            ->read($definition, new Criteria([$ids->get('with-was')]), $ids->getContext())
+            ->read($definition, new Criteria([$ids->get('with-was')]), Context::createDefaultContext())
             ->get($ids->get('with-was'));
 
         $price = $entity->get('data');
@@ -113,7 +113,7 @@ EOF;
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             [
@@ -160,7 +160,7 @@ EOF;
 
         $result = $this->getContainer()
             ->get(EntitySearcherInterface::class)
-            ->search($definition, $criteria, $ids->getContext());
+            ->search($definition, $criteria, Context::createDefaultContext());
 
         static::assertCount(1, $result->getIds());
         static::assertTrue($result->has($ids->get('was')));
@@ -170,7 +170,7 @@ EOF;
 
         $result = $this->getContainer()
             ->get(EntitySearcherInterface::class)
-            ->search($definition, $criteria, $ids->getContext());
+            ->search($definition, $criteria, Context::createDefaultContext());
 
         static::assertCount(0, $result->getIds());
 
@@ -179,7 +179,7 @@ EOF;
 
         $result = $this->getContainer()
             ->get(EntitySearcherInterface::class)
-            ->search($definition, $criteria, $ids->getContext());
+            ->search($definition, $criteria, Context::createDefaultContext());
 
         static::assertEquals(
             [
@@ -262,11 +262,11 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $this->getContainer()
             ->get(EntityWriter::class)
-            ->insert($definition, $records, WriteContext::createFromContext($ids->getContext()));
+            ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('data'));
@@ -492,11 +492,11 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $this->getContainer()
             ->get(EntityWriter::class)
-            ->insert($definition, $records, WriteContext::createFromContext($ids->getContext()));
+            ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
 
         // other currency provided? switch factor to 1.5 of above currency
         $factor = 1.0;

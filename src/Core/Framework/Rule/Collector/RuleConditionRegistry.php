@@ -23,7 +23,7 @@ class RuleConditionRegistry
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getNames(): array
     {

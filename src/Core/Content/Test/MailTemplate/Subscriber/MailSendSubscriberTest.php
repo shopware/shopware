@@ -22,7 +22,6 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -113,6 +112,7 @@ class MailSendSubscriberTest extends TestCase
             static::assertNull($mailService->data);
         } else {
             static::assertEquals(1, $mailService->calls);
+            static::assertIsArray($mailService->data);
             if (!empty($recipients)) {
                 static::assertEquals($mailService->data['recipients'], $recipients);
             } else {
@@ -359,45 +359,11 @@ class TestStopSendSubscriber implements EventSubscriberInterface
 /**
  * @internal
  */
-class TestStringTemplateRenderer extends StringTemplateRenderer
-{
-    /**
-     * @var array
-     */
-    public $templateData;
-
-    public function __construct()
-    {
-    }
-
-    public function initialize(): void
-    {
-    }
-
-    public function render(string $templateSource, array $data, Context $context): string
-    {
-        $this->templateData = $data;
-
-        return '';
-    }
-
-    public function enableTestMode(): void
-    {
-    }
-
-    public function disableTestMode(): void
-    {
-    }
-}
-
-/**
- * @internal
- */
 class TestEmailService extends EMailService
 {
-    public $calls = 0;
+    public float $calls = 0;
 
-    public $data = null;
+    public ?array $data = null;
 
     public function __construct()
     {

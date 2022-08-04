@@ -11,15 +11,14 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             });
     });
     it('@sdk: Check tab existence', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         const Page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -38,7 +37,7 @@ describe('Category: SDK Test', ()=> {
         // Check Example Tab
         cy.get(`a[href*="ui-tabs-product-example-tab"`)
             .click();
-        cy.get('.sw-card').contains('Hello in the new tab ');
+        cy.contains('.sw-card', 'Hello in the new tab ');
 
         cy.getSDKiFrame('ui-modals')
             .should('exist');

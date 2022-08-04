@@ -30,6 +30,8 @@ describe('Create a new property, select value display type and test their appear
                 });
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -65,6 +67,8 @@ describe('Create a new property, select value display type and test their appear
 
         // Navigate to variant generator listing and start
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
 
         cy.clickContextMenuItem(
@@ -93,7 +97,7 @@ describe('Create a new property, select value display type and test their appear
         cy.get('.search-suggest-product-name')
             .contains('Variant Product')
             .click();
-        cy.get('.product-detail-name').contains('Variant Product');
+        cy.contains('.product-detail-name', 'Variant Product');
         cy.get('.product-detail-configurator-option-label[title="Yellow"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Red"]')

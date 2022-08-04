@@ -3,15 +3,18 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\Country\CountryDefinition;
 
 class BillingCountryRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>|null
      */
     protected $countryIds;
 
@@ -22,6 +25,8 @@ class BillingCountryRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
@@ -35,12 +40,31 @@ class BillingCountryRule extends Rule
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
-
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $countryId = $customer->getActiveBillingAddress()->getCountry()->getId();
+        if (!$address = $customer->getActiveBillingAddress()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        if (!$country = $address->getCountry()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        $countryId = $country->getId();
         $parameter = [$countryId];
         if ($countryId === '') {
             $parameter = [];
@@ -67,5 +91,12 @@ class BillingCountryRule extends Rule
     public function getName(): string
     {
         return 'customerBillingCountry';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->entitySelectField('countryIds', CountryDefinition::ENTITY_NAME, true);
     }
 }

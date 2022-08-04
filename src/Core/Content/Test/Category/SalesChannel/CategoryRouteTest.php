@@ -34,7 +34,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->route = $this->getContainer()->get(CategoryRoute::class);
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -260,7 +260,7 @@ class CategoryRouteTest extends TestCase
         unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')
-            ->create([$homeData, $childData, $folderData, $linkData], $this->ids->context);
+            ->create([$homeData, $childData, $folderData, $linkData], Context::createDefaultContext());
     }
 
     private function setVisibilities(): void
@@ -276,6 +276,6 @@ class CategoryRouteTest extends TestCase
         }
 
         $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
+            ->update($products, Context::createDefaultContext());
     }
 }

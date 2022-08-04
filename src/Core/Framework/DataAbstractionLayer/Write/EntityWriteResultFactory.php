@@ -34,6 +34,9 @@ class EntityWriteResultFactory
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;
@@ -405,13 +408,13 @@ class EntityWriteResultFactory
         $data = [];
 
         if ($fields->count() === 1) {
-            /** @var StorageAware|Field $field */
+            /** @var StorageAware&Field $field */
             $field = $fields->first();
 
             return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
-        /** @var StorageAware|Field $field */
+        /** @var StorageAware&Field $field */
         foreach ($fields as $field) {
             $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
@@ -441,7 +444,7 @@ class EntityWriteResultFactory
 
         $primaryKeys = $command->getDefinition()->getPrimaryKeys();
 
-        /** @var Field|StorageAware $primaryKey */
+        /** @var Field&StorageAware $primaryKey */
         foreach ($primaryKeys as $primaryKey) {
             if (\array_key_exists($primaryKey->getPropertyName(), $payload)) {
                 continue;

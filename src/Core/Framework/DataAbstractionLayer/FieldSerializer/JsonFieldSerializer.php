@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -18,26 +17,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteField
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class JsonFieldSerializer extends AbstractFieldSerializer
 {
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        ValidatorInterface $validator
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
+     *
+     * @param mixed $value
      */
     public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
     {
-        return json_encode($value, $options);
+        return (string) json_encode($value, $options);
     }
 
     public function encode(

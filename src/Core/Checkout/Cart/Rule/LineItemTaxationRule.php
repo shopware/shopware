@@ -7,13 +7,15 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class LineItemTaxationRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $taxIds;
 
@@ -21,6 +23,8 @@ class LineItemTaxationRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $taxIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
     {
@@ -60,6 +64,13 @@ class LineItemTaxationRule extends Rule
             'taxIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('taxIds', TaxDefinition::ENTITY_NAME, true);
     }
 
     /**

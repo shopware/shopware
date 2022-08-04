@@ -17,7 +17,7 @@ Module.register('sw-settings-country', {
     title: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'country',
 
@@ -101,7 +101,7 @@ Module.register('sw-settings-country', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.country.index',
-        icon: 'default-location-map',
+        icon: 'regular-map',
         privilege: 'country.viewer',
     },
 });

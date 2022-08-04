@@ -11,6 +11,8 @@ describe('Settings Documents: Test crud operations with ACL', () => {
     it('@general: read documents with ACL, but without rights', () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
@@ -29,8 +31,8 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         });
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
-        cy.get('.sw-settings-document-list__add-document').contains('Add document');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
+        cy.contains('.sw-settings-document-list__add-document', 'Add document');
 
         // check if create and delete button are disabled
         cy.get('.sw-grid__row--0').find('.sw-context-button__button').click();
@@ -59,21 +61,21 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         });
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config`,
             method: 'POST'
         }).as('saveData');
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
 
         // check if delete button is disabled
         cy.get('.sw-grid__row--0').find('.sw-context-button__button').click();
         cy.get('.sw-document-list__delete-action').should('have.class', 'is--disabled');
 
         // click on link to create a new document
-        cy.get(page.elements.primaryButton).contains('Add document').click();
+        cy.contains(page.elements.primaryButton, 'Add document').click();
         cy.url().should('contain', '#/sw/settings/document/create');
 
         // fill out all the required fields
@@ -90,7 +92,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
         // go back and see if the created document exists
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-settings-document-list-grid').contains('very Document');
+        cy.contains('.sw-settings-document-list-grid', 'very Document');
     });
 
     it('@catalogue: edit and read documents with ACL', () => {
@@ -109,8 +111,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
-
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
 
         // check if create and delete button are disabled
         cy.get('.sw-grid__row--0').find('.sw-context-button__button').click();
@@ -129,7 +130,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
         // go back and see if change persisted
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-settings-document-list-grid').contains('very Document');
+        cy.contains('.sw-settings-document-list-grid', 'very Document');
     });
     it('@catalogue: create, read and then edit document with ACL', () => {
         const page = new DocumentPageObject();
@@ -142,21 +143,21 @@ describe('Settings Documents: Test crud operations with ACL', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
         });
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config`,
             method: 'POST'
         }).as('createData');
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Document');
 
         // check if delete button is disabled
         cy.get('.sw-grid__row--0').find('.sw-context-button__button').click();
         cy.get('.sw-document-list__delete-action').should('have.class', 'is--disabled');
 
         // click on link to create a new document
-        cy.get(page.elements.primaryButton).contains('Add document').click();
+        cy.contains(page.elements.primaryButton, 'Add document').click();
         cy.url().should('contain', '#/sw/settings/document/create');
 
         // fill out all the required fields
@@ -197,7 +198,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
 
         // go back and see if change persisted
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-settings-document-list-grid').contains('very Document1');
+        cy.contains('.sw-settings-document-list-grid', 'very Document1');
     });
     it('@catalogue: delete document with ACL', () => {
         const page = new DocumentPageObject();
@@ -219,7 +220,8 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get('.sw-grid__row--3').first().as('row');
         cy.get('@row').find('.sw-context-button__button').click();
         cy.get('.sw-document-list__delete-action').click();
-        cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains('Are you sure you want to delete the document "storno"?');
+        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
+            'Are you sure you want to delete the document "storno"?');
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

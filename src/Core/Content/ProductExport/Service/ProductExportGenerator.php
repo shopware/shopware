@@ -113,7 +113,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 $productExport->getStorefrontSalesChannelId(),
                 $contextToken,
                 $productExport->getSalesChannelDomain()->getLanguageId(),
-                $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+                $productExport->getCurrencyId()
             )
         );
 

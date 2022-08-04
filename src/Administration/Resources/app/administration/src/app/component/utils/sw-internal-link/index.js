@@ -32,10 +32,22 @@ Component.register('sw-internal-link', {
         icon: {
             type: String,
             required: false,
-            default: 'default-arrow-simple-right',
+            default: 'regular-long-arrow-right',
         },
 
         inline: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideIcon: {
             type: Boolean,
             required: false,
             default: false,

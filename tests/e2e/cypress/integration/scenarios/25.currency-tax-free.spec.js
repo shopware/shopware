@@ -44,44 +44,68 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
 
         // Set tax-free
         cy.visit(`${Cypress.env('admin')}#/sw/settings/currency/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             '.sw-context-button__button',
             `.sw-data-grid__row--0`
         );
-        cy.get('input#sw-field--currency-taxFreeFrom').clear().typeAndCheck('10');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('input#sw-field--currency-taxFreeFrom').should('be.visible');
+        cy.get('input#sw-field--currency-taxFreeFrom').should('have.value', '0');
+        cy.get('input#sw-field--currency-taxFreeFrom').type('{selectall}{backspace}{selectall}{backspace}10{enter}');
+        cy.get('input#sw-field--currency-taxFreeFrom').should('have.value', '10');
 
         // Set country price rounding
+        cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').scrollIntoView();
         cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').click();
         cy.get('.sw-settings-currency-country-modal__select-country')
             .typeSingleSelectAndCheck('Netherlands', '.sw-settings-currency-country-modal__select-country');
         cy.get('.sw-settings-currency-country-modal input[name=sw-field--itemRounding-decimals]')
-            .clearTypeAndCheck('3');
+            .type('{selectall}{backspace}{selectall}{backspace}3{enter}');
+        cy.get('.sw-settings-currency-country-modal input[name=sw-field--itemRounding-decimals]')
+            .should('have.value', '3');
         cy.get('.sw-settings-currency-country-modal input[name=sw-field--totalRounding-decimals]')
-            .clearTypeAndCheck('3');
+            .type('{selectall}{backspace}{selectall}{backspace}3{enter}');
+        cy.get('.sw-settings-currency-country-modal input[name=sw-field--totalRounding-decimals]')
+            .should('have.value', '3');
         cy.get('.sw-settings-currency-country-modal__button-save').click();
         cy.wait('@saveCurrencyCountry').its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-alert').should('not.exist');
 
         // Verify country price rounding
         cy.get('.sw-settings-currency-country-modal').should('not.exist');
         cy.get('.sw-settings-currency-detail__currency-country-list').should('be.visible');
-        cy.get(`${pageSettings.elements.dataGridRow}--0 .sw-data-grid__cell--country`).contains('Netherlands');
+        cy.contains(`${pageSettings.elements.dataGridRow}--0 .sw-data-grid__cell--country`, 'Netherlands');
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCurrencySettings').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Search product
         cy.visit('/');
@@ -93,18 +117,18 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             cy.get('.header-search-input').type('Product name');
             cy.contains('.search-suggest-product-name', 'Product name').should('be.visible');
             cy.contains('.search-suggest-product-name', 'Product name').click();
-            cy.get('.product-detail-price').contains('49,116');
+            cy.contains('.product-detail-price', '49,116');
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get('.offcanvas.is-open').should('be.visible');
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
+            cy.get('.offcanvas').should('be.visible');
+            cy.contains(`${lineItemSelector}-label`, 'Product name');
 
             // Go to cart
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
-            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('34,116');
-            cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
+            cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name');
+            cy.get(`${lineItemSelector}-total-price`).contains('34,116');
+            cy.contains('.col-5.checkout-aside-summary-total', '34,116');
             cy.get('a[title="Proceed to checkout"]').click();
 
             // Register customer
@@ -121,26 +145,26 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
             // Confirm
-            cy.get('.confirm-address').contains('Test Tester');
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
+            cy.contains('.confirm-address', 'Test Tester');
+            cy.contains(`${lineItemSelector}-label`, 'Product name');
             cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
             cy.get(`${lineItemSelector}-total-price`).contains('34,116');
-            cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
+            cy.contains('.col-5.checkout-aside-summary-total', '34,116');
 
             // Finish checkout
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
             cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
             cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
             cy.get('#confirmFormSubmit').scrollIntoView();
             cy.get('#confirmFormSubmit').click();
-            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 
             // Verify the order from the storefront
             cy.visit('/account/login');
             cy.get('.account-welcome h1').should((element) => {
                 expect(element).to.contain('Overview');
             });
-            cy.get('.account-overview-profile > .card > .card-body').contains('test@tester.com');
+            cy.contains('.account-overview-profile > .card > .card-body', 'test@tester.com');
             cy.get('.order-table-header-heading').should('be.visible')
                 .and('include.text', 'Order');
         });

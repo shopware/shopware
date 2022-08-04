@@ -1,15 +1,28 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
+import 'src/app/component/form/sw-select-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/base/sw-button';
 
 function getFieldTypes() {
     return {
-        checkbox: {
+        select: {
+            configRenderComponent: 'sw-custom-field-type-select',
             config: {
-                componentName: 'sw-field',
-                type: 'checkbox'
+                componentName: 'sw-single-select'
             },
-            configRenderComponent: 'sw-custom-field-type-checkbox'
-        }
+        },
+        checkbox: {
+            configRenderComponent: 'sw-custom-field-type-checkbox',
+            type: 'bool',
+            config: { componentName: 'sw-field', type: 'checkbox' },
+        },
+        switch: {
+            configRenderComponent: 'sw-custom-field-type-checkbox',
+            type: 'bool',
+            config: { componentName: 'sw-field', type: 'switch' },
+        },
     };
 }
 
@@ -37,7 +50,8 @@ function createWrapper(privileges = []) {
             customFieldDataProviderService: {
                 getTypes: () => getFieldTypes()
             },
-            SwCustomFieldListIsCustomFieldNameUnique: {}
+            SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
+            validationService: {},
         },
         propsData: {
             currentCustomField: {
@@ -57,10 +71,16 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
             'sw-field': true,
-            'sw-button': true,
+            'sw-select-field': Shopware.Component.build('sw-select-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-icon': true,
+            'sw-help-text': true,
+            'sw-button': Shopware.Component.build('sw-button'),
             'sw-loader': true,
             'sw-alert': true
-        }
+        },
     });
 }
 
@@ -75,7 +95,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             'custom_field.editor'
         ]);
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSwitchField = wrapper.find('.sw-custom-field-detail__switch');
@@ -91,7 +111,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
     it('cannot edit fields', async () => {
         const wrapper = createWrapper();
 
-        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type');
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
         const modalSwitchField = wrapper.find('.sw-custom-field-detail__switch');
@@ -102,5 +122,30 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         expect(modalPositionField.attributes('disabled')).toBeTruthy();
         expect(modalSwitchField.attributes('disabled')).toBeTruthy();
         expect(modalSaveButton.attributes('disabled')).toBeTruthy();
+    });
+
+    it('should update config correctly', async () => {
+        const wrapper = createWrapper(['custom_field.editor']);
+
+        const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
+        await modalTypeField.setValue('select');
+
+        expect(wrapper.vm.currentCustomField.config).toEqual(expect.objectContaining({
+            customFieldType: 'select',
+        }));
+
+        await modalTypeField.setValue('switch');
+
+        expect(wrapper.vm.currentCustomField.config).toEqual(expect.objectContaining({
+            customFieldType: 'switch',
+        }));
+
+        const saveButton = wrapper.find('.sw-custom-field-detail__footer-save');
+        await saveButton.trigger('click');
+
+        expect(wrapper.vm.currentCustomField.config).toEqual(expect.objectContaining({
+            customFieldType: 'switch',
+            componentName: 'sw-field'
+        }));
     });
 });

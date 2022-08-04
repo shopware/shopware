@@ -9,12 +9,16 @@ describe('FirstRunWizard Test language Auto-Install', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     // skipped because it has a dependency to the sbp, see NEXT-15818
-    it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
+    it('@frw: Tests the auto-install of the first run wizard with dutch', { tags: ['quarantined'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/install/plugin/SwagLanguagePack`,
@@ -40,10 +44,11 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         cy.get('.sw-first-run-wizard-modal').should('be.visible');
 
         // Search for Shopware Language Pack
-        cy.get('.sw-plugin-card').contains('Shopware Language Pack');
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack');
 
         // Install Shopware Language Pack plugin
-        cy.get('.sw-plugin-card').contains('Shopware Language Pack').get('.button-plugin-install').click();
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack');
+        cy.contains('.sw-plugin-card', 'Shopware Language Pack').get('.button-plugin-install').click();
 
         // Wait for plugin install requests
         cy.wait(['@installPlugin', '@activatePlugin']).spread((installPlugin, activatePlugin) => {
@@ -69,10 +74,10 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         // The language switch reloads the page and the first run wizard should be visible again
         cy.get('.sw-first-run-wizard-modal').should('be.visible');
 
-        cy.get('.sw-first-run-wizard-modal').contains('Welkom bij de Shopware 6 Administration');
+        cy.contains('.sw-first-run-wizard-modal', 'Welkom bij de Shopware 6 Administration');
     });
 
-    it.skip('@frw: Should fail to install Lingala', () => {
+    it('@frw: Should fail to install Lingala', { tags: ['quarantined'] }, () => {
         AddLanguageToLanguageTable('No Plugin Available Language', 'ln-CD', 'Lingala, Democratic Republic of the Congo');
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`).then(() => {
             cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible').then(() => {

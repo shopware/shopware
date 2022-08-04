@@ -10,6 +10,8 @@ describe('Shipping: Edit in various ways', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -123,9 +125,8 @@ describe('Shipping: Edit in various ways', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('Wasserpost');
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--position`).should('be.visible')
-            .contains('99');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`, 'Wasserpost')
+            .should('be.visible');
+        cy.contains(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--position`, '99').should('be.visible');
     });
 });

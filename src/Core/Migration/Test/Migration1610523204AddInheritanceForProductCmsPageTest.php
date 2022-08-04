@@ -20,6 +20,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
+ * @group not-deterministic
  */
 class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 {
@@ -37,7 +39,7 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->repository = $this->getContainer()->get('product.repository');
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Validator\Constraint;
 
 abstract class Rule extends Struct
 {
@@ -47,8 +48,18 @@ abstract class Rule extends Struct
      *   'propertyName' => [new Constraint(), new OtherConstraint()],
      *   'propertyName2' => [new Constraint(), new OtherConstraint()],
      *  ]
+     *
+     * @return array<string, array<Constraint>>
      */
     abstract public function getConstraints(): array;
+
+    /**
+     * Get the config which contains operators and fields to be rendered in the admin.
+     */
+    public function getConfig(): ?RuleConfig
+    {
+        return null;
+    }
 
     public function jsonSerialize(): array
     {

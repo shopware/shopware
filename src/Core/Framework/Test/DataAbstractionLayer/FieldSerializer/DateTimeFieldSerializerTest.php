@@ -57,22 +57,16 @@ class DateTimeFieldSerializerTest extends TestCase
     {
         return [
             [
-                [
-                    new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
-                    new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
+                new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
             ],
             [
-                [
-                    new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
-                    new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
+                new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
             ],
             [
-                [
-                    new \DateTime('2020-05-15 22:00:00', new \DateTimeZone('EDT')),
-                    new \DateTime('2020-05-16 03:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2020-05-15 22:00:00', new \DateTimeZone('America/New_York')),
+                new \DateTime('2020-05-16 02:00:00', new \DateTimeZone('UTC')),
             ],
         ];
     }
@@ -81,22 +75,16 @@ class DateTimeFieldSerializerTest extends TestCase
     {
         return [
             [
-                [
-                    '2020-05-15T00:00:00+0000',
-                    '2020-05-15T00:00:00+00:00',
-                ],
+                '2020-05-15T00:00:00+0000',
+                '2020-05-15T00:00:00+00:00',
             ],
             [
-                [
-                    '2020-05-15T00:00:00+0200',
-                    '2020-05-14T22:00:00+00:00',
-                ],
+                '2020-05-15T00:00:00+0200',
+                '2020-05-14T22:00:00+00:00',
             ],
             [
-                [
-                    '2020-05-15T22:00:00+0400',
-                    '2020-05-15T18:00:00+00:00',
-                ],
+                '2020-05-15T22:00:00+0400',
+                '2020-05-15T18:00:00+00:00',
             ],
         ];
     }
@@ -104,25 +92,26 @@ class DateTimeFieldSerializerTest extends TestCase
     /**
      * @dataProvider serializerProvider
      */
-    public function testSerializer($input): void
+    public function testSerializer(\DateTimeInterface $in, \DateTimeInterface $expected): void
     {
-        $kvPair = new KeyValuePair('date', $input[0], true);
+        $kvPair = new KeyValuePair('date', $in, true);
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
         $decoded = $this->serializer->decode($this->field, $encoded);
 
-        static::assertEquals($input[1], $decoded, 'Output should be ' . print_r($input[1], true));
+        static::assertEquals($expected, $decoded, 'Output should be ' . print_r($expected, true));
     }
 
     /**
      * @dataProvider serializerProviderString
      */
-    public function testSerializerString($input): void
+    public function testSerializerString(string $in, string $expected): void
     {
-        $kvPair = new KeyValuePair('date', $input[0], true);
+        $kvPair = new KeyValuePair('date', $in, true);
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
         $decoded = $this->serializer->decode($this->field, $encoded);
+        static::assertNotNull($decoded);
 
-        static::assertEquals($input[1], $decoded->format('c'), 'Output should be ' . $input[1]);
+        static::assertEquals($expected, $decoded->format('c'), 'Output should be ' . $expected);
     }
 
     public function testSerializerValidatesRequiredField(): void

@@ -31,28 +31,10 @@
             :disabled="disabled"
             :placeholder="mainRulePlaceholder"
             rule-aware-group-key="shippingMethodPrices"
+            :restricted-rule-ids="usedRules"
+            :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed')"
             @save-rule="onSaveMainRule"
-        >
-            <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                <li
-                    is="sw-select-result"
-                    v-tooltip="shippingMethodRuleTooltipConfig(item, isSelected(item), 'shippingMethodPrices')"
-                    :disabled="(usedRules.includes(item.id) && !isSelected(item)) || isRuleRestricted(item, 'shippingMethodPrices')"
-                    :selected="isSelected(item)"
-                    v-bind="{ item, index }"
-                    @item-select="setValue"
-                >
-                    <sw-highlight-text
-                        v-if="highlightSearchTerm"
-                        :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                        :search-term="searchTerm"
-                    />
-                    <template v-else>
-                        {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                    </template>
-                </li>
-            </template>
-        </sw-select-rule-create>
+        />
         {% endblock %}
 
         {% block sw_settings_shipping_price_matrix_topbar_new_price %}
@@ -127,6 +109,8 @@
                 :rule-filter="shippingRuleFilterCriteria"
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                 rule-aware-group-key="shippingMethodPriceCalculations"
+                :restricted-rule-ids="usedCalculationRules"
+                :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
                 @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)"
             >
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
@@ -136,25 +120,6 @@
                         @save="onSaveRule"
                         @modal-close="onCloseRuleModal"
                     />
-                </template>
-                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                    <li
-                        is="sw-select-result"
-                        v-tooltip="shippingPriceRuleTooltipConfig(item, isSelected(item), 'shippingMethodPriceCalculations')"
-                        :disabled="(usedCalculationRules.includes(item.id) && !isSelected(item)) || isRuleRestricted(item, 'shippingMethodPriceCalculations')"
-                        :selected="isSelected(item)"
-                        v-bind="{ item, index }"
-                        @item-select="setValue"
-                    >
-                        <sw-highlight-text
-                            v-if="highlightSearchTerm"
-                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                            :search-term="searchTerm"
-                        />
-                        <template v-else>
-                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                        </template>
-                    </li>
                 </template>
             </sw-select-rule-create>
         </template>
@@ -294,28 +259,10 @@
                 :disabled="disabled"
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                 rule-aware-group-key="shippingMethodPriceCalculations"
+                :restricted-rule-ids="usedCalculationRules"
+                :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
                 @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
             >
-                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-                    <li
-                        is="sw-select-result"
-                        v-tooltip="shippingPriceRuleTooltipConfig(item, isSelected(item), 'shippingMethodPriceCalculations')"
-                        :disabled="(usedCalculationRules.includes(item.id) && !isSelected(item)) || isRuleRestricted(item, 'shippingMethodPriceCalculations')"
-                        :selected="isSelected(item)"
-                        v-bind="{ item, index }"
-                        @item-select="setValue"
-                    >
-                        <sw-highlight-text
-                            v-if="highlightSearchTerm"
-                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                            :search-term="searchTerm"
-                        />
-                        <template v-else>
-                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                        </template>
-                    </li>
-                </template>
-
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
                     <sw-price-rule-modal
                         v-if="showRuleModal"

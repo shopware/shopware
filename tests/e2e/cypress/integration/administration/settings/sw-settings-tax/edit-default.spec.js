@@ -12,6 +12,8 @@ describe('Tax: Test default tax rates', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -42,13 +44,15 @@ describe('Tax: Test default tax rates', () => {
 
         // Verify default tax in listing
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`).should('be.visible')
-            .contains('High tax');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`, 'High tax')
+            .should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--default .is--active`)
             .should('be.visible');
 
         // Verify default tax in product creation
         cy.visit(`${Cypress.env('admin')}#/sw/product/create/base`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Value is the fixed ID, set through the fixture
         cy.get('#sw-field--product-taxId').should('have.value', '70359730b8f244bf94f4372ab4646fe5');

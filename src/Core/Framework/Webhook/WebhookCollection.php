@@ -22,7 +22,7 @@ class WebhookCollection extends EntityCollection
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAclRoleIdsAsBinary(): array
     {

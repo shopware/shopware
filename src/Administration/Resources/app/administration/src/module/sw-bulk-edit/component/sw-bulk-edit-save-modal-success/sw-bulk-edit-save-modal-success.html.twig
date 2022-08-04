@@ -7,16 +7,44 @@
         variant="success"
     >
         <sw-icon
-            name="default-basic-checkmark-circle"
+            name="regular-check-circle"
             size="30px"
         />
     </sw-label>
     {% endblock %}
 
     {% block sw_bulk_edit_save_modal_error_content %}
-    <p class="sw-bulk-edit-save-modal__help-text">
-        {{ $tc('sw-bulk-edit.modal.success.description') }}
+    <p
+        class="sw-bulk-edit-save-modal__help-text"
+        v-html="description"
+    >
     </p>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_success_download_document %}
+    <ul
+        v-if="selectedDocumentTypes.length > 0"
+        class="sw-bulk-edit-save-modal-success__download-document-container"
+    >
+        <li
+            v-for="selectedDocumentType in selectedDocumentTypes"
+            :key="selectedDocumentType.id"
+            class="sw-bulk-edit-save-modal-success__download-document"
+            :class="`is--${selectedDocumentType.technicalName}`"
+        >
+            <span class="label">
+                {{ selectedDocumentType.translated.name }}
+            </span>
+            <sw-button
+                class="action"
+                size="small"
+                :disabled="document[selectedDocumentType.technicalName].isDownloading"
+                @click="downloadDocument(selectedDocumentType.technicalName)"
+            >
+                {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
+            </sw-button>
+        </li>
+    </ul>
     {% endblock %}
 </div>
 {% endblock %}

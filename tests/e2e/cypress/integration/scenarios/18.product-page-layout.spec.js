@@ -14,6 +14,8 @@ describe('CMS: product page layout', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -34,31 +36,35 @@ describe('CMS: product page layout', () => {
         cy.contains('Nieuwe lay-out aanmaken').click();
         cy.get('.sw-cms-detail').should('be.visible');
         cy.contains('.sw-cms-create-wizard__page-type', 'Productpagina').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Kies een sectietype om te beginnen.');
+        cy.contains('.sw-cms-create-wizard__title', 'Kies een sectietype om te beginnen.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Volledige breedte').click();
-        cy.get('.sw-cms-create-wizard__title').contains('Hoe moet de nieuwe lay-out worden genoemd?');
+        cy.contains('.sw-cms-create-wizard__title', 'Hoe moet de nieuwe lay-out worden genoemd?');
         cy.contains('.sw-button--primary', 'Lay-out maken').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Package Product Page');
         cy.contains('.sw-button--primary', 'Lay-out maken').should('be.enabled');
         cy.contains('.sw-button--primary', 'Lay-out maken').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-cms-section__wrapper').contains('Naam van het product').should('be.visible');
+        cy.contains('.sw-cms-section__wrapper', 'Naam van het product').should('be.visible');
 
         // Assign layout to a product
         cy.get('button[title="Layout opdracht"]').click();
-        cy.get('.sw-button--ghost').contains('Lay-out toewijzen').click();
+        cy.contains('.sw-button--ghost', 'Lay-out toewijzen').click();
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('input[placeholder="Producten zoeken en toewijzen..."]').type('Page Product');
-        cy.get('.sw-select-option--0').contains('Page Product').click();
+        cy.contains('.sw-select-option--0', 'Page Product').click();
         cy.get('.sw-button.sw-button--primary.sw-button--small').click();
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveLayout').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
@@ -79,14 +85,15 @@ describe('CMS: product page layout', () => {
         // Save product
         cy.get('.sw-button-process__content').click();
         cy.wait('@editLayout').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
+        cy.contains('.sw-button-process__content', 'Opslaan').should('be.visible');
 
         // Verify layout in the storefront
         cy.visit('/');
         cy.get('.header-search-input').should('be.visible').type('Page Product');
         cy.contains('.search-suggest-product-name', 'Page Product').click();
-        cy.get('h1').contains('Page Product').should('be.visible');
+        cy.contains('h1', 'Page Product').should('be.visible');
         cy.get('.gallery-slider-image.img-fluid.js-magnifier-image.magnifier-image').should('be.visible');
         cy.get('.gallery-slider-image.img-fluid.js-magnifier-image.magnifier-image')
             .should('have.attr', 'src')

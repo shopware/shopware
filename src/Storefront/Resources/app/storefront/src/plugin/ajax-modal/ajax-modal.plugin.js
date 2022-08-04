@@ -4,7 +4,9 @@ import PluginManager from 'src/plugin-system/plugin.manager';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
-import PseudoModalUtil, { PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS } from 'src/utility/modal-extension/pseudo-modal.util';
+import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
+
+const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
 
 /**
  * This class extends the Bootstrap modal functionality by

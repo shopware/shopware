@@ -39,6 +39,9 @@ const criteria = new Criteria(1, 25);
 criteria.addSorting(Criteria.sort('entity.name', 'DESC'));
 criteria.addFilter(Criteria.equals('entity.key', 'value'));
 
+const deleteFn = jest.fn(() => Promise.resolve());
+const assignFn = jest.fn(() => Promise.resolve());
+
 const createEntityManyToManySelect = (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
@@ -66,6 +69,8 @@ const createEntityManyToManySelect = (customOptions) => {
             repositoryFactory: {
                 create: () => ({
                     search: jest.fn(() => Promise.resolve([])),
+                    delete: deleteFn,
+                    assign: assignFn
                 })
             }
         }
@@ -90,5 +95,27 @@ describe('components/sw-entity-many-to-many-select', () => {
         swEntityManyToManySelect.vm.sendSearchRequest();
 
         expect(swEntityManyToManySelect.vm.searchRepository.search).toBeCalledWith(criteria, Shopware.Context.api);
+    });
+
+    it('should use advanced selection submit', async () => {
+        const swEntityManyToManySelect = createEntityManyToManySelect();
+
+        swEntityManyToManySelect.vm.onAdvancedSelectionSubmit([]);
+
+        expect(deleteFn).toHaveBeenCalledTimes(3);
+
+        const searchResult = [{ id: utils.createId(), name: 'new entry' }];
+        swEntityManyToManySelect.vm.displaySearch(new EntityCollection(
+            '/test-entity',
+            'testEntity',
+            { isShopwareContext: true },
+            new Criteria(1, 25),
+            searchResult,
+            searchResult.length,
+            null
+        ));
+        swEntityManyToManySelect.vm.onAdvancedSelectionSubmit(searchResult);
+
+        expect(assignFn).toHaveBeenCalledTimes(1);
     });
 });

@@ -733,7 +733,7 @@ Component.register('sw-search-bar', {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
             if (!module) {
-                return 'default-object-books';
+                return 'regular-books';
             }
 
             return module.manifest.icon || entityName;
@@ -887,7 +887,7 @@ Component.register('sw-search-bar', {
                 return [
                     {
                         name: 'sales-channel',
-                        icon: saleChannelType?.iconName ?? 'default-device-server',
+                        icon: saleChannelType?.iconName ?? 'regular-server',
                         color: '#14D7A5',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,

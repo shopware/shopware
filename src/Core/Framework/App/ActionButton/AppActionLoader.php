@@ -38,7 +38,7 @@ class AppActionLoader
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     public function loadAppAction(string $actionId, array $ids, Context $context): AppAction
     {

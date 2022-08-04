@@ -40,7 +40,7 @@ describe('Checkout: Visual tests', () => {
             // Product detail
             cy.get('.header-search-input')
                 .type(product.name);
-            cy.get('.search-suggest-product-name').contains(product.name);
+            cy.contains('.search-suggest-product-name', product.name);
             cy.get('.search-suggest-product-name').click();
 
             // Take snapshot for visual testing
@@ -74,10 +74,10 @@ describe('Checkout: Visual tests', () => {
             cy.get('.loader').should('not.exist');
 
             cy.takeSnapshot('[Checkout] Offcanvas',
-                `${page.elements.offCanvasCart}.is-open`,
+                page.elements.offCanvasCart,
                 {widths: [375, 1920]});
 
-            cy.get(`${lineItemSelector}-label`).contains(product.name);
+            cy.contains(`${lineItemSelector}-label`, product.name);
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -95,17 +95,17 @@ describe('Checkout: Visual tests', () => {
             cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
             // Confirm
-            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', {widths: [375, 1920]});
 
             cy.get('.checkout-confirm-tos-label').scrollIntoView();
             cy.get('.checkout-confirm-tos-label').click(1, 1);
-            cy.get('.confirm-address').contains('Pep Eroni');
-            cy.get(`${lineItemSelector}-details-container ${lineItemSelector}-label`).contains(product.name);
-            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
-            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
+            cy.contains('.confirm-address', 'Pep Eroni');
+            cy.contains(`${lineItemSelector}-details-container ${lineItemSelector}-label`, product.name);
+            cy.contains(`${lineItemSelector}-total-price`, product.price[0].gross);
+            cy.contains(`${lineItemSelector}-total-price`, product.price[0].gross);
 
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();

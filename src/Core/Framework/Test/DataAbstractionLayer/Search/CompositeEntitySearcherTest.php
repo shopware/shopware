@@ -40,11 +40,6 @@ class CompositeEntitySearcherTest extends TestCase
      */
     private $context;
 
-    /**
-     * @var string
-     */
-    private $userId;
-
     protected function setUp(): void
     {
         Feature::skipTestIfActive('FEATURE_NEXT_18762', $this);
@@ -53,23 +48,22 @@ class CompositeEntitySearcherTest extends TestCase
 
         $connection = $this->getContainer()->get(Connection::class);
         $userId = (string) $connection->executeQuery('SELECT id FROM `user` WHERE username = "admin"')->fetchColumn();
-        $this->userId = Uuid::fromBytesToHex($userId);
         $this->context = Context::createDefaultContext();
     }
 
     public function testDefinitionsAreUnique(): void
     {
-        $closure = \Closure::fromCallable(function (): array {
-            return iterator_to_array($this->definitions);
-        });
-        $closure = \Closure::bind($closure, $this->search, $this->search);
+        $ref = new \ReflectionClass($this->search);
+        $property = $ref->getProperty('definitions');
+        $property->setAccessible(true);
+        $definitions = $property->getValue($this->search);
 
         $uniqueDefinitions = [];
-        foreach ($closure() as $definition) {
+        foreach ($definitions as $definition) {
             $uniqueDefinitions[$definition->getEntityName()] = $definition;
         }
 
-        static::assertCount(\count($uniqueDefinitions), $closure());
+        static::assertCount(\count($uniqueDefinitions), $definitions);
     }
 
     public function testProductRanking(): void
@@ -80,13 +74,13 @@ class CompositeEntitySearcherTest extends TestCase
         $filterId = Uuid::randomHex();
 
         $this->productRepository->upsert([
-            ['id' => $productId1, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 1", 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
-            ['id' => $productId2, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "${filterId}_test ${filterId}_product 2", 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId1, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "{$filterId}_test {$filterId}_product 1", 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
+            ['id' => $productId2, 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => "{$filterId}_test {$filterId}_product 2", 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test']],
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 1, 'name' => 'notmatch', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'notmatch', 'taxRate' => 5], 'manufacturer' => ['name' => 'notmatch']],
         ], $this->context);
 
-        $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context);
+        $result = $this->search->search("{$filterId}_test {$filterId}_product", 20, $this->context);
 
         $productResult = current(array_filter($result, function ($item) {
             return $item['entity'] === $this->getContainer()->get(ProductDefinition::class)->getEntityName();

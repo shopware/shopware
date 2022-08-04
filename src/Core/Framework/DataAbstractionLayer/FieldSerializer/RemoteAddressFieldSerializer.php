@@ -25,6 +25,9 @@ class RemoteAddressFieldSerializer extends AbstractFieldSerializer
      */
     private $configService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,

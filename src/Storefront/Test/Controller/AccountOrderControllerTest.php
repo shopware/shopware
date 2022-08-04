@@ -356,14 +356,16 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo->create($orderData, $context);
 
         $browser = $this->login($customer->getEmail());
+        $url = '/account/order/edit/' . $orderData[0]['id'];
+
         $browser->request(
             'GET',
-            '/account/order/edit/' . $orderData[0]['id'],
+            $url,
             []
         );
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $url . $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -405,11 +407,12 @@ class AccountOrderControllerTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
+                    'countryId' => $this->getValidCountryId(TestDefaults::SALES_CHANNEL),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'guest' => $guest,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'defaultShippingMethodId' => $this->getValidShippingMethodId(TestDefaults::SALES_CHANNEL),
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(TestDefaults::SALES_CHANNEL),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'test',

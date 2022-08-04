@@ -1,0 +1,110 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/sync": {
+            "post": {
+                "tags": [
+                    "Bulk Operations"
+                ],
+                "summary": "Bulk edit entities",
+                "description": "Starts a sync process for the list of provided actions. This can be inserts, upserts, updates and deletes on different entities. to an asynchronous process in the background. You can control the behaviour with the `single-operation` and `indexing-behavior` header.",
+                "operationId": "sync",
+                "parameters": [
+                    {
+                        "name": "fail-on-error",
+                        "in": "header",
+                        "description": "To continue upcoming actions on errors, set the `fail-on-error` header to `false`.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "single-operation",
+                        "in": "header",
+                        "description": "Controls weather the data is written at once or in seperate transactions.\n    - `true`: Data will be written in a single transaction",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "indexing-behavior",
+                        "in": "header",
+                        "description": "Controls the indexing behavior.\n    - `disable-indexing`: Data indexing is completely disabled",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "use-queue-indexing",
+                                "disable-indexing"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "action",
+                                        "entity",
+                                        "payload"
+                                    ],
+                                    "properties": {
+                                        "action": {
+                                            "description": "The action indicates what should happen with the provided payload.\n    * `upsert`: The Sync API does not differ between create and update operations,\n    but always performs an upsert operation. During an upsert, the system checks whether the entity already exists in the\n    system and updates it if an identifier has been passed, otherwise a new entity is created with this identifier.\n    * `delete`: Deletes entites with the provided identifiers",
+                                            "type": "string",
+                                            "enum": [
+                                                "upsert",
+                                                "delete"
+                                            ]
+                                        },
+                                        "entity": {
+                                            "description": "The entity that should be processed with the payload.",
+                                            "type": "string",
+                                            "example": "product"
+                                        },
+                                        "payload": {
+                                            "description": "Contains a list of changesets for an entity. If the action type is `delete`,\n    a list of identifiers can be provided.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a sync result containing information about the updated entities",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Object with information about the updated entites",
+                                            "type": "object"
+                                        },
+                                        "success": {
+                                            "description": "Indicator if the sync was successful.",
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

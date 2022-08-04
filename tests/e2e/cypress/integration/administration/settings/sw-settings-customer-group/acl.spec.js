@@ -23,13 +23,14 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-settings-customer-group-list').should('be.visible');
 
         // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('Chuck-Testers')
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Chuck-Testers')
             .click();
 
         // check if values are visible
@@ -52,6 +53,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -63,8 +66,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.setEntitySearchable('customer_group', 'name');
 
         // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .contains('Chuck-Testers')
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Chuck-Testers')
             .click();
 
         // edit name
@@ -93,10 +95,9 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Net price');
         cy.get('.sw-settings-customer-group-list').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Net price');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnTaxDisplay}`).should('be.visible')
-            .contains('Net');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Net price').should('be.visible');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnTaxDisplay}`, 'Net')
+            .should('be.visible');
     });
 
     it('@settings: can create customer group', () => {
@@ -117,6 +118,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -151,7 +154,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('VIP');
         cy.get('.sw-settings-customer-group-list').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnName}`).contains('VIP');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnName}`, 'VIP');
     });
 
     it('@settings: can delete customer group', () => {
@@ -168,6 +171,8 @@ describe('Customer groups: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -188,8 +193,7 @@ describe('Customer groups: Test acl privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion

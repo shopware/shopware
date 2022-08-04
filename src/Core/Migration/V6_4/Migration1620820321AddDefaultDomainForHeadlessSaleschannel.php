@@ -22,7 +22,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends Migrati
             ['headlessType' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API)]
         );
 
-        $snippetSetId = $connection->fetchOne('SELECT id from snippet_set WHERE iso = :iso UNION SELECT id FROM snippet_set LIMIT 1', [
+        $snippetSetId = $connection->fetchOne('SELECT id from snippet_set WHERE iso = :iso', [
             'iso' => 'en-GB',
         ]);
 

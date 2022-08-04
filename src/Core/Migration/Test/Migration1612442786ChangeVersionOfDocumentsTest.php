@@ -12,17 +12,23 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -37,6 +43,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
+ * @group not-deterministic
  */
 class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 {
@@ -86,27 +94,36 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             ]
         );
 
-        $this->salesChannelContext->setRuleIds([
-            $shippingMethod->getAvailabilityRuleId(),
-            $paymentMethod->getAvailabilityRuleId(),
-        ]);
+        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $paymentRuleId;
+        }
+        $this->salesChannelContext->setRuleIds($ruleIds);
     }
 
     public function testMigrationWorks(): void
     {
-        $documentService = $this->getContainer()->get(DocumentService::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $documentStruct = $documentService->create(
-            $orderId,
-            DeliveryNoteGenerator::DELIVERY_NOTE,
-            FileTypes::PDF,
-            new DocumentConfiguration(),
-            $this->context
-        );
+        if (Feature::isActive('v6.5.0.0')) {
+            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+            $operation = new DocumentGenerateOperation($orderId);
+            $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess();
 
+            $documentStruct = $result->first();
+        } else {
+            $documentService = $this->getContainer()->get(DocumentService::class);
+            $documentStruct = $documentService->create(
+                $orderId,
+                DeliveryNoteGenerator::DELIVERY_NOTE,
+                FileTypes::PDF,
+                new DocumentConfiguration(),
+                $this->context
+            );
+        }
+
+        static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
         // Set Document to Live Version
@@ -129,6 +146,11 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentStruct->getId()]), $this->context)->first();
 
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+
+            return;
+        }
         static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
 
         $documentRepository
@@ -250,18 +272,14 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
+        $this->getContainer()
+            ->get(EntityWriter::class)
+            ->upsert(
+                $this->getContainer()->get(CustomerDefinition::class),
+                [$customer],
+                WriteContext::createFromContext($this->context)
+            );
 
         return $customerId;
-    }
-
-    private function getValidSalutationId(): string
-    {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('salutation.repository');
-
-        $criteria = (new Criteria())->setLimit(1);
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 }

@@ -53,7 +53,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
 
         $result = new MediaCollection();
 
-        /** @var string[] $mediaIds */
+        /** @var array<string> $mediaIds */
         $mediaIds = array_keys($mediaItems);
         if (!empty($mediaIds)) {
             $criteria = new Criteria($mediaIds);

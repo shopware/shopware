@@ -28,6 +28,10 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         pageHasSections() {
             return this.page.sections.length > 0 && this.wizardComplete;
         },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
     },
 
     methods: {
@@ -44,16 +48,24 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             this.page.sections = [];
         },
 
-        onSave() {
+        async onSave() {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
-                const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationWarning({
-                    message: warningMessage,
+                    message: this.$tc('sw-cms.detail.notification.messageMissingFields'),
                 });
 
                 return Promise.reject();
+            }
+
+            const { type, id } = this.$route.params;
+            if (type === 'category') {
+                const category = await this.categoryRepository.get(id);
+
+                if (category) {
+                    this.page.categories.add(category);
+                }
             }
 
             this.deleteEntityAndRequiredConfigKey(this.page.sections);

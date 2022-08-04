@@ -88,13 +88,13 @@
                     <sw-icon
                         v-if="item.active"
                         class="sw-promotion-v2-list__icon-activity is--active"
-                        name="small-default-checkmark-line-medium"
+                        name="regular-checkmark-xs"
                         small
                     />
                     <sw-icon
                         v-else
                         class="sw-promotion-v2-list__icon-activity is--inactive"
-                        name="small-default-x-line-medium"
+                        name="regular-times-s"
                         small
                     />
                 </template>
@@ -171,7 +171,7 @@
 
             {% block sw_promotion_v2_list_sidebar_refresh %}
             <sw-sidebar-item
-                icon="default-arrow-360-left"
+                icon="regular-undo"
                 :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />

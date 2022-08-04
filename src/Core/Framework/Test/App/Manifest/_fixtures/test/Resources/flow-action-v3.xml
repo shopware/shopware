@@ -2,12 +2,13 @@
     <flow-action>
         <meta>
             <name>slack.send.message</name>
-            <badge>Slack</badge>
             <label>Slack send message</label>
             <label lang="de-DE">Slack send message DE</label>
             <label lang="nl-NL">Slack send message NL</label>
+            <headline>The Headline for action</headline>
+            <headline lang="de-DE">Die Schlagzeile zum Handeln</headline>
             <description>Slack send message description</description>
-            <description lang="de-DE">Slack send message description DE</description>
+            <description lang="de-DE">Beschreibung der Slack-Sendenachricht</description>
             <url>https://test-flow.com</url>
             <sw-icon>default-communication-speech-bubbles</sw-icon>
             <requirements>orderAware</requirements>

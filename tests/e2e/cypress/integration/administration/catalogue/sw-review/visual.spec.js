@@ -9,6 +9,8 @@ describe('Administration: Check module navigation', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,18 +28,15 @@ describe('Administration: Check module navigation', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-review-list').should('be.visible');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').should('be.visible');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-data-grid__cell--createdAt',
-            'color: #fff'
-        );
-        cy.get('.sw-data-grid__cell--createdAt')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--createdAt .sw-data-grid__cell-content', '01 Jan 2018, 00:00');
 
         // Take snapshot
         cy.prepareAdminForScreenshot();
@@ -48,13 +47,8 @@ describe('Administration: Check module navigation', () => {
         cy.contains('.sw-data-grid__cell--title', 'Bestes Produkt').click();
         cy.get('.sw-loader').should('not.exist');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            ':nth-child(1) > :nth-child(1) > dd',
-            'color: #F6F6F6'
-        );
-        cy.get(':nth-child(1) > :nth-child(1) > dd')
-            .should('have.css', 'color', 'rgb(246, 246, 246)');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText(':nth-child(1) > :nth-child(1) > dd', '01 Jan 2018, 00:00');
 
         // Take snapshot
         cy.get('.sw-loader').should('not.exist');

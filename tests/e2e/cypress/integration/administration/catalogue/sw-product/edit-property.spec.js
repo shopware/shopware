@@ -80,6 +80,8 @@ describe('Product: Edit property assignment', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -100,7 +102,7 @@ describe('Product: Edit property assignment', () => {
         });
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @catalogue: delete property', () => {
@@ -115,6 +117,9 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
 
+        cy.getSDKiFrame('location-index').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0`).scrollIntoView();
+
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-delete',
             page.elements.contextMenuButton,
@@ -126,7 +131,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
     it('@base @catalogue: delete properties', () => {
@@ -142,7 +147,7 @@ describe('Product: Edit property assignment', () => {
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
 
         cy.get('.sw-product-properties .sw-data-grid__cell--selection input').check();
-        cy.get('.sw-product-properties .sw-data-grid__bulk-selected-count').contains(2);
+        cy.contains('.sw-product-properties .sw-data-grid__bulk-selected-count', 2);
         cy.get('.sw-product-properties .sw-data-grid__bulk-selected').should('be.visible');
         cy.get('.sw-product-properties .sw-data-grid__bulk-selected.bulk-link a').click();
 
@@ -151,7 +156,10 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
+
+        cy.getSDKiFrame('location-index').should('be.visible');
+        cy.get('.sw-product-properties .sw-empty-state').scrollIntoView();
         cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
     });
 
@@ -183,10 +191,10 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
-    it.only('@base @catalogue: add properties', () => {
+    it('@base @catalogue: add properties', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
@@ -228,6 +236,6 @@ describe('Product: Edit property assignment', () => {
         cy.get(page.elements.productSaveAction).click();
         cy.get('.sw-product-properties__card').scrollIntoView();
         cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
-        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 });

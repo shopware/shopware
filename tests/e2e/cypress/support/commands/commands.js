@@ -301,6 +301,7 @@ Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.contains('.sw-sales-channel-detail__select-countries', country).should('be.visible');
     cy.contains('.sw-sales-channel-detail__assign-countries', country).should('be.visible');
@@ -343,6 +344,7 @@ Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
     cy.contains('.sw-select-result', paymentMethod).should('be.visible').click({ force:true });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-payment-methods', paymentMethod).should('be.visible');
@@ -390,6 +392,7 @@ Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => 
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-shipping-methods', shippingMethod).should('be.visible');
@@ -433,6 +436,7 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
     });
     cy.get('.sw-sales-channel-detail__save-action').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
     cy.contains('.sw-sales-channel-detail__select-currencies', currency).should('be.visible');
@@ -476,6 +480,7 @@ Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
+    cy.get('.sw-skeleton').should('not.exist');
     cy.get('.sw-loader').should('not.exist');
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();

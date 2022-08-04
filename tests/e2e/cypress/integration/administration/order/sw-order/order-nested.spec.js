@@ -88,13 +88,15 @@ describe('Order: Visual tests', () => {
             });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
     it('@visual: check appearance of basic order workflow', () => {
         const page = new OrderPageObject();
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,

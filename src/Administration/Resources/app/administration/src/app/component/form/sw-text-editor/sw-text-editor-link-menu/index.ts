@@ -2,17 +2,20 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
 import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-text-editor-link-menu.html.twig';
+import './sw-text-editor-link-menu.scss';
 
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-type LinkCategories = 'link' | 'detail' | 'category' | 'email' | 'phone';
+type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
+type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 interface TextEditorLinkMenuConfig {
     title: string,
     icon: string,
     expanded: boolean,
     newTab: boolean,
     displayAsButton: boolean,
+    buttonVariant: ButtonVariant,
     value: string,
     type: string,
     tag: 'a',
@@ -42,8 +45,10 @@ Component.register('sw-text-editor-link-menu', {
         isHTTPs: boolean,
         opensNewTab: boolean,
         displayAsButton: boolean,
+        buttonVariant: ButtonVariant,
         linkCategory: LinkCategories,
         categoryCollection?: EntityCollectionType,
+        buttonVariantList: Array<{ id: ButtonVariant, name: string }>
         } {
         return {
             linkTitle: '',
@@ -51,8 +56,22 @@ Component.register('sw-text-editor-link-menu', {
             isHTTPs: false,
             opensNewTab: false,
             displayAsButton: false,
+            buttonVariant: 'primary',
             linkCategory: 'link',
             categoryCollection: undefined,
+            buttonVariantList: [{
+                id: 'primary',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+            }, {
+                id: 'secondary',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+            }, {
+                id: 'primary-sm',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+            }, {
+                id: 'secondary-sm',
+                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+            }],
         };
     },
 
@@ -63,7 +82,18 @@ Component.register('sw-text-editor-link-menu', {
 
         entityFilter(): CriteriaType {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null),
+                    ],
+                ),
+            );
 
             return criteria;
         },
@@ -76,10 +106,13 @@ Component.register('sw-text-editor-link-menu', {
     watch: {
         buttonConfig: {
             async handler(buttonConfig): Promise<void> {
-                const { title, newTab, displayAsButton, value, type } = buttonConfig as TextEditorLinkMenuConfig;
+                const {
+                    title, newTab, displayAsButton, buttonVariant, value, type,
+                } = buttonConfig as TextEditorLinkMenuConfig;
                 this.linkTitle = title;
                 this.opensNewTab = newTab;
                 this.displayAsButton = displayAsButton;
+                this.buttonVariant = buttonVariant;
 
                 const parsedResult = await this.parseLink(value, type);
                 this.linkCategory = parsedResult.type;
@@ -122,17 +155,11 @@ Component.register('sw-text-editor-link-menu', {
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories, target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix)) {
-                const [productId] = slicedLink.splice(-1);
-                return { type: 'detail', target: productId };
-            }
-
-            if (link.startsWith('category')) {
-                this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
-                return {
-                    type: 'category',
-                    target: slicedLink[2],
-                };
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail'].includes(slicedLink[1])) {
+                if (slicedLink[1] === 'navigation') {
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                }
+                return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
             }
 
             if (link.startsWith('mailto:')) {
@@ -150,8 +177,8 @@ Component.register('sw-text-editor-link-menu', {
             }
 
             return {
+                type: (detectedLinkType ?? 'link') as LinkCategories,
                 target: link,
-                type: detectedLinkType as LinkCategories,
             };
         },
 
@@ -167,7 +194,7 @@ Component.register('sw-text-editor-link-menu', {
             switch (this.linkCategory) {
                 case 'detail':
                     return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
-                case 'category':
+                case 'navigation':
                     return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
@@ -198,7 +225,8 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('button-click', {
                 type: 'link',
                 value: this.prepareLink(),
-                displayAsButton: this.displayAsButton ? 'primary' : false,
+                displayAsButton: this.displayAsButton,
+                buttonVariant: this.buttonVariant,
                 newTab: this.opensNewTab,
             });
         },
@@ -209,7 +237,8 @@ Component.register('sw-text-editor-link-menu', {
             });
         },
 
-        onSelectFieldChange(): void {
+        onSelectFieldChange(category: LinkCategories): void {
+            this.linkCategory = category;
             this.linkTarget = '';
         },
     },

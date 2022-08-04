@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
 <svg width="64px" height="56px" viewBox="0 0 64 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>BF17B598-BB7B-4CDB-B1C9-4FCBDCA1DA09@1.00x</title>
     <g id="List" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

@@ -16,11 +16,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Pro');
@@ -29,17 +26,14 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Products');
+        cy.contains('.sw-search-bar-item', 'Products');
 
-        cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
+        cy.contains('.sw-search-bar-item__link[href="#/sw/product/create"]', 'Add new product')
             .should('be.visible')
-            .contains('Add new product')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('New product');
+        cy.contains('.smart-bar__header h2', 'New product')
+            .should('be.visible');
     });
 
     it('@searchBar @search: Search for a category using the keyword cat', () => {
@@ -51,11 +45,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cat');
@@ -64,17 +55,14 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Categories');
+        cy.contains('.sw-search-bar-item', 'Categories');
 
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Add new landing page')
             .should('be.visible')
-            .contains('Add new landing page')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Categories');
+        cy.contains('.smart-bar__header h2', 'Categories')
+            .should('be.visible');
     });
 
     it('@searchBar @search: Search for a customer using the keyword cus', () => {
@@ -86,11 +74,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cus');
@@ -99,17 +84,14 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Customers');
+        cy.contains('.sw-search-bar-item', 'Customers');
 
-        cy.get('.sw-search-bar-item__link[href="#/sw/customer/create"]')
+        cy.contains('.sw-search-bar-item__link[href="#/sw/customer/create"]', 'Add new customer')
             .should('be.visible')
-            .contains('Add new customer')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('New Customer');
+        cy.contains('.smart-bar__header h2', 'New Customer')
+            .should('be.visible');
     });
 
     it('@searchBar @search: Search for a order using the keyword ord', () => {
@@ -145,31 +127,26 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Ord');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
-            .contains('Orders');
+            .should('be.visible');
+
+        cy.contains('.sw-search-bar-item', 'Orders');
 
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Add new order')
-            .click();
+        cy.contains('.sw-search-bar-item', 'Add new order').click();
 
         cy.skipOnFeature('FEATURE_NEXT_7530',  () => {
-            cy.get('.smart-bar__header h2')
-                .should('be.visible')
-                .contains('New order');
+            cy.contains('.smart-bar__header h2', 'New order')
+                .should('be.visible');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530',  () => {
@@ -181,6 +158,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         const page = new MediaPageObject();
@@ -197,7 +176,7 @@ describe('Search bar: Check search module with short keyword', () => {
         );
 
         // Upload image in folder
-        cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
+        cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
@@ -220,13 +199,10 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Media')
-            .click();
+        cy.contains('.sw-search-bar-item', 'Media').click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Media');
+        cy.contains('.smart-bar__header h2', 'Media')
+            .should('be.visible');
     });
 
     it('@searchBar @search: Search for a product using the keyword add new prod', () => {
@@ -238,11 +214,8 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader')
-            .should('not.exist');
-
-        cy.get('.sw-skeleton')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('add new prod');
@@ -251,16 +224,13 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-search-bar-item')
             .should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .contains('Add new product');
+        cy.contains('.sw-search-bar-item', 'Add new product');
 
-        cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
+        cy.contains('.sw-search-bar-item__link[href="#/sw/product/create"]', 'Add new product')
             .should('be.visible')
-            .contains('Add new product')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('New product');
+        cy.contains('.smart-bar__header h2', 'New product')
+            .should('be.visible');
     });
 });

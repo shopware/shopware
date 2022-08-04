@@ -197,6 +197,7 @@ Component.register('sw-order-detail-base', {
 
             criteria
                 .addAssociation('addresses.country')
+                .addAssociation('addresses.salutation')
                 .addAssociation('addresses.countryState')
                 .addAssociation('deliveries.shippingMethod')
                 .addAssociation('deliveries.shippingOrderAddress')
@@ -214,11 +215,7 @@ Component.register('sw-order-detail-base', {
         },
 
         customFieldSetCriteria() {
-            const customFieldsCriteria = new Criteria(1, 100);
-            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
-
-            const criteria = new Criteria(1, 100);
-            criteria.addAssociation('customFields', customFieldsCriteria);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
 
             return criteria;

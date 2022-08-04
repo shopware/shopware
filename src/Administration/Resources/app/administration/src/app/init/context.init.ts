@@ -1,3 +1,5 @@
+/* Is covered by E2E tests */
+/* istanbul ignore file */
 import { publish } from '@shopware-ag/admin-extension-sdk/es/channel';
 
 export default function initializeContext(): void {
@@ -29,6 +31,29 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextShopwareVersion', () => {
         return Shopware.Context.app.config.version ?? '';
+    });
+
+    Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
+        const extension = Object.values(Shopware.State.get('extensions'))
+            .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
+
+        if (!extension) {
+            return {
+                modules: [],
+            };
+        }
+
+        // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        const modules = Shopware.State.getters['extensionSdkModules/getRegisteredModuleInformation'](extension.baseUrl) as Array< {
+            displaySearchBar: boolean,
+            heading: string,
+            id: string,
+            locationId: string
+        }>;
+
+        return {
+            modules,
+        };
     });
 
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {

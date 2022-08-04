@@ -29,10 +29,16 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         }).as('saveProduct');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.contains('Custom fields (1)').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // click on the custom field
-        cy.get('.sw-grid-row.sw-grid__row--0 a')
-            .contains('My custom field')
+        cy.contains('.sw-grid-row.sw-grid__row--0 a', 'My custom field')
             .click();
 
         // check if the custom field is loaded before editing it
@@ -50,10 +56,11 @@ describe('Dynamic product group: Add custom fields to condition', () => {
 
         // go to product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // open the first product
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
-            .contains('Product name')
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`, 'Product name')
             .click();
 
         // check if user is one the product page and everything is loaded
@@ -82,22 +89,34 @@ describe('Dynamic product group: Add custom fields to condition', () => {
 
         const productStreamPage = new ProductStreamObject();
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
             `${productStreamPage.elements.dataGridRow}--0`
         );
-        cy.get(productStreamPage.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         productStreamPage.selectFieldAndOperator('@currentProductStreamFilter', 'custom_field_set_property', 'Is equal to');
         cy.get('input[name=sw-field--stringValue]').type('custom field');
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product name');
             cy.get('.sw-modal__close').click();
         });
     });

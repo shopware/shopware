@@ -32,6 +32,7 @@ class Migration1648709176CartCompression extends MigrationStep
             return;
         }
 
+        /** @phpstan-ignore-next-line phpstan complains because `cart` colum does not exist anymore after this migration ran. */
         while ($token = $connection->fetchOne('SELECT token FROM cart WHERE `payload` IS NULL AND `cart` IS NOT NULL')) {
             RetryableQuery::retryable($connection, static function () use ($connection, $token): void {
                 $connection->executeUpdate('UPDATE cart SET `payload` = `cart`, `compressed` = 0 WHERE token = :token', ['token' => $token]);

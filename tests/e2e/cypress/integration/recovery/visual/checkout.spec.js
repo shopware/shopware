@@ -66,7 +66,7 @@ describe('Checkout: Visual tests', () => {
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Offcanvas`,
-                `${page.elements.offCanvasCart}.is-open`,
+                page.elements.offCanvasCart,
                 {widths: [375, 1920]}
             );
             cy.get(`${lineItemSelector}-label`).contains('Adidas R.Y.V. Hoodie');
@@ -78,6 +78,11 @@ describe('Checkout: Visual tests', () => {
             cy.get('.checkout-main').should('be.visible');
             cy.get('.login-collapse-toggle').click();
             cy.get('.login-form').should('be.visible');
+
+            const country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
+            cy.get('select[name="billingAddress[countryId]"]').select(country);
+            cy.get('.register-billing > .country-and-state-form-elements > .d-none').should('not.exist');
+            cy.get('#billingAddressAddressCountryState').should('be.visible');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Login`, accountPage.elements.loginCard, {widths: [375, 1920]});
@@ -122,6 +127,8 @@ describe('Checkout: Visual tests', () => {
 
         cy.login();
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.prepareAdminForScreenshot();
@@ -141,35 +148,27 @@ describe('Checkout: Visual tests', () => {
         );
         cy.get('.sw-order-detail').should('be.visible');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-user-card__metadata-item', '01 Jan 2018, 00:00');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__payment-state .sw-order-state-card__date',
-            'color: #fff'
-        );
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-state-history-card__payment-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__delivery-state .sw-order-state-card__date',
-            'color: #fff'
-        );
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-state-history-card__delivery-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__order-state .sw-order-state-card__date',
-            'color: #fff'
-        );
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-state-history-card__order-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
-            'color: rgb(240, 242, 245);'
-        );
+       // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('div.sw-card.sw-card--grid.has--header.has--title.sw-order-user-card > div.sw-card__content > div > div.sw-card-section.sw-card-section--secondary.sw-card-section--slim > div > dl:nth-child(2) > dd:nth-child(4)', '01 Jan 2018, 00:00');
+
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('div.sw-card.has--header.has--title.sw-order-delivery-metadata > div.sw-card__content > div > dl:nth-child(1) > dd:nth-child(4)', '01 Jan 2018, 00:00');
+
         cy.prepareAdminForScreenshot();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Order detail`, '.sw-order-detail');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Order detail`, '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -63,6 +63,11 @@ abstract class WriteCommand
         return $this->definition;
     }
 
+    public function getEntityName(): string
+    {
+        return $this->definition->getEntityName();
+    }
+
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;

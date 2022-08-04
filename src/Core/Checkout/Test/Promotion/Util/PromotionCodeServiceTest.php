@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Promotion\Util;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -41,7 +40,7 @@ class PromotionCodeServiceTest extends TestCase
     /**
      * @dataProvider codePreviewDataProvider
      */
-    public function testGetCodePreview($codePattern, $expectedRegex): void
+    public function testGetCodePreview(string $codePattern, string $expectedRegex): void
     {
         $actualCode = $this->codesService->getPreview($codePattern);
 
@@ -143,8 +142,10 @@ class PromotionCodeServiceTest extends TestCase
         $criteria = (new Criteria([$id]))
             ->addAssociation('individualCodes');
 
-        /** @var PromotionEntity $promotion */
-        $promotion = $promotionRepository->search($criteria, $context)->first();
+        $promotion = $promotionRepository->search($criteria, $context)->get($id);
+
+        static::assertNotNull($promotion);
+        static::assertNotNull($promotion->getIndividualCodes());
         static::assertCount(2, $promotion->getIndividualCodes()->getElements());
 
         $this->codesService->replaceIndividualCodes($id, 'newPattern_%d%d%s', 10, $context);
@@ -209,9 +210,10 @@ class PromotionCodeServiceTest extends TestCase
 
         $this->codesService->addIndividualCodes($id, $newCodeAmount, $salesChannelContext->getContext());
 
-        /** @var PromotionEntity $promotion */
         $promotion = $promotionRepository->search($criteria, $salesChannelContext->getContext())->first();
 
+        static::assertNotNull($promotion);
+        static::assertNotNull($promotion->getIndividualCodes());
         static::assertCount($expectedCodeAmount, $promotion->getIndividualCodes()->getIds());
     }
 }

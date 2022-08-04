@@ -6,6 +6,8 @@ describe('Theme: Test common editing of theme', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -16,8 +18,7 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.contains('.sw-card__title', 'Media').scrollIntoView();
@@ -40,8 +41,8 @@ describe('Theme: Test common editing of theme', () => {
         cy.get('.sw-button-process').click();
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw_theme_manager__confirm-save-text')
-            .contains('Do you really want to save the changes? This will change the appearance of your shops.');
+        cy.contains('.sw_theme_manager__confirm-save-text',
+            'Do you really want to save the changes? This will change the appearance of your shops.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
@@ -60,8 +61,7 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.get('.sw-theme-manager-detail__area');
@@ -86,13 +86,11 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .get('.sw-theme-list-item__title')
-            .contains('Shopware default theme')
+            .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
         cy.contains('.sw-card__title', 'Media').scrollIntoView();
-        cy.get('.sw-inherit-wrapper__inheritance-label')
-            .contains('Desktop')
+        cy.contains('.sw-inherit-wrapper__inheritance-label', 'Desktop')
             .parent()
             .parent()
             .find('.sw-media-upload-v2__remove-icon')
@@ -118,8 +116,8 @@ describe('Theme: Test common editing of theme', () => {
         cy.get('.sw-button-process').click();
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw_theme_manager__confirm-save-text')
-            .contains('Do you really want to save the changes? This will change the appearance of your shops.');
+        cy.contains('.sw_theme_manager__confirm-save-text',
+            'Do you really want to save the changes? This will change the appearance of your shops.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);

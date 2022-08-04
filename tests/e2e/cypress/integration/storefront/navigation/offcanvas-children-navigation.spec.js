@@ -70,6 +70,9 @@ describe('Offcanvas navigation with regards to children visibility', () => {
             cy.get('.nav.main-navigation-menu').should('not.be.visible');
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
 
+            cy.get('.offcanvas').should('exist');
+            cy.get('.offcanvas').should('be.visible');
+
             // test that menu entries are visible
             cy.get('.offcanvas .nav-item.nav-link').contains('Visible children')
                 .should('be.visible');
@@ -83,7 +86,7 @@ describe('Offcanvas navigation with regards to children visibility', () => {
                 .should('not.have.class', 'js-navigation-offcanvas-link');
 
             // navigate to menu entry with visible children
-            cy.get('.offcanvas .nav-item.nav-link').contains('Visible children').click({ force: true });
+            cy.get('.offcanvas .nav-item.nav-link').contains('Visible children').click();
             cy.wait('@offcanvasMenuRequest');
 
             // test that children are marked correctly with and without visible grandchildren

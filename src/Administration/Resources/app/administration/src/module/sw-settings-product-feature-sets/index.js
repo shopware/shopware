@@ -13,7 +13,7 @@ Module.register('sw-settings-product-feature-sets', {
     title: 'sw-settings-product-feature-sets.general.mainMenuItemGeneral',
     description: 'Essential characteristics section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'product_feature_set',
 
@@ -56,7 +56,7 @@ Module.register('sw-settings-product-feature-sets', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.product.feature.sets.index',
-        icon: 'default-basic-checkmark-block',
+        icon: 'regular-check-square',
         privilege: 'product_feature_sets.viewer',
     },
 });

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
@@ -63,34 +62,6 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/newsletter/confirm",
-     *      summary="Confirm a newsletter registration",
-     *      description="You have to use the hash from the link sent out via email to confirm the user registration.",
-     *      operationId="confirmNewsletter",
-     *      tags={"Store API", "Newsletter"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "hash",
-     *                  "em"
-     *              },
-     *              @OA\Property(
-     *                  property="hash",
-     *                  type="string",
-     *                  description="Hash parameter from link the in the confirmation mail"),
-     *              @OA\Property(
-     *                  property="em",
-     *                  type="string",
-     *                  description="Email hash parameter from the link in the confirmation mail"),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The newsletter confirmation was successful.",
-     *     )
-     * )
      * @Route("/store-api/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse

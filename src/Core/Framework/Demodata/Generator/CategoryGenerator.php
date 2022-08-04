@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class CategoryGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $categories = [];
 
@@ -74,6 +74,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param array<string> $pageIds
+     */
     private function createCategory(DemodataContext $context, array $pageIds, array $tags, string $parentId, ?string $afterId, int $max, int $current): array
     {
         $id = Uuid::randomHex();
@@ -104,7 +107,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
@@ -126,7 +129,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return array_column($ids, 'id');
     }
 
-    private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true)
+    private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true): string
     {
         if (!$fixedAmount) {
             $max = random_int(1, $max);
@@ -135,7 +138,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
             $categories = [];
 
             while (\count($categories) < $max) {
-                $category = $faker->category;
+                $category = $faker->format('category');
                 if (!\in_array($category, $categories, true)) {
                     $categories[] = $category;
                 }
@@ -164,9 +167,10 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        $categories = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+        /** @var string $categoryId */
+        $categoryId = $this->categoryRepository->searchIds($criteria, $context)->firstId();
 
-        return array_shift($categories);
+        return $categoryId;
     }
 
     private function getCmsPageIds(Context $getContext): array
@@ -178,6 +182,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
         return $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
     }
 
+    /**
+     * @param array<string> $pageIds
+     */
     private function createCategories(DemodataContext $context, array $pageIds, array $tags, int $count, string $id, int $max, int $current): array
     {
         $children = [];

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Struct;
 trait StateAwareTrait
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $states = [];
 

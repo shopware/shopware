@@ -10,8 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class ApiCriteriaValidator
 {

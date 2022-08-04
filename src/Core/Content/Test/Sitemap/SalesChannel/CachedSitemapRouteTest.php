@@ -94,7 +94,7 @@ class CachedSitemapRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $ids->getContext());
+            ->create($products, Context::createDefaultContext());
 
         $counter = new SitemapRouteCounter(
             $this->getContainer()->get('Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner')

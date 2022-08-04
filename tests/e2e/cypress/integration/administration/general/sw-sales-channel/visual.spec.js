@@ -9,6 +9,8 @@ describe('Sales Channel: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,12 +28,12 @@ describe('Sales Channel: Visual tests', () => {
         cy.get('#sw-field--salesChannel-name').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.get('.sw-sales-channel-detail__select-customer-group .sw-entity-single-select__selection')
-            .contains('Standard customer group');
-        cy.get('.sw-sales-channel-detail__assign-countries .sw-entity-single-select__selection')
-            .contains('Germany');
-        cy.get('.sw-sales-channel-detail__assign-languages .sw-entity-single-select__selection')
-            .contains('English');
+        cy.contains('.sw-sales-channel-detail__select-customer-group .sw-entity-single-select__selection',
+            'Standard customer group');
+        cy.contains('.sw-sales-channel-detail__assign-countries .sw-entity-single-select__selection',
+            'Germany');
+        cy.contains('.sw-sales-channel-detail__assign-languages .sw-entity-single-select__selection',
+            'English');
 
         // Change display of the element to ensure consistent snapshots
         cy.changeElementStyling(

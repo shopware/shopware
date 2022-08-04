@@ -181,7 +181,7 @@ describe('Product: Testing filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@catalogue: check filter function and display listing correctly', () => {
+    it('@catalogue: check filter function and display listing correctly', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -221,13 +221,13 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('#active-filter').find('select').select('true');
         cy.wait('@filterProduct')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('26');
+        cy.contains('.sw-page__smart-bar-amount', '26');
 
         cy.get('#active-filter').find('select').select('false');
 
         cy.wait('@filterProduct')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('2');
+        cy.contains('.sw-page__smart-bar-amount', '2');
 
         // Check notification badge after filtering
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '1');
@@ -237,18 +237,18 @@ describe('Product: Testing filter and reset filter', () => {
 
         cy.wait('@filterProduct')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('1');
+        cy.contains('.sw-page__smart-bar-amount', '1');
 
         cy.get('#product-without-images-filter').find('select').select('false');
 
         cy.wait('@filterProduct')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('1');
+        cy.contains('.sw-page__smart-bar-amount', '1');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@catalogue: check reset filter', () => {
+    it('@catalogue: check reset filter', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);

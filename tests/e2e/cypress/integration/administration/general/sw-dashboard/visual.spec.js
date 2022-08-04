@@ -25,6 +25,8 @@ describe('Dashboard:  Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -38,17 +40,30 @@ describe('Dashboard:  Visual tests', () => {
         // Wait for Dashboard stats to be visible
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__card-headline').should('be.visible');
-            cy.get('.sw-dashboard-index__title').contains('Turnover');
+            cy.contains('.sw-dashboard-index__title', 'Turnover');
+
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            //select command again to reload data within the card
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            cy.get('.apexcharts-series-markers').should('be.visible');
         });
+
         cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
-            cy.get('.sw-dashboard-statistics__card-headline').should('be.visible');
-            cy.get('.sw-dashboard-statistics__title').contains('Turnover');
+            cy.get('.sw-dashboard-statistics .sw-card__title').each((item) => {
+                cy.wrap(item).contains(/Orders|Turnover/g);
+            });
+
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            //select command again to reload data within the card
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            cy.get('.sw-dashboard-statistics__statistics-count .apexcharts-series-markers').should('be.visible');
         });
 
-        cy.get('#sw-field--statisticDateRanges-value').select('14Days');
-        cy.get('.apexcharts-series-markers-wrap').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-
+        cy.changeElementStyling(
+            '.apexcharts-xaxis-label',
+            'display: none;'
+        );
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

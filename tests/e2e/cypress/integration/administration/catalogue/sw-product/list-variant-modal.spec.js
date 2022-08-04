@@ -16,6 +16,8 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.get('.sw-data-grid__cell--name')
                     .click();
@@ -37,6 +39,8 @@ describe('Product: Test variants', () => {
                 cy.get('.sw-modal').should('not.exist');
 
                 cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 // open variant modal
                 cy.get(':nth-child(2) > .sw-button')
@@ -78,7 +82,7 @@ describe('Product: Test variants', () => {
             .click();
     });
 
-    it('@catalogue @base: delete variants in modal', () => {
+    it('@catalogue @base: delete variants in modal', { tags: ['quarantined'] }, () => {
         cy.intercept({
             method: 'POST',
             url: 'api/_action/sync'
@@ -95,8 +99,8 @@ describe('Product: Test variants', () => {
             .should('be.visible');
 
         // check modal description
-        cy.get('.sw-product-variant-modal__delete-modal  .sw-modal__body p')
-            .contains('Are your sure you want to delete the variant "Parent Product (Size: L)"?');
+        cy.contains('.sw-product-variant-modal__delete-modal  .sw-modal__body p',
+            'Are your sure you want to delete the variant "Parent Product (Size: L)"?');
 
         cy.get('.sw-button-process')
             .should('be.visible')
@@ -106,7 +110,7 @@ describe('Product: Test variants', () => {
 
         // check delete modal has been closed
         cy.get('.sw-product-variant-modal__delete-modal')
-            .should('be.not.visible');
+            .should('not.be.visible');
 
         cy.awaitAndCheckNotification('Successfully deleted "Parent Product".');
 
@@ -114,7 +118,6 @@ describe('Product: Test variants', () => {
         cy.get('.sw-empty-state')
             .should('be.visible');
 
-        cy.get('.sw-empty-state__description-content')
-            .contains('No variants were found.');
+        cy.contains('.sw-empty-state__description-content', 'No variants were found.');
     });
 });

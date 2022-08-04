@@ -7,8 +7,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
+ */
 trait AggregationTestBehaviour
 {
+    /**
+     * @return array<string>
+     */
     public function setupFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $taxRepository */
@@ -30,6 +36,9 @@ trait AggregationTestBehaviour
         return array_column($payload, 'id');
     }
 
+    /**
+     * @return array<string>
+     */
     public function setupGroupByFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $productRepository */

@@ -4,20 +4,31 @@ describe('Category: SDK Test', ()=> {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
+
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
             });
     });
     it('@sdk: add menu item', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
-        cy.get('.sw-dashboard-index__welcome-title')
-            .should('be.visible');
-
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
@@ -42,14 +53,9 @@ describe('Category: SDK Test', ()=> {
             .should('not.exist');
     });
     it('@sdk: check menu position', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
-
-        cy.get('.sw-dashboard-index__welcome-title')
-            .should('be.visible');
         cy.get('.sw-loader')
             .should('not.exist');
         cy.get('.sw-skeleton')
@@ -58,8 +64,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-extension')
             .click();
 
-        cy.get('.sw-admin-menu__navigation-list-item')
-            .contains('Store');
+        cy.contains('.sw-admin-menu__navigation-list-item', 'Store');
 
         cy.contains('.sw-admin-menu__navigation-link', 'Test with searchbar')
             .click();

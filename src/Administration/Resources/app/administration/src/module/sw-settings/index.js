@@ -11,14 +11,14 @@ Module.register('sw-settings', {
     name: 'settings',
     title: 'sw-settings.general.mainMenuItemGeneral',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
         index: {
             component: 'sw-settings-index',
             path: 'index',
-            icon: 'default-action-settings',
+            icon: 'regular-cog',
             redirect: {
                 name: 'sw.settings.index.shop',
             },
@@ -52,7 +52,7 @@ Module.register('sw-settings', {
         id: 'sw-settings',
         label: 'sw-settings.general.mainMenuItemGeneral',
         color: '#9AA8B5',
-        icon: 'default-action-settings',
+        icon: 'regular-cog',
         path: 'sw.settings.index',
         position: 80,
     }],

@@ -4,10 +4,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Edit manufacturer', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
+        cy.loginViaApi()
             .then(() => {
                 return cy.createProductFixture({
                     manufacturerId: null
@@ -15,6 +12,8 @@ describe('Product: Edit manufacturer', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -59,7 +58,8 @@ describe('Product: Edit manufacturer', () => {
 
         // Verify manufacturer's creation in sw-manufacturer
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Instant Manufacturer LLC');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Instant Manufacturer LLC');
     });
 });

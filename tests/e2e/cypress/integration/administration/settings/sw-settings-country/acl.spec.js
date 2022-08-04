@@ -10,6 +10,8 @@ describe('Country: Test acl privileges', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -81,9 +83,8 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('000');
         cy.get(`${page.elements.countryListContent}`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('000');
+        cy.contains(`${page.elements.dataGridRow}--0`, '000')
+            .should('be.visible');
     });
 
     it('@settings: can create a country', () => {
@@ -138,10 +139,10 @@ describe('Country: Test acl privileges', () => {
         // assert that country is created successfully
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.countryListContent}`).should('be.visible');
-        cy.get(`
+        cy.contains(`
             ${page.elements.dataGridRow}--0
-            ${page.elements.countryColumnName}
-        `).contains('000');
+            ${page.elements.countryColumnName}`,
+            '000');
     });
 
     it('@settings: can delete a country', () => {
@@ -178,7 +179,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that confirmation modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body').contains('Are you sure you want to delete the country "Zimbabwe"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the country "Zimbabwe"?');
 
         // do deleting action
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
@@ -205,7 +206,7 @@ describe('Country: Test acl privileges', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.smart-bar__header').contains('Countries');
+        cy.contains('.smart-bar__header', 'Countries');
 
         // // should wait for search result
         cy.intercept({
@@ -255,7 +256,7 @@ describe('Country: Test acl privileges', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.smart-bar__header').contains('Countries');
+        cy.contains('.smart-bar__header', 'Countries');
 
         // // should wait for search result
         cy.intercept({
@@ -290,7 +291,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('Edit state/region');
+        cy.contains('.sw-modal__title', 'Edit state/region');
 
         // edit name, shortCode, position
         cy.get('#sw-field--countryState-name')
@@ -354,7 +355,7 @@ describe('Country: Test acl privileges', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.smart-bar__header').contains('Countries');
+        cy.contains('.smart-bar__header', 'Countries');
 
         // // should wait for search result
         cy.intercept({
@@ -379,7 +380,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('New state/region');
+        cy.contains('.sw-modal__title', 'New state/region');
 
         // enter name, shortCode, position
         cy.get('#sw-field--countryState-name').typeAndCheck('000');
@@ -440,19 +441,19 @@ describe('Country: Test acl privileges', () => {
             method: 'POST'
         }).as('searchCountry');
 
-        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.contains('.sw-language-switch__select .sw-entity-single-select__selection-text', 'English');
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         // poor assertion to check if there is more than 1 language
         cy.get('.sw-select-result-list__item-list .sw-select-result')
             .should('have.length.greaterThan', 1);
-        cy.get('.sw-select-result-list__item-list .sw-select-result').contains('Deutsch').click();
+        cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Deutsch').click();
 
         cy.wait('@searchLanguage').its('response.statusCode').should('equals', 200);
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.smart-bar__header').contains('Countries');
+        cy.contains('.smart-bar__header', 'Countries');
 
         // // should wait for search result
         cy.intercept({
@@ -477,7 +478,7 @@ describe('Country: Test acl privileges', () => {
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__title').contains('New state/region');
+        cy.contains('.sw-modal__title', 'New state/region');
 
         // enter name, shortCode, position
         cy.get('#sw-field--countryState-name').typeAndCheck('000');
@@ -490,9 +491,9 @@ describe('Country: Test acl privileges', () => {
         // call api to create state
         cy.wait('@saveCountryState').its('response.statusCode').should('equals', 400);
         cy.get('.sw-alert__body').should('be.visible');
-        cy.get('.sw-alert__body .sw-alert__message')
-            .should('be.visible')
-            .contains('Cannot create a region with the currently selected language. Please create a region using the default system language first.');
+        cy.contains('.sw-alert__body .sw-alert__message',
+            'Cannot create a region with the currently selected language. Please create a region using the default system language first.')
+            .should('be.visible');
     });
 
     it('@settings: can delete multiple countries', () => {

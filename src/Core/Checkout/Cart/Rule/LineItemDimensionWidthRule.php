@@ -5,9 +5,11 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -67,6 +69,13 @@ class LineItemDimensionWidthRule extends Rule
         return $constraints;
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
+    }
+
     /**
      * @throws PayloadKeyNotFoundException
      * @throws UnsupportedOperatorException
@@ -76,7 +85,11 @@ class LineItemDimensionWidthRule extends Rule
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         return RuleComparison::numeric($deliveryInformation->getWidth(), $this->amount, $this->operator);

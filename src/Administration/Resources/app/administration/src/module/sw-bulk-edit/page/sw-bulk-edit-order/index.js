@@ -2,8 +2,9 @@ import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
 Component.register('sw-bulk-edit-order', {
@@ -30,9 +31,14 @@ Component.register('sw-bulk-edit-order', {
             orderStatus: [],
             transactionStatus: [],
             deliveryStatus: [],
+            customFieldSets: [],
             itemsPerRequest: 100,
             processStatus: '',
             order: {},
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed
+             */
+            showBulkEditDocumentWarning: false,
         };
     },
 
@@ -60,26 +66,23 @@ Component.register('sw-bulk-edit-order', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
-            criteria
-                .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },
 
-        orderDocuments() {
-            return Shopware.State.get('swBulkEdit').orderDocuments;
-        },
-
         hasChanges() {
-            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
         statusFormFields() {
-            let fields = [
+            return [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -110,37 +113,30 @@ Component.register('sw-bulk-edit-order', {
                         options: this.orderStatus,
                     },
                 },
+                {
+                    name: 'statusMails',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
+                    config: {
+                        hidden: true,
+                        changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
+                    },
+                },
+                {
+                    name: 'documents',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents',
+                        changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                        documents: this.bulkEditData?.documents,
+                    },
+                },
             ];
-
-            if (this.feature.isActive('FEATURE_NEXT_17261')) {
-                fields = [
-                    ...fields,
-                    {
-                        name: 'statusMails',
-                        labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
-                        config: {
-                            hidden: true,
-                            changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
-                        },
-                    },
-                    {
-                        name: 'documents',
-                        labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
-                        config: {
-                            componentName: 'sw-bulk-edit-order-documents',
-                            changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
-                        },
-                    },
-                ];
-            }
-
-            return fields;
         },
 
         documentsFormFields() {
             return [
                 {
-                    name: 'generateInvoice',
+                    name: 'invoice',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-invoice',
@@ -148,7 +144,7 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateCancellationInvoice',
+                    name: 'storno',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-cancellation-invoice',
@@ -157,7 +153,7 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateDeliveryNote',
+                    name: 'delivery_note',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-delivery-note',
@@ -165,12 +161,20 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateCreditNote',
+                    name: 'credit_note',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-credit-note',
                         changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.label'),
                         changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
+                    },
+                },
+                {
+                    name: 'download',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-download-documents',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.label'),
                     },
                 },
             ];
@@ -240,16 +244,19 @@ Component.register('sw-bulk-edit-order', {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
+
+            if (!Feature.isActive('v6.5.0.0')) {
+                await this.shouldShowBulkEditDocumentWarning();
+            }
+
             this.isLoading = true;
 
             this.order = this.orderRepository.create(Shopware.Context.api);
 
-            this.bulkEditService = Shopware.Service('bulkEditService');
-
             await Promise.all([
                 this.fetchStatusOptions('orders.id'),
-                this.fetchStatusOptions('orderTransactions.order.id'),
-                this.fetchStatusOptions('orderDeliveries.order.id'),
+                this.fetchStatusOptions('orderTransactions.orderId'),
+                this.fetchStatusOptions('orderDeliveries.orderId'),
                 this.loadCustomFieldSets(),
             ]);
 
@@ -259,9 +266,20 @@ Component.register('sw-bulk-edit-order', {
             this.loadBulkEditData();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
+        async shouldShowBulkEditDocumentWarning() {
+            const response = await this.orderDocumentApiService.extendingDeprecatedService();
+
+            this.showBulkEditDocumentWarning = response?.data && response.data.hasOwnProperty('showWarning')
+                ? response.data.showWarning
+                : false;
+        },
+
         setRouteMetaModule() {
             this.$set(this.$route.meta.$module, 'color', '#A092F0');
-            this.$set(this.$route.meta.$module, 'icon', 'default-shopping-paper-bag');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-shopping-bag');
         },
 
         loadBulkEditData() {
@@ -298,7 +316,7 @@ Component.register('sw-bulk-edit-order', {
 
             this.order.documents = {
                 documentType: {},
-                skipSentDocuments: null,
+                skipSentDocuments: true,
             };
         },
 
@@ -307,10 +325,10 @@ Component.register('sw-bulk-edit-order', {
                 return this.fetchToStateMachineTransitions(states);
             }).then(toStates => {
                 switch (field) {
-                    case 'orderTransactions.order.id':
+                    case 'orderTransactions.orderId':
                         this.transactionStatus = toStates;
                         break;
-                    case 'orderDeliveries.order.id':
+                    case 'orderDeliveries.orderId':
                         this.deliveryStatus = toStates;
                         break;
                     default:
@@ -324,9 +342,23 @@ Component.register('sw-bulk-edit-order', {
         fetchStateMachineStates(field) {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
 
+            let versionField = null;
+
+            switch (field) {
+                case 'orderTransactions.orderId':
+                    versionField = 'orderTransactions.orderVersionId';
+                    break;
+                case 'orderDeliveries.orderId':
+                    versionField = 'orderDeliveries.orderVersionId';
+                    break;
+                default:
+                    versionField = 'orders.versionId';
+            }
+
             const requests = payloadChunks.map(ids => {
-                const criteria = new Criteria(1, 25);
+                const criteria = new Criteria(1, null);
                 criteria.addFilter(Criteria.equalsAny(field, ids));
+                criteria.addFilter(Criteria.equals(versionField, Shopware.Context.api.liveVersionId));
 
                 return this.stateMachineStateRepository.searchIds(criteria);
             });
@@ -408,17 +440,20 @@ Component.register('sw-bulk-edit-order', {
                     };
 
                     if (dataPush.includes(key)) {
-                        const documentTypes = this.order.documents.documentType;
-                        const selectedDocumentTypes = [];
-                        Object.keys(documentTypes).forEach(documentTypeName => {
-                            if (documentTypes[documentTypeName] === true) {
-                                selectedDocumentTypes.push(documentTypeName);
+                        const documentTypes = this.order?.documents?.documentType;
+
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                documentTypeName => documentTypes[documentTypeName] === true,
+                            );
+
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                             }
-                        });
+                        }
 
                         payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                        payload.documentTypes = selectedDocumentTypes;
-                        payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                         payload.value = this.order?.[key];
                         data.statusData.push(payload);
                     } else if (key !== 'documents' && key !== 'statusMails') {
@@ -447,7 +482,6 @@ Component.register('sw-bulk-edit-order', {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const requests = [];
 
-            requests.push(this.createDocument());
             payloadChunks.forEach(payload => {
                 if (statusData.length) {
                     requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
@@ -461,24 +495,38 @@ Component.register('sw-bulk-edit-order', {
             return Promise.all(requests)
                 .then(() => {
                     this.processStatus = 'success';
-                }).catch((e) => {
-                    console.error(e);
+                })
+                .catch(() => {
                     this.processStatus = 'fail';
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
+                    this.getLatestOrderStatus().finally(() => {
+                        this.isLoading = false;
+                    });
                 });
         },
 
-        createDocument() {
-            if (!this.feature.isActive('FEATURE_NEXT_17261')) {
+        getLatestOrderStatus() {
+            const promises = [];
+
+            if (this.bulkEditData.orderTransactions.isChanged) {
+                promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
+            }
+            if (this.bulkEditData.orderDeliveries.isChanged) {
+                promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
+            }
+            if (this.bulkEditData.orders.isChanged) {
+                promises.push(this.fetchStatusOptions('orders.id'));
+            }
+
+            if (promises.length === 0) {
                 return Promise.resolve();
             }
 
-            return this.orderDocumentApiService.create({
-                fileType: 'pdf',
-                orderIds: this.selectedIds,
-                documentTypeConfigs: this.orderDocuments,
-            });
+            this.isLoading = true;
+
+            return Promise.all(promises);
         },
 
         loadCustomFieldSets() {
@@ -490,6 +538,12 @@ Component.register('sw-bulk-edit-order', {
         onCustomFieldsChange(value) {
             this.bulkEditData.customFields.value = value;
         },
+
+        onChangeDocument(type, isChanged) {
+            Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+                type,
+                isChanged,
+            });
+        },
     },
 });
-

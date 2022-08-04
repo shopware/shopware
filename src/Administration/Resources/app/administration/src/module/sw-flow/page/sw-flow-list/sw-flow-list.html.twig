@@ -18,7 +18,7 @@
             {% block sw_flow_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-flow.list.textHeadline') }}
@@ -88,7 +88,7 @@
                     <sw-icon
                         small
                         :color="item.active ? `#37d046` : `#de294c`"
-                        :name="item.active ? `small-default-checkmark-line-medium` : `small-default-x-line-medium`"
+                        :name="item.active ? `regular-checkmark-xs` : `regular-times-s`"
                     />
                     {% endblock %}
                 </template>
@@ -137,9 +137,9 @@
                         @modal-close="onCloseDeleteModal"
                     >
                         {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                        <p class="sw-flow-list__confirm-delete-text">
-                            {{ $tc('sw-flow.list.confirmText') }}
-                        </p>
+                        <sw-alert variant="warning">
+                            {{ deleteWarningMessage() }}
+                        </sw-alert>
                         {% endblock %}
 
                         <template #modal-footer>
@@ -165,7 +165,9 @@
 
                 {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                    {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+                    <sw-alert variant="warning">
+                        {{ bulkDeleteWarningMessage(selectionCount) }}
+                    </sw-alert>
                 </template>
                 {% endblock %}
             </sw-entity-listing>

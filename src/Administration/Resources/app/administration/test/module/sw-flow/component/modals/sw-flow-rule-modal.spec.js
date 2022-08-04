@@ -25,13 +25,19 @@ function createWrapper() {
                             return createRuleMock(true);
                         },
                         get: () => Promise.resolve(createRuleMock(false)),
-                        save: () => Promise.resolve()
+                        save: () => Promise.resolve(),
+                        search: () => Promise.resolve([])
                     };
                 }
             },
 
             ruleConditionDataProviderService: {
-                getModuleTypes: () => []
+                getModuleTypes: () => [],
+                addScriptConditions: () => {}
+            },
+
+            ruleConditionsConfigApiService: {
+                load: () => Promise.resolve()
             }
         },
 
@@ -71,6 +77,7 @@ function createWrapper() {
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     it('should show element correctly', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
         const conditionElement = wrapper.find('.sw-flow-rule-modal__rule');
         expect(conditionElement.exists()).toBe(true);

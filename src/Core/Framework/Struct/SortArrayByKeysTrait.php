@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+/**
+ * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
+ */
 trait SortArrayByKeysTrait
 {
     /**
-     * @param int[]|string[] $sortedKeys
+     * @param int[]|array<string> $sortedKeys
      * @param array          $indexedArray - indexed with keys
      */
     protected function sortIndexedArrayByKeys(array $sortedKeys, array $indexedArray): array

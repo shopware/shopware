@@ -26,7 +26,7 @@ Component.register('sw-product-detail-specifications', {
                 return false;
             }
 
-            return this.customFieldSets.some(set => set.customFields.length > 0);
+            return true;
         },
 
         showCustomFieldsCard() {

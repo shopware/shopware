@@ -91,6 +91,7 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader">
             <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

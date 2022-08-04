@@ -187,7 +187,7 @@ class AdminProductStreamControllerTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->create($products, $this->ids->getContext());
+            ->create($products, Context::createDefaultContext());
 
         $this->getContainer()->get('rule.repository')->upsert(
             [

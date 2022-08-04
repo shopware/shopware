@@ -7,10 +7,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,8 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class CachedProductDetailRouteTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
+    use IntegrationTestBehaviour;
 
     private const ALL_TAG = 'test-tag';
 
@@ -102,25 +101,25 @@ class CachedProductDetailRouteTest extends TestCase
         $ids = new IdsCollection();
 
         yield 'Cache is invalidated if the updated property is used by the product' => [
-            function (string $propertyId) use ($ids): void {
+            function (string $propertyId): void {
                 $update = ['id' => $propertyId, 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the deleted property is used by the product' => [
-            function (string $propertyId) use ($ids): void {
+            function (string $propertyId): void {
                 $delete = ['id' => $propertyId];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the updated options is used by the product' => [
-            function (string $propertyId) use ($ids): void {
+            function (string $propertyId): void {
                 $update = ['id' => $propertyId, 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
             true,
@@ -132,10 +131,10 @@ class CachedProductDetailRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property2'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
                 $update = ['id' => $ids->get('property2'), 'name' => 'XL'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -146,11 +145,11 @@ class CachedProductDetailRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property3'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $delete = ['id' => $ids->get('property3')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
@@ -161,10 +160,10 @@ class CachedProductDetailRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property2'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
                 $update = ['id' => $ids->get('property2'), 'name' => 'XL'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
             true,
@@ -176,11 +175,11 @@ class CachedProductDetailRouteTest extends TestCase
                     [
                         ['id' => $ids->get('property3'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
-                    $ids->getContext()
+                    Context::createDefaultContext()
                 );
 
                 $delete = ['id' => $ids->get('property3')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
             true,
@@ -189,8 +188,6 @@ class CachedProductDetailRouteTest extends TestCase
 
     private function createProduct($data = []): void
     {
-        $ids = new IdsCollection();
-
         $product = array_merge(
             [
                 'name' => 'test',
@@ -206,6 +203,6 @@ class CachedProductDetailRouteTest extends TestCase
             $data
         );
 
-        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
     }
 }

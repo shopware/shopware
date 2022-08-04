@@ -64,8 +64,8 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'customerId' => $context->getFaker()->randomElement($customerIds),
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'title' => $context->getFaker()->sentence,
-                'content' => $context->getFaker()->text,
+                'title' => $context->getFaker()->sentence(),
+                'content' => $context->getFaker()->text(),
                 'points' => $context->getFaker()->randomElement($points),
                 'status' => (bool) random_int(0, 1),
             ];

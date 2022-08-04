@@ -253,7 +253,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _updateOffCanvasContent(response) {
-        OffCanvas.setContent(response, false, this._registerEvents.bind(this));
+        OffCanvas.setContent(response, true, this._registerEvents.bind(this));
         window.PluginManager.initializePlugins();
     }
 

@@ -175,9 +175,9 @@ Component.register('sw-price-field', {
                 if (this.isInherited) {
                     return {
                         currencyId: this.currency.id,
-                        gross: this.defaultPrice.gross ? this.convertPrice(this.defaultPrice.gross) : null,
+                        gross: Number.isNaN(this.defaultPrice.gross) ? null : this.convertPrice(this.defaultPrice.gross),
                         linked: this.defaultPrice.linked,
-                        net: this.defaultPrice.net ? this.convertPrice(this.defaultPrice.net) : null,
+                        net: Number.isNaN(this.defaultPrice.net) ? null : this.convertPrice(this.defaultPrice.net),
                     };
                 }
 

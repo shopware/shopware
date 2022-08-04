@@ -19,6 +19,8 @@ describe('Promotion v2: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -50,6 +52,8 @@ describe('Promotion v2: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-promotion-v2-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -59,6 +63,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.takeSnapshot('[Promotion] Listing', '.sw-promotion-v2-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('a[href="#/sw/promotion/v2/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');
@@ -71,14 +77,16 @@ describe('Promotion v2: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
+        const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
+        cy.get('.sw-promotion-v2-detail__save-action').contains(save).trigger('mouseout').trigger('mouseleave');
         cy.contains('General settings').click();
         cy.get('.sw-tooltip').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Funicular prices');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Funicular prices');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name a`)
             .click();
 
@@ -133,6 +141,6 @@ describe('Promotion v2: Visual tests', () => {
             .should('have.css', 'visibility', 'hidden');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas');
     });
 });

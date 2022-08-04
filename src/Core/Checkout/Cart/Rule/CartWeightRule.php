@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
@@ -47,13 +48,20 @@ class CartWeightRule extends Rule
         ];
     }
 
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->numberField('weight', ['unit' => RuleConfig::UNIT_WEIGHT]);
+    }
+
     private function calculateCartWeight(Cart $cart): float
     {
         $weight = 0.0;
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $itemWeight = 0.0;
-            if ($lineItem->getDeliveryInformation() !== null) {
+            if ($lineItem->getDeliveryInformation() !== null && $lineItem->getDeliveryInformation()->getWeight() !== null) {
                 $itemWeight = $lineItem->getDeliveryInformation()->getWeight();
             }
 

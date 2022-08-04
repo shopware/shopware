@@ -11,6 +11,7 @@
     >
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
         <sw-field
+            v-if="!bulkEditData?.statusMails?.isChanged"
             v-model="isFlowTriggered"
             type="switch"
             name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"

@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic-line-item instead.
  * @public
  * @description Condition for the LineItemListPriceRatioRule. This component must a be child of sw-condition-tree.
  * @status prototype
@@ -13,6 +14,12 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  */
 Component.extend('sw-condition-line-item-list-price-ratio', 'sw-condition-base-line-item', {
     template,
+
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
 
     computed: {
         operators() {

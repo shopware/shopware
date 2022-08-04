@@ -84,7 +84,9 @@
       "turnover": "Turnover",
       "numberOfOrders": "Count",
       "totalTurnover": "Total",
-      "helperText": "The turnover graph only displays orders in payment status \"paid\"."
+      "helperText": "The turnover graph only displays orders in payment status \"paid\".",
+      "linkOrders": "View orders",
+      "linkPaidOrders": "View paid orders"
     }
   }
 }

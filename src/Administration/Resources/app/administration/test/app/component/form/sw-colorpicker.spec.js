@@ -150,7 +150,7 @@ describe('components/form/sw-colorpicker', () => {
         });
         wrapper.vm.redValue = 25;
 
-        expect(wrapper.vm.hueValue).toBe(273);
+        expect(wrapper.vm.hueValue).toBe(273.33);
         expect(wrapper.vm.saturationValue).toBe(100);
         expect(wrapper.vm.luminanceValue).toBe(8.8);
     });
@@ -174,7 +174,7 @@ describe('components/form/sw-colorpicker', () => {
         });
         wrapper.vm.redValue = 89;
 
-        expect(wrapper.vm.hueValue).toBe(95);
+        expect(wrapper.vm.hueValue).toBe(94.58);
         expect(wrapper.vm.saturationValue).toBe(31.6);
         expect(wrapper.vm.luminanceValue).toBe(36.7);
     });
@@ -497,18 +497,67 @@ describe('components/form/sw-colorpicker', () => {
     it('should convert Rgb to Hsl', async () => {
         const hslValues = wrapper.vm.convertRGBtoHSL(255, 23, 67, 0.8);
 
-        expect(hslValues.hue).toBe(349);
+        expect(hslValues.hue).toBe(348.62);
         expect(hslValues.saturation).toBe(100);
         expect(hslValues.luminance).toBe(54.5);
     });
 
-    it('should convert Hex to Hsl', async () => {
+    it('should convert non-alpha Hex to Hsl', async () => {
+        const hslValues = wrapper.vm.convertHEXtoHSL('#94c11f');
+
+        expect(hslValues.hue).toBe(76.67);
+        expect(hslValues.saturation).toBe(72.3);
+        expect(hslValues.luminance).toBe(43.9);
+        expect(hslValues.alpha).toBe(NaN);
+
+        const hslValues2 = wrapper.vm.convertHEXtoHSL('#95c11f');
+
+        expect(hslValues2.hue).toBe(76.3);
+        expect(hslValues2.saturation).toBe(72.3);
+        expect(hslValues2.luminance).toBe(43.9);
+        expect(hslValues2.alpha).toBe(NaN);
+    });
+
+    it('should convert alpha Hex to Hsl', async () => {
         const hslValues = wrapper.vm.convertHEXtoHSL('#24db5b99');
 
-        expect(hslValues.hue).toBe(138);
+        expect(hslValues.hue).toBe(138.03);
         expect(hslValues.saturation).toBe(71.8);
         expect(hslValues.luminance).toBe(50);
         expect(hslValues.alpha).toBe(0.6);
+    });
+
+    it('should call debounceEmitColorValue when props value changed', async () => {
+        wrapper = createWrapper({
+            propsData: {
+                value: '#94c11f'
+            }
+        });
+        const spyDebounceMethod = jest.spyOn(wrapper.vm, 'debounceEmitColorValue');
+
+        await wrapper.setProps({
+            value: '#95c11f'
+        });
+
+        expect(spyDebounceMethod).toHaveBeenCalledTimes(1);
+    });
+
+    it('should rounding float correctly', async () => {
+        const result1 = wrapper.vm.roundingFloat(1.23456789);
+
+        expect(result1).toEqual(1.23);
+
+        const result2 = wrapper.vm.roundingFloat('1.23456789');
+
+        expect(result2).toEqual(1.23);
+
+        const result3 = wrapper.vm.roundingFloat('1.23656789');
+
+        expect(result3).toEqual(1.24);
+
+        const result4 = wrapper.vm.roundingFloat('1.26656789', 1);
+
+        expect(result4).toEqual(1.3);
     });
 
     it('should show the label from the property', () => {
@@ -532,5 +581,109 @@ describe('components/form/sw-colorpicker', () => {
         });
 
         expect(wrapper.find('label').text()).toEqual('Label from slot');
+    });
+
+    it('should call moveSelector on dragging colorPicker', async () => {
+        wrapper = createWrapper();
+        const moveSelectorSpy = jest.spyOn(wrapper.vm, 'moveSelector');
+
+        await wrapper.setData({
+            visible: true
+        });
+
+        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
+
+        await colorPicker.trigger('mousedown');
+
+        expect(moveSelectorSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call removeDragging on mouseup', async () => {
+        wrapper = createWrapper();
+        const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
+
+        await wrapper.setData({
+            visible: true,
+        });
+
+        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
+        await colorPicker.trigger('mousedown');
+
+        expect(eventListener.mousemove).not.toBeUndefined();
+        expect(eventListener.mouseup).not.toBeUndefined();
+
+        eventListener.mouseup();
+        expect(removeDragging).toHaveBeenCalledTimes(1);
+    });
+
+    it('should toggleColorPicker on clicking input', async () => {
+        wrapper = createWrapper();
+        const toggleColorPicker = jest.spyOn(wrapper.vm, 'toggleColorPicker');
+
+        await wrapper.setProps({
+            readonly: false
+        });
+
+        const colorInput = wrapper.find('.sw-colorpicker__input');
+
+        expect(colorInput.exists()).toBeTruthy();
+
+        await colorInput.trigger('click');
+
+        expect(toggleColorPicker).toHaveBeenCalledTimes(0);
+
+        await wrapper.setProps({
+            readonly: true
+        });
+
+        await colorInput.trigger('click');
+
+        expect(toggleColorPicker).toHaveBeenCalledTimes(1);
+    });
+
+    const moveSelectorDataSet = [
+        [150.55, 150.7, 150.4, 150.2, 0.08, 99.5],
+        [153, 300, 151.5, 150, 0.75, 0],
+        [154, -400, 152, -150, 1, 100],
+        [400, 154, 150, 150, 100, 96],
+        [400, 300, 150, 150, 100, 0],
+        [400, -400, 150, -150, 100, 100],
+        [-150, 156.3, 150, 151.5, 0, 95.2],
+        [-150, 300, 150, 150, 0, 0],
+        [-150, -400, 150, -150, 0, 100],
+    ];
+
+    it.each(moveSelectorDataSet)('should calculate luminanceValue and saturationValue correctly when moveSelector', async (
+        clientX,
+        clientY,
+        left,
+        top,
+        expectedSaturationValue,
+        expectedLuminanceValue
+    ) => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            visible: true,
+            isDragging: true,
+        });
+        const event = {
+            clientX,
+            clientY
+        };
+
+        jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
+            return {
+                left,
+                top,
+                width: 200,
+                height: 100,
+            };
+        });
+
+        wrapper.vm.moveSelector(event);
+
+        expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
+        expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
     });
 });

@@ -1,3 +1,5 @@
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
 <svg xmlns="http://www.w3.org/2000/svg" width="42" height="56" viewBox="0 0 42 56">
   <g fill="none" fill-rule="evenodd">
     <path d="M42,26 L42,42 L42,56 L0,56 L0,42 L32,42 L32,26 L0,26 L0,0 L42,0 L42,26 Z"/>

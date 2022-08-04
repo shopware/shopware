@@ -27,11 +27,13 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open review without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-review-list').should('not.exist');
 
         // see menu without review menu item
@@ -49,12 +51,13 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open review
         cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--title')
-            .contains('Bestes Produkt')
+            .contains('.sw-data-grid__cell--title a', 'Bestes Produkt')
             .click();
 
         // check review values
@@ -80,12 +83,13 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open review
         cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--title')
-            .contains('Bestes Produkt')
+            .contains('.sw-data-grid__cell--title a', 'Bestes Produkt')
             .click();
 
         cy.get('#sw-field--review-comment').type('My description');
@@ -115,6 +119,8 @@ describe('Review: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // delete review
@@ -124,7 +130,7 @@ describe('Review: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.modal} p`).contains(
+        cy.contains(`${page.elements.modal} p`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

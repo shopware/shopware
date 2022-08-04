@@ -20,7 +20,7 @@
             :style="{ 'color': $route.meta.$module?.color }"
         >
             <sw-icon
-                name="default-arrow-head-left"
+                name="regular-chevron-left"
                 small
             />
         </router-link>
@@ -77,7 +77,7 @@
                     <template #customIcon>
                         <div class="sw-bulk-edit-product__inheritance-icon">
                             <sw-icon
-                                name="default-web-link"
+                                name="regular-link"
                                 color="#7363e5"
                                 size="16"
                             />
@@ -157,7 +157,7 @@
                         >
                             {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', 0, { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }) }}
                             <sw-icon
-                                name="default-arrow-simple-right"
+                                name="regular-long-arrow-right"
                                 small
                             />
                         </a>

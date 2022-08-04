@@ -30,7 +30,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -61,7 +61,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
             'rules' => $ruleIds,
         ];
 
-        $this->eventActionRepository->create($data, $this->ids->context);
+        $this->eventActionRepository->create($data, Context::createDefaultContext());
 
         $migration = new Migration1632215760MoveDataFromEventActionToFlow();
         $migration->update($this->connection);
@@ -145,7 +145,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
             ],
         ];
 
-        $this->eventActionRepository->create([$data], $this->ids->context);
+        $this->eventActionRepository->create([$data], Context::createDefaultContext());
     }
 
     private function createMailTemplate(): void
@@ -160,7 +160,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('mail_template.repository')->create([
             [
@@ -176,6 +176,6 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

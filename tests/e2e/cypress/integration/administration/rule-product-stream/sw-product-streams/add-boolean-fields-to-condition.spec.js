@@ -59,12 +59,20 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
     it('@base @rule: can preview products with boolean field', () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
             `${productStreamPage.elements.dataGridRow}--0`
         );
-        cy.get(productStreamPage.elements.smartBarHeader).contains('1st Productstream');
+
+        cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         productStreamPage.fillFilterWithSelect(
@@ -76,11 +84,21 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get(`.sw-data-grid ${productStreamPage.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Third product');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains(`.sw-data-grid ${productStreamPage.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Third product');
             cy.get('.sw-modal__close').click();
         });
 
@@ -93,12 +111,22 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (2)');
-            cy.get(`.sw-data-grid ${productStreamPage.elements.dataGridRow} .sw-data-grid__cell--name`).contains('First product');
-            cy.get(`.sw-data-grid ${productStreamPage.elements.dataGridRow} .sw-data-grid__cell--name`).contains('Second product');
+            cy.contains('.sw-modal__header', 'Preview (2)');
+            cy.contains(`.sw-data-grid ${productStreamPage.elements.dataGridRow} .sw-data-grid__cell--name`, 'First product');
+            cy.contains(`.sw-data-grid ${productStreamPage.elements.dataGridRow} .sw-data-grid__cell--name`, 'Second product');
             cy.get('.sw-modal__close').click();
         });
     });
@@ -116,11 +144,18 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // click on the custom field
-        cy.get(`.sw-grid-row${page.elements.gridRow}--0 a`)
-            .contains('My custom field')
+        cy.contains(`.sw-grid-row${page.elements.gridRow}--0 a`, 'My custom field')
             .click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check if the custom field is loaded before editing it
         cy.get(page.elements.loader).should('not.exist');
@@ -143,10 +178,11 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
         // go to product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // open the first product
-        cy.get(`${page.elements.dataGridRow} .sw-data-grid__cell--name div > a`)
-            .contains('First product')
+        cy.contains(`${page.elements.dataGridRow} .sw-data-grid__cell--name div > a`, 'First product')
             .click();
 
         // check if user is one the product page and everything is loaded
@@ -171,12 +207,14 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
         const productStreamPage = new ProductStreamObject();
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
             `${productStreamPage.elements.dataGridRow}--0`
         );
-        cy.get(productStreamPage.elements.smartBarHeader).contains('1st Productstream');
+        cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 
         cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
         productStreamPage.fillFilterWithSelect(
@@ -188,12 +226,22 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (2)');
-            cy.get(`.sw-data-grid ${page.elements.dataGridRow} .sw-data-grid__cell--name`).contains('Second product');
-            cy.get(`.sw-data-grid ${page.elements.dataGridRow} .sw-data-grid__cell--name`).contains('Third product');
+            cy.contains('.sw-modal__header', 'Preview (2)');
+            cy.contains(`.sw-data-grid ${page.elements.dataGridRow} .sw-data-grid__cell--name`, 'Second product');
+            cy.contains(`.sw-data-grid ${page.elements.dataGridRow} .sw-data-grid__cell--name`, 'Third product');
             cy.get('.sw-modal__close').click();
         });
 
@@ -206,11 +254,21 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get(`.sw-data-grid ${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('First product');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains(`.sw-data-grid ${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'First product');
             cy.get('.sw-modal__close').click();
         });
     });

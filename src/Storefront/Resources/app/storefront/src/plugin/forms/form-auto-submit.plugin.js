@@ -3,13 +3,13 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
+import querystring from 'query-string';
 
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
  */
 export default class FormAutoSubmitPlugin extends Plugin {
-
     static options = {
         useAjax: false,
         ajaxContainerSelector: false,
@@ -112,7 +112,6 @@ export default class FormAutoSubmitPlugin extends Plugin {
         } else {
             this._submitNativeForm();
         }
-
     }
 
     /**
@@ -141,7 +140,6 @@ export default class FormAutoSubmitPlugin extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();
-
     }
 
     sendAjaxFormSubmit() {
@@ -169,8 +167,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const params = Object.fromEntries(urlParams.entries());
+        const params = querystring.parse(window.location.search);
         const formData = FormSerializeUtil.serialize(this._form);
 
         Object.keys(params)

@@ -113,7 +113,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="default-basic-stack-block"]');
+        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
         expect(formIcon.classes()).toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');
@@ -143,7 +143,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             isLoading: false
         });
 
-        const formIcon = wrapper.find('sw-icon-stub[name="default-basic-stack-block"]');
+        const formIcon = wrapper.find('sw-icon-stub[name="regular-bars-square"]');
         expect(formIcon.classes()).not.toContain('is--disabled');
 
         const saveAction = wrapper.find('.sw-cms-detail__save-action');

@@ -143,7 +143,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
@@ -165,6 +165,9 @@ class OrderGenerator implements DemodataGeneratorInterface
         return array_column($ids, 'id');
     }
 
+    /**
+     * @param array<string> $salesChannelIds
+     */
     private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
     {
         if (isset($this->contexts[$customerId])) {

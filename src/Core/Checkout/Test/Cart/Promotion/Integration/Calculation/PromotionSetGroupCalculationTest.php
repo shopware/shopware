@@ -30,25 +30,13 @@ class PromotionSetGroupCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
+    protected EntityRepositoryInterface $promotionRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
     protected function setUp(): void
     {

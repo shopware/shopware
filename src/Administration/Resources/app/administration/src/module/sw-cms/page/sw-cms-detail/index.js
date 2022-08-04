@@ -391,6 +391,7 @@ Component.register('sw-cms-detail', {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
+        /** @deprecated tag:v6.5.0 - will be removed without replacement */
         onBlockNavigatorSort(isCrossSectionMove = false) {
             if (isCrossSectionMove) {
                 this.loadPage(this.pageId);

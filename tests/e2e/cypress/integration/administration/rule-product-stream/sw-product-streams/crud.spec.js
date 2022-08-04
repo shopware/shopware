@@ -10,6 +10,8 @@ describe('Dynamic product group: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -35,8 +37,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('01st1st Productstream');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('01st1st Productstream');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, '01st1st Productstream');
     });
 
     it('@base @catalogue: update and read dynamic product group', () => {
@@ -64,7 +65,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Streamline');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Streamline');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Streamline');
     });
 
     it('@base @catalogue: delete dynamic product group', () => {
@@ -78,7 +79,7 @@ describe('Dynamic product group: Test crud operations', () => {
         }).as('deleteData');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('1st Productstream');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('1st Productstream');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, '1st Productstream');
 
         // Delete dynamic product group
         // Edit product stream
@@ -87,7 +88,7 @@ describe('Dynamic product group: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get('button.sw-button').contains('Delete').click();
+        cy.contains('button.sw-button', 'Delete').click();
 
         // Verify property in listing
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);

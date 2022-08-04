@@ -4,6 +4,7 @@ import swBulkEditState from '../../state/sw-bulk-edit.state';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -51,23 +52,27 @@ Component.register('sw-bulk-edit-customer', {
             return this.repositoryFactory.create('customer');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
         hasSelectedChanges() {
             return Object.values(this.bulkEditData).some(field => field.isChanged) || this.bulkEditData.length > 0;
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria
-                .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },
 
         hasChanges() {
-            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
         actionsRequestGroup() {
@@ -182,7 +187,7 @@ Component.register('sw-bulk-edit-customer', {
 
         setRouteMetaModule() {
             this.$set(this.$route.meta.$module, 'color', '#F88962');
-            this.$set(this.$route.meta.$module, 'icon', 'default-avatar-multiple');
+            this.$set(this.$route.meta.$module, 'icon', 'regular-users');
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {

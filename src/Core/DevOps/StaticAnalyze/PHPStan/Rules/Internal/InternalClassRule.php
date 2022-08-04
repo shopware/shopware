@@ -3,24 +3,32 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
+use Shopware\Storefront\Controller\StorefrontController;
 
 /**
- * @implements Rule<Class_>
+ * @implements Rule<InClassNode>
  */
 class InternalClassRule implements Rule
 {
+    private const TEST_CLASS_EXCEPTIONS = [
+        StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
+    ];
+
     public function getNodeType(): string
     {
-        return Class_::class;
+        return InClassNode::class;
     }
 
     /**
-     * @param Class_ $node
+     * @param InClassNode $node
      *
      * @return array<array-key, RuleError|string>
      */
@@ -30,36 +38,45 @@ class InternalClassRule implements Rule
             return [];
         }
 
-        if ($this->isTestClass($node, $scope)) {
+        if ($this->isTestClass($node)) {
             return ['Test classes must be flagged @internal to not be captured by the BC checker'];
         }
 
-        if ($this->isStorefrontController($scope)) {
+        if ($this->isStorefrontController($node)) {
             return ['Storefront controllers must be flagged @internal to not be captured by the BC checker. The BC promise is checked over the route annotation.'];
+        }
+
+        if ($this->isBundle($node)) {
+            return ['Bundles must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
     }
 
-    private function isTestClass(Class_ $node, Scope $scope): bool
+    private function isTestClass(InClassNode $node): bool
     {
-        $namespace = (string) $node->namespacedName;
+        $namespace = $node->getClassReflection()->getName();
+
+        if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
+            return false;
+        }
+
         if (\str_contains($namespace, '\\Test\\')) {
             return true;
         }
 
-        if ($scope->getClassReflection() === null) {
+        if (\str_contains($namespace, '\\Tests\\')) {
+            return true;
+        }
+
+        if ($node->getClassReflection()->getParentClass() === null) {
             return false;
         }
 
-        if ($scope->getClassReflection()->getParentClass() === null) {
-            return false;
-        }
-
-        return $scope->getClassReflection()->getParentClass()->getName() === TestCase::class;
+        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 
-    private function isInternal(Class_ $class): bool
+    private function isInternal(InClassNode $class): bool
     {
         $doc = $class->getDocComment();
 
@@ -67,21 +84,32 @@ class InternalClassRule implements Rule
             return false;
         }
 
-        return \str_contains($doc->getText(), '@internal');
+        return \str_contains($doc->getText(), '@internal') || \str_contains($doc->getText(), 'reason:becomes-internal');
     }
 
-    private function isStorefrontController(Scope $scope): bool
+    private function isStorefrontController(InClassNode $node): bool
     {
-        $class = $scope->getClassReflection();
-
-        if ($class === null) {
-            return false;
-        }
+        $class = $node->getClassReflection();
 
         if ($class->getParentClass() === null) {
             return false;
         }
 
-        return $class->getParentClass()->getName() === 'Shopware\Storefront\Controller\StorefrontController';
+        return $class->getParentClass()->getName() === StorefrontController::class;
+    }
+
+    private function isBundle(InClassNode $node): bool
+    {
+        $class = $node->getClassReflection();
+
+        if ($class->getParentClass() === null) {
+            return false;
+        }
+
+        if ($class->isAnonymous()) {
+            return false;
+        }
+
+        return $class->getParentClass()->getName() === Bundle::class && $class->getName() !== Plugin::class;
     }
 }

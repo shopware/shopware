@@ -5,8 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class WriteResult extends DeleteResult
 {

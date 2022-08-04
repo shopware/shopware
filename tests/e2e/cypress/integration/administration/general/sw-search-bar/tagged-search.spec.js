@@ -16,8 +16,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Products').click();
@@ -25,14 +25,12 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Product name')
             .should('be.visible')
-            .contains('Product name')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Product name');
+        cy.contains('.smart-bar__header h2', 'Product name')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a category using tag in dashboard', () => {
@@ -41,8 +39,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
@@ -50,14 +48,12 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Home')
             .should('be.visible')
-            .contains('Home')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Home');
+        cy.contains('.smart-bar__header h2', 'Home')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a customer using tag in dashboard', () => {
@@ -69,8 +65,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Customers').click();
@@ -78,14 +74,12 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Pep Eroni')
             .should('be.visible')
-            .contains('Pep Eroni')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Pep Eroni');
+        cy.contains('.smart-bar__header h2', 'Pep Eroni')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a order using tag in dashboard', () => {
@@ -122,8 +116,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#');
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Orders').click();
@@ -132,20 +126,20 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Max Mustermann 10000')
             .should('be.visible')
-            .contains('Max Mustermann 10000')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('Order 10000');
+        cy.contains('.smart-bar__header h2', 'Order 10000')
+            .should('be.visible');
     });
 
     it('@searchBar @search: search for a media using tag in dashboard', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         const page = new MediaPageObject();
@@ -162,7 +156,7 @@ describe('Search bar: Check search functionality with tags', () => {
         );
 
         // Upload image in folder
-        cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
+        cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
@@ -172,8 +166,8 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input.sw-search-bar__input').type('#')
         cy.get('.sw-search-bar__types_container--v2').should('be.visible');
         cy.contains('.sw-search-bar__type-item-name', 'Media').click();
@@ -182,14 +176,12 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'sw-login-background')
             .should('be.visible')
-            .contains('sw-login-background')
             .click();
 
         cy.get('.sw-media-media-item')
             .should('be.visible')
-            .get('.sw-media-base-item__name')
-            .contains('sw-login-background');
+            .contains('.sw-media-base-item__name', 'sw-login-background');
     });
 });

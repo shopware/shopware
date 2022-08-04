@@ -46,6 +46,9 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     *
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemProductStreamIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $streamIds,
@@ -79,6 +82,9 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $streamIds,
@@ -108,6 +114,9 @@ class LineItemInProductStreamRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
+     * @param array<string> $streamIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $streamIds,
@@ -184,6 +193,9 @@ class LineItemInProductStreamRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $streamIds[1]);
     }
 
+    /**
+     * @param array<string> $streamIds
+     */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {
         return ($this->createLineItem())->setPayloadValue('streamIds', $streamIds);

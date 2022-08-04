@@ -8,6 +8,8 @@ describe('Product: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,6 +28,8 @@ describe('Product: Test crud operations', () => {
 
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Save product
         cy.get(page.elements.productSaveAction).click();

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -91,24 +92,33 @@ class ExtensionDataProviderTest extends TestCase
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
         $this->getRequestHandler()->reset();
         $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
         static::assertCount(7, $installedExtensions);
     }
 
     public function testItReturnsLocalExtensionsIfUserIsNotLoggedIn(): void
     {
+        $contextSource = $this->context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $contextSource);
+
         $this->getUserRepository()->update([
             [
-                'id' => $this->context->getSource()->getUserId(),
+                'id' => $contextSource->getUserId(),
                 'storeToken' => null,
             ],
         ], Context::createDefaultContext());
 
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
         static::assertCount(1, $installedExtensions);
     }
 
@@ -122,6 +132,9 @@ class ExtensionDataProviderTest extends TestCase
         );
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
 
         static::assertCount(1, $installedExtensions);
 
@@ -137,6 +150,6 @@ class ExtensionDataProviderTest extends TestCase
         return new Response(400, [], \json_encode([
             'code' => 'ShopwarePlatformException-3',
             'detail' => 'REQUEST_PARAMETER_DOMAIN_NOT_GIVEN',
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 }

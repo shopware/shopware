@@ -20,15 +20,29 @@ class IndexCreator
     public function __construct(Client $client, array $config, array $mapping = [])
     {
         $this->client = $client;
-        $this->config = $config;
         $this->mapping = $mapping;
+
+        if (isset($config['settings']['index'])) {
+            if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
+                unset($config['settings']['index']['number_of_shards']);
+            }
+
+            if (\array_key_exists('number_of_replicas', $config['settings']['index']) && $config['settings']['index']['number_of_replicas'] === null) {
+                unset($config['settings']['index']['number_of_replicas']);
+            }
+        }
+
+        $this->config = $config;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
     {
+        // NEXT-21735 - does not execute if there's no index yet
+        // @codeCoverageIgnoreStart
         if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
         }
+        // @codeCoverageIgnoreEnd
 
         $mapping = $definition->getMapping($context);
 
@@ -67,11 +81,7 @@ class IndexCreator
 
         $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
 
-        if (!\array_key_exists('_source', $mapping)) {
-            return $mapping;
-        }
-
-        if (!\array_key_exists('includes', $mapping['_source'])) {
+        if (!\array_key_exists('_source', $mapping) || !\array_key_exists('includes', $mapping['_source'])) {
             return $mapping;
         }
 

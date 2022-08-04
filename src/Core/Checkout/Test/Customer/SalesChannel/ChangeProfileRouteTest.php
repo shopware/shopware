@@ -49,7 +49,7 @@ class ChangeProfileRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -146,7 +146,7 @@ class ChangeProfileRouteTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertEquals(['DE123456789'], $customer->getVatIds());
         static::assertEquals($changeData['company'], $customer->getCompany());
@@ -179,7 +179,7 @@ class ChangeProfileRouteTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getVatIds());
         static::assertEquals($changeData['company'], $customer->getCompany());
@@ -302,6 +302,9 @@ class ChangeProfileRouteTest extends TestCase
 
     /**
      * @dataProvider dataProviderVatIds
+     *
+     * @param array<string>|null $vatIds
+     * @param array<string>|null $expectedVatIds
      */
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {
@@ -346,7 +349,7 @@ class ChangeProfileRouteTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($expectedVatIds === null) {
             static::assertNull($customer->getVatIds());
@@ -380,7 +383,7 @@ class ChangeProfileRouteTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
-        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getVatIds());
         static::assertEquals('', $customer->getCompany());
@@ -416,7 +419,7 @@ class ChangeProfileRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('payment_method.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 
     private function createCustomer(?string $password = null, ?string $email = null, ?bool $guest = false): string

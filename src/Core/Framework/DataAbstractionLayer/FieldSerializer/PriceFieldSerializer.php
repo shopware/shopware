@@ -29,6 +29,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator

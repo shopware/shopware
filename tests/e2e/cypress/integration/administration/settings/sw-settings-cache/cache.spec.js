@@ -5,6 +5,8 @@ describe('Cache module', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/cache/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -18,7 +20,7 @@ describe('Cache module', () => {
     });
 
     // NEXT-20024
-    it.skip('@base @settings: clear cache', () => {
+    it('@base @settings: clear cache', { tags: ['quarantined'] }, () => {
         cy.contains('Caches & Indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();
@@ -43,7 +45,7 @@ describe('Cache module', () => {
             .find('input[type="checkbox"]').should('be.checked');
         cy.get('.sw-select-result-list__item-list').contains('category.child-count').parents('.sw-field--checkbox')
             .find('input[type="checkbox"]').should('be.checked').should('be.disabled');
-        cy.get('.sw-label').contains('category.indexer').should('be.visible');
+        cy.contains('.sw-label', 'category.indexer').should('be.visible');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();
         cy.awaitAndCheckNotification('Building indexes.');

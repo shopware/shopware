@@ -22,33 +22,29 @@ class ScriptPersister
 
     private EntityRepositoryInterface $appRepository;
 
-    private string $projectDir;
-
     public function __construct(
         ScriptFileReaderInterface $scriptReader,
         EntityRepositoryInterface $scriptRepository,
-        EntityRepositoryInterface $appRepository,
-        string $projectDir
+        EntityRepositoryInterface $appRepository
     ) {
         $this->scriptReader = $scriptReader;
         $this->scriptRepository = $scriptRepository;
         $this->appRepository = $appRepository;
-        $this->projectDir = $projectDir;
     }
 
-    public function updateScripts(string $appPath, string $appId, Context $context): void
+    public function updateScripts(string $appId, Context $context): void
     {
         $app = $this->getAppWithExistingScripts($appId, $context);
 
         /** @var ScriptCollection $existingScripts */
         $existingScripts = $app->getScripts();
 
-        $scriptPaths = $this->scriptReader->getScriptPathsForApp($appPath);
+        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app->getPath());
 
         $upserts = [];
         foreach ($scriptPaths as $scriptPath) {
             $payload = [
-                'script' => $this->scriptReader->getScriptContent($scriptPath, $appPath),
+                'script' => $this->scriptReader->getScriptContent($scriptPath, $app->getPath()),
             ];
 
             /** @var ScriptEntity|null $existing */
@@ -85,7 +81,7 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -102,7 +98,7 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var string[] $scripts */
+        /** @var array<string> $scripts */
         $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -122,13 +118,13 @@ class ScriptPersister
 
         /** @var AppEntity $app */
         foreach ($apps as $app) {
-            $this->updateScripts(rtrim($this->projectDir, '/') . '/' . $app->getPath(), $app->getId(), Context::createDefaultContext());
+            $this->updateScripts($app->getId(), Context::createDefaultContext());
         }
     }
 
     private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

@@ -60,11 +60,6 @@ shopware:
         major: false
         description: "Replace wrong displayed characters in number format"
         # issue: NEXT-15053
-      - name: FEATURE_NEXT_17950
-        default: false
-        major: false
-        description: "Admin Extension API"
-        # issue: NEXT-17950
       - name: FEATURE_NEXT_14114
         default: false
         major: true
@@ -173,7 +168,7 @@ shopware:
         # issue: NEXT-16271
       - name: FEATURE_NEXT_15381
         default: false
-        major: false
+        major: true
         description: "Save theme compilation"
         # issue: NEXT-15381
       - name: FEATURE_NEXT_17275
@@ -196,11 +191,6 @@ shopware:
         major: true
         description: "Change ExceptionHandlerInterface by removing Command $command argument"
         # issue: NEXT-16640
-      - name: FEATURE_NEXT_17261
-        default: false
-        major: false
-        description: "Bulk Edit for Order Documents and Status Mails"
-        # issue: NEXT-17261
       - name: FEATURE_NEXT_17858
         default: false
         major: true

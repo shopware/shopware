@@ -21,6 +21,10 @@ Component.register('sw-dashboard-statistics', {
             todayOrderDataLoaded: false,
             todayOrderDataSortBy: 'orderDateTime',
             todayOrderDataSortDirection: 'DESC',
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             * Please use `rangesValueMap` and `ordersDateRange` or `turnoverDateRange` instead.
+             */
             statisticDateRanges: {
                 value: '30Days',
                 options: {
@@ -31,23 +35,27 @@ Component.register('sw-dashboard-statistics', {
                     yesterday: 1,
                 },
             },
+            ordersDateRange: '30Days',
+            turnoverDateRange: '30Days',
             isLoading: true,
         };
     },
 
     computed: {
+        rangesValueMap() {
+            return {
+                '30Days': 30,
+                '14Days': 14,
+                '7Days': 7,
+                '24Hours': 24,
+                yesterday: 1,
+            };
+        },
         chartOptionsOrderCount() {
             return {
-                title: {
-                    text: this.$tc('sw-dashboard.monthStats.orderNumber'),
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: '600',
-                    },
-                },
                 xaxis: {
                     type: 'datetime',
-                    min: this.dateAgo.getTime(),
+                    min: this.getDateAgo(this.ordersDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
                     },
@@ -66,7 +74,7 @@ Component.register('sw-dashboard-statistics', {
             return {
                 xaxis: {
                     type: 'datetime',
-                    min: this.dateAgo.getTime(),
+                    min: this.getDateAgo(this.turnoverDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
                     },
@@ -152,24 +160,6 @@ Component.register('sw-dashboard-statistics', {
             return !!this.historyOrderDataCount && !!this.historyOrderDataSum;
         },
 
-        dateAgo() {
-            const date = Shopware.Utils.format.dateWithUserTimezone();
-            const selectedDateRange = this.statisticDateRanges.value;
-            const dateRange = this.statisticDateRanges.options[selectedDateRange] ?? 0;
-
-            // special case for "24Hours": return directly because we need hours instead of days
-            if (selectedDateRange === '24Hours') {
-                date.setHours(date.getHours() - dateRange);
-
-                return date;
-            }
-
-            date.setDate(date.getDate() - dateRange);
-            date.setHours(0, 0, 0, 0);
-
-            return date;
-        },
-
         today() {
             const today = Shopware.Utils.format.dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
@@ -189,16 +179,6 @@ Component.register('sw-dashboard-statistics', {
 
         todayBucketSum() {
             return this.calculateTodayBucket(this.historyOrderDataSum);
-        },
-
-        getTimeUnitInterval() {
-            const statisticDateRange = this.statisticDateRanges.value;
-
-            if (statisticDateRange === 'yesterday' || statisticDateRange === '24Hours') {
-                return 'hour';
-            }
-
-            return 'day';
         },
 
         systemCurrencyISOCode() {
@@ -286,14 +266,16 @@ Component.register('sw-dashboard-statistics', {
                 Criteria.histogram(
                     'order_count_bucket',
                     'orderDateTime',
-                    this.getTimeUnitInterval,
+                    this.getTimeUnitInterval(this.ordersDateRange),
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
                     Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
                 ),
             );
 
-            criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
+            criteria.addFilter(Criteria.range('orderDate', {
+                gte: this.formatDate(this.getDateAgo(this.ordersDateRange)),
+            }));
 
             return this.orderRepository.search(criteria);
         },
@@ -305,7 +287,7 @@ Component.register('sw-dashboard-statistics', {
                 Criteria.histogram(
                     'order_sum_bucket',
                     'orderDateTime',
-                    this.getTimeUnitInterval,
+                    this.getTimeUnitInterval(this.turnoverDateRange),
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
                     Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
@@ -315,7 +297,9 @@ Component.register('sw-dashboard-statistics', {
             criteria.addAssociation('stateMachineState');
 
             criteria.addFilter(Criteria.equals('transactions.stateMachineState.technicalName', 'paid'));
-            criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
+            criteria.addFilter(Criteria.range('orderDate', {
+                gte: this.formatDate(this.getDateAgo(this.turnoverDateRange)),
+            }));
 
             return this.orderRepository.search(criteria);
         },
@@ -388,6 +372,55 @@ Component.register('sw-dashboard-statistics', {
         parseDate(date) {
             const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
             return parsedDate.valueOf();
+        },
+
+        async onOrdersRangeUpdate(value) {
+            this.ordersDateRange = value;
+
+            const response = await this.fetchHistoryOrderDataCount();
+
+            if (response.aggregations) {
+                this.historyOrderDataCount = response.aggregations.order_count_bucket;
+            }
+        },
+
+        async onTurnoverRangeUpdate(value) {
+            this.turnoverDateRange = value;
+
+            const response = await this.fetchHistoryOrderDataSum();
+
+            if (response.aggregations) {
+                this.historyOrderDataSum = response.aggregations.order_sum_bucket;
+            }
+        },
+
+        getTimeUnitInterval(range) {
+            if (range === 'yesterday' || range === '24Hours') {
+                return 'hour';
+            }
+
+            return 'day';
+        },
+
+        getCardSubtitle(range) {
+            return `${this.formatChartHeadlineDate(this.getDateAgo(range))} - ${this.formatChartHeadlineDate(this.today)}`;
+        },
+
+        getDateAgo(range) {
+            const date = Shopware.Utils.format.dateWithUserTimezone();
+            const dateRange = this.rangesValueMap[range] ?? 0;
+
+            // special case for "24Hours": return directly because we need hours instead of days
+            if (range === '24Hours') {
+                date.setHours(date.getHours() - dateRange);
+
+                return date;
+            }
+
+            date.setDate(date.getDate() - dateRange);
+            date.setHours(0, 0, 0, 0);
+
+            return date;
         },
     },
 });

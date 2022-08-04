@@ -8,6 +8,8 @@ describe('Import/Export - Check import dry run functionality', () => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/import`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();

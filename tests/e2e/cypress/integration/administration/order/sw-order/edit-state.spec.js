@@ -22,10 +22,12 @@ describe('Order: Test order state', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
-    it('@base @order: edit order state', () => {
+    it('@base @order: edit order state', { tags: ['quarantined'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -81,8 +83,7 @@ describe('Order: Test order state', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
-            .contains('Cancelled');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Cancelled');
 
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -104,8 +105,7 @@ describe('Order: Test order state', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
-            .contains('Open');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Open');
 
         // Change order state to "In progress" then "Complete"
         cy.clickContextMenuItem(
@@ -156,8 +156,7 @@ describe('Order: Test order state', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
-            .contains('Done');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Done');
     });
 
     it('@order: edit order state on details tab', () => {
@@ -223,8 +222,7 @@ describe('Order: Test order state', () => {
         cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
-            .contains('Cancelled');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Cancelled');
     });
 
     it('@order: check order history', () => {
@@ -249,7 +247,7 @@ describe('Order: Test order state', () => {
             method: 'get',
         }).as(`stateMachineTypeStateCall`);
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
 
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -363,7 +361,6 @@ describe('Order: Test order state', () => {
 
         // Verify order completion in listing
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
-            .contains('Done');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Done');
     });
 });

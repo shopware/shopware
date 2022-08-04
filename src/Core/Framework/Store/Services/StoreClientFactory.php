@@ -5,35 +5,37 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use Psr\Http\Message\ResponseInterface;
-use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class StoreClientFactory
 {
-    private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
 
     private SystemConfigService $configService;
 
-    private OpenSSLVerifier $openSSLVerifier;
+    /**
+     * @var MiddlewareInterface[]
+     */
+    private iterable $middlewares;
 
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $configService, OpenSSLVerifier $openSSLVerifier)
-    {
+    public function __construct(
+        SystemConfigService $configService,
+        iterable $middlewares
+    ) {
         $this->configService = $configService;
-        $this->openSSLVerifier = $openSSLVerifier;
+        $this->middlewares = $middlewares;
     }
 
     public function create(): Client
     {
         $stack = HandlerStack::create();
 
-        $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
-            return $this->verifyResponseSignature($response);
-        }));
+        foreach ($this->middlewares as $middleware) {
+            $stack->push(Middleware::mapResponse($middleware));
+        }
 
         $config = $this->getClientBaseConfig();
         $config['handler'] = $stack;
@@ -50,32 +52,5 @@ class StoreClientFactory
                 'Accept' => 'application/vnd.api+json,application/json',
             ],
         ];
-    }
-
-    private function verifyResponseSignature(ResponseInterface $response): ResponseInterface
-    {
-        $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
-        $header = $response->getHeader($signatureHeaderName);
-        if (!isset($header[0])) {
-            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        $signature = $header[0];
-
-        if (empty($signature)) {
-            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        if (!$this->openSSLVerifier->isSystemSupported()) {
-            return $response;
-        }
-
-        if ($this->openSSLVerifier->isValid($response->getBody()->getContents(), $signature)) {
-            $response->getBody()->rewind();
-
-            return $response;
-        }
-
-        throw new StoreSignatureValidationException('Signature not valid');
     }
 }

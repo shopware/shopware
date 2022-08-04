@@ -46,8 +46,10 @@ describe('Storefront profile settings', () => {
 
         // Verify the subscription from the newsletter recipients
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', '/newsletter/recipient/index');
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Nieuwsbriefontvanger');
-        cy.get(`${page.elements.dataGridRow}--0 a`).contains('lisa@hoffmann.com');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Nieuwsbriefontvanger');
+        cy.contains(`${page.elements.dataGridRow}--0 a`, 'lisa@hoffmann.com');
     });
 });

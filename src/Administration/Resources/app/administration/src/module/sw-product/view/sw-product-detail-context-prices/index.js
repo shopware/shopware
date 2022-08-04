@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-context-prices', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'ruleConditionDataProviderService'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -512,31 +512,6 @@ Component.register('sw-product-detail-context-prices', {
                 width: 275,
                 showDelay: 200,
                 disabled: (itemIndex !== 0 || quantity !== 1),
-            };
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        isRuleRestricted(rule) {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return false;
-            }
-
-            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, 'productPrices');
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        tooltipConfig(rule) {
-            if (this.isRuleRestricted(rule)) {
-                return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
-                    rule.conditions,
-                    'productPrices',
-                );
-            }
-
-            return {
-                showOnDisabledElements: true,
-                message: this.$tc('sw-product.advancedPrices.ruleAlreadyUsed'),
-                disabled: !this.priceRuleGroups[rule.id],
             };
         },
     },

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -27,25 +26,11 @@ class PromotionFixedPriceCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
@@ -126,6 +111,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         static::assertEquals(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
 
         $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($discountLineItem);
         $discountId = $discountLineItem->getId();
 
         // and try to remove promotion

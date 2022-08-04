@@ -22,15 +22,10 @@
             :class="lockedButtonClass"
             @click="onLockSwitch"
         >
+            {# @deprecated tag:v6.5.0 - Size can be removed #}
             <sw-icon
-                v-if="isLocked"
-                name="default-lock-closed"
-                size="16"
-            />
-            <sw-icon
-                v-else
-                name="default-lock-open"
-                size="16"
+                :name="isLocked ? 'regular-lock' : 'regular-lock-open'"
+                size="18"
             />
         </button>
         {% endblock %}

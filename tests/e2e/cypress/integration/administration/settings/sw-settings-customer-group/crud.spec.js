@@ -9,6 +9,8 @@ describe('Customer group: Test crud operations', () => {
             return cy.createDefaultFixture('customer-group');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -36,8 +38,8 @@ describe('Customer group: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('E2E Merchant');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'E2E Merchant')
+            .should('be.visible');
 
         // Check usage of customer group in customer
         cy.clickMainMenuItem({
@@ -45,8 +47,12 @@ describe('Customer group: Test crud operations', () => {
             mainMenuId: 'sw-customer',
             subMenuId: 'sw-customer-index'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-customer-list__content').should('be.visible');
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select');
 
@@ -82,8 +88,8 @@ describe('Customer group: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-            .contains('E2E Merchant');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'E2E Merchant')
+            .should('be.visible');
     });
 
     it('@settings: delete customer group', () => {
@@ -104,8 +110,7 @@ describe('Customer group: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
@@ -130,8 +135,7 @@ describe('Customer group: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

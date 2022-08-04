@@ -202,4 +202,16 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
+
+    it('should contain a listing criteria with correct properties', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.listingCriteria).toEqual(expect.objectContaining({
+            associations: expect.arrayContaining([
+                expect.objectContaining({
+                    association: 'translationCode',
+                }),
+            ]),
+        }));
+    });
 });

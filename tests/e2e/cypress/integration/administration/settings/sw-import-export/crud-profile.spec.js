@@ -8,6 +8,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();
@@ -45,8 +47,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Go to mapping page and add description mapping
         cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
 
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button')
-            .contains('Skip CSV upload')
+        cy.contains('.sw-import-export-new-profile-wizard__footer-right-button-group button', 'Skip CSV upload')
             .click();
 
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action')
@@ -110,9 +111,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             .should('be.visible')
             .and('have.value', 'id')
 
-        cy.get('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text')
-            .should('be.visible')
-            .contains('id');
+        cy.contains('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text', 'id')
+            .should('be.visible');
 
         // Fill in all required mappings (add mapping button should be enabled now)
         cy.get(page.elements.importExportAddMappingButton).should('be.enabled');
@@ -215,10 +215,10 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.importExportWizardMappingPage}__text`).should('be.visible');
 
         // sort mappings
-        cy.get(`${page.elements.dataGridRow}--0 .icon--small-arrow-small-down`)
+        cy.get(`${page.elements.dataGridRow}--0 .icon--regular-chevron-down-xxs`)
             .click();
 
-        cy.get(`${page.elements.dataGridRow}--3 .icon--small-arrow-small-up`)
+        cy.get(`${page.elements.dataGridRow}--3 .icon--regular-chevron-up-xxs`)
             .click();
 
         // Check imported mapping
@@ -536,6 +536,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // Verify the export profile cant be used for importing
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/import`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-import-export-importer__profile-select').click();
         cy.get('.sw-import-export-importer__profile-select input').type('BasicExportWizard');
         cy.get('.sw-select-result-list__empty').should('be.visible');

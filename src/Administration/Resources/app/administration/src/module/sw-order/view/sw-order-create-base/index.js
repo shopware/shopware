@@ -241,7 +241,22 @@ Component.register('sw-order-create-base', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            const { customer } = this.$route.params;
+
+            if (!customer) {
+                return;
+            }
+
+            State.commit('swOrder/setCustomer', customer);
+            this.onSelectExistingCustomer(customer.id);
+        },
+
         async createCart(salesChannelId) {
             await State.dispatch('swOrder/createCart', { salesChannelId });
         },

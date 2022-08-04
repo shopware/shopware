@@ -187,6 +187,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Test\TestSessionStorageFactory" decorates="session.storage.factory.mock_file"/>
     </services>
 
 </container>

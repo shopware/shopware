@@ -120,11 +120,11 @@ Component.register('sw-admin-menu', {
         },
 
         sidebarCollapseIcon() {
-            return this.isExpanded ? 'default-arrow-circle-left' : 'default-arrow-circle-right';
+            return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
         },
 
         userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'small-arrow-medium-down' : 'small-arrow-medium-up';
+            return this.isUserActionsActive ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs';
         },
 
         scrollbarOffsetStyle() {
@@ -490,7 +490,7 @@ Component.register('sw-admin-menu', {
 
             target.classList.add('is--flyout-enabled');
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -555,7 +555,7 @@ Component.register('sw-admin-menu', {
             }
 
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`,
+                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
             };
 
             // Remove previous flyout enabled

@@ -6,14 +6,16 @@ parameters:
     phpVersion: 70400
     level: 8
     treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
     paths:
         - src
+        - tests
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - vendor/composer/InstalledVersions.php # somehow we are affected by this https://github.com/phpstan/phpstan/issues/4482
     # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
@@ -43,19 +45,33 @@ parameters:
         - src/Core/Framework/Adapter/Twig/functions.php
 
     ignoreErrors:
-        # We won't type all arrays/iterables for now
-        - '#no value type specified in iterable type#'
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
         -
             message: '#Service ".*" is not registered in the container\.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/unit/php
+                - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/integration/**/*Test.php
 
-        # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
-        - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
+        # ignore errors caused by static::markTestSkipped
+        -
+            message: '#Unreachable statement - code above always terminates.#'
+            paths:
+                - src/**/*Test.php
+
+        # benchmark tests create db tables on the fly, migration cases also work with DDL
+        -
+            message: '#Query error:#'
+            paths:
+                - tests/performance/**/*.php
+                - tests/migration/**/*.php
+
         # Method gets always an EntityCollection
         -
             message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'
@@ -67,6 +83,9 @@ parameters:
         # Library wrong type hint
         -
             message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array\|string> given\.#'
+            path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
+        -
+            message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array<string, array>\|string> given\.#'
             path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
         -
             message: '#Parameter \#1 \$firstResult of method Doctrine\\DBAL\\Query\\QueryBuilder::setFirstResult\(\) expects int, null given\.#'
@@ -83,6 +102,9 @@ parameters:
         -
             message: '#Access to private property#'
             path: src/Core/Framework/Api/Controller/CacheController.php
+        # @final annotation of internal classes
+        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+
         # Invalid phpdoc in OpenAPI Library
         -
              message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
@@ -111,7 +133,7 @@ parameters:
         # Class behind feature flag - can be removed with feature flag
         - '#Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior#'
         -
-            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.$#'
+            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array<string, array<int, mixed>> given\.$#'
             path: src/Core/Framework/Api/Sync/SyncService.php
         # can be removed with feature flag FEATURE_NEXT_12455
         -
@@ -171,11 +193,6 @@ parameters:
             count: 1
             path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
 
-        -
-            message: "#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
         # Invalid trait usage
         -
             message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
@@ -187,14 +204,57 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
+        # Can be removed with 6.5 release (NEXT-19158)
+        -
+            message: "#^PHPDoc tag @param references unknown parameter\\: \\$htmlEscape$#"
+            count: 1
+            path: src/Core/Framework/Adapter/Twig/StringTemplateRenderer.php
+
         # Method will get third parameter in 6.5
         -
             message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"
             count: 1
             path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
 
+        # Can be removed with 6.5 release (NEXT-20850)
+        -
+            message: "#^PHPDoc tag @param references unknown parameter\\: \\$context$#"
+            count: 1
+            path: src/Storefront/Theme/ThemeCompiler.php
+
+        -
+            message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompilerInterface\\:\\:compileTheme\\(\\) invoked with 6 parameters, 4\\-5 required\\.$#"
+            count: 2
+            path: src/Storefront/Theme/ThemeService.php
+
+        # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
+        - '#Trait .* is used zero times and is not analysed.#'
+
+        # Bug in Phpstan Symfony: https://github.com/phpstan/phpstan-symfony/issues/286
+        -
+            message: '#Parameter \#1 \$expected of static method PHPUnit\\Framework\\Assert::assertSame\(\) contains unresolvable type#'
+            count: 4
+            path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
         tags:
             - phpstan.rules.rule

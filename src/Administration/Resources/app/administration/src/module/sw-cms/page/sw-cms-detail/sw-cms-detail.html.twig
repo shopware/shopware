@@ -32,7 +32,7 @@
                     :to="{ name: 'sw.cms.index' }"
                     class="sw-cms-detail__back-btn"
                 >
-                    <sw-icon name="default-basic-x-line" />
+                    <sw-icon name="regular-times" />
                 </router-link>
                 {% endblock %}
 
@@ -61,7 +61,7 @@
             >
                 {% block sw_cms_detail_toolbar_device_actions_mobile %}
                 <sw-icon
-                    name="default-device-mobile"
+                    name="regular-mobile"
                     :class="{ 'is--active': currentDeviceView === 'mobile' }"
                     @click="onDeviceViewChange('mobile')"
                 />
@@ -69,7 +69,7 @@
 
                 {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
                 <sw-icon
-                    name="default-device-tablet"
+                    name="regular-tablet"
                     :class="{ 'is--active': currentDeviceView === 'tablet-landscape' }"
                     @click="onDeviceViewChange('tablet-landscape')"
                 />
@@ -77,7 +77,7 @@
 
                 {% block sw_cms_detail_toolbar_device_actions_desktop %}
                 <sw-icon
-                    name="default-device-desktop"
+                    name="regular-desktop"
                     :class="{ 'is--active': currentDeviceView === 'desktop' }"
                     @click="onDeviceViewChange('desktop')"
                 />
@@ -85,7 +85,7 @@
 
                 {% block sw_cms_detail_toolbar_device_actions_form %}
                 <sw-icon
-                    name="default-basic-stack-block"
+                    name="regular-bars-square"
                     :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
                     @click="onDeviceViewChange('form')"
                 />
@@ -284,6 +284,7 @@
             {% endblock %}
 
             {% block sw_cms_detail_sidebar %}
+            {# @deprecated tag:v6.5.0 - Event listener will for 'block-navigator-sort' will be removed #}
             <sw-cms-sidebar
                 ref="cmsSidebar"
                 :page="page"

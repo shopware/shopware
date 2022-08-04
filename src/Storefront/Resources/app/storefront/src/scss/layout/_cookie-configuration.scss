@@ -66,7 +66,8 @@
         margin-left: 24px;
         overflow: visible;
 
-        &.custom-control {
+        &.custom-control,
+        &.form-check {
             min-height: unset;
         }
     }

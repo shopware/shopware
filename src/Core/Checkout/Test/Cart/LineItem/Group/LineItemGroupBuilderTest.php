@@ -7,9 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager;
@@ -26,7 +24,6 @@ use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
@@ -61,40 +58,19 @@ class LineItemGroupBuilderTest extends TestCase
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';
     private const KEY_SORTER_PRICE_DESC = 'PRICE_DESC';
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var FakeSequenceSupervisor
-     */
-    private $fakeSequenceSupervisor;
+    private FakeSequenceSupervisor $fakeSequenceSupervisor;
 
-    /**
-     * @var LineItemGroupPackagerInterface
-     */
-    private $fakeTakeAllPackager;
+    private FakeLineItemGroupTakeAllPackager $fakeTakeAllPackager;
 
-    /**
-     * @var LineItemGroupSorterInterface
-     */
-    private $fakeSorter;
+    private FakeLineItemGroupSorter $fakeSorter;
 
-    /**
-     * @var FakeTakeAllRuleMatcher
-     */
-    private $fakeTakeAllRuleMatcher;
+    private FakeTakeAllRuleMatcher $fakeTakeAllRuleMatcher;
 
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $unitTestBuilder;
+    private LineItemGroupBuilder $unitTestBuilder;
 
-    /**
-     * @var LineItemGroupBuilder
-     */
-    private $integrationTestBuilder;
+    private LineItemGroupBuilder $integrationTestBuilder;
 
     protected function setUp(): void
     {
@@ -382,12 +358,8 @@ class LineItemGroupBuilderTest extends TestCase
         return $cart;
     }
 
-    private function createQuantityPriceCalculator()
+    private function createQuantityPriceCalculator(): QuantityPriceCalculator
     {
-        $detector = $this->createMock(TaxDetector::class);
-        $detector->method('useGross')->willReturn(false);
-        $detector->method('isNetDelivery')->willReturn(false);
-
         $priceRounding = new CashRounding();
 
         $taxCalculator = new TaxCalculator();
@@ -395,7 +367,6 @@ class LineItemGroupBuilderTest extends TestCase
         return new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, $priceRounding),
             new NetPriceCalculator($taxCalculator, $priceRounding),
-            $detector
         );
     }
 }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $identifiers;
 
@@ -48,7 +49,7 @@ class LineItemRule extends Rule
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getIdentifiers(): ?array
     {
@@ -77,7 +78,9 @@ class LineItemRule extends Rule
 
         $referencedId = $lineItem->getReferencedId();
         if ($referencedId === null) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
         }
 
         return RuleComparison::uuids([$referencedId], $this->identifiers, $this->operator);

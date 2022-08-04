@@ -56,10 +56,12 @@ class ListField extends JsonField
      */
     public function isStrict(): bool
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'JsonField')
-        );
+        if (!$this->strict) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'JsonField')
+            );
+        }
 
         return $this->strict;
     }

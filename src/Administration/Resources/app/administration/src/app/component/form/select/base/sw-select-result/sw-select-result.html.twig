@@ -6,6 +6,12 @@
     @mouseenter="onMouseEnter"
     @click.stop="onClickResult"
 >
+    {% block sw_select_result_item_preview %}
+    <span class="sw-select-result__result-item-preview">
+        <slot name="preview"></slot>
+    </span>
+    {% endblock %}
+
     {% block sw_select_result_item_text_holder %}
     <span class="sw-select-result__result-item-text">
         {% block sw_select_result_item_text %}
@@ -19,7 +25,7 @@
         {% block sw_select_result_item_icon %}
         <sw-icon
             v-if="selected"
-            name="small-default-checkmark-line-medium"
+            name="regular-checkmark-xs"
             size="16px"
         />
         {% endblock %}

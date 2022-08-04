@@ -85,6 +85,7 @@ class CategoryBreadcrumbBuilder
         $criteria = new Criteria($ids);
         $criteria->setTitle('breadcrumb-builder');
         $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter($this->getSalesChannelFilter($context));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext());

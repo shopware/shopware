@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_info\/events.json": {
+            "get": {
+                "tags": [
+                    "System Info & Healthcheck"
+                ],
+                "summary": "Get Business events",
+                "description": "Get a list of about the business events.",
+                "operationId": "business-events",
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of about the business events.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/businessEventsResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

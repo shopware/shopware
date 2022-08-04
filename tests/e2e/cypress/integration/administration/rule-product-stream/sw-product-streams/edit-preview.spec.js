@@ -13,13 +13,18 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     it('@base @catalogue: check preview while editing', () => {
         const page = new ProductStreamObject();
 
-        cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
+        cy.contains(page.elements.smartBarHeader, 'Dynamic product groups');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify product stream details
         cy.clickContextMenuItem(
@@ -28,8 +33,10 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
-        cy.get(page.elements.loader).should('not.exist');
+        cy.contains(page.elements.smartBarHeader, '1st Productstream');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         page.fillFilterWithEntityMultiSelect(
             '.sw-product-stream-filter',
@@ -40,13 +47,21 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (1)');
-            cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
+            cy.contains('.sw-modal__header', 'Preview (1)');
+            cy.contains('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name', 'Product name');
             cy.get('.sw-modal__close').click();
         });
 
@@ -59,13 +74,22 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             }
         );
 
-        cy.get('button.sw-button').contains('Preview').click();
+        cy.contains('button.sw-button', 'Preview').click();
         cy.get('.sw-modal').should('be.visible');
 
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-stream-modal-preview__sales-channel-field')
+            .typeSingleSelectAndCheck('Storefront', '.sw-product-stream-modal-preview__sales-channel-field');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-product-stream-modal-preview').within(() => {
-            cy.get('.sw-modal__header').contains('Preview (0)').should('be.visible');
+            cy.contains('.sw-modal__header', 'Preview (0)').should('be.visible');
             cy.get('.sw-data-grid .sw-data-grid__row--0').should('not.exist');
             cy.get('.sw-empty-state').should('be.visible');
             cy.get('.sw-modal__close').click();

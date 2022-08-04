@@ -10,6 +10,8 @@ describe('Country: Test can setting VAT id field required', () => {
 
     it('@settings: can setting VAT id field required', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
@@ -31,6 +33,8 @@ describe('Country: Test can setting VAT id field required', () => {
             .its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         const settingPage = new SettingsPageObject();
 
         cy.get('.sw-admin-menu__item--sw-settings').click();
@@ -38,7 +42,7 @@ describe('Country: Test can setting VAT id field required', () => {
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.smart-bar__header').contains('Countries');
+        cy.contains('.smart-bar__header', 'Countries');
 
         // // should wait for search result
         cy.intercept({
@@ -69,7 +73,7 @@ describe('Country: Test can setting VAT id field required', () => {
         cy.get('#vatIds').should('be.visible');
 
         cy.get('select[name="billingAddress[countryId]"]').select('Germany');
-        cy.get('.form-label[for="vatIds"]').contains('*');
+        cy.contains('.form-label[for="vatIds"]', '*');
 
         cy.get('.register-submit [type="submit"]').click();
         cy.get('[name="vatIds[]"]:invalid').should('be.visible');

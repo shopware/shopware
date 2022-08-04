@@ -217,7 +217,7 @@ class HreflangLoader implements HreflangLoaderInterface
     }
 
     /**
-     * @param string[] $languageIds
+     * @param array<string> $languageIds
      *
      * @return list<array{seoPathInfo: string, languageId: string}>
      */

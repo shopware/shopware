@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed
+ */
 class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
 {
     /**
@@ -34,19 +36,6 @@ class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
      */
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $affectedPaymentMethods = $this->search(new Criteria(array_column($ids, 'id')), $context);
-
-        if ($affectedPaymentMethods->count() === 0) {
-            return $this->innerRepo->delete($ids, $context);
-        }
-
-        /** @var PaymentMethodEntity $entity */
-        foreach ($affectedPaymentMethods->getEntities() as $entity) {
-            if ($entity->getPluginId()) {
-                throw new PluginPaymentMethodsDeleteRestrictionException();
-            }
-        }
-
         return $this->innerRepo->delete($ids, $context);
     }
 

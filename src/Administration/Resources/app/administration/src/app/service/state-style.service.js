@@ -10,7 +10,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 export default function createStateStyleService() {
     const $store = {
         placeholder: {
-            icon: 'small-arrow-small-down',
+            icon: 'regular-chevron-down-xxs',
             iconStyle: 'sw-order-state__bg-neutral-icon',
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
@@ -20,11 +20,11 @@ export default function createStateStyleService() {
     };
 
     const $icons = {
-        neutral: 'small-arrow-small-down',
-        progress: 'small-default-circle-small',
-        warning: 'small-exclamationmark',
-        done: 'small-default-checkmark-line-small',
-        danger: 'small-default-x-line-small',
+        neutral: 'regular-chevron-down-xxs',
+        progress: 'regular-circle-xxs',
+        warning: 'regular-exclamation-s',
+        done: 'regular-checkmark-xxs',
+        danger: 'regular-times-xs',
     };
 
     const $colors = {

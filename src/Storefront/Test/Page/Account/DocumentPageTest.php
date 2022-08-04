@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Storefront\Page\Account\Document\DocumentPage;
@@ -24,7 +25,7 @@ class DocumentPageTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
+        Feature::skipTestIfActive('v6.5.0.0', $this);
     }
 
     public function testPageLoadsFailWithoutValidDeepLinkCode(): void
@@ -51,8 +52,8 @@ class DocumentPageTest extends TestCase
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 
@@ -94,8 +95,8 @@ class DocumentPageTest extends TestCase
         $request = new Request([], [], [], [], [], [], $expectedFileContent);
         $request->query->set('fileName', $fileName);
         $request->server->set('HTTP_CONTENT_TYPE', $expectedContentType);
-        $request->server->set('HTTP_CONTENT_LENGTH', mb_strlen($expectedFileContent));
-        $request->headers->set('content-length', mb_strlen($expectedFileContent));
+        $request->server->set('HTTP_CONTENT_LENGTH', (string) mb_strlen($expectedFileContent));
+        $request->headers->set('content-length', (string) mb_strlen($expectedFileContent));
 
         $request->query->set('extension', 'txt');
 

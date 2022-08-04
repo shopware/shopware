@@ -6,19 +6,24 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/extension/my-extensions/listing/`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
             });
     });
-    it('@sdk: add main module', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
 
+    it('@sdk: add main module', ()=> {
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
-        cy.get('.sw-meteor-page__smart-bar-title')
-            .contains('My extensions');
+        cy.contains('.sw-meteor-page__smart-bar-title', 'My extensions');
         cy.get('.sw-skeleton')
             .should('not.exist');
         cy.get('.sw-loader')
@@ -27,20 +32,16 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-meteor-card__content-wrapper > .sw-context-button > .sw-context-button__button')
             .click();
 
-        cy.get('.sw-context-menu__content')
-            .contains('Open extension')
+        cy.get('.sw-context-menu__content').contains('Open extension')
             .click();
 
-        cy.get('.smart-bar__content')
-            .contains('My App');
+        cy.contains('.smart-bar__content', 'My App');
     });
-    it('@sdk: check main module with searchbar', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
 
+    it('@sdk: check main module with searchbar', ()=> {
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
-        cy.get('.sw-meteor-page__smart-bar-title')
-            .contains('My extensions');
+        cy.contains('.sw-meteor-page__smart-bar-title', 'My extensions');
         cy.get('.sw-skeleton')
             .should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -48,15 +49,12 @@ describe('Category: SDK Test', ()=> {
         cy.get('.navigation-list-item__sw-extension')
             .click();
 
-        cy.get('.sw-admin-menu__navigation-list-item')
-            .contains('Store');
+        cy.contains('.sw-admin-menu__navigation-list-item', 'Store');
 
-        cy.get('.navigation-list-item__type-plugin')
-            .contains('Test with searchbar')
+        cy.get('.navigation-list-item__type-plugin').contains('Test with searchbar')
             .click();
 
-        cy.get('.smart-bar__content')
-            .contains('Test with searchbar');
+        cy.contains('.smart-bar__content', 'Test with searchbar');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item-with-searchbar')
             .should('be.visible');

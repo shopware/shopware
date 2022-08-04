@@ -15,6 +15,9 @@ class ExceptionHandlerRegistry
      */
     protected $exceptionHandlers = [];
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $exceptionHandlers)
     {
         foreach ($exceptionHandlers as $exceptionHandler) {

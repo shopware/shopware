@@ -10,6 +10,8 @@ describe('Media: Dissolve folder', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,7 +28,7 @@ describe('Media: Dissolve folder', () => {
         );
 
         // Upload image in folder
-        cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
+        cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
         cy.setEntitySearchable('media', ['fileName', 'title']);
         // Upload medium
         cy.clickContextMenuItem(

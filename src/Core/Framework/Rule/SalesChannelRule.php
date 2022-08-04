@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+
 class SalesChannelRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>|null
      */
     protected $salesChannelIds;
 
@@ -16,6 +18,8 @@ class SalesChannelRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $salesChannelIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
     {
@@ -41,5 +45,12 @@ class SalesChannelRule extends Rule
     public function getName(): string
     {
         return 'salesChannel';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('salesChannelIds', SalesChannelDefinition::ENTITY_NAME, true);
     }
 }

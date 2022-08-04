@@ -143,6 +143,15 @@ export default {
             state.apiContext = apiContext;
         },
 
+        setCustomFields(state, fieldSet) {
+            state.customFieldSets = state.customFieldSets.map(set => {
+                if (set.id === fieldSet.id) {
+                    return fieldSet;
+                }
+                return set;
+            });
+        },
+
         setLocalMode(state, value) {
             state.localMode = value;
         },

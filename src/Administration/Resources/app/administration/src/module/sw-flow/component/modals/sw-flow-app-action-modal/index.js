@@ -34,11 +34,21 @@ Component.register('sw-flow-app-action-modal', {
         },
 
         appBadge() {
-            return this.sequence?.propsAppFlowAction?.badge;
+            return this.sequence?.propsAppFlowAction?.app?.label;
         },
 
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
+        },
+
+        headline() {
+            return this.sequence?.propsAppFlowAction?.translated?.headline
+                || this.sequence?.propsAppFlowAction?.headline;
+        },
+
+        paragraph() {
+            return this.sequence?.propsAppFlowAction?.translated?.description
+                || this.sequence?.propsAppFlowAction?.description;
         },
     },
 

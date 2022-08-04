@@ -17,6 +17,8 @@ describe('Minimal auto update', () => {
 
         cy.login();
         cy.visit('/admin#/sw/cms/index');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-cms-list-item', 'Beste Produkte Landingpage').click();
         cy.get('.sw-loader').should('not.exist');

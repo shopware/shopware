@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
@@ -69,40 +68,6 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/change-email",
-     *      summary="Change the customer's email address",
-     *      description="Changes a customer's email address to a new email address, using their current password as a validation.",
-     *      operationId="changeEmail",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "email",
-     *                  "emailConfirmation",
-     *                  "password"
-     *              },
-     *              @OA\Property(
-     *                  property="email",
-     *                  description="New email address. Has to be unique amongst all customers",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="emailConfirmation",
-     *                  description="Confirmation of the new email address.",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="password",
-     *                  description="Customer's current password",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/account/change-email", name="store-api.account.change-email", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

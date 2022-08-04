@@ -26,7 +26,7 @@ class NavigationControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -79,6 +79,6 @@ class NavigationControllerTest extends TestCase
             'parentId' => $salesChannel->getNavigationCategoryId(),
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], $this->ids->context);
+        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

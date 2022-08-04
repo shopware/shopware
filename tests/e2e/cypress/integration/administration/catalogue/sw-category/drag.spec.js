@@ -35,6 +35,8 @@ describe('Category: Test drag categories', () => {
             })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

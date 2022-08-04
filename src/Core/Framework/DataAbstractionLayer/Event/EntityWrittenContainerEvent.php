@@ -14,6 +14,8 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     protected $context;
 
+    protected bool $cloned = false;
+
     /**
      * @var NestedEventCollection
      */
@@ -56,58 +58,18 @@ class EntityWrittenContainerEvent extends NestedEvent
         return null;
     }
 
-    public static function createWithWrittenEvents(array $identifiers, Context $context, array $errors): self
+    public static function createWithWrittenEvents(array $identifiers, Context $context, array $errors, bool $cloned = false): self
     {
-        $events = new NestedEventCollection();
+        $event = self::createEvents($identifiers, $context, $errors, EntityWrittenEvent::class);
 
-        /** @var EntityWriteResult[] $entityWrittenResults */
-        foreach ($identifiers as $entityWrittenResults) {
-            if (\count($entityWrittenResults) === 0) {
-                continue;
-            }
+        $event->setCloned($cloned);
 
-            $writtenEvent = current($entityWrittenResults);
-
-            $entityName = $writtenEvent->getEntityName();
-
-            $events->add(
-                new EntityWrittenEvent(
-                    $entityName,
-                    $entityWrittenResults,
-                    $context,
-                    $errors
-                )
-            );
-        }
-
-        return new self($context, $events, $errors);
+        return $event;
     }
 
     public static function createWithDeletedEvents(array $identifiers, Context $context, array $errors): self
     {
-        $events = new NestedEventCollection();
-
-        /** @var EntityWriteResult[] $data */
-        foreach ($identifiers as $data) {
-            if (\count($data) === 0) {
-                continue;
-            }
-
-            $deleteEvent = current($data);
-
-            $entityName = $deleteEvent->getEntityName();
-
-            $events->add(
-                new EntityDeletedEvent(
-                    $entityName,
-                    $data,
-                    $context,
-                    $errors
-                )
-            );
-        }
-
-        return new self($context, $events, $errors);
+        return self::createEvents($identifiers, $context, $errors, EntityDeletedEvent::class);
     }
 
     /**
@@ -185,6 +147,37 @@ class EntityWrittenContainerEvent extends NestedEvent
 
             return false;
         });
+    }
+
+    public function isCloned(): bool
+    {
+        return $this->cloned;
+    }
+
+    public function setCloned(bool $cloned): void
+    {
+        $this->cloned = $cloned;
+    }
+
+    private static function createEvents(array $identifiers, Context $context, array $errors, string $event): self
+    {
+        $events = new NestedEventCollection();
+
+        /** @var EntityWriteResult[] $data */
+        foreach ($identifiers as $data) {
+            if (\count($data) === 0) {
+                continue;
+            }
+
+            $first = current($data);
+
+            /** @var NestedEvent $instance */
+            $instance = new $event($first->getEntityName(), $data, $context, $errors);
+
+            $events->add($instance);
+        }
+
+        return new self($context, $events, $errors);
     }
 
     private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array

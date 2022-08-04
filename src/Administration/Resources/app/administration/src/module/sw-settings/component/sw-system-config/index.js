@@ -47,6 +47,7 @@ Component.register('sw-system-config', {
             config: {},
             actualConfigData: {},
             salesChannelModel: null,
+            hasCssFields: false,
         };
     },
 
@@ -103,6 +104,15 @@ Component.register('sw-system-config', {
         },
         async readConfig() {
             this.config = await this.systemConfigApiService.getConfig(this.domain);
+            this.config.every((card) => {
+                return card?.elements.every((field) => {
+                    if (field?.config?.css) {
+                        this.hasCssFields = true;
+                        return false;
+                    }
+                    return true;
+                });
+            });
         },
         readAll() {
             this.isLoading = true;
@@ -182,6 +192,10 @@ Component.register('sw-system-config', {
 
             if (element.type === 'text-editor') {
                 bind.config.componentName = 'sw-text-editor';
+            }
+
+            if (bind.config.css && bind.config.helpText === undefined) {
+                bind.config.helpText = this.$tc('sw-settings.system-config.scssHelpText') + element.config.css;
             }
 
             return bind;

@@ -8,6 +8,8 @@ describe('Category: Create several categories', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -37,7 +39,7 @@ describe('Category: Create several categories', () => {
             } else {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
-            cy.get(`${page.elements.categoryTreeItemInner}:nth-child(2)`).contains('Categorian');
+            cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(2)`, 'Categorian');
         });
     });
 
@@ -68,7 +70,7 @@ describe('Category: Create several categories', () => {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Categorian');
     });
 
     it('@catalogue: delete additional element after create category', () => {
@@ -146,7 +148,7 @@ describe('Category: Create several categories', () => {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Categorian');
         cy.contains('Categorian').click();
 
         // Assign category and set it active
@@ -191,12 +193,10 @@ describe('Category: Create several categories', () => {
             }
         });
 
-        cy.get('.sw-tree-item__label')
-            .contains('Categorian')
-            .click();
+        cy.contains('.sw-tree-item__label', 'Categorian').click();
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible').click();
-        cy.get('.sw-category-layout-card__desc-headline').contains('Default listing layout');
-        cy.get('.sw-category-layout-card__desc-subheadline').contains('Listing page');
+        cy.contains('.sw-category-layout-card__desc-headline', 'Default listing layout');
+        cy.contains('.sw-category-layout-card__desc-subheadline', 'Listing page');
     });
 });

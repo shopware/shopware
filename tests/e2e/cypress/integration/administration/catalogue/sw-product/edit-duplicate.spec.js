@@ -10,6 +10,8 @@ describe('Product: Duplicate product', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -39,9 +41,9 @@ describe('Product: Duplicate product', () => {
         cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
         cy.get('.smart-bar__content').should('be.visible');
-        cy.get('.smart-bar__header').contains('Product name Copy');
+        cy.contains('.smart-bar__header', 'Product name Copy');
         cy.contains('.sw-button', 'Cancel').click();
-        cy.get('.sw-page__smart-bar-amount').contains('2');
+        cy.contains('.sw-page__smart-bar-amount', '2');
     });
 
     it('@base @catalogue: duplicate product in product-detail', () => {
@@ -197,8 +199,8 @@ describe('Product: Duplicate product', () => {
 
         cy.contains('Cancel').click();
         cy.get('.sw-data-grid').should('be.visible');
-        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch Copy Copy');
-        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch Copy');
-        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch');
+        cy.contains('.sw-data-grid__cell--name', 'What remains of Edith Finch Copy Copy');
+        cy.contains('.sw-data-grid__cell--name', 'What remains of Edith Finch Copy');
+        cy.contains('.sw-data-grid__cell--name', 'What remains of Edith Finch');
     });
 });

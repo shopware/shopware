@@ -1,0 +1,75 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductListingResult": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/EntitySearchResult"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "currentFilters": {
+                                "type": "object",
+                                "description": "Contains the state of the filters. These can be used to create listing filters.",
+                                "properties": {
+                                    "navigationId": {
+                                        "type": "string"
+                                    },
+                                    "manufacturer": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "price": {
+                                        "type": "object",
+                                        "properties": {
+                                            "min": {
+                                                "type": "integer"
+                                            },
+                                            "max": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "rating": {
+                                        "type": "integer"
+                                    },
+                                    "shipping-free": {
+                                        "type": "boolean"
+                                    },
+                                    "properties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            },
+                            "availableSortings": {
+                                "type": "array",
+                                "description": "Contains the available sorting. These can be used to show a sorting select-box in the product listing.",
+                                "items": {
+                                    "type": "object"
+                                }
+                            },
+                            "sorting": {
+                                "type": "string"
+                            },
+                            "elements": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#\/components\/schemas\/Product"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

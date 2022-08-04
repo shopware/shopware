@@ -60,6 +60,8 @@ describe('Product: Sort grid', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -72,7 +74,7 @@ describe('Product: Sort grid', () => {
 
         // open context menu and display pound
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
-        cy.get('.sw-data-grid__settings-item--9 .sw-field--checkbox').contains('Pound');
+        cy.contains('.sw-data-grid__settings-item--9 .sw-field--checkbox', 'Pound');
         cy.get('.sw-data-grid__settings-item--9 .sw-field--checkbox').click();
 
         // close context menu
@@ -88,14 +90,14 @@ describe('Product: Sort grid', () => {
 
         // check product order
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.get('.sw-data-grid__cell--9').contains('Pound');
+        cy.contains('.sw-data-grid__cell--9', 'Pound');
 
         // check order when pound arrow is up
         cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-        cy.get('.icon--small-arrow-small-up').should('be.visible');
+        cy.get('.icon--regular-chevron-up-xxs').should('be.visible');
 
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Original product');
-        cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Second product');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Original product');
+        cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--name', 'Second product');
 
         // sort products by gbp
         cy.get('.sw-data-grid__cell--9').click({ force: true });
@@ -104,13 +106,13 @@ describe('Product: Sort grid', () => {
         cy.wait('@search').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.get('.sw-data-grid__cell--9').contains('Pound');
+        cy.contains('.sw-data-grid__cell--9', 'Pound');
 
         // check order when pound arrow is down
         cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-        cy.get('.icon--small-arrow-small-down').should('be.visible');
+        cy.get('.icon--regular-chevron-down-xxs').should('be.visible');
 
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Second product');
-        cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Original product');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Second product');
+        cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--name', 'Original product');
     });
 });

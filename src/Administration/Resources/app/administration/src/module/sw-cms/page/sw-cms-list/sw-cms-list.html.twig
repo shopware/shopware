@@ -121,12 +121,12 @@
                     >
                         <sw-icon
                             v-if="listMode === 'grid'"
-                            name="default-view-normal"
+                            name="regular-view-normal"
                             size="16"
                         />
                         <sw-icon
                             v-if="listMode === 'list'"
-                            name="default-view-grid"
+                            name="regular-view-grid"
                             size="16"
                         />
                     </div>
@@ -267,7 +267,7 @@
                                 <template #column-name="{ item }">
                                     <sw-icon
                                         v-if="item.locked"
-                                        name="default-lock-closed"
+                                        name="regular-lock"
                                         class="sw-cms-list__icon-lock"
                                         size="14"
                                     />

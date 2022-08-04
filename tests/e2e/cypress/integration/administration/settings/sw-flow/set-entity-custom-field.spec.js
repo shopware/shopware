@@ -53,6 +53,8 @@ describe('Flow builder: set entity custom field testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -61,7 +63,7 @@ describe('Flow builder: set entity custom field testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Order placed v1');
@@ -90,17 +92,17 @@ describe('Flow builder: set entity custom field testing', () => {
         cy.contains('.sw-select-option--0', 'my_custom_text_field').click();
 
         cy.get('.sw-flow-set-entity-custom-field-modal__custom-field-value').should('be.visible');
-        cy.get('.sw-flow-set-entity-custom-field-modal__custom-field-value .sw-field__label').contains('my_custom_text_field');
+        cy.contains('.sw-flow-set-entity-custom-field-modal__custom-field-value .sw-field__label', 'my_custom_text_field');
         cy.get('.sw-flow-set-entity-custom-field-modal__custom-field-value').type('my custom value');
 
         cy.get('.sw-flow-set-entity-custom-field-modal__save-button').click();
 
-        cy.get('.sw-flow-sequence-action__action-name').contains('Change custom field content');
+        cy.contains('.sw-flow-sequence-action__action-name', 'Change custom field content');
         cy.get('.sw-flow-sequence-action__action-description').should('be.visible');
     });
 
     // NEXT-19144: Fix dependency on previous test case
-    it.skip('@settings: set entity custom field test field option', () => {
+    it('@settings: set entity custom field test field option', { tags: ['quarantined'] }, () => {
         cy.get('.sw-flow-sequence-action__actions').should('be.visible');
         cy.get('.sw-flow-sequence-action__add-button').click();
 
@@ -141,12 +143,12 @@ describe('Flow builder: set entity custom field testing', () => {
 
         cy.get('.sw-flow-set-entity-custom-field-modal__save-button').click();
 
-        cy.get('.sw-flow-sequence-action__action-name').contains('Change custom field content');
+        cy.contains('.sw-flow-sequence-action__action-name', 'Change custom field content');
         cy.get('.sw-flow-sequence-action__action-description').should('be.visible');
     });
 
     // NEXT-19144: Fix dependency on previous test case
-    it.skip('@settings: test fields are invalid', () => {
+    it('@settings: test fields are invalid', { tags: ['quarantined'] }, () => {
         cy.get('.sw-flow-sequence-action__actions').should('be.visible');
         cy.get('.sw-flow-sequence-action__add-button').click();
 
@@ -157,7 +159,7 @@ describe('Flow builder: set entity custom field testing', () => {
         cy.get('.sw-flow-set-entity-custom-field-modal__save-button').click();
 
         cy.get('.has--error').should('be.visible');
-        cy.get('.sw-field__error').contains('This field must not be empty.');
+        cy.contains('.sw-field__error', 'This field must not be empty.');
 
         cy.get('.sw-flow-set-entity-custom-field-modal__custom-field-set .sw-entity-single-select__selection').type('My custom field');
         cy.get('.sw-select-result').should('be.visible');
@@ -167,6 +169,6 @@ describe('Flow builder: set entity custom field testing', () => {
         cy.get('.sw-flow-set-entity-custom-field-modal__save-button').click();
 
         cy.get('.has--error').should('be.visible');
-        cy.get('.sw-field__error').contains('This field must not be empty.');
+        cy.contains('.sw-field__error', 'This field must not be empty.');
     });
 });

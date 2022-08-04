@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -171,10 +172,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->modify('-1 day'));
+            ->willReturn($datetime->modify('-1 day'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -187,7 +193,12 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
-        $dateTime = (self::getTestTimestamp())->setTime(11, 59);
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
+        $dateTime = $datetime->setTime(11, 59);
         $orderDate = clone $dateTime;
         $orderDate->modify('-1 day +1 minute');
 
@@ -207,10 +218,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->setTime(0, 0));
+            ->willReturn($datetime->setTime(0, 0));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -223,10 +239,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->setTime(23, 59));
+            ->willReturn($datetime->setTime(23, 59));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -239,10 +260,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->modify('-1 day')->modify('+1 minute'));
+            ->willReturn($datetime->modify('-1 day')->modify('+1 minute'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -255,10 +281,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->modify('-1 day')->modify('-1 minute'));
+            ->willReturn($datetime->modify('-1 day')->modify('-1 minute'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -271,10 +302,15 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
+
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((self::getTestTimestamp())->modify('-30 minutes'));
+            ->willReturn($datetime->modify('-30 minutes'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -334,6 +370,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             $defaultContext
         );
 
+        static::assertNotNull($result->first());
         static::assertSame(1, $result->first()->getOrderCount());
         static::assertNotNull($result->first()->getLastOrderDate());
     }
@@ -367,15 +404,19 @@ class DaysSinceLastOrderRuleTest extends TestCase
     /**
      * @dataProvider getMatchValues
      */
-    public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTime $day): void
+    public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTime $day, bool $noCustomer = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
+        $customer->method('getLastOrderDate')
+            ->willReturn($day);
+
+        if ($noCustomer) {
+            $customer = null;
+        }
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($day);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['daysPassed' => $daysPassed, 'operator' => $operator]);
 
@@ -387,28 +428,42 @@ class DaysSinceLastOrderRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public function getMatchValues(): \Traversable
     {
-        $dayTest = self::getTestTimestamp()->modify('-30 minutes');
+        $datetime = self::getTestTimestamp();
+        if (!$datetime instanceof \DateTime) {
+            throw new \Error();
+        }
 
-        return [
-            'operator_oq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest],
-            'operator_oq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest],
-            'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest],
-            'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest],
-            'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest],
-            'operator_lte_lt / match / day passed/ day ' => [Rule::OPERATOR_LTE, true, 1,  $dayTest],
-            'operator_lte_e / match / day passed/ day ' => [Rule::OPERATOR_LTE, true, 0, $dayTest],
-            'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest],
-            'operator_gte_gt / match / day passed / day' => [Rule::OPERATOR_GTE, true, -1, $dayTest],
-            'operator_gte_e / match / day passed / day' => [Rule::OPERATOR_GTE, true, 0, $dayTest],
-            'operator_lt / not match / day passed / day' => [Rule::OPERATOR_LT, false, 0, $dayTest],
-            'operator_lt / match / day passed / day' => [Rule::OPERATOR_LT, true, 1,  $dayTest],
-            'operator_gt / not match / day passed / day' => [Rule::OPERATOR_GT, false, 1, $dayTest],
-            'operator_gt / match / day passed / day' => [Rule::OPERATOR_GT, true, -1, $dayTest],
-            'operator_empty / not match / day passed/ day' => [Rule::OPERATOR_EMPTY, false, 0, $dayTest],
-            'operator_empty / match / day passed / day' => [Rule::OPERATOR_EMPTY, true, 0, null],
-        ];
+        $dayTest = $datetime->modify('-30 minutes');
+
+        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest];
+        yield 'operator_eq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest];
+        yield 'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest];
+        yield 'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest];
+        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest];
+        yield 'operator_lte_lt / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 1,  $dayTest];
+        yield 'operator_lte_e / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 0, $dayTest];
+        yield 'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest];
+        yield 'operator_gte_gt / match / day passed / day' => [Rule::OPERATOR_GTE, true, -1, $dayTest];
+        yield 'operator_gte_e / match / day passed / day' => [Rule::OPERATOR_GTE, true, 0, $dayTest];
+        yield 'operator_lt / not match / day passed / day' => [Rule::OPERATOR_LT, false, 0, $dayTest];
+        yield 'operator_lt / match / day passed / day' => [Rule::OPERATOR_LT, true, 1,  $dayTest];
+        yield 'operator_gt / not match / day passed / day' => [Rule::OPERATOR_GT, false, 1, $dayTest];
+        yield 'operator_gt / match / day passed / day' => [Rule::OPERATOR_GT, true, -1, $dayTest];
+        yield 'operator_empty / not match / day passed/ day' => [Rule::OPERATOR_EMPTY, false, 0, $dayTest];
+        yield 'operator_empty / match / day passed / day' => [Rule::OPERATOR_EMPTY, true, 0, null];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 0, $dayTest, true];
+            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 0, $dayTest, true];
+
+            return;
+        }
+
+        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, 0, $dayTest, true];
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 0, $dayTest, true];
+        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 0, $dayTest, true];
     }
 
     private function createRealTestScope(): CheckoutRuleScope

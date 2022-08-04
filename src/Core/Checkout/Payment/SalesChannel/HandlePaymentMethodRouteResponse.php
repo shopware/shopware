@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class HandlePaymentMethodRouteResponse extends StoreApiResponse
 {
     /**
-     * @var ArrayStruct
+     * @var ArrayStruct<string, mixed>
      */
     protected $object;
 

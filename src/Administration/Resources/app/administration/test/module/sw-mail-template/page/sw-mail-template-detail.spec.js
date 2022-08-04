@@ -124,18 +124,18 @@ const createWrapper = (privileges = []) => {
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
             'sw-icon': Shopware.Component.build('sw-icon'),
-            'icons-small-copy': {
+            'icons-regular-products-s': {
                 template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
             },
             'sw-tree': Shopware.Component.build('sw-tree'),
             'sw-tree-item': Shopware.Component.build('sw-tree-item'),
             'sw-tree-input-field': Shopware.Component.build('sw-tree-input-field'),
             'sw-confirm-field': true,
-            'icons-small-arrow-small-right': true,
+            'icons-regular-chevron-right-xxs': true,
             'sw-loader': true,
             'icons-multicolor-folder-tree': true,
             'sw-vnode-renderer': true,
-            'icons-small-arrow-small-down': true,
+            'icons-regular-chevron-down-xxs': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
@@ -324,7 +324,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         wrapper.setData({ mailTemplate: mailTemplateTypeMock });
 
-        const sidebarItem = wrapper.find('[icon=default-eye-open]');
+        const sidebarItem = wrapper.find('[icon=regular-eye]');
 
         expect(sidebarItem.attributes().disabled).toBeTruthy();
     });
@@ -481,7 +481,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         };
 
         await wrapper.vm.$nextTick();
-        const icon = await wrapper.find('.icon--small-arrow-small-right');
+        const icon = await wrapper.find('.icon--regular-chevron-right-xxs');
         icon.trigger('click');
 
         expect(spyIsToManyAssociationVariable).toHaveBeenCalled();

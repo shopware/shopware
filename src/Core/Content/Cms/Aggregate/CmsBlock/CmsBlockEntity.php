@@ -99,6 +99,11 @@ class CmsBlockEntity extends Entity
      */
     protected $locked;
 
+    /**
+     * @var string|null
+     */
+    protected $cmsSectionVersionId;
+
     public function getType(): string
     {
         return $this->type;
@@ -267,5 +272,15 @@ class CmsBlockEntity extends Entity
     public function setLocked(bool $locked): void
     {
         $this->locked = $locked;
+    }
+
+    public function getCmsSectionVersionId(): ?string
+    {
+        return $this->cmsSectionVersionId;
+    }
+
+    public function setCmsSectionVersionId(?string $cmsSectionVersionId): void
+    {
+        $this->cmsSectionVersionId = $cmsSectionVersionId;
     }
 }

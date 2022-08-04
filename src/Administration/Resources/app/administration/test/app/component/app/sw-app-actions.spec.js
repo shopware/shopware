@@ -21,13 +21,13 @@ const stubs = {
     'sw-context-menu': Shopware.Component.build('sw-context-menu'),
     'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
     'sw-button': Shopware.Component.build('sw-button'),
-    'icons-small-more': {
-        template: '<span class="sw-icon sw-icon--default-action-external"></span>'
+    'icons-solid-ellipsis-h-s': {
+        template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>'
     },
     'sw-popover': Shopware.Component.build('sw-popover'),
     'sw-modal': true,
-    'icons-small-default-x-line-medium': {
-        template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+    'icons-regular-times-s': {
+        template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
     }
 };
 

@@ -40,11 +40,13 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open property without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-property-list').should('not.exist');
 
         // see menu without property menu item
@@ -61,12 +63,13 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
         cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--firstName')
-            .contains('Eroni')
+            .contains('.sw-data-grid__cell--firstName', 'Eroni')
             .click();
 
         // check customer values
@@ -92,12 +95,13 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
         cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--firstName')
-            .contains('Eroni')
+            .contains('.sw-data-grid__cell--firstName', 'Eroni')
             .click();
 
         // Verify updated product
@@ -111,8 +115,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.wait('@saveCustomer').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--firstName`)
-            .contains('Rika');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--firstName`, 'Rika');
     });
 
     it('@customer: can create customer', () => {
@@ -137,6 +140,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Add customer group
@@ -191,6 +196,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open customer
@@ -199,8 +206,8 @@ describe('Customer: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-customer-list__confirm-delete-text`)
-            .contains('Are you sure you want to delete the customer "Pep Eroni"?');
+        cy.contains(`${page.elements.modal} .sw-customer-list__confirm-delete-text`,
+            'Are you sure you want to delete the customer "Pep Eroni"?');
 
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
@@ -232,6 +239,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-customer-base-form__account-type-select')
@@ -264,7 +273,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.wait('@checkEmailValid')
             .its('response.statusCode').should('equal', 400);
 
-        cy.get('.sw-field--email .sw-field__error').contains('The email address test@example.com is already in use');
+        cy.contains('.sw-field--email .sw-field__error', 'The email address test@example.com is already in use');
     });
 
     it('@customer: cannot edit customer with duplicate email', () => {
@@ -284,6 +293,8 @@ describe('Customer: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-customer-base-form__account-type-select')
@@ -322,8 +333,7 @@ describe('Customer: Test ACL privileges', () => {
 
         // open customer
         cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--firstName')
-            .contains('Eroni')
+            .contains('.sw-data-grid__cell--firstName', 'Eroni')
             .click();
 
         // Verify updated product
@@ -336,6 +346,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.wait('@checkEmailValid')
             .its('response.statusCode').should('equal', 400);
 
-        cy.get('.sw-field--email .sw-field__error').contains('The email address test1@example.com is already in use');
+        cy.contains('.sw-field--email .sw-field__error',
+            'The email address test1@example.com is already in use');
     });
 });

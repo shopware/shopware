@@ -30,6 +30,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -40,8 +42,8 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         cy.wait('@getCustomField')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title')
-            .contains('No searchable content added yet.');
+        cy.contains('.sw-settings-search__searchable-content-customfields .sw-empty-state__title',
+            'No searchable content added yet.');
         cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
         cy.get('.sw-settings-search__searchable-content-add-button').click();
 
@@ -92,6 +94,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
@@ -164,6 +168,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         }).as('getData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

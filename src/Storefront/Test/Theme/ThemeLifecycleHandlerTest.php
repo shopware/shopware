@@ -74,7 +74,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWillRecompileThemeIfNecessary(): void
     {
-        $installConfig = $this->configFactory->createFromBundle(new SimplePlugin());
+        $installConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
@@ -145,7 +145,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeUninstallWillRecompileThemeIfNecessary(): void
     {
-        $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePlugin());
+        $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
@@ -155,7 +155,13 @@ class ThemeLifecycleHandlerTest extends TestCase
                 static::isInstanceOf(Context::class),
                 static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
                     // assert uninstalledConfig is not used when compiling the theme
-                    return $configs->count() === 1 && $configs->first()->getTechnicalName() === 'Storefront';
+                    return $configs->count() === 1 && (
+                        (
+                            $configs->first()
+                            ? $configs->first()->getTechnicalName()
+                            : ''
+                        ) === 'Storefront'
+                    );
                 })
             );
 
@@ -215,7 +221,10 @@ class ThemeLifecycleHandlerTest extends TestCase
         try {
             $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
         } catch (ThemeAssignmentException $e) {
-            static::assertEquals([TestDefaults::SALES_CHANNEL], array_keys($e->getAssignedSalesChannels()));
+            static::assertEquals(
+                [TestDefaults::SALES_CHANNEL],
+                array_keys($e->getAssignedSalesChannels() ?? [])
+            );
             $wasThrown = true;
         }
 

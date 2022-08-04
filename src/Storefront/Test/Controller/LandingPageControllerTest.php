@@ -25,7 +25,7 @@ class LandingPageControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -84,6 +84,6 @@ class LandingPageControllerTest extends TestCase
         ];
 
         $this->getContainer()->get('landing_page.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 }

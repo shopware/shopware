@@ -163,8 +163,8 @@ Component.register('sw-data-grid', {
             type: Function,
             required: false,
             default(item) {
-                return !this.reachMaximumSelectionExceed
-                    || Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);
+                return !this.reachMaximumSelectionExceed ||
+                    Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);
             },
         },
 

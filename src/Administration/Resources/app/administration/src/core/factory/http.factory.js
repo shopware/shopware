@@ -38,6 +38,7 @@ function createClient() {
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
+    storeSessionExpiredInterceptor(client);
     client.CancelToken = CancelToken;
 
     /**
@@ -168,6 +169,27 @@ function handleErrorStates({ status, errors, error = null, data }) {
         });
     }
 
+    if (status === 403
+        && ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'].includes(errors[0]?.code)
+    ) {
+        Shopware.State.dispatch('notification/createNotification', {
+            variant: 'warning',
+            system: true,
+            autoClose: false,
+            growl: true,
+            title: $tc('sw-extension.errors.storeSessionExpired.title'),
+            message: $tc('sw-extension.errors.storeSessionExpired.message'),
+            actions: [{
+                label: $tc('sw-extension.errors.storeSessionExpired.actionLabel'),
+                method: () => {
+                    viewRoot.$router.push({
+                        name: 'sw.extension.my-extensions.account',
+                    });
+                },
+            }],
+        });
+    }
+
     if (status === 409) {
         if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
             const parameters = errors[0].meta.parameters;
@@ -264,6 +286,46 @@ function refreshTokenInterceptor(client) {
                     reject(err);
                 });
             });
+        }
+
+        return Promise.reject(error);
+    });
+
+    return client;
+}
+
+/**
+ * Sets up an interceptor to retry store requests that previously failed because the store session has expired.
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function storeSessionExpiredInterceptor(client) {
+    const maxRetryLimit = 1;
+
+    client.interceptors.response.use((response) => {
+        return response;
+    }, (error) => {
+        const { config, response } = error;
+        const code = response.data?.errors[0]?.code;
+
+        if (config.storeSessionRequestRetries >= maxRetryLimit) {
+            return Promise.reject(error);
+        }
+
+        const errorCodes = [
+            'FRAMEWORK__STORE_SESSION_EXPIRED',
+            'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
+        ];
+
+        if (response.status === 403 && errorCodes.includes(code)) {
+            if (typeof config.storeSessionRequestRetries === 'number') {
+                config.storeSessionRequestRetries += 1;
+            } else {
+                config.storeSessionRequestRetries = 1;
+            }
+
+            return client.request(config);
         }
 
         return Promise.reject(error);

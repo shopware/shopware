@@ -18,7 +18,7 @@ Module.register('sw-mail-template', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'mail_template',
 
@@ -70,7 +70,7 @@ Module.register('sw-mail-template', {
     settingsItem: {
         group: 'shop',
         to: 'sw.mail.template.index',
-        icon: 'default-communication-envelope',
+        icon: 'regular-envelope',
         privilege: 'mail_templates.viewer',
     },
 });

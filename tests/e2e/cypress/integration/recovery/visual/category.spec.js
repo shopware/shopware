@@ -9,6 +9,8 @@ describe('Category: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -20,11 +22,14 @@ describe('Category: Visual tests', () => {
         }).as('dataRequest');
 
         cy.get('.sw-tree-item__label').first().click();
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-category-detail-base').should('be.visible');
 
         cy.wait('@dataRequest').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
+        cy.get('.sw-category-detail-base').should('be.visible');
+        cy.get('.sw-media-upload-v2__switch-mode').should('exist');
         // Change visibility of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-category-entry-point-card__navigation-list',

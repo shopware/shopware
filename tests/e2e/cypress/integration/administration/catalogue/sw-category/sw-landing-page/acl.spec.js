@@ -57,6 +57,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for duplicate landing page
         cy.intercept({
@@ -85,7 +87,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Verify duplicate
         cy.wait('@duplicateData')
             .its('response.statusCode').should('equal', 200);
-        cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Testingpage Copy');
+        cy.contains(`${page.elements.categoryTreeItem}:nth-child(2)`, 'Testingpage Copy');
     });
 
     it('@catalogue: can create landing pages', () => {
@@ -109,6 +111,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for save landing page
         cy.intercept({
@@ -157,6 +161,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for loading landing pages
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
@@ -169,7 +175,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.wait('@loadLandingPages');
 
         // Expect empty state
-        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.contains('.sw-empty-state__title', 'No category selected');
 
         // Click on the first landing page to view details
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
@@ -196,6 +202,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for update landing page
         cy.intercept({
@@ -214,7 +222,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.wait('@loadLandingPages');
 
         // Expect empty screen
-        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.contains('.sw-empty-state__title', 'No category selected');
 
         // Open landing page for edit
         cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
@@ -258,6 +266,8 @@ describe('Landing pages: Test ACL privileges', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request for delete landing page
         cy.intercept({
@@ -286,8 +296,7 @@ describe('Landing pages: Test ACL privileges', () => {
         // Expect delete modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw_tree__confirm-delete-text')
-            .contains('Testingpage');
+        cy.contains('.sw_tree__confirm-delete-text', 'Testingpage');
 
         cy.get('.sw-modal__footer > .sw-button--danger > .sw-button__content')
             .should('not.be.disabled')

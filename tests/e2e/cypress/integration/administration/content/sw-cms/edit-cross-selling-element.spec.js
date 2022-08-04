@@ -36,6 +36,8 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -59,6 +61,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-data-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('First product').click();
 
         cy.get('.sw-tabs').should('exist');
@@ -81,7 +84,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-select-option--1').should('not.exist');
         cy.contains('.sw-select-option--0', 'Second product').click();
         cy.get('.sw-card__title').click();
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Second product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Second product');
 
         // Add more products to cross selling
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Third Product');
@@ -89,13 +92,15 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-select-option--1').should('not.exist');
         cy.contains('.sw-select-option--0', 'Third product').click();
         cy.get('.sw-card__title').click();
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Third product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Third product');
 
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').its('response.statusCode').should('equal', 200);
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-cms-list-item--0').click();
 
@@ -131,14 +136,16 @@ describe('CMS: Check usage and editing of cross selling element', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
@@ -148,7 +155,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.product-cross-selling-tab-navigation')
             .scrollIntoView()
             .should('be.visible');
-        cy.get('.product-detail-tab-navigation-link.active').contains('You may like it');
+        cy.contains('.product-detail-tab-navigation-link.active', 'You may like it');
         cy.get('.product-slider-item .product-name[title="Second product"]')
             .should('be.visible');
         cy.get('.product-slider-item .product-name[title="Third product"]')
@@ -171,17 +178,35 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             method: 'POST'
         }).as('saveProductData');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product-cross-selling/*/assigned-products`,
+            method: 'POST'
+        }).as('productCrossSelling');
+
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-data-grid').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('First product').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-tabs').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-product-detail__tab-cross-selling').realHover().click();
+        cy.get('.sw-loader').should('not.exist');
+
+        if (Cypress.isBrowser('chrome')) {
+            cy.get('.sw-product-detail__tab-cross-selling').realHover();
+        }
+        cy.get('.sw-product-detail__tab-cross-selling').click();
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('input[name="sw-field--crossSelling-active"]').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Fill in cross selling form
         cy.get('#sw-field--crossSelling-type').select('Manual selection');
@@ -191,29 +216,49 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.wait('@productCrossSelling').its('response.statusCode').should('equal', 200);
+
         // Add products to cross selling
+        cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').click();
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Second product');
         cy.get('.sw-select-result').should('be.visible');
         cy.get('.sw-select-option--1').should('not.exist');
         cy.contains('.sw-select-option--0', 'Second product').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-card__title').click();
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Second product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Second product');
 
         // Add more products to cross selling
+        cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').click();
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Third product');
         cy.get('.sw-select-result').should('be.visible');
         cy.get('.sw-select-option--1').should('not.exist');
         cy.contains('.sw-select-option--0', 'Third product').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-card__title').click();
-        cy.get('.sw-data-grid__cell--product-translated-name').contains('Third product');
+        cy.contains('.sw-data-grid__cell--product-translated-name', 'Third product');
 
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-cms-list-item--0').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Add text block
         cy.get('.sw-cms-section__empty-stage').click();
@@ -238,10 +283,14 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
@@ -249,10 +298,12 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
+        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify layout in Storefront
         cy.visit('/');

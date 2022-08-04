@@ -7,6 +7,8 @@ describe('Salutation: crud salutations', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -50,7 +52,7 @@ describe('Salutation: crud salutations', () => {
 
         // assert salutations list is exists and contains new salutation in list
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Ms');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Ms').should('be.visible');
     });
 
     it('@settings: can edit a salutation', () => {
@@ -85,7 +87,7 @@ describe('Salutation: crud salutations', () => {
 
         // assert salutations list is exists and contains salutation which was edited before in list
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Dear Boss');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
     it('@settings: can delete a salutation', () => {
@@ -114,7 +116,7 @@ describe('Salutation: crud salutations', () => {
 
         // assert that confirmation modal appears
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body').contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
 
         // do deleting action
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();

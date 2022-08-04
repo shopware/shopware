@@ -9,6 +9,8 @@ describe('Basic information: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,7 +28,9 @@ describe('Basic information: Visual testing', () => {
         cy.get('a[href="#/sw/settings/basic/information/index"]').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-card__title').contains('Basic information');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('.sw-card__title', 'Basic information');
         cy.get('.sw-loader').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Basic information] Details', '.sw-settings-basic-information', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

@@ -9,7 +9,7 @@
     "homepage": "http://www.shopware.com",
     "license": "MIT",
     "autoload": {
-        "files":[
+        "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
             "Framework/Adapter/Twig/functions.php"
         ],
@@ -61,11 +61,13 @@
         "doctrine/dbal": "~2.13.8",
         "doctrine/inflector": "~1.4.4",
         "shopwarelabs/dompdf": "1.0.3",
+        "tecnickcom/tcpdf": "6.4.4",
+        "setasign/fpdi": "2.3.6",
         "enqueue/dbal": "~0.10.15",
         "enqueue/redis": "~0.10.9",
         "ezyang/htmlpurifier": "4.13.0",
         "google/cloud-storage": "~1.25.1",
-        "guzzlehttp/guzzle": "~7.2",
+        "guzzlehttp/guzzle": "~7.4.5",
         "guzzlehttp/psr7": "^1.8.0",
         "jdorn/sql-formatter": "1.2.17",
         "lcobucci/jwt": "~4.1.5",
@@ -132,7 +134,7 @@
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
         "twig/twig": "~3.3.8",
-        "zircote/swagger-php": "3.3.2",
+        "zircote/swagger-php": "~3.3.6",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },
     "require-dev": {

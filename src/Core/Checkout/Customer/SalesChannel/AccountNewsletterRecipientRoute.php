@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -38,19 +37,6 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
     /**
      * @Since("6.4.3.0")
      * @Entity("newsletter_recipient")
-     * @OA\Post(
-     *      path="/account/newsletter-recipient",
-     *      summary="Fetch newsletter recipients",
-     *      description="Perform a filtered search for newsletter recipients.",
-     *      operationId="readNewsletterRecipient",
-     *      tags={"Store API", "Profile", "Newsletter"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(@OA\Items(ref="#/components/schemas/AccountNewsletterRecipientResult"))
-     *     )
-     * )
      * @Route("/store-api/account/newsletter-recipient", name="store-api.newsletter.recipient", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse

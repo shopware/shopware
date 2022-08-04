@@ -14,13 +14,13 @@ class MetadataTest extends TestCase
     {
         $flowActions = FlowAction::createFromXmlFile(__DIR__ . '/../_fixtures/valid/flowActionWithFlowActions.xml');
 
+        static::assertNotNull($flowActions->getActions());
         static::assertCount(1, $flowActions->getActions()->getActions());
 
         $firstAction = $flowActions->getActions()->getActions()[0];
         $meta = $firstAction->getMeta();
 
         static::assertEquals('abc.cde.ccc', $meta->getName());
-        static::assertEquals('abc', $meta->getBadge());
         static::assertEquals(['order', 'customer'], $meta->getRequirements());
         static::assertEquals('https://example.xyz', $meta->getUrl());
         static::assertEquals('sw-pencil', $meta->getSwIcon());
@@ -38,6 +38,13 @@ class MetadataTest extends TestCase
                 'de-DE' => 'First action app description DE',
             ],
             $firstAction->getMeta()->getDescription()
+        );
+        static::assertEquals(
+            [
+                'en-GB' => 'Headline for action',
+                'de-DE' => 'Überschrift für Aktion',
+            ],
+            $firstAction->getMeta()->getHeadline()
         );
     }
 }

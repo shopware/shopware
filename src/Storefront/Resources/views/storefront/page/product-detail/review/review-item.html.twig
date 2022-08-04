@@ -14,7 +14,9 @@
         {% endblock %}
 
         {% block page_product_detail_review_item_meta_author %}
-            <meta itemprop="author" content="hidden">
+            <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
+                <meta itemprop="name" content="{{ review.externalUser }}"/>
+            </div>
         {% endblock %}
 
         {% block page_product_detail_review_item_info %}

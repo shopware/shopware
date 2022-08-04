@@ -36,8 +36,8 @@ class Migration1618900427FixTotalRoundingTest extends TestCase
             'stateId' => $this->getStateId(),
             'currencyFactor' => 1,
             'orderDateTime' => new \DateTime(),
-            'price' => json_decode(json_encode(new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE)), true),
-            'shippingCosts' => json_decode(json_encode(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection())), true),
+            'price' => json_decode(json_encode(new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE), \JSON_THROW_ON_ERROR), true),
+            'shippingCosts' => json_decode(json_encode(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), \JSON_THROW_ON_ERROR), true),
         ];
 
         $this->getContainer()->get('order.repository')

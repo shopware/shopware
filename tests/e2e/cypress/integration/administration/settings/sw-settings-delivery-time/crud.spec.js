@@ -11,6 +11,8 @@ describe('Delivery times group: Test crud operations', () => {
         })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -26,7 +28,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.sw-settings-delivery-time-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New delivery time');
+        cy.contains('.smart-bar__header h2', 'New delivery time');
 
         // Fill all fields
         cy.get('#sw-field--deliveryTime-name').type('Very long delivery');
@@ -42,13 +44,13 @@ describe('Delivery times group: Test crud operations', () => {
 
         // Verify successful save
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.smart-bar__header h2').contains('Very long delivery');
+        cy.contains('.smart-bar__header h2', 'Very long delivery');
 
         // Verify created element
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Very long delivery');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Very long delivery');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Very long delivery')
+            .should('be.visible');
 
         // Verify new delivery time is available in product
         cy.clickMainMenuItem({
@@ -56,6 +58,8 @@ describe('Delivery times group: Test crud operations', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product'
         });
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -78,7 +82,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.sw-settings-delivery-time-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New delivery time');
+        cy.contains('.smart-bar__header h2', 'New delivery time');
 
         // Click save without entering any data
         cy.get('.sw-settings-delivery-time-detail__save').click();
@@ -104,8 +108,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Express');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Express');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Express').should('be.visible');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -114,7 +117,7 @@ describe('Delivery times group: Test crud operations', () => {
         );
 
         // Verify correct detail page
-        cy.get('.smart-bar__header h2').contains('Express');
+        cy.contains('.smart-bar__header h2', 'Express');
 
         cy.get('#sw-field--deliveryTime-name').clearTypeAndCheck('Turtle');
         cy.get('.sw-delivery-time-detail__field-unit')
@@ -128,8 +131,7 @@ describe('Delivery times group: Test crud operations', () => {
         // Verify updated element
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Turtle');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Turtle');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Turtle').should('be.visible');
     });
 
     it('@settings: Delete delivery time', () => {
@@ -143,8 +145,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Express');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Express');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Express').should('be.visible');
 
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
@@ -152,8 +153,7 @@ describe('Delivery times group: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

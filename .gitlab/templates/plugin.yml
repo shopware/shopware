@@ -64,7 +64,12 @@ variables:
     ADMIN_PERCY_SPEC:
         value: ''
         description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/visual/**/*,cypress/integration/catalogue/**/*"'
-
+    PLUGIN_DEPENDENCIES:
+        value: '[]'
+        description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
+    COMPOSER_DEPENDENCIES:
+        value: '[]'
+        description: 'Additional composer dependencies. Defined in json. Example: ["theiconic/name-parser", "amzn/amazon-pay-api-sdk-php:2.2.1"]'
 
 workflow:
     rules:
@@ -72,6 +77,36 @@ workflow:
         -   if: '$CI_PIPELINE_SOURCE == "push"'
             when: never
         -   when: always
+
+.install_dependencies: &install_dependencies
+  - apt-get update && apt-get install -y jq
+  - |
+    echo "${COMPOSER_DEPENDENCIES}"
+    for package in $(echo "${COMPOSER_DEPENDENCIES}" | jq -r '.[]'); do
+        composer require "${package}"
+    done
+  - |
+    echo "${PLUGIN_DEPENDENCIES}"
+    for plugin64 in $(echo "${PLUGIN_DEPENDENCIES}" | jq -r '.[] | @base64'); do
+        plugin="$(echo $plugin64 | base64 -d)"
+        plugin_name="$(echo "$plugin" | jq -r .name)"
+        plugin_url="$(echo "$plugin" | jq -r .url)"
+        plugin_branch="$(echo "$plugin" | jq -r .branch)"
+        git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" || true
+    done
+  - bin/console plugin:refresh
+  - |
+    for plugin64 in $(echo "${PLUGIN_DEPENDENCIES}" | jq -r '.[] | @base64'); do
+        plugin="$(echo $plugin64 | base64 -d)"
+        plugin_name="$(echo "$plugin" | jq -r .name)"
+        bin/console plugin:install --activate "${plugin_name}"
+    done
+  - bin/console cache:clear
+  - bin/console plugin:list
 
 default:
     image: $DEV_IMAGE
@@ -101,6 +136,7 @@ default:
             then echo "$PLUGIN_NAME is active";
             else echo "$PLUGIN_NAME is not active"; exit 1;
           fi
+        - *install_dependencies
         - bin/console bundle:dump
         - bin/console assets:install
         # run php as root to prevent permission issues
@@ -117,15 +153,15 @@ default:
 .install-dev-tools: &install-dev-tools
     - >
         composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
-    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
     - composer config --global allow-plugins.composer/package-versions-deprecated true
     - composer config --global allow-plugins.bamarni/composer-bin-plugin true
     - composer config --global allow-plugins.phpstan/extension-installer true
+    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
 
 build zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     rules:
         - exists:
@@ -133,6 +169,7 @@ build zip:
     variables:
         ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+        SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS: 1
     script:
         - (cd ${PLUGIN_SOURCE_DIR}Resources/app/administration && npm ci) || true
         - (cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront && npm ci) || true
@@ -141,6 +178,7 @@ build zip:
         - rm -rf "Resources/app/storefront/node_modules" || true
         - rm -rf vendor composer.lock || true
         - cd $CI_PROJECT_DIR/custom/plugins/$PLUGIN_NAME
+        - composer config --unset 'repositories.platform-packages'
         - plugin-uploader ext:zip --strategy=plain -- "$PWD"
         - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
         - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
@@ -152,7 +190,7 @@ build zip:
 validate zip:
     stage: test
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.1
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none
@@ -188,7 +226,9 @@ phpunit:
         when: always
         reports:
             junit: phpunit.junit.xml
-            cobertura: cobertura.xml
+            coverage_report:
+                coverage_format: cobertura
+                path: cobertura.xml
 
 phpstan:
     stage: test
@@ -198,26 +238,16 @@ phpstan:
               - phpstan.neon*
     script:
         - *install-dev-tools
+        - >
+          if [[ -r tests/TestBootstrap.php ]]; then
+              php tests/TestBootstrap.php
+          fi
         - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:
         when: always
         reports:
             codequality: phpstan-report.json
-
-psalm:
-    stage: test
-    needs: []
-    rules:
-        - exists:
-              - psalm.xml*
-    script:
-        - *install-dev-tools
-        - vendor/bin/psalm --threads=$(nproc) --diff --show-info=false --report=${CI_PROJECT_DIR}/junit.xml
-    artifacts:
-        when: always
-        reports:
-            junit: junit.xml
 
 ecs:
     stage: test
@@ -412,11 +442,12 @@ percy storefront:
 
 upload zip to store:
     stage: deploy
+    allow_failure: true
     environment:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none

@@ -202,7 +202,6 @@
         "config": {
           "label": {
             "minHeight": "Minimale Höhe",
-            "linkTo": "Link zu",
             "linkNewTab": "Link in neuem Tab öffnen"
           },
           "placeholder": {

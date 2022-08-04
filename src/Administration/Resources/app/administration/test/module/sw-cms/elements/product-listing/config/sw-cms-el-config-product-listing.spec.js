@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-listing/config';
-
+import 'src/app/component/data-grid/sw-data-grid';
 
 const productSortingRepositoryMock = {
     search: () => Promise.resolve([]),
@@ -11,12 +11,22 @@ const productSortingRepositoryMock = {
         entity: 'product_sorting'
     }
 };
+
+const propertyGroupMock = [
+    { id: 'x01', name: 'bar' },
+    { id: 'x02', name: 'baz' },
+    { id: 'x03', name: 'foo' },
+];
+
 const propertyGroupRepositoryMock = {
-    search: () => Promise.resolve([
-        { id: 'x01', name: 'foo' },
-        { id: 'x02', name: 'bar' },
-        { id: 'x03', name: 'baz' }
-    ]),
+    search(criteria) {
+        let properties = [...propertyGroupMock];
+        if (criteria?.term) {
+            properties = properties.filter(propertyGroup => propertyGroup.name.includes(criteria.term));
+        }
+
+        return Promise.resolve(properties);
+    },
     route: '/property_group',
     schema: {
         entity: 'property_group'
@@ -32,17 +42,25 @@ const repositoryMockFactory = (entity) => {
         return propertyGroupRepositoryMock;
     }
 
-    return false;
+    throw new Error(`Repository for ${entity} is not implemented`);
 };
 
 
 function createWrapper(activeTab = 'sorting') {
-    const localVue = createLocalVue();
-    localVue.filter('asset', key => key);
-
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-listing'), {
-        localVue,
         stubs: {
+            'sw-cms-el-config-product-listing-config-sorting-grid': true,
+            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-entity-single-select': true,
+            'sw-simple-search-field': true,
+            'sw-entity-multi-select': true,
+            'sw-select-field': true,
+            'sw-switch-field': true,
+            'sw-pagination': true,
+            'sw-container': true,
+            'sw-tabs-item': true,
+            'sw-alert': true,
+            'sw-empty-state': true,
             'sw-tabs': {
                 data() {
                     return { active: activeTab };
@@ -53,16 +71,6 @@ function createWrapper(activeTab = 'sorting') {
     <slot name="content" v-bind="{ active }"></slot>
 </div>`
             },
-            'sw-tabs-item': true,
-            'sw-select-field': true,
-            'sw-alert': true,
-            'sw-switch-field': true,
-            'sw-entity-single-select': true,
-            'sw-entity-multi-select': true,
-            'sw-container': true,
-            'sw-simple-search-field': true,
-            'sw-cms-el-config-product-listing-config-sorting-grid': true,
-            'sw-cms-el-config-product-listing-config-filter-properties-grid': true
         },
         provide: {
             cmsService: {
@@ -220,7 +228,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         ]);
     });
 
-    it('should transform the product sortings corrrectly', async () => {
+    it('should transform the product sortings correctly', async () => {
         const wrapper = createWrapper();
 
         const before = [
@@ -274,16 +282,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // re-render view
 
-        const showUseFilterByPropteriesSwitchField = wrapper
+        const showUseFilterByPropertiesSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]');
-        const showPropterySearchField = wrapper
+        const showPropertySearchField = wrapper
             .find('sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search');
-        const showPropteryStatusGrid = wrapper
-            .find('sw-cms-el-config-product-listing-config-filter-properties-grid-stub');
+        const showPropertyStatusGrid = wrapper
+            .find('.sw-cms-el-config-product-listing-property-grid');
 
-        expect(showUseFilterByPropteriesSwitchField.exists()).toBeTruthy();
-        expect(showPropterySearchField.exists()).toBeTruthy();
-        expect(showPropteryStatusGrid.exists()).toBeTruthy();
+        expect(showUseFilterByPropertiesSwitchField.exists()).toBeTruthy();
+        expect(showPropertySearchField.exists()).toBeTruthy();
+        expect(showPropertyStatusGrid.exists()).toBeTruthy();
     });
 
     it('should sort properties by status', async () => {
@@ -296,18 +304,18 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        const expectedOrderWhenNoPropertiesAreActive = ['foo', 'bar', 'baz'];
+        const expectedOrderWhenNoPropertiesAreActive = ['bar', 'baz', 'foo'];
         const propertiesOrderByAPI = wrapper.vm.properties.map(item => item.name);
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
 
         // eslint-disable-next-line inclusive-language/use-inclusive-words
-        wrapper.vm.element.config.propertyWhitelist.value = ['x03']; // activate proptery_group 'baz'
+        wrapper.vm.element.config.propertyWhitelist.value = ['x02']; // activate Property_group 'baz'
         wrapper.vm.loadFilterableProperties();
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        const expectedOrderWhenPropertyBazIsActive = ['baz', 'foo', 'bar'];
+        const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
         const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map(item => item.name);
 
         expect(expectedOrderWhenPropertyBazIsActive).toEqual(propertiesOrderBySortingViaActiveState);
@@ -318,21 +326,22 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        expect(wrapper.vm.showPropertySelection).toBeTruthy();
-
-        const expectedToDiplayProperties = ['foo', 'bar', 'baz'];
-        const displayedProperties = wrapper.vm.displayedProperties.map(item => item.name);
-        expect(expectedToDiplayProperties).toEqual(displayedProperties);
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
+        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'bar';
+        wrapper.vm.onFilterProperties();
+        await wrapper.vm.$nextTick(); // fetch filtered list
 
-        const expectedToDiplayFilteredProperties = ['bar'];
-        const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
-        expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+        const expectedToDisplayFilteredProperties = ['bar'];
+        const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
+
+        expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
         await wrapper.vm.$nextTick(); // await template re-render
 
-        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
+        const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
         expect(emptyStateElement.element).not.toBeTruthy();
     });
 
@@ -341,21 +350,56 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
-        expect(wrapper.vm.showPropertySelection).toBeTruthy();
-
-        const expectedToDiplayProperties = ['foo', 'bar', 'baz'];
-        const displayedProperties = wrapper.vm.displayedProperties.map(item => item.name);
-        expect(expectedToDiplayProperties).toEqual(displayedProperties);
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
+        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'notinlist';
+        wrapper.vm.onFilterProperties();
+        await wrapper.vm.$nextTick(); // fetch filtered list
 
-        const expectedToDiplayFilteredProperties = [];
-        const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
-        expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+        const expectedToDisplayFilteredProperties = [];
+        const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
+        expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
         await wrapper.vm.$nextTick(); // await template re-render
 
-        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
-        expect(emptyStateElement.element).toBeTruthy();
+        const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
+        expect(emptyStateElement).toBeTruthy();
+    });
+
+    it('should toggle property filters', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
+        const displayedProperties = wrapper.vm.properties.map(item => item.name);
+        expect(expectedToDisplayProperties).toEqual(displayedProperties);
+
+        // check initial configuration
+        let selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
+        expect(selectedProperties).toEqual([]);
+
+        // simulate a click on a switch to select the property foo
+        wrapper.vm.propertyStatusChanged('x03');
+
+        // check that foo with the id x03 got added to the selection
+        selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
+        expect(selectedProperties).toEqual(['x03']);
+
+        // simulate a click on a switch to select the property baz
+        wrapper.vm.propertyStatusChanged('x02');
+
+        // check that baz with the id x02 got added to the selection
+        selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
+        expect(selectedProperties).toEqual(['x03', 'x02']);
+
+        // simulate a click on a switch to deselect the property foo
+        wrapper.vm.propertyStatusChanged('x03');
+
+        // check that foo with the id x03 got removed from the selection
+        selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
+        expect(selectedProperties).toEqual(['x02']);
     });
 });

@@ -16,15 +16,17 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: access the search but without rights', () => {
+    it('@settings: access the search but without rights', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: can view the general tab and live search tab content', () => {
+    it('@settings: can view the general tab and live search tab content', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -32,6 +34,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // assert that there is an available settings for search module
@@ -54,7 +58,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Search behaviour section
-    it.skip('@settings: can edit search behaviour settings if having editor/creator privilege', () => {
+    it('@settings: can edit search behaviour settings if having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -70,6 +74,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -96,7 +102,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section - General tab
-    it.skip('@settings: should able to update config field', () => {
+    it('@settings: should able to update config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -108,6 +114,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -141,7 +149,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to reset config to default on general tab', () => {
+    it('@settings: should able to reset config to default on general tab', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -153,6 +161,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -194,7 +204,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section -> Custom field tab
-    it.skip('@settings: should able to create a custom config field', () => {
+    it('@settings: should able to create a custom config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -210,6 +220,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -232,8 +244,8 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@getCustomField')
             .its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title')
-            .contains('No searchable content added yet.');
+        cy.contains('.sw-settings-search__searchable-content-customfields .sw-empty-state__title',
+            'No searchable content added yet.');
         cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
         cy.get('.sw-settings-search__searchable-content-add-button').click();
 
@@ -260,7 +272,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to update config field', () => {
+    it('@settings: should able to update config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -276,6 +288,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -338,7 +352,7 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to delete config field', () => {
+    it('@settings: should able to delete config field', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -354,6 +368,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -416,7 +432,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Excluded search terms section
-    it.skip('@settings: can create the excluded search terms having creator privilege', () => {
+    it('@settings: can create the excluded search terms having creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -424,6 +440,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -447,12 +465,12 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term created.');
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`, 'example');
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: can update the excluded search terms having editor/creator privilege', () => {
+    it('@settings: can update the excluded search terms having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -464,6 +482,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
@@ -484,12 +504,12 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term updated.');
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('update');
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`, 'update');
     });
 
     // TODO skipped due to flakiness, see NEXT-15696
-    it.skip('@settings: should able to a delete a excluded terms if having deleter privilege', () => {
+    it('@settings: should able to a delete a excluded terms if having deleter privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -497,10 +517,11 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new SettingsPageObject();
-
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
@@ -520,8 +541,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__row .sw-data-grid__cell.sw-data-grid__cell--header.sw-data-grid__cell--selection input')
             .check();
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').contains(10);
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count', 10);
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').should('be.visible');
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -533,7 +554,7 @@ describe('Search: Test ACL privileges', () => {
 
     // TODO skipped due to flakiness, see NEXT-15696
     // Rebuild search index section
-    it.skip('@settings: can rebuild the search index if having editor/creator privilege', () => {
+    it('@settings: can rebuild the search index if having editor/creator privilege', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -545,6 +566,8 @@ describe('Search: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later

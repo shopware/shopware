@@ -10,6 +10,8 @@ describe('Country: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/country/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -36,8 +38,8 @@ describe('Country: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-            .contains('1.Niemandsland x2');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`, '1.Niemandsland x2')
+            .should('be.visible');
     });
 
     it('@settings: delete country', () => {
@@ -55,8 +57,8 @@ describe('Country: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the country "1.Niemandsland"?');
+        cy.contains('.sw-modal__body',
+            'Are you sure you want to delete the country "1.Niemandsland"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
@@ -123,8 +125,8 @@ describe('Country: Test crud operations', () => {
             .its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-            .contains('1.Niemandsland');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`, '1.Niemandsland')
+            .should('be.visible');
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
@@ -189,7 +191,7 @@ describe('Country: Test crud operations', () => {
         cy.get('#sw-field--country-companyTax-amount').eq(0).should('have.value', '300');
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-            .contains('01.Eastern Laos');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`, '01.Eastern Laos')
+            .should('be.visible');
     });
 });

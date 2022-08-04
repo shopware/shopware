@@ -8,6 +8,8 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         page = new SettingsPageObject();
@@ -132,15 +134,19 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
 
         // Verify that the imported product exists in product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Product updated by product number');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Product updated by product number');
 
         // Verify that the manufacturer was created only once identified by the name
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Manufacturer identified by name');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
+            'Manufacturer identified by name');
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).contains('shopware AG');
+        cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'shopware AG');
         cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
     });
 });

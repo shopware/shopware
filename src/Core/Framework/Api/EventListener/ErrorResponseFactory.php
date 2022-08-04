@@ -94,6 +94,8 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
             if (\is_string($value)) {
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
@@ -101,6 +103,7 @@ class ErrorResponseFactory
                     $array[$key] = utf8_encode($value);
                 }
             }
+            // @codeCoverageIgnoreEnd
         }
 
         return $array;

@@ -22,11 +22,13 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     // NEXT-20024
-    it.skip('@base @catalogue: add variant to product', () => {
+    it('@base @catalogue: add variant to product', { tags: ['quarantined'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -53,19 +55,19 @@ describe('Product: Test variants', () => {
         page.generateVariants('Color', [0, 1, 2], 3);
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Yellow');
-        cy.get('.sw-data-grid__body').contains('Green');
-        cy.get('.sw-data-grid__body').contains('.1');
-        cy.get('.sw-data-grid__body').contains('.2');
-        cy.get('.sw-data-grid__body').contains('.3');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Yellow');
+        cy.contains('.sw-data-grid__body', 'Green');
+        cy.contains('.sw-data-grid__body', '.1');
+        cy.contains('.sw-data-grid__body', '.2');
+        cy.contains('.sw-data-grid__body', '.3');
 
         // Edit one variant and verify it can be saved save
         cy.get('.sw-product-variants-overview').should('be.visible');
         cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-skeleton.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-data-grid__row--1 a').should('exist');
-        cy.get('.sw-data-grid__row--1 a').contains('Red');
+        cy.contains('.sw-data-grid__row--1 a', 'Red');
         cy.get('.sw-data-grid__row--1 a').click();
         cy.get('.product-basic-form .sw-inheritance-switch').eq(0).click();
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('New Product name');
@@ -79,10 +81,9 @@ describe('Product: Test variants', () => {
         cy.visit('/');
         cy.get('input[name=search]').type('Product name');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Product name')
+        cy.contains('.search-suggest-product-name', 'Product name')
             .click();
-        cy.get('.product-detail-name').contains('Product name');
+        cy.contains('.product-detail-name', 'Product name');
         cy.get('.product-detail-configurator-option-label[title="Red"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Yellow"]')
@@ -100,6 +101,8 @@ describe('Product: Test variants', () => {
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Add option to property group
         cy.wait('@searchUserConfig')
@@ -110,17 +113,16 @@ describe('Product: Test variants', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.cardTitle).contains('Basic information');
+        cy.contains(page.elements.cardTitle, 'Basic information');
 
         // Switch language to Deutsch
-        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.contains('.sw-language-switch__select .sw-entity-single-select__selection-text', 'English');
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         // poor assertion to check if there is more than 1 language
         cy.get('.sw-select-result-list__item-list .sw-select-result')
             .should('have.length.greaterThan', 1);
-        cy.get('.sw-select-result-list__item-list .sw-select-result')
-            .contains('Deutsch').click();
+        cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Deutsch').click();
 
         // Edit and update property option's name for Deutsch
         cy.get('.sw-property-option-list').scrollIntoView();
@@ -141,6 +143,8 @@ describe('Product: Test variants', () => {
         greenOption.get('.sw-button.sw-data-grid__inline-edit-save').click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const productPage = new ProductPageObject();
 
@@ -162,29 +166,29 @@ describe('Product: Test variants', () => {
         productPage.generateVariants('Color', [0, 1, 2], 3);
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Gelb');
-        cy.get('.sw-data-grid__body').contains('Rot');
-        cy.get('.sw-data-grid__body').contains('Grün');
+        cy.contains('.sw-data-grid__body', 'Gelb');
+        cy.contains('.sw-data-grid__body', 'Rot');
+        cy.contains('.sw-data-grid__body', 'Grün');
 
         // Switch to English
         cy.get('.smart-bar__content .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
+        cy.contains('.sw-select-result-list__item-list .sw-select-option--1', 'English');
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get('.sw-data-grid__body').contains('Yellow');
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
+        cy.contains('.sw-data-grid__body', 'Yellow');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Green');
 
         cy.reload();
 
         cy.get('.sw-product-variants-overview').should('be.visible');
 
-        cy.get('.sw-data-grid__body').contains('Yellow');
-        cy.get('.sw-data-grid__body').contains('Red');
-        cy.get('.sw-data-grid__body').contains('Green');
+        cy.contains('.sw-data-grid__body', 'Yellow');
+        cy.contains('.sw-data-grid__body', 'Red');
+        cy.contains('.sw-data-grid__body', 'Green');
     });
 });

@@ -6,6 +6,8 @@ describe('Sales Channel: create product, change currency and language', () => {
             cy.createProductFixture();
         }).then(() => {
             cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -32,11 +34,11 @@ describe('Sales Channel: create product, change currency and language', () => {
         // Add NL domain
         cy.get('.sw-card.sw-card--grid.sw-sales-channel-detail-domains').scrollIntoView();
         cy.get('.sw-sales-channel-detail__button-domain-add').contains('Domein toevoegen').click();
-        cy.get('.sw-modal__title').contains('Nieuw domain maken');
+        cy.contains('.sw-modal__title', 'Nieuw domain maken');
         cy.get('.sw-field__url-input__prefix').click();
         cy.get('#sw-field--currentDomain-url').type('localhost:8000/nl');
         cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
-        cy.contains('.sw-select-result', 'Dutch').click();
+        cy.get('.sw-select-result').contains('Dutch').click();
         cy.get('.sw-sales-channel-detail-domains__domain-currency-select').find('.sw-single-select__selection').click();
         cy.contains('.sw-select-result', 'Euro').click();
         cy.contains('.sw-entity-single-select', 'Tekstfragment').find('.sw-entity-single-select__selection').click();
@@ -49,7 +51,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         // Add DE domain
         cy.get('.sw-card.sw-card--grid.sw-sales-channel-detail-domains').scrollIntoView();
         cy.get('.sw-sales-channel-detail__button-domain-add').contains('Domein toevoegen').click();
-        cy.get('.sw-modal__title').contains('Nieuw domain maken');
+        cy.contains('.sw-modal__title', 'Nieuw domain maken');
         cy.get('.sw-field__url-input__prefix').click();
         cy.get('#sw-field--currentDomain-url').type('localhost:8000/de');
         cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
@@ -79,34 +81,34 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.visit('/nl');
         cy.get('.header-search-input').type('Product name');
         cy.contains('.search-suggest-product-name', 'Product name').click();
-        cy.get('.product-detail-price').contains('€ 49,98*')
+        cy.contains('.product-detail-price', '€ 49,98*')
         cy.get('.product-detail-buy .btn-buy').contains('In het winkelmandje').click();
 
         // Off canvas
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-price').contains('€ 49,98*').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains('.cart-item-price', '€ 49,98*').should('be.visible');
         cy.get('a[title="Naar de kassa"]').should('be.visible');
         cy.contains('Doorgaan met winkelen').click();
 
         // Change currency
         cy.get('#currenciesDropdown-top-bar').click();
         cy.get('.dropdown-menu-right.show.top-bar-list').contains('$ USD').click();
-        cy.get('#currenciesDropdown-top-bar').contains('$ US-Dollar');
+        cy.contains('#currenciesDropdown-top-bar', '$ US-Dollar');
 
         // Change language
         cy.get('#languagesDropdown-top-bar').click();
         cy.get('.dropdown-menu-right.show.top-bar-list').contains('Deutsch').click();
         cy.url().should('include', '/de');
-        cy.get('#languagesDropdown-top-bar').contains('Deutsch');
+        cy.contains('#languagesDropdown-top-bar', 'Deutsch');
 
         // Verify currency and language on detail page
-        cy.get('.product-detail-price').contains('58,52 $*')
-        cy.get('.product-detail-buy .btn-buy').contains('In den Warenkorb').should('be.visible');
+        cy.contains('.product-detail-price', '58,52 $*')
+        cy.contains('.product-detail-buy .btn-buy', 'In den Warenkorb').should('be.visible');
 
         // Verify currency and language on canvas
         cy.get('.header-cart-icon').click({ force: true });
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-price').contains('58,52 $*').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains('.cart-item-price', '58,52 $*').should('be.visible');
         cy.get('a[title="Weiter zur Kasse"]').should('be.visible');
     });
 });

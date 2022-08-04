@@ -10,6 +10,8 @@ describe('Media: Replace media', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -24,7 +26,7 @@ describe('Media: Replace media', () => {
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('Media');
+        cy.contains(page.elements.smartBarHeader, 'Media');
 
         // Upload image
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
@@ -57,7 +59,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
 
         // Verify file name is still the same
-        cy.get('.sw-media-sidebar__headline').contains('sw-login-background.png');
+        cy.contains('.sw-media-sidebar__headline', 'sw-login-background.png');
         cy.get('.sw-media-quickinfo-metadata-name input').should('have.value', 'sw-login-background');
     });
 
@@ -73,7 +75,7 @@ describe('Media: Replace media', () => {
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(page.elements.smartBarHeader).contains('Media');
+        cy.contains(page.elements.smartBarHeader, 'Media');
 
         // Upload image
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
@@ -96,7 +98,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-modal-replace .sw-media-preview-v2__item').should('be.visible');
 
         // Verify warning for different file extension is shown
-        cy.get('.sw-media-modal-replace .sw-media-modal-replace__file-extension-warning').contains('(jpg)');
+        cy.contains('.sw-media-modal-replace .sw-media-modal-replace__file-extension-warning', '(jpg)');
 
         // Click replace button and upload new image
         cy.get('.sw-media-modal-replace .sw-media-replace__replace-media-action').click();
@@ -108,7 +110,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-base-item__name[title="sw-login-background.jpg"]').click();
 
         // Verify file name is still the same but with different extension
-        cy.get('.sw-media-sidebar__headline').contains('sw-login-background.jpg');
+        cy.contains('.sw-media-sidebar__headline', 'sw-login-background.jpg');
         cy.get('.sw-media-quickinfo-metadata-name input').should('have.value', 'sw-login-background');
     });
 });

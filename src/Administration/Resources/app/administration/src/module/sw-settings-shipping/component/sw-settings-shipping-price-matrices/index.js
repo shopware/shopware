@@ -61,18 +61,7 @@ Component.register('sw-settings-shipping-price-matrices', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        createdComponent() {
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.getRestrictedRules();
-            }
-        },
-
         onAddNewPriceGroup() {
             const newShippingPrice = this.shippingPriceRepository.create(Context.api);
             newShippingPrice.shippingMethodId = this.shippingMethod.id;

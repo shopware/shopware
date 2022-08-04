@@ -11,18 +11,17 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             });
     });
     it('@sdk: action button', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         const Page = new ProductPageObject();
 
-        cy.contains('.smart-bar__content', 'Products')
+        cy.contains('.smart-bar__content', 'Products');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -45,14 +44,12 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-context-menu__content')
             .should('be.visible');
 
-        cy.get('.sw-context-menu__content')
-            .contains('Test action')
+        cy.contains('.sw-context-menu__content', 'Test action')
             .click();
 
-        cy.get('.sw-alert__title')
-            .contains('Action button click');
+        cy.contains('.sw-alert__title', 'Action button click');
 
-        cy.get('.sw-alert__message')
-            .contains('The action button in the product detail page was clicked');
+        cy.contains('.sw-alert__message',
+            'The action button in the product detail page was clicked');
     })
 })

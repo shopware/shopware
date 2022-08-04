@@ -46,6 +46,9 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getLineItemScopeTestData
+     *
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithLineItemScope(
         array $categoryIds,
@@ -79,6 +82,9 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         array $categoryIds,
@@ -108,6 +114,9 @@ class LineItemInCategoryRuleTest extends TestCase
 
     /**
      * @dataProvider getCartRuleScopeTestData
+     *
+     * @param array<string> $categoryIds
+     * @param array<string> $lineItemCategoryIds
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $categoryIds,
@@ -184,6 +193,9 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $categoryIds[1]);
     }
 
+    /**
+     * @param array<string> $categoryIds
+     */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
         return ($this->createLineItem())->setPayloadValue('categoryIds', $categoryIds);

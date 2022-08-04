@@ -20,6 +20,8 @@ describe('Snippets: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // go to snippet list
@@ -60,6 +62,8 @@ describe('Snippets: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -88,7 +92,7 @@ describe('Snippets: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it.skip('@settings: Create snippets', () => {
+    it('@settings: Create snippets', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -97,6 +101,8 @@ describe('Snippets: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({
@@ -140,6 +146,8 @@ describe('Snippets: Test acl privileges', () => {
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.intercept({

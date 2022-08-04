@@ -10,6 +10,8 @@ describe('Currency: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/currency/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -69,11 +71,11 @@ describe('Currency: Test crud operations', () => {
 
             cy.get('.sw-settings-currency-country-modal').should('not.exist');
             cy.get('.sw-settings-currency-detail__currency-country-list').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--country`).contains('Germany');
+            cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--country`, 'Germany');
 
             cy.get(page.elements.smartBarBack).click();
             cy.get('.sw-currency-list__content').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('0000 Dukaten');
+            cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`, '0000 Dukaten');
         });
     });
 });

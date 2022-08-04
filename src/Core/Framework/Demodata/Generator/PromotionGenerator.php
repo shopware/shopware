@@ -85,11 +85,11 @@ class PromotionGenerator implements DemodataGeneratorInterface
     {
         return [
             'id' => Uuid::randomHex(),
-            'name' => $this->faker->productName,
+            'name' => $this->faker->format('productName'),
             'active' => true,
             'useSetGroups' => false,
             'salesChannels' => $salesChannels,
-            'code' => $this->faker->unique()->promotionCode,
+            'code' => $this->faker->unique()->format('promotionCode'),
             'useCodes' => true,
             'discounts' => $this->createDiscounts(),
         ];

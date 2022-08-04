@@ -18,7 +18,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     ];
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $lastDataPoint = [];
 
@@ -45,6 +45,9 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
         $this->lastDataPoint = $stateResult;
     }
 
+    /**
+     * @return array<string, int>
+     */
     private function getCurrentDbState(): array
     {
         $connection = Kernel::getConnection();
@@ -56,12 +59,17 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
             $tableName = end($nested);
             $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
 
-            $stateResult[$tableName] = $count;
+            $stateResult[(string) $tableName] = (int) $count;
         }
 
         return $stateResult;
     }
 
+    /**
+     * @param array<mixed> $state
+     *
+     * @return array<mixed>
+     */
     private function createDiff(array $state): array
     {
         $diff = [];

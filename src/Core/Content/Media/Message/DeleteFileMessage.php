@@ -6,9 +6,15 @@ use League\Flysystem\AdapterInterface;
 
 class DeleteFileMessage
 {
-    private array $files = [];
+    private array $files;
 
-    private string $visibility = AdapterInterface::VISIBILITY_PUBLIC;
+    private string $visibility;
+
+    public function __construct(array $files = [], string $visibility = AdapterInterface::VISIBILITY_PUBLIC)
+    {
+        $this->files = $files;
+        $this->visibility = $visibility;
+    }
 
     public function getFiles(): array
     {

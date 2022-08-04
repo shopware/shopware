@@ -10,6 +10,8 @@ describe('Tax: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -27,6 +29,8 @@ describe('Tax: Visual testing', () => {
         cy.get('#sw-settings-tax').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-page__main-content').should('be.visible');
 
         cy.get('.sw-loader').should('not.exist');

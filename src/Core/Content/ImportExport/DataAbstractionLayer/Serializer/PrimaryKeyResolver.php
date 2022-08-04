@@ -213,7 +213,7 @@ class PrimaryKeyResolver
 
             $repository = $this->definitionInstanceRegistry->getRepository($manyToManyDefinition->getEntityName());
 
-            /** @var string[] $ids */
+            /** @var array<string> $ids */
             $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
             $record[$field->getPropertyName()] = implode('|', $ids);

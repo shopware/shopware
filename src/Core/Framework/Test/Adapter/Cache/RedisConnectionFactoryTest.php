@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 
+/**
+ * @internal
+ */
 class RedisConnectionFactoryTest extends TestCase
 {
     /**

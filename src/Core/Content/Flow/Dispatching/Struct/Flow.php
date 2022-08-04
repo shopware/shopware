@@ -13,10 +13,13 @@ class Flow extends Struct
 
     protected array $sequences = [];
 
-    public function __construct(string $id, array $sequences = [])
+    protected array $flat = [];
+
+    public function __construct(string $id, array $sequences = [], array $flat = [])
     {
         $this->id = $id;
         $this->sequences = $sequences;
+        $this->flat = $flat;
     }
 
     public function getId(): string
@@ -27,5 +30,15 @@ class Flow extends Struct
     public function getSequences(): array
     {
         return $this->sequences;
+    }
+
+    public function getFlat(): array
+    {
+        return $this->flat;
+    }
+
+    public function jump(string $id): void
+    {
+        $this->sequences = [$this->flat[$id] ?? []];
     }
 }

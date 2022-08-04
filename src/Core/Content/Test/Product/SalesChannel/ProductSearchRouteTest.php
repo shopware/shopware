@@ -44,7 +44,7 @@ class ProductSearchRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->productSearchConfigId = $this->getProductSearchConfigId();
@@ -103,7 +103,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -129,7 +129,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -185,7 +185,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->proceedTestSearch($browser, $term, $expected);
     }
@@ -200,7 +200,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => true],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->proceedTestSearch($browser, $term, $expected);
     }
@@ -214,7 +214,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -254,7 +254,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -296,7 +296,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -322,7 +322,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $browser->request(
             'POST',
@@ -674,7 +674,7 @@ class ProductSearchRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$data], Context::createDefaultContext());
     }
 
     private function setupProductsForImplementSearch(): void
@@ -801,30 +801,30 @@ class ProductSearchRouteTest extends TestCase
                 ->build();
         }
 
-        $productRepository->create($products, $this->ids->context);
+        $productRepository->create($products, Context::createDefaultContext());
 
-        $this->searchKeywordUpdater->update($productIds, $this->ids->context);
+        $this->searchKeywordUpdater->update($productIds, Context::createDefaultContext());
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'minSearchLength' => 3],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $productRepository->create([
             (new ProductBuilder($this->ids, 'volvo.1'))
                 ->visibility($this->ids->get('sales-channel'))
                 ->parent('volvo')
                 ->build(),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function getProductSearchConfigId(): string
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsFilter('languageId', $this->ids->getContext()->getLanguageId())
+            new EqualsFilter('languageId', Context::createDefaultContext()->getLanguageId())
         );
 
-        return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
+        return $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 
     private function createGermanSalesChannelDomain(): void

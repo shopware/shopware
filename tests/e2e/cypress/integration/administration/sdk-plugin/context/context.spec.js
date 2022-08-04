@@ -11,22 +11,30 @@ describe('SDK Tests: Context', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             })
             .then(() => {
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
-                cy.get('.sw-dashboard-statistics__card-headline')
-                    .should('be.visible');
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
+
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
+
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
             })
     });
 
     it('@sdk: get current language', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-card-view__content')
@@ -55,8 +63,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: subscribe on language changes', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Change the language of the current user');
 
         cy.get('.sw-card-view__content')
@@ -93,8 +99,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current environment', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -120,8 +124,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current locale', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -150,8 +152,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: subscribe on locale changes', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Change the locale of the current user');
 
         cy.get('.sw-admin-menu__user-name')
@@ -187,8 +187,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current shopware version', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -215,8 +213,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get app information', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -242,5 +238,39 @@ describe('SDK Tests: Context', ()=> {
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
             .contains('App type: plugin');
+    })
+
+    it('@sdk: get module information', ()=> {
+        cy.log('Go to extension page');
+
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-order')
+            .click();
+
+        cy.contains('.sw-admin-menu__navigation-link', 'Test item')
+            .click();
+
+        cy.log('Get the module information');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .find('button')
+            .contains('Get module information')
+            .click();
+
+        cy.log('Check the module information')
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Id:');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Display search bar: true');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Heading: App Settings');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('LocationId: ui-menu-item-add-menu-item-with-searchbar');
     })
 })

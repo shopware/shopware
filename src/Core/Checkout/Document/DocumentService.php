@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
+use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
@@ -13,8 +15,10 @@ use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeExcept
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorInterface;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry;
+use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -30,6 +34,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use DocumentGenerator instead
+ */
 class DocumentService
 {
     public const VERSION_NAME = 'document';
@@ -79,10 +86,13 @@ class DocumentService
      */
     private $eventDispatcher;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
     public function __construct(
+        Connection $connection,
         DocumentGeneratorRegistry $documentGeneratorRegistry,
         FileGeneratorRegistry $fileGeneratorRegistry,
         EntityRepositoryInterface $orderRepository,
@@ -100,6 +110,7 @@ class DocumentService
         $this->documentConfigRepository = $documentConfigRepository;
         $this->mediaService = $mediaService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->connection = $connection;
     }
 
     /**
@@ -116,6 +127,11 @@ class DocumentService
         ?string $referencedDocumentId = null,
         bool $static = false
     ): DocumentIdStruct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
@@ -180,6 +196,11 @@ class DocumentService
 
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
         $generatedDocument = new GeneratedDocument();
@@ -191,13 +212,24 @@ class DocumentService
             $generatedDocument->setContentType($fileGenerator->getContentType());
             $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
         } else {
-            $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName() . '.' . $document->getDocumentMediaFile()->getFileExtension());
-            $generatedDocument->setContentType($document->getDocumentMediaFile()->getMimeType());
+            if (
+                !$this->hasValidFile($document)
+                || $document->getDocumentMediaFile() === null
+                || $document->getDocumentMediaFile()->getMimeType() === null
+                || $document->getDocumentMediaFileId() === null
+            ) {
+                throw new DocumentGenerationException('Document is missing file data');
+            }
+
+            /** @var MediaEntity $documentMediaFile */
+            $documentMediaFile = $document->getDocumentMediaFile();
+            $generatedDocument->setFilename($documentMediaFile->getFileName() . '.' . $documentMediaFile->getFileExtension());
+            $generatedDocument->setContentType($documentMediaFile->getMimeType() ?? PdfGenerator::FILE_CONTENT_TYPE);
 
             $fileBlob = '';
             $mediaService = $this->mediaService;
-            $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($mediaService, $document, &$fileBlob): void {
-                $fileBlob = $mediaService->loadFile($document->getDocumentMediaFileId(), $context);
+            $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($mediaService, $documentMediaFile, &$fileBlob): void {
+                $fileBlob = $mediaService->loadFile($documentMediaFile->getId(), $context);
             });
             $generatedDocument->setFileBlob($fileBlob);
         }
@@ -216,15 +248,27 @@ class DocumentService
         DocumentConfiguration $config,
         Context $context
     ): GeneratedDocument {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
             throw new InvalidDocumentGeneratorTypeException($documentTypeName);
         }
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($fileType);
-        $documentGenerator = $this->documentGeneratorRegistry->getGenerator($documentType->getTechnicalName());
+        $documentGenerator = $this->documentGeneratorRegistry->getGenerator($documentTypeName);
 
-        $order = $this->getOrderById($orderId, Defaults::LIVE_VERSION, $context, $deepLinkCode);
+        $orderVersionId = Defaults::LIVE_VERSION;
+
+        if (!empty($config->jsonSerialize()['custom']['invoiceNumber'])) {
+            $invoiceNumber = (string) $config->jsonSerialize()['custom']['invoiceNumber'];
+            $orderVersionId = $this->getInvoiceOrderVersionId($orderId, $invoiceNumber);
+        }
+
+        $order = $this->getOrderById($orderId, $orderVersionId, $context, $deepLinkCode);
 
         $documentConfiguration = $this->getConfiguration(
             $context,
@@ -258,6 +302,11 @@ class DocumentService
         Context $context,
         Request $uploadedFileRequest
     ): DocumentIdStruct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
 
@@ -319,9 +368,11 @@ class DocumentService
             ->addAssociation('currency')
             ->addAssociation('language.locale')
             ->addAssociation('addresses.country')
+            ->addAssociation('addresses.countryState')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
             ->addAssociation('orderCustomer.customer');
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
@@ -497,6 +548,10 @@ class DocumentService
         DocumentConfiguration $config,
         FileGeneratorInterface $fileGenerator
     ): void {
+        if ($document->getDocumentType() === null) {
+            throw new DocumentGenerationException('DocumentType missing');
+        }
+
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
             $document->getDocumentType()->getTechnicalName()
         );
@@ -527,5 +582,23 @@ class DocumentService
         if ($result->getTotal() !== 0) {
             throw new DocumentNumberAlreadyExistsException($documentNumber);
         }
+    }
+
+    private function getInvoiceOrderVersionId(string $orderId, string $invoiceNumber): string
+    {
+        $orderVersionId = $this->connection->fetchOne('
+            SELECT LOWER(HEX(order_version_id))
+            FROM document INNER JOIN document_type
+                ON document.document_type_id = document_type.id
+            WHERE document_type.technical_name = :technicalName
+            AND JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) = :invoiceNumber
+            AND document.order_id = :orderId
+        ', [
+            'technicalName' => InvoiceGenerator::INVOICE,
+            'invoiceNumber' => $invoiceNumber,
+            'orderId' => Uuid::fromHexToBytes($orderId),
+        ]);
+
+        return $orderVersionId ?: Defaults::LIVE_VERSION;
     }
 }

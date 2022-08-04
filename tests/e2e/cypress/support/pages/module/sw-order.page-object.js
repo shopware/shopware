@@ -25,7 +25,7 @@ export default class OrderPageObject {
                     documents: {
                         addDocumentButton: '.sw-order-document-grid-button',
                         documentGrid: '.sw-order-detail-base__document-grid',
-                        documentSettingsModal: '.sw-order-document-settings-modal__settings-modal',
+                        documentSettingsModal: '.sw-order-document-settings-modal',
                         documentTypeModal: '.sw-order-select-document-type-modal',
                         documentTypeModalRadios: '.sw-order-select-document-type-modal__radio-field',
                     },
@@ -138,7 +138,7 @@ export default class OrderPageObject {
             cy.get('.sw-order-state-card').scrollIntoView();
             cy.get('.sw-order-state-card').should('be.visible');
             cy.get(`${item} ${currentStatusIcon}`).should('be.visible');
-            cy.get(item).contains(stateTitle);
+            cy.contains(item, stateTitle);
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {

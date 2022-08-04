@@ -201,7 +201,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         onCancel() {
-            this.$router.push({ name: 'sw.settings.payment.index' });
+            this.$router.push({ name: 'sw.settings.payment.overview' });
         },
 
         setMediaItem({ targetId }) {

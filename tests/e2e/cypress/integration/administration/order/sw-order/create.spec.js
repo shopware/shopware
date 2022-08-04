@@ -11,7 +11,9 @@ describe('Order: Create order', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -36,8 +38,7 @@ describe('Order: Create order', () => {
             .click();
 
         // expect create-order-page is visible
-        cy.get('h2')
-            .contains('New order');
+        cy.contains('h2', 'New order');
 
         // expect unabling to add any line items if there is no customer yet
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
@@ -95,13 +96,10 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+        cy.contains(`.sw-order-detail-base ${page.elements.userMetadata}`, 'Pep Eroni');
 
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
-            .contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
-            .contains('10');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '10');
     });
 
     it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
@@ -140,8 +138,7 @@ describe('Order: Create order', () => {
             .click();
 
         // expect create-order-page is visible
-        cy.get('h2')
-            .contains('New order');
+        cy.contains('h2', 'New order');
 
         // expect unabling to add any line items if there is no customer yet
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
@@ -154,8 +151,7 @@ describe('Order: Create order', () => {
         // expect modal add-new-customer visible
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.get('.sw-modal__title')
-            .contains('Add new customer');
+        cy.contains('.sw-modal__title', 'Add new customer');
 
         // expect customer-password is not disabled when customer-guest is not checked
         cy.get('.sw-order-new-customer-modal input[name="sw-field--customer-guest"]')
@@ -208,8 +204,7 @@ describe('Order: Create order', () => {
             .typeAndCheck('shopware');
 
         // change to "Billing address" tab
-        cy.get('.sw-order-new-customer-modal .sw-tabs-item')
-            .contains('Billing address')
+        cy.contains('.sw-order-new-customer-modal .sw-tabs-item', 'Billing address')
             .click();
 
         // enter salutation
@@ -241,8 +236,7 @@ describe('Order: Create order', () => {
             .typeSingleSelectAndCheck('Germany', '.sw-customer-address-form__country-select');
 
         // change to "Shipping address" tab
-        cy.get('.sw-order-new-customer-modal .sw-tabs-item')
-            .contains('Shipping address')
+        cy.contains('.sw-order-new-customer-modal .sw-tabs-item', 'Shipping address')
             .click();
 
         // "Same as billing address" is checked
@@ -308,10 +302,9 @@ describe('Order: Create order', () => {
         // assert creating new customer successful with the different address
         cy.get('.sw-order-create-details-body input[name="sw-field--email"]')
             .should('have.value', 'goldenstars@example.com');
-        cy.get('.sw-order-create-details-body .is-billing .sw-address__street')
-            .contains('Billing street');
-        cy.get('.sw-order-create-details-body .is-shipping .sw-address__street')
-            .contains('Shipping street');
+        cy.contains('.sw-order-create-details-body .is-billing .sw-address__street',
+            'Billing street');
+        cy.contains('.sw-order-create-details-body .is-shipping .sw-address__street', 'Shipping street');
 
         // expect abling to add the line items if there is an available customer
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
@@ -381,13 +374,10 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Golden Stars');
+        cy.contains(`.sw-order-detail-base ${page.elements.userMetadata}`, 'Golden Stars');
 
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
-            .contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
-            .contains('5');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '5');
     });
 
     it('@base @order: add promotion code', () => {
@@ -396,8 +386,12 @@ describe('Order: Create order', () => {
         const page = new OrderPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.get('a[href="#/sw/promotion/v2/create"]').click();
+        cy.get('.smart-bar__actions .sw-button--primary').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -447,8 +441,7 @@ describe('Order: Create order', () => {
         cy.get('.sw-promotion-v2-detail__save-action').click();
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`)
-            .contains('New year promotion');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`, 'New year promotion');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name a`)
             .click();
 
@@ -472,16 +465,19 @@ describe('Order: Create order', () => {
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`)
-            .contains('New year promotion');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`, 'New year promotion');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--active .is--active`)
             .should('be.visible');
 
         // Navigate to order list page
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // navigate to order create page
         cy.contains('Add order').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // select an existing customer
         cy.get('.sw-order-create-details-header .sw-entity-single-select')
@@ -517,17 +513,14 @@ describe('Order: Create order', () => {
 
         // assert adding promotion tag successfully
         cy.get('.sw-tagged-field__tag-list .sw-label').should('be.visible');
-        cy.get('.sw-tagged-field__tag-list .sw-label').contains('DISCOUNT');
+        cy.contains('.sw-tagged-field__tag-list .sw-label', 'DISCOUNT');
         cy.get('.sw-tagged-field__tag-list .sw-label').should('not.have.class', 'sw-label--danger');
 
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--label`)
-            .contains('New year promotion');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--label`, 'New year promotion');
 
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`)
-            .contains('1');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`, '1');
 
-        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`)
-            .contains('1');
+        cy.contains(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`, '1');
 
         // save order
         cy.contains('Save order')
@@ -543,8 +536,7 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+        cy.contains(`.sw-order-detail-base ${page.elements.userMetadata}`, 'Pep Eroni');
 
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
@@ -570,8 +562,7 @@ describe('Order: Create order', () => {
             .click();
 
         // expect create-order-page is visible
-        cy.get('h2')
-            .contains('New order');
+        cy.contains('h2', 'New order');
 
         // expect unabling to add any line items if there is no customer yet
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
@@ -626,12 +617,11 @@ describe('Order: Create order', () => {
 
         cy.get('.sw-modal__body').should('be.visible');
 
-        cy.get('.sw-modal__body')
-            .contains('CODE');
+        cy.contains('.sw-modal__body', 'CODE');
 
         // assert adding promotion tag failed
         cy.get('.sw-tagged-field__tag-list .sw-label').should('be.visible');
-        cy.get('.sw-tagged-field__tag-list .sw-label').contains('CODE');
+        cy.contains('.sw-tagged-field__tag-list .sw-label', 'CODE');
         cy.get('.sw-tagged-field__tag-list .sw-label').should('have.class', 'sw-label--danger');
 
         // remove invalid code
@@ -654,13 +644,11 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
-                .contains('Pep Eroni');
+        cy.contains('.sw-order-detail-base .sw-order-user-card__metadata', 'Pep Eroni');
 
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
-            .contains('Product name');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')
-            .contains('10');
+        cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content',
+            'Product name');
+        cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content', '10');
     });
 
     it('@base @order create new order', () => {
@@ -706,10 +694,8 @@ describe('Order: Create order', () => {
 
         cy.wait('@getCart').its('response.statusCode').should('equal', 200);
 
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
-            .contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
-            .contains('10');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '10');
 
         //TODO: NEXT-16672 - Check customer info and calculation summary in newly draft page
 
@@ -728,9 +714,7 @@ describe('Order: Create order', () => {
 
         //TODO: NEXT-16672 - Check customer info and calculation summary in order detail
 
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
-            .contains('Product name');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
-            .contains('10');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`, 'Product name');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '10');
     });
 });

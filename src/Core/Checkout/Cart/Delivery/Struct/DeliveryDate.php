@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class DeliveryDate extends Struct
 {
@@ -29,31 +30,34 @@ class DeliveryDate extends Struct
     public static function createFromDeliveryTime(DeliveryTime $deliveryTime): self
     {
         switch ($deliveryTime->getUnit()) {
-            case 'hour':
+            case DeliveryTimeEntity::DELIVERY_TIME_HOUR:
                 return new self(
                     self::create('PT' . $deliveryTime->getMin() . 'H'),
                     self::create('PT' . $deliveryTime->getMax() . 'H')
                 );
 
-            case 'day':
+            case DeliveryTimeEntity::DELIVERY_TIME_DAY:
                 return new self(
                     self::create('P' . $deliveryTime->getMin() . 'D'),
                     self::create('P' . $deliveryTime->getMax() . 'D')
                 );
 
-            case 'week':
+            // NEXT-21735 - This is covered randomly
+            // @codeCoverageIgnoreStart
+            case DeliveryTimeEntity::DELIVERY_TIME_WEEK:
                 return new self(
                     self::create('P' . $deliveryTime->getMin() . 'W'),
                     self::create('P' . $deliveryTime->getMax() . 'W')
                 );
+            // @codeCoverageIgnoreEnd
 
-            case 'month':
+            case DeliveryTimeEntity::DELIVERY_TIME_MONTH:
                 return new self(
                     self::create('P' . $deliveryTime->getMin() . 'M'),
                     self::create('P' . $deliveryTime->getMax() . 'M')
                 );
 
-            case 'year':
+            case DeliveryTimeEntity::DELIVERY_TIME_YEAR:
                 return new self(
                     self::create('P' . $deliveryTime->getMin() . 'Y'),
                     self::create('P' . $deliveryTime->getMax() . 'Y')

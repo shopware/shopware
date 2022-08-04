@@ -6,20 +6,21 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
+use Shopware\Core\System\Salutation\SalutationEntity;
+use Symfony\Component\HttpFoundation\Request;
 
 class FormCmsElementResolver extends Element\AbstractCmsElementResolver
 {
-    private EntityRepositoryInterface $salutationRepository;
+    private AbstractSalutationRoute $salutationRoute;
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $salutationRepository)
+    public function __construct(AbstractSalutationRoute $salutationRoute)
     {
-        $this->salutationRepository = $salutationRepository;
+        $this->salutationRoute = $salutationRoute;
     }
 
     public function getType(): string
@@ -36,8 +37,12 @@ class FormCmsElementResolver extends Element\AbstractCmsElementResolver
     {
         $context = $resolverContext->getSalesChannelContext();
 
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search(new Criteria(), $context->getContext())->getEntities();
+        $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
+
+        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+            return $b->getSalutationKey() <=> $a->getSalutationKey();
+        });
+
         $slot->setData($salutations);
     }
 }

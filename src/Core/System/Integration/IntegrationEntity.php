@@ -48,6 +48,11 @@ class IntegrationEntity extends Entity
      */
     protected $aclRoles;
 
+    /**
+     * @var bool
+     */
+    protected $writeAccess;
+
     protected ?\DateTimeInterface $deletedAt;
 
     public function getLabel(): string
@@ -128,5 +133,15 @@ class IntegrationEntity extends Entity
     public function setDeletedAt(\DateTimeInterface $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
+    }
+
+    public function getWriteAccess(): bool
+    {
+        return $this->writeAccess;
+    }
+
+    public function setWriteAccess(bool $writeAccess): void
+    {
+        $this->writeAccess = $writeAccess;
     }
 }

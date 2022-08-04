@@ -28,6 +28,8 @@ describe('Promotion: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -49,6 +51,8 @@ describe('Promotion: Visual tests', () => {
         cy.takeSnapshot('[Promotion] listing', '.sw-promotion-list');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');
@@ -67,8 +71,7 @@ describe('Promotion: Visual tests', () => {
         cy.takeSnapshot('[Promotion] detail', '.sw-promotion-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Funicular prices');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Funicular prices');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name a`)
             .click();
 
@@ -107,6 +110,6 @@ describe('Promotion: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] In Storefront checkout', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] In Storefront checkout', '.offcanvas');
     });
 });

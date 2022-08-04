@@ -10,7 +10,7 @@ Module.register('sw-settings-cart', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
@@ -28,7 +28,7 @@ Module.register('sw-settings-cart', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.cart.index',
-        icon: 'default-shopping-cart',
+        icon: 'regular-shopping-cart',
         privilege: 'system.system_config',
     },
 });

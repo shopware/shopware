@@ -10,6 +10,8 @@ describe('Rule builder: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -22,7 +24,15 @@ describe('Rule builder: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/rule`,
+            method: 'POST'
+        }).as('searchRule');
+
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // save with empty data
         cy.get('button.sw-button').contains('Save').click();
@@ -63,6 +73,9 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
+        // wait for rule to be fetched so that the unsaved changes modal won't appear
+        cy.wait('@searchRule').its('response.statusCode').should('equal', 200);
+
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
         cy.get(page.elements.loader).should('not.exist');
@@ -97,7 +110,10 @@ describe('Rule builder: Test crud operations', () => {
     });
 
     it('@base @rule: should show the condition select upwards', () => {
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-rule-detail__condition_container').scrollIntoView();
 
         cy.get('.sw-condition').then((conditionElement) => {

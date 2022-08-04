@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-order', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         customer: {
@@ -23,7 +23,7 @@ Component.register('sw-customer-detail-order', {
             orders: null,
             term: '',
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
-            orderIcon: 'default-shopping-paper-bag',
+            orderIcon: 'regular-shopping-bag',
         };
     },
 
@@ -94,6 +94,15 @@ Component.register('sw-customer-detail-order', {
             this.orderRepository.search(criteria).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
+            });
+        },
+
+        navigateToCreateOrder() {
+            this.$router.push({
+                name: 'sw.order.create',
+                params: {
+                    customer: this.customer,
+                },
             });
         },
     },

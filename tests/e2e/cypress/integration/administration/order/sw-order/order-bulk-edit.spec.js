@@ -1,30 +1,37 @@
-///  <reference types="Cypress" />
+/// <reference types="Cypress" />
 import OrderPageObject from '../../../../support/pages/module/sw-order.page-object';
 
 describe('Order: Bulk edit orders', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        }).then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((product) => {
+                return cy.createGuestOrder(product.id);
+            })
+            .then(() => {
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
-        }).then((result) => {
-            return cy.createGuestOrder(result.id);
-        }).then(() => {
-            return cy.createCustomerFixture();
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-        });
     });
 
     it('@package @order: should modify orders with the bulk edit functionality', () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
-        
+
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'POST'
@@ -44,7 +51,7 @@ describe('Order: Bulk edit orders', () => {
 
         // Create the second order
         cy.contains('Add order').click();
-        cy.get('h2').contains('New order');
+        cy.contains('h2', 'New order');
         cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
             .should('be.disabled');
         cy.get('.sw-order-create-details-header .sw-entity-single-select')
@@ -71,6 +78,8 @@ describe('Order: Bulk edit orders', () => {
 
         // Bulk edit
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
         cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
         cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
@@ -79,6 +88,7 @@ describe('Order: Bulk edit orders', () => {
         cy.get('#modalTitleEl').should('be.visible');
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.url().should('include', 'bulk/edit/order');
+        cy.get('.smart-bar__header').contains('Bulk edit: 2 orders');
 
         // Make changes on both orders (Payment status, Delivery status, Order status)
         cy.get('.sw-bulk-edit-change-field-orderTransactions [type="checkbox"]').click();
@@ -94,7 +104,7 @@ describe('Order: Bulk edit orders', () => {
         // Apply the changes
         cy.get('.sw-bulk-edit-order__save-action.sw-button-process').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.get('.sw-loader').should('not.exist');
@@ -102,8 +112,10 @@ describe('Order: Bulk edit orders', () => {
         cy.get('.footer-right > .sw-button').click();
         cy.get('.sw-bulk-edit-save-modal').should('not.exist');
 
-        //Verify changes from the first order
+        // Verify changes from the first order
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'order/index');
         cy.get('.sw-data-grid__row.sw-data-grid__row--0')
             .within(() => {
@@ -112,12 +124,116 @@ describe('Order: Bulk edit orders', () => {
                 cy.contains('Cancelled').should('exist');
             });
 
-        //Verify changes from the second order
+        // Verify changes from the second order
         cy.get('.sw-data-grid__row.sw-data-grid__row--1')
             .within(() => {
                 cy.contains('Authorized').should('exist');
                 cy.contains('Shipped (partially)').should('exist');
                 cy.contains('Cancelled').should('exist');
             });
+    });
+
+    it('@package @order: should be able to generate documents with the bulk edit functionality', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/user-config`,
+            method: 'POST'
+        }).as('getUserConfig');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/**/create`,
+            method: 'POST'
+        }).as('createDocument');
+
+        // Bulk edit
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.url().should('include', 'order/index');
+        cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
+        cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
+        cy.get('.link.link-primary').click();
+        cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
+        cy.get('#modalTitleEl').should('be.visible');
+        cy.get('.sw-modal__footer .sw-button--primary').click();
+        cy.url().should('include', 'bulk/edit/order');
+        cy.get('.smart-bar__header').contains('Bulk edit: 1 order');
+
+        // Choose generating invoice document
+        cy.get('.sw-bulk-edit-change-field-invoice [type="checkbox"]')
+            .click();
+        cy.get('.sw-bulk-edit-change-field-invoice textarea[name=sw-field--generateData-documentComment]')
+            .type('Invoice generated via bulk edit');
+
+        // Apply the changes
+        cy.get('.sw-bulk-edit-order__save-action.sw-button-process').click();
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.get('.footer-right .sw-button--primary').click();
+        cy.get('.sw-bulk-edit-save-modal-process').should('exist');
+        cy.get('.sw-bulk-edit-save-modal-process__generate-document.is--invoice').should('exist');
+        cy.wait('@createDocument').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.sw-modal__header > .sw-modal__close').click();
+        cy.get('.sw-bulk-edit-save-modal').should('not.exist');
+
+        // Verify changes from the order
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.url().should('include', 'order/index');
+        cy.get('.sw-data-grid__row.sw-data-grid__row--0').find('.sw-context-button__button').click();
+        cy.contains('.sw-context-menu-item', 'View').click();
+        cy.get('.sw-order-document-card .sw-data-grid__row.sw-data-grid__row--0').contains('Invoice');
+    });
+
+    it('@package @order: should be able to download documents with the bulk edit functionality', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/user-config`,
+            method: 'POST'
+        }).as('getUserConfig');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/download`,
+            method: 'POST'
+        }).as('downloadDocument');
+
+        // Bulk edit
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.url().should('include', 'order/index');
+        cy.get('.sw-data-grid__select-all .sw-field__checkbox input').click();
+        cy.get('.sw-data-grid__bulk-selected.bulk-link').should('exist');
+        cy.get('.link.link-primary').click();
+        cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
+        cy.get('#modalTitleEl').should('be.visible');
+        cy.get('.sw-modal__footer .sw-button--primary').click();
+        cy.url().should('include', 'bulk/edit/order');
+        cy.get('.smart-bar__header').contains('Bulk edit: 1 order');
+
+        // Choose generating invoice document
+        cy.get('.sw-bulk-edit-change-field-invoice [type="checkbox"]')
+            .click();
+        cy.get('.sw-bulk-edit-change-field-invoice textarea[name=sw-field--generateData-documentComment]')
+            .type('Invoice generated via bulk edit');
+
+        // Choose downloading invoice document
+        cy.get('.sw-bulk-edit-change-field-download .sw-bulk-edit-change-field-renderer__change-field [type="checkbox"]')
+            .click();
+        cy.get('.sw-bulk-edit-order-documents-download-documents__checkbox.is--invoice [type="checkbox"]')
+            .click();
+
+        // Apply the changes
+        cy.get('.sw-bulk-edit-order__save-action.sw-button-process').click();
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.footer-right .sw-button--primary').contains('Apply changes');
+        cy.get('.footer-right .sw-button--primary').click();
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.sw-bulk-edit-save-modal-success__download-document.is--invoice').should('exist');
+        cy.get('.sw-bulk-edit-save-modal-success__download-document.is--invoice .action').click();
+        cy.wait('@downloadDocument').its('response.statusCode').should('equal', 200);
+        cy.get('.footer-right > .sw-button').click();
+        cy.get('.sw-bulk-edit-save-modal').should('not.exist');
     });
 });

@@ -196,7 +196,7 @@ class ProductApiTest extends TestCase
 
     public function testIncludesWithJsonApi(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             'id' => $ids->create('product'),
@@ -238,7 +238,7 @@ class ProductApiTest extends TestCase
 
     public function testIncludesWithRelationships(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             'id' => $ids->create('product'),

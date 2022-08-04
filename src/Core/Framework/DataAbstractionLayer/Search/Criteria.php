@@ -16,8 +16,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class Criteria extends Struct implements \Stringable
 {
@@ -89,7 +88,7 @@ class Criteria extends Struct implements \Stringable
     protected $associations = [];
 
     /**
-     * @var string[]|array<int, string[]>
+     * @var array<string>|array<int, array<string>>
      */
     protected $ids = [];
 
@@ -143,7 +142,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return string[]|array<int, string[]>
+     * @return array<string>|array<int, array<string>>
      */
     public function getIds(): array
     {
@@ -460,7 +459,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param array<string>|array<int, array<string>> $ids
      */
     public function setIds(array $ids): self
     {
@@ -482,7 +481,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param array<string>|array<int, array<string>> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {

@@ -37,7 +37,7 @@
 
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
                 <template slot="dismiss-icon">
-                    <sw-icon name="small-default-x-line-medium" />
+                    <sw-icon name="regular-times-s" />
                 </template>
                 {% endblock %}
 
@@ -112,10 +112,11 @@
                             checkItem,
                             translationContext,
                             onChangeRoute,
-                            disableContextMenu
+                            disableContextMenu,
+                            selectedItemsPathIds,
+                            checkedItemIds,
                         }"
                     >
-                        {% block sw_category_tree_field_input_results_tree_item %}
                         <sw-tree-item
                             v-for="item in treeItems"
                             :key="item.id"
@@ -127,17 +128,14 @@
                             :sortable="false"
                             should-focus
                             :active-focus-id="selectedTreeItem.id"
-                            :mark-inactive="true"
+                            mark-inactive
+                            should-show-active-state
                             @check-item="onCheckItem"
                         >
-
-                            {% block sw_category_tree_field_input_results_tree_item_actions %}
                             <template #actions>
-                                <span></span></template>
-                            {% endblock %}
-
+                                <span></span>
+                            </template>
                         </sw-tree-item>
-                        {% endblock %}
                     </template>
                     {% endblock %}
                 </sw-tree>
@@ -189,7 +187,7 @@
                         >
                             {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
                             <sw-icon
-                                name="small-default-circle-small"
+                                name="regular-circle-xxs"
                                 size="18"
                             />
                             {% endblock %}

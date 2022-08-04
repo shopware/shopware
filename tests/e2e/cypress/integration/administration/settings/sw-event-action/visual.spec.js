@@ -15,6 +15,8 @@ describe('Event actions: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -32,8 +34,8 @@ describe('Event actions: Visual testing', () => {
         cy.get('#sw-event-action').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Event action] Listing', '.sw-event-action-list__grid');
         cy.takeSnapshot('[Event action] Deprecated modal', '.sw-event-action-deprecated-modal');
         cy.takeSnapshot('[Event action] Deprecated alert', '.sw-event-action-deprecated-alert');

@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
+ * @deprecated tag:v6.5.0 This rule component will be removed. Use sw-condition-generic instead.
  * @public
  * @description "Days since last order" item for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype

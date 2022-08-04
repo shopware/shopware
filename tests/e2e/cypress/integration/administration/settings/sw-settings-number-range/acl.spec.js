@@ -11,9 +11,11 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it.skip('@settings: read number range with ACL, but without rights', () => {
+    it('@settings: read number range with ACL, but without rights', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
@@ -23,7 +25,7 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it.skip('@settings: read number range with ACL', () => {
+    it('@settings: read number range with ACL', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -31,10 +33,12 @@ describe('Number Range: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Number ranges');
-        cy.get(page.elements.primaryButton).contains('Add number range');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Number ranges');
+        cy.contains(page.elements.primaryButton, 'Add number range');
 
         cy.get('.sw-number-range-list__add-number-range').should('have.class', 'sw-button--disabled');
 
@@ -59,6 +63,8 @@ describe('Number Range: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
 
@@ -109,12 +115,11 @@ describe('Number Range: Test acl privileges', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Name e2e');
 
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Name e2e');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
     // TODO: Unskip with NEXT-15489
-    it.skip('@settings: can edit number range with ACL', () => {
+    it('@settings: can edit number range with ACL', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -126,6 +131,8 @@ describe('Number Range: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -153,12 +160,11 @@ describe('Number Range: Test acl privileges', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Cancellations update');
 
         cy.wait('@searchData').its('response.statusCode').should('equal', 200); cy.get('.sw-settings-number-range-list-grid').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Cancellations update');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
     // TODO: Unskip with NEXT-15489
-    it.skip('@settings: can delete number range with ACL', () => {
+    it('@settings: can delete number range with ACL', { tags: ['quarantined'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -170,6 +176,8 @@ describe('Number Range: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -186,8 +194,8 @@ describe('Number Range: Test acl privileges', () => {
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.numberRangeColumnName}`).then(row => {
-            cy.get('.sw-modal__body')
-                .contains(`Are you sure you want to delete the number range "${row.text().trim()}"?`);
+            cy.contains('.sw-modal__body',
+                `Are you sure you want to delete the number range "${row.text().trim()}"?`);
         });
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 

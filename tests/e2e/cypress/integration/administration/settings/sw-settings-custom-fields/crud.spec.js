@@ -20,6 +20,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
@@ -62,6 +64,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
@@ -71,7 +75,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.contains('.sw-select-result', 'Products').click({ force: true });
         cy.get('h2').click();
         cy.get('.sw-select__results-list').should('not.exist');
-        cy.get('.sw-label').contains('Products');
+        cy.contains('.sw-label', 'Products');
 
         cy.get('.sw-empty-state').should('exist');
 
@@ -118,6 +122,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
@@ -169,6 +175,8 @@ describe('Custom Fields: Test crud operations', () => {
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
@@ -177,7 +185,8 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-context-menu-item:nth-of-type(2)').click();
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-custom-field-delete__description').contains('Are you sure that you want to delete this custom field?');
+        cy.contains('.sw-custom-field-delete__description',
+            'Are you sure that you want to delete this custom field?');
         cy.get('.sw-button--danger').click();
         cy.get('.sw-modal').should('not.exist');
 
@@ -186,17 +195,19 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-empty-state').should('exist');
-        cy.get('.sw-empty-state__title').contains('No custom fields yet.');
+        cy.contains('.sw-empty-state__title', 'No custom fields yet.');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // delete custom field set
         cy.get('.sw-grid__row--0 .sw-context-button__button').click();
         cy.get('.sw-context-menu-item--danger').click();
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Do you really want to delete the set "My custom field" ?');
+        cy.contains('.sw-modal__body',
+            'Do you really want to delete the set "My custom field" ?');
         cy.get('.sw-button--danger').click();
 
         // Verify creation
@@ -204,6 +215,6 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-modal').should('not.exist');
 
         cy.get('.sw-empty-state').should('exist');
-        cy.get('.sw-empty-state__title').contains('No custom fields yet.');
+        cy.contains('.sw-empty-state__title', 'No custom fields yet.');
     });
 });

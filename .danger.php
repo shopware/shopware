@@ -10,7 +10,6 @@ use Danger\Rule\Condition;
 use Danger\Rule\DisallowRepeatedCommits;
 use Danger\Struct\Gitlab\File as GitlabFile;
 
-
 return (new Config())
     ->useThreadOnFails()
     ->useRule(new DisallowRepeatedCommits)
@@ -196,14 +195,21 @@ return (new Config())
         ]
     ))
     ->useRule(function (Context $context) {
-        $files = $context->platform->pullRequest->getFiles();
+        function checkMigrationForBundle(string $bundle, Context $context): void
+        {
+            $files = $context->platform->pullRequest->getFiles();
 
-        $migrationFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/V*/Migration*.php');
-        $migrationTestFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/Test/*.php');
+            $migrationFiles = $files->filterStatus(File::STATUS_ADDED)->matches('src/Core/Migration/V*/Migration*.php');
+            $migrationTestFiles = $files->filterStatus(File::STATUS_ADDED)->matches('tests/migration/Core/V*/*.php');
 
-        if ($migrationFiles->count() && !$migrationTestFiles->count()) {
-            $context->failure('Please add tests for your new Migration file');
+            if ($migrationFiles->count() && !$migrationTestFiles->count()) {
+                $context->failure('Please add tests for your new Migration file');
+            }
         }
+
+        checkMigrationForBundle('Core', $context);
+        checkMigrationForBundle('Administration', $context);
+        checkMigrationForBundle('Storefront', $context);
     })
     ->useRule(function (Context $context) {
         $files = $context->platform->pullRequest->getFiles();
@@ -225,6 +231,39 @@ return (new Config())
             $context->failure(
                 'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)' .
                 ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>' .
+                print_r($errorFiles, true)
+            );
+        }
+    })
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $newRepoUseInFrontend = array_merge(
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
+                ->matchesContent('/EntityRepository/')->getElements(),
+        );
+
+
+
+        if (count($newRepoUseInFrontend) > 0) {
+            $errorFiles = [];
+            foreach ($newRepoUseInFrontend as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
+                }
+            }
+
+            if (count($errorFiles) === 0) {
+                return;
+            }
+
+            $context->failure(
+                'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).' .
+                ' Use Store-Api Routes instead.<br/>' .
                 print_r($errorFiles, true)
             );
         }

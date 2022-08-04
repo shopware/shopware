@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemsInCartRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $identifiers;
 

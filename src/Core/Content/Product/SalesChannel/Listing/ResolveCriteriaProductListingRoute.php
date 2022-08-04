@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -39,34 +38,6 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("product")
-     * @OA\Post(
-     *      path="/product-listing/{categoryId}",
-     *      summary="Fetch a product listing by category",
-     *      description="Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
-     *      operationId="readProductListing",
-     *      tags={"Store API","Product"},
-     *      @OA\RequestBody(
-     *          @OA\JsonContent(
-     *                  type="object",
-     *                  allOf={
-     *                      @OA\Schema(ref="#/components/schemas/ProductListingCriteria"),
-     *                      @OA\Schema(ref="#/components/schemas/ProductListingFlags")
-     *                  }
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="categoryId",
-     *          description="Identifier of a category.",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a product listing containing all products and additional fields to display a listing.",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
-     *     )
-     * )
      * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
      */
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse

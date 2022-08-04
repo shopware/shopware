@@ -21,7 +21,7 @@ Module.register('sw-cms', {
     title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
     color: '#ff68b4',
-    icon: 'default-symbol-content',
+    icon: 'regular-content',
     favicon: 'icon-module-content.png',
     entity: 'cms_page',
 
@@ -43,7 +43,7 @@ Module.register('sw-cms', {
         },
         create: {
             component: 'sw-cms-create',
-            path: 'create',
+            path: 'create/:type/:id',
             meta: {
                 parentPath: 'sw.cms.index',
                 privilege: 'cms.creator',
@@ -55,14 +55,14 @@ Module.register('sw-cms', {
         id: 'sw-content',
         label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
         color: '#ff68b4',
-        icon: 'default-symbol-content',
+        icon: 'regular-content',
         position: 50,
     }, {
         id: 'sw-cms',
         label: 'sw-cms.general.mainMenuItemGeneral',
         color: '#ff68b4',
         path: 'sw.cms.index',
-        icon: 'default-symbol-content',
+        icon: 'regular-content',
         position: 10,
         parent: 'sw-content',
         privilege: 'cms.viewer',

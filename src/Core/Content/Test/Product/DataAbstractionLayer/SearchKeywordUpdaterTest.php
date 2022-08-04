@@ -56,7 +56,7 @@ class SearchKeywordUpdaterTest extends TestCase
      */
     public function testItUpdatesKeywordsAndDictionary(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
-        $this->productRepository->create([$productData], $ids->getContext());
+        $this->productRepository->create([$productData], Context::createDefaultContext());
 
         $this->assertKeywords($ids->get('1000'), Defaults::LANGUAGE_SYSTEM, $englishKeywords);
         $this->assertKeywords($ids->get('1000'), $this->getDeDeLanguageId(), $germanKeywords);
@@ -92,10 +92,10 @@ class SearchKeywordUpdaterTest extends TestCase
         ];
 
         $this->getContainer()->get('product_search_config_field.repository')
-            ->create($fields, $ids->getContext());
+            ->create($fields, Context::createDefaultContext());
 
         $this->getContainer()->get(SearchKeywordUpdater::class)
-            ->update($ids->getList(['p1', 'p2']), $ids->context);
+            ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
@@ -111,7 +111,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'localeId' => $esLocale,
                 'translationCodeId' => $esLocale,
             ],
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $this->productRepository->create(
             [
@@ -121,7 +121,7 @@ class SearchKeywordUpdaterTest extends TestCase
                     ->translation($ids->get('language'), 'name', 'Test produkt')
                     ->build(),
             ],
-            $ids->getContext()
+            Context::createDefaultContext()
         );
 
         $this->assertKeywords(

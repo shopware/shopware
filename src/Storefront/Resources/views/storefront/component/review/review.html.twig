@@ -221,7 +221,7 @@
                                                 {% block component_review_list_paging_form %}
                                                     <div class="product-detail-review-pagination">
                                                         <form class="product-detail-review-pagination-form"
-                                                              action="{{ path('frontend.product.reviews', { productId: product.id }) }}"
+                                                              action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.parentId }) }}"
                                                               method="post"
                                                               data-form-ajax-submit="true"
                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>

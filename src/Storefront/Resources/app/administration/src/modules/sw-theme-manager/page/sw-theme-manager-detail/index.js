@@ -172,8 +172,18 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
+        /** @deprecated tag:v6.5.0 method will be removed */
         checkInheritance(value) {
             return !value;
+        },
+
+        checkInheritanceFunction(fieldName) {
+            return (value) => this.currentThemeConfig[fieldName].isInherited;
+
+        },
+
+        handleInheritanceInput(value, fieldName) {
+            this.currentThemeConfig[fieldName].isInherited = value === null;
         },
 
         getThemeConfig() {

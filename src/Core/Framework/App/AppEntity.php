@@ -71,9 +71,6 @@ class AppEntity extends Entity
      */
     protected $allowDisable;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     protected ?string $baseAppUrl = null;
 
     /**
@@ -91,9 +88,6 @@ class AppEntity extends Entity
      */
     protected $cookies;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     protected ?array $allowedHosts = null;
 
     /**

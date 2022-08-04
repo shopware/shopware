@@ -24,7 +24,8 @@ describe('Storefront test data set', () => {
         cy.get('.home-link').click()
     });
 
-    it.skip('@storefront: put cargohose from cms page into cart', () => {
+    // @todo remove skip after next-9476 is done
+    it('@storefront: put cargohose from cms page into cart', { tags: ['quarantined'] }, () => {
         cy.visit('/Maenner/Hosen/');
 
         cy.window().then((win) => {
@@ -45,20 +46,20 @@ describe('Storefront test data set', () => {
             cy.get(`${lineItemSelector}-label`).contains(/1x.*Cargo/).should('be.visible');
 
             cy.get(`${lineItemSelector}-remove > .btn`).click();
-            cy.get(`${lineItemSelector}-label`).should('not.be.visible');
+            cy.get(`${lineItemSelector}-label`).should('not.exist');
             cy.get('.alert-info > .alert-content-container > .alert-content')
                 .contains('Warenkorb ist leer')
                 .should('be.visible');
 
             cy.get('.offcanvas').scrollIntoView()
 
-            cy.get('body > div.offcanvas.is-right.is-open > button').should('be.visible').click();
-            cy.get('.offcanvas').should('not.be.visible');
+            cy.get('body > .offcanvas .offcanvas-close').should('be.visible').click();
+            cy.get('.offcanvas').should('not.exist');
         });
     });
-    //@todo remove skip after next-9476 is done
 
-    it.skip('@storefront: search cargohose', () => {
+    // @todo remove skip after next-9476 is done
+    it('@storefront: search cargohose', { tags: ['quarantined'] }, () => {
         cy.visit('/');
         cy.get('input[type="search"]').should('be.visible').clear().type('cargohose{enter}');
 
@@ -67,9 +68,9 @@ describe('Storefront test data set', () => {
 
         cy.get('.product-info').contains('Cargo').should('be.visible');
     });
-    //@todo remove skip after next-9476 is done
 
-    it.skip('@storefront: search cargohose downarrow enter', () => {
+    // @todo remove skip after next-9476 is done
+    it('@storefront: search cargohose downarrow enter', { tags: ['quarantined'] }, () => {
         cy.visit('/');
 
         cy.get('input[type="search"]').should('be.visible').clear().type('cargohose');
@@ -83,5 +84,4 @@ describe('Storefront test data set', () => {
 
         cy.get('.btn-buy').should('be.visible');
     });
-    //@todo remove skip after next-9476 is done
 });

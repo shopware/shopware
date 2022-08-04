@@ -10,6 +10,8 @@ describe('Rule builder: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -27,15 +29,15 @@ describe('Rule builder: Visual tests', () => {
         cy.get('#sw-settings-rule').click();
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-rule-list__content').should('exist');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-data-grid__cell--updatedAt',
-            'color: #fff'
-        );
-        cy.get('.sw-data-grid__cell--updatedAt')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--updatedAt .sw-data-grid__cell-content', '01 Jan 2018, 00:01');
+
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--createdAt .sw-data-grid__cell-content', '01 Jan 2018, 00:00');
 
         // Take snapshot for visual testing
         cy.get(page.elements.loader).should('not.exist');

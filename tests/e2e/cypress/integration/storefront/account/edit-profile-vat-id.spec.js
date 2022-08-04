@@ -10,6 +10,8 @@ describe('Account: Edit profile\'s Vat Id', () => {
 
     it('@customer @package: Update profile', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
@@ -31,6 +33,8 @@ describe('Account: Edit profile\'s Vat Id', () => {
             .its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         const settingPage = new SettingsPageObject();
 
         cy.get('.sw-admin-menu__item--sw-settings').click();

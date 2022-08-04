@@ -226,6 +226,10 @@ Component.register('sw-category-tree-field', {
                     this.$emit('selection-add', item);
                 }
 
+                if (this.singleSelect) {
+                    this.isExpanded = false;
+                }
+
                 return true;
             }
 

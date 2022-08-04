@@ -21,6 +21,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
+ * @group not-deterministic
  */
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {

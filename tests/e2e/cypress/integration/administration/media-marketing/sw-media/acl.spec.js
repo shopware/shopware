@@ -18,11 +18,13 @@ describe('Media: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open media-payment without permissions
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
-        cy.get('h1').contains('Access denied');
+        cy.contains('h1', 'Access denied');
         cy.get('.sw-media-library').should('not.exist');
     });
 
@@ -36,6 +38,8 @@ describe('Media: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // check upload
@@ -71,6 +75,8 @@ describe('Media: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
         cy.get('.sw-media-upload-v2__button-compact-upload').should('be.disabled');
         cy.get('.sw-media-upload-v2__button-context-menu').should('be.disabled');
@@ -112,6 +118,8 @@ describe('Media: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
@@ -138,6 +146,8 @@ describe('Media: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // check upload
@@ -159,6 +169,9 @@ describe('Media: Test ACL privileges', () => {
         // open context menu and open settings modal
         cy.get('.sw-media-grid-item__item--0 .sw-context-button__button').click({ force: true });
         cy.get('.sw-media-context-item__open-settings-action').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // go to thumbnail tab
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();

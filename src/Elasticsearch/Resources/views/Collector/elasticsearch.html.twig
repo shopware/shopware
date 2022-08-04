@@ -98,7 +98,14 @@
 
                         <div id="formatted-query-{{ key }}" class="sql-runnable hidden">
                             <code>
-                                <pre>{{ query.request|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                <pre>POST {{ query.url }}
+Accept: application/json
+Content-Type: application/json
+
+{% if query.request.body is defined %}
+{{ query.request.body|json_encode(constant('JSON_PRETTY_PRINT')) }}
+{% endif %}
+                                </pre>
                             </code>
                         </div>
 

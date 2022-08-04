@@ -3,15 +3,18 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 class BillingStreetRule extends Rule
 {
     /**
-     * @var string
+     * @var string|null
      */
     protected $streetName;
 
@@ -37,10 +40,26 @@ class BillingStreetRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::string($customer->getActiveBillingAddress()->getStreet(), $this->streetName, $this->operator);
+        if (!$address = $customer->getActiveBillingAddress()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
+        if (!\is_string($this->streetName) && $this->operator !== self::OPERATOR_EMPTY) {
+            throw new UnsupportedValueException(\gettype($this->streetName), self::class);
+        }
+
+        return RuleComparison::string($address->getStreet(), $this->streetName ?? '', $this->operator);
     }
 
     public function getConstraints(): array
@@ -61,5 +80,12 @@ class BillingStreetRule extends Rule
     public function getName(): string
     {
         return 'customerBillingStreet';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
+            ->stringField('streetName');
     }
 }

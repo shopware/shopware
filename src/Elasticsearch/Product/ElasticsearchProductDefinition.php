@@ -95,7 +95,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'autoIncrement' => EntityMapper::INT_FIELD,
                 'description' => EntityMapper::KEYWORD_FIELD,
                 'displayGroup' => EntityMapper::KEYWORD_FIELD,
+                'ean' => EntityMapper::KEYWORD_FIELD,
                 'height' => EntityMapper::FLOAT_FIELD,
+                'length' => EntityMapper::FLOAT_FIELD,
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
@@ -103,6 +105,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
+                'markAsTopseller' => EntityMapper::BOOLEAN_FIELD,
                 'name' => EntityMapper::KEYWORD_FIELD,
                 'options' => [
                     'type' => 'nested',
@@ -130,6 +133,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'sales' => EntityMapper::INT_FIELD,
                 'stock' => EntityMapper::INT_FIELD,
+                'availableStock' => EntityMapper::INT_FIELD,
                 'shippingFree' => EntityMapper::BOOLEAN_FIELD,
                 'taxId' => EntityMapper::KEYWORD_FIELD,
                 'tags' => [
@@ -147,6 +151,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
+                'coverId' => EntityMapper::KEYWORD_FIELD,
                 'weight' => EntityMapper::FLOAT_FIELD,
                 'width' => EntityMapper::FLOAT_FIELD,
                 'customFields' => $this->getCustomFieldsMapping($context),
@@ -155,6 +160,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 [
                     'cheapest_price' => [
                         'match' => 'cheapest_price_rule*',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    'price_percentage' => [
+                        'path_match' => 'price.*.percentage.*',
                         'mapping' => ['type' => 'double'],
                     ],
                 ],
@@ -192,10 +203,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $groupIds = [];
         foreach ($data as $row) {
             foreach (json_decode($row['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
-                $groupIds[$id] = true;
+                $groupIds[(string) $id] = true;
             }
             foreach (json_decode($row['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
-                $groupIds[$id] = true;
+                $groupIds[(string) $id] = true;
             }
         }
 
@@ -250,10 +261,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'available' => (bool) $item['available'],
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
+                'markAsTopseller' => (bool) $item['markAsTopseller'],
                 'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : [], $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
+                'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
                 'stock' => (int) $item['stock'],
@@ -295,6 +308,16 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
                         $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
                         $document[$key] = $taxes['net'];
+
+                        if (empty($taxes['percentage'])) {
+                            continue;
+                        }
+
+                        $key = 'cheapest_price_' . $rule . '_' . $currency . '_gross_percentage';
+                        $document[$key] = $taxes['percentage']['gross'];
+
+                        $key = 'cheapest_price_' . $rule . '_' . $currency . '_net_percentage';
+                        $document[$key] = $taxes['percentage']['net'];
                     }
                 }
             }
@@ -448,6 +471,7 @@ SELECT
     LOWER(HEX(IFNULL(p.product_manufacturer_id, pp.product_manufacturer_id))) AS productManufacturerId,
     IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
     IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
+    LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
     IFNULL(p.weight, pp.weight) AS weight,
     IFNULL(p.length, pp.length) AS length,
     IFNULL(p.height, pp.height) AS height,
@@ -460,6 +484,8 @@ SELECT
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
     LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
     IFNULL(p.stock, pp.stock) AS stock,
+    IFNULL(p.ean, pp.ean) AS ean,
+    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
     p.purchase_prices as purchasePrices,
     p.price as price,
     p.auto_increment as autoIncrement,
@@ -553,6 +579,9 @@ SQL;
         return $customFields;
     }
 
+    /**
+     * @param array<string> $propertyIds
+     */
     private function fetchPropertyGroups(array $propertyIds = []): array
     {
         $sql = 'SELECT LOWER(HEX(id)), LOWER(HEX(property_group_id)) FROM property_group_option WHERE id in (?)';

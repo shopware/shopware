@@ -35,16 +35,16 @@ function createWrapper(allowInlineDataMapping = true) {
             'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
             'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-container': Shopware.Component.build('sw-container'),
-            'sw-icon': { template: '<div class="sw-icon"></div>' },
+            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-field': Shopware.Component.build('sw-field'),
+            'sw-icon': { template: '<div class="sw-icon"></div>' },
             'sw-select-field': true,
             'sw-field-error': true,
         },
@@ -194,7 +194,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -210,7 +210,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+        wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);
@@ -242,15 +242,67 @@ describe('src/app/component/form/sw-text-editor', () => {
         await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
         await wrapper.vm.$nextTick();
 
-        // eslint-disable-next-line max-len
-        const expectedValue = '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
+        const expectedValue =
+            '<p id="fooBarTest">Go to <a target="_blank" href="https://www.foo-bar.com" rel="noopener">foo-bar</a></p>';
 
-        // check if link was insert right in content editor
+        // check if link was inserted correctly into content editor
         expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
         // check if content value was emitted right
         const emittedValue = wrapper.emitted().input[0];
         expect(emittedValue[0]).toEqual(expectedValue);
+    });
+
+    const buttonVariantsDataProvider = [{
+        buttonVariant: 'none',
+        resultClasses: '',
+    }, {
+        buttonVariant: 'primary',
+        resultClasses: 'btn btn-primary',
+    }, {
+        buttonVariant: 'secondary',
+        resultClasses: 'btn btn-secondary',
+    }, {
+        buttonVariant: 'primary-sm',
+        resultClasses: 'btn btn-primary btn-sm',
+    }, {
+        buttonVariant: 'secondary-sm',
+        resultClasses: 'btn btn-secondary btn-sm',
+    }];
+
+    buttonVariantsDataProvider.forEach(({ buttonVariant, resultClasses }) => {
+        it(`should always render correct links as correct button types (buttonVariant: ${buttonVariant})`, async () => {
+            wrapper = createWrapper();
+
+            // set initial content
+            const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+            await addTextToEditor(wrapper, '<p id="fooBarTest">foo-bar</p>');
+
+            // select content
+            const paragraph = document.getElementById('fooBarTest');
+            await addAndCheckSelection(wrapper, paragraph, 0, 7, 'foo-bar');
+
+            // prepare expected result
+            const displayAsButton = buttonVariant !== 'none';
+            const link = {
+                value: 'https://www.foo-bar.com',
+                target: '_blank',
+                classes: displayAsButton ? ` class="${resultClasses}"` : '',
+            };
+            const linkParameters = `target="${link.target}" href="${link.value}" rel="noopener"`;
+            const expectedValue = `<p id="fooBarTest"><a ${linkParameters}${link.classes}>foo-bar</a></p>`;
+
+            // generate link
+            wrapper.vm.onSetLink(link.value, link.target, displayAsButton, buttonVariant);
+            await wrapper.vm.$nextTick();
+
+            // check if link was inserted correctly into content editor
+            expect(contentEditor.element.innerHTML).toEqual(expectedValue);
+
+            // check if content value was emitted right
+            const emittedValue = wrapper.emitted().input[0];
+            expect(emittedValue[0]).toEqual(expectedValue);
+        });
     });
 
     it('should handle inserting inline mapping', async () => {
@@ -703,6 +755,28 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
     });
 
+    it('should let the toolbar disappear, when containing component unmounts', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>');
+
+        // select anything to trigger the toolbar
+        const content = document.getElementById('content');
+        await addAndCheckSelection(wrapper, content, 0, 4, 'Shop');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // unmount component
+        await wrapper.destroy();
+        expect(linkMenu.exists()).toBe(false);
+    });
+
     it("should leave the text alone, if there isn't link to be removed", async () => {
         wrapper = createWrapper();
 
@@ -748,7 +822,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         );
     });
 
-    it('should paste html styled text into the wysiwyg editor', async () => {
+    it('should paste html styled text if the shift key is not pressed', async () => {
         wrapper = createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
@@ -770,13 +844,47 @@ describe('src/app/component/form/sw-text-editor', () => {
             }
         });
 
+        // release shift
+        wrapper.vm.keyListener({ shiftKey: false });
+
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
         expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\"><strike><u><bold>test</bold></u></strike></span>');
     });
 
-    it('should fall back to pasteing text into the wysiwyg editor if html isn\'t available', async () => {
+    it('should paste text instead of html when the shift key is pressed', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        // select "ware"
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // prepare getData mock
+        const getData = jest.fn().mockImplementation((type) => {
+            switch (type) {
+                case 'text/plain':
+                    return 'test';
+                case 'text/html':
+                    return '<strike><u><bold>test</bold></u></strike>';
+                default:
+                    throw new Error(`The mime type ${type} is not supported`);
+            }
+        });
+
+        // press shift
+        wrapper.vm.keyListener({ shiftKey: true });
+
+        // paste styled 'test' over 'ware'
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
+    });
+
+    it('should fall back to pasting text into the wysiwyg editor if html isn\'t available', async () => {
         wrapper = createWrapper();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');

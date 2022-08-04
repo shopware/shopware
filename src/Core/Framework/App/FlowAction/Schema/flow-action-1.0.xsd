@@ -44,6 +44,7 @@
                 </xs:simpleType>
             </xs:element>
             <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="headline" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="icon" minOccurs="0"/>
             <xs:element type="xs:string" name="badge" minOccurs="0"/>

@@ -12,6 +12,8 @@ describe('Flow builder: change customer status testing', () => {
 
     it('@settings: change customer status flow', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
@@ -22,7 +24,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.get('.sw-flow-list__create').click();
 
         // Verify "create" page
-        cy.get('.smart-bar__header h2').contains('New flow');
+        cy.contains('.smart-bar__header h2', 'New flow');
 
         // Fill all fields
         cy.get('#sw-field--flow-name').type('Change customer status');
@@ -38,7 +40,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.get('.sw-flow-sequence-selector__add-action').click();
 
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Change customer status', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign account status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-change-customer-status-modal').should('be.visible');
 
         cy.get('.sw-flow-change-customer-status-modal__type-select')
@@ -66,8 +68,9 @@ describe('Flow builder: change customer status testing', () => {
 
         cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
-            cy.get('.sw-data-grid-skeleton').should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('Eroni');
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+            cy.contains(`${page.elements.dataGridRow}--0`, 'Eroni');
         });
 
         cy.clickContextMenuItem(

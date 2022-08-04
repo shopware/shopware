@@ -9,6 +9,7 @@
         <div class="sw-order-customer-grid__toolbar">
             {% block sw_order_customer_grid_search_input %}
             <sw-card-filter
+                ref="customerFilter"
                 @sw-card-filter-term-change="onSearch"
             />
             {% endblock %}
@@ -97,7 +98,7 @@
         {% block sw_order_customer_grid_new_customer_modal %}
         <sw-order-new-customer-modal
             v-if="showNewCustomerModal"
-            @on-select-existing-customer="onSelectExistingCustomer"
+            @on-select-existing-customer="onAddNewCustomer"
             @close="showNewCustomerModal = false"
         />
         {% endblock %}

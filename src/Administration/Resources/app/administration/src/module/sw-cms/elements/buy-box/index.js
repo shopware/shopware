@@ -41,42 +41,5 @@ Shopware.Service('cmsService').registerCmsElement({
             ],
         },
     },
-    collect: function collect(elem) {
-        const context = {
-            ...Shopware.Context.api,
-            inheritance: true,
-        };
-
-        const criteriaList = {};
-
-        Object.keys(elem.config).forEach((configKey) => {
-            if (['mapped', 'default'].includes(elem.config[configKey].source)) {
-                return;
-            }
-
-            const config = elem.config[configKey];
-            const configEntity = config.entity;
-            const configValue = config.value;
-
-            if (!configEntity || !configValue) {
-                return;
-            }
-
-
-            const entityKey = configEntity.name;
-            const entityData = {
-                value: [configValue],
-                key: configKey,
-                searchCriteria: configEntity.criteria ? configEntity.criteria : new Criteria(1, 25),
-                ...configEntity,
-            };
-
-            entityData.searchCriteria.setIds(entityData.value);
-            entityData.context = context;
-
-            criteriaList[`entity-${entityKey}`] = entityData;
-        });
-
-        return criteriaList;
-    },
+    collect: Shopware.Service('cmsService').getCollectFunction(),
 });

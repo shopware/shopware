@@ -1,9 +1,6 @@
 import random
-import json
 import uuid
-import time
-import requests
-from locust.exception import RescheduleTask
+
 
 class StoreApi:
     context: None
@@ -130,4 +127,3 @@ class StoreApi:
             return response
 
         return response
-

@@ -9,6 +9,8 @@ describe('Category: site builder feature', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -75,10 +77,15 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-category-entry-point-card__entry-point-selection')
             .should('have.class', 'is--disabled');
         cy.contains('.sw-category-entry-point-card__navigation-entry', 'Storefront')
-            .scrollIntoView()
+            .scrollIntoView();
+
+        cy.contains('.sw-category-entry-point-card__navigation-entry', 'Storefront')
             .should('be.visible');
+
         cy.contains('.sw-category-entry-point-card__navigation-entry', 'Headless')
-            .scrollIntoView()
+            .scrollIntoView();
+
+        cy.contains('.sw-category-entry-point-card__navigation-entry', 'Headless')
             .should('be.visible');
 
         // validate configure home modal changes (Storefront)

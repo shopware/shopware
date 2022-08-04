@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -79,44 +78,6 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/register-confirm",
-     *      summary="Confirm a customer registration",
-     *      description="Confirms a customer registration when double opt-in is activated.
-
-Learn more about double opt-in registration in our guide ""Register a customer"".",
-     *      operationId="registerConfirm",
-     *      tags={"Store API", "Login & Registration"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "hash",
-     *                  "em"
-     *              },
-     *              @OA\Property(
-     *                  property="hash",
-     *                  type="string",
-     *                  description="Hash from the email received"),
-     *              @OA\Property(
-     *                  property="em",
-     *                  type="string",
-     *                  description="Email hash from the email received"),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
-     *     ),
-     *      @OA\Response(
-     *          response="404",
-     *          description="No hash provided"
-     *     ),
-     *      @OA\Response(
-     *          response="412",
-     *          description="The customer has already been confirmed"
-     *     )
-     * )
      * @Route("/store-api/account/register-confirm", name="store-api.account.register.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse

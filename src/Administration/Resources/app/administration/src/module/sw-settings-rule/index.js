@@ -18,7 +18,7 @@ Module.register('sw-settings-rule', {
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'rule',
 
@@ -93,7 +93,7 @@ Module.register('sw-settings-rule', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.rule.index',
-        icon: 'default-symbol-rule',
+        icon: 'regular-rule',
         privilege: 'rule.viewer',
     },
 });

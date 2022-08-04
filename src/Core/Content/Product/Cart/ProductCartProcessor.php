@@ -306,10 +306,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
         }
 
+        $weight = $product->getWeight();
+        if (!Feature::isActive('v6.5.0.0')) {
+            $weight = (float) $weight;
+        }
+
         $lineItem->setDeliveryInformation(
             new DeliveryInformation(
                 (int) $product->getAvailableStock(),
-                (float) $product->getWeight(),
+                $weight,
                 $product->getShippingFree() === true,
                 $product->getRestockTime(),
                 $deliveryTime,
@@ -351,7 +356,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
-            'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => $product->getCreatedAt() ? $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),

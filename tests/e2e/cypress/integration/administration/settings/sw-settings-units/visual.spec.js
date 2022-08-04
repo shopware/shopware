@@ -9,6 +9,8 @@ describe('Scale units: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -27,7 +29,8 @@ describe('Scale units: Visual testing', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-data-grid__cell--name', 'Gramm').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Unit] Listing', '.sw-card-view__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

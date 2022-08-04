@@ -10,6 +10,8 @@ describe('Media: Test crud operations of folders', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -151,8 +153,8 @@ describe('Media: Test crud operations of folders', () => {
             '',
             true
         );
-        cy.get(`${page.elements.modal}__body p`)
-            .contains('Are you sure you want to delete the folder "A thing to fold about"?');
+        cy.contains(`${page.elements.modal}__body p`,
+            'Are you sure you want to delete the folder "A thing to fold about"?');
         cy.get('.sw-media-modal-delete__confirm').click();
 
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);

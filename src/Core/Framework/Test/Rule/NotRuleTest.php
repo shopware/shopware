@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -10,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\NotRule;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -113,5 +116,17 @@ class NotRuleTest extends TestCase
         /** @var RuleEntity $ruleStruct */
         $ruleStruct = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
         static::assertEquals(new AndRule([new NotRule([new NotRule()])]), $ruleStruct->getPayload());
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        try {
+            $rule = new NotRule();
+            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $rule->match(new CheckoutRuleScope($salesChannelContext));
+            static::fail('Exception was not thrown');
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        }
     }
 }

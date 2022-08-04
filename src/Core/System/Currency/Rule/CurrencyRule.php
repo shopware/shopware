@@ -4,13 +4,15 @@ namespace Shopware\Core\System\Currency\Rule;
 
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>|null
      */
     protected $currencyIds;
 
@@ -21,6 +23,8 @@ class CurrencyRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $currencyIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
     {
@@ -46,5 +50,12 @@ class CurrencyRule extends Rule
     public function getName(): string
     {
         return 'currency';
+    }
+
+    public function getConfig(): RuleConfig
+    {
+        return (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->entitySelectField('currencyIds', CurrencyDefinition::ENTITY_NAME, true);
     }
 }

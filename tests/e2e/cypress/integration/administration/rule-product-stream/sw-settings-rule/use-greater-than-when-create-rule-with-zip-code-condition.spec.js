@@ -10,6 +10,8 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -25,10 +27,11 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();
-
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
@@ -84,6 +87,8 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         const page = new RulePageObject();

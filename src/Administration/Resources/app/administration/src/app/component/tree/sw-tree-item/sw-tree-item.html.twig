@@ -30,9 +30,10 @@
             {% block sw_tree_item_element_toggle_loader %}{% endblock %}
 
             {% block sw_tree_item_element_toggle_icon %}
+            {# @deprecated tag:v6.5.0 - Size can be removed #}
             <sw-icon
-                :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'"
-                size="18"
+                :name="opened ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'"
+                size="22"
             />
             {% endblock %}
         </div>
@@ -73,9 +74,10 @@
                 v-else
                 class="sw-tree-item__icon"
             >
+                {# @deprecated tag:v6.5.0 - Size can be removed #}
                 <sw-icon
-                    name="small-default-circle-small"
-                    size="18"
+                    name="regular-circle-xxs"
+                    size="17"
                 />
             </div>
         </slot>
@@ -320,120 +322,114 @@
                 </template>
 
                 <template #actions="{ item, openTreeItem }">
-
                     {% block sw_tree_item_children_items_slot_actions %}
+
+                    {% block sw_tree_items_transition_active_state %}
+                    <sw-icon
+                        v-if="shouldShowActiveState"
+                        size="6"
+                        :color="getActiveIconColor(item)"
+                        name="default-basic-shape-circle-filled"
+                    />
+                    {% endblock %}
+
                     <sw-vnode-renderer
                         v-if="$scopedSlots.actions"
                         :node="$scopedSlots.actions({ item, openTreeItem })"
                     />
-                    <div
+                    <template
                         v-else
-                        class="sw-tree-item__actions"
+                        :item="item"
+                        :openTreeItem="openTreeItem"
+                        :addElement="addElement"
+                        :addSubElement="addSubElement"
+                        :onDuplicate="onDuplicate"
+                        :onChangeRoute="onChangeRoute"
+                        :deleteElement="deleteElement"
+                        :toolTip="toolTip"
+                        :isDisabled="isDisabled"
                     >
-
-                        {% block sw_tree_items_transition_active_state %}
-                        <sw-icon
-                            v-if="shouldShowActiveState"
-                            size="6"
-                            :color="getActiveIconColor(item)"
-                            name="default-basic-shape-circle-filled"
-                        />
-                        {% endblock %}
-
-                        <slot
-                            name="actions"
-                            :item="item"
-                            :openTreeItem="openTreeItem"
-                            :addElement="addElement"
-                            :addSubElement="addSubElement"
-                            :onDuplicate="onDuplicate"
-                            :onChangeRoute="onChangeRoute"
-                            :deleteElement="deleteElement"
-                            :toolTip="toolTip"
-                            :isDisabled="isDisabled"
+                        <sw-context-button
+                            v-tooltip="toolTip"
+                            :disabled="isDisabled"
                         >
-                            <sw-context-button
-                                v-tooltip="toolTip"
-                                :disabled="isDisabled"
+
+                            {% block sw_tree_items_transition_actions_without_position %}
+                            <sw-context-menu-item
+                                v-if="allowCreateWithoutPosition"
+                                class="sw-tree-item__without-position-action"
+                                @click="addElement(item)"
                             >
+                                {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
 
-                                {% block sw_tree_items_transition_actions_without_position %}
-                                <sw-context-menu-item
-                                    v-if="allowCreateWithoutPosition"
-                                    class="sw-tree-item__without-position-action"
-                                    @click="addElement(item)"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                            {% block sw_tree_items_transition_actions_before %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__before-action"
+                                @click="addElement(item, 'before')"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_transition_actions_after %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__after-action"
+                                @click="addElement(item, 'after')"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createAfter`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_transition_actions_sub %}
+                            <sw-context-menu-item
+                                v-if="!allowCreateWithoutPosition"
+                                :disabled="!allowNewCategories"
+                                class="sw-tree-item__sub-action"
+                                @click="addSubElement(item); openTreeItem(true)"
+                            >
+                                {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_transition_actions_duplicate %}
+                            <sw-context-menu-item
+                                v-if="allowDuplicate"
+                                class="sw-context-menu__duplicate-action"
+                                @click="onDuplicate(item)"
+                            >
+                                {{ $tc(`global.default.duplicate`) }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_transition_actions_group %}
+                            <div class="sw-context-menu__group">
+
+                                {% block sw_tree_items_transition_actions_edit %}
+                                <sw-context-menu-item @click="onChangeRoute(item)">
+                                    {{ $tc('global.default.edit') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_transition_actions_before %}
+                                {% block sw_tree_items_transition_actions_delete %}
                                 <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__before-action"
-                                    @click="addElement(item, 'before')"
+                                    class="sw-context-menu__group-button-delete"
+                                    :disabled="!allowDeleteCategories"
+                                    variant="danger"
+                                    @click="deleteElement(item)"
                                 >
-                                    {{ $tc(`${translationContext}.general.actions.createBefore`) }}
+                                    {{ $tc('global.default.delete') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_after %}
-                                <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__after-action"
-                                    @click="addElement(item, 'after')"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.createAfter`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_sub %}
-                                <sw-context-menu-item
-                                    v-if="!allowCreateWithoutPosition"
-                                    :disabled="!allowNewCategories"
-                                    class="sw-tree-item__sub-action"
-                                    @click="addSubElement(item); openTreeItem(true)"
-                                >
-                                    {{ $tc(`${translationContext}.general.actions.createSub`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_duplicate %}
-                                <sw-context-menu-item
-                                    v-if="allowDuplicate"
-                                    class="sw-context-menu__duplicate-action"
-                                    @click="onDuplicate(item)"
-                                >
-                                    {{ $tc(`global.default.duplicate`) }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_tree_items_transition_actions_group %}
-                                <div class="sw-context-menu__group">
-
-                                    {% block sw_tree_items_transition_actions_edit %}
-                                    <sw-context-menu-item @click="onChangeRoute(item)">
-                                        {{ $tc('global.default.edit') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_tree_items_transition_actions_delete %}
-                                    <sw-context-menu-item
-                                        class="sw-context-menu__group-button-delete"
-                                        :disabled="!allowDeleteCategories"
-                                        variant="danger"
-                                        @click="deleteElement(item)"
-                                    >
-                                        {{ $tc('global.default.delete') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-                                </div>
-                                {% endblock %}
-                            </sw-context-button>
-                        </slot>
-                    </div>
+                            </div>
+                            {% endblock %}
+                        </sw-context-button>
+                    </template>
                     {% endblock %}
                 </template>
                 {% endblock %}

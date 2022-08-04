@@ -46,6 +46,11 @@ class CustomFieldEntity extends Entity
      */
     protected $productSearchConfigFields;
 
+    /**
+     * @var bool
+     */
+    protected $allowCustomerWrite = false;
+
     public function getName(): string
     {
         return $this->name;
@@ -114,5 +119,15 @@ class CustomFieldEntity extends Entity
     public function setProductSearchConfigFields(ProductSearchConfigFieldCollection $productSearchConfigFields): void
     {
         $this->productSearchConfigFields = $productSearchConfigFields;
+    }
+
+    public function isAllowCustomerWrite(): bool
+    {
+        return $this->allowCustomerWrite;
+    }
+
+    public function setAllowCustomerWrite(bool $allowCustomerWrite): void
+    {
+        $this->allowCustomerWrite = $allowCustomerWrite;
     }
 }

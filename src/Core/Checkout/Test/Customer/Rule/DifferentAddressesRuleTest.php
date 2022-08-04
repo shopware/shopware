@@ -3,6 +3,9 @@
 namespace Shopware\Core\Checkout\Test\Customer\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -10,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -62,5 +66,24 @@ class DifferentAddressesRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    public function testRuleNotMatchingWithoutAddresses(): void
+    {
+        $rule = new DifferentAddressesRule();
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customer = new CustomerEntity();
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customerAddress = $this->createMock(CustomerAddressEntity::class);
+        $customer->setActiveBillingAddress($customerAddress);
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
     }
 }

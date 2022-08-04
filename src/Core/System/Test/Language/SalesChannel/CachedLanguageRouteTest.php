@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Language\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -101,7 +102,7 @@ class CachedLanguageRouteTest extends TestCase
             },
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, self::ASSIGNED, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             2,
         ];
@@ -109,11 +110,11 @@ class CachedLanguageRouteTest extends TestCase
         yield 'Cache gets invalidated, if updated language assigned to the sales channel' => [
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, self::ASSIGNED, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $update = ['id' => $ids->get('language'), 'name' => 'update'];
-                $this->getContainer()->get('language.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('language.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
@@ -121,11 +122,11 @@ class CachedLanguageRouteTest extends TestCase
         yield 'Cache gets invalidated, if deleted language assigned to the sales channel' => [
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, self::ASSIGNED, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $delete = ['id' => $ids->get('language')];
-                $this->getContainer()->get('language.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('language.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -135,7 +136,7 @@ class CachedLanguageRouteTest extends TestCase
             },
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             1,
         ];
@@ -143,11 +144,11 @@ class CachedLanguageRouteTest extends TestCase
         yield 'Cache gets not invalidated, if updated language not assigned to the sales channel' => [
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $update = ['id' => $ids->get('language'), 'name' => 'update'];
-                $this->getContainer()->get('language.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('language.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -155,11 +156,11 @@ class CachedLanguageRouteTest extends TestCase
         yield 'Cache gets invalidated, if deleted language is not assigned to the sales channel' => [
             function () use ($ids): void {
                 $language = array_merge(self::LANGUAGE, ['id' => $ids->get('language')]);
-                $this->getContainer()->get('language.repository')->create([$language], $ids->getContext());
+                $this->getContainer()->get('language.repository')->create([$language], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $delete = ['id' => $ids->get('language')];
-                $this->getContainer()->get('language.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('language.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];

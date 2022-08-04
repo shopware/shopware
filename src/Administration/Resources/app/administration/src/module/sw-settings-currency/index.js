@@ -13,7 +13,7 @@ Module.register('sw-settings-currency', {
     title: 'sw-settings-currency.general.mainMenuItemGeneral',
     description: 'Currency section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'currency',
 
@@ -54,7 +54,7 @@ Module.register('sw-settings-currency', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.currency.index',
-        icon: 'default-symbol-euro',
+        icon: 'regular-euro',
         privilege: 'currencies.viewer',
     },
 });

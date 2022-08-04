@@ -16,7 +16,7 @@ Module.register('sw-settings-shopware-updates', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -42,6 +42,6 @@ Module.register('sw-settings-shopware-updates', {
         privilege: 'system.core_update',
         group: 'system',
         to: 'sw.settings.shopware.updates.index',
-        icon: 'default-arrow-360-full',
+        icon: 'regular-sync',
     },
 });

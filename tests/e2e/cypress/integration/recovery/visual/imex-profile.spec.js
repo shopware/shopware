@@ -1,11 +1,13 @@
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
-        cy.setLocaleToEnGb().then(() => {
-            return cy.loginViaApi();
-        }).then(() => {
-            return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('import-export-profile');
+            })
+            .then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -17,6 +19,9 @@ describe('Import/Export - Profiles:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
+        const profiles = Cypress.env('locale') === 'en-GB' ? 'Profiles' : 'Profile';
+        cy.get('.sw-tabs-item').contains(profiles);
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Import export - Profiles overview`,
             '.sw-import-export-view-profiles__listing'

@@ -29,13 +29,16 @@ class CustomFieldsSerializer extends JsonFieldSerializer
      */
     private $attributeService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
         CustomFieldService $attributeService,
         WriteCommandExtractor $writeExtractor
     ) {
-        parent::__construct($compositeHandler, $validator);
+        parent::__construct($validator, $compositeHandler);
         $this->attributeService = $attributeService;
         $this->writeExtractor = $writeExtractor;
     }

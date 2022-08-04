@@ -11,6 +11,8 @@ Component.register('sw-flow-rule-modal', {
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
+        'ruleConditionsConfigApiService',
+        'feature',
     ],
 
     mixins: [
@@ -60,6 +62,10 @@ Component.register('sw-flow-rule-modal', {
             );
         },
 
+        appScriptConditionRepository() {
+            return this.repositoryFactory.create('app_script_condition');
+        },
+
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
         },
@@ -91,14 +97,36 @@ Component.register('sw-flow-rule-modal', {
 
     methods: {
         createdComponent() {
-            if (!this.ruleId) {
-                this.createRule();
-                return;
+            this.isLoading = true;
+
+            this.loadConditionData().then((scripts) => {
+                this.ruleConditionDataProviderService.addScriptConditions(scripts);
+
+                if (!this.ruleId) {
+                    this.isLoading = false;
+                    this.createRule();
+                    return;
+                }
+
+                this.loadRule(this.ruleId).then(() => {
+                    this.isLoading = false;
+                });
+            });
+        },
+
+        loadConditionData() {
+            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const criteria = new Criteria(1, 500);
+
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
             }
 
-            this.isLoading = true;
-            this.loadRule(this.ruleId).then(() => {
-                this.isLoading = false;
+            return Promise.all([
+                this.appScriptConditionRepository.search(criteria, context),
+                this.ruleConditionsConfigApiService.load(),
+            ]).then((results) => {
+                return results[0];
             });
         },
 

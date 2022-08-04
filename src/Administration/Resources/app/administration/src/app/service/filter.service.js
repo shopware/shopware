@@ -122,15 +122,22 @@ export default class FilterService {
         const route = router?.currentRoute;
 
         const query = { ...route.query };
+        const routeParams = { ...route.params };
         delete query[this._filterEntity.key];
 
-        router.push({
+        const newRoute = {
             name: route.name,
             query: {
                 ...query,
                 [this._filterEntity.key]: urlEncodedValue,
             },
-        });
+        };
+
+        if (!Shopware.Utils.types.isEmpty(routeParams)) {
+            newRoute.params = routeParams;
+        }
+
+        router.push(newRoute);
     }
 
     _getQueryFilterValue(storeKey) {

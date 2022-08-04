@@ -25,6 +25,8 @@ describe('Order: Visual tests', () => {
             cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -37,6 +39,8 @@ describe('Order: Visual tests', () => {
         }).as('getData');
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
+        cy.get('.navigation-list-item__type-plugin').should('exist');
+        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
@@ -44,6 +48,8 @@ describe('Order: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -58,7 +64,7 @@ describe('Order: Visual tests', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Listing', '.sw-order-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.contextMenuButton}`).click();
         cy.get('.sw-context-menu')
@@ -101,6 +107,8 @@ describe('Order: Visual tests', () => {
             method: 'POST'
         }).as('getData');
 
+        cy.get('.navigation-list-item__type-plugin').should('exist');
+        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order',
@@ -108,6 +116,8 @@ describe('Order: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing

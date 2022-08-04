@@ -19,6 +19,7 @@
             v-if="isAdvancedSelectionActive && isAdvancedSelectionModalVisible"
             :is-single-select="true"
             :initial-search-term="advancedSelectionInitialSearchTerm"
+            v-bind="advancedSelectionParameters"
             @modal-close="closeAdvancedSelectionModal"
             @selection-submit="onAdvancedSelectionSubmit"
         />
@@ -39,7 +40,7 @@
                         v-bind="{ item: singleSelection, labelProperty, searchTerm, getKey }"
                     >
                         <sw-product-variant-info
-                            v-if="$attrs.displayVariants"
+                            v-if="displayVariants"
                             :variations="singleSelection.variation"
                         >
                             {{ displayLabelProperty(singleSelection) }}
@@ -119,13 +120,29 @@
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >
+                        {% block sw_entity_multi_select_base_results_list_result_preview %}
+                        <template
+                            v-if="shouldShowActiveState"
+                            #preview
+                        >
+                            {% block sw_entity_multi_select_base_results_list_result_active %}
+                            <sw-icon
+                                class="sw-entity-single-select__selection-active"
+                                size="6"
+                                :color="getActiveIconColor(item)"
+                                name="default-basic-shape-circle-filled"
+                            />
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
                         {% block sw_entity_single_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
                             v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }"
                         >
                             <sw-product-variant-info
-                                v-if="$attrs.displayVariants"
+                                v-if="displayVariants"
                                 :variations="item.variation"
                                 :highlighted="true"
                                 :search-term="searchTerm"

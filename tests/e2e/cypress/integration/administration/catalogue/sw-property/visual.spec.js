@@ -22,6 +22,8 @@ describe('Property: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -49,6 +51,8 @@ describe('Property: Visual tests', () => {
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-property-list__content').should('exist');
 
         // Take snapshot for visual testing
@@ -71,7 +75,7 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.get(page.elements.cardTitle).contains('Basic information');
+        cy.contains(page.elements.cardTitle, 'Basic information');
 
         // Take snapshot for visual testing
         cy.sortAndCheckListingAscViaColumn('Position', '1', '.sw-data-grid__cell--position');

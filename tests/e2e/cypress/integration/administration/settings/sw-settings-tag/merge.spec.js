@@ -2,9 +2,13 @@
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
+const uuid = require('uuid/v4');
+
 describe('Tag: Test bulk merge', () => {
     beforeEach(() => {
-        const taxId = '91b5324352dc4ee58ec320df5dcf2bf4';
+        const taxId = uuid().replace(/-/g, '');
+        const tagIdA = uuid().replace(/-/g, '');
+        const tagIdB = uuid().replace(/-/g, '');
 
         cy.loginViaApi()
             .then(() => {
@@ -16,32 +20,34 @@ describe('Tag: Test bulk merge', () => {
                 cy.createDefaultFixture('product', {
                     productNumber: 'RS-11111',
                     taxId,
-                    tags: [{ id: 'ccc71b4e97644095a1e57748616a5d84', name: 'Example tag 1' }]
+                    tags: [{ id: tagIdA, name: 'Example tag 1' }]
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-22222',
                         taxId,
-                        tags: [{ id: '0e6ef8505e36430eb393efa8ae542cb7', name: 'Example tag 2' }]
+                        tags: [{ name: 'Example tag 2' }]
                     });
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-33333',
                         taxId,
-                        tags: [{ id: '091d255caddc4295a1d5be2bdeef82eb', name: 'Example tag 3' }]
+                        tags: [{ id: tagIdB, name: 'Example tag 3' }]
                     });
                 });
             })
             .then(() => {
                 cy.createDefaultFixture('category', {
-                    tags: [{ id: 'ccc71b4e97644095a1e57748616a5d84' }]
+                    tags: [{ id: tagIdA }]
                 }).then(() => {
                     cy.createDefaultFixture('category', {
-                        tags: [{ id: '091d255caddc4295a1d5be2bdeef82eb' }]
+                        tags: [{ id: tagIdB }]
                     });
                 });
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tag/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -64,9 +70,9 @@ describe('Tag: Test bulk merge', () => {
         cy.get('.sw-data-grid__bulk').should('exist');
         cy.get('.sw-data-grid__bulk .link:not(.link-danger)').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-modal .sw-label').contains('Example tag 1');
-        cy.get('.sw-modal .sw-label').contains('Example tag 2');
-        cy.get('.sw-modal .sw-label').contains('Example tag 3');
+        cy.contains('.sw-modal .sw-label', 'Example tag 1');
+        cy.contains('.sw-modal .sw-label', 'Example tag 2');
+        cy.contains('.sw-modal .sw-label', 'Example tag 3');
 
         // Enter new name and start merge
         cy.get('#sw-field--duplicateName').typeAndCheck('Merged tag');
@@ -78,7 +84,8 @@ describe('Tag: Test bulk merge', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('contain', 'Merged tag');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--connections`).contains(/3(\s)*products(\s)*,(\s)*2(\s)*categories/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--products`).contains(/3(\s)*products/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--categories`).contains(/2(\s)*categories/);
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
         cy.get('.sw-data-grid__bulk').should('not.exist');
     });

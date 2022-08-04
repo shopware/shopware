@@ -10,6 +10,8 @@ describe('Product: Edit list prices of context prices', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -58,21 +60,19 @@ describe('Product: Edit list prices of context prices', () => {
             // Verify updated product
             cy.wait('@saveData').its('response.statusCode').should('equal', 200);
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-                .contains('Product name');
+            cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Product name');
 
             // Verify in storefront
             cy.visit('/');
-            cy.get('.product-box').contains('From €49.98*');
+            cy.contains('.product-box', 'From €49.98*');
             cy.get('input[name=search]').type('Product name');
             cy.get('.search-suggest-container').should('be.visible');
-            cy.get('.search-suggest-product-name')
-                .contains('Product name')
+            cy.contains('.search-suggest-product-name', 'Product name')
                 .click();
 
-            cy.get('.product-detail-name').contains('Product name');
-            cy.get('.product-detail-advanced-list-price-wrapper').contains('100.00');
-            cy.get('.product-detail-price').contains('49.98');
+            cy.contains('.product-detail-name', 'Product name');
+            cy.contains('.product-detail-advanced-list-price-wrapper', '100.00');
+            cy.contains('.product-detail-price', '49.98');
         });
     });
 });

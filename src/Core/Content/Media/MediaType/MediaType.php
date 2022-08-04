@@ -12,7 +12,7 @@ abstract class MediaType extends Struct
     protected $name;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $flags = [];
 

@@ -16,6 +16,8 @@ describe('Product: Test filter variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.get('.sw-data-grid__cell--name')
                     .click();
@@ -86,8 +88,7 @@ describe('Product: Test filter variants', () => {
         cy.get('.sw-data-grid__row--1').should('not.exist');
 
         cy.get('.sw-context-menu .sw-context-menu__content')
-            .get('.sw-button')
-            .contains('Reset')
+            .contains('.sw-button', 'Reset')
             .click();
 
         cy.wait('@searchVariants').its('response.statusCode').should('equal', 200);

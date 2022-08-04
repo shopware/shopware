@@ -240,7 +240,7 @@ class AdvancedTestStruct extends TestStruct
     protected $subClasses = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $meta = [];
 
@@ -258,7 +258,7 @@ class AdvancedTestStruct extends TestStruct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getMeta(): array
     {
@@ -266,7 +266,7 @@ class AdvancedTestStruct extends TestStruct
     }
 
     /**
-     * @param string[] $meta
+     * @param array<string> $meta
      */
     public function setMeta(array $meta): void
     {

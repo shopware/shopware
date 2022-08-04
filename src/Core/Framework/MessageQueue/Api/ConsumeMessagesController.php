@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -92,37 +91,6 @@ class ConsumeMessagesController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Post(
-     *     path="/_action/message-queue/consume",
-     *     summary="Consume messages from the message queue.",
-     *     description="This route can be used to consume messenges from the message queue. It is intended to be used if
-no cronjob is configured to consume messages regulary.",
-     *     operationId="consumeMessages",
-     *     tags={"Admin API", "System Operations"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"receiver"},
-     *             @OA\Property(
-     *                 property="receiver",
-     *                 description="The name of the transport in the messenger that should be processed.
-See the [Symfony Messenger documentation](https://symfony.com/doc/current/messenger.html) for more information",
-     *                 type="string"
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns information about handled messages",
-     *         @OA\JsonContent(
-     *               @OA\Property(
-     *                  property="handledMessages",
-     *                  description="The number of messages processed.",
-     *                  type="integer"
-     *              )
-     *         )
-     *     )
-     * )
      * @Route("/api/_action/message-queue/consume", name="api.action.message-queue.consume", methods={"POST"})
      */
     public function consumeMessages(Request $request): JsonResponse

@@ -7,6 +7,8 @@ describe('Rule builder: Test duplication of rule', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -34,6 +36,7 @@ describe('Rule builder: Test duplication of rule', () => {
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {

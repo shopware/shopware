@@ -25,7 +25,7 @@
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
                 <sw-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <sw-icon name="default-action-filter" />
+                    <sw-icon name="regular-filter" />
                 </sw-button>
                 {% endblock %}
 
@@ -148,7 +148,7 @@
                     @click="onOptionEdit(item)"
                 >
 
-                    <sw-icon name="default-text-editor-link" />
+                    <sw-icon name="regular-link-xs" />
 
                     <span
                         v-for="(singleVariation, index) in item.options"
@@ -318,13 +318,13 @@
             <template v-else>
                 <sw-icon
                     v-if="item.active === true"
-                    name="small-default-checkmark-line-medium"
+                    name="regular-checkmark-xs"
                     small
                     class="is--active"
                 />
                 <sw-icon
                     v-else-if="item.active === false"
-                    name="small-default-x-line-medium"
+                    name="regular-times-s"
                     small
                     class="is--inactive"
                 />
@@ -429,7 +429,7 @@
                         >
                             <sw-icon
                                 class="sw-product-variants-overview__variation-link-icon"
-                                name="default-text-editor-link"
+                                name="regular-link-xs"
                             />
                             <span
                                 v-for="(singleVariation, index) in item.options"
@@ -486,13 +486,13 @@
                     <sw-icon
                         v-if="item.active === true"
                         class="is--active"
-                        name="small-default-checkmark-line-medium"
+                        name="regular-checkmark-xs"
                         small
                     />
                     <sw-icon
                         v-else-if="item.active === false"
                         class="is--inactive"
-                        name="small-default-x-line-medium"
+                        name="regular-times-s"
                         small
                     />
                     <sw-icon

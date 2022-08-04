@@ -204,7 +204,7 @@ describe('Customer: Test filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@customer: check filter function and display list correctly', () => {
+    it('@customer: check filter function and display list correctly', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -245,7 +245,7 @@ describe('Customer: Test filter and reset filter', () => {
 
         cy.wait('@filterCustomer')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('27');
+        cy.contains('.sw-page__smart-bar-amount', '27');
 
         // Check notification badge after filtering
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
@@ -281,7 +281,7 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('#account-status-filter').find('select').select('true');
         cy.wait('@filterCustomer')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-page__smart-bar-amount').contains('26');
+        cy.contains('.sw-page__smart-bar-amount', '26');
 
         // Check notification badge after filtering with multiple filters criteria
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
@@ -289,7 +289,7 @@ describe('Customer: Test filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it.skip('@customer: check reset filter and reset all filter', () => {
+    it('@customer: check reset filter and reset all filter', { tags: ['quarantined'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);

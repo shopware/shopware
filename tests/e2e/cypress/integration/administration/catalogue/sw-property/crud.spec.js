@@ -12,6 +12,8 @@ describe('Property: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/property/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -28,6 +30,7 @@ describe('Property: Test crud operations', () => {
 
         // Add property group
         cy.get('a[href="#/sw/property/create"]').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--propertyGroup-name]').typeAndCheck('1 Coleur');
@@ -54,7 +57,7 @@ describe('Property: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(page.elements.cardTitle).contains('Basic information');
+        cy.contains(page.elements.cardTitle, 'Basic information');
 
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
@@ -74,7 +77,7 @@ describe('Property: Test crud operations', () => {
         // Verify new options in listing
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Bleu');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Bleu');
     });
 
     it('@base @catalogue: delete property', () => {
@@ -108,14 +111,14 @@ describe('Property: Test crud operations', () => {
 
         // Delete property in listing
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 a`).contains('Color');
+        cy.contains(`${page.elements.dataGridRow}--0 a`, 'Color');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-property-list__confirm-delete-text`)
-            .contains('Are you sure you really want to delete the property "Color"?');
+        cy.contains(`${page.elements.modal} .sw-property-list__confirm-delete-text`,
+            'Are you sure you really want to delete the property "Color"?');
 
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 

@@ -26,6 +26,8 @@ class RedisCartPersister extends AbstractCartPersister
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private CartSerializationCleaner $cartSerializationCleaner;
+
     private bool $compress;
 
     /**
@@ -33,10 +35,11 @@ class RedisCartPersister extends AbstractCartPersister
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct($redis, EventDispatcherInterface $eventDispatcher, bool $compress)
+    public function __construct($redis, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress)
     {
         $this->redis = $redis;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cartSerializationCleaner = $cartSerializationCleaner;
         $this->compress = $compress;
     }
 
@@ -57,6 +60,10 @@ class RedisCartPersister extends AbstractCartPersister
         try {
             $value = \unserialize($value);
         } catch (\Exception $e) {
+            throw new CartTokenNotFoundException($token);
+        }
+
+        if (!isset($value['compressed'])) {
             throw new CartTokenNotFoundException($token);
         }
 
@@ -88,7 +95,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete(self::PREFIX . $cart->getToken(), $context);
+            $this->delete($cart->getToken(), $context);
 
             return;
         }
@@ -125,6 +132,8 @@ class RedisCartPersister extends AbstractCartPersister
 
         $cart->setErrors(new ErrorCollection());
         $cart->setData(null);
+
+        $this->cartSerializationCleaner->cleanupCart($cart);
 
         $content = ['cart' => $cart, 'rule_ids' => $context->getRuleIds()];
 

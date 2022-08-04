@@ -7,6 +7,8 @@ describe('Integration: crud integrations', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -35,7 +37,7 @@ describe('Integration: crud integrations', () => {
         // Verify create a integration
         cy.wait('@createIntegration').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key');
+        cy.contains('.sw-data-grid__cell-content a[href="#"]', 'chat-key');
     });
 
     it('@settings: can create a new integration with double click', () => {
@@ -63,7 +65,7 @@ describe('Integration: crud integrations', () => {
         // Verify create a integration
         cy.wait('@createIntegration').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key');
+        cy.contains('.sw-data-grid__cell-content a[href="#"]', 'chat-key');
     });
 
     it('@settings: can edit a integration', () => {
@@ -148,7 +150,7 @@ describe('Integration: crud integrations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-button--primary.sw-button--small span.sw-button__content').contains('Delete').click();
+        cy.contains('.sw-button--primary.sw-button--small span.sw-button__content', 'Delete').click();
         // Verify delete a integration
         cy.wait('@deleteIntegration').its('response.statusCode').should('equal', 204);
     });

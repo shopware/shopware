@@ -7,11 +7,13 @@ describe('Product Search: Test crud operations', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: Pagination for product search config excluded terms', () => {
+    it('@settings: Pagination for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -28,7 +30,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: create and update config for product search config excluded terms', () => {
+    it('@settings: create and update config for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -89,12 +91,12 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term created.');
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`, 'example');
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: search term for product search config excluded terms', () => {
+    it('@settings: search term for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         const searchTerm = 'example';
@@ -118,7 +120,7 @@ describe('Product Search: Test crud operations', () => {
     });
 
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
-    it.skip('@settings: delete config for product search config excluded terms', () => {
+    it('@settings: delete config for product search config excluded terms', { tags: ['quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -148,8 +150,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__row .sw-data-grid__cell.sw-data-grid__cell--header.sw-data-grid__cell--selection input')
             .check();
-        cy.get('.sw-settings-search-excluded-search-terms ' +
-            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count').contains(10);
+        cy.contains('.sw-settings-search-excluded-search-terms ' +
+            '.sw-data-grid__bulk-selected.sw-data-grid__bulk-selected-count', 10);
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').should('be.visible');
         cy.get('.sw-settings-search-excluded-search-terms ' +

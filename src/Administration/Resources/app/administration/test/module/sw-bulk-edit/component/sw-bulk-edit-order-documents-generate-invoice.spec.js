@@ -32,13 +32,12 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
 
     it('should contain a generateData as a computed property', () => {
         expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentDate: null,
             documentComment: null,
         }));
 
-        Shopware.State.commit('swBulkEdit/setOrderDocuments', {
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
             type: 'invoice',
-            payload: {
+            value: {
                 documentDate: 'documentDate',
                 documentComment: 'documentComment',
             },
@@ -48,5 +47,15 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
             documentDate: 'documentDate',
             documentComment: 'documentComment',
         }));
+    });
+
+    it('should be able to update generateData', () => {
+        wrapper.vm.generateData = {
+            documentDate: 'I am a date',
+            documentComment: 'I am a comment',
+        };
+
+        expect(wrapper.vm.generateData.documentDate).toBe('I am a date');
+        expect(wrapper.vm.generateData.documentComment).toBe('I am a comment');
     });
 });

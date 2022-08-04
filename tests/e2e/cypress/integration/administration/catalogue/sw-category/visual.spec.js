@@ -8,6 +8,8 @@ describe('Category: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -22,9 +24,10 @@ describe('Category: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-category'
         });
-
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-tree').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-skeleton__tree-item').should('not.exist');
@@ -38,6 +41,7 @@ describe('Category: Visual tests', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
+        cy.get('.sw-media-upload-v2__switch-mode').should('exist');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling(
@@ -54,6 +58,7 @@ describe('Category: Visual tests', () => {
         cy.get('.sw-skeleton__tree-item-nested').should('not.exist');
 
         cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

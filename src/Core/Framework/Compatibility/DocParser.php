@@ -121,7 +121,7 @@ class DocParser
     /**
      * An array of default namespaces if operating in simple mode.
      *
-     * @var string[]
+     * @var array<string>
      */
     private $namespaces = [];
 

@@ -19,6 +19,8 @@ describe('Product: Search Keyword product', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -35,7 +37,7 @@ describe('Product: Search Keyword product', () => {
             url: `${Cypress.env('apiPath')}/search/product`
         }).as('searchData');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -70,6 +72,6 @@ describe('Product: Search Keyword product', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
 
         // Ensure the search found the correct product
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
     });
 });

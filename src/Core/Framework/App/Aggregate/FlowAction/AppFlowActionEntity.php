@@ -26,6 +26,8 @@ class AppFlowActionEntity extends Entity
 
     protected ?string $description;
 
+    protected ?string $headline;
+
     protected array $parameters;
 
     protected array $config;
@@ -144,6 +146,16 @@ class AppFlowActionEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getHeadline(): ?string
+    {
+        return $this->headline;
+    }
+
+    public function setHeadline(?string $headline): void
+    {
+        $this->headline = $headline;
     }
 
     public function getIconRaw(): ?string

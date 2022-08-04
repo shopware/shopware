@@ -27,6 +27,10 @@ Component.register('sw-order-customer-grid', {
     },
 
     computed: {
+        customerData() {
+            return State.get('swOrder').customer;
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -99,7 +103,20 @@ Component.register('sw-order-customer-grid', {
         ...mapState('swOrder', ['cart']),
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            if (!this.customerData) {
+                return;
+            }
+
+            this.$refs.customerFilter.term = this.customerData?.customerNumber;
+            this.onCheckCustomer(this.customerData);
+        },
+
         getList() {
             this.isLoading = true;
             return this.customerRepository.search(this.customerCriteria).then(customers => {
@@ -148,6 +165,7 @@ Component.register('sw-order-customer-grid', {
                     await this.createCart(customer.salesChannelId);
                 }
 
+                this.customer = customer;
                 this.setCustomer(customer);
                 this.setCurrency(customer);
 
@@ -161,11 +179,12 @@ Component.register('sw-order-customer-grid', {
             }
         },
 
-        onSelectExistingCustomer(customerId) {
+        onAddNewCustomer(customerId) {
             if (!customerId) {
                 return;
             }
 
+            // Refresh customer list if new customer is created successfully
             this.getList();
             this.page = 1;
             this.term = '';

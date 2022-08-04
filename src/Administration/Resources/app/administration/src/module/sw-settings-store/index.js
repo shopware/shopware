@@ -8,7 +8,7 @@ Module.register('sw-settings-store', {
     title: 'sw-settings-store.general.mainMenuItemGeneral',
     description: 'sw-settings-store.general.description',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {
@@ -25,7 +25,7 @@ Module.register('sw-settings-store', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.store.index',
-        icon: 'default-device-laptop',
+        icon: 'regular-laptop',
         privilege: 'system.system_config',
     },
 });

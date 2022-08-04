@@ -9,7 +9,9 @@ describe('Payment: Test crud operations', () => {
                 return cy.createDefaultFixture('payment-method');
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -36,9 +38,7 @@ describe('Payment: Test crud operations', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('Bar bei Abholung');
+        cy.contains('.sw-card__title', 'Bar bei Abholung');
     });
 
     it('@base @settings: update and read payment method', () => {
@@ -50,15 +50,12 @@ describe('Payment: Test crud operations', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.setEntitySearchable('payment_method', 'name');
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('Edit detail')
+            .click();
 
-        // Edit base data
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
-        cy.clickContextMenuItem(
-            '.sw-settings-payment-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
 
         cy.get('#sw-field--paymentMethod-name').clearTypeAndCheck('In Schokoladentafeln');
         cy.get(page.elements.paymentSaveAction).click();
@@ -67,12 +64,12 @@ describe('Payment: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-            .contains('In Schokoladentafeln');
+
+        cy.contains('.sw-card__title', 'In Schokoladentafeln');
     });
 
-    it('@base @settings: delete payment method', () => {
+    // ToDo: NEXT-20936 - We need an opportunity
+    it.skip('@base @settings: delete payment method', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -91,8 +88,7 @@ describe('Payment: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the payment method "CredStick"?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete the payment method "CredStick"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify and check usage of payment-method

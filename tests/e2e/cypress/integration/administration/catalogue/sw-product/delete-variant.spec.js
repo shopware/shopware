@@ -10,6 +10,8 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
                 cy.get('.sw-data-grid__cell--name')
                     .click();
@@ -35,8 +37,8 @@ describe('Product: Test variants', () => {
             .should('be.visible');
 
         // check modal description
-        cy.get('.sw-product-variants-overview__delete-modal  .sw-product-variants-overview__modal--confirm-delete-text')
-            .contains('Do you really want to delete these variants?');
+        cy.contains('.sw-product-variants-overview__delete-modal  .sw-product-variants-overview__modal--confirm-delete-text',
+            'Do you really want to delete these variants?');
 
         cy.get('.sw-product-variants-overview__delete-modal .sw-modal__footer .sw-button--danger')
             .should('be.visible')

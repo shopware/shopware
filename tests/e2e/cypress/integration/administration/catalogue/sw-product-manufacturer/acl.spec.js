@@ -33,9 +33,11 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Manufacturer');
-        cy.get(page.elements.primaryButton).contains('Add manufacturer');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Manufacturer');
+        cy.contains(page.elements.primaryButton, 'Add manufacturer');
 
         cy.get('.sw-manufacturer-list__add-manufacturer').should('have.class', 'sw-button--disabled');
 
@@ -65,6 +67,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -72,8 +76,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             url: `**/${Cypress.env('apiPath')}/product-manufacturer`
         }).as('saveData');
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Manufacturer');
-        cy.get(page.elements.primaryButton).contains('Add manufacturer').click();
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Manufacturer');
+        cy.contains(page.elements.primaryButton, 'Add manufacturer').click();
         cy.url().should('contain', '#/sw/manufacturer/create');
 
         cy.get('input[name=name]').clearTypeAndCheck('MAN-U-FACTURE');
@@ -85,7 +89,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             .its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('.sw-manufacturer-list__content').contains('MAN-U-FACTURE');
+        cy.contains('.sw-manufacturer-list__content', 'MAN-U-FACTURE');
     });
 
     it('@catalogue: edit and read manufacturer with ACL', () => {
@@ -103,7 +107,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
-
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -143,7 +148,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             }
         ]);
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
-
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
 
@@ -158,7 +164,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
+        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

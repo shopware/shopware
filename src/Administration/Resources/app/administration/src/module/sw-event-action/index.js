@@ -17,7 +17,7 @@ Shopware.Module.register('sw-event-action', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'event_action',
     display: !Shopware.Feature.isActive('v6.5.0.0'),
@@ -55,7 +55,7 @@ Shopware.Module.register('sw-event-action', {
     settingsItem: {
         group: 'shop',
         to: 'sw.event.action.index',
-        icon: 'default-action-sliders',
+        icon: 'regular-sliders-v',
         privilege: 'event_action.viewer',
     },
 });

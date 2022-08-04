@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -42,7 +43,8 @@ class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('label', 'label'))->addFlags(new Required()),
-            new StringField('description', 'description'),
+            new LongTextField('description', 'description'),
+            new StringField('headline', 'headline'),
             new CustomFields(),
         ]);
     }

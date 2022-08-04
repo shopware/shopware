@@ -10,6 +10,8 @@ describe('Product Search: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -115,6 +117,8 @@ describe('Product Search: Test crud operations', () => {
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.awaitAndCheckNotification('Configuration saved.');
         // cy.wait(3000);
         cy.clickContextMenuItem(
@@ -125,6 +129,8 @@ describe('Product Search: Test crud operations', () => {
 
         cy.wait('@updateSearchConfig')
             .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-general ' +

@@ -41,6 +41,9 @@ class EntityForeignKeyResolver
      */
     private $queryHelper;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, EntityDefinitionQueryHelper $queryHelper)
     {
         $this->connection = $connection;
@@ -250,7 +253,9 @@ class EntityForeignKeyResolver
 
         // create flat list for single primary key entities
         if ($primaryKeys->count() === 1) {
-            $property = $primaryKeys->first()->getPropertyName();
+            /** @var Field $pk */
+            $pk = $primaryKeys->first();
+            $property = $pk->getPropertyName();
             $affected = array_column($affected, $property);
         }
 

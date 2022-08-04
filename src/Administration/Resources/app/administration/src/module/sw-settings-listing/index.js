@@ -17,7 +17,7 @@ Module.register('sw-settings-listing', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'store_settings',
 
@@ -53,7 +53,7 @@ Module.register('sw-settings-listing', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.listing.index',
-        icon: 'default-symbol-products',
+        icon: 'regular-products',
         privilege: 'system.system_config',
     },
 });

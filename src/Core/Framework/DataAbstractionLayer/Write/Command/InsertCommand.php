@@ -5,8 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
- * @final
+ * @final tag:v6.5.0
  */
 class InsertCommand extends WriteCommand
 {

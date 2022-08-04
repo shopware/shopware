@@ -11,7 +11,7 @@ Module.register('sw-settings-number-range', {
     title: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'number_range',
 
@@ -45,7 +45,7 @@ Module.register('sw-settings-number-range', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.number.range.index',
-        icon: 'default-documentation-paper-pencil-signed',
+        icon: 'regular-file-signature',
         privilege: 'number_ranges.viewer',
     },
 });

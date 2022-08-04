@@ -81,6 +81,8 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const searchTerm = 'product';
 
@@ -92,8 +94,8 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         cy.url().should('contain', `limit=25`);
 
         // When search for a term, none sorting is used
-        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-up').should('not.exist');
-        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-down').should('not.exist');
+        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-up-xxs').should('not.exist');
+        cy.get(`.sw-data-grid__cell--1 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-down-xxs').should('not.exist');
 
         cy.log('change Sorting direction from None to ASC');
         cy.get('.sw-data-grid__cell--1 > .sw-data-grid__cell-content').click('right');
@@ -178,6 +180,8 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm: 'product',

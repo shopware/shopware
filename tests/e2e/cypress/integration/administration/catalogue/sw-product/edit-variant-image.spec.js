@@ -35,12 +35,12 @@ function createVariant(page) {
     page.generateVariants('Color', [0, 1, 2], 3);
     cy.get('.sw-product-variants-overview').should('be.visible');
 
-    cy.get('.sw-data-grid__body').contains('Red');
-    cy.get('.sw-data-grid__body').contains('Yellow');
-    cy.get('.sw-data-grid__body').contains('Green');
-    cy.get('.sw-data-grid__body').contains('.1');
-    cy.get('.sw-data-grid__body').contains('.2');
-    cy.get('.sw-data-grid__body').contains('.3');
+    cy.contains('.sw-data-grid__body', 'Red');
+    cy.contains('.sw-data-grid__body', 'Yellow');
+    cy.contains('.sw-data-grid__body', 'Green');
+    cy.contains('.sw-data-grid__body', '.1');
+    cy.contains('.sw-data-grid__body', '.2');
+    cy.contains('.sw-data-grid__body', '.3');
 
     cy.get('.sw-loader').should('not.exist');
 }
@@ -58,6 +58,8 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -91,7 +93,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Green');
 
         // Set surcharge
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
@@ -182,7 +184,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-modal-delivery__sidebar .sw-tabs-item:nth-of-type(3)').click();
         cy.get('.sw-product-variants-delivery-listing-mode .sw-field__radio-option:nth-of-type(1)').click();
         cy.get('.sw-product-variants-delivery-listing_entity-select').click();
-        cy.get('.sw-product-variant-info__specification').contains('Green').click();
+        cy.contains('.sw-product-variant-info__specification', 'Green').click();
 
         cy.get('.sw-product-modal-delivery__save-button').click();
         cy.get('.sw-modal__body').should('not.exist');
@@ -197,7 +199,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Green');
 
         // Set surcharge
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
@@ -301,7 +303,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--name', 'Green');
 
         // Set surcharge
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');

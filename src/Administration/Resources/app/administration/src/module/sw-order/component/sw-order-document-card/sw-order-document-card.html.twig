@@ -5,18 +5,17 @@
     :class="documentCardStyles"
     :is-loading="isDataLoading"
 >
-
     <template #grid>
-
         {% block sw_order_document_card_header %}
         <sw-card-section
             divider="bottom"
-            secondary
+            :secondary="showCardFilter"
             slim
         >
 
             {% block sw_order_document_card_header_filter %}
             <sw-card-filter
+                v-if="showCardFilter"
                 :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
                 @sw-card-filter-term-change="onSearchTermChange"
             >
@@ -247,9 +246,44 @@
 
     {% block sw_order_document_card_empty_state %}
     <sw-empty-state
-        v-if="documentsEmpty"
+        v-if="documentsEmpty && feature.isActive('FEATURE_NEXT_7530')"
+        :title="emptyStateTitle"
+        :show-description="false"
+    >/
+        <template #icon>
+            <img
+                :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                :alt="$tc('sw-order.list.messageEmpty')"
+            >
+        </template>
+
+        <template #actions>
+            <sw-button
+                v-if="showCreateDocumentButton"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                size="small"
+                variant="ghost"
+                :disabled="!acl.can('order.editor')"
+                class="sw-order-document-grid-button"
+                @click="onShowSelectDocumentTypeModal"
+            >
+
+                {% block sw_order_document_card_header_create_document_button_label %}
+                {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                {% endblock %}
+
+            </sw-button>
+        </template>
+    </sw-empty-state>
+
+    <sw-empty-state
+        v-if="documentsEmpty && !feature.isActive('FEATURE_NEXT_7530')"
         :title="$tc('sw-order.documentCard.messageEmptyTitle')"
-        icon="default-documentation-file"
+        icon="regular-file-text"
         :subline="$tc('sw-order.documentCard.messageEmptySubline')"
     />
     {% endblock %}

@@ -48,8 +48,10 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\SalesChannel\CachedCountryRoute;
+use Shopware\Core\System\Country\SalesChannel\CachedCountryStateRoute;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -136,6 +138,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateCountryRoute', 2015],
                 ['invalidateSalutationRoute', 2016],
                 ['invalidateInitialStateIdLoader', 2017],
+                ['invalidateCountryStateRoute', 2018],
             ],
             SeoUrlUpdateEvent::class => [
                 ['invalidateSeoUrls', 2000],
@@ -323,6 +326,27 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             $this->getChangedCountryAssignments($event),
             $this->getChangedCountries($event),
         ));
+    }
+
+    public function invalidateCountryStateRoute(EntityWrittenContainerEvent $event): void
+    {
+        $tags = [];
+        if (
+            $event->getDeletedPrimaryKeys(CountryStateDefinition::ENTITY_NAME)
+            || $event->getPrimaryKeysWithPropertyChange(CountryStateDefinition::ENTITY_NAME, ['countryId'])
+        ) {
+            $tags[] = CachedCountryStateRoute::ALL_TAG;
+        }
+
+        if (empty($tags)) {
+            // invalidates the country-state route when a state changed or an assignment between the state and country changed
+            $tags = array_map(
+                [CachedCountryStateRoute::class, 'buildName'],
+                $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
+            );
+        }
+
+        $this->cacheInvalidator->invalidate($tags);
     }
 
     public function invalidateSalutationRoute(EntityWrittenContainerEvent $event): void

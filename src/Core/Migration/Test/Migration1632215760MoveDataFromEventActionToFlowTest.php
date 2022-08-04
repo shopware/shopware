@@ -31,7 +31,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -71,7 +71,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
             ];
         }
 
-        $this->eventActionRepository->create($data, $this->ids->context);
+        $this->eventActionRepository->create($data, Context::createDefaultContext());
 
         $migration = new Migration1632215760MoveDataFromEventActionToFlow();
         $migration->update($this->connection);
@@ -106,7 +106,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
         $criteria->addAssociation('sequences');
 
         /** @var FlowEntity $flow */
-        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
@@ -167,7 +167,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
             ],
         ];
 
-        $this->eventActionRepository->create([$data], $this->ids->context);
+        $this->eventActionRepository->create([$data], Context::createDefaultContext());
     }
 
     private function createMailTemplate(): void
@@ -182,7 +182,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('mail_template.repository')->create([
             [
@@ -198,6 +198,6 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 }

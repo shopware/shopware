@@ -21,7 +21,7 @@ class CmsControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
     }
@@ -91,6 +91,6 @@ class CmsControllerTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create([$category], $this->ids->context);
+        $this->getContainer()->get('category.repository')->create([$category], Context::createDefaultContext());
     }
 }

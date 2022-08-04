@@ -21,7 +21,7 @@ const { Component } = Shopware;
  *   <sw-step-item>
  *      Read
  *   </sw-step-item>
- *   <sw-step-item disabledIcon="small-default-checkmark-line-medium">
+ *   <sw-step-item disabledIcon="regular-checkmark-xs">
  *      Finish
  *   </sw-step-item>
  * </sw-step-display>

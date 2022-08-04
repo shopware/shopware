@@ -158,8 +158,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $id = Uuid::randomHex();
-            $firstName = $context->getFaker()->firstName;
-            $lastName = $context->getFaker()->lastName;
+            $firstName = $context->getFaker()->firstName();
+            $lastName = $context->getFaker()->format('lastName');
             $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
             $title = $this->getRandomTitle();
             $countries = $this->connection
@@ -172,14 +172,14 @@ class CustomerGenerator implements DemodataGeneratorInterface
             for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
                     'id' => Uuid::randomHex(),
-                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
+                    'countryId' => Uuid::fromBytesToHex($context->getFaker()->randomElement($countries)),
                     'salutationId' => $salutationId,
                     'title' => $title,
                     'firstName' => $firstName,
                     'lastName' => $lastName,
-                    'street' => $context->getFaker()->streetName,
-                    'zipcode' => $context->getFaker()->postcode,
-                    'city' => $context->getFaker()->city,
+                    'street' => $context->getFaker()->format('streetName'),
+                    'zipcode' => $context->getFaker()->format('postcode'),
+                    'city' => $context->getFaker()->format('city'),
                 ];
             }
 
@@ -190,7 +190,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'title' => $title,
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'email' => $id . $context->getFaker()->safeEmail,
+                'email' => $id . $context->getFaker()->format('safeEmail'),
                 'password' => 'shopware',
                 'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
@@ -233,7 +233,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(

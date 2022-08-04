@@ -8,6 +8,8 @@ describe('Category: Assign product and set seo url, then check in the storefront
             cy.createProductFixture();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -56,7 +58,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('SEO-Category');
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'SEO-Category');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
@@ -73,6 +75,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.contains('.sw-select-result-list__content', 'Product name').click();
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@editCategory').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Add SEO url to the category
@@ -87,6 +90,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         }).as('loadCategory');
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
@@ -106,7 +110,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.contains('SEO-Category').click();
         cy.url().should('include', 'test-SEO');
         cy.get('.main-navigation-link.active').should('be.visible');
-        cy.get('.breadcrumb-title').contains('SEO-Category').should('be.visible');
-        cy.get('.cms-element-product-listing').contains('Product name').should('be.visible');
+        cy.contains('.breadcrumb-title', 'SEO-Category').should('be.visible');
+        cy.contains('.cms-element-product-listing', 'Product name').should('be.visible');
     });
 });

@@ -4,8 +4,12 @@ describe('Listing: Test crud operations', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/listing/index`);
                 return cy.createDefaultFixture('custom-field-set');
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -35,9 +39,9 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
 
         // check updated data
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').contains('Price descending');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria').contains('Cheapest product price');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--priority').contains('5');
+        cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--label', 'Price descending');
+        cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria', 'Cheapest product price');
+        cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--priority', '5');
 
         cy.get('.sw-settings-listing-index__sorting-options-card').scrollIntoView().should('be.visible');
 
@@ -62,8 +66,8 @@ describe('Listing: Test crud operations', () => {
             .typeSingleSelect('Product name', '.sw-single-select');
 
         // validate entry
-        cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content').contains('Product name');
-        cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
+        cy.contains('.sw-data-grid__cell--field .sw-data-grid__cell-content', 'Product name');
+        cy.contains('.sw-data-grid__cell--order .sw-data-grid__cell-content', 'Ascending');
         cy.get('.sw-data-grid__cell--priority #sw-field--currentValue').should('have.value', '1');
 
         cy.intercept({
@@ -80,14 +84,13 @@ describe('Listing: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check data on index page
-        cy.get('.sw-data-grid__row--4 .sw-data-grid__cell--label .sw-data-grid__cell-value')
-            .contains('My own product sorting');
-        cy.get('.sw-data-grid__row--4 .sw-data-grid__cell--criteria')
-            .contains('Product name');
-        cy.get('.sw-data-grid__row--4 .sw-data-grid__cell--priority')
-            .contains('1');
+        cy.contains('.sw-data-grid__row--4 .sw-data-grid__cell--label .sw-data-grid__cell-value', 'My own product sorting');
+        cy.contains('.sw-data-grid__row--4 .sw-data-grid__cell--criteria', 'Product name');
+        cy.contains('.sw-data-grid__row--4 .sw-data-grid__cell--priority', '1');
     });
 
     it('@settings: create product sorting with custom field criteria', () => {
@@ -102,8 +105,12 @@ describe('Listing: Test crud operations', () => {
         }).as('saveCustomField');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-select').click();
         cy.contains('.sw-select-result', 'Products').click({ force: true });
@@ -131,9 +138,13 @@ describe('Listing: Test crud operations', () => {
             .its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // create new product sorting
         cy.get('.sw-container > .sw-button').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.smart-bar__header').should('be.visible').contains('Create product sorting');
 
@@ -155,7 +166,7 @@ describe('Listing: Test crud operations', () => {
         // validate entry
         // custom field selection should visible
         cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select').should('be.visible');
-        cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
+        cy.contains('.sw-data-grid__cell--order .sw-data-grid__cell-content', 'Ascending');
         cy.get('.sw-data-grid__cell--priority #sw-field--currentValue').should('have.value', '1');
 
         // check if save button is still disabled because no custom field is selected
@@ -198,14 +209,14 @@ describe('Listing: Test crud operations', () => {
         cy.get(customFieldSelection).should('be.visible');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check data on index page
-        cy.get('.sw-data-grid__body .sw-data-grid__cell--label .sw-data-grid__cell-value')
-            .contains('My own product sorting with Custom Field');
-        cy.get('.sw-data-grid__body .sw-data-grid__cell--criteria')
-            .contains('my_custom_field_first');
-        cy.get('.sw-data-grid__body .sw-data-grid__cell--priority')
-            .contains('1');
+        cy.contains('.sw-data-grid__body .sw-data-grid__cell--label .sw-data-grid__cell-value',
+            'My own product sorting with Custom Field');
+        cy.contains('.sw-data-grid__body .sw-data-grid__cell--criteria', 'my_custom_field_first');
+        cy.contains('.sw-data-grid__body .sw-data-grid__cell--priority', '1');
     });
 
     it('@settings: edit an existing product sorting', () => {
@@ -222,7 +233,7 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // check smart bar heading
-        cy.get('.smart-bar__header').contains('Name Z-A');
+        cy.contains('.smart-bar__header', 'Name Z-A');
 
         // check name input field
         cy.get('#sw-field--sortingOption-label').clearTypeAndCheck('Price descending and rating');
@@ -242,6 +253,8 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: delete an existing product sorting', () => {

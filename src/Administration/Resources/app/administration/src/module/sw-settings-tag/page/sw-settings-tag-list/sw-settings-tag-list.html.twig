@@ -18,7 +18,7 @@
         <h2>
             {% block sw_settings_tag_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }} <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             /> {{ $tc('sw-settings-tag.list.textHeadline') }}
             {% endblock %}
@@ -86,7 +86,7 @@
                             size="small"
                         >
                             <sw-icon
-                                name="small-default-stack-filter"
+                                name="regular-filter-s"
                                 size="16"
                             />
                             {{ $tc('sw-settings-tag.list.filter') }}
@@ -125,14 +125,12 @@
                     {% endblock %}
 
                     {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
-                    <sw-single-select
+                    <sw-multi-select
                         v-model="assignmentFilter"
                         class="sw-settings-tag-list__filter-assignment-select"
-                        size="small"
                         :label="$tc('sw-settings-tag.list.filterAssignemnt')"
                         :placeholder="$tc('sw-settings-tag.list.placeholderFilterAssignemnt')"
                         :options="assignmentFilterOptions"
-                        show-clearable-button
                         :disabled="emptyFilter"
                         @change="onFilter"
                     />
@@ -158,6 +156,7 @@
                     v-if="isLoading || total > 0"
                     ref="swSettingsTagGrid"
                     class="sw-settings-tag-list__grid"
+                    identifier="sw-settings-tag-list"
                     :items="tags"
                     :columns="tagColumns"
                     :repository="tagRepository"
@@ -302,20 +301,21 @@
                     </template>
                     {% endblock %}
 
-                    {% block sw_settings_tag_list_grid_column_default_tag_connections %}
-                    <template #column-connections="{ item }">
+                    {# @deprecated tag:v6.5.0 - block will removed #}
+                    {% block sw_settings_tag_list_grid_column_default_tag_connections %}{% endblock %}
+
+                    {% block sw_settings_tag_list_grid_column_assignments %}
+                    <template
+                        v-for="(propertyName, index) in assignmentProperties"
+                        :slot="`column-${propertyName}`"
+                        slot-scope="{ item }"
+                    >
                         <span
-                            v-for="(connection, index) in getConnections(item.id)"
                             :key="index"
+                            class="sw-data-grid__cell-value"
                         >
-                            <template v-if="index !== 0">,</template>
-                            <a
-                                href="#"
-                                @click.prevent="onDetail(item.id, connection.property, connection.entity)"
-                            >
-                                {{ connection.count }}
-                                {{ $tc(`sw-settings-tag.list.connections.${connection.property}`, connection.count) }}
-                            </a>
+                            {{ getPropertyCounting(propertyName, item.id) }}
+                            {{ $tc(`sw-settings-tag.list.assignments.content.${propertyName}`, getPropertyCounting(propertyName, item.id)) }}
                         </span>
                     </template>
                     {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent;
@@ -25,6 +26,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @final tag:v6.5.0
+ */
 class EntityRepository implements EntityRepositoryInterface
 {
     private EntityReaderInterface $reader;
@@ -39,7 +43,7 @@ class EntityRepository implements EntityRepositoryInterface
 
     private EntityDefinition $definition;
 
-    private ?EntityLoadedEventFactory $eventFactory;
+    private ?EntityLoadedEventFactory $eventFactory = null;
 
     /**
      * @internal
@@ -131,8 +135,13 @@ class EntityRepository implements EntityRepositoryInterface
         return $result;
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $data
+     */
     public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
+        ReplicaConnection::ensurePrimary();
+
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
@@ -140,8 +149,13 @@ class EntityRepository implements EntityRepositoryInterface
         return $event;
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $data
+     */
     public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
+        ReplicaConnection::ensurePrimary();
+
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
@@ -149,8 +163,13 @@ class EntityRepository implements EntityRepositoryInterface
         return $event;
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $data
+     */
     public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
+        ReplicaConnection::ensurePrimary();
+
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
@@ -158,14 +177,22 @@ class EntityRepository implements EntityRepositoryInterface
         return $event;
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $ids
+     */
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
+        ReplicaConnection::ensurePrimary();
+
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected->getDeleted(), $context, $affected->getNotFound());
 
         if ($affected->getWritten()) {
             $updates = EntityWrittenContainerEvent::createWithWrittenEvents($affected->getWritten(), $context, []);
-            $event->addEvent(...$updates->getEvents());
+
+            if ($updates->getEvents() !== null) {
+                $event->addEvent(...$updates->getEvents());
+            }
         }
 
         $this->eventDispatcher->dispatch($event);
@@ -175,6 +202,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
     {
+        ReplicaConnection::ensurePrimary();
+
         if (!$this->definition->isVersionAware()) {
             throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
@@ -184,6 +213,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function merge(string $versionId, Context $context): void
     {
+        ReplicaConnection::ensurePrimary();
+
         if (!$this->definition->isVersionAware()) {
             throw new \RuntimeException(sprintf('Entity %s is not version aware', $this->definition->getEntityName()));
         }
@@ -192,6 +223,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
     {
+        ReplicaConnection::ensurePrimary();
+
         $newId = $newId ?? Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
@@ -206,7 +239,7 @@ class EntityRepository implements EntityRepositoryInterface
             $behavior ?? new CloneBehavior()
         );
 
-        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
+        $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, [], true);
         $this->eventDispatcher->dispatch($event);
 
         return $event;

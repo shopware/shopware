@@ -59,7 +59,7 @@
                         :disabled="isLoading || !acl.can('product_stream.editor')"
                     >
                         <sw-icon
-                            name="small-arrow-medium-down"
+                            name="regular-chevron-down-xs"
                             size="16"
                         />
                     </sw-button>
@@ -96,7 +96,7 @@
     {% block sw_product_stream_detail_content %}
     <template #content>
         <sw-card-view>
-            <template v-if="isLoading">
+            <template v-if="isLoading || customFieldsLoading">
                 <sw-skeleton variant="detail-bold" />
                 <sw-skeleton />
             </template>

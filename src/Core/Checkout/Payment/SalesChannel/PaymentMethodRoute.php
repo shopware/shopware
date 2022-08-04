@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -39,37 +38,6 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("payment_method")
-     * @OA\Post (
-     *      path="/payment-method",
-     *      summary="Fetch payment methods",
-     *      description="Perform a filtered search for payment methods, for use in the checkout process.",
-     *      operationId="readPaymentMethod",
-     *      tags={"Store API", "Payment & Shipping"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          name="onlyAvailable",
-     *          description="List only available payment methods. This filters payment methods which can not be used in the actual context because of their availability rule.",
-     *          @OA\Schema(type="boolean"),
-     *          in="query"
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing payment methods",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/PaymentMethod")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *    )
-     * )
      * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse

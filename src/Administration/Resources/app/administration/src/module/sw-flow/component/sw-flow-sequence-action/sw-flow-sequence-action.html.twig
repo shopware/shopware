@@ -44,7 +44,7 @@
                 >
                     <sw-icon
                         size="12px"
-                        name="small-default-minus-medium"
+                        name="regular-minus-xs"
                     />
                     <span class="sw-flow-sequence-action__no-action">
                         {{ $tc('sw-flow.detail.sequence.noActions') }}
@@ -66,6 +66,10 @@
                         <li
                             v-for="item in sequenceData"
                             :key="item.id"
+                            v-tooltip="{
+                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                disabled: !item.disabled
+                            }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
                         >
@@ -94,7 +98,7 @@
                                 {% block sw_flow_sequence_action_actions_item_context_button %}
                                 <sw-context-button
                                     class="sw-flow-sequence-action__context-button"
-                                    :disabled="disabled"
+                                    :disabled="disabled || item.disabled"
                                 >
                                     {% block sw_flow_sequence_action_actions_item_button_edit %}
                                     <sw-context-menu-item
@@ -170,10 +174,12 @@
                 >
                     {% block sw_flow_sequence_action_add_icon %}
                     <div class="sw-flow-sequence-action__add-icon">
+                        {# @deprecated tag:v6.5.0 - Padding can be removed #}
                         <sw-icon
-                            size="10px"
+                            size="8px"
+                            style="padding: 2px"
                             color="#fff"
-                            name="small-default-plus-line-small"
+                            name="regular-plus-xxs"
                         />
                     </div>
                     {% endblock %}
@@ -190,7 +196,7 @@
                     <sw-icon
                         size="12px"
                         color="#758ca3"
-                        name="small-default-x-circle"
+                        name="regular-times-circle-s"
                         @click="toggleAddButton"
                     />
                     {% block sw_flow_sequence_action_list %}
@@ -209,6 +215,10 @@
                         <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
                             <li
                                 is="sw-select-result"
+                                v-tooltip="{
+                                    message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                    disabled: !item.disabled
+                                }"
                                 :selected="isSelected(item)"
                                 v-bind="{ item, index }"
                                 :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"

@@ -30,7 +30,9 @@ class SnippetFinder implements SnippetFinderInterface
 
     private function getPluginPaths(): array
     {
+        $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
+        $bundles = $this->kernel->getBundles();
         $paths = [];
 
         foreach ($activePlugins as $plugin) {
@@ -42,6 +44,20 @@ class SnippetFinder implements SnippetFinderInterface
             $paths[] = $pluginPath;
         }
 
+        foreach ($bundles as $bundle) {
+            if (\in_array($bundle, $plugins, true)) {
+                continue;
+            }
+
+            $bundlePath = $bundle->getPath() . '/Resources/app/administration';
+
+            if (!file_exists($bundlePath)) {
+                continue;
+            }
+
+            $paths[] = $bundlePath;
+        }
+
         return $paths;
     }
 
@@ -50,6 +66,7 @@ class SnippetFinder implements SnippetFinderInterface
         $finder = (new Finder())
             ->files()
             ->in(__DIR__ . '/../../*/Resources/app/administration/src/')
+            ->exclude('node_modules')
             ->ignoreUnreadableDirs();
 
         if ($locale) {
@@ -69,7 +86,7 @@ class SnippetFinder implements SnippetFinderInterface
             $files[] = $file->getRealPath();
         }
 
-        return $files;
+        return \array_unique($files);
     }
 
     private function parseFiles(array $files): array

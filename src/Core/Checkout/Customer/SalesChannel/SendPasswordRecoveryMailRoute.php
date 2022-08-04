@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
@@ -87,37 +86,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/recovery-password",
-     *      summary="Send a password recovery mail",
-     *      description="This operation is Step 1 of the password reset flow. Make sure to implement Step 2 ""Reset password with recovery credentials"" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
-     *      operationId="sendRecoveryMail",
-     *      tags={"Store API", "Profile"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-                        "email",
-     *                  "storefrontUrl"
-     *              },
-     *              @OA\Property(
-     *                  property="email",
-     *                  description="E-Mail address to identify the customer",
-     *                  type="string"),
-     *              @OA\Property(
-     *                  property="storefrontUrl",
-     *                  description="URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings.",
-     *                  type="string")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="If email corresponds to an existing customer, a mail will be sent out to that customer containing a link assembled using the following schema:
-
-Returns a success indicating a successful initialisation of the reset flow.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
      */
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse

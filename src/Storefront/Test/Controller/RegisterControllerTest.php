@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -41,7 +40,7 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -53,24 +52,21 @@ class RegisterControllerTest extends TestCase
     use StorefrontControllerTestBehaviour;
 
     /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
      * @var SalesChannelContext
      */
     private $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->accountService = $this->getContainer()->get(AccountService::class);
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
         $this->salesChannelContext = $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL);
 
-        $this->getContainer()->get('session')->getFlashBag()->clear();
+        $session = $this->getSession();
+        if (method_exists($session, 'getFlashBag')) {
+            $session->getFlashBag()->clear();
+        }
     }
 
     public function testGuestRegisterWithRequirePasswordConfirmation(): void
@@ -174,9 +170,9 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals('/account/register', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashbag */
-        $flashBag = $container->get('session')->getFlashBag();
-        $success = $flashBag->get('success');
+        $session = $this->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $success = $session->getFlashBag()->get('success');
 
         static::assertNotEmpty($success);
         static::assertEquals($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
@@ -229,8 +225,9 @@ class RegisterControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals('/account/register', $response->getTargetUrl());
 
-        /** @var FlashBagInterface $flashbag */
-        $flashBag = $container->get('session')->getFlashBag();
+        $session = $request->getSession();
+        static::assertInstanceOf(Session::class, $session);
+        $flashBag = $session->getFlashBag();
         $success = $flashBag->get('success');
 
         static::assertNotEmpty($success);
@@ -353,7 +350,7 @@ class RegisterControllerTest extends TestCase
     private function createRequest(): Request
     {
         $request = new Request();
-        $request->setSession($this->getContainer()->get('session'));
+        $request->setSession($this->getSession());
         $request->request->add(['errorRoute' => 'frontend.checkout.register.page']);
         $request->attributes->add(['_route' => 'frontend.checkout.register.page', SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');

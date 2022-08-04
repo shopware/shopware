@@ -28,11 +28,12 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open product
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
-            .contains('Product name')
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`, 'Product name')
             .click();
 
         // check product values
@@ -91,11 +92,12 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // open product
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
-            .contains('Product name')
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`, 'Product name')
             .click();
 
         // change name
@@ -111,7 +113,7 @@ describe('Product: Test ACL privileges', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('T-Shirt');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'T-Shirt');
     });
 
     it('@base @catalogue: can create product', () => {
@@ -142,10 +144,19 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
+
+        cy.get('.smart-bar__header h2').should('be.visible');
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // create new product
         cy.get('a[href="#/sw/product/create"]').click();
+        cy.contains('.smart-bar__header h2', 'New product');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--product-name').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
@@ -172,18 +183,16 @@ describe('Product: Test ACL privileges', () => {
         cy.wait('@saveProduct')
             .its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Product with file upload image');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Product with file upload image');
 
         // Verify in storefront
         cy.visit('/');
         cy.get('input[name=search]').type('Product with file upload image');
         cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Product with file upload image')
+        cy.contains('.search-suggest-product-name', 'Product with file upload image')
             .click();
-        cy.get('.product-detail-name').contains('Product with file upload image');
-        cy.get('.product-detail-price').contains('10.00');
+        cy.contains('.product-detail-name', 'Product with file upload image');
+        cy.contains('.product-detail-price', '10.00');
     });
 
     it('@base @catalogue: can delete product', () => {
@@ -206,6 +215,8 @@ describe('Product: Test ACL privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Delete product
@@ -214,7 +225,7 @@ describe('Product: Test ACL privileges', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+        cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer .sw-button--danger`).click();

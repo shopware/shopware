@@ -10,6 +10,8 @@ describe('Rule builder: Test assigning tags', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -75,6 +77,6 @@ describe('Rule builder: Test assigning tags', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('contain', 'New Tag');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--connections`).contains(/1(\s)*rule/);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--rules`).contains(/1(\s)*rule/);
     });
 });

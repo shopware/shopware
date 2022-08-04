@@ -225,7 +225,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
-            'name' => $this->faker->productName,
+            'name' => $this->faker->format('productName'),
             'description' => $this->faker->text(),
             'taxId' => $tax->getId(),
             'manufacturerId' => $this->faker->randomElement($manufacturer),
@@ -282,7 +282,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
@@ -339,9 +339,9 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function getCategoryIds(): array
     {
         return $this->connection->fetchAllAssociative('
-            SELECT LOWER(HEX(category.id)) as id 
+            SELECT LOWER(HEX(category.id)) as id
             FROM category
-             LEFT JOIN product_category pc 
+             LEFT JOIN product_category pc
                ON pc.category_id = category.id
             WHERE category.child_count = 0
             GROUP BY category.id

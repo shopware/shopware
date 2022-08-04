@@ -18,7 +18,7 @@
             {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
             {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
             <sw-icon
-                name="small-arrow-medium-right"
+                name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
@@ -199,7 +199,7 @@
     <sw-sidebar slot="sidebar">
         {% block sw_newsletter_recipient_list_sidebar_refresh %}
         <sw-sidebar-item
-            icon="default-arrow-360-left"
+            icon="regular-undo"
             :title="$tc('sw-newsletter-recipient.list.titleSidebarItemRefresh')"
             @click="onRefresh"
         />
@@ -208,7 +208,7 @@
         {% block sw_newsletter_recipient_list_sidebar_filter %}
         <sw-sidebar-item
             ref="filterSideBar"
-            icon="default-action-filter"
+            icon="regular-filter"
             :title="$tc('sw-newsletter-recipient.list.titleSidebarItemFilter')"
             @sw-sidebar-item-close-content="closeContent"
             @click="closeContent"

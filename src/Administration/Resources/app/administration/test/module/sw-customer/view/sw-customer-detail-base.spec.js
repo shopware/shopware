@@ -3,6 +3,8 @@ import 'src/module/sw-customer/view/sw-customer-detail-base';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
 
 const customFields = [
     {
@@ -75,14 +77,13 @@ function createWrapper() {
                 template: '<div></div>'
             },
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-tabs': {
-                template: '<div><slot name="content"></slot></div>'
-            },
+            'sw-tabs': Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
             'sw-field': {
                 template: '<div></div>'
             },
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
         }
     });
 }
@@ -100,14 +101,6 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should have a criteria that sorts custom field by their position', async () => {
-        const customFieldSetCriteria = wrapper.vm.customFieldSetCriteria;
-        const customFieldSorting = customFieldSetCriteria.associations[0].criteria.sortings[0];
-
-        expect(customFieldSorting.order).toBe('ASC');
-        expect(customFieldSorting.field).toBe('config.customFieldPosition');
     });
 
     it('should sort custom fields by their position', async () => {

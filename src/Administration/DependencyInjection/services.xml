@@ -14,6 +14,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Hmac\QuerySigner"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -91,6 +92,19 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Administration\Controller\DocumentServiceDeprecationController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentGeneratorController"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Controller\DocumentController"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Administration\Notification\NotificationService" public="true">

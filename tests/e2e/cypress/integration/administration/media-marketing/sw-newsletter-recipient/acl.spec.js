@@ -18,8 +18,10 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: read NewsletterRecipient with ACL, but without rights', () => {
+    it('@marketing: read NewsletterRecipient with ACL, but without rights', { tags: ['quarantined'] }, () => {
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__cell--email').click();
         cy.location('hash').then(hash => {
             cy.loginAsUserWithPermissions([]);
@@ -33,7 +35,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: read NewsletterRecipient with ACL', () => {
+    it('@marketing: read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -44,15 +46,17 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Newsletter recipients');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
 
         cy.get(page.elements.newsletteSave).should('be.disabled');
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: edit and read NewsletterRecipient with ACL', () => {
+    it('@marketing: edit and read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -67,6 +71,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Request we want to wait for later
         cy.intercept({
@@ -75,7 +81,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         }).as('saveData');
 
         // Edit base data
-        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Newsletter recipients');
+        cy.contains(`${page.elements.smartBarHeader} > h2`, 'Newsletter recipients');
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
         cy.get('input[name=sw-field--newsletterRecipient-title]').clearTypeAndCheck('Mister');
         cy.get(page.elements.newsletteSave).should('not.be.disabled');
@@ -84,11 +90,11 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         // Verify updated manufacturer
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-alert__title').contains('Success');
+        cy.contains('.sw-alert__title', 'Success');
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it.skip('@marketing: delete NewsletterRecipient with ACL', () => {
+    it('@marketing: delete NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -107,6 +113,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // check that NewsletterRecipient exists
         cy.contains('Mustermann').should('exist');
@@ -123,7 +131,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
+        cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
             'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();

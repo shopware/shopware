@@ -10,6 +10,9 @@ class DataCollector extends BaseDataCollector
 {
     private ClientProfiler $client;
 
+    /**
+     * @internal
+     */
     public function __construct(ClientProfiler $client)
     {
         $this->client = $client;

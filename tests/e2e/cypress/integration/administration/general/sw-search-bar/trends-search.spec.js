@@ -6,26 +6,27 @@ describe('Search bar: Check search by frequently used and recently searched',() 
     });
 
     // NEXT-20024
-    it.skip('@searchBar search frequently used modules', () => {
+    it('@searchBar search frequently used modules', { tags: ['quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/increment/user_activity?*`,
             method: 'GET'
         }).as('getFrequentlyUsed');
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').type('products');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Products')
             .should('be.visible')
-            .contains('Products')
             .click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
         cy.get('.sw-dashboard')
             .should('exist');
-        cy.get('.sw-loader__element')
-            .should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
 
@@ -35,8 +36,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         const firstColumn = cy.get('.sw-search-bar__results-column').eq(0);
 
-        firstColumn.get('.sw-search-bar__results-column-header')
-            .contains('Frequently used');
+        firstColumn.contains('.sw-search-bar__results-column-header', 'Frequently used');
         firstColumn.get('.sw-search-bar-item')
             .should('contain', 'Products')
             .and('contain', 'Dashboard');
@@ -46,13 +46,14 @@ describe('Search bar: Check search by frequently used and recently searched',() 
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.get('.sw-search-bar-item')
+        cy.contains('.sw-search-bar-item', 'Product name')
             .should('be.visible')
-            .contains('Product name')
             .click();
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
@@ -67,8 +68,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         const secondColumn = cy.get('.sw-search-bar__results-column').eq(1);
 
-        secondColumn.get('.sw-search-bar__results-column-header')
-            .contains('Recently searched');
+        secondColumn.contains('.sw-search-bar__results-column-header', 'Recently searched');
         secondColumn.get('.sw-search-bar-item')
             .should('contain', 'Product name');
     })

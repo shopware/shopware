@@ -9,8 +9,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use InvoiceRenderer instead
+ */
 class InvoiceGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/invoice.html.twig';
@@ -37,6 +43,11 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'InvoiceRenderer::render')
+        );
+
         return self::INVOICE;
     }
 
@@ -49,11 +60,21 @@ class InvoiceGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'will be removed, use InvoiceRenderer::render instead'
+        );
+
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
         $config = DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize();
 
         $config['intraCommunityDelivery'] = $this->isAllowIntraCommunityDelivery($config, $order);
+
+        /** @var LanguageEntity $language */
+        $language = $order->getLanguage();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
 
         return $this->documentTemplateRenderer->render(
             $templatePath,
@@ -66,12 +87,17 @@ class InvoiceGenerator implements DocumentGeneratorInterface
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
-            $order->getLanguage()->getLocale()->getCode()
+            $locale->getCode()
         );
     }
 
     public function getFileName(DocumentConfiguration $config): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 

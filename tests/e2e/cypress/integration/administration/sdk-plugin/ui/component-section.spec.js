@@ -16,9 +16,12 @@ describe('SDK Tests: Component section', ()=> {
             .then(() => {
                 cy.log('Open example product');
 
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+
                 cy.get('.smart-bar__content')
                     .should('be.visible');
-                cy.contains('.smart-bar__content', 'Products')
+                cy.contains('.smart-bar__content', 'Products');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -34,23 +37,19 @@ describe('SDK Tests: Component section', ()=> {
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             })
     });
 
     it('@sdk: add a component section', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
             .click();
 
         cy.contains('.sw-card__title', 'Location tests');
-        cy.contains('.sw-card__subtitle', 'Testing if the location methods work correctly')
+        cy.contains('.sw-card__subtitle', 'Testing if the location methods work correctly');
 
         cy.getSDKiFrame('location-index')
             .should('be.visible');

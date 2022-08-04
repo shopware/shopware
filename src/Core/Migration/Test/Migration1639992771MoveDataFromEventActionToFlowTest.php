@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
@@ -24,15 +25,15 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $eventActionRepository;
+    private EntityRepositoryInterface $eventActionRepository;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -72,10 +73,9 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
             ];
         }
 
-        $this->eventActionRepository->create($data, $this->ids->context);
+        $this->eventActionRepository->create($data, Context::createDefaultContext());
 
         $migration = new Migration1639992771MoveDataFromEventActionToFlow();
-        $migration->internal = true;
         $migration->update($this->connection);
 
         $flows = $this->connection->fetchFirstColumn('SELECT `event_name` FROM `flow`');
@@ -102,18 +102,18 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
         $this->createEventActionWithSalesChannelAndRule();
 
         $migration = new Migration1639992771MoveDataFromEventActionToFlow();
-        $migration->internal = true;
         $migration->update($this->connection);
 
         $criteria = new Criteria();
         $criteria->addAssociation('sequences');
 
         /** @var FlowEntity $flow */
-        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+        $flow = $this->flowRepository->search($criteria, Context::createDefaultContext())->first();
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
-        static::assertSame(3, $flowSequences->count());
+        static::assertInstanceOf(FlowSequenceCollection::class, $flowSequences);
+        static::assertCount(3, $flowSequences);
 
         foreach ($flowSequences->getElements() as $flowSequence) {
             if ($flowSequence->getActionName() === null) {
@@ -195,7 +195,7 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
             ],
         ];
 
-        $this->eventActionRepository->create([$data], $this->ids->context);
+        $this->eventActionRepository->create([$data], Context::createDefaultContext());
     }
 
     private function createMailTemplate(): void
@@ -210,7 +210,7 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
                     'salesChannel' => 'sales_channel',
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->getContainer()->get('mail_template.repository')->create([
             [
@@ -226,7 +226,7 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
                     ],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function getRandomString(int $length): string

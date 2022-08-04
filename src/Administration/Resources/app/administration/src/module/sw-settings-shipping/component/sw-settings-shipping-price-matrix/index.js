@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-shipping-price-matrix', {
     template,
 
-    inject: ['repositoryFactory', 'feature', 'ruleConditionDataProviderService'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -460,55 +460,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             this.onAddNewShippingPrice();
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        tooltipConfig(item, isSelected, usedRules, usedSnippet, ruleAwareGroupKey) {
-            const showDelay = 300;
-
-            if (this.feature.isActive('FEATURE_NEXT_18215') && this.isRuleRestricted(item, ruleAwareGroupKey)) {
-                return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
-                    item.conditions,
-                    ruleAwareGroupKey,
-                );
-            }
-
-            return {
-                showDelay,
-                message: usedSnippet,
-                disabled: !this[usedRules].includes(item.id) && !isSelected,
-            };
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        shippingMethodRuleTooltipConfig(item, isSelected, ruleAwareGroupKey) {
-            return this.tooltipConfig(
-                item,
-                isSelected,
-                'usedRules',
-                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
-                ruleAwareGroupKey,
-            );
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        shippingPriceRuleTooltipConfig(item, isSelected, ruleAwareGroupKey) {
-            return this.tooltipConfig(
-                item,
-                isSelected,
-                'usedCalculationRules',
-                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
-                ruleAwareGroupKey,
-            );
-        },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        isRuleRestricted(rule, ruleAwareGroupKey) {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return false;
-            }
-
-            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, ruleAwareGroupKey);
         },
     },
 });

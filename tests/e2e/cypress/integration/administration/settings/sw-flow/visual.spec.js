@@ -10,6 +10,8 @@ describe('Flow builder: Visual testing', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -34,7 +36,8 @@ describe('Flow builder: Visual testing', () => {
         });
         cy.get('#sw-flow').click();
         cy.wait('@getData').its('response.statusCode').should('equal', 200);
-
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Name', 'Contact form sent');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -67,7 +70,7 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence-action__selection-action')
             .typeSingleSelect('Add tag', '.sw-flow-sequence-action__selection-action');
-        cy.handleModalSnapshot('Tag information');
+        cy.handleModalSnapshot('Add tag');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Flow builder] Tag modal', '.sw-flow-tag-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -75,11 +78,11 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('Special order');
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Add "Special order"');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Add "Special order"');
         cy.get('.sw-flow-tag-modal__tags-field input')
             .type('{enter}');
         cy.wait('@setTag').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-select-result-list-popover-wrapper').contains('Special order');
+        cy.contains('.sw-select-result-list-popover-wrapper', 'Special order');
         cy.get('.sw-flow-tag-modal__tags-field input').type('{esc}');
 
         cy.wait('@getTag').its('response.statusCode').should('equal', 200);
@@ -88,10 +91,10 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Set status', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Assign status', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
-        cy.handleModalSnapshot('Set status');
+        cy.handleModalSnapshot('Assign status');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Flow builder] Set order modal', '.sw-flow-set-order-state-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -101,10 +104,10 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__add-button').click();
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Generate documents', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
-        cy.handleModalSnapshot('Create document');
+        cy.handleModalSnapshot('Generate documents');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Flow builder] Generate document modal', '.sw-flow-generate-document-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -118,7 +121,7 @@ describe('Flow builder: Visual testing', () => {
             .typeSingleSelect('Send email', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-mail-send-modal').should('be.visible');
-        cy.handleModalSnapshot('Send mail');
+        cy.handleModalSnapshot('Send email');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Flow builder] Send email modal', '.sw-flow-mail-send-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

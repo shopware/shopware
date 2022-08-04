@@ -29,11 +29,11 @@ const stubs = {
     'icons-default-basic-shape-circle-filled': {
         template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>'
     },
-    'icons-default-basic-shape-circle': {
-        template: '<span class="sw-icon sw-icon--default-basic-shape-circle"></span>'
+    'icons-regular-circle': {
+        template: '<span class="sw-icon sw-icon--regular-circle"></span>'
     },
-    'icons-small-default-x-line-medium': {
-        template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+    'icons-regular-times-s': {
+        template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
     }
 };
 

@@ -8,6 +8,8 @@ describe('Category: Create several categories', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -60,8 +62,9 @@ describe('Category: Create several categories', () => {
 
         // Assign category and set it active
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Invisibilian');
-        cy.contains('Invisibilian').click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Invisibilian').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
@@ -75,7 +78,7 @@ describe('Category: Create several categories', () => {
         cy.visit('/');
         cy.get('.main-navigation-menu.nav').find('a[title="Invisibilian"]').click();
         cy.get('.main-navigation-link.active').should('be.visible');
-        cy.get('.breadcrumb-title').contains('Invisibilian');
+        cy.contains('.breadcrumb-title', 'Invisibilian');
     });
 
     it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', () => {
@@ -176,8 +179,7 @@ describe('Category: Create several categories', () => {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
-        cy.contains('Categorian').click();
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Categorian').click();
 
         // Assign category and set it active
         cy.wait('@loadCategory')

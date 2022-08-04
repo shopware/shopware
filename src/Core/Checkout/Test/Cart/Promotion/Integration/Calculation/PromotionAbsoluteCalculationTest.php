@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -28,32 +26,17 @@ class PromotionAbsoluteCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);

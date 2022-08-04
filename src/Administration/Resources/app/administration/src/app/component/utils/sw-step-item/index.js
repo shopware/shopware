@@ -8,7 +8,7 @@ const { Component } = Shopware;
  * @status ready
  * @example-type dynamic
  * @component-example
- * <sw-step-item disabledIcon="small-default-checkmark-line-medium">
+ * <sw-step-item disabledIcon="regular-checkmark-xs">
  *     Finish
  * </sw-step-item>
  */
@@ -18,7 +18,7 @@ Component.register('sw-step-item', {
     props: {
         disabledIcon: {
             type: String,
-            default: 'small-default-circle-medium',
+            default: 'regular-circle-xs',
             required: false,
         },
     },
@@ -43,9 +43,9 @@ Component.register('sw-step-item', {
         icon() {
             const iconConfig = {
                 disabled: this.disabledIcon,
-                info: 'small-default-circle-medium',
-                error: 'small-default-x-line-medium',
-                success: 'small-default-checkmark-line-medium',
+                info: 'regular-circle-xs',
+                error: 'regular-times-s',
+                success: 'regular-checkmark-xs',
             };
 
             return iconConfig[this.variant];

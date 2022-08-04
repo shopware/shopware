@@ -20,7 +20,7 @@ Shopware.Module.register('sw-users-permissions', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'default-action-settings',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'user',
 
@@ -83,7 +83,7 @@ Shopware.Module.register('sw-users-permissions', {
     settingsItem: {
         group: 'system',
         to: 'sw.users.permissions.index',
-        icon: 'default-avatar-single',
+        icon: 'regular-user',
         privilege: 'users_and_permissions.viewer',
     },
 });

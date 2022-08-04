@@ -23,6 +23,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -36,7 +38,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.get('#sw-field--deliveryTime-name').should('have.value', 'Express');
         cy.get('#sw-field--deliveryTime-min').should('have.value', '1');
         cy.get('#sw-field--deliveryTime-max').should('have.value', '2');
-        cy.get('.sw-delivery-time-detail__field-unit').contains('Day');
+        cy.contains('.sw-delivery-time-detail__field-unit', 'Day');
     });
 
     it('@settings: can edit delivery time', () => {
@@ -53,6 +55,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -106,6 +110,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -131,7 +137,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Normal');
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnName}`).contains('Normal');
+        cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnName}`, 'Normal');
     });
 
     it('@settings: can delete delivery time', () => {
@@ -148,6 +154,8 @@ describe('Delivery time: Test acl privileges', () => {
             }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
         });
 
         // Request we want to wait for later
@@ -166,8 +174,7 @@ describe('Delivery time: Test acl privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion

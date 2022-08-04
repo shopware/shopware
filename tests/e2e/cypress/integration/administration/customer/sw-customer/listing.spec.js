@@ -129,20 +129,25 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         const searchTerm = 'Pep';
 
         // use the search box and check if term gets set (in the function)
         cy.get('.sw-search-bar__input').typeAndCheckSearchField(searchTerm);
-
         cy.url().should('contain', `term=${searchTerm}`);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-search-bar__input').should('have.value', searchTerm);
         cy.url().should('contain', `page=1`);
         cy.url().should('contain', `limit=25`);
 
         // When search for a term, none sorting is used
-        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-up').should('not.exist');
-        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-down').should('not.exist');
+        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-up-xxs').should('not.exist');
+        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--regular-chevron-down-xxs').should('not.exist');
 
         cy.log('change Sorting direction from None to ASC');
         cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
@@ -161,7 +166,9 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
 
         cy.log('change Sorting direction from ASC to DESC');
         cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm,
@@ -177,7 +184,9 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
 
         cy.log('change items per page to 10');
         cy.get('#perPage').select('10');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm,
@@ -193,7 +202,9 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
 
         cy.log('go to second page');
         cy.get(':nth-child(2) > .sw-pagination__list-button').click();
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm,
@@ -209,7 +220,9 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
 
         cy.log('change sorting to Name');
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm,
@@ -228,6 +241,8 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index?term=Pep&page=2&limit=10&sortBy=lastName,firstName&sortDirection=ASC&naturalSorting=false`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.testListing({
             searchTerm: 'Pep',

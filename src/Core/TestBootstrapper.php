@@ -3,11 +3,14 @@
 namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
+use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
@@ -31,21 +34,37 @@ class TestBootstrapper
 
     private bool $loadEnvFile = true;
 
+    private bool $commercialEnabled = false;
+
     private ?OutputInterface $output = null;
 
+    private bool $bypassFinals = true;
+
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $activePlugins = [];
 
     public function bootstrap(): TestBootstrapper
     {
+        $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);
         }
 
+        $commercialComposerJson = $_SERVER['PROJECT_ROOT'] . '/custom/plugins/SwagCommercial/composer.json';
+
+        if ($this->commercialEnabled && file_exists($commercialComposerJson)) {
+            $this->addCallingPlugin($commercialComposerJson);
+            $this->addActivePlugins('SwagCommercial');
+        }
+
         $classLoader = $this->getClassLoader();
+
+        if (class_exists(BypassFinals::class) && $this->bypassFinals) {
+            BypassFinals::enable();
+        }
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();
@@ -66,6 +85,22 @@ class TestBootstrapper
         }
 
         return $this;
+    }
+
+    public function setBypassFinals(bool $bypassFinals): TestBootstrapper
+    {
+        $this->bypassFinals = $bypassFinals;
+
+        return $this;
+    }
+
+    public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
+    {
+        $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
+        $kernel = new StaticAnalyzeKernel('test', true, $pluginLoader, 'phpstan-test-cache-id');
+        $kernel->boot();
+
+        return $kernel;
     }
 
     public function getClassLoader(): ClassLoader
@@ -119,7 +154,7 @@ class TestBootstrapper
         $dbUrlParts['path'] = $dbUrlParts['path'] ?? 'root';
 
         // allows using the same database during development, by setting TEST_TOKEN=none
-        if ($testToken !== 'none') {
+        if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
             $dbUrlParts['path'] .= '_' . ($testToken ?: 'test');
         }
 
@@ -227,13 +262,20 @@ class TestBootstrapper
         return $this;
     }
 
+    public function setEnableCommercial(bool $enableCommercial = true): TestBootstrapper
+    {
+        $this->commercialEnabled = $enableCommercial;
+
+        return $this;
+    }
+
     public function getOutput(): OutputInterface
     {
         if ($this->output !== null) {
             return $this->output;
         }
 
-        return $this->output = new ConsoleOutput();
+        return $this->output = new NullOutput();
     }
 
     public function setOutput(?OutputInterface $output): TestBootstrapper
@@ -329,19 +371,21 @@ class TestBootstrapper
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
 
-        $args = [
-            '--activate' => true,
-            '--reinstall' => true,
-            'plugins' => $this->activePlugins,
-        ];
+        foreach ($this->activePlugins as $activePlugin) {
+            $args = [
+                '--activate' => true,
+                '--reinstall' => true,
+                'plugins' => [$activePlugin],
+            ];
 
-        $returnCode = $installCommand->run(
-            new ArrayInput($args, $installCommand->getDefinition()),
-            $this->getOutput()
-        );
+            $returnCode = $installCommand->run(
+                new ArrayInput($args, $installCommand->getDefinition()),
+                $this->getOutput()
+            );
 
-        if ($returnCode !== 0) {
-            throw new \RuntimeException('system:install failed');
+            if ($returnCode !== 0) {
+                throw new \RuntimeException('system:install failed');
+            }
         }
 
         KernelLifecycleManager::bootKernel();

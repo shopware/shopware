@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import HistoryUtil from 'src/utility/history/history.util';
 import CmsSlotReloadService from 'src/plugin/cms-slot-reload/service/cms-slot-reload.service';
 
+/** @deprecated tag:v6.5.0 - Functionality moved to ListingPlugin */
 export default class CmsSlotHistoryReload extends Plugin {
 
     init() {

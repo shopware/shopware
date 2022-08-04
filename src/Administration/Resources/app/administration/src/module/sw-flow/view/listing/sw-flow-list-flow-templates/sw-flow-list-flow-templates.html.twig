@@ -1,0 +1,76 @@
+{% block sw_flow_listing_flow_templates %}
+<div class="sw-flow-list-my-templates">
+    {% block sw_flow_list_my_flows_templates_content %}
+    <div class="sw-flow-list-my-templates__content sw-data-grid--light">
+        <sw-entity-listing
+            class="sw-flow-list-my-templates__grid"
+            :show-settings="false"
+            :allow-column-edit="false"
+            :allow-view="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-bulk-edit="false"
+            :columns="flowColumns"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            :repository="flowRepository"
+            :items="flows"
+            :is-loading="isLoading"
+            :full-page="false"
+            :show-selection="false"
+            :show-actions="false"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange"
+            @update-records="updateRecords"
+        >
+            {% block sw_flow_list_grid_columns %}
+
+            {% block sw_flow_list_grid_columns_event_name %}
+            <template #column-eventName="{ item }">
+                <strong>
+                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.eventName)) }}
+                </strong>
+                <p>{{ item.eventName }}</p>
+            </template>
+            {% endblock %}
+
+            {% block sw_flow_list_grsw_flow_list_grid_columns_create_flowid_columns_create_flow %}
+            <template #column-createFlow="{ item }">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <a
+                    class="sw-flow-list-my-flows__content__create-flow-link"
+                    :disabled="!acl.can('flow.creator')"
+                    @click="createFlowFromTemplate(item)"
+                >
+                    {{ $tc('sw-flow.template.create') }}
+                    <sw-icon
+                        name="default-arrow-simple-right"
+                        small
+                    />
+                </a>
+            </template>
+            {% endblock %}
+            {% endblock %}
+        </sw-entity-listing>
+
+        {% block sw_flow_list_my_templates_empty_state %}
+        <sw-empty-state
+            v-if="!total && !isLoading"
+            class="sw-flow-list-my_templates__empty-state"
+            :title="$tc('sw-flow.list.emptyStateTitle')"
+            :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+        >
+            {% block sw_flow_list_my_templates_empty_state_icon %}
+            <template #icon>
+                <img
+                    :alt="$tc('sw-flow.list.emptyStateTitle')"
+                    :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                >
+            </template>
+            {% endblock %}
+        </sw-empty-state>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

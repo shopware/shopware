@@ -5,20 +5,15 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Migration\V6_4\Migration1659256355AddLockedFieldToFlowTable;
+use Shopware\Core\Migration\V6_4\Migration1659256999AddLockedFieldToFlowTable;
 
 /**
  * @internal
- * @covers \Shopware\Core\Migration\V6_4\Migration1659256355AddLockedFieldToFlowTable
+ * @covers \Shopware\Core\Migration\V6_4\Migration1659256999AddLockedFieldToFlowTable
  */
-class Migration1659256355AddLockedFieldToFlowTableTest extends TestCase
+class Migration1659256999AddLockedFieldToFlowTableTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void
@@ -28,12 +23,10 @@ class Migration1659256355AddLockedFieldToFlowTableTest extends TestCase
 
     public function testMigration(): void
     {
-        $this->connection->rollBack();
         $this->prepare();
 
-        $migration = new Migration1659256355AddLockedFieldToFlowTable();
+        $migration = new Migration1659256999AddLockedFieldToFlowTable();
         $migration->update($this->connection);
-        $this->connection->beginTransaction();
 
         // check if migration ran successfully
         $resultColumnExists = $this->hasColumn('flow', 'locked');

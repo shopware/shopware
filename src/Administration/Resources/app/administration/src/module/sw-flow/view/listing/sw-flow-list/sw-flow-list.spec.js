@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import swFlowList from 'src/module/sw-flow/page/sw-flow-list';
+import swFlowList from 'src/module/sw-flow/view/listing/sw-flow-list';
 
 Shopware.Component.register('sw-flow-list', swFlowList);
 
@@ -14,29 +14,32 @@ async function createWrapper(privileges = []) {
             }
         },
 
-        provide: { repositoryFactory: {
-            create: () => ({
-                search: () => {
-                    return Promise.resolve([
-                        {
-                            id: '44de136acf314e7184401d36406c1e90',
-                            eventName: 'checkout.order.placed'
-                        }
-                    ]);
-                }
-            })
-        },
+        provide: {
+            repositoryFactory: {
+                create: () => ({
+                    search: () => {
+                        return Promise.resolve([
+                            {
+                                id: '44de136acf314e7184401d36406c1e90',
+                                eventName: 'checkout.order.placed'
+                            }
+                        ]);
+                    }
+                })
+            },
 
-        acl: {
-            can: (identifier) => {
-                if (!identifier) {
-                    return true;
-                }
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
 
-                return privileges.includes(identifier);
-            }
+                    return privileges.includes(identifier);
+                }
+            },
+
+            searchRankingService: {}
         },
-        searchRankingService: {} },
 
         stubs: {
             'sw-page': {
@@ -74,22 +77,29 @@ async function createWrapper(privileges = []) {
     });
 }
 
-describe('module/sw-flow/page/sw-flow-list', () => {
-    it('should be able to create a flow ', async () => {
+describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
+    it('should be able to duplicate a flow ', async () => {
         const wrapper = await createWrapper([
             'flow.creator'
         ]);
+        await wrapper.vm.$nextTick();
 
-        const createButton = wrapper.find('.sw-flow-list__create');
+        const duplicateMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
 
-        expect(createButton.attributes().disabled).toBeFalsy();
+        expect(duplicateMenuItem.exists()).toBeTruthy();
+        expect(duplicateMenuItem.attributes().disabled).toBeFalsy();
     });
 
-    it('should be not able to create a flow ', async () => {
-        const wrapper = await createWrapper();
-        const createButton = wrapper.find('.sw-flow-list__create');
+    it('should be not able to duplicate a flow ', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        const editMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
+
+        expect(editMenuItem.exists()).toBeTruthy();
+        expect(editMenuItem.text()).toContain('global.default.duplicate');
     });
 
     it('should be able to edit a flow ', async () => {

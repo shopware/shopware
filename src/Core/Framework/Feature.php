@@ -11,7 +11,7 @@ class Feature
     public const ALL_MAJOR = 'major';
 
     /**
-     * @var array[]
+     * @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>
      */
     private static array $registeredFeatures = [];
 
@@ -162,7 +162,7 @@ class Feature
 
     public static function throwException(string $flag, string $message, bool $state = true): void
     {
-        if (self::isActive($flag) === $state || !self::has($flag)) {
+        if (self::isActive($flag) === $state || (self::$registeredFeatures !== [] && !self::has($flag))) {
             throw new \RuntimeException($message);
         }
 
@@ -222,6 +222,9 @@ class Feature
         return isset(self::$registeredFeatures[$flag]);
     }
 
+    /**
+     * @return array<string, bool>
+     */
     public static function getAll(bool $denormalized = true): array
     {
         $resolvedFlags = [];
@@ -240,6 +243,8 @@ class Feature
     }
 
     /**
+     * @param array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData
+     *
      * @internal
      */
     public static function registerFeature(string $name, array $metaData = []): void
@@ -247,6 +252,8 @@ class Feature
         $name = self::normalizeName($name);
 
         // merge with existing data
+
+        /** @var array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData */
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],
             $metaData
@@ -261,6 +268,8 @@ class Feature
     }
 
     /**
+     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>|string[] $registeredFeatures
+     *
      * @internal
      */
     public static function registerFeatures(iterable $registeredFeatures): void
@@ -286,6 +295,8 @@ class Feature
 
     /**
      * @internal
+     *
+     * @return array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
      */
     public static function getRegisteredFeatures(): array
     {

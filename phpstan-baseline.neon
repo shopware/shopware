@@ -8396,6 +8396,16 @@ parameters:
 			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getDefaultListingParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiPathBuilder.php
@@ -17876,26 +17886,6 @@ parameters:
 			path: src/Core/System/CustomEntity/CustomEntityEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\CustomEntityPersister\\:\\:update\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/CustomEntityPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicEntityDefinition\\:\\:create\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
-
-		-
-			message: "#^Parameter \\#3 \\$fields of static method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicFieldFactory\\:\\:create\\(\\) expects list\\<array\\{name\\: string, type\\: string, required\\?\\: bool, translatable\\?\\: bool, reference\\: string, inherited\\?\\: bool, onDelete\\: string, storeApiAware\\?\\: bool\\}\\>, array given\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicMappingEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Schema/DynamicMappingEntityDefinition.php
@@ -17934,36 +17924,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entities\\:\\:__construct\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Xml/Entities.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:parseChild\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:parseChild\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Entity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Xml/Entity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Field\\\\Field\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"

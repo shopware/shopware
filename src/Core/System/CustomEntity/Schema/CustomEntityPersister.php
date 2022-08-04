@@ -21,6 +21,9 @@ class CustomEntityPersister
         $this->connection = $connection;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $entities
+     */
     public function update(array $entities, ?string $appId): void
     {
         $names = array_column($entities, 'name');
@@ -41,6 +44,9 @@ class CustomEntityPersister
         foreach ($entities as $entity) {
             $name = $entity['name'];
 
+            $entity['flag_config'] = json_encode($entity['flags'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
+            $entity['flags'] = json_encode(array_keys($entity['flags']));
+
             $entity['fields'] = json_encode($entity['fields'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
             $entity['app_id'] = $appId !== null ? Uuid::fromHexToBytes($appId) : null;
 
@@ -52,6 +58,7 @@ class CustomEntityPersister
 
             $inserts->addInsert('custom_entity', $entity);
         }
+
         $inserts->execute();
     }
 }

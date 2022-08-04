@@ -18,11 +18,78 @@
     </xs:simpleType>
 
     <xs:complexType name="entity">
-        <xs:choice>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="fields" maxOccurs="unbounded" type="field-list" minOccurs="1"/>
+            <xs:element name="flags" maxOccurs="1" type="flag-list"/>
         </xs:choice>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="flag-list">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="cms-aware" type="flag-cms-aware"/>
+            <xs:element name="admin-ui" type="flag-admin-ui"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="flag-cms-aware"/>
+
+    <xs:complexType name="flag-admin-ui">
+        <xs:sequence>
+            <xs:element name="listing" type="admin-ui-listing"/>
+            <xs:element name="detail" type="admin-ui-detail"/>
+        </xs:sequence>
+
+        <xs:attribute name="navigation-parent" type="xs:string" use="required"/>
+        <xs:attribute name="icon" type="xs:string" default="pencil"/>
+        <xs:attribute name="color" type="xs:string" default="#758CA3"/>
+        <xs:attribute name="position" type="xs:int" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-listing">
+        <xs:choice>
+            <xs:element name="column" type="admin-ui-listing-column" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-listing-column">
+        <xs:attribute name="ref" type="xs:string" use="required"/>
+        <xs:attribute name="hidden" type="xs:boolean" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-detail">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="tabs" type="admin-ui-detail-tabs" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-detail-tabs">
+        <xs:choice maxOccurs="unbounded" minOccurs="1">
+            <xs:element name="tab" type="admin-ui-detail-tab"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-detail-tab">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="card" type="admin-ui-detail-card" minOccurs="1"/>
+        </xs:choice>
+
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-detail-card">
+        <xs:choice maxOccurs="unbounded" minOccurs="1">
+            <xs:element name="field" type="admin-ui-detail-field"/>
+        </xs:choice>
+
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="admin-ui-detail-field">
+        <xs:attribute type="xs:string" name="ref" use="required"/>
+        <xs:attribute type="xs:boolean" name="helpText" default="false"/>
+        <xs:attribute type="xs:boolean" name="placeholder" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="field-list">

@@ -19,19 +19,33 @@ class DynamicEntityDefinition extends EntityDefinition
 {
     protected string $name;
 
+    /**
+     * @var array<string, array<string, mixed>>
+     */
     protected array $fieldDefinitions;
+
+    /**
+     * @var array<string, array<string, mixed>>
+     */
+    protected array $flags;
 
     protected ContainerInterface $container;
 
+    /**
+     * @param array<string, array<string, mixed>> $fields
+     * @param array<string, array<string, mixed>> $flags
+     */
     public static function create(
         string $name,
         array $fields,
+        array $flags,
         ContainerInterface $container
     ): DynamicEntityDefinition {
         $self = new self();
         $self->name = $name;
         $self->fieldDefinitions = $fields;
         $self->container = $container;
+        $self->flags = $flags;
 
         return $self;
     }
@@ -39,6 +53,14 @@ class DynamicEntityDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return array<string, array<string,mixed>>
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
     }
 
     protected function defineFields(): FieldCollection

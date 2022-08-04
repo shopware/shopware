@@ -5,6 +5,8 @@ namespace Shopware\Core\System\CustomEntity\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\FieldFactory;
+use Shopware\Core\System\CustomEntity\Xml\Flag\Flag;
+use Shopware\Core\System\CustomEntity\Xml\Flag\FlagFactory;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -16,8 +18,19 @@ class Entity extends XmlElement
 {
     protected string $name;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $fields = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $flags = [];
+
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -30,6 +43,9 @@ class Entity extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -38,9 +54,20 @@ class Entity extends XmlElement
         return $data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
     }
 
     public function getName(): string
@@ -48,6 +75,9 @@ class Entity extends XmlElement
         return $this->name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -71,12 +101,30 @@ class Entity extends XmlElement
         return $values;
     }
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
     private static function parseChild(\DOMElement $child, array $values): array
     {
         if ($child->tagName === 'fields') {
             $values[$child->tagName] = self::parseChildNodes($child, static function (\DOMElement $element): Field {
                 return FieldFactory::createFromXml($element);
             });
+
+            return $values;
+        }
+
+        if ($child->tagName === 'flags') {
+            $result = self::parseChildNodes($child, static function (\DOMElement $element): Flag {
+                return FlagFactory::createFromXml($element);
+            });
+
+            /** @var Flag $flag */
+            foreach ($result as $flag) {
+                $values[$child->tagName][$flag->getName()] = $flag;
+            }
 
             return $values;
         }

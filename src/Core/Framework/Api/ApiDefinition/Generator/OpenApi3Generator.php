@@ -56,6 +56,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
+    /**
+     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     *
+     * @return array<string, mixed>
+     */
     public function generate(array $definitions, string $api, string $apiType = DefinitionService::TypeJsonApi): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
@@ -66,6 +71,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (!$this->shouldDefinitionBeIncluded($definition)) {
                 continue;
             }
@@ -114,6 +123,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $finalSpecs;
     }
 
+    /**
+     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     *
+     * @return array<string, mixed>
+     */
     public function getSchema(array $definitions): array
     {
         $schemaDefinitions = [];
@@ -123,6 +137,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }

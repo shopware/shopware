@@ -47,6 +47,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
@@ -70,6 +71,9 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         throw new \RuntimeException();
     }
 
+    /**
+     * @return array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
+     */
     public function getSchema(array $definitions): array
     {
         $schema = [];
@@ -77,6 +81,10 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             $entity = $definition->getEntityName();
 
             $entitySchema = $this->getEntitySchema($definition);
@@ -103,12 +111,18 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             $properties[$field->getPropertyName()] = $this->parseField($definition, $field);
         }
 
-        return [
+        $result = [
             'entity' => $definition->getEntityName(),
             'properties' => $properties,
             'write-protected' => $definition->getProtections()->get(WriteProtection::class) !== null,
             'read-protected' => $definition->getProtections()->get(ReadProtection::class) !== null,
         ];
+
+        if ($definition instanceof DynamicEntityDefinition) {
+            $result['flags'] = $definition->getFlags();
+        }
+
+        return $result;
     }
 
     /**

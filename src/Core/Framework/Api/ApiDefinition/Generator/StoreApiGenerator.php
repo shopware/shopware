@@ -62,8 +62,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param Api $api
      * {@inheritdoc}
+     *
+     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     * @param Api $api
+     *
+     * @return array<string, mixed>
      */
     public function generate(array $definitions, string $api, string $apiType): array
     {
@@ -75,6 +79,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (!$this->shouldDefinitionBeIncluded($definition)) {
                 continue;
             }
@@ -105,6 +113,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

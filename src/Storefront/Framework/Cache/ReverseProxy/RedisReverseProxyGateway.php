@@ -59,6 +59,7 @@ return final
 LUA;
 
     /**
+     * @param string[] $hosts
      * @param \Redis|\RedisCluster $redis
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge

@@ -59,6 +59,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                  ->booleanNode('enabled')->defaultFalse()->end()
                                  ->scalarNode('api_key')->defaultValue('')->end()
+                                 ->scalarNode('instance_tag')->defaultValue('')->end()
                                  ->scalarNode('service_id')->defaultValue('')->end()
                                  ->scalarNode('soft_purge')->defaultValue('0')->end()
                                  ->scalarNode('tag_prefix')->defaultValue('')->end()

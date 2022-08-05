@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Cache;
+namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -35,6 +35,9 @@ class CacheResponseSubscriberTest extends TestCase
 {
     private const IP = '127.0.0.1';
 
+    /**
+     * @var array<string, string>
+     */
     private static array $hashes = [];
 
     public function testHasEvents(): void
@@ -167,6 +170,8 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
+     * @param string[] $whitelist
+     *
      * @dataProvider maintenanceRequest
      */
     public function testMaintenanceRequest(bool $active, array $whitelist, bool $shouldBeCached): void
@@ -217,6 +222,9 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber->setResponseCache($event);
     }
 
+    /**
+     * @return array<string, array<int, CustomerEntity|Cart|bool|string|null>>
+     */
     public function cashHashProvider(): iterable
     {
         $emptyCart = new Cart('empty', 'empty');
@@ -232,6 +240,9 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
+    /**
+     * @return array<string, array<int, bool|string[]>>
+     */
     public function maintenanceRequest(): iterable
     {
         yield 'Always cache requests when maintenance is inactive' => [false, [], true];
@@ -266,6 +277,9 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame($afterHeader, $response->headers->get('cache-control'));
     }
 
+    /**
+     * @return array<string, array<int, bool|string|null>>
+     */
     public function headerCases(): iterable
     {
         yield 'no cache proxy, default response' => [
@@ -368,6 +382,9 @@ class CacheResponseSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array<int, string|null>>
+     */
     public function providerCurrencyChange(): iterable
     {
         yield 'no currency' => [null];
@@ -432,6 +449,9 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
+    /**
+     * @return array<string, array<int, Request>>
+     */
     public function notCacheableRequestProvider(): iterable
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

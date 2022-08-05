@@ -39,14 +39,14 @@ class CurrencyFormatter
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
         if (Feature::isActive('FEATURE_NEXT_15053')) {
-            return $formatter->formatCurrency($price, $currency);
+            return (string) $formatter->formatCurrency($price, $currency);
         }
 
         if (!$context->hasState(DocumentService::GENERATING_PDF_STATE)) {
-            return $formatter->formatCurrency($price, $currency);
+            return (string) $formatter->formatCurrency($price, $currency);
         }
 
-        $string = htmlentities($formatter->formatCurrency($price, $currency), \ENT_COMPAT, 'utf-8');
+        $string = htmlentities((string) $formatter->formatCurrency($price, $currency), \ENT_COMPAT, 'utf-8');
         $content = str_replace('&nbsp;', ' ', $string);
 
         return html_entity_decode($content);
@@ -54,7 +54,7 @@ class CurrencyFormatter
 
     private function getFormatter(string $locale, int $format): \NumberFormatter
     {
-        $hash = md5(json_encode([$locale, $format]));
+        $hash = md5(json_encode([$locale, $format], \JSON_THROW_ON_ERROR));
 
         if (isset($this->formatter[$hash])) {
             return $this->formatter[$hash];

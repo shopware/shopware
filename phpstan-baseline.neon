@@ -5101,11 +5101,6 @@ parameters:
 			path: src/Core/Content/Category/CategoryEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/CategoryHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryBreadcrumbUpdater\\:\\:buildBreadcrumb\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/DataAbstractionLayer/CategoryBreadcrumbUpdater.php
@@ -8586,24 +8581,9 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductConfiguratorSetting\\\\ProductConfiguratorSettingHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductConfiguratorSetting/ProductConfiguratorSettingHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSelling\\\\ProductCrossSellingHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductCrossSelling/ProductCrossSellingHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\:\\:getProductIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductCrossSellingAssignedProducts/ProductCrossSellingAssignedProductsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductCrossSellingAssignedProducts/ProductCrossSellingAssignedProductsHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductFeatureSet\\\\ProductFeatureSetEntity\\:\\:getFeatures\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -8621,24 +8601,9 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductFeatureSet/ProductFeatureSetEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductFeatureSet\\\\ProductFeatureSetHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductFeatureSet/ProductFeatureSetHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductKeywordDictionary\\\\ProductKeywordDictionaryHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductKeywordDictionary/ProductKeywordDictionaryHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturer\\\\ProductManufacturerCollection\\:\\:getMediaIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductManufacturer/ProductManufacturerCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturer\\\\ProductManufacturerHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductManufacturer/ProductManufacturerHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturerTranslation\\\\ProductManufacturerTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -8661,24 +8626,9 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductPrice/ProductPriceHydrator.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\:\\:\\$status \\(bool\\) does not accept bool\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfig\\\\ProductSearchConfigEntity\\:\\:getExcludedTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -8694,21 +8644,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfig\\\\ProductSearchConfigEntity\\:\\:\\$excludedTerms type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductSearchConfig/ProductSearchConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfig\\\\ProductSearchConfigHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductSearchConfig/ProductSearchConfigHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchConfigField\\\\ProductSearchConfigFieldHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductSearchConfigField/ProductSearchConfigFieldHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductSearchKeyword\\\\ProductSearchKeywordHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductSearchKeyword/ProductSearchKeywordHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -8749,11 +8684,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductVisibility\\\\ProductVisibilityCollection\\:\\:getProductIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductVisibility/ProductVisibilityCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductVisibility\\\\ProductVisibilityHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductVisibility/ProductVisibilityHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductCartProcessor\\:\\:getNotCompleted\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
@@ -9506,11 +9436,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Suggest\\\\CachedProductSuggestRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Suggest/CachedProductSuggestRoute.php
@@ -9731,11 +9656,6 @@ parameters:
 			path: src/Core/Content/ProductExport/Exception/ExportInvalidException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/ProductExportHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ScheduledTask\\\\ProductExportGenerateTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php
@@ -9826,11 +9746,6 @@ parameters:
 			path: src/Core/Content/ProductStream/Aggregate/ProductStreamFilter/ProductStreamFilterEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Aggregate/ProductStreamFilter/ProductStreamFilterHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamTranslation\\\\ProductStreamTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/Aggregate/ProductStreamTranslation/ProductStreamTranslationCollection.php
@@ -9916,11 +9831,6 @@ parameters:
 			path: src/Core/Content/ProductStream/ProductStreamEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\ProductStreamHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/ProductStreamHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\ScheduledTask\\\\UpdateProductStreamMappingTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/ScheduledTask/UpdateProductStreamMappingTaskHandler.php
@@ -9951,11 +9861,6 @@ parameters:
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOptionTranslation\\\\PropertyGroupOptionTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOptionTranslation/PropertyGroupOptionTranslationCollection.php
@@ -9979,11 +9884,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection\\:\\:getOptionIdMap\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Property/PropertyGroupCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Property/PropertyGroupHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Aggregate\\\\RuleCondition\\\\RuleConditionEntity\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -19136,116 +19036,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:assign\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:buildUniqueIdentifier\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:buildUniqueIdentifier\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:customFields\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:encodePrimaryKey\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:encodePrimaryKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:getTranslatedFields\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:getTranslatedFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrate\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrate\\(\\) has parameter \\$rows with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrateEntity\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrateEntity\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrateFields\\(\\) has parameter \\$fields with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:hydrateFields\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:manyToMany\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:manyToOne\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:translate\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:translate\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:value\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:\\$hydrated type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:\\$partial type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityHydrator\\:\\:\\$translatedFields type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityReader\\:\\:_read\\(\\) has parameter \\$partial with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
@@ -20884,26 +20674,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\:\\:\\$offset has no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexingMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\InheritanceUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/InheritanceUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\InheritanceUpdater\\:\\:updateToManyAssociations\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/InheritanceUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\InheritanceUpdater\\:\\:updateToOneAssociations\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/InheritanceUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\ManyToManyIdFieldUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/ManyToManyIdFieldUpdater.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:__construct\\(\\) has parameter \\$offset with no type specified\\.$#"
@@ -31406,21 +31176,6 @@ parameters:
 			path: src/Core/Framework/Uuid/Uuid.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataBag\\\\DataBag\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataBag/DataBag.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataBag\\\\DataBag\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataBag/DataBag.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataBag\\\\DataBag\\:\\:only\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataBag/DataBag.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getListDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Validation/DataValidationDefinition.php
@@ -33279,11 +33034,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\Aggregate\\\\CurrencyTranslation\\\\CurrencyTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Currency/Aggregate/CurrencyTranslation/CurrencyTranslationCollection.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/System/Currency/CurrencyFormatter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"

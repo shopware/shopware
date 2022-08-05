@@ -29,6 +29,9 @@ class ManyToManyIdFieldUpdater
         $this->connection = $connection;
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(string $entity, array $ids, Context $context, ?string $propertyName = null): void
     {
         $definition = $this->registry->getByEntityName($entity);
@@ -122,18 +125,18 @@ SQL;
 
             $sql = str_replace(
                 array_keys($replacement),
-                array_values($replacement),
+                $replacement,
                 $tableTemplate
             );
 
             $resetSql = str_replace(
                 array_keys($replacement),
-                array_values($replacement),
+                $replacement,
                 $resetTemplate
             );
 
             RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $resetSql,
                     $parameters,
                     ['ids' => Connection::PARAM_STR_ARRAY]
@@ -141,7 +144,7 @@ SQL;
             });
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $parameters,
                     ['ids' => Connection::PARAM_STR_ARRAY]

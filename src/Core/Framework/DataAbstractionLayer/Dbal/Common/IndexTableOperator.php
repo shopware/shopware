@@ -42,6 +42,6 @@ class IndexTableOperator
             CREATE TABLE #indexName# SELECT * FROM #table# LIMIT 0'
         );
 
-        $this->connection->executeUpdate($sql);
+        $this->connection->executeStatement($sql);
     }
 }

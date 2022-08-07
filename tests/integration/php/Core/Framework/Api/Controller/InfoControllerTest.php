@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Controller;
+namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use Enqueue\Container\Container;
@@ -20,15 +20,15 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
-use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPlugin;
-use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPluginWithLocalEntryPoint\AdminExtensionApiPluginWithLocalEntryPoint;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\System\Country\CountryDefinition;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -182,6 +182,24 @@ class InfoControllerTest extends TestCase
         static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+    }
+
+    public function testGetCountryDefaultFormat(): void
+    {
+        $expected = CountryDefinition::DEFAULT_ADDRESS_FORMAT;
+
+        $url = '/api/_info/country/address/default-format';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $content = $client->getResponse()->getContent();
+        static::assertIsString($content);
+        static::assertJson($content);
+        $content = json_decode($content, true);
+        static::assertArrayHasKey('data', $content);
+        static::assertEquals($expected, $content['data']);
     }
 
     public function testGetShopwareVersionOldVersion(): void
@@ -344,7 +362,7 @@ class InfoControllerTest extends TestCase
         $kernelMock
             ->expects(static::exactly(1))
             ->method('getBundles')
-            ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/fixtures/InfoController')]);
+            ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoController')]);
 
         $content = $infoController->config(Context::createDefaultContext())->getContent();
         static::assertNotFalse($content);
@@ -360,7 +378,7 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/AdminExtensionApiApp');
+        $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
 
         $kernelMock = $this->createMock(Kernel::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
@@ -389,8 +407,8 @@ class InfoControllerTest extends TestCase
             ->expects(static::exactly(1))
             ->method('getBundles')
             ->willReturn([
-                new AdminExtensionApiPlugin(true, __DIR__ . '/fixtures/InfoController'),
-                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+                new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),
+                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
             ]);
 
         $content = $infoController->config(Context::createDefaultContext())->getContent();
@@ -578,5 +596,29 @@ class InfoControllerTest extends TestCase
             'privileges' => json_encode(['users_and_permissions.viewer']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiPlugin extends Plugin
+{
+    public function getAdminBaseUrl(): ?string
+    {
+        return 'https://extension-api.test';
+    }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
+{
+    public function getPath()
+    {
+        $reflected = new \ReflectionObject($this);
+
+        return \dirname($reflected->getFileName() ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

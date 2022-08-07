@@ -141,6 +141,11 @@ class CountryEntity extends Entity
 
     protected ?string $advancedPostalCodePattern;
 
+    /**
+     * @var array<array<string, array<string, string>>>
+     */
+    protected array $addressFormat;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -441,5 +446,21 @@ class CountryEntity extends Entity
     public function setAdvancedPostalCodePattern(?string $advancedPostalCodePattern): void
     {
         $this->advancedPostalCodePattern = $advancedPostalCodePattern;
+    }
+
+    /**
+     * @return array<array<string, array<string, string>>>
+     */
+    public function getAddressFormat(): array
+    {
+        return $this->addressFormat;
+    }
+
+    /**
+     * @param array<array<string, array<string, string>>> $addressFormat
+     */
+    public function setAddressFormat(array $addressFormat): void
+    {
+        $this->addressFormat = $addressFormat;
     }
 }

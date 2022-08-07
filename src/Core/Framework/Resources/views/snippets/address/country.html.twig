@@ -1,0 +1,5 @@
+{% block sw_snippet_element_country %}
+    {% if address.country %}
+        {{ address.country.translated.name }}
+    {% endif %}
+{% endblock %}

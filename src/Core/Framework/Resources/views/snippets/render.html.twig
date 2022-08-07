@@ -1,0 +1,27 @@
+{% apply spaceless %}
+    {% for line in format %}
+        {% set lineString = '' %}
+        {# determine if this line only contains plain snippets #}
+        {% set onlyPlain = true %}
+        {% for element in line %}
+            {% set elementValue %}
+                    {% if element.type == 'plain' %}
+                        {% sw_include '@Framework/snippets/plain.html.twig' %}
+                    {% else %}
+                        {% sw_include '@Framework/snippets/' ~ element.value ~ '.html.twig' ignore missing %}
+                    {% endif %}
+            {% endset %}
+
+            {% set elementValue = elementValue|trim %}
+
+            {% if elementValue|length > 0 %}
+                {% if element.type != 'plain' %}
+                    {% set onlyPlain = false %}
+                {% endif %}
+                {% set lineString = lineString ~ ' ' ~ elementValue %}
+            {% endif %}
+        {% endfor %}
+        {# render the line if there is at least one non-empty snippet otherwise skip that line #}
+        {% if not onlyPlain and lineString|trim|length %}{{ lineString|trim }}<br/>{% endif %}
+    {% endfor %}<br/>
+{% endapply %}

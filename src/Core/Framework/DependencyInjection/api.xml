@@ -353,5 +353,11 @@
         <service id="Shopware\Core\Framework\Validation\HappyPathValidator" decorates="validator">
             <argument type="service" id="Shopware\Core\Framework\Validation\HappyPathValidator.inner"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController" public="true">
+            <argument type="service" id="kernel.bundles" />
+            <argument type="service" id="twig"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
     </services>
 </container>

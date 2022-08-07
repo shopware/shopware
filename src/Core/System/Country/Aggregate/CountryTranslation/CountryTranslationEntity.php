@@ -10,20 +10,16 @@ class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
+
+    protected ?string $name;
+
+    protected ?CountryEntity $country;
 
     /**
-     * @var string|null
+     * @var array<array<string, array<string, string>>>|null
      */
-    protected $name;
-
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?array $addressFormat = [];
 
     public function getCountryId(): string
     {
@@ -53,5 +49,21 @@ class CountryTranslationEntity extends TranslationEntity
     public function setCountry(CountryEntity $country): void
     {
         $this->country = $country;
+    }
+
+    /**
+     * @return array<array<string, array<string, string>>>|null
+     */
+    public function getAddressFormat(): ?array
+    {
+        return $this->addressFormat;
+    }
+
+    /**
+     * @param array<array<string, array<string, string>>> $addressFormat
+     */
+    public function setAddressFormat(array $addressFormat): void
+    {
+        $this->addressFormat = $addressFormat;
     }
 }

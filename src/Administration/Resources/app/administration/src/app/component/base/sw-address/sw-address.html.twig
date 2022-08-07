@@ -24,19 +24,19 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_address_formatting %}
-        <div
-            v-if="formattingAddress"
-            class="sw-address__formatting"
-            v-html="displayFormattingAddress"
-        ></div>
+    <div
+        v-if="formattingAddress"
+        class="sw-address__formatting"
+        v-html="displayFormattingAddress"
+    ></div>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_address_body %}
-        <div
-            v-if="!formattingAddress"
-            class="sw-address__body"
-        >
+    <div
+        v-if="!formattingAddress"
+        class="sw-address__body"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_address_company %}
         <div

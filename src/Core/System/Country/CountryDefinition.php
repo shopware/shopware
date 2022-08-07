@@ -38,6 +38,55 @@ class CountryDefinition extends EntityDefinition
 
     public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
 
+    public const DEFAULT_ADDRESS_FORMAT = [
+        [
+            [
+                'type' => 'snippet',
+                'value' => 'address/company',
+            ],
+            [
+                'type' => 'plain',
+                'value' => '-',
+            ],
+            [
+                'type' => 'snippet',
+                'value' => 'address/department',
+            ],
+        ],
+        [
+            [
+                'type' => 'snippet',
+                'value' => 'address/first_name',
+            ],
+            [
+                'type' => 'snippet',
+                'value' => 'address/last_name',
+            ],
+        ],
+        [
+            [
+                'type' => 'snippet',
+                'value' => 'address/street',
+            ],
+        ],
+        [
+            [
+                'type' => 'snippet',
+                'value' => 'address/zipcode',
+            ],
+            [
+                'type' => 'snippet',
+                'value' => 'address/city',
+            ],
+        ],
+        [
+            [
+                'type' => 'snippet',
+                'value' => 'address/country',
+            ],
+        ],
+    ];
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -102,6 +151,8 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('check_postal_code_pattern', 'checkPostalCodePattern'))->addFlags(new ApiAware()),
             (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
+            (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
+
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),
 

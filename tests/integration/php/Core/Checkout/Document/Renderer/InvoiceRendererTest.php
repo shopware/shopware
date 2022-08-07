@@ -23,6 +23,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -262,7 +263,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
                 static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
-                static::assertStringContainsString('VAT-123123', $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringContainsString('VAT-123123', $rendered);
+                }
                 static::assertStringContainsString('123123123', $rendered);
             },
         ];

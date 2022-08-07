@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\PackageInterface;
 use Symfony\Component\Asset\Packages;
@@ -256,6 +257,17 @@ class InfoController extends AbstractController
         $events = $this->flowActionCollector->collect($context);
 
         return new JsonResponse($events);
+    }
+
+    /**
+     * @Since("6.14.0.0")
+     * @Route("/api/_info/country/address/default-format", name="api.info.country.address.default-format", methods={"GET"})
+     */
+    public function defaultCountryAddressFormat(): Response
+    {
+        return new JsonResponse([
+            'data' => CountryDefinition::DEFAULT_ADDRESS_FORMAT,
+        ]);
     }
 
     /**

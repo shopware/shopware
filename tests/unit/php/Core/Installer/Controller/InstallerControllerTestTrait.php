@@ -24,7 +24,7 @@ trait InstallerControllerTestTrait
         $requestStack = new RequestStack();
         $requestStack->push(new Request([], [], ['_route' => 'installer.language-selection']));
         $container->set('request_stack', $requestStack);
-        $container->setParameter('shopware.installer.supportedLanguages', ['en', 'de']);
+        $container->setParameter('shopware.installer.supportedLanguages', ['en' => 'en-GB', 'de' => 'de-DE']);
         $container->setParameter('kernel.shopware_version', Kernel::SHOPWARE_FALLBACK_VERSION);
 
         foreach ($services as $id => $service) {

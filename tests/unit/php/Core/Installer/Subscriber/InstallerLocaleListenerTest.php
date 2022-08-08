@@ -131,8 +131,6 @@ class InstallerLocaleListenerTest extends TestCase
         $request = new Request(['language' => 'de']);
         $session = new Session(new MockArraySessionStorage());
         $session->set('language', 'en');
-        $session->set('c_config_shop_currency', 'EUR');
-        $session->set('c_config_shop_language', 'en');
         $request->setSession($session);
 
         $listener = new InstallerLocaleListener(['de', 'en', 'nl', 'fr']);
@@ -148,7 +146,5 @@ class InstallerLocaleListenerTest extends TestCase
         static::assertSame('de', $request->attributes->get('_locale'));
         static::assertSame('de', $request->getLocale());
         static::assertSame('de', $session->get('language'));
-        static::assertEmpty($session->get('c_config_shop_currency'));
-        static::assertEmpty($session->get('c_config_admin_language'));
     }
 }

@@ -21,17 +21,17 @@ class InstallerTest extends TestCase
 
         static::assertSame(
             [
-                'de',
-                'en',
-                'cs',
-                'es',
-                'fr',
-                'it',
-                'nl',
-                'pl',
-                'pt',
-                'sv',
-                'da',
+                'de' => 'de-DE',
+                'en' => 'en-GB',
+                'cs' => 'cs-CZ',
+                'es' => 'es-ES',
+                'fr' => 'fr-FR',
+                'it' => 'it-IT',
+                'nl' => 'nl-NL',
+                'pl' => 'pl-PL',
+                'pt' => 'pt-PT',
+                'sv' => 'sv-SE',
+                'da' => 'da-DK',
             ],
             $container->getParameter('shopware.installer.supportedLanguages')
         );

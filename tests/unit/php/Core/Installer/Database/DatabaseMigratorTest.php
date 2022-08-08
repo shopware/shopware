@@ -82,6 +82,10 @@ class DatabaseMigratorTest extends TestCase
             ->method('getTotalMigrationCount')
             ->willReturn(5);
 
+        $this->migrationCollection->expects(static::once())
+            ->method('getExecutableDestructiveMigrations')
+            ->willReturn(['migration']);
+
         \ini_set('max_execution_time', '10');
 
         $result = $this->databaseMigrator->migrate(0, $this->connection);
@@ -123,6 +127,10 @@ class DatabaseMigratorTest extends TestCase
         $this->migrationCollection->expects(static::once())
             ->method('getTotalMigrationCount')
             ->willReturn(5);
+
+        $this->migrationCollection->expects(static::once())
+            ->method('getExecutableDestructiveMigrations')
+            ->willReturn(['migration']);
 
         \ini_set('max_execution_time', '10');
 
@@ -167,6 +175,10 @@ class DatabaseMigratorTest extends TestCase
         $this->migrationCollection->expects(static::once())
             ->method('getTotalMigrationCount')
             ->willReturn(5);
+
+        $this->migrationCollection->expects(static::once())
+            ->method('getExecutableDestructiveMigrations')
+            ->willReturn([]);
 
         \ini_set('max_execution_time', '10');
 

@@ -48,8 +48,6 @@ class InstallerLocaleListener implements EventSubscriberInterface
 
         // language is changed
         if ($request->query->has('language') && \in_array((string) $request->query->get('language'), $this->installerLanguages, true)) {
-            $session->remove('c_config_shop_currency');
-            $session->remove('c_config_admin_language');
             $session->set('language', (string) $request->query->get('language'));
 
             return (string) $request->query->get('language');

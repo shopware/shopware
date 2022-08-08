@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
 
 /**
  * @internal
  */
-class FakeResultStatement implements \IteratorAggregate, ResultStatement
+class FakeResultStatement implements \IteratorAggregate, ResultStatement, Result
 {
     /**
      * @var array
@@ -27,6 +28,11 @@ class FakeResultStatement implements \IteratorAggregate, ResultStatement
     public function columnCount(): int
     {
         return 0;
+    }
+
+    public function rowCount(): int
+    {
+        return \count($this->dbResult);
     }
 
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
@@ -52,5 +58,39 @@ class FakeResultStatement implements \IteratorAggregate, ResultStatement
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator(get_object_vars($this));
+    }
+
+    public function fetchNumeric()
+    {
+        return $this->dbResult;
+    }
+
+    public function fetchAssociative()
+    {
+        return $this->dbResult;
+    }
+
+    public function fetchOne()
+    {
+        return array_shift($this->dbResult);
+    }
+
+    public function fetchAllNumeric(): array
+    {
+        return $this->dbResult;
+    }
+
+    public function fetchAllAssociative(): array
+    {
+        return $this->dbResult;
+    }
+
+    public function fetchFirstColumn(): array
+    {
+        return $this->dbResult;
+    }
+
+    public function free(): void
+    {
     }
 }

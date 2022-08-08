@@ -67,6 +67,6 @@ class UserProvisioner
                 ->where('language.id = :id')
                 ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
                 ->execute()
-                ->fetchColumn();
+                ->fetchOne();
     }
 }

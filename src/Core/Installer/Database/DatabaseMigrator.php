@@ -72,7 +72,7 @@ class DatabaseMigrator
         return [
             'offset' => $executedMigrations,
             'total' => $total,
-            'isFinished' => $executedMigrations === $total,
+            'isFinished' => \count($coreMigrations->getExecutableDestructiveMigrations()) === 0,
         ];
     }
 }

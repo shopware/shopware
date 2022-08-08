@@ -37,7 +37,9 @@ abstract class InstallerController extends AbstractController
         $container = $this->container;
 
         if (!\array_key_exists('supportedLanguages', $parameters)) {
-            $parameters['supportedLanguages'] = $container->getParameter('shopware.installer.supportedLanguages');
+            /** @var array<string, string> $languages */
+            $languages = $container->getParameter('shopware.installer.supportedLanguages');
+            $parameters['supportedLanguages'] = array_keys($languages);
         }
         $parameters['shopware']['version'] = $container->getParameter('kernel.shopware_version');
 

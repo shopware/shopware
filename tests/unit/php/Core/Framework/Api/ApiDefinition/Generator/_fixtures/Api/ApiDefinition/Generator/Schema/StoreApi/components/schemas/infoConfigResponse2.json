@@ -4,7 +4,7 @@
     "paths": [],
     "components": {
         "schemas": {
-            "infoConfigResponse": {
+            "infoConfigResponse2": {
                 "type": "object",
                 "properties": {
                     "settings": {

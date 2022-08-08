@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use http\Exception\RuntimeException;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
@@ -14,8 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
-use Symfony\Component\Finder\Finder;
 
+/**
+ * @phpstan-import-type Api from DefinitionService
+ * @phpstan-import-type OpenApiSpec from DefinitionService
+ */
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'openapi-3';
@@ -27,32 +31,19 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         'delete',
     ];
 
-    /**
-     * @var OpenApiSchemaBuilder
-     */
-    private $openApiBuilder;
+    private OpenApiSchemaBuilder $openApiBuilder;
+
+    private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
+
+    private OpenApiLoader $openApiLoader;
+
+    private string $schemaPath;
+
+    private PluginSchemaPathCollection $pluginSchemaPathCollection;
 
     /**
-     * @var OpenApiDefinitionSchemaBuilder
-     */
-    private $definitionSchemaBuilder;
-
-    /**
-     * @var OpenApiLoader
-     */
-    private $openApiLoader;
-
-    /**
-     * @var string
-     */
-    private $schemaPath;
-
-    /**
-     * @var OpenApi3Generator
-     */
-    private $openApi3Generator;
-
-    /**
+     * @param array{Framework: array{path: string}} $bundles
+     *
      * @internal
      */
     public function __construct(
@@ -60,13 +51,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         OpenApiLoader $openApiLoader,
         array $bundles,
-        OpenApi3Generator $openApi3Generator
+        PluginSchemaPathCollection $pluginSchemaPathCollection
     ) {
         $this->openApiBuilder = $openApiBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
-        $this->openApi3Generator = $openApi3Generator;
+        $this->pluginSchemaPathCollection = $pluginSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -75,6 +66,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
+     * @param Api $api
      * {@inheritdoc}
      */
     public function generate(array $definitions, string $api, string $apiType): array
@@ -106,29 +98,25 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data = json_decode($openApi->toJson(), true);
         $data['paths'] = $data['paths'] ?? [];
 
-        $finder = (new Finder())->in($this->schemaPath . '/components/schemas')->name('*.json');
+        $schemaPaths = [$this->schemaPath];
+        $schemaPaths = $schemaPaths + $this->pluginSchemaPathCollection->getSchemaPaths($api);
 
-        foreach ($finder as $item) {
-            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['components']['schemas'] = \array_replace_recursive($data['components']['schemas'], $readData['components']['schemas']);
-        }
+        $loader = new OpenApiFileLoader($schemaPaths);
 
-        $finder = (new Finder())->in($this->schemaPath . '/paths')->name('*.json');
+        /** @var OpenApiSpec $finalSpecs */
+        $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
-        foreach ($finder as $item) {
-            $readData = json_decode((string) file_get_contents($item->getPathname()), true);
-            $data['paths'] = \array_replace_recursive($data['paths'], $readData['paths']);
-        }
-
-        return $data;
+        return $finalSpecs;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return never
      */
     public function getSchema(array $definitions): array
     {
-        return $this->openApi3Generator->getSchema($definitions);
+        throw new RuntimeException();
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool

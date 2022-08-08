@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,23 +19,19 @@ use Twig\Environment;
  */
 class StoreApiInfoController
 {
-    /**
-     * @var DefinitionService
-     */
-    protected $definitionService;
+    protected DefinitionService $definitionService;
+
+    private Environment $twig;
 
     /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var array
+     * @var array{administration?: string}
      */
     private $cspTemplates;
 
     /**
      * @internal
+     *
+     * @param array{administration?: string} $cspTemplates
      */
     public function __construct(DefinitionService $definitionService, Environment $twig, array $cspTemplates)
     {
@@ -50,6 +47,12 @@ class StoreApiInfoController
     public function info(Request $request): JsonResponse
     {
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+
+        $apiType = $this->definitionService->toApiType($apiType);
+        if ($apiType === null) {
+            throw new InvalidRequestParameterException('type');
+        }
+
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $apiType);
 
         return new JsonResponse($data);

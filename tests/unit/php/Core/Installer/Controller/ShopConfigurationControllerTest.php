@@ -162,7 +162,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->request->set('available_currencies', ['EUR', 'USD']);
 
         $this->setEnvVars([
-            'HTTPS' => true,
+            'HTTPS' => 'on',
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => '/shop/index.php',
         ]);
@@ -175,7 +175,7 @@ class ShopConfigurationControllerTest extends TestCase
             'country' => 'DEU',
             'email' => 'info@test.com',
             'host' => 'localhost',
-            'https' => true,
+            'schema' => 'https',
             'basePath' => '/shop',
             'blueGreenDeployment' => true,
         ];
@@ -183,24 +183,28 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects(static::once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
         $this->shopConfigService->expects(static::once())->method('updateShop')->with($expectedShopInfo, $this->connection);
 
-        $this->adminConfigService->expects(static::once())->method('createAdmin')->with([
+        $expectedAdmin = [
             'email' => 'test@test.com',
             'username' => 'admin',
             'firstName' => 'first',
             'lastName' => 'last',
             'password' => 'shopware',
             'locale' => 'de-DE',
-        ], $this->connection);
+        ];
+        $this->adminConfigService->expects(static::once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.shop-configuration', [], RouterInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/shop-configuration');
+            ->with('installer.finish', [], RouterInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/finish');
 
         $this->twig->expects(static::never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/shop-configuration', $response->getTargetUrl());
+        static::assertSame('/installer/finish', $response->getTargetUrl());
+
+        static::assertFalse($session->has(DatabaseConnectionInformation::class));
+        static::assertEquals($expectedAdmin, $session->get('ADMIN_USER'));
     }
 
     public function testPostConfigurationRouteOnError(): void
@@ -214,7 +218,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->attributes->set('_locale', 'de');
 
         $this->setEnvVars([
-            'HTTPS' => true,
+            'HTTPS' => 'on',
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => '/shop/index.php',
         ]);

@@ -38,8 +38,8 @@ class DatabaseMigrator
             $coreMigrations->sync();
         }
 
-        // use 10 s as max execution time, so the UI stays responsive
-        $maxExecutionTime = min(\ini_get('max_execution_time'), 10);
+        // use 7 s as max execution time, so the UI stays responsive
+        $maxExecutionTime = min(\ini_get('max_execution_time'), 7);
         $startTime = microtime(true);
         $executedMigrations = $offset;
 

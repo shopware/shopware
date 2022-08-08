@@ -39,7 +39,7 @@ class EnvConfigWriterTest extends TestCase
             'country' => 'DEU',
             'email' => 'test@test.com',
             'host' => 'localhost',
-            'https' => true,
+            'schema' => 'https',
             'basePath' => '/shop',
             'blueGreenDeployment' => true,
         ]);

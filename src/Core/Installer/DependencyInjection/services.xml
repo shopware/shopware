@@ -92,6 +92,8 @@
         </service>
 
         <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -150,6 +152,16 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Installer\Controller\FinishController" public="true">
+            <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
+            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
+            <argument type="service" id="GuzzleHttp\Client"/>
+            <argument>%env(string:APP_URL)%</argument>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
 
         <service id="Shopware\Core\Installer\Database\BlueGreenDeploymentService"/>
 
@@ -174,5 +186,18 @@
         <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>
 
         <service id="Shopware\Core\Installer\Configuration\AdminConfigurationService"/>
+
+        <service id="Shopware\Core\Installer\Finish\SystemLocker">
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Finish\Notifier">
+            <argument type="string">https://api.shopware.com</argument>
+            <argument type="string">%env(string:INSTANCE_ID)%</argument>
+            <argument type="service" id="GuzzleHttp\Client"/>
+            <argument type="string">%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="GuzzleHttp\Client"/>
     </services>
 </container>

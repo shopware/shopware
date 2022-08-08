@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, https: bool, blueGreenDeployment: bool}
+ * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
  */
 class ShopConfigurationController extends InstallerController
@@ -61,7 +61,7 @@ class ShopConfigurationController extends InstallerController
 
     /**
      * @Since("6.4.13.0")
-     * @Route("/installer/shop-configuration", name="installer.shop-configuration", methods={"GET", "POST"})
+     * @Route("/installer/configuration", name="installer.configuration", methods={"GET", "POST"})
      */
     public function shopConfiguration(Request $request): Response
     {
@@ -89,6 +89,16 @@ class ShopConfigurationController extends InstallerController
 
             /** @var list<string>|null $availableCurrencies */
             $availableCurrencies = $request->request->get('available_currencies');
+
+            $schema = 'http';
+            // This is for supporting Apache 2.2
+            if (\array_key_exists('HTTPS', $_SERVER) && mb_strtolower((string) $_SERVER['HTTPS']) === 'on') {
+                $schema = 'https';
+            }
+            if (\array_key_exists('REQUEST_SCHEME', $_SERVER)) {
+                $schema = $_SERVER['REQUEST_SCHEME'];
+            }
+
             $shop = [
                 'name' => (string) $request->request->get('config_shopName'),
                 'locale' => (string) $request->request->get('config_shop_language'),
@@ -97,7 +107,7 @@ class ShopConfigurationController extends InstallerController
                 'country' => (string) $request->request->get('config_shop_country'),
                 'email' => (string) $request->request->get('config_mail'),
                 'host' => (string) $_SERVER['HTTP_HOST'],
-                'https' => (bool) $_SERVER['HTTPS'],
+                'schema' => $schema,
                 'basePath' => str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']),
                 'blueGreenDeployment' => (bool) $session->get(BlueGreenDeploymentService::ENV_NAME),
             ];
@@ -108,7 +118,10 @@ class ShopConfigurationController extends InstallerController
                 $this->shopConfigurationService->updateShop($shop, $connection);
                 $this->adminConfigurationService->createAdmin($adminUser, $connection);
 
-                return $this->redirectToRoute('installer.shop-configuration');
+                $session->remove(DatabaseConnectionInformation::class);
+                $session->set('ADMIN_USER', $adminUser);
+
+                return $this->redirectToRoute('installer.finish');
             } catch (\Exception $e) {
                 $error = $e->getMessage();
             }

@@ -10,6 +10,8 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
+    parallel:
+        maximumNumberOfProcesses: 8
     paths:
         - src
         - tests

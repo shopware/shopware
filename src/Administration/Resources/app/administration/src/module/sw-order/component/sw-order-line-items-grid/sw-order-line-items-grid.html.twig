@@ -288,6 +288,8 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            {% block sw_order_line_items_grid_grid_actions_extension %}{% endblock %}
+
             {% block sw_order_line_items_grid_grid_actions_delete %}
             <sw-context-menu-item
                 v-if="feature.isActive('FEATURE_NEXT_7530')"
@@ -324,6 +326,7 @@
             </a>
             {% endblock %}
 
+            {% block sw_order_line_items_grid_bulk_actions_extension %}{% endblock %}
         </template>
         {% endblock %}
         {% endblock %}

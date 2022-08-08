@@ -400,13 +400,15 @@ class FileSaver
         $event = new MediaFileExtensionWhitelistEvent($this->whitelist);
         $this->eventDispatcher->dispatch($event);
 
+        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
+
         foreach ($event->getWhitelist() as $extension) {
-            if (mb_strtolower($mediaFile->getFileExtension()) === mb_strtolower($extension)) {
+            if ($fileExtension === mb_strtolower($extension)) {
                 return;
             }
         }
 
-        throw new FileTypeNotSupportedException($mediaId);
+        throw new FileTypeNotSupportedException($mediaId, $fileExtension);
     }
 
     /**

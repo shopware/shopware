@@ -5,16 +5,11 @@ namespace Shopware\Core\Content\Media\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed. Use FileExtensionNotSupportedException or ThumbnailNotSupportedException instead
+ */
 class FileTypeNotSupportedException extends ShopwareHttpException
 {
-    public function __construct(string $mediaId)
-    {
-        parent::__construct(
-            'The File for media object with id: {{ mediaId }} is not supported for creating thumbnails.',
-            ['mediaId' => $mediaId]
-        );
-    }
-
     public function getErrorCode(): string
     {
         return 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED';

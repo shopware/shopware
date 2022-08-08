@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\Exception\FileExtensionNotSupportedException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -540,7 +540,7 @@ class FileSaverTest extends TestCase
 
     public function testMaliciousFileExtension(): void
     {
-        $this->expectException(FileTypeNotSupportedException::class);
+        $this->expectException(FileExtensionNotSupportedException::class);
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         static::assertIsString($tempFile);

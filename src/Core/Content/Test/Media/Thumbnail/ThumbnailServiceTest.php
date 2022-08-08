@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\Exception\ThumbnailNotSupportedException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
@@ -133,7 +133,7 @@ class ThumbnailServiceTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $this->getPublicFilesystem()->put($filePath, 'this is the content of the file, which is not a image');
 
-        $this->expectException(FileTypeNotSupportedException::class);
+        $this->expectException(ThumbnailNotSupportedException::class);
         $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,

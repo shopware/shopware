@@ -132,7 +132,6 @@ E2E install NL:
         - FEATURE_ALL: 'major'
           ALLOW_FAILURE: 'true'
     script:
-        - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
         # fake version by using the latest tag if not set
         - >

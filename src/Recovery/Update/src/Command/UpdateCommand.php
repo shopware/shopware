@@ -203,10 +203,8 @@ class UpdateCommand extends Command
 
     private function writeLockFile(): void
     {
-        if (is_dir(SW_PATH . '/recovery/install')) {
-            /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
-            $systemLocker = $this->container->get('system.locker');
-            $systemLocker();
-        }
+        /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
+        $systemLocker = $this->container->get('system.locker');
+        $systemLocker();
     }
 }

@@ -42,13 +42,19 @@ export default class NativeEventEmitter {
      * Publishes an event on the element. Additional information can be added using the `data` parameter.
      * The data are accessible in the event handler in `event.detail` which represents the standard
      * implementation.
+     *
+     * @param {Boolean} cancelable
+     * @return {CustomEvent}
      */
-    publish(eventName, detail = {}) {
+    publish(eventName, detail = {}, cancelable = false) {
         const event = new CustomEvent(eventName, {
             detail,
+            cancelable,
         });
 
         this.el.dispatchEvent(event);
+
+        return event
     }
 
     /**

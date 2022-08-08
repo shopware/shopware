@@ -53,8 +53,11 @@ export default class FormCsrfHandler extends Plugin {
 
     onTokenFetched(token) {
         this._form.appendChild(this.createCsrfInput(token));
-        this.$emitter.publish('beforeSubmit');
-        this.el.submit();
+        const event = this.$emitter.publish('beforeSubmit', {}, true);
+
+        if (!event.defaultPrevented) {
+            this.el.submit();
+        }
     }
 
     createCsrfInput(token) {

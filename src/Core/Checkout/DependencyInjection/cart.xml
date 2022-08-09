@@ -217,7 +217,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.cart.processor" priority="5000"/>
             <tag name="shopware.cart.collector" priority="5000"/>

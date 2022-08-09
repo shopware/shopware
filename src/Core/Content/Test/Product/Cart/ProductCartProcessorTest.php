@@ -726,6 +726,35 @@ class ProductCartProcessorTest extends TestCase
         static::assertFalse($actualProduct->getDeliveryInformation()->getFreeDelivery());
     }
 
+    public function testInactiveProductCartRemoval(): void
+    {
+        $context = $this->getContext();
+        $this->createProduct();
+        $this->getProductCart();
+
+        $update = ['id' => $this->ids->get('product'), 'active' => false];
+        $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
+
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertNull($lineItem);
+    }
+
+    public function testDeletedProductCartRemoval(): void
+    {
+        $context = $this->getContext();
+        $this->createProduct();
+        $this->getProductCart();
+
+        $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
+
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+
+        $lineItem = $cart->get($this->ids->get('product'));
+        static::assertNull($lineItem);
+    }
+
     private function getProductCart(): Cart
     {
         $product = $this->getContainer()->get(ProductLineItemFactory::class)

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
@@ -21,14 +22,9 @@ use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalcula
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -55,7 +51,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private EntityCacheKeyGenerator $generator;
 
-    private SalesChannelRepositoryInterface $repository;
+    private Connection $connection;
 
     /**
      * @internal
@@ -66,14 +62,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ProductFeatureBuilder $featureBuilder,
         AbstractProductPriceCalculator $priceCalculator,
         EntityCacheKeyGenerator $generator,
-        SalesChannelRepositoryInterface $repository
+        Connection $connection
     ) {
         $this->productGateway = $productGateway;
         $this->calculator = $calculator;
         $this->featureBuilder = $featureBuilder;
         $this->priceCalculator = $priceCalculator;
         $this->generator = $generator;
-        $this->repository = $repository;
+        $this->connection = $connection;
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -99,10 +95,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
-                    if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
-                        $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                        $lineItem->setDataContextHash($hash);
+                    if (!\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
+                        $lineItem->setDataTimestamp(null);
+
+                        continue;
                     }
+                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
+                    $lineItem->setDataContextHash($hash);
                 }
             }
 
@@ -480,23 +479,32 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return $ids;
         }
 
-        $filter = new OrFilter();
+        $updates = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)) as id, updated_at FROM product WHERE id IN (:ids) AND version_id = :liveVersionId',
+            [
+                'ids' => Uuid::fromHexToBytesList(array_keys($changes)),
+                'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
+
         foreach ($changes as $id => $timestamp) {
-            $filter->addQuery(new AndFilter([
-                new EqualsFilter('product.id', $id),
-                new RangeFilter('updatedAt', [
-                    RangeFilter::GTE => $timestamp,
-                ]),
-            ]));
+            // Product has been deleted, as we cannot find it
+            if (!isset($updates[$id])) {
+                $ids[] = $id;
+
+                continue;
+            }
+
+            // Product has been updated, but the timestamp is older than the one we have
+            if ($updates[$id] !== $changes[$id]) {
+                $ids[] = $id;
+            }
         }
 
-        $criteria = new Criteria();
-        $criteria->setTitle('cart::products::not-completed');
-        $criteria->addFilter($filter);
-
-        $changed = $this->repository->searchIds($criteria, $context)->getIds();
-
-        return array_filter(array_unique(array_merge($ids, $changed)));
+        return array_filter(array_unique($ids));
     }
 
     private function isComplete(LineItem $lineItem): bool

@@ -17,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextRestorer
 {
@@ -33,6 +35,8 @@ class SalesChannelContextRestorer
 
     private Connection $connection;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
@@ -42,7 +46,8 @@ class SalesChannelContextRestorer
         OrderConverter $orderConverter,
         EntityRepositoryInterface $orderRepository,
         Connection $connection,
-        CartRestorer $cartRestorer
+        CartRestorer $cartRestorer,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->factory = $factory;
         $this->cartRuleLoader = $cartRuleLoader;
@@ -50,6 +55,7 @@ class SalesChannelContextRestorer
         $this->orderRepository = $orderRepository;
         $this->connection = $connection;
         $this->cartRestorer = $cartRestorer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -198,6 +204,8 @@ class SalesChannelContextRestorer
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('billingAddress')
             ->addAssociation('transactions');
+
+        $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
 
         return $this->orderRepository->search($criteria, $context)
             ->get($orderId);

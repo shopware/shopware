@@ -39,9 +39,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -51,45 +52,21 @@ class SalesChannelContextRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var SalesChannelContextRestorer
-     */
-    private $contextRestorer;
+    private SalesChannelContextRestorer $contextRestorer;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var array
-     */
-    private $events;
+    private array $events;
 
-    /**
-     * @var \Closure
-     */
-    private $callbackFn;
+    private \Closure $callbackFn;
 
-    /**
-     * @var EventDispatcher
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     public function setUp(): void
     {
@@ -117,7 +94,8 @@ class SalesChannelContextRestorerTest extends TestCase
             $this->getContainer()->get(OrderConverter::class),
             $this->getContainer()->get('order.repository'),
             $this->connection,
-            $this->getContainer()->get(CartRestorer::class)
+            $this->getContainer()->get(CartRestorer::class),
+            $this->eventDispatcher
         );
     }
 
@@ -404,6 +382,20 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertEquals(1, $p1->getQuantity());
         static::assertNotEmpty($p2 = $restoreCart->getLineItems()->get($productId2));
         static::assertEquals(5, $p2->getQuantity());
+    }
+
+    public function testOrderCriteriaEventIsFired(): void
+    {
+        $context = Context::createDefaultContext();
+        $ids = new TestDataCollection();
+        $this->createOrder($ids);
+
+        $this->eventDispatcher->addListener(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->callbackFn);
+        $this->contextRestorer->restoreByOrder($ids->create('order'), $context);
+
+        static::assertArrayHasKey(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->events);
+        $salesChannelContextRestorerCriteriaEvent = $this->events[SalesChannelContextRestorerOrderCriteriaEvent::class];
+        static::assertInstanceOf(SalesChannelContextRestorerOrderCriteriaEvent::class, $salesChannelContextRestorerCriteriaEvent);
     }
 
     private function createOrder(TestDataCollection $ids): void

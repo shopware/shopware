@@ -29,6 +29,7 @@ return [
     'select_language_pl' => 'Polsky',
     'select_language_cs' => 'český',
     'select_language_sv' => 'švédský',
+    'select_language_nb' => 'norský',
 
     'language-selection_welcome_title' => 'Vítejte v aplikaci Shopware 6',
     'language-selection_select_language' => 'Jazyk průvodce instalací',

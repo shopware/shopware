@@ -29,6 +29,7 @@ return [
     'select_language_pl' => 'Język polski',
     'select_language_cs' => 'Język czech',
     'select_language_sv' => 'Język szwedzki',
+    'select_language_no' => 'Język norweski',
 
     'language-selection_welcome_title' => 'Witaj w Shopware 6',
     'language-selection_select_language' => 'Język asystenta instalacji',

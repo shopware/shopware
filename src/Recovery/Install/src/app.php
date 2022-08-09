@@ -95,6 +95,8 @@ function getApplication(KernelInterface $kernel): App
                 return 'cs-CZ';
             case 'da':
                 return 'da-DK';
+            case 'nb':
+                return 'nb-NO';
         }
 
         return mb_strtolower($language) . '-' . mb_strtoupper($language);

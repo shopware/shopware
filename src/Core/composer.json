@@ -88,7 +88,7 @@
         "superbalist/flysystem-google-storage": "~7.2.2",
         "symfony/asset": "~5.4.0",
         "symfony/cache": "~5.4.0",
-        "symfony/cache-contracts": "2.2.0",
+        "symfony/cache-contracts": "v2.5.2",
         "symfony/config": "~5.4.0",
         "symfony/console": "~5.4.1",
         "symfony/debug-bundle": "~5.4.0",

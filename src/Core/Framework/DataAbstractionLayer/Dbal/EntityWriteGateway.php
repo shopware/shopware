@@ -294,8 +294,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     private function prefetch(EntityDefinition $definition, array $pks, WriteParameterBag $parameters): void
     {
+        $contextVersionId = $parameters->getContext()->getContext()->getVersionId();
         $pkFields = [];
         $versionField = null;
+
         /** @var StorageAware&Field $field */
         foreach ($definition->getPrimaryKeys() as $field) {
             if ($field instanceof VersionField) {
@@ -348,7 +350,16 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($id === null) {
                         continue 2;
                     }
+
                     $newIds[] = Uuid::fromHexToBytes($id);
+                }
+
+                if ($versionField instanceof VersionField) {
+                    $payloadVersionId = $pk[$versionField->getPropertyName()] ?? null;
+
+                    if ($payloadVersionId !== null && $payloadVersionId !== $contextVersionId) {
+                        Feature::triggerDeprecationOrThrow('v6.5.0.0', \sprintf('The contextVersion %s does not match the version in the payload %s.', $contextVersionId, $payloadVersionId));
+                    }
                 }
 
                 foreach ($newIds as $newId) {
@@ -369,9 +380,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
 
             $query->andWhere($columns . ' IN (' . $placeholders . ')');
+
             if ($versionField) {
                 $query->andWhere('version_id = ?');
-                $params[] = Uuid::fromHexToBytes($parameters->getContext()->getContext()->getVersionId());
+                $params[] = Uuid::fromHexToBytes($contextVersionId);
             }
 
             $query->setParameters($params);
@@ -386,7 +398,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
                 }
                 if ($versionField) {
-                    $values[$versionField->getPropertyName()] = $parameters->getContext()->getContext()->getVersionId();
+                    $values[$versionField->getPropertyName()] = $contextVersionId;
                 }
 
                 $primaryKeyBag->addExistenceState($definition, $values, $state);

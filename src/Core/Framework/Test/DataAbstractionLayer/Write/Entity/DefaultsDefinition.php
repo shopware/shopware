@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
@@ -16,9 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 class DefaultsDefinition extends EntityDefinition
 {
     public const SCHEMA = 'CREATE TABLE IF NOT EXISTS `defaults` (
-        `id` BINARY(16) NOT NULL PRIMARY KEY,
+        `id` BINARY(16) NOT NULL,
+        `version_id` BINARY(16) NOT NULL,
         `active` int(1) NOT NULL,
-        `created_at` DATETIME NOT NULL
+        `created_at` DATETIME NOT NULL,
+        PRIMARY KEY (`id`, `version_id`)
     )';
 
     public function getEntityName(): string
@@ -48,6 +51,7 @@ class DefaultsDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+            (new VersionField())->addFlags(new PrimaryKey()),
             (new BoolField('active', 'active'))->addFlags(new Required()),
             new OneToManyAssociationField('children', DefaultsChildDefinition::class, 'defaults_id'),
         ]);

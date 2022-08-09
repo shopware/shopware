@@ -8,8 +8,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DefaultsChildDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DefaultsChildTranslationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DefaultsDefinition;
@@ -80,5 +83,31 @@ class WriteCommandExtractorTest extends TestCase
         static::assertSame($defaultsChildId, $defaultsChildTranslationWriteResult->getPayload()['defaultsChildId']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $defaultsChildTranslationWriteResult->getPayload()['languageId']);
         static::assertSame('Default name', $defaultsChildTranslationWriteResult->getPayload()['name']);
+    }
+
+    public function testRemoveVersionIdsFromPayload(): void
+    {
+        /** @var WriteCommandExtractor $extractor */
+        $extractor = $this->getContainer()->get(WriteCommandExtractor::class);
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
+        /** @var DefaultsDefinition $definition */
+        $definition = $this->getContainer()->get(DefaultsDefinition::class);
+
+        $normalized = $extractor->normalize(
+            $definition,
+            [
+                [
+                    'id' => '718c51859c5e4c938c1f231a27959e2c',
+                    'versionId' => 'ddabcd0483df441096e49acb81f52f1d',
+                ],
+            ],
+            new WriteParameterBag($definition, $context, '/', new WriteCommandQueue())
+        );
+
+        static::assertSame($normalized, [
+            [
+                'id' => '718c51859c5e4c938c1f231a27959e2c',
+            ],
+        ]);
     }
 }

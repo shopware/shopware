@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
@@ -83,6 +84,11 @@ class WriteCommandExtractor
 
         foreach ($definition->getPrimaryKeys() as $pkField) {
             $data = $pkField->getSerializer()->normalize($pkField, $data, $parameters);
+
+            if ($pkField instanceof VersionField) {
+                unset($data[$pkField->getPropertyName()]);
+            }
+
             $done[$pkField->getPropertyName()] = true;
         }
 

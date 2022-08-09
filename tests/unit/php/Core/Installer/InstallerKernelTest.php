@@ -39,8 +39,5 @@ class InstallerKernelTest extends TestCase
         );
 
         static::assertSame((new TestBootstrapper())->getProjectDir(), $kernel->getContainer()->getParameter('kernel.project_dir'));
-
-        static::assertTrue($kernel->getContainer()->getParameter('container.dumper.inline_class_loader'));
-        static::assertTrue($kernel->getContainer()->getParameter('container.dumper.inline_factories'));
     }
 }

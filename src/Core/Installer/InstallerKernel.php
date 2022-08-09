@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer;
 
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -96,15 +95,8 @@ class InstallerKernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('container.dumper.inline_class_loader', true);
-        $container->setParameter('container.dumper.inline_factories', true);
-
-        $confDir = $this->getProjectDir() . '/config';
-
-        $loader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
-        $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
-        $loader->load($confDir . '/{services}' . Kernel::CONFIG_EXTS, 'glob');
-        $loader->load($confDir . '/{services}_' . $this->environment . Kernel::CONFIG_EXTS, 'glob');
+        // use hard coded default config for loaded bundles
+        $loader->load(__DIR__ . '/../Framework/Resources/config/packages/installer.yaml');
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

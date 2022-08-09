@@ -4,6 +4,8 @@ namespace Shopware\Core\Installer\Requirements;
 
 /**
  * Extracted to be able to mock all ini values
+ *
+ * @internal
  */
 class IniConfigReader
 {

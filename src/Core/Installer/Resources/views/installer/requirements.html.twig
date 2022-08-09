@@ -24,9 +24,10 @@
             </div>
         {% endif %}
 
-        <details {% if requirementChecks.hasPathError %}open{% endif %}>
+        <details id="pathChecks" {% if requirementChecks.hasPathError %}open{% endif %}>
             <summary>
-                <h4 class="requirement-group {% if not requirementChecks.hasPathError %}success{% else %}error{% endif %}">
+                <h4 id="requirement-group-path"
+                    class="requirement-group {% if not requirementChecks.hasPathError %}success{% else %}error{% endif %}">
                     <span class="requirement-group-title">{{ "shopware.installer.requirements_header_files"|trans }} <span class="status-indicator"></span></span>
                     <i class="icon-chevron-down"></i>
                 </h4>
@@ -61,9 +62,10 @@
             </div>
         </details>
 
-        <details {% if requirementChecks.hasSystemError %}open{% endif %}>
+        <details id="systemChecks" {% if requirementChecks.hasSystemError %}open{% endif %}>
             <summary>
-                <h4 class="requirement-group {% if not requirementChecks.hasSystemError %}success{% else %}error{% endif %}">
+                <h4 id="requirement-group-system"
+                    class="requirement-group {% if not requirementChecks.hasSystemError %}success{% else %}error{% endif %}">
                     <span class="requirement-group-title">{{ "shopware.installer.requirements_header_system"|trans }} <span class="status-indicator"></span></span>
                     <i class="icon-chevron-down"></i>
                 </h4>

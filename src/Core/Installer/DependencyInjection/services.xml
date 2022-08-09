@@ -193,9 +193,13 @@
 
         <service id="Shopware\Core\Installer\Finish\Notifier">
             <argument type="string">https://api.shopware.com</argument>
-            <argument type="string">%env(string:INSTANCE_ID)%</argument>
+            <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
             <argument type="service" id="GuzzleHttp\Client"/>
             <argument type="string">%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="Shopware\Core\Installer\Finish\UniqueIdGenerator">
+            <argument type="string">%kernel.project_dir%</argument>
         </service>
 
         <service id="GuzzleHttp\Client"/>

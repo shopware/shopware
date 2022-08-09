@@ -80,6 +80,11 @@ class DatabaseInitializer
         return $this->adapter->getTableCount($this->connection, $database);
     }
 
+    /**
+     * @param list<string> $ignoredSchemas
+     *
+     * @return list<string>
+     */
     public function getExistingDatabases(array $ignoredSchemas): array
     {
         Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(

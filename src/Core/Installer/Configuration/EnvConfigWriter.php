@@ -3,8 +3,8 @@
 namespace Shopware\Core\Installer\Configuration;
 
 use Defuse\Crypto\Key;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
+use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
@@ -16,9 +16,12 @@ class EnvConfigWriter
 {
     private string $projectDir;
 
-    public function __construct(string $projectDir)
+    private UniqueIdGenerator $idGenerator;
+
+    public function __construct(string $projectDir, UniqueIdGenerator $idGenerator)
     {
         $this->projectDir = $projectDir;
+        $this->idGenerator = $idGenerator;
     }
 
     /**
@@ -61,7 +64,7 @@ MAILER_URL=null://localhost
         $additionalEnvVars = [
             'DATABASE_URL' => $info->asDsn(),
             'COMPOSER_HOME' => $this->projectDir . '/var/cache/composer',
-            'INSTANCE_ID' => Uuid::randomHex(),
+            'INSTANCE_ID' => $this->idGenerator->getUniqueId(),
             'BLUE_GREEN_DEPLOYMENT' => (int) $shop['blueGreenDeployment'],
             'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
             'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',

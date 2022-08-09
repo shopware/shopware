@@ -5,6 +5,9 @@ namespace Shopware\Core\Installer\Database;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 
+/**
+ * @internal
+ */
 class BlueGreenDeploymentService
 {
     public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';

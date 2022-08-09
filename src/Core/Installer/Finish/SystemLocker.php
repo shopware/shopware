@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Installer\Finish;
 
+/**
+ * @internal
+ */
 class SystemLocker
 {
     private string $projectDir;

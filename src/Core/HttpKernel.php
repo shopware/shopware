@@ -63,7 +63,7 @@ class HttpKernel
      */
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
     {
-        if (!\is_bool($catch)) {
+        if (!\is_int($type)) {
             Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The second parameter `$type` of `HttpKernel->handle()` will be typed to `int`');
         }
 

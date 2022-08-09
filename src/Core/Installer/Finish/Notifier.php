@@ -4,6 +4,9 @@ namespace Shopware\Core\Installer\Finish;
 
 use GuzzleHttp\Client;
 
+/**
+ * @internal
+ */
 class Notifier
 {
     public const EVENT_INSTALL_STARTED = 'Installer started';
@@ -13,15 +16,15 @@ class Notifier
 
     private Client $client;
 
-    private string $uniqueId;
+    private UniqueIdGenerator $idGenerator;
 
     private string $shopwareVersion;
 
-    public function __construct(string $apiEndPoint, string $uniqueId, Client $client, string $shopwareVersion)
+    public function __construct(string $apiEndPoint, UniqueIdGenerator $idGenerator, Client $client, string $shopwareVersion)
     {
         $this->apiEndPoint = $apiEndPoint;
         $this->client = $client;
-        $this->uniqueId = $uniqueId;
+        $this->idGenerator = $idGenerator;
         $this->shopwareVersion = $shopwareVersion;
     }
 
@@ -33,7 +36,7 @@ class Notifier
         $additionalInformation['shopwareVersion'] = $this->shopwareVersion;
         $payload = [
             'additionalData' => $additionalInformation,
-            'instanceId' => $this->uniqueId,
+            'instanceId' => $this->idGenerator->getUniqueId(),
             'event' => $eventName,
         ];
 

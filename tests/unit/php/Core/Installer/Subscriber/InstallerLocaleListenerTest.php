@@ -30,7 +30,7 @@ class InstallerLocaleListenerTest extends TestCase
      */
     public function testSetInstallerLocale(Request $request, string $expectedLocale): void
     {
-        $listener = new InstallerLocaleListener(['de', 'en', 'nl', 'fr']);
+        $listener = new InstallerLocaleListener(['de' => 'de-DE', 'en' => 'en-GB', 'nl' => 'nl-NL', 'fr' => 'fr-FR']);
 
         $listener->setInstallerLocale(
             new RequestEvent(
@@ -133,7 +133,7 @@ class InstallerLocaleListenerTest extends TestCase
         $session->set('language', 'en');
         $request->setSession($session);
 
-        $listener = new InstallerLocaleListener(['de', 'en', 'nl', 'fr']);
+        $listener = new InstallerLocaleListener(['de' => 'de-DE', 'en' => 'en-GB', 'nl' => 'nl-NL', 'fr' => 'fr-FR']);
 
         $listener->setInstallerLocale(
             new RequestEvent(

@@ -55,7 +55,7 @@
         "aws/aws-sdk-php": "^3.198.5",
         "cocur/slugify": "4.0.0",
         "composer-runtime-api": "^2.0",
-        "composer/composer": "^2.1.9",
+        "composer/composer": "^2.2.17",
         "composer/semver": "^3.2",
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "~2.13.8",

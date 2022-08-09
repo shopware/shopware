@@ -7,14 +7,19 @@ use Doctrine\DBAL\Driver\ResultStatement;
 
 /**
  * @internal
+ *
+ * @implements \IteratorAggregate<mixed>
  */
 class FakeResultStatement implements \IteratorAggregate, ResultStatement, Result
 {
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $dbResult = [];
+    private array $dbResult;
 
+    /**
+     * @param array<mixed> $dbResult
+     */
     public function __construct(array $dbResult)
     {
         $this->dbResult = $dbResult;

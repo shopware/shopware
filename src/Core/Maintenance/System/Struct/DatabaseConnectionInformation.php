@@ -65,6 +65,9 @@ class DatabaseConnectionInformation extends Struct
         ]);
     }
 
+    /**
+     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
         $parameters = [

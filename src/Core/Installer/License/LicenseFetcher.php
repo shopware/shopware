@@ -6,6 +6,9 @@ use GuzzleHttp\Client;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class LicenseFetcher
 {
     private Client $guzzle;

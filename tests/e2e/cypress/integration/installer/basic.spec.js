@@ -1,110 +1,114 @@
 /// <reference types="Cypress" />
 
 describe('Minimal install', () => {
+    before(() => {
+        Cypress.env('SKIP_INIT', 'true');
+    });
+
     /**
      * Test requirements:
      * - db `Cypress.env('dbName')` must not exists
      * - install.lock must not exist
      */
     it('@install: en-GB and GBP', () => {
-        cy.visit('/recovery/install/index.php', {
+        cy.visit('/installer', {
             headers: {
                 'Accept-Language': Cypress.env('acceptLanguage')
             }
         });
 
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Start');
         cy.get('option:checked').contains('English');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Start`, 'section.content--main');
+        cy.takeSnapshot(`Start`, '.content--main');
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: requirements
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('System requirements');
         cy.get('.requirement-group').should('have.class', 'success');
-        cy.get('#permissions').should('be.hidden');
-        cy.get('#systemchecks').should('be.hidden');
+        cy.get('#pathChecks').should('not.have.attr', 'open');
+        cy.get('#systemChecks').should('not.have.attr', 'open');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot( `Requirement`, 'section.content--main');
+        cy.takeSnapshot( `Requirement`, '.content--main');
 
-        cy.get('.requirement-group[data-target="#permissions"]').click();
-        cy.get('#permissions').should('be.visible');
-        cy.get('#systemchecks').should('be.hidden');
-        cy.get('#permissions td > span.status-indicator').should('have.class', 'success');
+        cy.get('#requirement-group-path').click();
+        cy.get('#pathChecks').should('have.attr', 'open');
+        cy.get('#systemChecks').should('not.have.attr', 'open');
+        cy.get('#pathChecks td > span.status-indicator').should('have.class', 'success');
 
-        cy.get('.requirement-group[data-target="#permissions"]').click();
-        cy.get('#permissions').should('be.hidden');
-        cy.get('#systemchecks').should('be.hidden');
+        cy.get('#requirement-group-path').click();
+        cy.get('#pathChecks').should('not.have.attr', 'open');
+        cy.get('#systemChecks').should('not.have.attr', 'open');
 
-        cy.get('.requirement-group[data-target="#systemchecks"]').click();
-        cy.get('#permissions').should('be.hidden');
-        cy.get('#systemchecks').should('be.visible');
-        cy.get('#systemchecks td > span.status-indicator').should('have.class', 'success');
+        cy.get('#requirement-group-system').click();
+        cy.get('#pathChecks').should('not.have.attr', 'open');
+        cy.get('#systemChecks').should('have.attr', 'open');
+        cy.get('#systemChecks td > span.status-indicator').should('have.class', 'success');
 
-        cy.get('.requirement-group[data-target="#systemchecks"]').click();
-        cy.get('#permissions').should('be.hidden');
-        cy.get('#systemchecks').should('be.hidden');
+        cy.get('#requirement-group-system').click();
+        cy.get('#pathChecks').should('not.have.attr', 'open');
+        cy.get('#systemChecks').should('not.have.attr', 'open');
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: GTC
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('GTC');
         cy.url().should('contains', '/license');
         cy.get('.btn.btn-primary').contains('Next').click();
         cy.url().should('contains', '/license');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`GTC`, 'section.content--main');
+        cy.takeSnapshot(`GTC`, '.content--main');
 
         cy.get('.custom-checkbox').click();
         cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: database config
         cy.url().should('contains', '/database-configuration');
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Database configuration');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Database configuration`, 'section.content--main');
+        cy.takeSnapshot(`Database configuration`, '.content--main');
 
-        cy.get('#c_database_host').clear().type(Cypress.env('dbHost'));
-        cy.get('#c_database_user').clear().type(Cypress.env('dbUser'));
-        cy.get('#c_database_password').clear().type(Cypress.env('dbPassword'));
+        cy.get('#hostname').clear().type(Cypress.env('dbHost'));
+        cy.get('#username').clear().type(Cypress.env('dbUser'));
+        cy.get('#password').clear().type(Cypress.env('dbPassword'));
 
-        cy.get('.c_create_database').click();
+        cy.get('.create_database').click();
 
-        cy.get('#c_database_schema_new').clear().type(Cypress.env('dbName'));
+        cy.get('#databaseName_new').clear().type(Cypress.env('dbName'));
         cy.get('.btn.btn-primary').contains('Start installation').click();
 
         // @install: installation
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Installation');
-        cy.get('.database-import-finish', { timeout: 300000 }).should('be.visible');
+        cy.get('.database-import-finish', { timeout: 400000 }).should('be.visible');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Database migration finished`, 'section.content--main');
+        cy.takeSnapshot(`Database migration finished`, '.content--main');
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: configuration
-        cy.get('section.content--main').should('be.visible');
+        cy.get('.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Configuration');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Configuration`, 'section.content--main');
+        cy.takeSnapshot(`Configuration`, '.content--main');
 
-        cy.get('#c_config_shopName').clear().type('E2E install test');
-        cy.get('#c_config_mail').clear().type('e2e@example.com');
-        cy.get('#c_config_shop_language option:checked').contains('English');
-        cy.get('#c_config_shop_currency option:checked').contains('Euro');
+        cy.get('#config_shopName').clear().type('E2E install test');
+        cy.get('#config_mail').clear().type('e2e@example.com');
+        cy.get('#config_shop_language option:checked').contains('English');
+        cy.get('#config_shop_currency option:checked').contains('Euro');
 
-        cy.get('#c_config_shop_currency').select('GBP');
+        cy.get('#config_shop_currency').select('GBP');
 
         // check if the shop currency is disabled in the additional currencies
         cy.get('input#gbp').should('be.disabled');
@@ -114,12 +118,12 @@ describe('Minimal install', () => {
         cy.get('input#sek').check({ force: true });
         cy.get('input#eur').check({ force: true });
 
-        cy.get('#c_config_admin_email').clear().type('e2e@example.com');
+        cy.get('#config_admin_email').clear().type('e2e@example.com');
 
-        cy.get('#c_config_admin_firstName').clear().type('e2e');
-        cy.get('#c_config_admin_lastName').clear().type('shopware');
-        cy.get('#c_config_admin_username').clear().type('admin');
-        cy.get('#c_config_admin_password').clear().type('shopware');
+        cy.get('#config_admin_firstName').clear().type('e2e');
+        cy.get('#config_admin_lastName').clear().type('shopware');
+        cy.get('#config_admin_username').clear().type('admin');
+        cy.get('#config_admin_password').clear().type('shopware');
 
         cy.get('.alert.alert-error').should('not.exist');
 

@@ -49,6 +49,8 @@ class MigrationCollectionLoader
 
     /**
      * @internal
+     *
+     * @param iterable<MigrationSource> $migrationSources
      */
     public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [], ?LoggerInterface $logger = null)
     {

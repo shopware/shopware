@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Configuration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
+use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
@@ -20,7 +21,11 @@ class EnvConfigWriterTest extends TestCase
 
     public function testWriteConfig(): void
     {
-        $writer = new EnvConfigWriter(__DIR__ . '/_fixtures');
+        $idGenerator = $this->createMock(UniqueIdGenerator::class);
+        $idGenerator->expects(static::once())->method('getUniqueId')
+            ->willReturn('1234567890');
+
+        $writer = new EnvConfigWriter(__DIR__ . '/_fixtures', $idGenerator);
 
         $info = new DatabaseConnectionInformation();
         $info->assign([
@@ -50,6 +55,7 @@ class EnvConfigWriterTest extends TestCase
         static::assertStringContainsString('DATABASE_URL="' . $info->asDsn() . '"', $content);
         static::assertStringContainsString('APP_URL="https://localhost/shop"', $content);
         static::assertStringContainsString('BLUE_GREEN_DEPLOYMENT="1"', $content);
+        static::assertStringContainsString('INSTANCE_ID="1234567890"', $content);
 
         static::assertFileExists(__DIR__ . '/_fixtures/public/.htaccess');
         static::assertFileEquals(__DIR__ . '/_fixtures/public/.htaccess.dist', __DIR__ . '/_fixtures/public/.htaccess');

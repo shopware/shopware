@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
@@ -11,10 +12,13 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class FakeQueryBuilder extends QueryBuilder
 {
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $dbRows = [];
+    private array $dbRows;
 
+    /**
+     * @param array<mixed> $dbRows
+     */
     public function __construct(Connection $connection, array $dbRows)
     {
         parent::__construct($connection);
@@ -23,7 +27,7 @@ class FakeQueryBuilder extends QueryBuilder
     }
 
     /**
-     * @return \Doctrine\DBAL\ForwardCompatibility\Result|int|FakeResultStatement
+     * @return Result<mixed>|int|FakeResultStatement
      */
     public function execute()
     {

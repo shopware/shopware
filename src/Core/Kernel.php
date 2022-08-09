@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -100,11 +101,10 @@ class Kernel extends HttpKernel
      */
     public function registerBundles()/*: \Generator*/
     {
-        /** @var array $bundles */
+        /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
         $instanciatedBundleNames = [];
 
-        /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 $bundle = new $class();
@@ -285,6 +285,8 @@ class Kernel extends HttpKernel
 
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
      */
     protected function getKernelParameters(): array
     {

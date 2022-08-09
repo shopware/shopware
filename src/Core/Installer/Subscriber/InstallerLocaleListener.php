@@ -14,16 +14,16 @@ class InstallerLocaleListener implements EventSubscriberInterface
     public const FALLBACK_LOCALE = 'en';
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     private array $installerLanguages;
 
     /**
-     * @param string[] $installerLanguages
+     * @param array<string, string> $installerLanguages
      */
     public function __construct(array $installerLanguages)
     {
-        $this->installerLanguages = $installerLanguages;
+        $this->installerLanguages = array_keys($installerLanguages);
     }
 
     public static function getSubscribedEvents(): array

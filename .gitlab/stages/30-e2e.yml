@@ -157,7 +157,7 @@ E2E install NL:
         - composer run e2e:cypress -- run
             --config retries=0
             --browser chrome
-            --spec "cypress/integration/recovery/installer/install_nl.spec.js"
+            --spec "cypress/integration/installer/install_nl.spec.js"
             --headless
         - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
         - composer run e2e:prepare

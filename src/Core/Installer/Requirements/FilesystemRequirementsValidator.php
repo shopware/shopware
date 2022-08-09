@@ -6,6 +6,9 @@ use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
+/**
+ * @internal
+ */
 class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 {
     private const NEEDED_PATHS = [

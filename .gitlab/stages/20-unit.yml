@@ -278,7 +278,7 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
-                TEST_SUITES: "checkout content framework profiling system integation migration"
+                TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
     script:
         - >

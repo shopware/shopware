@@ -170,7 +170,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
     }
 
     if (status === 403
-        && ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'].includes(errors[0]?.code)
+        && ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'].includes(errors?.[0]?.code)
     ) {
         Shopware.State.dispatch('notification/createNotification', {
             variant: 'warning',
@@ -307,7 +307,7 @@ function storeSessionExpiredInterceptor(client) {
         return response;
     }, (error) => {
         const { config, response } = error;
-        const code = response.data?.errors[0]?.code;
+        const code = response.data?.errors?.[0]?.code;
 
         if (config.storeSessionRequestRetries >= maxRetryLimit) {
             return Promise.reject(error);

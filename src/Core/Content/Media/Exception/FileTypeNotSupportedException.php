@@ -9,14 +9,18 @@ use Symfony\Component\HttpFoundation\Response;
 class FileTypeNotSupportedException extends ShopwareHttpException
 {
     /**
-     * @deprecated tag:v6.5.0 - Parameter extension will be mandatory
+     * @deprecated tag:v6.5.0 - Parameter extension will be mandatory and typed as string
      */
-    public function __construct(string $mediaId, string $extension = '')
+    public function __construct(string $mediaId, ?string $extension = null)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            'parameter extension will be mandatory'
-        );
+        if ($extension === null) {
+            $extension = '';
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'parameter extension will be mandatory and typed as string'
+            );
+        }
+
         parent::__construct(
             'The file extension "{{ extension }}" for media object with id {{ mediaId }} is not supported.',
             ['mediaId' => $mediaId, 'extension' => $extension]

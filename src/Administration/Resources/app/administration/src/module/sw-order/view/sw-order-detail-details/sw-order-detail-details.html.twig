@@ -18,8 +18,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
+            class="sw-order-detail-details__billing-address"
             :address="billingAddress"
             :address-id="billingAddress.id"
+            :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
             @change-address="onChangeOrderAddress"
         />
@@ -59,8 +61,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
+            class="sw-order-detail-details__shipping-address"
             :address="delivery.shippingOrderAddress"
             :address-id="delivery.shippingOrderAddress.id"
+            :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
             @change-address="onChangeOrderAddress"
         />
@@ -141,6 +145,7 @@
         {% block sw_order_detail_details_order_email %}
         <sw-text-field
             v-model="order.orderCustomer.email"
+            class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
@@ -151,6 +156,7 @@
         {% block sw_order_detail_details_order_phone_number %}
         <sw-text-field
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
+            class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
@@ -186,6 +192,7 @@
         {% block sw_order_detail_details_order_affiliate %}
         <sw-text-field
             v-model="order.affiliateCode"
+            class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
         />
@@ -195,6 +202,7 @@
         {% block sw_order_detail_details_order_campaign %}
         <sw-text-field
             v-model="order.campaignCode"
+            class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"
         />

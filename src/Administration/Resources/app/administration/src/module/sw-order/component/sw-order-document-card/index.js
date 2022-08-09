@@ -357,21 +357,27 @@ export default {
                     return;
                 }
 
+                const documentId = Array.isArray(response)
+                    ? response[0].documentId
+                    : response?.data?.documentId;
+
+                const documentDeepLink = Array.isArray(response)
+                    ? response[0].documentDeepLink
+                    : response?.data?.documentDeepLink;
+
                 if (params.documentMediaFileId) {
-                    this.documentRepository.get(response.data.documentId, Shopware.Context.api)
-                        .then((documentData) => {
-                            documentData.documentMediaFileId = params.documentMediaFileId;
-                            this.documentRepository.save(documentData);
-                        });
+                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
+                    documentData.documentMediaFileId = params.documentMediaFileId;
+                    await this.documentRepository.save(documentData);
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
+                    this.downloadDocument(documentId, documentDeepLink);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType');
 
-                    this.documentRepository.get(response.data.documentId, Shopware.Context.api, criteria)
+                    this.documentRepository.get(documentId, Shopware.Context.api, criteria)
                         .then((documentData) => {
                             if (!documentData) {
                                 return;

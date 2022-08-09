@@ -1,9 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swOrderLineItemsGrid from 'src/module/sw-order/component/sw-order-line-items-grid';
 import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-order-line-items-grid', swOrderLineItemsGrid);
@@ -16,6 +13,9 @@ const mockItems = [
         quantity: 1,
         payload: {
             options: []
+        },
+        priceDefinition: {
+            price: 200,
         },
         price: {
             quantity: 1,
@@ -34,7 +34,8 @@ const mockItems = [
                     percentage: 100
                 }
             ]
-        }
+        },
+        isNew: () => false,
     },
     {
         id: '2',
@@ -62,7 +63,8 @@ const mockItems = [
         },
         priceDefinition: {
             price: 100
-        }
+        },
+        isNew: () => false,
     },
     {
         id: '3',
@@ -90,7 +92,8 @@ const mockItems = [
         },
         priceDefinition: {
             price: 100
-        }
+        },
+        isNew: () => false,
     }
 ];
 
@@ -125,68 +128,6 @@ const mockMultipleTaxesItem = {
 
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 
-async function createAdvancedWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-line-items-grid'), {
-        localVue: createLocalVue(),
-        propsData: {
-            order: {
-                price: {
-                    taxStatus: ''
-                },
-                currency: {
-                    shortName: 'EUR'
-                },
-                lineItems: [],
-                taxStatus: ''
-            },
-            context: {}
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => (
-                    {
-                        delete: deleteEndpoint
-                    }
-                ),
-            },
-            shortcutService: { stopEventListener: () => {}, startEventListener: () => {} },
-            orderService: {},
-            acl: {
-                can: () => false
-            },
-            feature: {
-                isActive: () => true
-            }
-        },
-        stubs: {
-            'sw-container': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-group': true,
-            'sw-context-button': true,
-            'sw-context-menu-divider': true,
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-card-filter': true,
-            'sw-checkbox-field': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-data-grid-settings': true,
-            'sw-icon': true,
-            'sw-product-variant-info': true,
-            'sw-switch-field': true,
-            'router-link': true
-        },
-        mocks: {
-            $tc: (t, count, value) => {
-                if (t === 'sw-order.detailBase.taxDetail') {
-                    return `${value.taxRate}%: ${value.tax}`;
-                }
-
-                return t;
-            }
-        }
-    });
-}
-
 async function createWrapper({ privileges = [] }) {
     const localVue = createLocalVue();
 
@@ -217,13 +158,30 @@ async function createWrapper({ privileges = [] }) {
                 lineItems: [],
                 taxStatus: ''
             },
-            context: {}
+            context: {
+                authToken: {
+                    access: 'token',
+                },
+            },
+            isLoading: false,
         },
         provide: {
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) })
+                create: () => ({
+                    create: () => {
+                        return {
+                            isNew: () => true,
+                            id: Shopware.Utils.createId(),
+                        };
+                    },
+                    delete: deleteEndpoint
+                })
             },
-            orderService: {},
+            orderService: {
+                addProductToOrder: () => Promise.resolve({}),
+                addCustomLineItemToOrder: () => Promise.resolve({}),
+                addCreditItemToOrder: () => Promise.resolve({}),
+            },
             acl: {
                 can: (key) => {
                     if (!key) return true;
@@ -237,19 +195,48 @@ async function createWrapper({ privileges = [] }) {
         },
         stubs: {
             'sw-container': true,
-            'sw-button': true,
-            'sw-button-group': true,
-            'sw-context-button': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': {
+                template: '<div class="sw-button-group"><slot></slot></div>'
+            },
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
             'sw-context-menu-divider': true,
-            'sw-context-menu-item': true,
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
+            },
             'sw-card-filter': true,
-            'sw-checkbox-field': true,
+            'sw-checkbox-field': {
+                template: '<input class="sw-checkbox-field" type="checkbox" :checked="value" @change="$emit(\'change\', $event.target.value)" />',
+                props: ['value']
+            },
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-data-grid-settings': true,
             'sw-icon': true,
             'sw-product-variant-info': true,
             'sw-switch-field': true,
-            'router-link': true
+            'router-link': true,
+            'sw-number-field': {
+                template: '<input class="sw-number-field" type="number" v-model="value" />',
+                props: {
+                    value: 0
+                }
+            },
+            'sw-order-product-select': {
+                template: '<input class="sw-order-product-select" v-model="value" />',
+                props: {
+                    value: 0
+                }
+            },
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal">
+                      <slot></slot>
+                      <slot name="modal-footer"></slot>
+                    </div>
+                `
+            },
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -307,22 +294,21 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
-        const showProductButton1 = productItem.find('sw-context-menu-item-stub');
+        const showProductButton1 = productItem.find('.sw-context-menu-item');
 
         expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
         expect(showProductButton1.attributes().disabled).toBeUndefined();
 
-
         const customItem = wrapper.find('.sw-data-grid__row--1');
         const customLabel = customItem.find('.sw-data-grid__cell--label');
-        const showProductButton2 = customItem.find('sw-context-menu-item-stub');
+        const showProductButton2 = customItem.find('.sw-context-menu-item');
 
         expect(customLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton2.attributes().disabled).toBeTruthy();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
         const creditLabel = creditItem.find('.sw-data-grid__cell--label');
-        const showProductButton3 = creditItem.find('sw-context-menu-item-stub');
+        const showProductButton3 = creditItem.find('.sw-context-menu-item');
 
         expect(creditLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
@@ -339,7 +325,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
-
         const creditTaxTooltip = creditItem.find('.sw-order-line-items-grid__item-tax-tooltip');
 
         expect(creditTaxTooltip.exists()).toBeFalsy();
@@ -425,15 +410,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const creditItem = wrapper.vm.order.lineItems[2];
-
         wrapper.vm.checkItemPrice(creditItem.priceDefinition.price, creditItem);
-
         expect(creditItem.priceDefinition.price < 0).toEqual(true);
 
         const customItem = wrapper.vm.order.lineItems[1];
-
         wrapper.vm.checkItemPrice(customItem.priceDefinition.price, customItem);
-
         expect(customItem.priceDefinition.price > 0).toEqual(true);
     });
 
@@ -484,15 +465,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const productItem = wrapper.vm.order.lineItems[0];
         wrapper.vm.updateItemQuantity(productItem);
-
         expect(productItem).toMatchObject(productItem);
 
         const customItem = wrapper.vm.order.lineItems[1];
-
         expect(customItem.priceDefinition).toMatchObject(customItem.priceDefinition);
 
         wrapper.vm.updateItemQuantity(customItem);
-
         expect(customItem.priceDefinition.quantity === customItem.quantity).toEqual(true);
     });
 
@@ -539,8 +517,252 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
     });
 
+    it('should able to create new empty line item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(0);
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+        await buttonAddItem.trigger('click');
+
+        itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1 x');
+        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toEqual('...');
+        expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toEqual('0 %');
+        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toEqual('...');
+    });
+
+    it('should able to create new product line item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+        await buttonAddItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        await flushPromises();
+        expect(wrapper.emitted('item-edit')).toBeTruthy();
+    });
+
+    it('should able to create new custom line item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
+        await buttonAddCustomItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+    });
+
+    it('should able to create new credit line item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor',
+                'orders.create_discounts'
+            ]
+        });
+
+        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
+        await buttonAddCreditItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+    });
+
+    it('should able to cancel inline edit', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+        await buttonAddItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const buttonInlineCancel = wrapper.find('.sw-data-grid__inline-edit-cancel');
+        await buttonInlineCancel.trigger('click');
+
+        await flushPromises();
+        expect(wrapper.emitted('item-cancel')).toBeTruthy();
+    });
+
+    it('should able to delete single item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross'
+            }
+        });
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]')
+            .trigger('click');
+
+        const deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeTruthy();
+    });
+
+    it('should able to delete empty single item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+        await buttonAddItem.trigger('click');
+
+        let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]')
+            .trigger('click');
+
+        itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(0);
+    });
+
+    it('should able to delete multiple items', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross'
+            }
+        });
+
+        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
+        await selectAllCheckBox.setChecked(true);
+
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        await deleteAllButton.trigger('click');
+
+        await flushPromises();
+        expect(wrapper.emitted('item-delete')).toBeTruthy();
+    });
+
+    it('should able to delete empty items', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+        await buttonAddItem.trigger('click');
+        await buttonAddItem.trigger('click');
+
+
+        let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(2);
+
+        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
+        await selectAllCheckBox.setChecked(true);
+
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        await deleteAllButton.trigger('click');
+
+        itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(0);
+    });
+
+    it('should able to edit single item', async () => {
+        const wrapper = await createWrapper({
+            privileges: [
+                'order.viewer',
+                'order.editor'
+            ]
+        });
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross'
+            }
+        });
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        expect(wrapper.emitted('existing-item-edit')).toBeTruthy();
+    });
+
     it('should open and close modal', async () => {
-        const wrapper = await createAdvancedWrapper();
+        const wrapper = await createWrapper({});
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -550,20 +772,24 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+        let deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeFalsy();
 
         const deleteActions = wrapper.findAll('.sw_order_line_items_grid-item__delete-action');
         await deleteActions.at(0).trigger('click');
-        expect(wrapper.vm.showDeleteModal).toEqual('1');
+
+        deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeTruthy();
 
         const closeAction = wrapper.find('.sw_order_line_items_grid-actions_modal__close-action');
         await closeAction.trigger('click');
 
-        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+        deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeFalsy();
     });
 
     it('should open modal and delete entry', async () => {
-        const wrapper = await createAdvancedWrapper();
+        const wrapper = await createWrapper({});
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -574,12 +800,17 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const deleteActions = wrapper.findAll('.sw_order_line_items_grid-item__delete-action');
         await deleteActions.at(0).trigger('click');
-        expect(wrapper.vm.showDeleteModal).toEqual('1');
+
+        let deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeTruthy();
 
         const confirmAction = wrapper.find('.sw_order_line_items_grid-actions_modal__confirm-action');
         await confirmAction.trigger('click');
+        expect(wrapper.emitted('item-delete')).toBeTruthy();
 
         expect(deleteEndpoint).toBeCalledTimes(1);
-        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+
+        deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
+        expect(deleteItemModal.exists()).toBeFalsy();
     });
 });

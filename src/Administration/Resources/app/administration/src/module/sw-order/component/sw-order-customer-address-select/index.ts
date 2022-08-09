@@ -34,12 +34,19 @@ export default Component.wrapComponentConfig({
 
         sameAddressLabel: {
             type: String as PropType<string>,
-            required: true,
+            required: false,
+            default: '',
         },
 
         sameAddressValue: {
             type: String as PropType<string>,
             required: true,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -103,6 +110,14 @@ export default Component.wrapComponentConfig({
             void this.getCustomerAddresses();
         },
 
+        getSelectionLabel(item: CustomerAddress): string {
+            if (this.isSameAddress && this.sameAddressLabel) {
+                return this.sameAddressLabel;
+            }
+
+            return this.getCustomerAddress(item);
+        },
+
         getCustomerAddress(address: CustomerAddress): string {
             if (!address) return '';
 
@@ -154,10 +169,6 @@ export default Component.wrapComponentConfig({
                 }).finally(() => {
                     this.isLoading = false;
                 });
-        },
-
-        setSameAddress(): void {
-            this.$emit('change', this.sameAddressValue);
         },
     },
 });

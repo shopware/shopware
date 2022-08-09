@@ -1,8 +1,16 @@
 import type { PropType } from 'vue';
+import type CriteriaType from 'src/core/data/criteria.data';
+
 import template from './sw-order-create-options.html.twig';
 import './sw-order-create-options.scss';
-import type { ContextSwitchParameters, Customer, Currency } from '../../order.types';
-import type Repository from '../../../../core/data/repository.data';
+
+import type {
+    ContextSwitchParameters,
+    Customer,
+    Currency,
+    Cart,
+    CartDelivery,
+} from '../../order.types';
 
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -11,16 +19,14 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
-
     props: {
         promotionCodes: {
             type: Array as PropType<string[]>,
             required: true,
         },
 
-        disabledAutoPromotions: {
-            type: Boolean as PropType<boolean>,
+        disabledAutoPromotion: {
+            type: Boolean,
             required: true,
         },
 
@@ -31,36 +37,24 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
+        shippingCost: number,
         promotionCodeTags: string[],
+        isSameAsBillingAddress: boolean,
         } {
         return {
-            promotionCodeTags: this.promotionCodes,
+            shippingCost: 0,
+            isSameAsBillingAddress: false,
+            promotionCodeTags: [],
         };
     },
 
     computed: {
-        salesChannelId: {
-            get(): string {
-                return State.get('swOrder').context.salesChannel.id ?? '';
-            },
-
-            set(salesChannelId: string) {
-                State.get('swOrder').context.salesChannel.id = salesChannelId;
-            },
+        salesChannelId(): string {
+            return State.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
-        testOrder: {
-            get(): boolean {
-                return State.get('swOrder').testOrder;
-            },
-
-            set(testOrder: boolean) {
-                State.commit('swOrder/setTestOrder', testOrder);
-            },
-        },
-
-        salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+        salesChannelCriteria(): CriteriaType {
+            const criteria = new Criteria();
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
@@ -69,8 +63,8 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        shippingMethodCriteria() {
-            const criteria = new Criteria(1, 25);
+        shippingMethodCriteria(): CriteriaType {
+            const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('active', 1));
 
             if (this.salesChannelId) {
@@ -80,8 +74,8 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        paymentMethodCriteria() {
-            const criteria = new Criteria(1, 25);
+        paymentMethodCriteria(): CriteriaType {
+            const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('active', 1));
             criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
 
@@ -92,11 +86,6 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        currencyRepository(): Repository {
-            return this.repositoryFactory.create('currency');
-        },
-
-
         customer(): Customer | null {
             return State.get('swOrder').customer;
         },
@@ -105,51 +94,120 @@ export default Component.wrapComponentConfig({
             return State.get('swOrder').context.currency;
         },
 
-        isCartTokenAvailable(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return State.getters['swOrder/isCartTokenAvailable'] as boolean;
+        cart(): Cart {
+            return State.get('swOrder').cart;
+        },
+
+        cartDelivery(): CartDelivery | null {
+            return this.cart?.deliveries[0] as CartDelivery | null;
         },
     },
 
     watch: {
-        'context.currencyId': {
-            handler() {
-                void this.getCurrency();
+        cartDelivery: {
+            immediate: true,
+            handler(value): void {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
             },
+        },
+
+        'context.currencyId': {
+            async handler(): Promise<void> {
+                // await this.getCurrency();
+                await this.updateCartContext();
+            },
+        },
+
+        'context.shippingAddressId': {
+            handler(): void {
+                this.updateSameAsBillingAddressToggle();
+            },
+        },
+
+        'context.billingAddressId': {
+            handler(): void {
+                this.updateSameAsBillingAddressToggle();
+            },
+        },
+
+        'context.shippingMethodId': {
+            async handler(): Promise<void> {
+                await this.updateCartContext();
+            },
+        },
+
+        isSameAsBillingAddress(value): void {
+            if (!value) {
+                return;
+            }
+
+            this.context.shippingAddressId = this.context.billingAddressId;
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        getCurrency(): Promise<void> {
-            if (!this.context.currencyId) {
-                return Promise.resolve();
+        updateSameAsBillingAddressToggle(): void {
+            this.isSameAsBillingAddress = this.context.shippingAddressId === this.context.billingAddressId;
+        },
+
+        createdComponent(): void {
+            this.promotionCodeTags = [...this.promotionCodes];
+            this.isSameAsBillingAddress = this.context.shippingAddressId === this.context.billingAddressId;
+        },
+
+        validatePromotions(searchTerm: string): boolean {
+            const promotionCode = searchTerm.trim();
+
+            if (promotionCode.length <= 0) {
+                return false;
             }
 
-            return this.currencyRepository.get(this.context.currencyId).then((currency) => {
-                State.commit('swOrder/setCurrency', currency);
+            const isExist = this.promotionCodes.find((code: string) => code === promotionCode);
+            return !isExist;
+        },
+
+        onToggleAutoPromotion(value: boolean): void {
+            this.$emit('auto-promotion-toggle', value);
+        },
+
+        changePromotionCodes(value: string[]): void {
+            this.$emit('promotions-change', value);
+        },
+
+        async updateCartContext(): Promise<void> {
+            if (!this.salesChannelId) {
+                return;
+            }
+
+            await this.updateOrderContext();
+            await this.loadCart();
+        },
+
+        updateOrderContext(): Promise<void> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return State.dispatch('swOrder/updateOrderContext', {
+                context: this.context,
+                salesChannelId: this.salesChannelId,
+                contextToken: this.cart.token,
             });
         },
 
-        validatePromotions(searchTerm: string): string | boolean {
-            if (searchTerm.length < 0) {
-                return false;
-            }
-
-            const isExist = this.promotionCodes.find((code: string) => code === searchTerm);
-
-            if (isExist) {
-                return false;
-            }
-
-            return searchTerm;
+        loadCart(): Promise<void> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return State.dispatch('swOrder/getCart', {
+                salesChannelId: this.salesChannelId,
+                contextToken: this.cart.token,
+            });
         },
 
-        toggleAutoPromotions(value: boolean) {
-            this.$emit('auto-promotions-toggle', value);
-        },
-
-        changePromotionCodes(value: string[]) {
-            this.$emit('promotions-change', value);
+        onChangeShippingCost(value: number): void {
+            this.$emit('shipping-cost-change', value);
         },
     },
 });

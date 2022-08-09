@@ -61,11 +61,7 @@ Shopware.Component.register('sw-order-general-info', () => import('./component/s
 Shopware.Component.register('sw-order-send-document-modal', () => import('./component/sw-order-send-document-modal'));
 Shopware.Component.register('sw-order-create-initial-modal', () => import('./component/sw-order-create-initial-modal'));
 Shopware.Component.register('sw-order-customer-grid', () => import('./component/sw-order-customer-grid'));
-Shopware.Component.register('sw-order-product-grid', () => import('./component/sw-order-product-grid'));
-Shopware.Component.register('sw-order-custom-item', () => import('./component/sw-order-custom-item'));
-Shopware.Component.register('sw-order-credit-item', () => import('./component/sw-order-credit-item'));
 Shopware.Component.register('sw-order-create-options', () => import('./component/sw-order-create-options'));
-Shopware.Component.register('sw-order-add-items-modal', () => import('./component/sw-order-add-items-modal'));
 Shopware.Component.register('sw-order-customer-address-select', () => import('./component/sw-order-customer-address-select'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 

@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swOrderState from 'src/module/sw-order/state/order.store';
 import swOrderLineItemsGridSalesChannel from 'src/module/sw-order/component/sw-order-line-items-grid-sales-channel';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-order-line-items-grid-sales-channel', swOrderLineItemsGridSalesChannel);
 
@@ -158,17 +159,43 @@ async function createWrapper() {
         },
         stubs: {
             'sw-container': true,
-            'sw-button': true,
-            'sw-button-group': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': {
+                template: '<div class="sw-button-group"><slot></slot></div>'
+            },
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>'
+            },
+            'sw-checkbox-field': {
+                template: '<input class="sw-checkbox-field" type="checkbox" :checked="value" @change="$emit(\'change\', $event.target.value)" />',
+                props: ['value']
+            },
+            'sw-number-field': {
+                template: '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
+                props: {
+                    value: 0
+                }
+            },
             'sw-card-filter': true,
             'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-product-variant-info': true,
-            'sw-order-product-select': true,
+            'sw-order-product-select': {
+                template: '<input class="sw-order-product-select" :value="item.label" @input="updateLabel" />',
+                props: {
+                    item: {}
+                },
+                methods: {
+                    updateLabel(event) {
+                        this.item.label = event.target.value;
+                    }
+                }
+            },
             'router-link': true,
             'sw-empty-state': true,
-            'sw-order-add-items-modal': true,
+            'sw-icon': true,
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -227,7 +254,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
-        const showProductButton1 = productItem.find('sw-context-menu-item-stub');
+        const showProductButton1 = productItem.find('.sw-context-menu-item');
 
         expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
         expect(showProductButton1.attributes().disabled).toBeUndefined();
@@ -235,14 +262,14 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const customItem = wrapper.find('.sw-data-grid__row--1');
         const customLabel = customItem.find('.sw-data-grid__cell--label');
-        const showProductButton2 = customItem.find('sw-context-menu-item-stub');
+        const showProductButton2 = customItem.find('.sw-context-menu-item');
 
         expect(customLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton2.attributes().disabled).toBeTruthy();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
         const creditLabel = creditItem.find('.sw-data-grid__cell--label');
-        const showProductButton3 = creditItem.find('sw-context-menu-item-stub');
+        const showProductButton3 = creditItem.find('.sw-context-menu-item');
 
         expect(creditLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
@@ -395,30 +422,210 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
     });
 
-    it('should be able to toggle add items modal', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            showItemsModal: false,
+    it('should able to create new empty line item', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
         });
-        wrapper.vm.toggleAddItemsModal();
-        expect(wrapper.vm.showItemsModal).toBe(true);
-        expect(wrapper.find('sw-order-add-items-modal-stub')).toBeTruthy();
 
-        await wrapper.setData({
-            showItemsModal: true,
-        });
-        wrapper.vm.toggleAddItemsModal();
-        expect(wrapper.vm.showItemsModal).toBe(false);
+        let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(0);
+
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
+        await buttonAddItem.trigger('click');
+
+        itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(itemRows.length).toEqual(1);
+
+        const firstRow = itemRows.at(0);
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1');
+        expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toEqual('...');
+        expect(firstRow.find('.sw-data-grid__cell--tax').text()).toEqual('0 %');
+        expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toEqual('...');
     });
 
-    it('should turn off modal after adding items finished', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.toggleAddItemsModal = jest.fn();
+    it('should able to create new product line item', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
+        await buttonAddItem.trigger('click');
 
-        await wrapper.vm.addItemsFinished();
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const firstRow = itemRows.at(0);
 
-        expect(wrapper.vm.toggleAddItemsModal).toHaveBeenCalledTimes(1);
-        wrapper.vm.toggleAddItemsModal.mockRestore();
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const labelField = firstRow.find('.sw-data-grid__cell--label input');
+        await labelField.setValue('Product 1');
+        await labelField.trigger('input');
+
+        const quantityField = firstRow.find('.sw-data-grid__cell--quantity input');
+        await quantityField.setValue(3);
+        await quantityField.trigger('input');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        expect(firstRow.find('.sw-data-grid__cell--label').exists()).toBeTruthy();
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('3');
+        expect(wrapper.emitted('on-save-item')).toBeTruthy();
+        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Product 1');
+        expect(wrapper.emitted('on-save-item')[0][0].quantity).toEqual(3);
+        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('product');
+    });
+
+    it('should able to create new custom line item', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-custom-item');
+        await buttonAddCustomItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const firstRow = itemRows.at(0);
+
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const labelField = firstRow.find('.sw-data-grid__cell--label input');
+        await labelField.setValue('Custom item');
+        await labelField.trigger('input');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        expect(wrapper.emitted('on-save-item')).toBeTruthy();
+        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Custom item');
+        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('custom');
+    });
+
+    it('should able to create new credit line item', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-credit-item');
+        await buttonAddCreditItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const firstRow = itemRows.at(0);
+
+        await firstRow.find('.sw-data-grid__cell--label').trigger('dblclick');
+
+        const labelField = firstRow.find('.sw-data-grid__cell--label input');
+        await labelField.setValue('Credit item');
+        await labelField.trigger('input');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        expect(wrapper.emitted('on-save-item')).toBeTruthy();
+        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Credit item');
+        expect(wrapper.emitted('on-save-item')[0][0].type).toEqual('credit');
+    });
+
+    it('should able to cancel inline editing item', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: [...mockItems]
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
+        await buttonAddCreditItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const firstRow = itemRows.at(0);
+
+        await firstRow.find('.sw-data-grid__cell--quantity').trigger('dblclick');
+
+        const quantityField = firstRow.find('.sw-data-grid__cell--quantity input');
+        await quantityField.setValue(3);
+        await quantityField.trigger('input');
+
+        const buttonInlineCancel = wrapper.find('.sw-data-grid__inline-edit-cancel');
+        await buttonInlineCancel.trigger('click');
+
+        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toEqual('1');
+    });
+
+    it('should able to delete items', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-credit-item');
+        await buttonAddCreditItem.trigger('click');
+
+        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
+        await selectAllCheckBox.setChecked(true);
+
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        await deleteAllButton.trigger('click');
+
+        // Add expect
+    });
+
+    it('should change credit value to negative', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: []
+            },
+            isCustomerActive: true,
+        });
+        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-credit-item');
+        await buttonAddCreditItem.trigger('click');
+
+        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const firstRow = itemRows.at(0);
+
+        await firstRow.find('.sw-data-grid__cell--quantity').trigger('dblclick');
+
+        const labelField = firstRow.find('.sw-data-grid__cell--label input');
+        await labelField.setValue('Credit item');
+        await labelField.trigger('input');
+
+        const unitPriceField = firstRow.find('.sw-data-grid__cell--unitPrice input');
+        await unitPriceField.setValue(100);
+        await unitPriceField.trigger('input');
+
+        const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
+        await buttonInlineSave.trigger('click');
+
+        expect(wrapper.emitted('on-save-item')[0][0].label).toEqual('Credit item');
+        expect(wrapper.emitted('on-save-item')[0][0].priceDefinition.price).toEqual(-100);
     });
 });

@@ -42,7 +42,6 @@ export default {
         return {
             selectedItems: {},
             searchTerm: '',
-            showItemsModal: false,
         };
     },
 
@@ -111,6 +110,7 @@ export default {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
+                multiLine: true,
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -158,6 +158,11 @@ export default {
             if (item._isNew) {
                 this.initLineItem(item);
                 delete item.identifier;
+            }
+
+            // Reset quantity
+            if (item.initialQuantity) {
+                item.quantity = item.initialQuantity;
             }
         },
 
@@ -230,10 +235,10 @@ export default {
             });
 
             if (selectedIds.length > 0) {
-                this.$refs.dataGrid.resetSelection();
-
                 this.$emit('on-remove-items', selectedIds);
             }
+
+            this.$refs.dataGrid.resetSelection();
         },
 
         itemCreatedFromProduct(item) {
@@ -304,24 +309,12 @@ export default {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 will be removed, use "toggleAddItemsModal" instead.
-         */
-        openItemsModal() {
-            this.showItemsModal = true;
-        },
+        changeItemQuantity(value, item) {
+            if (!item.initialQuantity) {
+                item.initialQuantity = item.quantity;
+            }
 
-        toggleAddItemsModal() {
-            this.showItemsModal = !this.showItemsModal;
-        },
-
-        async addItemsFinished() {
-            this.toggleAddItemsModal();
-            await this.$nextTick();
-            State.dispatch('swOrder/getCart', {
-                salesChannelId: this.salesChannelId,
-                contextToken: this.cart.token,
-            });
+            item.quantity = value;
         },
     },
 };

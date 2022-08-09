@@ -139,20 +139,17 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toEqual('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
-    it('should able to set billing address same as shipping address', async () => {
+    it('should able to show same address label', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
+        await wrapper.setProps({
+            sameAddressValue: '1',
+            sameAddressLabel: 'Same as billing address'
+        });
 
-        const sameShippingAddressOption = wrapper.find('.sw-select-result__option-same-address');
-        await sameShippingAddressOption.trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted('change')[0]).toEqual(['2']);
+        const selectionLabel = wrapper.find('.sw-single-select__selection-text');
+        expect(selectionLabel.text()).toEqual('Same as billing address');
     });
 
     it('should filter entries correctly', async () => {

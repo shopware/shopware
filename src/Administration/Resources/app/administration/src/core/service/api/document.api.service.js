@@ -42,13 +42,14 @@ class DocumentApiService extends ApiService {
                 params.static = true;
             }
 
-            this.httpClient
+            let responseDoc;
+            return this.httpClient
                 .post(route, [params], {
                     additionalParams,
                     headers,
                 })
                 .then((response) => {
-                    const responseDoc = response.data?.data;
+                    responseDoc = response.data?.data;
 
                     if (file && file instanceof File && responseDoc && responseDoc[0]?.documentId) {
                         const documentId = responseDoc[0]?.documentId;
@@ -57,7 +58,7 @@ class DocumentApiService extends ApiService {
                         // eslint-disable-next-line max-len
                         route = `/_action/document/${documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
                         headers['Content-Type'] = file.type;
-                        this.httpClient.post(route, file, {
+                        responseDoc = this.httpClient.post(route, file, {
                             additionalParams,
                             headers,
                         });
@@ -74,6 +75,8 @@ class DocumentApiService extends ApiService {
                     }
 
                     this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+                    // eslint-disable-next-line consistent-return
+                    return Promise.resolve(responseDoc);
                 })
                 .catch((error) => {
                     if (error.response?.data?.errors) {
@@ -82,45 +85,48 @@ class DocumentApiService extends ApiService {
                         );
                     }
                 });
-        } else {
-            let route = `/_action/order/${orderId}/document/${documentTypeName}`;
-            const headers = this.getBasicHeaders(additionalHeaders);
-
-            const params = {
-                config,
-                referenced_document_id: referencedDocumentId,
-            };
-
-            if (file || config.documentMediaFileId) {
-                params.static = true;
-            }
-
-            this.httpClient
-                .post(route, params, {
-                    additionalParams,
-                    headers,
-                }).then((response) => {
-                    if (file && file instanceof File && response.data.documentId) {
-                        const fileName = file.name.split('.').shift();
-                        const fileExtension = file.name.split('.').pop();
-                        // eslint-disable-next-line max-len
-                        route = `/_action/document/${response.data.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
-                        headers['Content-Type'] = file.type;
-                        this.httpClient.post(route, file, {
-                            additionalParams,
-                            headers,
-                        });
-                    }
-
-                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-                }).catch((error) => {
-                    if (error.response?.data?.errors) {
-                        this.$listener(
-                            this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
-                        );
-                    }
-                });
         }
+        let route = `/_action/order/${orderId}/document/${documentTypeName}`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        const params = {
+            config,
+            referenced_document_id: referencedDocumentId,
+        };
+
+        if (file || config.documentMediaFileId) {
+            params.static = true;
+        }
+
+        let responseDoc;
+        return this.httpClient
+            .post(route, params, {
+                additionalParams,
+                headers,
+            }).then((response) => {
+                responseDoc = response;
+
+                if (file && file instanceof File && response.data.documentId) {
+                    const fileName = file.name.split('.').shift();
+                    const fileExtension = file.name.split('.').pop();
+                    // eslint-disable-next-line max-len
+                    route = `/_action/document/${response.data.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
+                    headers['Content-Type'] = file.type;
+                    responseDoc = this.httpClient.post(route, file, {
+                        additionalParams,
+                        headers,
+                    });
+                }
+
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+                return Promise.resolve(responseDoc);
+            }).catch((error) => {
+                if (error.response?.data?.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                    );
+                }
+            });
     }
 
     getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {

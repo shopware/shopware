@@ -105,7 +105,11 @@
                         type="checkbox"
                         onchange="
                             document.getElementById('databaseName').disabled = this.checked;
-                           document.getElementById('databaseName_new').disabled =!this.checked;
+                            document.getElementById('databaseName_new').disabled =!this.checked;
+
+                            if (!this.checked) {
+                                document.getElementById('databaseName_new').value = '';
+                            }
                         "/>
                     <label for="database_create_schema_new">{{ "shopware.installer.database-configuration_field_new_database"|trans }}</label>
                 </div>

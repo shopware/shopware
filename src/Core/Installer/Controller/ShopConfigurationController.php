@@ -60,7 +60,7 @@ class ShopConfigurationController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/configuration", name="installer.configuration", methods={"GET", "POST"})
      */
     public function shopConfiguration(Request $request): Response

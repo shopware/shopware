@@ -34,7 +34,7 @@ class FinishController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/finish", name="installer.finish", methods={"GET"})
      */
     public function finish(Request $request): Response

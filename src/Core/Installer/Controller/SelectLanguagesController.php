@@ -20,7 +20,7 @@ class SelectLanguagesController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer", name="installer.language-selection", methods={"GET"})
      */
     public function languageSelection(): Response

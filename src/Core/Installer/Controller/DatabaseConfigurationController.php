@@ -50,7 +50,7 @@ class DatabaseConfigurationController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/database-configuration", name="installer.database-configuration", methods={"POST", "GET"})
      */
     public function databaseConfiguration(Request $request): Response
@@ -86,10 +86,7 @@ class DatabaseConfigurationController extends InstallerController
 
             $session->set(DatabaseConnectionInformation::class, $connectionInfo);
 
-            $session->set(
-                BlueGreenDeploymentService::ENV_NAME,
-                $this->blueGreenDeploymentService->setEnvironmentVariable($connection)
-            );
+            $this->blueGreenDeploymentService->setEnvironmentVariable($connection, $session);
 
             if ($this->setupDatabaseAdapter->getTableCount($connection, $connectionInfo->getDatabaseName())) {
                 $connectionInfo->setDatabaseName('');
@@ -120,7 +117,7 @@ class DatabaseConfigurationController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/database-information", name="installer.database-information", methods={"POST"})
      */
     public function databaseInformation(Request $request): JsonResponse

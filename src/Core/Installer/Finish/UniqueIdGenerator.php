@@ -11,13 +11,15 @@ class UniqueIdGenerator
 
     public function __construct(string $projectDir)
     {
-        $this->cacheFilePath = $projectDir . '/uniqueid.txt';
+        $this->cacheFilePath = $projectDir . '/.uniqueid.txt';
     }
 
     public function getUniqueId(): string
     {
         if (file_exists($this->cacheFilePath)) {
-            return file_get_contents($this->cacheFilePath);
+            if ($id = file_get_contents($this->cacheFilePath)) {
+                return $id;
+            }
         }
 
         $uniqueId = $this->generateUniqueId();

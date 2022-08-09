@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -66,7 +65,7 @@ class ShopConfigurationService
                 ?,
                 UNHEX(?), ?, ?, UNHEX(?),
                 ?, ?, ?,
-                ?, ?, UNHEX(?), ?
+                ?, ?, ?, ?
             )'
         );
         $statement->executeStatement([
@@ -79,7 +78,7 @@ class ShopConfigurationService
             $paymentMethod,
             $shippingMethod,
             $countryId,
-            TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            $this->getCustomerGroupId($connection),
             (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -301,5 +300,10 @@ SQL;
     private function deleteAllSalesChannelCurrencies(Connection $connection): void
     {
         $connection->executeStatement('DELETE FROM sales_channel_currency');
+    }
+
+    private function getCustomerGroupId(Connection $connection): string
+    {
+        return $connection->fetchOne('SELECT customer_group_id FROM sales_channel');
     }
 }

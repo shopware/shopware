@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
@@ -25,11 +27,13 @@ class BlueGreenDeploymentServiceTest extends TestCase
         $connection->expects(static::exactly(3))->method('executeQuery');
 
         $service = new BlueGreenDeploymentService();
-        $service->setEnvironmentVariable($connection);
+        $session = new Session(new MockArraySessionStorage());
+        $service->setEnvironmentVariable($connection, $session);
 
         static::assertTrue($_ENV[BlueGreenDeploymentService::ENV_NAME]);
         static::assertTrue($_SERVER[BlueGreenDeploymentService::ENV_NAME]);
         static::assertTrue(EnvironmentHelper::getVariable(BlueGreenDeploymentService::ENV_NAME));
+        static::assertTrue($session->get(BlueGreenDeploymentService::ENV_NAME));
     }
 
     public function testSetsEnvironmentVariableToFalseIfTriggersCanNotBeCreated(): void
@@ -46,10 +50,12 @@ class BlueGreenDeploymentServiceTest extends TestCase
             );
 
         $service = new BlueGreenDeploymentService();
-        $service->setEnvironmentVariable($connection);
+        $session = new Session(new MockArraySessionStorage());
+        $service->setEnvironmentVariable($connection, $session);
 
         static::assertFalse($_ENV[BlueGreenDeploymentService::ENV_NAME]);
         static::assertFalse($_SERVER[BlueGreenDeploymentService::ENV_NAME]);
         static::assertFalse(EnvironmentHelper::getVariable(BlueGreenDeploymentService::ENV_NAME));
+        static::assertFalse($session->get(BlueGreenDeploymentService::ENV_NAME));
     }
 }

@@ -35,7 +35,7 @@ class RequirementsController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/requirements", name="installer.requirements", methods={"GET", "POST"})
      */
     public function requirements(Request $request): Response

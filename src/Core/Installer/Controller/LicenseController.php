@@ -21,7 +21,7 @@ class LicenseController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/license", name="installer.license", methods={"GET", "POST"})
      */
     public function license(Request $request): Response

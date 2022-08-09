@@ -121,5 +121,18 @@ class ConfigurationRequirementsValidatorTest extends TestCase
                 new SystemCheck('opcache.memory_consumption', SystemCheck::STATUS_WARNING, '256M', '0M'),
             ],
         ];
+
+        yield 'Checks pass with unlimited values' => [
+            [
+                'max_execution_time' => '0',
+                'memory_limit' => '-1',
+                'opcache.memory_consumption' => '',
+            ],
+            [
+                new SystemCheck('max_execution_time', SystemCheck::STATUS_SUCCESS, '30', '0'),
+                new SystemCheck('memory_limit', SystemCheck::STATUS_SUCCESS, '512M', '-1'),
+                new SystemCheck('opcache.memory_consumption', SystemCheck::STATUS_WARNING, '256M', '0M'),
+            ],
+        ];
     }
 }

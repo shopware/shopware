@@ -18,7 +18,6 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Recovery\\Common\\": "src",
-            "Shopware\\Recovery\\Install\\": "../Install/src",
             "Shopware\\Recovery\\Update\\": "../Update/src"
         }
     },

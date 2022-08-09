@@ -181,6 +181,7 @@
 
         <service id="Shopware\Core\Installer\Configuration\EnvConfigWriter">
             <argument type="string">%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Installer\Finish\UniqueIdGenerator"/>
         </service>
 
         <service id="Shopware\Core\Installer\Configuration\ShopConfigurationService"/>

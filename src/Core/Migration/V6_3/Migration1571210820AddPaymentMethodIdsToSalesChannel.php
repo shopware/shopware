@@ -20,7 +20,7 @@ class Migration1571210820AddPaymentMethodIdsToSalesChannel extends MigrationStep
             ADD CONSTRAINT `json.sales_channel.payment_method_ids` CHECK (JSON_VALID(`payment_method_ids`));
         ');
 
-        $this->registerIndexer($connection, 'Swag.ManyToManyIdFieldIndexer');
+        $this->registerIndexer($connection, 'sales_channel.indexer');
     }
 
     public function updateDestructive(Connection $connection): void

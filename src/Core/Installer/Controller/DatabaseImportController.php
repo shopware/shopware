@@ -29,7 +29,7 @@ class DatabaseImportController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/database-import", name="installer.database-import", methods={"GET"})
      */
     public function databaseImport(Request $request): Response
@@ -51,7 +51,7 @@ class DatabaseImportController extends InstallerController
     }
 
     /**
-     * @Since("6.4.13.0")
+     * @Since("6.4.15.0")
      * @Route("/installer/database-migrate", name="installer.database-migrate", methods={"POST"})
      */
     public function databaseMigrate(Request $request): JsonResponse

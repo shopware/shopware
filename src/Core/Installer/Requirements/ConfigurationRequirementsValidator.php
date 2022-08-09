@@ -34,13 +34,13 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
 
     private function checkMaxExecutionTime(): SystemCheck
     {
-        $configuredValue = $this->iniConfigReader->get('max_execution_time');
+        $configuredValue = (int) $this->iniConfigReader->get('max_execution_time');
 
         return new SystemCheck(
             'max_execution_time',
-            (int) $configuredValue >= self::MAX_EXECUTION_TIME_REQUIREMENT ? RequirementCheck::STATUS_SUCCESS : RequirementCheck::STATUS_ERROR,
+            ($configuredValue >= self::MAX_EXECUTION_TIME_REQUIREMENT || $configuredValue === 0) ? RequirementCheck::STATUS_SUCCESS : RequirementCheck::STATUS_ERROR,
             (string) self::MAX_EXECUTION_TIME_REQUIREMENT,
-            $configuredValue
+            (string) $configuredValue
         );
     }
 
@@ -50,6 +50,10 @@ class ConfigurationRequirementsValidator implements RequirementsValidatorInterfa
 
         $status = RequirementCheck::STATUS_ERROR;
         if (MemorySizeCalculator::convertToBytes($configuredValue) >= MemorySizeCalculator::convertToBytes(self::MEMORY_LIMIT_REQUIREMENT)) {
+            $status = RequirementCheck::STATUS_SUCCESS;
+        }
+        // -1 means unlimited memory
+        if ($configuredValue === '-1') {
             $status = RequirementCheck::STATUS_SUCCESS;
         }
 

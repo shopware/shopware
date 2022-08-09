@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @internal
@@ -12,9 +13,12 @@ class BlueGreenDeploymentService
 {
     public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
 
-    public function setEnvironmentVariable(Connection $connection): bool
+    public function setEnvironmentVariable(Connection $connection, SessionInterface $session): void
     {
-        return $_SERVER[self::ENV_NAME] = $_ENV[self::ENV_NAME] = $this->checkIfMayCreateTrigger($connection);
+        $value = $this->checkIfMayCreateTrigger($connection);
+
+        $_SERVER[self::ENV_NAME] = $_ENV[self::ENV_NAME] = $value;
+        $session->set(self::ENV_NAME, $value);
     }
 
     private function checkIfMayCreateTrigger(Connection $connection): bool

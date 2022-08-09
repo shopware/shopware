@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\Exception\FileExtensionNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
@@ -122,7 +122,7 @@ class FileSaver
      * @throws EmptyMediaFilenameException
      * @throws IllegalFileNameException
      * @throws MediaNotFoundException
-     * @throws FileTypeNotSupportedException
+     * @throws FileExtensionNotSupportedException
      */
     public function persistFileToMedia(
         MediaFile $mediaFile,
@@ -393,7 +393,7 @@ class FileSaver
     }
 
     /**
-     * @throws FileTypeNotSupportedException
+     * @throws FileExtensionNotSupportedException
      */
     private function validateFileExtension(MediaFile $mediaFile, string $mediaId): void
     {
@@ -408,7 +408,7 @@ class FileSaver
             }
         }
 
-        throw new FileTypeNotSupportedException($mediaId, $fileExtension);
+        throw new FileExtensionNotSupportedException($mediaId, $fileExtension);
     }
 
     /**

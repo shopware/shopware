@@ -2,31 +2,14 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed. Use FileExtensionNotSupportedException or ThumbnailNotSupportedException instead
+ */
 class FileTypeNotSupportedException extends ShopwareHttpException
 {
-    /**
-     * @deprecated tag:v6.5.0 - Parameter extension will be mandatory and typed as string
-     */
-    public function __construct(string $mediaId, ?string $extension = null)
-    {
-        if ($extension === null) {
-            $extension = '';
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'parameter extension will be mandatory and typed as string'
-            );
-        }
-
-        parent::__construct(
-            'The file extension "{{ extension }}" for media object with id {{ mediaId }} is not supported.',
-            ['mediaId' => $mediaId, 'extension' => $extension]
-        );
-    }
-
     public function getErrorCode(): string
     {
         return 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED';

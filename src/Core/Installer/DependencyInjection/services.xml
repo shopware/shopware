@@ -16,6 +16,7 @@
             <parameter key="pt">pt-PT</parameter>
             <parameter key="sv">sv-SE</parameter>
             <parameter key="da">da-DK</parameter>
+            <parameter key="nb">nb-NO</parameter>
         </parameter>
 
         <parameter key="shopware.installer.supportedCurrencies" type="collection">

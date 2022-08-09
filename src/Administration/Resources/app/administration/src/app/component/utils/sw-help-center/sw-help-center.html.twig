@@ -1,4 +1,3 @@
-{% block sw_help_center %}
 <sw-context-button
     class="sw-help-center"
     menu-horizontal-align="left"
@@ -9,68 +8,45 @@
     :z-index="1000"
 >
     <template #button>
-        {% block sw_help_center_context_button_button_slot %}
         <sw-icon
             name="regular-question-circle"
             size="20px"
         />
-        {% endblock %}
     </template>
 
     <template #default>
+        {# @internal - Do NOT use this block - it will be removed without replacement #}
         {% block sw_help_center_content %}
-        {% block sw_help_center_content_header %}
         <div class="sw-help-center__header">
-            {% block sw_help_center_title %}
             <h3 class="sw-help-center__title">
                 {{ $tc('global.sw-help-center.title') }}
             </h3>
-            {% endblock %}
         </div>
-        {% endblock %}
 
-        {% block sw_help_center_documentation_item %}
         <div class="sw-help-center__item sw-help-center__documentation-item">
-            {% block sw_help_center_documentation_item_icon_container %}
             <div class="sw-help-center__item sw-help-center__documentation-item-icon-container">
-                {% block sw_help_center_documentation_item_icon_container_icon %}
                 <sw-icon
                     name="regular-file-text"
                     color="#189eff"
                     size="20px"
                 />
-                {% endblock %}
             </div>
-            {% endblock %}
 
-            {% block sw_help_center_documentation_item_headline_container %}
             <div>
-                {% block sw_help_center_documentation_item_headline_container_headline %}
-                <h4>
-                    {{ $tc('global.sw-help-center.documentation.headline') }}
-                </h4>
-                {% endblock %}
+                <h4>{{ $tc('global.sw-help-center.documentation.headline') }}</h4>
 
-                {% block sw_help_center_documentation_item_headline_container_link %}
                 <sw-external-link :href="$tc('global.sw-help-center.documentation.linkUrl')">
                     {{ $tc('global.sw-help-center.documentation.linkText') }}
                 </sw-external-link>
-                {% endblock %}
             </div>
-            {% endblock %}
         </div>
-        {% endblock %}
 
-        {% block sw_help_center_support_request_item %}
         <div class="sw-help-center__item">
-            {% block sw_help_center_support_request_item_headline %}
             <h4>{{ $tc('global.sw-help-center.support.headline') }}</h4>
-            {% endblock %}
 
-            {% block sw_help_center_support_request_item_paragraph %}
             <p>{{ $tc('global.sw-help-center.support.paragraph') }}</p>
-            {% endblock %}
 
+            {# @internal - Do NOT use this block - it will be removed without replacement #}
             {% block sw_help_center_support_request_item_link %}
             <sw-external-link :href="$tc('global.sw-help-center.support.linkUrl')">
                 {{ $tc('global.sw-help-center.support.linkText') }}
@@ -78,7 +54,5 @@
             {% endblock %}
         </div>
         {% endblock %}
-        {% endblock %}
     </template>
 </sw-context-button>
-{% endblock %}

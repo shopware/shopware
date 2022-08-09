@@ -72,7 +72,11 @@ export default class OffCanvasAccountMenu extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        if (this._isInAllowedViewports() === false && OffCanvas.exists()) {
+        if (
+            this._isInAllowedViewports() === false 
+            && OffCanvas.exists() 
+            && OffCanvas.getOffCanvas()[0].classList.contains(this.options.additionalClass)
+        ) {
             OffCanvas.close();
         }
 

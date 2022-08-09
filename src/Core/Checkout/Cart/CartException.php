@@ -65,7 +65,10 @@ class CartException extends HttpException
         );
     }
 
-    public static function invalidCart(ErrorCollection $errors): self
+    /**
+     * @return CartException|InvalidCartException
+     */
+    public static function invalidCart(ErrorCollection $errors)
     {
         if (!Feature::isActive('v6.5.0.0')) {
             return new InvalidCartException($errors);

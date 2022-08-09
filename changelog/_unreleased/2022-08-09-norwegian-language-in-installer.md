@@ -1,6 +1,6 @@
 ---
 title: Norwegian language in installer
-issue: 
+issue:
 author: Kurt Inge Smådal
 author_email: kurt@flowretail.no
 author_github: kurtinge

@@ -17,6 +17,7 @@ interface ShippingMethod extends Entity {
 interface SalesChannel extends Entity {
     id: string,
     active: boolean,
+    currencyId: string,
 }
 
 interface Country extends Entity {
@@ -56,6 +57,7 @@ interface Customer extends Entity {
     activeShippingAddress: CustomerAddress | null,
     addresses: EntityCollection,
     salesChannel: SalesChannel | null,
+    customerNumber: string,
 }
 
 interface Currency extends Entity {
@@ -114,7 +116,11 @@ interface LineItem {
         taxRules: TaxRule[],
         quantity: number,
         type: PriceType,
-    }
+        isCalculated: boolean,
+    },
+    unitPrice: number,
+    totalPrice: number,
+    precision: number,
 }
 
 interface PromotionCodeTag {
@@ -146,6 +152,7 @@ interface Cart {
         rawTotal: number,
         totalPrice: number,
         calculatedTaxes: CalculatedTax[],
+        taxStatus: string
     }
 }
 

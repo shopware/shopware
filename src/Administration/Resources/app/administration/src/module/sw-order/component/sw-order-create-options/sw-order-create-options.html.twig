@@ -13,22 +13,12 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_order_create_options_order_switch_test_order %}
-    <sw-switch-field
-        v-model="testOrder"
-        class="sw-order-create-options__test-order"
-        :label="$tc('sw-order.initialModal.options.labelTestOrder')"
-        :help-text="$tc('sw-order.initialModal.options.helpTextTestOrder')"
-    />
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_switch_disable_auto_promotion %}
     <sw-switch-field
         class="sw-order-create-options__disable-auto-promotion"
-        :value="disabledAutoPromotions"
+        :value="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-        @change="toggleAutoPromotions"
+        @change="onToggleAutoPromotion"
     />
     {% endblock %}
 
@@ -49,18 +39,6 @@
             :label="$tc('sw-order.createBase.labelOrderLanguage')"
             :placeholder="$tc('sw-order.createBase.placeholderOrderLanguage')"
             show-clearable-button
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_order_create_options_order_sales_channel %}
-        <sw-entity-single-select
-            v-model="salesChannelId"
-            disabled
-            entity="sales_channel"
-            class="sw-order-create-options__sales-channel"
-            :label="$tc('sw-order.createBase.labelSalesChannel')"
-            :placeholder="$tc('sw-order.createBase.placeholderSalesChannel')"
         />
         {% endblock %}
 
@@ -121,7 +99,6 @@
             class="sw-order-create-options__billing-address"
             :label="$tc('sw-order.createBase.labelBillingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
-            :same-address-label="$tc('sw-order.initialModal.options.textSameAsShippingAddress')"
             :same-address-value="context.shippingAddressId"
             :customer="customer"
         />
@@ -131,6 +108,7 @@
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
             v-model="context.currencyId"
+            class="sw-order-create-options__currency-select"
             entity="currency"
             :criteria="salesChannelCriteria"
             :label="$tc('sw-order.createBase.labelCurrency')"
@@ -155,7 +133,7 @@
         columns="1fr 1fr"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_orderaddr_create_options_shipping_method %}
+        {% block sw_order_create_options_shipping_method %}
         <sw-entity-single-select
             v-model="context.shippingMethodId"
             class="sw-order-create-options__shipping-method"
@@ -167,6 +145,22 @@
         />
         {% endblock %}
 
+        <sw-number-field
+            v-model="shippingCost"
+            class="sw-order-create-options__shipping-cost"
+            :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
+            @change="onChangeShippingCost"
+        >
+            <template #suffix>
+                {{ currency.symbol }}
+            </template>
+        </sw-number-field>
+
+        <sw-switch-field
+            v-model="isSameAsBillingAddress"
+            :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
+        />
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
         <sw-order-customer-address-select
@@ -177,6 +171,7 @@
             :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
             :same-address-value="context.billingAddressId"
             :customer="customer"
+            :disabled="isSameAsBillingAddress"
         />
         {% endblock %}
     </sw-container>

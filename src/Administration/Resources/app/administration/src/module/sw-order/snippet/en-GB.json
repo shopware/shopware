@@ -80,7 +80,7 @@
       "placeholderShippingMethod": "Select shipping method...",
       "placeholderOrderLanguage": "Select order language...",
       "placeholderCurrency": "Select currency...",
-      "helpTextPaymentMethod": "Only payments which are compatible with the after order payment process are available.",
+      "helpTextPaymentMethod": "Only payments which are compatible with the after-order payment process are available.",
       "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
       "labelPromotions": "Promotions",
       "generalTab": {
@@ -303,7 +303,7 @@
       "headlineOrderState": "Order status",
       "headlineTransactionState": "Payment status",
       "headlineDeliveryState": "Delivery status",
-      "draftPlaceholder": "Entwurf",
+      "draftPlaceholder": "Draft",
       "labelHistory": "Status set {time} by {author}",
       "labelShowHistoryModal": "Show status history",
       "labelLastEditedBy": "Last edited by",
@@ -456,56 +456,17 @@
         "contextOpenButton": "Open",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Customer number",
+        "columnSalesChannel": "Sales Channel",
         "columnEmailAddress": "Email address"
       },
       "options": {
         "textHeadlineOrder": "Order",
         "textHeadlinePayment": "Payment",
         "textHeadlineShipment": "Shipment",
-        "labelTestOrder": "Test order",
-        "helpTextTestOrder": "This order will be in test mode",
         "placeholderAddPromotion": "Add promotion",
+        "labelSameAsBillingAddress": "Shipping address is same as billing address",
         "textSameAsBillingAddress": "Same as billing address",
-        "textSameAsShippingAddress": "Same as shipping address"
-      }
-    },
-    "addItemsModal": {
-      "title": "Add items",
-      "tabProducts": {
-        "title": "Products"
-      },
-      "tabCustomItem": {
-        "title": "Custom item"
-      },
-      "tabCredit": {
-        "title": "Credit"
-      },
-      "buttonAddItems": "Add items"
-    },
-    "itemModal": {
-      "productGrid": {
-        "columnAmount": "Total",
-        "columnProductName": "Name",
-        "columnProductNumber": "Product number",
-        "textEmptySearch": "No data for {name}",
-        "textValue": "Value..."
-      },
-      "customItem": {
-        "labelName": "Name",
-        "placeholderName": "Enter item name...",
-        "placeholderPriceNet": "Enter price (net)",
-        "placeholderPriceGross": "Enter price (gross)",
-        "placeholderPriceTaxFree": "Enter price (tax free)",
-        "labelAmount": "Total",
-        "placeholderAmount": "Enter custom item total...",
-        "labelVat": "VAT",
-        "placeholderSelectVat": "Select VAT..."
-      },
-      "credit": {
-        "labelCreditName": "Name",
-        "placeholderCreditName": "Enter credit name...",
-        "labelCreditAmount": "Total",
-        "placeholderAmount": "Enter credit total..."
+        "labelShippingCosts": "Shipping costs"
       }
     },
     "filters": {

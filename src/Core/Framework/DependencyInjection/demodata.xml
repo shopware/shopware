@@ -28,7 +28,7 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Core\Content\Rule\RuleDefinition"/>
 
-            <tag name="shopware.demodata_generator" />
+            <tag name="shopware.demodata_generator" option-name="rules" option-default="25"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomerGenerator">
@@ -38,13 +38,13 @@
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="customers" option-default="60"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator">
             <argument type="service" id="property_group.repository" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="properties" option-default="10" option-description="Property group count (option count rand(30-300))"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">
@@ -52,21 +52,21 @@
             <argument type="service" id="cms_page.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="categories" option-default="10"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="manufacturers" option-default="60"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\TagGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\System\Tag\TagDefinition" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="tags" option-default="50"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductReviewGenerator">
@@ -74,20 +74,20 @@
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="reviews" option-default="20"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="products" option-default="1000"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\PromotionGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="promotions" option-default="50"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\FlowGenerator">
@@ -95,7 +95,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="flows" option-default="0"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MediaGenerator">
@@ -107,14 +107,14 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="media" option-default="300"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductStreamGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\ProductStream\ProductStreamDefinition" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="product-streams" option-default="10"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\OrderGenerator">
@@ -125,7 +125,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="orders" option-default="60"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">
@@ -133,7 +133,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
-            <tag name="shopware.demodata_generator" />
+            <tag name="shopware.demodata_generator" option-name="attribute-sets" option-default="4" option-description="CustomField set count"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator">
@@ -141,14 +141,14 @@
             <argument type="service" id="mail_template_type.repository" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\MailTemplateDefinition" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="mail-template" option-default="10"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MailHeaderFooterGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="mail-header-footer" option-default="3" option-description="Mail header/footer count"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\UserGenerator">
@@ -156,7 +156,7 @@
             <argument type="service" id="Shopware\Core\System\User\UserDefinition" />
             <argument type="service" id="language.repository" />
 
-            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.demodata_generator" option-name="users" option-default="0"/>
         </service>
     </services>
 </container>

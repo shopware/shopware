@@ -21,7 +21,7 @@ describe('Cache module', () => {
 
     // NEXT-20024
     it('@base @settings: clear cache', { tags: ['quarantined'] }, () => {
-        cy.contains('Caches & Indexes');
+        cy.contains('Caches & indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();
         cy.awaitAndCheckNotification('Clearing caches.');
@@ -29,14 +29,14 @@ describe('Cache module', () => {
     });
 
     it('@base @settings: rebuild index', () => {
-        cy.contains('Caches & Indexes');
+        cy.contains('Caches & indexes');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();
         cy.awaitAndCheckNotification('Building indexes.');
     });
 
     it('@base @settings: rebuild index with skip options', () => {
-        cy.contains('Caches & Indexes');
+        cy.contains('Caches & indexes');
 
         cy.get('.sw-settings-cache__indexers-select').should('be.visible').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');

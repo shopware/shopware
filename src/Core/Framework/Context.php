@@ -18,6 +18,10 @@ class Context extends Struct
     public const SYSTEM_SCOPE = 'system';
     public const USER_SCOPE = 'user';
     public const CRUD_API_SCOPE = 'crud';
+
+    /**
+     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::STATE_ELASTICSEARCH_AWARE` on Criteria instead
+     */
     public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
     public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 

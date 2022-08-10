@@ -56,7 +56,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$this->helper->allowSearch($definition, $context)) {
+        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 

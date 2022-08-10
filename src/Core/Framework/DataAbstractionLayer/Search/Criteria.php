@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Struct\Struct;
  */
 class Criteria extends Struct implements \Stringable
 {
+    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+
     use StateAwareTrait;
 
     /**

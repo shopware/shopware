@@ -82,11 +82,7 @@ class ElasticsearchHelper
     {
         $this->logger->critical($exception->getMessage());
 
-        if ($this->environment === 'test') {
-            throw $exception;
-        }
-
-        if ($this->throwException) {
+        if ($this->environment === 'test' || $this->throwException) {
             throw $exception;
         }
 
@@ -116,9 +112,18 @@ class ElasticsearchHelper
 
     /**
      * Validates if it is allowed do execute the search request over elasticsearch
+     *
+     * @deprecated tag:v6.5.0 - Parameter $criteria will be required
      */
     public function allowSearch(EntityDefinition $definition, Context $context): bool
     {
+        /** @var Criteria|null $criteria */
+        $criteria = func_num_args() >= 3 ?  func_get_arg(2) : null;
+
+        if ($criteria === null) {
+            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The parameter $criteria is required in allowSearch');
+        }
+
         if (!$this->searchEnabled) {
             return false;
         }
@@ -127,11 +132,11 @@ class ElasticsearchHelper
             return false;
         }
 
-        if (!$context->hasState(Context::STATE_ELASTICSEARCH_AWARE)) {
-            return false;
+        if ($criteria && $criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE)) {
+            return true;
         }
 
-        return true;
+        return $context->hasState(Context::STATE_ELASTICSEARCH_AWARE);
     }
 
     public function handleIds(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void

@@ -152,7 +152,6 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('navi', $this->navigationId);
 
         $this->context = Context::createDefaultContext();
-        $this->context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
         parent::setUp();
     }
@@ -210,11 +209,9 @@ class ElasticsearchProductTest extends TestCase
             $this->connection->executeUpdate('DELETE FROM product');
 
             $context = $this->context;
-            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $this->clearElasticsearch();
 
-            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
             $this->ids->set('currency', $this->currencyId);
             $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
             $currencies = [
@@ -292,6 +289,7 @@ class ElasticsearchProductTest extends TestCase
             $this->refreshIndex();
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
             // products should be updated immediately
@@ -320,6 +318,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertCount(\count($data->prefixed('product-')), $products->getIds());
         } catch (\Exception $e) {
@@ -339,6 +338,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check pagination
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->setLimit(1);
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -360,6 +360,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('stock', 2));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -381,6 +382,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('active', 1));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -402,6 +404,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple range filter
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new RangeFilter('product.stock', [RangeFilter::GTE => 10]));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -423,6 +426,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check filter for categories
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsAnyFilter('product.categoriesRo.id', [$data->get('c1')]));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -445,6 +449,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check filter for categories
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(
                 new NotFilter(
                     NotFilter::CONNECTION_AND,
@@ -484,6 +489,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
 
             $criteria = new Criteria($data->prefixed('s-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter($filter);
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
@@ -594,6 +600,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new ContainsFilter('product.name', 'tilk'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -602,6 +609,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-3'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new ContainsFilter('product.name', 'subber'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -609,6 +617,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(0, $products->getTotal());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new ContainsFilter('product.name', 'Rubb'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -617,6 +626,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-2'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new ContainsFilter('product.name', 'bber'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -638,6 +648,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new PrefixFilter('product.name', 'Sti'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -646,6 +657,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-3'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new PrefixFilter('product.name', 'subber'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -653,6 +665,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(0, $products->getTotal());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new PrefixFilter('product.name', 'Rubb'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -661,6 +674,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-2'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new PrefixFilter('product.name', 'Spacht'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -682,6 +696,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new SuffixFilter('product.name', 'tilk'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -690,6 +705,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-3'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new SuffixFilter('product.name', 'subber'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -697,6 +713,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(0, $products->getTotal());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new SuffixFilter('product.name', 'bber'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -705,6 +722,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-2'), $products->getIds());
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new SuffixFilter('product.name', 'company'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -727,6 +745,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addGroupField(new FieldGrouping('stock'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -756,6 +775,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addGroupField(new FieldGrouping('stock'));
             $criteria->addGroupField(new FieldGrouping('purchasePrices'));
 
@@ -788,6 +808,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new AvgAggregation('avg-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -818,6 +839,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new TermsAggregation('manufacturer-ids', 'product.manufacturerId'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -864,6 +886,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new AvgAggregation('avg-price', 'product.price'))
             );
@@ -925,6 +948,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new TermsAggregation('manufacturer-ids', 'product.manufacturerId'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -971,6 +995,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new SumAggregation('sum-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1001,6 +1026,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new SumAggregation('price-sum', 'product.price'))
             );
@@ -1059,6 +1085,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new MaxAggregation('max-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1089,6 +1116,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new MaxAggregation('price-max', 'product.price'))
             );
@@ -1147,6 +1175,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new MinAggregation('min-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1177,6 +1206,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new MinAggregation('price-min', 'product.price'))
             );
@@ -1235,6 +1265,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new CountAggregation('manufacturer-count', 'product.manufacturerId'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1265,6 +1296,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new CountAggregation('price-count', 'product.price'))
             );
@@ -1323,6 +1355,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new StatsAggregation('price-stats', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1356,6 +1389,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new StatsAggregation('price-stats', 'product.price'))
             );
@@ -1423,6 +1457,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new EntityAggregation('manufacturers', 'product.manufacturerId', ProductManufacturerDefinition::ENTITY_NAME));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1457,6 +1492,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = (new Criteria($data->prefixed('p')))->setTerm('Grouped');
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new EntityAggregation('manufacturers', 'product.manufacturerId', ProductManufacturerDefinition::ENTITY_NAME));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
@@ -1492,6 +1528,7 @@ class ElasticsearchProductTest extends TestCase
 
             foreach ($terms as $term) {
                 $criteria = new Criteria();
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);
 
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -1526,6 +1563,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(
                 new FilterAggregation(
                     'filter',
@@ -1562,6 +1600,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             // Assert that property is not contained in aggregation if we filter for different property
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             // product 1 (m1): red   + xl             product 2 (m2): green + l
             $criteria->addFilter(
@@ -1589,6 +1628,7 @@ class ElasticsearchProductTest extends TestCase
 
             // Test that property is contained in aggregation if we filter for groups
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             // product 1 (m1): red   + xl             product 2 (m2): green + l
             $criteria->addFilter(
@@ -1632,6 +1672,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check filter for categories
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsAnyFilter('product.properties.id', [$data->get('red')]));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -1657,6 +1698,7 @@ class ElasticsearchProductTest extends TestCase
             // Assert that property is contained in aggregation if we filter for manufacturer
             // Test that property is contained in aggregation if we filter for groups
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             // product 1 (m1): red   + xl             product 2 (m2): green + l
             $criteria->addFilter(
@@ -1697,6 +1739,7 @@ class ElasticsearchProductTest extends TestCase
 
             // Assert that property is not contained in aggregation if we filter for manufacturer
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             // product 1 (m1): red   + xl             product 2 (m2): green + l
             $criteria->addFilter(
@@ -1734,12 +1777,12 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $context = $this->context;
-            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addAggregation(
                 new DateHistogramAggregation(
@@ -1892,6 +1935,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addAggregation(
                 new DateHistogramAggregation(
@@ -1954,6 +1998,7 @@ class ElasticsearchProductTest extends TestCase
 
             // Filter by the PriceField purchasePrices
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('purchasePrices', 100));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -1972,9 +2017,10 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $criteria = new Criteria($data->prefixed('product-'));
-            $criteria->addFilter(new EqualsFilter('customFields.testField', 'Silk'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.testField', 'silk'));
 
-            $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
 
             static::assertEquals(1, $result->getTotal());
             static::assertTrue($result->has($data->get('product-1')));
@@ -1994,6 +2040,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
 
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $multiFilter = new MultiFilter(
                 MultiFilter::CONNECTION_XOR,
@@ -2022,6 +2069,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $multiFilter = new MultiFilter(
                 MultiFilter::CONNECTION_XOR,
@@ -2050,6 +2098,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addGroupField(new FieldGrouping('stock'));
             $criteria->addPostFilter(new EqualsFilter('manufacturerId', $data->get('m2')));
 
@@ -2085,6 +2134,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple equals filter
             $criteria = new Criteria($expected);
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addFilter(new RangeFilter('stock', [
                 RangeFilter::GTE => 0,
@@ -2120,6 +2170,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new FieldSorting('name'));
 
             $ids = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -2142,6 +2193,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple equals filter
             $criteria = new Criteria($data->getList(['product-1', 'product-2', 'product-3', 'product-4', 'product-5', 'product-6', 'n7', 'n8', 'n9', 'n10', 'n11']));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $ids = $searcher->search($this->productDefinition, $criteria, $this->context);
 
@@ -2172,8 +2224,11 @@ class ElasticsearchProductTest extends TestCase
 
             $request = new Request();
 
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
             $result = $this->getContainer()->get(ProductListingRoute::class)
-                ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, new Criteria());
+                ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, $criteria);
 
             $listing = $result->getResult();
 
@@ -2201,6 +2256,7 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addFilter(new EqualsFilter('categoriesRo.id', $data->get('cs1')));
             $criteria->addSorting(new FieldSorting('name'));
@@ -2244,8 +2300,6 @@ class ElasticsearchProductTest extends TestCase
                     ]
                 );
 
-            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
-
             $searcher = $this->createEntitySearcher();
 
             foreach ($cases as $message => $case) {
@@ -2254,6 +2308,7 @@ class ElasticsearchProductTest extends TestCase
                     $ids->prefixed('v.')
                 );
                 $criteria = new Criteria(array_values($affected));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
                 $criteria->addFilter(
                     new RangeFilter('product.cheapestPrice', [
@@ -2398,8 +2453,6 @@ class ElasticsearchProductTest extends TestCase
                     ]
                 );
 
-            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
-
             $cases = $this->providerCheapestPriceSorting();
 
             foreach ($cases as $message => $case) {
@@ -2457,6 +2510,7 @@ class ElasticsearchProductTest extends TestCase
                 $ids->prefixed('v.')
             );
             $criteria = new Criteria(array_values($affected));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new OrFilter([
                 new NandFilter([new EqualsFilter('product.parentId', null)]),
                 new EqualsFilter('product.childCount', 0),
@@ -2501,14 +2555,13 @@ class ElasticsearchProductTest extends TestCase
                     ]
                 );
 
-            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
-
             $searcher = $this->createEntitySearcher();
 
             $cases = $this->providerCheapestPricePercentageFilterAndSorting();
 
             foreach ($cases as $message => $case) {
                 $criteria = new Criteria($ids->prefixed('product-'));
+                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
                 if ($case['operator']) {
                     $criteria->addFilter(
@@ -2589,6 +2642,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria($ids->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
             $criteria->addAggregation(new StatsAggregation('percentage', 'product.cheapestPrice.percentage'));
 
@@ -2817,6 +2871,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::DESCENDING));
 
             $searcher = $this->createEntitySearcher();
@@ -2841,6 +2896,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new FieldSorting('customFields.test_date', FieldSorting::DESCENDING));
 
             $searcher = $this->createEntitySearcher();
@@ -2865,6 +2921,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new FieldSorting(sprintf('price.%s.gross', $this->anotherCurrencyId), FieldSorting::DESCENDING));
 
             $searcher = $this->createEntitySearcher();
@@ -2892,6 +2949,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new CountSorting('properties.id', CountSorting::DESCENDING));
             $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
 
@@ -2909,6 +2967,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame($ids->get('cf1'), $result[7]);
 
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addSorting(new CountSorting('properties.id', CountSorting::ASCENDING));
             $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::DESCENDING));
 
@@ -2938,6 +2997,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addAggregation(new TermsAggregation('testFloatingField', 'customFields.testFloatingField'));
 
             $aggregator = $this->createEntityAggregator();
@@ -2963,6 +3023,7 @@ class ElasticsearchProductTest extends TestCase
 
         try {
             $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->addFilter(new EqualsFilter('customFields.test_date', '2000-01-01 00:00:00.000'));
 
             $searcher = $this->createEntitySearcher();
@@ -2983,6 +3044,7 @@ class ElasticsearchProductTest extends TestCase
     public function testEmptyEntityAggregation(IdsCollection $ids): void
     {
         $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
         $result = $this->createEntityAggregator()->aggregate($this->productDefinition, $criteria, $this->context);
 
@@ -2993,6 +3055,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertNotEmpty($agg->getEntities());
 
         $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         // p.13 has no assigned manufacturer, the aggregation should now return no manufacturers inside the collection
         $criteria->addFilter(new EqualsFilter('id', $ids->get('p.13')));
         $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
@@ -3017,6 +3080,7 @@ class ElasticsearchProductTest extends TestCase
             $ids->prefixed('p.'),
             $ids->prefixed('v.'),
         ));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
         $criteria->addSorting(new FieldSorting('product.productNumber', $direction));

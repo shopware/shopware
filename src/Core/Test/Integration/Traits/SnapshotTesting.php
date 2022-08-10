@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Common;
+namespace Shopware\Core\Test\Integration\Traits;
 
 /**
  * This trait allows to run an assertion on a stored snapshot.

@@ -1,13 +1,11 @@
 ---
 title: Throw an appropriate error message in FileSaver
-issue: NEXT-XXX
+issue: NEXT-22824
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect
 ---
-
 # Core
-
 * Deprecated Content\Media\Exception\FileTypeNotSupportedException, use FileExtensionNotSupportedException or ThumbnailNotSupportedException instead
 * Added Content\Media\Exception\FileExtensionNotSupportedException as replacement of FileTypeNotSupportedException
 * Added Content\Media\Exception\ThumbnailNotSupportedException for not supported file to generate thumbnail for

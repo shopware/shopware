@@ -88,7 +88,7 @@
         "pageTypeProduct": "Product page",
         "demoEntity": "Preview entity",
         "blockCategorySelection": "Block category",
-        "blockCategoryFavorite": "Favorites",
+        "blockCategoryFavorite": "Favourites",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & images",
         "blockCategorySidebar": "Sidebar",
@@ -201,7 +201,7 @@
         "switch": {
           "groups": {
             "all": "All elements",
-            "favorites": "Favorite elements"
+            "favorites": "Favourite elements"
           }
         }
       },

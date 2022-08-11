@@ -504,6 +504,9 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @return array<int, array<MultiFilter|string[]>>
+     */
     public function multiFilterWithOneToManyRelationProvider(): array
     {
         return [
@@ -1819,6 +1822,9 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @return array<int, array<int, DateHistogramCase>>
+     */
     public function dateHistogramProvider(): array
     {
         return [
@@ -2398,6 +2404,9 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(CustomFieldUpdater::getTypeFromCustomFieldType(CustomFieldTypes::BOOL), $mapping['properties']['customFields']['properties']['test']);
     }
 
+    /**
+     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     */
     public function providerCheapestPriceFilter(): iterable
     {
         yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
@@ -2469,6 +2478,9 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{ids: string[], rules: string[]}>
+     */
     public function providerCheapestPriceSorting(): iterable
     {
         yield 'Test sorting without rules' => [
@@ -3074,6 +3086,9 @@ class ElasticsearchProductTest extends TestCase
         return $this->getContainer();
     }
 
+    /**
+     * @param array{ids: string[]} $case
+     */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {
         $criteria = new Criteria(array_merge(
@@ -3106,6 +3121,9 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{min: int, max: int, rules: string[]}>
+     */
     private function providerCheapestPriceAggregation(): iterable
     {
         yield 'With no rules' => ['min' => 60, 'max' => 190, 'rules' => []];

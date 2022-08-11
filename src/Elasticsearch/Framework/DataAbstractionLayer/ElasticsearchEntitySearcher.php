@@ -117,6 +117,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         return $search;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
         if (!$criteria->getGroupFields()) {
@@ -135,6 +138,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     /**
      * @param FieldGrouping[] $groupings
+     *
+     * @return array{field: string, inner_hits?: array{name: string}}
      */
     private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
     {

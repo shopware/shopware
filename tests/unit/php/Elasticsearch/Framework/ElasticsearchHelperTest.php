@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Elasticsearch\Client;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
 /**

@@ -32,6 +32,9 @@ trait StateAwareTrait
         return false;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getStates(): array
     {
         return array_keys($this->states);

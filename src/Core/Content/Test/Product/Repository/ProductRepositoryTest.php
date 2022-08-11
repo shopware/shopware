@@ -3236,6 +3236,9 @@ class ProductRepositoryTest extends TestCase
         }
     }
 
+    /**
+     * @param non-empty-array<string> $languages
+     */
     private function createLanguageContext(array $languages, bool $inheritance)
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);

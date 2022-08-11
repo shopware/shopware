@@ -130,7 +130,7 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+        $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
         $documents = $documentRepository->search($criteria, $context);
 
         $newDocument = $documents->get($documentIdNewer);
@@ -172,7 +172,7 @@ class SendMailActionTest extends TestCase
         }
 
         if (!empty($documentTypeIds)) {
-            $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+            $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
             $documents = $documentRepository->search($criteria, $context);
 
             $newDocument = $documents->get($documentIdNewer);

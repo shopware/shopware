@@ -197,6 +197,12 @@
           "infoText": {
             "listingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
           }
+        },
+        "switch": {
+          "groups": {
+            "all": "All elements",
+            "favorites": "Favorite elements"
+          }
         }
       },
       "image": {

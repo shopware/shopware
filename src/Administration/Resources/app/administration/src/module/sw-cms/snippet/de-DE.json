@@ -197,6 +197,12 @@
           "infoText": {
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
+        },
+        "switch": {
+          "groups": {
+            "all": "Alle Elemente",
+            "favorites": "Favorisierte Elemente"
+          }
         }
       },
       "image": {

@@ -6,7 +6,10 @@ const { Component } = Shopware;
 Component.register('sw-cms-slot', {
     template,
 
-    inject: ['cmsService'],
+    inject: [
+        'cmsService',
+        'cmsElementFavorites',
+    ],
 
     props: {
         element: {
@@ -48,6 +51,27 @@ Component.register('sw-cms-slot', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
+        },
+
+        groupedCmsElements() {
+            const result = [];
+            const elements = Object.values(this.cmsElements).sort((a, b) => a.name.localeCompare(b.name));
+            const favorites = elements.filter(e => this.cmsElementFavorites.isFavorite(e.name));
+            const nonFavorites = elements.filter(e => !this.cmsElementFavorites.isFavorite(e.name));
+
+            if (favorites.length) {
+                result.push({
+                    title: this.$t('sw-cms.elements.general.switch.groups.favorites'),
+                    items: favorites,
+                });
+            }
+
+            result.push({
+                title: this.$t('sw-cms.elements.general.switch.groups.all'),
+                items: nonFavorites,
+            });
+
+            return result;
         },
 
         componentClasses() {
@@ -109,6 +133,18 @@ Component.register('sw-cms-slot', {
             this.element.type = elementType;
             this.element.locked = false;
             this.showElementSelection = false;
+        },
+
+        onToggleElementFavorite(elementName) {
+            this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
+        },
+
+        elementInElementGroup(element, elementGroup) {
+            if (elementGroup === 'favorite') {
+                return this.cmsElementFavorites.isFavorite(element.name);
+            }
+
+            return true;
         },
     },
 });

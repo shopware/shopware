@@ -99,38 +99,75 @@
         @modal-close="onCloseElementModal"
     >
         {% block sw_cms_slot_content_element_modal_selection %}
-        <div class="sw-cms-slot__element-selection">
-            {% block sw_cms_slot_content_element_modal_selection_element %}
-            <!-- eslint-disable vue/no-use-v-if-with-v-for vuejs-accessibility/click-events-have-key-events -->
-            <div
-                v-for="(element, index) in cmsElements"
-                v-if="!element.hidden && element.previewComponent"
-                :key="index"
-                class="element-selection__element-wrapper"
-                @click="onSelectElement(element.name)"
-            >
-                <div class="element-selection__element">
-                    {% block sw_cms_slot_content_element_modal_selection_element_component %}
-                    <component
-                        :is="element.previewComponent"
-                        class="sw-cms-slot__element-preview"
-                    />
-                    {% endblock %}
-
-                    {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
-                    <div class="element-selection__overlay">
-                        <sw-icon
-                            name="regular-repeat"
-                            size="28"
-                        />
+        <div class="sw-cms-slot__modal-container">
+            {% block sw_cms_slot_content_element_modal_selection_groups %}
+                <sw-sidebar-collapse
+                    v-for="cmsElementGroup in groupedCmsElements"
+                    :key="cmsElementGroup.title"
+                    expand-on-loading
+                    expand-chevron-direction="up"
+                >
+                    <div slot="header">
+                        {{ $tc(cmsElementGroup.title) }}
                     </div>
-                    {% endblock %}
-                </div>
 
-                {% block sw_cms_slot_content_element_modal_selection_element_label %}
-                <span class="element-selection__label">{{ $tc(element.label) }}</span>
-                {% endblock %}
-            </div>
+                    <div slot="content">
+                        <div class="sw-cms-slot__element-selection">
+                        {% block sw_cms_slot_content_element_modal_selection_element %}
+                        <!-- eslint-disable vue/no-use-v-if-with-v-for vuejs-accessibility/click-events-have-key-events -->
+                        <div
+                            v-for="element in cmsElementGroup.items"
+                            v-if="!element.hidden && element.previewComponent"
+                            :key="element.name"
+                            class="element-selection__element-wrapper"
+                        >
+                            <div class="element-selection__element">
+                                {% block sw_cms_slot_content_element_modal_selection_element_component %}
+                                <component
+                                    :is="element.previewComponent"
+                                    class="sw-cms-slot__element-preview"
+                                />
+                                {% endblock %}
+
+                                {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
+                                <div
+                                    class="element-selection__overlay element-selection__overlay-action-select"
+                                    @click="onSelectElement(element.name)"
+                                >
+                                    <sw-icon
+                                        name="regular-repeat"
+                                        size="28"
+                                    />
+                                </div>
+                                {% endblock %}
+
+                                {% block sw_cms_slot_content_element_modal_selection_element_overlay_favorite %}
+                                <div
+                                    class="element-selection__overlay element-selection__overlay-action-favorite"
+                                    @click="onToggleElementFavorite(element.name)"
+                                >
+                                    <sw-icon
+                                        v-if="cmsElementFavorites.isFavorite(element.name)"
+                                        name="solid-heart"
+                                        size="28"
+                                    />
+                                    <sw-icon
+                                        v-else
+                                        name="regular-heart"
+                                        size="28"
+                                    />
+                                </div>
+                                {% endblock %}
+                            </div>
+
+                            {% block sw_cms_slot_content_element_modal_selection_element_label %}
+                            <span class="element-selection__label">{{ $tc(element.label) }}</span>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+                        </div>
+                    </div>
+                </sw-sidebar-collapse>
             {% endblock %}
         </div>
         {% endblock %}

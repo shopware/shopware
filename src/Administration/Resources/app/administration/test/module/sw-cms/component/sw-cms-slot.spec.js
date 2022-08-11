@@ -24,6 +24,11 @@ function createWrapper() {
                         text: 'lorem'
                     }
                 })
+            },
+            cmsElementFavorites: {
+                isFavorite() {
+                    return false;
+                }
             }
         }
     });

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -256,7 +257,10 @@ class EntityForeignKeyResolver
             /** @var Field $pk */
             $pk = $primaryKeys->first();
             $property = $pk->getPropertyName();
-            $affected = array_column($affected, $property);
+
+            if (!Feature::has('FEATURE_NEXT_14872') || $property === 'id') {
+                $affected = array_column($affected, $property);
+            }
         }
 
         // prevent circular reference for many to many

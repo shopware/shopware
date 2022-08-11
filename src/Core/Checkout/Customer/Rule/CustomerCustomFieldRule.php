@@ -160,7 +160,7 @@ class CustomerCustomFieldRule extends Rule
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
-        if ($this->isSwitchOrBoolField($renderedField) && is_string($renderedFieldValue)) {
+        if ($this->isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);
         }
         if ($this->isSwitchOrBoolField($renderedField)) {

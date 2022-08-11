@@ -113,7 +113,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     {
         $this->setupRule($value, 'bool');
         $this->setCustomerCustomFields([
-            self::CUSTOM_FIELD_NAME => false
+            self::CUSTOM_FIELD_NAME => false,
         ]);
         static::assertFalse($this->rule->match($this->scope));
     }

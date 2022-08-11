@@ -8,12 +8,12 @@ namespace Shopware\Core\Framework\Webhook;
 class AclPrivilegeCollection
 {
     /**
-     * @var array<string>
+     * @var string[]
      */
     private $privileges;
 
     /**
-     * @param array<string> $privileges
+     * @param string[] $privileges
      */
     public function __construct(array $privileges)
     {

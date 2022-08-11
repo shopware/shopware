@@ -41,7 +41,7 @@ class CustomFieldPersister
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        /** @var array<string> $ids */
+        /** @var string[] $ids */
         $ids = $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
 
         if (!empty($ids)) {

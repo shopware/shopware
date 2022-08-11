@@ -10,10 +10,10 @@
       "placeholderSearchBar": "Durchsuche Länder ...",
       "actions": {
         "newSnippet": "Add new snippet",
-        "createBefore": "New row before",
-        "createAfter": "New row after",
-        "moveTop": "Move row to top",
-        "moveBottom": "Move row to bottom"
+        "createBefore": "Neue Zeile davor",
+        "createAfter": "Neue Zeile danach",
+        "moveTop": "Zeile nach oben verschieben",
+        "moveBottom": "Zeile nach unten verschieben"
       }
     },
     "list": {
@@ -69,19 +69,19 @@
       "labelPostalCodeRequired": "Postleitzahl ist Pflichtfeld",
       "labelCheckPostalCodePattern": "Postleitzahl validieren",
       "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
-      "placeholderAdvancedPostalCodePattern": "Gib Postleitzahl-Schema...",
-      "helpTextAdvancedPostalCodePattern": "",
+      "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an...",
+      "helpTextAdvancedPostalCodePattern": "Das Postleitzahl-Format als regulärer Ausdruck",
       "labelCheckDefaultAddressFormat": "Benutzerdefiniertes Adressformat",
       "labelAddressFormatPlain": "Format",
-      "titleFormatting": "Address markup",
+      "titleFormatting": "Addressformat",
       "helpTextCheckPostalCodePattern": "Erlaubt die Validierung von Postleitzahlen für eine Auswahl an Ländern",
-      "previewTitle": "Preview",
-      "labelCustomer": "Customer",
-      "placeholderSelectCustomer": "Select a customer...",
-      "buttonResetMarkup": "Reset address markup",
-      "newSnippetModalTitle": "Insert snippet",
-      "buttonInsertSnippet": "Insert snippet",
-      "placeholderSearchSnippet": "Search snippets..."
+      "previewTitle": "Vorschau",
+      "labelCustomer": "Kunde",
+      "placeholderSelectCustomer": "Wähle einen Kunden aus...",
+      "buttonResetMarkup": "Addressformat zurücksetzen",
+      "newSnippetModalTitle": "Werte einfügen",
+      "buttonInsertSnippet": "Wert einfügen",
+      "placeholderSearchSnippet": "Werte durchsuchen..."
     }
   },
   "sw-country-state-detail": {

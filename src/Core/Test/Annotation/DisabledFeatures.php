@@ -13,7 +13,7 @@ namespace Shopware\Core\Test\Annotation;
 final class DisabledFeatures
 {
     /**
-     * @var array<string>
+     * @var string[]
      */
     public array $features;
 }

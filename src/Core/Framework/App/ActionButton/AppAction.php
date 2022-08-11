@@ -34,7 +34,7 @@ class AppAction
     private string $actionId;
 
     /**
-     * @param array<string> $ids
+     * @param string[] $ids
      */
     public function __construct(
         string $targetUrl,
@@ -108,7 +108,7 @@ class AppAction
     }
 
     /**
-     * @param array<string> $ids
+     * @param string[] $ids
      */
     private function setIds(array $ids): void
     {

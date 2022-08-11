@@ -54,7 +54,7 @@ class ActionButtonPersister
 
     private function deleteOldActions(ActionButtonCollection $toBeRemoved, Context $context): void
     {
-        /** @var array<string> $ids */
+        /** @var string[] $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

@@ -453,5 +453,6 @@
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
             "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
-    }
+    },
+    "version": "6.4.14.0"
 }

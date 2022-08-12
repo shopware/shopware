@@ -73,6 +73,7 @@
     "@babel/plugin-transform-object-assign": "7.2.0",
     "@babel/polyfill": "7.4.4",
     "@babel/preset-env": "7.5.5",
+    "@babel/preset-typescript": "7.16.7",
     "@nuxtjs/friendly-errors-webpack-plugin": "2.1.0",
     "autoprefixer": "9.6.1",
     "babel-eslint": "10.0.2",

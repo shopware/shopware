@@ -13,5 +13,10 @@ Module.register('sw-custom-entity', {
             component: 'sw-generic-custom-entity-list',
             path: ':entityName/list',
         },
+
+        detail: {
+            component: 'sw-generic-custom-entity-detail',
+            path: ':entityName/detail/:id?',
+        },
     },
 });

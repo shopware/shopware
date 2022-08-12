@@ -1,43 +1,45 @@
 import Vue from 'vue';
 
-interface AdminUiFieldsRef {
+export interface AdminUiFieldsRef {
     ref: string,
 }
 
-interface ColumnRef extends AdminUiFieldsRef {
+export interface ColumnRef extends AdminUiFieldsRef {
     hidden?: boolean,
 }
 
-type AdminUiCardsConfig = {
+export type AdminUiCardsDefinition = {
     name: string,
     fields: AdminUiFieldsRef[],
 }
 
-type AdminTabsConfig = {
+export type AdminTabsDefinition = {
     name: string,
-    cards: AdminUiCardsConfig[],
+    cards: AdminUiCardsDefinition[],
 }
 
-type AdminUiDetailConfig = {
-    tabs: AdminTabsConfig[],
+export type AdminUiDetailDefinition = {
+    tabs: AdminTabsDefinition[],
 }
 
-type AdminUiListingConfig = {
+export type AdminUiListingDefinition = {
     columns: ColumnRef[],
 }
 
-type AdminUiConfig = {
+export type AdminUiDefinition = {
     navigationParent: string,
     position: number,
-    detail: AdminUiDetailConfig,
-    listing: AdminUiListingConfig,
+    icon: string,
+    color: string,
+    detail: AdminUiDetailDefinition,
+    listing: AdminUiListingDefinition,
 }
 
-type CustomEntityConfig = {
+export type CustomEntityDefinition = {
     entity: string,
     properties: [],
     flags: {
-        'admin-ui': AdminUiConfig,
+        'admin-ui': AdminUiDefinition,
     },
 }
 
@@ -49,45 +51,57 @@ type NavigationMenuEntry = {
     parent: string,
 }
 
+/**
+ * @internal
+ * @private
+ */
 export default class CustomEntityDefinitionService {
     #state = Vue.observable({
-        customEntityDefinitions: [] as CustomEntityConfig[],
+        customEntityDefinitions: [] as CustomEntityDefinition[],
     });
 
-    addConfig(adminUiConfig: CustomEntityConfig) {
-        this.#state.customEntityDefinitions.push(adminUiConfig);
+    addDefinition(adminUiDefinition: CustomEntityDefinition) {
+        this.#state.customEntityDefinitions.push(adminUiDefinition);
     }
 
-    getConfigByName(name: string): Readonly<CustomEntityConfig | undefined> {
-        return this.#state.customEntityDefinitions.find(entityConfig => entityConfig.entity === name);
+    getDefinitionByName(name: string): Readonly<CustomEntityDefinition | undefined> {
+        return this.#state.customEntityDefinitions.find(entityDefinition => entityDefinition.entity === name);
     }
 
-    getAllConfigs(): Readonly<CustomEntityConfig[]> {
+    getAllDefinitions(): Readonly<CustomEntityDefinition[]> {
         return this.#state.customEntityDefinitions;
     }
 
-    hasConfigWithAdminUi(name: string) {
-        return this.#state.customEntityDefinitions.some(entityConfig => {
-            return entityConfig.entity === name && entityConfig.flags['admin-ui'];
+    hasDefinitionWithAdminUi(name: string) {
+        return this.#state.customEntityDefinitions.some(entityDefinition => {
+            return entityDefinition.entity === name && entityDefinition.flags['admin-ui'];
         });
     }
 
     getMenuEntries(): Readonly<NavigationMenuEntry[]> {
-        const filteredCustomEntities = this.#state.customEntityDefinitions.map(entityConfig => {
-            return { name: entityConfig.entity, adminUi: entityConfig.flags['admin-ui'] };
-        }).filter(config => config.adminUi);
+        const customEntityDefinitionsWithAdminUi: {name: string, adminUi: AdminUiDefinition}[] = [];
 
-        return filteredCustomEntities.map(entityConfig => {
+        this.#state.customEntityDefinitions.forEach(entityDefinition => {
+            const adminUi = entityDefinition.flags['admin-ui'];
+
+            if (!adminUi) {
+                return;
+            }
+
+            customEntityDefinitionsWithAdminUi.push({ name: entityDefinition.entity, adminUi });
+        });
+
+        return customEntityDefinitionsWithAdminUi.map(entityDefinition => {
             return {
-                id: `custom-entity/${entityConfig.name}`,
-                label: `${entityConfig.name}.moduleTitle`,
+                id: `custom-entity/${entityDefinition.name}`,
+                label: `${entityDefinition.name}.moduleTitle`,
                 moduleType: 'plugin',
                 path: 'sw.custom.entity.index',
                 params: {
-                    entityName: entityConfig.name,
+                    entityName: entityDefinition.name,
                 },
-                position: entityConfig.adminUi.position,
-                parent: entityConfig.adminUi.navigationParent,
+                position: entityDefinition.adminUi.position,
+                parent: entityDefinition.adminUi.navigationParent,
             };
         });
     }

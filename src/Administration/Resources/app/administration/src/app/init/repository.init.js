@@ -24,7 +24,7 @@ export default function initializeRepositoryFactory(container) {
             entityDefinitionFactory.add(key, value);
 
             if (key.startsWith('custom_entity_')) {
-                customEntityDefinitionService.addConfig(value);
+                customEntityDefinitionService.addDefinition(value);
             }
         });
 

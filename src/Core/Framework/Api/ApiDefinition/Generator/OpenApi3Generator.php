@@ -57,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
      *
      * @return array<string, mixed>
      */
@@ -124,7 +124,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<EntityDefinition|SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return array<string, mixed>
      */

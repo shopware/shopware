@@ -51,7 +51,7 @@ const customEntityDefinitionStore = [];
 
 const service = {
     customEntityDefinitionService: {
-        addConfig(config) {
+        addDefinition(config) {
             customEntityDefinitionStore.push(config);
         }
     },

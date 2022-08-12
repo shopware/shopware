@@ -94,7 +94,7 @@ describe('Bulk Edit - Products', () => {
         // Save and apply changes
         cy.get('.sw-bulk-edit-product__save-action').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.contains('.footer-right .sw-button--primary', 'Apply changes');
+        cy.contains('.footer-right .sw-button--primary', 'Wijzigingen toepassen');
         cy.get('.footer-right .sw-button--primary').click();
         cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);

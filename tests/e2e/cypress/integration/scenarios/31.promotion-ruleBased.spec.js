@@ -71,7 +71,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Prijs artikelen in winkelmandje')
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Subtotaal van alle items')
                         .click();
                 });
         });

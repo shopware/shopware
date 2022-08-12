@@ -19,8 +19,8 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__actions-menu').click();
-        cy.contains('.sw-context-menu__content', 'Remove').click();
-        cy.contains('Nog geen producten toegevoegd').should('be.visible');
+        cy.contains('.sw-context-menu__content', 'Verwijderen').click();
+        cy.contains('Geen producten meer gevonden').should('be.visible');
 
         // Verify product not exist in the storefront
         cy.visit('/');
@@ -40,7 +40,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
-        cy.contains('.sw-modal__header', 'Add products').should('be.visible');
+        cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
         cy.get('.sw-data-grid__select-all [type]').check();
         cy.contains('.sw-data-grid__bulk', '1').should('be.visible');
         cy.get('.sw-button.sw-button--primary.sw-button--small').click();
@@ -73,8 +73,8 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
-        cy.contains('.sw-modal__header', 'Add products').should('be.visible');
-        cy.get('[title="Category selection"]').click();
+        cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
+        cy.get('[title="Categorie selectie"]').click();
         cy.get('.sw-tree-item__selection [type]').click();
         cy.get('.sw-button.sw-button--primary.sw-button--small').click();
 
@@ -111,8 +111,8 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
-        cy.contains('.sw-modal__header', 'Add products').should('be.visible');
-        cy.get('[title="Product group selection"]').click();
+        cy.contains('.sw-modal__header', 'Producten toevoegen').should('be.visible');
+        cy.get('[title="Selectie van productgroepen"]').click();
         cy.get('.sw-data-grid--actions .sw-data-grid__header [type]').check();
         cy.contains('.sw-data-grid__bulk', '1').should('be.visible');
         cy.get('.sw-button.sw-button--primary.sw-button--small').click();

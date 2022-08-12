@@ -156,8 +156,8 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.get('input#sw-field--rule-name').type('custom rule builder');
         cy.get('input#sw-field--rule-priority').type('1');
 
-        cy.get(page.elements.searchCondition).type('Customer with custom field');
-        cy.contains('Customer with custom field').click({ force: true });
+        cy.get(page.elements.searchCondition).type('Klant met aangepast veld');
+        cy.contains('Klant met aangepast veld').click({ force: true });
         cy.get('.is--placeholder.sw-entity-single-select__selection-text').click();
         cy.contains(`cf set_${typeOfTheCustom}`);
     });

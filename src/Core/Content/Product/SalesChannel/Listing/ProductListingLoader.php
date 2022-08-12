@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -56,7 +57,12 @@ class ProductListingLoader
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
 
-        $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
+        $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
+        }
+
         $ids = $this->repository->searchIds($criteria, $context);
 
         $aggregations = $this->repository->aggregate($criteria, $context);

@@ -45,7 +45,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $result = $searcher->search(
             $this->getContainer()->get(ProductDefinition::class),
@@ -81,7 +82,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         try {
             $result = $searcher->search(

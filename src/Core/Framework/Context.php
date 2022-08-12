@@ -18,11 +18,15 @@ class Context extends Struct
     public const SYSTEM_SCOPE = 'system';
     public const USER_SCOPE = 'user';
     public const CRUD_API_SCOPE = 'crud';
+
+    /**
+     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::STATE_ELASTICSEARCH_AWARE` on Criteria instead
+     */
     public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
     public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
-     * @var array<string>
+     * @var non-empty-array<string>
      *
      * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
@@ -57,7 +61,7 @@ class Context extends Struct
     protected $scope = self::USER_SCOPE;
 
     /**
-     * @var array
+     * @var array<string>
      *
      * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
@@ -123,7 +127,10 @@ class Context extends Struct
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
-        $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
+
+        /** @var non-empty-array<string> $chain */
+        $chain = array_keys(array_flip(array_filter($languageIdChain)));
+        $this->languageIdChain = $chain;
         $this->considerInheritance = $considerInheritance;
         $this->taxState = $taxState;
         $this->rounding = $rounding ?? new CashRoundingConfig(2, 0.01, true);
@@ -164,11 +171,17 @@ class Context extends Struct
         return $this->currencyFactor;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getRuleIds(): array
     {
         return $this->ruleIds;
     }
 
+    /**
+     * @return non-empty-array<string>
+     */
     public function getLanguageIdChain(): array
     {
         return $this->languageIdChain;
@@ -255,6 +268,9 @@ class Context extends Struct
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
+    /**
+     * @return mixed
+     */
     public function enableInheritance(callable $function)
     {
         $previous = $this->considerInheritance;
@@ -265,6 +281,9 @@ class Context extends Struct
         return $result;
     }
 
+    /**
+     * @return mixed
+     */
     public function disableInheritance(callable $function)
     {
         $previous = $this->considerInheritance;

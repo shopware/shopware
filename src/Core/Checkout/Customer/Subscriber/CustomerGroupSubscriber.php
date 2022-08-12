@@ -170,7 +170,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 $context->getSource(),
                 $context->getRuleIds(),
                 $context->getCurrencyId(),
-                array_filter([$languageId])
+                [$languageId]
             );
 
             $this->persister->updateSeoUrls(

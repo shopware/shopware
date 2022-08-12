@@ -352,6 +352,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
+     * @param non-empty-array<string> $languageChain
+     *
      * @dataProvider variationCases
      */
     public function testVariation(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void

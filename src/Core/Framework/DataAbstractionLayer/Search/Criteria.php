@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
+    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
@@ -103,7 +104,7 @@ class Criteria extends Struct implements \Stringable
     protected $term;
 
     /**
-     * @var array|null
+     * @var array<string, array<string, string>>|null
      */
     protected $includes;
 
@@ -112,8 +113,14 @@ class Criteria extends Struct implements \Stringable
      */
     protected $title;
 
+    /**
+     * @var string[]
+     */
     protected array $fields = [];
 
+    /**
+     * @param array<string|array<string>>|null $ids
+     */
     public function __construct(?array $ids = null)
     {
         if ($ids === null) {
@@ -193,6 +200,9 @@ class Criteria extends Struct implements \Stringable
         return $this->filters;
     }
 
+    /**
+     * @param string $field
+     */
     public function hasEqualsFilter($field): bool
     {
         return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
@@ -330,6 +340,8 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * @param string[] $paths
+     *
      * Allows to add multiple associations paths
      *
      * e.g.:
@@ -419,6 +431,9 @@ class Criteria extends Struct implements \Stringable
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAggregationQueryFields(): array
     {
         return $this->collectFields([
@@ -427,6 +442,9 @@ class Criteria extends Struct implements \Stringable
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSearchQueryFields(): array
     {
         return $this->collectFields([
@@ -438,6 +456,9 @@ class Criteria extends Struct implements \Stringable
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFilterFields(): array
     {
         return $this->collectFields([
@@ -446,6 +467,9 @@ class Criteria extends Struct implements \Stringable
         ]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAllFields(): array
     {
         return $this->collectFields([
@@ -522,11 +546,17 @@ class Criteria extends Struct implements \Stringable
         return $this;
     }
 
+    /**
+     * @param array<string, array<string, string>>|null $includes
+     */
     public function setIncludes(?array $includes): void
     {
         $this->includes = $includes;
     }
 
+    /**
+     * @return array<string, array<string, string>>|null
+     */
     public function getIncludes()
     {
         return $this->includes;
@@ -577,6 +607,8 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * @param string[] $fields
+     *
      * @internal
      */
     public function addFields(array $fields): self
@@ -589,6 +621,8 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * @return string[]
+     *
      * @internal
      */
     public function getFields(): array
@@ -596,6 +630,11 @@ class Criteria extends Struct implements \Stringable
         return $this->fields;
     }
 
+    /**
+     * @param array<array<CriteriaPartInterface>> $parts
+     *
+     * @return array<string>
+     */
     private function collectFields(array $parts): array
     {
         $fields = [];

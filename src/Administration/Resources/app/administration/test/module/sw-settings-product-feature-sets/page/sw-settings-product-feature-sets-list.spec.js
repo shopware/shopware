@@ -28,6 +28,7 @@ function createWrapper(additionalOptions = {}, privileges = []) {
         stubs: {
             'sw-page': Shopware.Component.build('sw-page'),
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-language-switch': true,
             'sw-search-bar': true,
             'sw-icon': true,

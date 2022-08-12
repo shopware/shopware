@@ -28,6 +28,7 @@ describe('src/module/sw-my-apps/page/sw-my-apps-page/index.js', () => {
                 'sw-my-apps-error-page': Shopware.Component.build('sw-my-apps-error-page'),
                 'sw-page': Shopware.Component.build('sw-page'),
                 'sw-notification-center': true,
+                'sw-help-center': true,
                 'sw-search-bar': true,
                 'sw-app-actions': true,
                 'sw-loader': true,

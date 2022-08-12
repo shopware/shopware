@@ -24,6 +24,7 @@ function createWrapper() {
             'sw-system-config': Shopware.Component.build('sw-system-config'),
             'sw-search-bar': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-loader': true,

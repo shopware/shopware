@@ -53,6 +53,10 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     computed: {
+        componentName(): string|undefined {
+            return Shopware.State.get('sdkLocation').locations[this.locationId];
+        },
+
         extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
 

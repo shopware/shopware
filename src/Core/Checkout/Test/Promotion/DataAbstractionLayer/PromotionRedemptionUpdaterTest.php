@@ -76,6 +76,52 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->assertUpdatedCounts();
     }
 
+    public function testItDoesNotFailWithZeroCustomerCount(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        $voucherA = $this->ids->get('voucherA');
+
+        $connection = $this->getContainer()->get(Connection::class);
+
+        // field is write protected - use plain sql here
+        $connection->executeStatement(
+            'UPDATE `promotion` SET `orders_per_customer_count` = "0" WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($voucherA)]
+        );
+
+        $criteria = new Criteria([$this->ids->create('order')]);
+        $criteria->addAssociation('lineItems');
+
+        $order = $this->getContainer()
+            ->get('order.repository')
+            ->search($criteria, Context::createDefaultContext())
+            ->first();
+
+        $event = new CheckoutOrderPlacedEvent(
+            Context::createDefaultContext(),
+            $order,
+            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+        );
+
+        $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
+        $updater->orderPlaced($event);
+
+        $promotions = $connection->fetchAllAssociative(
+            'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($voucherA)]
+        );
+
+        $expected_json = json_encode([$this->ids->get('customer') => 1]);
+        static::assertIsString($expected_json);
+
+        static::assertCount(1, $promotions);
+        static::assertJsonStringEqualsJsonString(
+            $expected_json,
+            $promotions[0]['orders_per_customer_count']
+        );
+    }
+
     private function createPromotionsAndOrder(): void
     {
         /** @var EntityRepositoryInterface $promotionRepository */
@@ -115,6 +161,9 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
     }
 
+    /**
+     * @param array<mixed> $options
+     */
     private function createSalesChannelContext(array $options = []): SalesChannelContext
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);

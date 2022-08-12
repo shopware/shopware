@@ -16191,61 +16191,6 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\ApiDefinitionGeneratorInterface\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/ApiDefinitionGeneratorInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\ApiDefinitionGeneratorInterface\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/ApiDefinitionGeneratorInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\DefinitionService\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/DefinitionService.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getEntityName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:createJsonObjectType\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getEntitySchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:parseField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\EntitySchemaGenerator\\:\\:getEntitySchema\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$relationshipData has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
@@ -16264,106 +16209,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$security has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiSchemaBuilder.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getEntityName\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getFields\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Cannot call method toJson\\(\\) on OpenApi\\\\Annotations\\\\Schema\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:__construct\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:containsSalesChannelDefinition\\(\\) has parameter \\$definitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:getResourceUri\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 3
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:shouldDefinitionBeIncluded\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi3Generator\\:\\:shouldIncludeReferenceOnly\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:getSchemaByDefinition\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getPathActions\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getTag\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi3Generator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:__construct\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:getSchema\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:getSchemaByDefinition\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:getResourceUri\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:shouldDefinitionBeIncluded\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator\\:\\:shouldIncludeReferenceOnly\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
 
 		-
 			message: "#^Cannot cast PhpParser\\\\Node\\\\Expr\\|PhpParser\\\\Node\\\\Name to string\\.$#"
@@ -16519,36 +16364,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:handleRequest\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/ApiController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:__construct\\(\\) has parameter \\$cspTemplates with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:getActiveApps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:getAdministrationScripts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:getAdministrationStyles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:getBundles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\\:\\:\\$cspTemplates type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\SalesChannelProxyController\\:\\:clearRequestStackWithBackup\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -34399,16 +34214,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\ContextSwitchRoute\\:\\:checkNewDomain\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannel/ContextSwitchRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\StoreApiInfoController\\:\\:__construct\\(\\) has parameter \\$cspTemplates with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannel\\\\StoreApiInfoController\\:\\:\\$cspTemplates type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\:\\:getCountryIds\\(\\) return type has no value type specified in iterable type array\\.$#"

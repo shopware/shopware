@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,6 +42,9 @@ class InfoController extends AbstractController
 
     private bool $enableUrlFeature;
 
+    /**
+     * @var array{administration?: string}
+     */
     private array $cspTemplates;
 
     private BusinessEventCollector $eventCollector;
@@ -52,6 +56,8 @@ class InfoController extends AbstractController
     private Connection $connection;
 
     /**
+     * @param array{administration?: string} $cspTemplates
+     *
      * @internal
      */
     public function __construct(
@@ -85,6 +91,12 @@ class InfoController extends AbstractController
     public function info(Request $request): JsonResponse
     {
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+
+        $apiType = $this->definitionService->toApiType($apiType);
+        if ($apiType === null) {
+            throw new InvalidRequestParameterException('type');
+        }
+
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
         return new JsonResponse($data);
@@ -233,6 +245,9 @@ class InfoController extends AbstractController
         return $this->json($events);
     }
 
+    /**
+     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string,string[]>}>
+     */
     private function getBundles(Context $context): array
     {
         $assets = [];
@@ -291,6 +306,9 @@ class InfoController extends AbstractController
         return $assets;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAdministrationStyles(Bundle $bundle): array
     {
         $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
@@ -303,6 +321,9 @@ class InfoController extends AbstractController
         return [$path];
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAdministrationScripts(Bundle $bundle): array
     {
         $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
@@ -337,8 +358,12 @@ class InfoController extends AbstractController
         return $package->getUrl($url);
     }
 
+    /**
+     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string,list<string>>}>
+     */
     private function getActiveApps(): array
     {
+        /** @var list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $apps */
         $apps = $this->connection->fetchAllAssociative('SELECT
     app.name,
     app.active,
@@ -362,7 +387,7 @@ WHERE app.active = 1 AND app.base_app_url is not null');
                     continue;
                 }
 
-                [ $entity, $key ] = \explode(':', $privilege);
+                [$entity, $key] = \explode(':', $privilege);
                 $item['privileges'][$key][] = $entity;
             }
 

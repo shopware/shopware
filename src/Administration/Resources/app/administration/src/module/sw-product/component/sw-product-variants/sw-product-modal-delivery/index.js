@@ -53,7 +53,8 @@ Component.register('sw-product-modal-delivery', {
         handleExpandedListing(product) {
             if (product && product.listingMode !== 'single') {
                 // remove main_variant_id from configuratorGroupConfig
-                product.mainVariantId = null;
+                product.variantListingConfig.mainVariantId = null;
+                product.variantListingConfig.displayParent = null;
             }
 
             delete product.listingMode;

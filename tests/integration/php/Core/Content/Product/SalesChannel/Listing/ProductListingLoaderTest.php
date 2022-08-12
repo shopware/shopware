@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\SalesChannel\Listing;
+namespace Shopware\Tests\Integration\Core\Content\Test\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -27,6 +27,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader
  * @group slow
  */
 class ProductListingLoaderTest extends TestCase
@@ -194,7 +195,7 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($listing->first()->hasExtension('search'));
     }
 
-    public function testChangeProductConfigToMainVariant(): void
+    public function testChangeProductConfigToSingleVariant(): void
     {
         // no main variant will be set initially
         $this->createProduct(['color', 'size'], false);
@@ -202,6 +203,7 @@ class ProductListingLoaderTest extends TestCase
         // update product with a main variant
         $this->repository->update([[
             'id' => $this->productId,
+            'displayParent' => false,
             'mainVariantId' => $this->mainVariantId,
             'configuratorGroupConfig' => [],
         ]], $this->salesChannelContext->getContext());
@@ -217,6 +219,31 @@ class ProductListingLoaderTest extends TestCase
         static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds());
         static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds());
         static::assertTrue($mainVariant->hasExtension('search'));
+    }
+
+    public function testChangeProductConfigToMainProduct(): void
+    {
+        // no main variant will be set initially
+        $this->createProduct(['color', 'size'], false);
+
+        // update product with a main variant
+        $this->repository->update([[
+            'id' => $this->productId,
+            'displayParent' => true,
+            'mainVariantId' => $this->mainVariantId,
+            'configuratorGroupConfig' => [],
+        ]], $this->salesChannelContext->getContext());
+
+        $listing = $this->fetchListing();
+
+        static::assertEquals(1, $listing->getTotal());
+
+        // only main product should be returned
+        $mainProduct = $listing->getEntities()->first();
+
+        static::assertEquals($this->productId, $mainProduct->getId());
+        static::assertEquals($this->mainVariantId, $mainProduct->getVariantListingConfig()->getMainVariantId());
+        static::assertTrue($mainProduct->hasExtension('search'));
     }
 
     public function testChangeProductConfigToVariantGroups(): void
@@ -491,6 +518,11 @@ class ProductListingLoaderTest extends TestCase
         }
     }
 
+    /**
+     * @param array<string> $listingProperties
+     *
+     * @return array<int, array<string, string|true>>
+     */
     private function getListingConfiguration(array $listingProperties): array
     {
         $config = [];

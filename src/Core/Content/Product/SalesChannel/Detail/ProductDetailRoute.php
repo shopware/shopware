@@ -33,35 +33,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $config;
+    private SystemConfigService $config;
 
-    /**
-     * @var ProductConfiguratorLoader
-     */
-    private $configuratorLoader;
+    private ProductConfiguratorLoader $configuratorLoader;
 
-    /**
-     * @var CategoryBreadcrumbBuilder
-     */
-    private $breadcrumbBuilder;
+    private CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
-    /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
+    private SalesChannelCmsPageLoaderInterface $cmsPageLoader;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    private ProductDefinition $productDefinition;
 
     /**
      * @internal
@@ -95,7 +77,9 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
-            $productId = $this->findBestVariant($productId, $context);
+            $mainVariantId = $this->checkVariantListingConfig($productId, $context);
+
+            $productId = $mainVariantId ?? $this->findBestVariant($productId, $context);
 
             $this->addFilters($context, $criteria);
 
@@ -106,7 +90,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 ->search($criteria, $context)
                 ->first();
 
-            if (!$product instanceof SalesChannelProductEntity) {
+            if (!($product instanceof SalesChannelProductEntity)) {
                 throw new ProductNotFoundException($productId);
             }
 
@@ -154,6 +138,25 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $filter->addQuery(new EqualsFilter('product.parentId', null));
             $criteria->addFilter($filter);
         }
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string
+    {
+        /** @var SalesChannelProductEntity|null $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        if ($product === null || $product->getParentId() !== null) {
+            return null;
+        }
+
+        if (($listingConfig = $product->getVariantListingConfig()) === null || $listingConfig->getDisplayParent() !== true) {
+            return null;
+        }
+
+        return $listingConfig->getMainVariantId();
     }
 
     /**

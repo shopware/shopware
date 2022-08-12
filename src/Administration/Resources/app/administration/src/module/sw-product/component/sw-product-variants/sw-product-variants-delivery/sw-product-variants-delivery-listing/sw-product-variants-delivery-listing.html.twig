@@ -14,11 +14,23 @@
 
     {% block sw_product_variants_delivery_listing_config %}
     <div class="sw-product-variants-delivery-listing-config">
+
         {% block sw_product_variants_delivery_listing_config_single %}
         <div
             class="sw-product-variants-delivery-listing-config-options"
             :class="{ 'is--disabled': isDisabledListingMode('single') }"
         >
+
+            {% block sw_product_variants_delivery_variant_mode_selection %}
+            <sw-radio-field
+                class="sw-product-variants-delivery-listing_variant-selection"
+                :value="product.variantListingConfig.displayParent"
+                :options="mainVariantModeOptions"
+                :disabled="isDisabledListingMode('single')"
+                @change="updateVariantMode"
+            />
+            {% endblock %}
+
             {% block sw_product_variants_delivery_listing_config_single_main_variant_label %}
             <p>{{ $tc('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
             {% endblock %}
@@ -79,7 +91,14 @@
             {% endblock %}
 
             {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
-            <p>{{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}</p>
+            <div class="sw-product-variants-delivery-listing__option-explanation">
+                <p v-if="product.variantListingConfig.displayParent">
+                    {{ $tc('sw-product.variations.deliveryModal.listingExplanationModeMainProduct') }}
+                </p>
+                <p v-else>
+                    {{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}
+                </p>
+            </div>
             {% endblock %}
         </div>
         {% endblock %}

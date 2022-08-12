@@ -26,25 +26,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingLoader
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $repository;
+    private SalesChannelRepositoryInterface $repository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
@@ -158,15 +146,23 @@ class ProductListingLoader
         $criteria->addFilter(new ProductCloseoutFilter());
     }
 
+    /**
+     * @param array<array<string>|string> $ids
+     *
+     * @throws \JsonException
+     *
+     * @return array<string>
+     */
     private function resolvePreviews(array $ids, SalesChannelContext $context): array
     {
         $ids = array_combine($ids, $ids);
 
         $config = $this->connection->fetchAll(
             '# product-listing-loader::resolve-previews
-            SELECT parent.configurator_group_config,
-                        LOWER(HEX(parent.main_variant_id)) as mainVariantId,
-                        LOWER(HEX(child.id)) as id
+            SELECT
+                parent.variant_listing_config as variantListingConfig,
+                LOWER(HEX(child.id)) as id,
+                LOWER(HEX(parent.id)) as parentId
              FROM product as child
                 INNER JOIN product as parent
                     ON parent.id = child.parent_id
@@ -181,10 +177,18 @@ class ProductListingLoader
         );
 
         $mapping = [];
-
         foreach ($config as $item) {
-            if ($item['mainVariantId']) {
-                $mapping[$item['id']] = $item['mainVariantId'];
+            if ($item['variantListingConfig'] === null) {
+                continue;
+            }
+            $variantListingConfig = json_decode($item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+
+            if ($variantListingConfig['mainVariantId']) {
+                $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
+            }
+
+            if ($variantListingConfig['displayParent']) {
+                $mapping[$item['id']] = $item['parentId'];
             }
         }
 
@@ -231,6 +235,9 @@ class ProductListingLoader
         return $remapped;
     }
 
+    /**
+     * @param array<string> $mapping
+     */
     private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void
     {
         foreach ($ids->getExtensions() as $name => $extension) {

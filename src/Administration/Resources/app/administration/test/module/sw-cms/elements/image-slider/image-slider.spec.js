@@ -39,31 +39,27 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
         element.config = element.defaultConfig;
         element.data = {};
 
-        let i = 0;
-        // eslint-disable-next-line no-plusplus
-        Shopware.Utils.createId = () => i++;
-
         cmsService.registerCmsElement(element);
 
-        const mediaEntites1 = [{
+        const mediaEntities1 = [{
             id: '123',
             url: 'https://www.shopware.com',
         }];
 
-        const mediaEntites2 = [{
+        const mediaEntities2 = [{
             id: '567',
             url: 'https://www.google.com',
         }];
 
-        const enrichData = {
+        const enrichConfig = {
             'entity-media-0':
                 new Shopware.Data.EntityCollection(
                     '/media',
                     'media',
                     null,
                     null,
-                    mediaEntites1,
-                    mediaEntites1.length,
+                    mediaEntities1,
+                    mediaEntities1.length,
                     null,
                 ),
             'entity-media-1':
@@ -72,21 +68,21 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
                     'media',
                     null,
                     null,
-                    mediaEntites2,
-                    mediaEntites2.length,
+                    mediaEntities2,
+                    mediaEntities2.length,
                     null,
                 )
         };
-        element.enrich(element, enrichData);
+        element.enrich(element, enrichConfig);
 
         expect(element.data).toEqual({
             sliderItems: [{
-                media: mediaEntites1[0],
+                media: mediaEntities1[0],
                 newTab: true,
                 url: 'https://www.shopware.com',
             }],
             mediaProperty: [{
-                media: mediaEntites2[0],
+                media: mediaEntities2[0],
                 newTab: false,
                 url: 'https://www.google.com',
             }],
@@ -98,10 +94,6 @@ describe('module/sw-cms/elements/image-slider/index.js', () => {
         // to add the defaultConfig properties to the config root level
         element.config = element.defaultConfig;
         element.data = {};
-
-        let i = 0;
-        // eslint-disable-next-line no-plusplus
-        Shopware.Utils.createId = () => i++;
 
         cmsService.registerCmsElement(element);
 

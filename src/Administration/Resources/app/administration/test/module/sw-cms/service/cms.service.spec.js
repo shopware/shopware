@@ -180,10 +180,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             };
 
-            let i = 0;
-            // eslint-disable-next-line no-plusplus
-            Shopware.Utils.createId = () => i++;
-
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
 
@@ -271,8 +267,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             };
 
-            Shopware.Utils.createId = () => 0;
-
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
 
@@ -311,8 +305,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             };
 
-            Shopware.Utils.createId = () => 0;
-
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
 
@@ -342,8 +334,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     },
                 },
             };
-
-            Shopware.Utils.createId = () => 0;
 
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
@@ -398,10 +388,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
                 data: { media: {} },
             };
-
-            let i = 0;
-            // eslint-disable-next-line no-plusplus
-            Shopware.Utils.createId = () => i++;
 
             cmsService.registerCmsElement(element);
 
@@ -459,12 +445,10 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 data: { media: {} },
             };
 
-            Shopware.Utils.createId = () => 1;
-
             cmsService.registerCmsElement(element);
 
             element.enrich(element, {
-                'entity-media-1':
+                'entity-media-0':
                     new Shopware.Data.EntityCollection(
                         '/media',
                         'media',
@@ -528,8 +512,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                     media: {},
                 },
             };
-
-            Shopware.Utils.createId = () => 0;
 
             cmsService.registerCmsElement(element);
 
@@ -878,10 +860,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 collect: cmsService.getCollectFunction(),
             };
 
-            let i = 0;
-            // eslint-disable-next-line no-plusplus
-            Shopware.Utils.createId = () => i++;
-
             cmsService.registerCmsElement(element);
             const result = element.collect(element);
 
@@ -978,8 +956,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
                 collect: cmsService.getCollectFunction(),
             };
-
-            Shopware.Utils.createId = () => 0;
 
             cmsService.registerCmsElement(element);
             const result = element.collect(element);

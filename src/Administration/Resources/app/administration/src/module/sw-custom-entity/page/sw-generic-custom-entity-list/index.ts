@@ -41,6 +41,9 @@ interface RouteParseOptions {
     naturalSorting?: string
 }
 
+/**
+ * @private
+ */
 Component.register('sw-generic-custom-entity-list', {
     template,
 
@@ -53,7 +56,7 @@ Component.register('sw-generic-custom-entity-list', {
     data() {
         return {
             customEntityName: '',
-            headerBorderColor: '',
+            entityAccentColor: '',
             customEntityDefinition: null as CustomEntityDefinition|null,
             customEntityRepository: null as Repository|null,
             customEntityInstances: null as EntityCollection | null,
@@ -63,7 +66,7 @@ Component.register('sw-generic-custom-entity-list', {
             term: '',
             sortBy: '',
             sortDirection: 'ASC' as SortDirectionOptions,
-            naturalSorting: true,
+            naturalSorting: false,
             isLoading: false,
         };
     },
@@ -84,8 +87,8 @@ Component.register('sw-generic-custom-entity-list', {
                 return {
                     label: this.$tc(`${this.customEntityName}.list.${column.ref}`),
                     property: column.ref,
-                    routerLink: 'sw.custom-entity.detail',
-                    visible: column.hidden ?? false,
+                    routerLink: 'sw.custom.entity.detail',
+                    visible: !column.hidden,
                 };
             });
         },
@@ -130,8 +133,10 @@ Component.register('sw-generic-custom-entity-list', {
             this.customEntityName = customEntityDefinition.entity;
 
             const adminConfig = customEntityDefinition.flags['admin-ui'];
-            this.headerBorderColor = adminConfig.color;
+            this.entityAccentColor = adminConfig.color;
             this.sortBy = adminConfig.listing.columns[0].ref;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            this.$route.meta.$module.icon = adminConfig.icon;
 
             this.customEntityRepository = this.repositoryFactory.create(customEntityDefinition.entity);
             this.customEntityDefinition = customEntityDefinition;

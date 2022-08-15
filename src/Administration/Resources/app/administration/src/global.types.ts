@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
+import type { Route } from 'vue-router';
 import type VueRouter from 'vue-router';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
@@ -297,7 +298,8 @@ declare module 'vue-router' {
  */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
-        $router: VueRouter
+        $router: VueRouter,
+        $route: Route,
     }
 }
 

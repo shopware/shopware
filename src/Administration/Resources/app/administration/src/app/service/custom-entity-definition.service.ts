@@ -1,31 +1,52 @@
 import Vue from 'vue';
 
+/**
+ * @private
+ */
 export interface AdminUiFieldsRef {
     ref: string,
 }
 
+/**
+ * @private
+ */
 export interface ColumnRef extends AdminUiFieldsRef {
     hidden?: boolean,
 }
 
+/**
+ * @private
+ */
 export type AdminUiCardsDefinition = {
     name: string,
     fields: AdminUiFieldsRef[],
 }
 
+/**
+ * @private
+ */
 export type AdminTabsDefinition = {
     name: string,
     cards: AdminUiCardsDefinition[],
 }
 
+/**
+ * @private
+ */
 export type AdminUiDetailDefinition = {
     tabs: AdminTabsDefinition[],
 }
 
+/**
+ * @private
+ */
 export type AdminUiListingDefinition = {
     columns: ColumnRef[],
 }
 
+/**
+ * @private
+ */
 export type AdminUiDefinition = {
     navigationParent: string,
     position: number,
@@ -35,9 +56,22 @@ export type AdminUiDefinition = {
     listing: AdminUiListingDefinition,
 }
 
+/**
+ * @private
+ */
+export type CustomEntityProperties = {
+    [key: string]: {
+        flags: Array<unknown>,
+        type: string
+    },
+}
+
+/**
+ * @private
+ */
 export type CustomEntityDefinition = {
     entity: string,
-    properties: [],
+    properties: CustomEntityProperties,
     flags: {
         'admin-ui': AdminUiDefinition,
     },
@@ -79,7 +113,7 @@ export default class CustomEntityDefinitionService {
     }
 
     getMenuEntries(): Readonly<NavigationMenuEntry[]> {
-        const customEntityDefinitionsWithAdminUi: {name: string, adminUi: AdminUiDefinition}[] = [];
+        const customEntityDefinitionsWithAdminUi: { name: string, adminUi: AdminUiDefinition }[] = [];
 
         this.#state.customEntityDefinitions.forEach(entityDefinition => {
             const adminUi = entityDefinition.flags['admin-ui'];
@@ -102,6 +136,7 @@ export default class CustomEntityDefinitionService {
                 },
                 position: entityDefinition.adminUi.position,
                 parent: entityDefinition.adminUi.navigationParent,
+                icon: entityDefinition.adminUi.icon,
             };
         });
     }

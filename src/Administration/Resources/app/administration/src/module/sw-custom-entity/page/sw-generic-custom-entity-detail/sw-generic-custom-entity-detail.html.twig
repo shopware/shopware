@@ -1,0 +1,86 @@
+<sw-page
+    class="sw-generic-custom-entity-detail"
+    :header-border-color="entityAccentColor"
+>
+    <template #smart-bar-header>
+        <h2 class="sw-generic-custom-entity-detail__title">
+            {{ placeholder(customEntityData, titlePropertyName, $tc(`${customEntityName}.moduleTitle`)) }}
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button-process
+            class="sw-generic-custom-entity-detail__save-action"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            variant="primary"
+            :disabled="isLoading"
+            @process-finish="saveFinish"
+            @click.prevent="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-tabs
+                v-if="!isLoading && customEntityData"
+                class="sw-generic-custom-entity-detail__tabs"
+                position-identifier="sw-generic-custom-entity-detail-tabs"
+                :default-item="mainTabName"
+            >
+                <template
+                    v-if="detailTabs.length > 1"
+                    #default="{ active }"
+                >
+                    <sw-tabs-item
+                        v-for="tab in detailTabs"
+                        :key="`tab-item-${tab.name}`"
+                        class="sw-generic-custom-entity-detail__tab-item"
+                        :name="tab.name"
+                        :active-tab="active"
+                    >
+                        {{ getLabel('tabs', tab.name) }}
+                    </sw-tabs-item>
+                </template>
+
+                <template #content="{ active }">
+                    <div
+                        v-for="tab in detailTabs"
+                        :key="`tab-${tab.name}`"
+                        class="sw-generic-custom-entity-detail__tab-wrapper"
+                    >
+                        <div
+                            v-if="active === tab.name"
+                            class="sw-generic-custom-entity-detail__tab"
+                        >
+                            <sw-card
+                                v-for="card in tab.cards"
+                                :key="`card-${card.name}`"
+                                class="sw-generic-custom-entity-detail__card"
+                                position-identifier="`sw-generic-custom-entity-detail-tab-${card.name}`"
+                                :title="getLabel('cards', card.name)"
+                            >
+                                <sw-custom-entity-input-field
+                                    v-for="field in card.fields"
+                                    :key="field.ref"
+                                    v-model="customEntityData[field.ref]"
+                                    class="sw-generic-custom-entity-detail__field"
+                                    :type="getType(field.ref)"
+                                    :label="getLabel('fields', field.ref)"
+                                    :placeholder="getPlaceholder('fields', field.ref)"
+                                    :help-text="getHelpText('fields', field.ref)"
+                                />
+                            </sw-card>
+                        </div>
+                    </div>
+                </template>
+            </sw-tabs>
+        </sw-card-view>
+    </template>
+</sw-page>

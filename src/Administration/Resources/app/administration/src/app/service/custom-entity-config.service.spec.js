@@ -84,6 +84,7 @@ describe('src/app/service/custom-entity-definition.service', () => {
         const service = createCustomEntityDefinitionService();
 
         expect(service.getMenuEntries()).toStrictEqual([{
+            icon: undefined,
             id: 'custom-entity/custom_entity_with_admin_ui',
             label: 'custom_entity_with_admin_ui.moduleTitle',
             moduleType: 'plugin',

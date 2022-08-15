@@ -1,18 +1,18 @@
-{% block sw_generic_custom_entity_list %}
 <sw-page
-    :header-border-color="headerBorderColor"
+    :header-border-color="entityAccentColor"
     class="sw-generic-custom-entity-list"
 >
     <template #search-bar>
         <sw-search-bar
             :initial-search-type="customEntityName"
             :initial-search="term"
+            :entity-search-color="entityAccentColor"
             @search="onSearch"
         />
     </template>
     <template #smart-bar-header>
         <h2 class="sw-generic-custom-entity-list__title">
-            {{ $tc(`${customEntityName}.list.title`) }}
+            {{ $tc(`${customEntityName}.moduleTitle`) }}
 
             <span v-if="!isLoading">
                 ({{ total }})
@@ -22,10 +22,6 @@
 
     <template #smart-bar-actions>
         <sw-button
-            v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                showOnDisabledElements: true
-            }"
             class="sw-generic-custom-entity-list__button-add"
             :router-link="{ name: 'sw.custom.entity.create' }"
             variant="primary"
@@ -71,4 +67,3 @@
         </sw-empty-state>
     </template>
 </sw-page>
-{% endblock %}

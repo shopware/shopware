@@ -8,7 +8,7 @@ const testEntityData = [{
     id: 'some-id',
     title: 'some-title',
     description: 'some-description',
-    position: 10
+    position: 10,
 }];
 
 testEntityData.total = 1;
@@ -17,6 +17,11 @@ function createWrapper(query = {}) {
     config.mocks.$route = {
         params: {
             entityName: testEntityName
+        },
+        meta: {
+            $module: {
+                icon: null,
+            },
         },
         query,
     };
@@ -107,7 +112,7 @@ function createWrapper(query = {}) {
     });
 }
 
-describe('module/sw-product/page/sw-product-list', () => {
+describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
@@ -142,7 +147,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.vm.$nextTick();
 
         const trimmedTitleText = wrapper.get('.sw-generic-custom-entity-list__title').text().replace(/\s/g, '');
-        expect(trimmedTitleText).toContain('custom_test_entity.list.title(1)');
+        expect(trimmedTitleText).toContain('custom_test_entity.moduleTitle(1)');
 
         expect(wrapper.get('.sw-page').attributes('header-border-color')).toBe('some-hex-color');
 
@@ -154,26 +159,26 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(entityListingProps.sortBy).toBe('title');
         expect(entityListingProps.sortDirection).toBe('ASC');
-        expect(entityListingProps.naturalSorting).toBe(true);
+        expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(25);
 
         expect(entityListingProps.columns).toStrictEqual([{
-            visible: false,
+            visible: true,
             label: 'custom_test_entity.list.title',
             property: 'title',
-            routerLink: 'sw.custom-entity.detail'
+            routerLink: 'sw.custom.entity.detail'
+        },
+        {
+            visible: false,
+            label: 'custom_test_entity.list.description',
+            property: 'description',
+            routerLink: 'sw.custom.entity.detail'
         },
         {
             visible: true,
-            label: 'custom_test_entity.list.description',
-            property: 'description',
-            routerLink: 'sw.custom-entity.detail'
-        },
-        {
-            visible: false,
             label: 'custom_test_entity.list.position',
             property: 'position',
-            routerLink: 'sw.custom-entity.detail'
+            routerLink: 'sw.custom.entity.detail'
         }]);
 
         const criteriaData = entityListingProps.items.criteria.getCriteriaData();
@@ -192,7 +197,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             queries: [],
             sortings: [{
                 field: 'title',
-                naturalSorting: true,
+                naturalSorting: false,
                 order: 'ASC'
             }],
             term: '',
@@ -291,7 +296,7 @@ describe('module/sw-product/page/sw-product-list', () => {
                 page: '1',
                 sortBy: 'title',
                 sortDirection: 'ASC',
-                naturalSorting: 'true',
+                naturalSorting: 'false',
             },
         });
     });
@@ -313,11 +318,11 @@ describe('module/sw-product/page/sw-product-list', () => {
                 limit: '25',
                 sortBy: 'title',
                 sortDirection: 'DESC',
-                naturalSorting: 'true',
+                naturalSorting: 'false',
             },
         });
 
-        entityListing.vm.$emit('column-sort', { dataIndex: 'position', naturalSorting: true });
+        entityListing.vm.$emit('column-sort', { dataIndex: 'position', naturalSorting: false });
 
         expect(wrapper.vm.$router.replace).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.$router.replace).toHaveBeenLastCalledWith({
@@ -327,7 +332,7 @@ describe('module/sw-product/page/sw-product-list', () => {
                 limit: '25',
                 sortBy: 'position',
                 sortDirection: 'ASC',
-                naturalSorting: 'true',
+                naturalSorting: 'false',
             },
         });
     });
@@ -349,7 +354,7 @@ describe('module/sw-product/page/sw-product-list', () => {
                 limit: '10',
                 sortBy: 'title',
                 sortDirection: 'ASC',
-                naturalSorting: 'true',
+                naturalSorting: 'false',
             },
         });
     });

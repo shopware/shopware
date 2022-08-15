@@ -36,22 +36,42 @@ Component.register('sw-search-bar', {
     },
 
     props: {
+        /**
+         * Determines if the initial search entity, e.g. for a search only in products, when entering its list
+         */
         initialSearchType: {
             type: String,
             required: false,
             default: '',
         },
+        /**
+         * Forbids to search outside the defined search entity
+         */
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
             default: false,
         },
+        /**
+         * Search bar placeholder
+         */
         placeholder: {
             type: String,
             required: false,
             default: '',
         },
+        /**
+         * Preset search term
+         */
         initialSearch: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        /**
+         * Color of the entity tag in the search bar
+         */
+        entitySearchColor: {
             type: String,
             required: false,
             default: '',
@@ -689,6 +709,10 @@ Component.register('sw-search-bar', {
         },
 
         getEntityIconColor(entityName) {
+            if (this.entitySearchColor !== '') {
+                return this.entitySearchColor;
+            }
+
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
             if (!module) {

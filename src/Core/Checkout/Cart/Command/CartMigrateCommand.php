@@ -217,7 +217,7 @@ class CartMigrateCommand extends Command
 
                 $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 
-                $values[$key] =  $row['token'];
+                $values[$key] = $row['token'];
                 $value = \serialize([
                     'compressed' => $this->compress,
                     'content' => $content,

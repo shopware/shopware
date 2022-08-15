@@ -12,9 +12,9 @@ class DatabaseConnectionInformation extends Struct
 
     protected int $port = 3306;
 
-    protected ?string $username;
+    protected ?string $username = null;
 
-    protected ?string $password;
+    protected ?string $password = null;
 
     protected string $databaseName = '';
 
@@ -65,6 +65,9 @@ class DatabaseConnectionInformation extends Struct
         ]);
     }
 
+    /**
+     * @return array{url: string, charset: string, driverOptions: array<int, string|bool>}
+     */
     public function toDBALParameters(bool $withoutDatabaseName = false): array
     {
         $parameters = [
@@ -98,7 +101,7 @@ class DatabaseConnectionInformation extends Struct
     {
         $dsn = sprintf(
             'mysql://%s%s:%s',
-            $this->username ? ($this->username . ':' . rawurlencode($this->password ?: '') . '@') : '',
+            $this->username ? ($this->username . ($this->password ? ':' . rawurlencode($this->password) : '') . '@') : '',
             $this->hostname,
             $this->port
         );
@@ -158,5 +161,19 @@ class DatabaseConnectionInformation extends Struct
     public function getSslDontVerifyServerCert(): ?bool
     {
         return $this->sslDontVerifyServerCert;
+    }
+
+    public function hasAdvancedSetting(): bool
+    {
+        return $this->port !== 3306 || $this->sslCaPath || $this->sslCertPath || $this->sslCertKeyPath || $this->sslDontVerifyServerCert !== null;
+    }
+
+    public function validate(): void
+    {
+        if ($this->hostname !== '' && $this->databaseName !== '' && $this->username !== null && $this->username !== '') {
+            return;
+        }
+
+        throw new DatabaseSetupException('Provided database connection information is not valid.');
     }
 }

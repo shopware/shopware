@@ -15,9 +15,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class FakeConnection extends Connection
 {
+    /**
+     * @var array<mixed>
+     */
     private array $dbRows;
 
     /**
+     * @param array<mixed> $dbRows
+     *
      * @throws DBALException
      *
      * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
@@ -37,7 +42,7 @@ class FakeConnection extends Connection
     }
 
     /**
-     * @inheritdoc
+     * @return Result<mixed>
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {

@@ -19,6 +19,9 @@ class UserProvisioner
         $this->connection = $connection;
     }
 
+    /**
+     * @param array{firstName?: string, lastName?: string, email?: string, localeId?: string, admin?: bool} $additionalData
+     */
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username)) {
@@ -67,6 +70,6 @@ class UserProvisioner
                 ->where('language.id = :id')
                 ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
                 ->execute()
-                ->fetchColumn();
+                ->fetchOne();
     }
 }

@@ -7,6 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ */
 class DomainLoader extends AbstractDomainLoader
 {
     /**
@@ -27,6 +30,9 @@ class DomainLoader extends AbstractDomainLoader
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return array<string, Domain>
+     */
     public function load(): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -58,6 +64,9 @@ class DomainLoader extends AbstractDomainLoader
         $query->andWhere('sales_channel.active');
         $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
-        return FetchModeHelper::groupUnique($query->execute()->fetchAll());
+        /** @var array<string, Domain> $domains */
+        $domains = FetchModeHelper::groupUnique($query->execute()->fetchAllAssociative());
+
+        return $domains;
     }
 }

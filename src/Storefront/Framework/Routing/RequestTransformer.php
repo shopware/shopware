@@ -10,6 +10,10 @@ use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException
 use Symfony\Component\HttpFoundation\Request;
 use TrueBV\Punycode;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
+ */
 class RequestTransformer implements RequestTransformerInterface
 {
     public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;
@@ -84,6 +88,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/_profiler/',
         '/_error/',
         '/payment/finalize-transaction',
+        '/installer',
     ];
 
     /**
@@ -97,7 +102,7 @@ class RequestTransformer implements RequestTransformerInterface
     private $resolver;
 
     /**
-     * @var array
+     * @var list<string>
      */
     private $registeredApiPrefixes;
 
@@ -108,6 +113,8 @@ class RequestTransformer implements RequestTransformerInterface
 
     /**
      * @internal
+     *
+     * @param list<string> $registeredApiPrefixes
      */
     public function __construct(
         RequestTransformerInterface $decorated,
@@ -240,6 +247,9 @@ class RequestTransformer implements RequestTransformerInterface
         return $transformedRequest;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function extractInheritableAttributes(Request $sourceRequest): array
     {
         $inheritableAttributes = $this->decorated
@@ -275,6 +285,9 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
+    /**
+     * @return Domain|null
+     */
     private function findSalesChannel(Request $request): ?array
     {
         $domains = $this->domainLoader->load();
@@ -320,6 +333,9 @@ class RequestTransformer implements RequestTransformerInterface
         return $bestMatch;
     }
 
+    /**
+     * @return ResolvedSeoUrl
+     */
     private function resolveSeoUrl(Request $request, string $baseUrl, string $languageId, string $salesChannelId): array
     {
         $seoPathInfo = $request->getPathInfo();

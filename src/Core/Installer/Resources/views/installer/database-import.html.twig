@@ -1,0 +1,129 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.database-import_header"|trans }}</h2>
+    </div>
+
+    <div class="card__body database-import">
+        {% if error %}
+            <div class="alert-hero error">
+                <div class="alert-hero-icon">
+                    <i class="icon-warning"></i>
+                </div>
+                <h3 class="alert-hero-title">{{ "shopware.installer.database_import_error_title"|trans }}</h3>
+                <div class="alert-hero-text">{{ error }}</div>
+            </div>
+        {% endif %}
+
+        <div class="alert alert-error is--hidden">
+            <h2>Error</h2>
+            Received the following error message:
+            <p id="error-message"></p>
+
+            Please try to fix this error and restart the installation.
+            <h3>Response</h3>
+            <pre id="error-content"></pre>
+        </div>
+
+        <div id="import-container" class="database-import-container">
+            <p class="database-import-text">{{ "shopware.installer.database-import_info_text"|trans }}</p>
+
+            <div class="database-import-count">
+                {{ "shopware.installer.database_import_install_label"|trans }} {{ "shopware.installer.database_import_install_step_text"|trans }}
+                <span id="offset" class="database-import-count-offset">0</span>
+                {{ "shopware.installer.database_import_install_from_text"|trans }}
+                <span id="total" class="database-import-count-total">0</span>
+            </div>
+            <div id="progress" class="progress active">
+                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="import-finished" class="database-import-finish is--hidden">
+            <div class="alert-hero success">
+                <div class="alert-hero-icon">
+                    <i class="icon-checkmark"></i>
+                </div>
+                <h3 class="alert-hero-title">{{ "shopware.installer.database_import_success"|trans }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a
+            href="{{ url('installer.database-configuration') }}"
+            id="back"
+            class="btn btn-default flex-item disabled"
+            onclick="if (event.target.classList.contains('disabled')) event.preventDefault();">
+            {{ "shopware.installer.back"|trans }}
+        </a>
+        <a
+            href="{{ url('installer.configuration') }}"
+            id="next"
+            class="btn btn-primary flex-item flex-right disabled"
+            onclick="if (event.target.classList.contains('disabled')) event.preventDefault();">
+            {{ "shopware.installer.forward"|trans }}
+        </a>
+    </div>
+
+    <script>
+        window.addEventListener('beforeunload', preventPageLeave);
+        doRequest(0);
+
+        function importFinished() {
+            document.getElementById('back').classList.remove('disabled');
+            document.getElementById('next').classList.remove('disabled');
+
+            document.getElementById('import-container').classList.add('is--hidden');
+            document.getElementById('import-finished').classList.remove('is--hidden');
+
+            const progress = document.getElementById('progress');
+            progress.classList.remove('active');
+
+            window.removeEventListener('beforeunload', preventPageLeave);
+        }
+
+        function preventPageLeave(event) {
+            event.preventDefault();
+
+            return event.returnValue = 'A system installation is running.';
+        }
+
+        async function doRequest(offset) {
+            const response = await fetch('{{ url('installer.database-migrate') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    offset: offset,
+                }),
+            })
+
+            if (!response.ok) {
+                document.getElementById('alert-error').classList.remove('is--hidden');
+                document.getElementById('error-message').innerText = (await response.json()).error;
+                document.getElementById('error-content').innerText = await response.text();
+
+                document.getElementById('back').classList.remove('disabled');
+
+                return;
+            }
+
+            const data = await response.json();
+
+            document.getElementById('offset').innerText = data.offset;
+            document.getElementById('total').innerText = data.total;
+
+            const progress = data.offset / data.total * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            if (data.isFinished) {
+                importFinished();
+            } else {
+                doRequest(data.offset);
+            }
+        }
+    </script>
+{% endblock %}

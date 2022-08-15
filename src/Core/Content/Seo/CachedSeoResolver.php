@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
+ */
 class CachedSeoResolver extends AbstractSeoResolver
 {
     private AbstractSeoResolver $decorated;
@@ -26,6 +29,9 @@ class CachedSeoResolver extends AbstractSeoResolver
         return $this->decorated;
     }
 
+    /**
+     * @return ResolvedSeoUrl
+     */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
         $key = 'seo-resolver-' . md5(implode('-', [$languageId, $salesChannelId, $pathInfo]));
@@ -38,7 +44,10 @@ class CachedSeoResolver extends AbstractSeoResolver
             return CacheValueCompressor::compress($resolved);
         });
 
-        return CacheValueCompressor::uncompress($value);
+        /** @var ResolvedSeoUrl $value */
+        $value = CacheValueCompressor::uncompress($value);
+
+        return $value;
     }
 
     public static function buildName(string $pathInfo): string

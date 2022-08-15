@@ -10,29 +10,17 @@ use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 class MigrationCollection
 {
     /**
-     * @var MigrationStep[]|null
+     * @var array<class-string<MigrationStep>, MigrationStep>|null
      */
-    private $migrationSteps;
+    private ?array $migrationSteps = null;
 
-    /**
-     * @var MigrationSource
-     */
-    private $migrationSource;
+    private MigrationSource $migrationSource;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var MigrationRuntime
-     */
-    private $migrationRuntime;
+    private MigrationRuntime $migrationRuntime;
 
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private ?LoggerInterface $logger = null;
 
     /**
      * @internal
@@ -70,6 +58,9 @@ class MigrationCollection
         return $this->migrationRuntime->migrate($this->migrationSource, $until, $limit);
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function migrateInPlace(?int $until = null, ?int $limit = null): array
     {
         return iterator_to_array($this->migrateInSteps($until, $limit));
@@ -80,33 +71,47 @@ class MigrationCollection
         return $this->migrationRuntime->migrateDestructive($this->migrationSource, $until, $limit);
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function migrateDestructiveInPlace(?int $until = null, ?int $limit = null): array
     {
         return iterator_to_array($this->migrateDestructiveInSteps($until, $limit));
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
     {
         return $this->migrationRuntime->getExecutableMigrations($this->migrationSource, $until, $limit);
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableDestructiveMigrations(?int $until = null, ?int $limit = null): array
     {
         return $this->migrationRuntime->getExecutableDestructiveMigrations($this->migrationSource, $until, $limit);
     }
 
+    public function getTotalMigrationCount(?int $until = null, ?int $limit = null): int
+    {
+        return $this->migrationRuntime->getTotalMigrationCount($this->migrationSource, $until, $limit);
+    }
+
     /**
-     * @return MigrationStep[]
+     * @return array<class-string<MigrationStep>, MigrationStep>
      */
     public function getMigrationSteps(): array
     {
         $this->ensureStepsLoaded();
 
-        return $this->migrationSteps;
+        return $this->migrationSteps ?? [];
     }
 
     /**
-     * @return int[]
+     * @return list<int>
      */
     public function getActiveMigrationTimestamps(): array
     {
@@ -119,6 +124,11 @@ class MigrationCollection
         return $activeMigrations;
     }
 
+    /**
+     * @param class-string<MigrationStep> $className
+     *
+     * @return array{class: class-string<MigrationStep>, creation_timestamp: int, update?: string, update_destructive?: string, message?: string}
+     */
     private function getMigrationData(string $className, MigrationStep $migrationStep): array
     {
         $default = [
@@ -131,7 +141,8 @@ class MigrationCollection
             return $default;
         }
 
-        $row = $this->connection->fetchAssoc(
+        /** @var false|array{class: class-string<MigrationStep>, creation_timestamp: int, update: string, update_destructive: string, message: string} $row */
+        $row = $this->connection->fetchAssociative(
             'SELECT * FROM migration WHERE class = :class',
             ['class' => $oldName]
         );
@@ -152,15 +163,15 @@ class MigrationCollection
         }
 
         $this->migrationSteps = [];
-        foreach ($this->loadMigrationSteps() as $step) {
-            $this->migrationSteps[\get_class($step)] = $step;
+        foreach ($this->loadMigrationSteps() as $name => $step) {
+            $this->migrationSteps[$name] = $step;
         }
     }
 
     /**
      * @throws InvalidMigrationClassException
      *
-     * @return MigrationStep[]
+     * @return array<class-string<MigrationStep>, MigrationStep>
      */
     private function loadMigrationSteps(): array
     {
@@ -181,7 +192,12 @@ class MigrationCollection
                 continue;
             }
 
-            foreach (scandir($directory, \SCANDIR_SORT_ASCENDING) as $classFileName) {
+            $classFiles = scandir($directory, \SCANDIR_SORT_ASCENDING);
+            if (!$classFiles) {
+                continue;
+            }
+
+            foreach ($classFiles as $classFileName) {
                 $path = $directory . '/' . $classFileName;
                 $className = $namespace . '\\' . pathinfo($classFileName, \PATHINFO_FILENAME);
 

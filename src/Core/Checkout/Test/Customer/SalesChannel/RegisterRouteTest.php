@@ -279,6 +279,8 @@ class RegisterRouteTest extends TestCase
 
     /**
      * @dataProvider registerWithDomainAndLeadingSlashProvider
+     *
+     * @param array<string, string> $domainUrlTest
      */
     public function testRegistrationWithTrailingSlashUrl(array $domainUrlTest): void
     {
@@ -660,6 +662,9 @@ class RegisterRouteTest extends TestCase
         static::assertNotSame('test', $context->getToken());
     }
 
+    /**
+     * @return array<int, array<int, bool|int>>
+     */
     public function customerBoundToSalesChannelProvider(): array
     {
         $isCustomerScoped = true;
@@ -1094,6 +1099,9 @@ class RegisterRouteTest extends TestCase
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [

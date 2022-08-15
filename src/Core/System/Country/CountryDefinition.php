@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
@@ -67,7 +66,6 @@ class CountryDefinition extends EntityDefinition
             'postalCodeRequired' => false,
             'checkPostalCodePattern' => false,
             'checkAdvancedPostalCodePattern' => false,
-            'useDefaultAddressFormat' => true,
             'customerTax' => $defaultTax,
             'companyTax' => $defaultTax,
         ];
@@ -100,12 +98,10 @@ class CountryDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()),
-            (new TranslatedField('advancedAddressFormatPlain'))->addFlags(new ApiAware(), new AllowHtml(false)),
             (new BoolField('postal_code_required', 'postalCodeRequired'))->addFlags(new ApiAware()),
             (new BoolField('check_postal_code_pattern', 'checkPostalCodePattern'))->addFlags(new ApiAware()),
             (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
-            (new BoolField('use_default_address_format', 'useDefaultAddressFormat'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),
 

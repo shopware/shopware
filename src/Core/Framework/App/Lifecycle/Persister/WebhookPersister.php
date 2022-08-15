@@ -80,7 +80,7 @@ class WebhookPersister
 
     private function deleteOldWebhooks(WebhookCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (empty($ids)) {

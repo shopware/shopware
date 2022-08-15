@@ -133,15 +133,11 @@ class CountryEntity extends Entity
      */
     protected $currencyCountryRoundings;
 
-    protected ?string $advancedAddressFormatPlain;
-
     protected bool $postalCodeRequired;
 
     protected bool $checkPostalCodePattern;
 
     protected bool $checkAdvancedPostalCodePattern;
-
-    protected bool $useDefaultAddressFormat;
 
     protected ?string $advancedPostalCodePattern;
 
@@ -407,16 +403,6 @@ class CountryEntity extends Entity
         $this->companyTax = $companyTax;
     }
 
-    public function getAdvancedAddressFormatPlain(): ?string
-    {
-        return $this->advancedAddressFormatPlain;
-    }
-
-    public function setAdvancedAddressFormatPlain(?string $advancedAddressFormatPlain): void
-    {
-        $this->advancedAddressFormatPlain = $advancedAddressFormatPlain;
-    }
-
     public function getPostalCodeRequired(): bool
     {
         return $this->postalCodeRequired;
@@ -445,16 +431,6 @@ class CountryEntity extends Entity
     public function setCheckAdvancedPostalCodePattern(bool $checkAdvancedPostalCodePattern): void
     {
         $this->checkAdvancedPostalCodePattern = $checkAdvancedPostalCodePattern;
-    }
-
-    public function getUseDefaultAddressFormat(): bool
-    {
-        return $this->useDefaultAddressFormat;
-    }
-
-    public function setUseDefaultAddressFormat(bool $useDefaultAddressFormat): void
-    {
-        $this->useDefaultAddressFormat = $useDefaultAddressFormat;
     }
 
     public function getAdvancedPostalCodePattern(): ?string

@@ -5,12 +5,9 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\Country\Service\CountryAddressFormattingService;
-use Shopware\Core\System\Country\Struct\CountryAddress;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Twig\Error\Error;
@@ -33,19 +30,13 @@ class StornoGenerator implements DocumentGeneratorInterface
      */
     private $documentTemplateRenderer;
 
-    private CountryAddressFormattingService $countryAddressFormattingService;
-
     /**
      * @internal
      */
-    public function __construct(
-        DocumentTemplateRenderer $documentTemplateRenderer,
-        string $rootDir,
-        CountryAddressFormattingService $countryAddressFormattingService
-    ) {
+    public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
+    {
         $this->rootDir = $rootDir;
         $this->documentTemplateRenderer = $documentTemplateRenderer;
-        $this->countryAddressFormattingService = $countryAddressFormattingService;
     }
 
     public function supports(): string
@@ -81,20 +72,14 @@ class StornoGenerator implements DocumentGeneratorInterface
         /** @var LocaleEntity $locale */
         $locale = $language->getLocale();
 
-        $parameters = [
-            'order' => $order,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
-            'rootDir' => $this->rootDir,
-            'context' => $context,
-        ];
-
-        if ($formattingAddress = $this->renderFormattingAddress($order, $context)) {
-            $parameters['formattingAddress'] = $formattingAddress;
-        }
-
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
-            $parameters,
+            [
+                'order' => $order,
+                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+                'rootDir' => $this->rootDir,
+                'context' => $context,
+            ],
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
@@ -116,9 +101,7 @@ class StornoGenerator implements DocumentGeneratorInterface
 
     private function handlePrices(OrderEntity $order): OrderEntity
     {
-        /** @var OrderLineItemCollection */
-        $lineItems = $order->getLineItems();
-        foreach ($lineItems as $lineItem) {
+        foreach ($order->getLineItems() ?? [] as $lineItem) {
             $lineItem->setUnitPrice($lineItem->getUnitPrice() / -1);
             $lineItem->setTotalPrice($lineItem->getTotalPrice() / -1);
         }
@@ -135,23 +118,5 @@ class StornoGenerator implements DocumentGeneratorInterface
         ]);
 
         return $order;
-    }
-
-    private function renderFormattingAddress(OrderEntity $order, Context $context): ?string
-    {
-        if (!$order->getAddresses()) {
-            return null;
-        }
-
-        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
-        if ($billingAddress && $billingAddress->getCountry() && !$billingAddress->getCountry()->getUseDefaultAddressFormat()) {
-            return $this->countryAddressFormattingService->render(
-                CountryAddress::createFromEntity($billingAddress),
-                $billingAddress->getCountry()->getAdvancedAddressFormatPlain(),
-                $context,
-            );
-        }
-
-        return null;
     }
 }

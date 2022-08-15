@@ -1,41 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Migration\V6_4\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable
  */
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullableTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void
     {
         parent::setup();
-        $container = $this->getContainer();
-        $this->connection = $container->get(Connection::class);
-    }
-
-    /**
-     * @before
-     */
-    public function initialise(): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $migration = new Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable();
-        $migration->update($connection);
+        $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testMigration(): void
     {
-        /** @var string[] */
+        $migration = new Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable();
+        $migration->update($this->connection);
+
+        /** @var array<string> */
         $dbUrlArr = parse_url($_SERVER['DATABASE_URL']);
         $databaseName = substr($dbUrlArr['path'], 1);
         $sql = "SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS

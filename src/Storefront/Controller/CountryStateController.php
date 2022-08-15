@@ -26,6 +26,9 @@ class CountryStateController extends StorefrontController
 {
     private CountryStateDataPageletLoader $countryStateDataPageletLoader;
 
+    /**
+     * @deprecated tag:v6.5.0 - $countryRoute will be removed
+     */
     private AbstractCountryRoute $countryRoute;
 
     /**

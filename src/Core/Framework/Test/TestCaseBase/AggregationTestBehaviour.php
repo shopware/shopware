@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 trait AggregationTestBehaviour
 {
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function setupFixtures(Context $context): array
     {

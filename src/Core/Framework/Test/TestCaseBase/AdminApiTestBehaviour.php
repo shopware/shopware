@@ -65,8 +65,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @param string[] $scopes
-     * @param string[]|null $permissions
+     * @param array<string> $scopes
+     * @param array<string>|null $permissions
      */
     public function createClient(
         ?KernelInterface $kernel = null,

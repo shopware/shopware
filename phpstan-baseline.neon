@@ -1051,41 +1051,6 @@ parameters:
 			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:getDomainUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:mapAddressData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:mapBillingAddress\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:mapCustomerData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:mapShippingAddress\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:setDoubleOptInData\\(\\) has parameter \\$customer with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\RegisterRoute\\:\\:setDoubleOptInData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ResetPasswordRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php
@@ -2891,21 +2856,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/SalesChannel/MergeWishlistProductRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\RegisterRouteTest\\:\\:customerBoundToSalesChannelProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\RegisterRouteTest\\:\\:getRegistrationData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\RegisterRouteTest\\:\\:testRegistrationWithTrailingSlashUrl\\(\\) has parameter \\$domainUrlTest with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/RegisterRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 6
 			path: src/Core/Checkout/Test/Customer/SalesChannel/RemoveWishlistProductRouteTest.php
@@ -2961,11 +2911,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/SalesChannel/SwitchDefaultAddressRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\SalesChannel\\\\UpsertAddressRouteTest\\:\\:testCreateAddress\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/SalesChannel/UpsertAddressRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Subscriber/CustomerChangePasswordSubscriberTest.php
@@ -2989,26 +2934,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Validation\\\\CustomerValidationFactoryTest\\:\\:getCreateTestData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:createCustomer\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:createDeliveryTimeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:generateCreditItems\\(\\) has parameter \\$creditPrices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:generateDemoCart\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:getOrderById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
@@ -9044,11 +8969,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartProcessorTest\\:\\:testProductFeaturesContainCorrectInformation\\(\\) has parameter \\$testedFeature with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartTest\\:\\:testPriceInCart\\(\\) has parameter \\$contextOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartTest.php
 
 		-
 			message: "#^If condition is always true\\.$#"
@@ -25788,16 +25708,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
 
 		-
-			message: "#^Cannot call method setDefaultBillingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/AddressController.php
-
-		-
-			message: "#^Cannot call method setDefaultShippingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/AddressController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Controller\\\\Api\\\\CaptchaController\\:\\:__construct\\(\\) has parameter \\$captchas with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Storefront/Controller/Api/CaptchaController.php
@@ -26431,11 +26341,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountPaymentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AddressControllerTest\\:\\:createCustomers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AddressControllerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$expectedJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"

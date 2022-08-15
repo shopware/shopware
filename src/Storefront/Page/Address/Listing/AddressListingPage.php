@@ -36,18 +36,6 @@ class AddressListingPage extends Page
      */
     protected $address;
 
-    protected array $formattingCustomerAddresses = [];
-
-    public function getFormattingCustomerAddresses(): array
-    {
-        return $this->formattingCustomerAddresses;
-    }
-
-    public function setFormattingCustomerAddresses(array $formattingCustomerAddresses): ?array
-    {
-        return $this->formattingCustomerAddresses = $formattingCustomerAddresses;
-    }
-
     public function getAddresses(): CustomerAddressCollection
     {
         return $this->addresses;

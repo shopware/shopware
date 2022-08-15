@@ -220,15 +220,16 @@ class AddressController extends StorefrontController
         $viewData = new AddressEditorModalStruct();
         $params = [];
 
-        $page = $this->addressListingPageLoader->load($request, $context, $customer);
-        $this->hook(new AddressBookWidgetLoadedHook($page, $context));
-
-        $viewData->setPage($page);
-
         try {
             $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
             $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
             $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
+
+            $page = $this->addressListingPageLoader->load($request, $context, $customer);
+
+            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+
+            $viewData->setPage($page);
             if (Feature::isActive('FEATURE_NEXT_15957')) {
                 $this->handleCustomerVatIds($dataBag, $context, $customer);
             }
@@ -243,10 +244,10 @@ class AddressController extends StorefrontController
             ]);
         }
 
-        $params = array_merge($params, $viewData->getVars());
         if ($request->get('redirectTo') || $request->get('forwardTo')) {
             return $this->createActionResponse($request);
         }
+        $params = array_merge($params, $viewData->getVars());
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/component/address/address-editor-modal.html.twig',

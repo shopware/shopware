@@ -6,9 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -19,7 +16,6 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
@@ -40,7 +36,6 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Test\Country\Helpers\Traits\CountryAddressFormattingTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -51,7 +46,6 @@ class CreditNoteGeneratorTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
-    use CountryAddressFormattingTestBehaviour;
 
     public const CUSTOMER_GROUP_GROSS = false;
 
@@ -239,55 +233,6 @@ class CreditNoteGeneratorTest extends TestCase
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
     }
 
-    public function testGenerateWithFormattingAddress(): void
-    {
-        $this->setSalesChannelContext();
-        $this->setUseAdvancedFormatForCountry($this->connection);
-        $this->setAdvancedAddressFormatPlainForCountry($this->connection, "{{firstName}}\n{{lastName}}");
-
-        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
-
-        $possibleTaxes = [7];
-        //generates one line item for each tax
-        $cart = $this->generateDemoCart($possibleTaxes);
-        $creditPrices = [-100];
-        //generates credit items for each price
-        $cart = $this->generateCreditItems($cart, $creditPrices);
-
-        $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
-
-        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
-            new DocumentConfiguration(),
-            [
-                'displayLineItems' => true,
-                'itemsPerPage' => 10,
-                'displayFooter' => true,
-                'displayHeader' => true,
-            ]
-        );
-        $context = Context::createDefaultContext();
-
-        $processedTemplate = $creditNoteService->generate(
-            $order,
-            $documentConfiguration,
-            $context
-        );
-
-        static::assertStringContainsString('<html>', $processedTemplate);
-        static::assertStringContainsString('</html>', $processedTemplate);
-
-        /** @var OrderAddressCollection */
-        $orderAddresses = $order->getAddresses();
-        $billingAddress = $orderAddresses->get($order->getBillingAddressId());
-        $expectedFormattingRender = $billingAddress
-            ? ($billingAddress->getFirstName() . "<br />\n" . $billingAddress->getLastName())
-            : '';
-
-        static::assertStringContainsString($expectedFormattingRender, $processedTemplate);
-    }
-
     private function setSalesChannelContext(bool $customerGroupNet = false): void
     {
         $priceRuleId = Uuid::randomHex();
@@ -360,10 +305,7 @@ class CreditNoteGeneratorTest extends TestCase
     }
 
     /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
+     * @param array<float> $taxes
      */
     private function generateDemoCart(array $taxes): Cart
     {
@@ -411,6 +353,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $cart;
     }
 
+    /**
+     * @param array<float> $creditPrices
+     */
     private function generateCreditItems(Cart $cart, array $creditPrices): Cart
     {
         foreach ($creditPrices as $price) {
@@ -432,6 +377,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $orderId;
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     private function createCustomer(array $options = []): string
     {
         $customerId = Uuid::randomHex();
@@ -522,6 +470,9 @@ class CreditNoteGeneratorTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, int|string>
+     */
     private function createDeliveryTimeData(): array
     {
         return [

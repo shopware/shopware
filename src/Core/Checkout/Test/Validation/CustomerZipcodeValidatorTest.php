@@ -165,6 +165,9 @@ class CustomerZipcodeValidatorTest extends TestCase
         }
     }
 
+    /**
+     * @param array<string, mixed> $addressConfigs
+     */
     private function upsertCountryAddressHandlingConfig(string $countryId, array $addressConfigs = []): void
     {
         $country = array_merge(['id' => $countryId], $addressConfigs);

@@ -52,7 +52,6 @@ class DataValidator
 
         foreach ($definition->getProperties() as $propertyName => $constraints) {
             $value = $data[$propertyName] ?? null;
-            /** @var ConstraintViolationList $violations */
             $violations = $this->validator->validate($value, $constraints);
 
             /** @var ConstraintViolation $violation */

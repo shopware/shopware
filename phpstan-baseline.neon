@@ -6561,16 +6561,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/fixtures/ensure_ids_for_products.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\LandingPage\\\\SalesChannel\\\\LandingPageRouteTest\\:\\:createData\\(\\) has parameter \\$override with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/LandingPage/SalesChannel/LandingPageRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/MailTemplate/Api/MailHeaderFooterApiTest.php

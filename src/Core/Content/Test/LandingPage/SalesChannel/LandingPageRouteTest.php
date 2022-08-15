@@ -79,7 +79,7 @@ class LandingPageRouteTest extends TestCase
             '/store-api/landing-page/' . $this->ids->get('landing-page')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertEquals($this->ids->get('landing-page'), $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -121,7 +121,7 @@ class LandingPageRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -146,7 +146,7 @@ class LandingPageRouteTest extends TestCase
 
     private function assertError(string $landingPageId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
         $error = new LandingPageNotFoundException($landingPageId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),
@@ -157,6 +157,9 @@ class LandingPageRouteTest extends TestCase
         static::assertSame($expectedError['message'], $response['errors'][0]['detail']);
     }
 
+    /**
+     * @param array<string, mixed> $override
+     */
     private function createData(array $override = []): void
     {
         $data = [

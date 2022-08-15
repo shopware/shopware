@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\Test\Update;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -89,27 +90,22 @@ class ApiClientCacheTest extends TestCase
 
     private function getClient(string $version): Client
     {
-        $client = $this->createMock(Client::class);
+        $body = json_encode([
+            'version' => $version,
+            'release_date' => null,
+            'security_update' => false,
+            'uri' => 'https://releases.shopware.com/sw6/update_' . $version . '.zip',
+            'size' => '10300647',
+            'sha1' => '989a66605d12d347ceb727c73954bb0ba3b9192d',
+            'sha256' => '8541ba418536bc84b1cd90063a3a41240646cbf83eef0fe809a0b02977e623c4',
+            'isNewer' => true,
+        ], \JSON_THROW_ON_ERROR);
 
-        $response = $this->createMock(ResponseInterface::class);
-        $response->method('getHeader')
-            ->with('x-shopware-signature')
-            ->willReturn('withoutPlugin');
+        $handler = new MockHandler([
+            new Response(200, ['x-shopware-signature' => 'withoutPlugin'], $body),
+            new Response(200, ['x-shopware-signature' => 'withoutPlugin'], $body),
+        ]);
 
-        $response->method('getBody')
-            ->willReturn(json_encode([
-                'version' => $version,
-                'release_date' => null,
-                'security_update' => false,
-                'uri' => 'https://releases.shopware.com/sw6/update_' . $version . '.zip',
-                'size' => '10300647',
-                'sha1' => '989a66605d12d347ceb727c73954bb0ba3b9192d',
-                'sha256' => '8541ba418536bc84b1cd90063a3a41240646cbf83eef0fe809a0b02977e623c4',
-                'isNewer' => true,
-            ]));
-
-        $client->method('get')->willReturn($response);
-
-        return $client;
+        return new Client(['handler' => $handler]);
     }
 }

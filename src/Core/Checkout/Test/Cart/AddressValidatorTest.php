@@ -207,6 +207,10 @@ class AddressValidatorTest extends TestCase
         ?string $shippingAddressSalutationId = null
     ): CustomerEntity {
         $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setCustomerNumber('test');
+        $customer->setFirstName('Foo');
+        $customer->setLastName('Foo');
 
         if ($salutationId) {
             $customer->setSalutationId($salutationId);

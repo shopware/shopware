@@ -301,7 +301,9 @@ class OrderTotalAmountRuleTest extends TestCase
         }
 
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $orderCollection->add(new OrderEntity());
+        $entity = new OrderEntity();
+        $entity->setUniqueIdentifier('foo');
+        $orderCollection->add($entity);
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);

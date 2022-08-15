@@ -192,7 +192,9 @@ class OrderCountRuleTest extends TestCase
         }
 
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $orderCollection->add(new OrderEntity());
+        $entity = new OrderEntity();
+        $entity->setUniqueIdentifier('test');
+        $orderCollection->add($entity);
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);

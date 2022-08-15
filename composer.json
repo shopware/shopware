@@ -317,7 +317,7 @@
             "phpunit --group=quarantined"
         ],
         "paratest": [
-            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver,quarantined --processes $(nproc)"
+            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver,quarantined --processes $(getconf _NPROCESSORS_ONLN)"
         ],
         "locust:init": "php src/Core/DevOps/Locust/setup.php",
         "locust:run": "cd src/Core/DevOps/Locust && locust",

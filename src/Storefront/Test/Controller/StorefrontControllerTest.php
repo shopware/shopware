@@ -104,11 +104,11 @@ class StorefrontControllerTest extends TestCase
 
     public function cartProvider(): \Generator
     {
+        $cart = new Cart('test', 'test');
+        $cart->setErrors(new ErrorCollection($this->getErrors()));
+
         yield 'cart with salutation errors' => [
-            $this->createConfiguredMock(
-                Cart::class,
-                ['getErrors' => new ErrorCollection($this->getErrors())]
-            ),
+            $cart,
         ];
     }
 

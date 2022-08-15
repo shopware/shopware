@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\Content\Product\Exception\VariantNotFoundException
  */
-class FoundCombinationTest extends TestCase
+class VariantNotFoundExceptionTest extends TestCase
 {
     public function testInstantiate(): void
     {

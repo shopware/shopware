@@ -77,6 +77,7 @@ class IsGuestCustomerRuleTest extends TestCase
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
+        $customer->setGuest(false);
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);

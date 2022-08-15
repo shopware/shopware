@@ -45,24 +45,24 @@ class PluginListCommandTest extends TestCase
 
         $plugin1->setUniqueIdentifier('1');
         $plugin1->assign([
-            'getActive' => true,
-            'getInstalledAt' => new \DateTimeImmutable('2004-01-01T00:00:00.000001Z'),
-            'getUpgradeVersion' => '3.0.1',
-            'getName' => 'Plugin List Plugin',
-            'getLabel' => 'plp',
-            'getVersion' => '2.5.3',
-            'getAuthor' => 'Fabian Blechschmidt',
+            'active' => true,
+            'installedAt' => new \DateTimeImmutable('2004-01-01T00:00:00.000001Z'),
+            'upgradeVersion' => '3.0.1',
+            'name' => 'Plugin List Plugin',
+            'label' => 'plp',
+            'version' => '2.5.3',
+            'author' => 'Fabian Blechschmidt',
         ]);
 
         $plugin2->setUniqueIdentifier('2');
         $plugin2->assign([
-            'getActive' => false,
-            'getInstalledAt' => new \DateTimeImmutable('2019-05-23T00:00:00.000001Z'),
-            'getUpgradeVersion' => '6.0.0',
-            'getName' => 'Shopware Next',
-            'getLabel' => 'swn',
-            'getVersion' => '5.5.3',
-            'getAuthor' => 'Shopware AG',
+            'active' => false,
+            'installedAt' => new \DateTimeImmutable('2019-05-23T00:00:00.000001Z'),
+            'upgradeVersion' => '6.0.0',
+            'name' => 'Shopware Next',
+            'label' => 'swn',
+            'version' => '5.5.3',
+            'author' => 'Shopware AG',
         ]);
 
         $this->setupEntityCollection($entities);

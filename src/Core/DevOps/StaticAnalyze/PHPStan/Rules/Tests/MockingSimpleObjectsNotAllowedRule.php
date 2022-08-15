@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
+use GuzzleHttp\Client;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\MethodCall;
@@ -17,6 +18,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -28,12 +31,17 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
     private const DISALLOWED_CLASSES = [
         Struct::class,
         Context::class,
+        Request::class,
+        ParameterBag::class,
+        Client::class,
     ];
 
-    private const WHITELISTED_CLASSES = [
+    private const ALLOWED_CLASSES = [
         SalesChannelContext::class,
         EntitySearchResult::class,
     ];
+
+    private const MOCK_METHODS = ['createMock', 'createMockObject', 'createStub', 'createPartialMock', 'createConfiguredMock', 'createTestProxy'];
 
     private ReflectionProvider $reflectionProvider;
 
@@ -60,7 +68,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
             return [];
         }
 
-        if (!\in_array((string) $node->name, ['createMock', 'createMockObject', 'createStub'], true)) {
+        if (!\in_array((string) $node->name, self::MOCK_METHODS, true)) {
             return [];
         }
 
@@ -118,7 +126,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
 
     private function isBlacklisted(ClassReflection $class): bool
     {
-        if (\in_array($class->getName(), self::WHITELISTED_CLASSES, true)) {
+        if (\in_array($class->getName(), self::ALLOWED_CLASSES, true)) {
             return false;
         }
 
@@ -127,6 +135,10 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
         }
 
         foreach ($class->getParentClassesNames() as $parentClassesName) {
+            if (\in_array($parentClassesName, self::ALLOWED_CLASSES, true)) {
+                return false;
+            }
+
             if (\in_array($parentClassesName, self::DISALLOWED_CLASSES, true)) {
                 return true;
             }

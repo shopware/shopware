@@ -156,7 +156,6 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
 
         const gridBody = wrapper.find('.sw-data-grid__body');
 
-        const productSelection = gridBody.findAll('input[type="checkbox"]');
         const amountFields = gridBody.findAll('input[name="sw-field--item-amount"]');
 
         await amountFields.wrappers[1].setValue(2);
@@ -164,12 +163,6 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
 
         await amountFields.wrappers[5].setValue(4);
         await amountFields.wrappers[5].trigger('change');
-
-        await productSelection.wrappers[1].setChecked();
-        await productSelection.wrappers[1].trigger('change');
-
-        await productSelection.wrappers[5].setChecked();
-        await productSelection.wrappers[5].trigger('change');
 
         expect(wrapper.emitted()['selection-change'][0][0]).toEqual([
             {
@@ -206,5 +199,27 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
                 }]
             }
         ]);
+    });
+
+    it('should set value zero when checked in checkbox', async () => {
+        setProductData(products);
+
+        const wrapper = createWrapper();
+        await flushPromises();
+
+        const gridBody = wrapper.find('.sw-data-grid__body');
+
+        const productSelection = gridBody.findAll('input[type="checkbox"]');
+        const amountFields = gridBody.findAll('input[name="sw-field--item-amount"]');
+
+        await productSelection.wrappers[1].setChecked();
+        await productSelection.wrappers[1].trigger('change');
+
+        expect(amountFields.wrappers[1].element.value).toEqual('0');
+
+        await productSelection.wrappers[1].setChecked(false);
+        await productSelection.wrappers[1].trigger('change');
+
+        expect(amountFields.wrappers[1].element.value).toBe('');
     });
 });

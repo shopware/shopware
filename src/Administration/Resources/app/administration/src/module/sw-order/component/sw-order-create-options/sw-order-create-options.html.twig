@@ -3,7 +3,9 @@
     {% block sw_order_create_options_container %}
     {% block sw_order_create_options_order %}
     {% block sw_order_create_options_order_headline %}
-    <h3>{{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}</h3>
+    <h3 class="sw-order-create-options__headline">
+        {{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}
+    </h3>
     {% endblock %}
 
     {% block sw_order_create_options_order_switch_test_order %}
@@ -26,7 +28,8 @@
 
     {% block sw_order_create_options_order_field_container %}
     <sw-container
-        gap="0px 30px"
+        class="sw-order-create-options__order-container"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
         {% block sw_order_create_options_order_language %}
@@ -80,7 +83,7 @@
     {% block sw_order_create_options_payment_container %}
     <sw-container
         class="sw-order-create-options__payment-container"
-        gap="0px 30px"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
         {% block sw_order_create_options_payment_method %}
@@ -105,7 +108,6 @@
             value-property="id"
             required
             disable-search-function
-            show-clearable-button
             :is-loading="isLoadingBillingAddress"
             :options="customerAddresses"
             :label="$tc('sw-order.createBase.labelBillingAddress')"
@@ -178,7 +180,7 @@
 
     <sw-container
         class="sw-order-create-options__shipping-container"
-        gap="0px 30px"
+        gap="0px 32px"
         columns="1fr 1fr"
     >
         {% block sw_orderaddr_create_options_shipping_method %}
@@ -200,7 +202,6 @@
             class="sw-order-create-options__shipping-address"
             value-property="id"
             disable-search-function
-            show-clearable-button
             :is-loading="isLoadingShippingAddress"
             :options="customerAddresses"
             :label="$tc('sw-order.createBase.labelShippingAddress')"

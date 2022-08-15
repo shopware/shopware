@@ -1,0 +1,67 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/document/download/{documentId}/{deepLinkCode}": {
+            "post": {
+                "tags": [
+                    "Document",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Download generated document",
+                "description": "Returns blob file of a generated document to download.",
+                "operationId": "download",
+                "parameters": [
+                  {
+                    "name": "documentId",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    }
+                  },
+                  {
+                    "name": "deepLinkCode",
+                    "required": true,
+                    "in": "path",
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns the document information and blob to download.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Document"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

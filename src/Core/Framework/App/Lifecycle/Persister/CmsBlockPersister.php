@@ -80,7 +80,7 @@ class CmsBlockPersister
 
     private function deleteOldCmsBlocks(AppCmsBlockCollection $toBeRemoved, Context $context): void
     {
-        /** @var string[] $ids */
+        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {

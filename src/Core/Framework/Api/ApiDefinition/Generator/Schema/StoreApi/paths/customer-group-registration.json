@@ -1,0 +1,44 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/customer-group-registration/config/{customerGroupId}": {
+            "get": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Fetch registration settings for customer group",
+                "operationId": "getCustomerGroupRegistrationInfo",
+                "parameters": [
+                    {
+                        "name": "customerGroupId",
+                        "in": "path",
+                        "description": "Customer group id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the customer group including registration settings.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerGroup"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

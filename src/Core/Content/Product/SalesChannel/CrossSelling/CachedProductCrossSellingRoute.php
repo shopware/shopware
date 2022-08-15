@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -74,25 +73,6 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     /**
      * @Since("6.3.2.0")
      * @Entity("product")
-     * @OA\Post(
-     *      path="/product/{productId}/cross-selling",
-     *      summary="Fetch cross-selling groups of a product",
-     *      description="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
-     *      operationId="readProductCrossSellings",
-     *      tags={"Store API","Product"},
-     *      @OA\Parameter(
-     *          name="productId",
-     *          description="Product ID",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Found cross sellings",
-     *          @OA\JsonContent(ref="#/components/schemas/CrossSellingElementCollection")
-     *     )
-     * )
      * @Route("/store-api/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse

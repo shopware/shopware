@@ -25,9 +25,9 @@ trait SalesChannelApiTestBehaviour
     use BasicTestDataBehaviour;
 
     /**
-     * @var array
+     * @var array<string>
      */
-    protected $salesChannelIds = [];
+    protected array $salesChannelIds = [];
 
     /**
      * @var KernelBrowser|null
@@ -227,6 +227,10 @@ trait SalesChannelApiTestBehaviour
         return $customerId;
     }
 
+    /**
+     * @param array<mixed> $salesChannel
+     * @param array<mixed> $options
+     */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -238,6 +242,9 @@ trait SalesChannelApiTestBehaviour
         return $context;
     }
 
+    /**
+     * @param array<mixed> $salesChannelOverride
+     */
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
         $salesChannel = $this->createSalesChannel($salesChannelOverride);
@@ -249,6 +256,11 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
+    /**
+     * @param array<mixed> $salesChannelOverride
+     *
+     * @return array<mixed>
+     */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
         /** @var EntityRepositoryInterface $salesChannelRepository */

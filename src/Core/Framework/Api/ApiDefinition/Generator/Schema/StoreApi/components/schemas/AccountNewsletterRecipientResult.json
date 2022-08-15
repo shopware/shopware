@@ -1,0 +1,24 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "AccountNewsletterRecipientResult": {
+                "allOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/Struct"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

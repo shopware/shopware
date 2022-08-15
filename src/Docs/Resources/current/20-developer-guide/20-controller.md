@@ -189,7 +189,6 @@ class SwagExampleRoute
 {
     /**
      * @Route("/store-api/swag-example/{entityId}", methods={"POST"})
-     * @OA\Post(...)
      */
     public function load(string $entityId, Request $request, SalesChannelContext $salesChannelContext): SwagExampleResponse
     {

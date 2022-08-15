@@ -246,7 +246,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchCmsPageTranslation(): array
     {
@@ -303,7 +303,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchCmsSlotTranslation(): array
     {

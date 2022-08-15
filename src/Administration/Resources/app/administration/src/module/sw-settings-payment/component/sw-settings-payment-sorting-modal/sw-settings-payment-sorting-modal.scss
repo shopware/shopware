@@ -1,8 +1,13 @@
 @import "~scss/variables";
 
-.sw-settings-payment-sorting-modal {
-    &__subtitle {
-        border-bottom: 1px solid $color-gray-300;
+.sw-modal {
+    .sw-modal__body {
+        &.sw-settings-payment-sorting-modal__subtitle {
+            display: flex;
+            flex: none;
+            overflow-y: hidden;
+            border-bottom: 1px solid $color-gray-300;
+        }
     }
 }
 

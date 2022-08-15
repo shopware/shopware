@@ -104,7 +104,7 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchCmsSlotTranslation(): array
     {

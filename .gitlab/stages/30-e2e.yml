@@ -21,6 +21,7 @@ E2E:
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
         CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
         CYPRESS_grepTags: '-quarantined'
+        RUNNER_INSTANCE_TYPE: 'm5.large'
     parallel:
         matrix:
             -   TEST_DIRECTORY:
@@ -63,7 +64,7 @@ E2E:
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
             export CYPRESS_INTERRUPT_ON_ERROR="true"
           fi
-        - composer run e2e:cypress -- run
+        - timeout 115m composer run e2e:cypress -- run
             --browser chrome
             --spec "$TEST_DIRECTORY"
             --headless
@@ -131,7 +132,6 @@ E2E install NL:
         - FEATURE_ALL: 'major'
           ALLOW_FAILURE: 'true'
     script:
-        - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
         # fake version by using the latest tag if not set
         - >

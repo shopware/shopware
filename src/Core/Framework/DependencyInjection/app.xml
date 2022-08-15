@@ -254,6 +254,8 @@
 
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
             <argument type="collection">
+                <argument key="timeout">5</argument>
+                <argument key="connect_timeout">1</argument>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />

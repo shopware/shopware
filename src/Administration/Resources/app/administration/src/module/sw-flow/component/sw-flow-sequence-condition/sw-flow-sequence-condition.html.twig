@@ -247,6 +247,9 @@
                 </div>
                 {% endblock %}
 
+                {% block sw_flow_sequence_condition_content_custom %}
+                {% endblock %}
+
                 {% block sw_flow_sequence_condition_add_rule %}
                 <div
                     v-if="showRuleSelection || !sequence.ruleId"

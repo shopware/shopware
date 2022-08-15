@@ -50,7 +50,7 @@ class DocumentBaseConfigEntity extends Entity
     protected $logoId;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $config;
 
@@ -150,7 +150,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getConfig(): ?array
     {
@@ -158,7 +158,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @param string[]|null $config
+     * @param array<string>|null $config
      */
     public function setConfig(?array $config): void
     {

@@ -8,17 +8,17 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 class IndexerOffset
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $languages;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $definitions;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $allDefinitions;
 

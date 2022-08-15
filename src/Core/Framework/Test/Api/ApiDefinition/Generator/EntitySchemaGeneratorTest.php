@@ -45,6 +45,7 @@ final class EntitySchemaGeneratorTest extends TestCase
         $definitionRegistry->register(new SimpleDefinition(), 'simple');
 
         $generator = new EntitySchemaGenerator();
+        /** @var array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}> */
         $definitions = $generator->getSchema($definitionRegistry->getDefinitions());
 
         foreach ($definitions as $definition) {

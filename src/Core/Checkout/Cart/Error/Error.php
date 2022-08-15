@@ -31,6 +31,9 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     abstract public function blockOrder(): bool;
 
+    /**
+     * @return array<string, mixed>
+     */
     abstract public function getParameters(): array;
 
     public function getRoute(): ?ErrorRoute
@@ -52,6 +55,9 @@ abstract class Error extends \Exception implements \JsonSerializable
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $data = get_object_vars($this);

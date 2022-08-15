@@ -1,0 +1,53 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/handle-payment": {
+            "post": {
+                "tags": [
+                    "Payment & Shipping"
+                ],
+                "summary": "Initiate a payment for an order",
+                "description": "This generic endpoint is should be called to initiate a payment flow after an order has been created. The details of the payment flow can differ depending on the payment integration and might require calling additional operations or the setup of webhooks.\n\nThe endpoint internally calls the payment handler of the payment method currently set for the order.",
+                "operationId": "handlePaymentMethod",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "orderId"
+                                ],
+                                "properties": {
+                                    "orderId": {
+                                        "description": "Identifier of an order",
+                                        "type": "string"
+                                    },
+                                    "finishUrl": {
+                                        "description": "URL to which the client should be redirected after successful payment",
+                                        "type": "string"
+                                    },
+                                    "errorUrl": {
+                                        "description": "URL to which the client should be redirected after erroneous payment",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Redirect to external payment provider"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

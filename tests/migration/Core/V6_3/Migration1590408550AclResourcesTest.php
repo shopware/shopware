@@ -77,7 +77,7 @@ CREATE TABLE `acl_resource` (
     /**
      * @dataProvider migrationCases
      *
-     * @param array<string, string[]> $roles
+     * @param array<string, array<string>> $roles
      */
     public function testMigration(array $roles): void
     {
@@ -99,7 +99,7 @@ CREATE TABLE `acl_resource` (
     }
 
     /**
-     * @return array<string, array<string, string[]>[]>
+     * @return array<string, array<string, array<string>>[]>
      */
     public function migrationCases(): array
     {
@@ -129,7 +129,7 @@ CREATE TABLE `acl_resource` (
     }
 
     /**
-     * @param array<string, string[]> $roles
+     * @param array<string, array<string>> $roles
      */
     private function insert(array $roles): void
     {
@@ -156,7 +156,7 @@ CREATE TABLE `acl_resource` (
     }
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     private function fetchRoles(): array
     {

@@ -14,7 +14,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 class ShippingCountryRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $countryIds;
 
@@ -25,6 +25,8 @@ class ShippingCountryRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {

@@ -1,0 +1,53 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/message-queue\/consume": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Consume messages from the message queue.",
+                "description": "This route can be used to consume messenges from the message queue. It is intended to be used if\nno cronjob is configured to consume messages regulary.",
+                "operationId": "consumeMessages",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "receiver"
+                                ],
+                                "properties": {
+                                    "receiver": {
+                                        "description": "The name of the transport in the messenger that should be processed.\nSee the [Symfony Messenger documentation](https:\/\/symfony.com\/doc\/current\/messenger.html) for more information",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns information about handled messages",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "handledMessages": {
+                                            "description": "The number of messages processed.",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

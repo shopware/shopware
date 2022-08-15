@@ -46,7 +46,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$this->helper->allowSearch($definition, $context)) {
+        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
 

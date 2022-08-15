@@ -55,6 +55,8 @@ class SendMailActionTest extends TestCase
 
     /**
      * @dataProvider sendMailProvider
+     *
+     * @param array<string>|null $documentTypeIds
      */
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
@@ -87,10 +89,12 @@ class SendMailActionTest extends TestCase
 
         $documentIdOlder = null;
         $documentIdNewer = null;
+        $documentIds = [];
 
         if (!empty($documentTypeIds) || $hasOrderSettingAttachment) {
             $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
             $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
+            $documentIds[] = $documentIdNewer;
         }
 
         if ($hasOrderSettingAttachment) {
@@ -98,7 +102,7 @@ class SendMailActionTest extends TestCase
                 MailSendSubscriber::MAIL_CONFIG_EXTENSION,
                 new MailSendSubscriberConfig(
                     false,
-                    [$documentIdNewer],
+                    $documentIds,
                 )
             );
         }
@@ -126,7 +130,7 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+        $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
         $documents = $documentRepository->search($criteria, $context);
 
         $newDocument = $documents->get($documentIdNewer);
@@ -168,7 +172,7 @@ class SendMailActionTest extends TestCase
         }
 
         if (!empty($documentTypeIds)) {
-            $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+            $criteria = new Criteria(array_filter([$documentIdOlder, $documentIdNewer]));
             $documents = $documentRepository->search($criteria, $context);
 
             $newDocument = $documents->get($documentIdNewer);

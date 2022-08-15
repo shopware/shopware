@@ -46,7 +46,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     private EventDispatcherInterface $eventDispatcher;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $optionIds;
 

@@ -79,6 +79,8 @@ class ProductConfiguratorLoader
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<string, PropertyGroupEntity>|null
      */
     private function loadSettings(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
@@ -119,11 +121,13 @@ class ProductConfiguratorLoader
 
             $groups[$groupId] = $group;
 
-            if ($group->getOptions() === null) {
-                $group->setOptions(new PropertyGroupOptionCollection());
+            $options = $group->getOptions();
+            if ($options === null) {
+                $options = new PropertyGroupOptionCollection();
+                $group->setOptions($options);
             }
 
-            $group->getOptions()->add($option);
+            $options->add($option);
 
             $option->setConfiguratorSetting($setting);
         }
@@ -131,6 +135,9 @@ class ProductConfiguratorLoader
         return $groups;
     }
 
+    /**
+     * @param array<string, PropertyGroupEntity>|null $groups
+     */
     private function sortSettings(?array $groups, SalesChannelProductEntity $product): PropertyGroupCollection
     {
         if (!$groups) {
@@ -152,10 +159,20 @@ class ProductConfiguratorLoader
 
         /** @var PropertyGroupEntity $group */
         foreach ($sorted as $group) {
-            $group->getOptions()->sort(
+            $options = $group->getOptions();
+
+            if ($options === null) {
+                continue;
+            }
+
+            $options->sort(
                 static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
-                    if ($a->getConfiguratorSetting()->getPosition() !== $b->getConfiguratorSetting()->getPosition()) {
-                        return $a->getConfiguratorSetting()->getPosition() <=> $b->getConfiguratorSetting()->getPosition();
+                    $configuratorSettingA = $a->getConfiguratorSetting();
+                    $configuratorSettingB = $b->getConfiguratorSetting();
+
+                    if ($configuratorSettingA !== null && $configuratorSettingB !== null
+                        && $configuratorSettingA->getPosition() !== $configuratorSettingB->getPosition()) {
+                        return $configuratorSettingA->getPosition() <=> $configuratorSettingB->getPosition();
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
@@ -169,8 +186,12 @@ class ProductConfiguratorLoader
 
         $collection = new PropertyGroupCollection($sorted);
 
-        // check if product has an individual sorting configuration for property groups
-        $config = $product->getConfiguratorGroupConfig();
+        // check if product has an individual sorting configuration for property groups\
+        $config = $product->getVariantListingConfig();
+        if ($config) {
+            $config = $config->getConfiguratorGroupConfig();
+        }
+
         if (!$config) {
             $collection->sortByPositions();
 
@@ -187,6 +208,9 @@ class ProductConfiguratorLoader
         return $collection;
     }
 
+    /**
+     * @param array<string> $current
+     */
     private function isCombinable(
         PropertyGroupOptionEntity $option,
         array $current,
@@ -208,11 +232,19 @@ class ProductConfiguratorLoader
         return null;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
         $keyMap = $groups->getOptionIdMap();
 
         $current = [];
+
+        if ($product->getOptionIds() === null) {
+            return $current;
+        }
+
         foreach ($product->getOptionIds() as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {

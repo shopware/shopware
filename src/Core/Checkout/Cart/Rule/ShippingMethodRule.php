@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class ShippingMethodRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $shippingMethodIds;
 

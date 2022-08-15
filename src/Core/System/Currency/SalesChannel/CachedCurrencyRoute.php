@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -77,31 +76,6 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("currency")
-     * @OA\Post(
-     *      path="/currency",
-     *      summary="Fetch currencies",
-     *      description="Perform a filtered search for currencies.",
-     *      operationId="readCurrency",
-     *      tags={"Store API", "System & Context"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing currencies.",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/Currency")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *     )
-     * )
      * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse

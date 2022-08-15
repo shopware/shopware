@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\Api\Sync;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -54,6 +56,8 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
+        ReplicaConnection::ensurePrimary();
+
         $context = clone $context;
 
         if (\count($behavior->getSkipIndexers())) {
@@ -245,6 +249,11 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
+    /**
+     * @param array<string, mixed|null> $record
+     *
+     * @return array<string, mixed|null>
+     */
     private function convertToApiVersion(array $record, EntityDefinition $definition, int $writeIndex): array
     {
         $exception = new ApiConversionException();
@@ -273,6 +282,11 @@ class SyncService implements SyncServiceInterface
         return (new WriteException())->add($exception);
     }
 
+    /**
+     * @param array<string, EntityWriteResult[]> $grouped
+     *
+     * @return array<string, array<int, mixed>>
+     */
     private function getWrittenEntities(array $grouped): array
     {
         $mapped = [];
@@ -288,17 +302,15 @@ class SyncService implements SyncServiceInterface
         return $mapped;
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     private function getWrittenEntitiesByEvent(EntityWrittenContainerEvent $result): array
     {
         $entities = [];
 
-        $events = $result->getEvents();
-        if ($events === null) {
-            return [];
-        }
-
         /** @var EntityWrittenEvent $event */
-        foreach ($events as $event) {
+        foreach ($result->getEvents() ?? [] as $event) {
             $entity = $event->getEntityName();
 
             if (!isset($entities[$entity])) {

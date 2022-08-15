@@ -51,6 +51,7 @@ parameters:
             message: '#Service ".*" is not registered in the container\.#'
             paths:
                 - src/**/*Test.php
+                - tests/unit/php
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
@@ -132,7 +133,7 @@ parameters:
         # Class behind feature flag - can be removed with feature flag
         - '#Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior#'
         -
-            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.$#'
+            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array<string, array<int, mixed>> given\.$#'
             path: src/Core/Framework/Api/Sync/SyncService.php
         # can be removed with feature flag FEATURE_NEXT_12455
         -

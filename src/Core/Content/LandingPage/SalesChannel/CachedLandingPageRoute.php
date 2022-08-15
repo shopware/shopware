@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
@@ -74,44 +73,6 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     /**
      * @Since("6.4.0.0")
-     * @OA\Post(
-     *      path="/landing-page/{landingPageId}",
-     *      summary="Fetch a landing page with the resolved CMS page",
-     *      description="Loads a landing page by its identifier and resolves the CMS page.
-
-**Important notice**
-
-The criteria passed with this route also affects the listing, if there is one within the cms page.",
-     *      operationId="readLandingPage",
-     *      tags={"Store API", "Content"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          name="landingPageId",
-     *          description="Identifier of the landing page.",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\RequestBody(
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="slots",
-     *                  description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character.",
-     *                  type="string"
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The loaded landing page with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/LandingPage")
-     *     ),
-     *     @OA\Response(
-     *          response="404",
-     *          ref="#/components/responses/404"
-     *     ),
-     * )
-     *
      * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse

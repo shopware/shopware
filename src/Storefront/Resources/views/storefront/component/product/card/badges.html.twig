@@ -9,7 +9,12 @@
             {% set listPrice = price.listPrice.percentage > 0 %}
             {% set hasRange = product.calculatedPrices.count > 1 %}
 
-            {% if listPrice and not hasRange %}
+            {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+            {% if displayParent %}
+                {% set displayFromVariants = displayParent and price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+            {% endif %}
+
+            {% if listPrice and not hasRange and not displayFromVariants %}
                 <div class="badge badge-danger badge-discount">
                     <span>&#37;</span>
                 </div>

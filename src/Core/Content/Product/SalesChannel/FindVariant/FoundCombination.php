@@ -9,7 +9,7 @@ class FoundCombination extends Struct
     protected string $variantId;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $options;
 

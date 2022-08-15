@@ -1,0 +1,73 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/payment-method": {
+            "post": {
+                "tags": [
+                    "Payment Method",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Loads all available payment methods",
+                "operationId": "readPaymentMethod",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    },
+                                    {
+                                        "properties": {
+                                            "onlyAvailable": {
+                                                "description": "List only available",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total": {
+                                            "description": "Total amount",
+                                            "type": "integer"
+                                        },
+                                        "aggregations": {
+                                            "description": "aggregation result",
+                                            "type": "object"
+                                        },
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentMethod"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

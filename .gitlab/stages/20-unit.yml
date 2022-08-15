@@ -158,7 +158,7 @@ PHP unit coverage:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
-            --bootstrap vendor/autoload.php
+            --bootstrap tests/unit/php/Common/UnitTestBootstrap.php
             --log-junit phpunit.junit.xml
             --testsuite unit
             --coverage-text
@@ -330,5 +330,5 @@ PHP Full quarantined:
               FEATURE_ALL: 'false'
               ALLOW_FAILURE: 'true'
     script:
-      - composer run phpunit -- --group=quarantined --log-junit phpunit.$SUITE.junit.xml --colors=never
+      - composer run phpunit -- --group=quarantined --log-junit phpunit.quarantined.junit.xml --colors=never
     after_script: []

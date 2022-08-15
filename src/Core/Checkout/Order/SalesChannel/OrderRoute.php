@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
@@ -61,29 +60,6 @@ class OrderRoute extends AbstractOrderRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("order")
-     * @OA\Post(
-     *      path="/order",
-     *      summary="Fetch a list of orders",
-     *      description="List orders of a customer.",
-     *      operationId="readOrder",
-     *      tags={"Store API", "Order"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="checkPromotion",
-     *                  description="Check if the payment method of the order is still changeable.",
-     *                  type="boolean"
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="An array of orders and an indicator if the payment of the order can be changed.",
-     *          @OA\JsonContent(ref="#/components/schemas/OrderRouteResponse")
-     *     )
-     * )
      * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse

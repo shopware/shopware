@@ -56,7 +56,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$this->helper->allowSearch($definition, $context)) {
+        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 
@@ -117,6 +117,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         return $search;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
         if (!$criteria->getGroupFields()) {
@@ -135,6 +138,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     /**
      * @param FieldGrouping[] $groupings
+     *
+     * @return array{field: string, inner_hits?: array{name: string}}
      */
     private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
     {

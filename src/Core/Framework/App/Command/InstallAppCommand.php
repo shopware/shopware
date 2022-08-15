@@ -51,7 +51,7 @@ class InstallAppCommand extends Command
         $context = Context::createDefaultContext();
         $io = new ShopwareStyle($input, $output);
 
-        /** @var string|string[] $names */
+        /** @var string|array<string> $names */
         $names = $input->getArgument('name');
 
         if (\is_string($names)) {

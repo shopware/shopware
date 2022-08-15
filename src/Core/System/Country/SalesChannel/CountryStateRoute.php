@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -32,31 +31,6 @@ class CountryStateRoute extends AbstractCountryStateRoute
 
     /**
      * @Since("6.4.14.0")
-     * @OA\Post(
-     *      path="/country-state",
-     *      summary="Fetch the states of a country",
-     *      description="Perform a filtered search the states for a country",
-     *      operationId="readCountryState",
-     *      tags={"Store API", "System & Context"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing countries.",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/CountryState")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *     )
-     * )
      * @Entity("country")
      * @Route("/store-api/country-state/{countryId}", name="store-api.country.state", methods={"GET", "POST"})
      */

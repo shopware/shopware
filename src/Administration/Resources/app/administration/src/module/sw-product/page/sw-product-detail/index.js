@@ -543,6 +543,7 @@ Component.register('sw-product-detail', {
 
             this.product.metaTitle = '';
             this.product.additionalText = '';
+            this.product.variantListingConfig = {};
 
             return Promise.all([
                 this.loadCurrencies(),

@@ -90,7 +90,7 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     }
 
     /**
-     * @param string[] $keys
+     * @param array<string> $keys
      *
      * @return bool
      */
@@ -128,7 +128,7 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      *
      * @return bool
      */

@@ -59,9 +59,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
+    /**
+     * @return never
+     */
     public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
     {
-        return $this->getSchema($definitions);
+        throw new \RuntimeException();
     }
 
     public function getSchema(array $definitions): array
@@ -86,7 +89,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{entity: string, properties: array, write-protected: bool, read-protected: bool}
+     * @return array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}
      */
     private function getEntitySchema(EntityDefinition $definition): array
     {
@@ -105,6 +108,9 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         ];
     }
 
+    /**
+     * @return array{type: string, flags: list<Flag>}
+     */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
         $flags = [];
@@ -280,6 +286,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param Flag[] $flags
+     *
+     * @return array{type: string, properties: array<string, mixed>, flags: list<Flag> }
      */
     private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
     {

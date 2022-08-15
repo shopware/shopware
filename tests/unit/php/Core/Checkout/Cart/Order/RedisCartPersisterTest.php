@@ -27,7 +27,7 @@ class RedisCartPersisterTest extends TestCase
         $redis = $this->createMock(\Redis::class);
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new RedisCartPersister($redis, $eventDispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($redis, $eventDispatcher, $cartSerializationCleaner, true,90);
         static::expectException(DecorationPatternException::class);
         $persister->getDecorated();
     }
@@ -50,7 +50,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90);
 
         $persister->save($cart, $context);
     }
@@ -72,7 +72,7 @@ class RedisCartPersisterTest extends TestCase
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, false);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, false,90);
         $persister->save($cart, $context);
     }
 
@@ -96,7 +96,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -121,7 +121,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         static::expectException($exceptionClass);
-        (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true))->load($token, $context);
+        (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90))->load($token, $context);
     }
 
     public function dataProviderInvalidData(): iterable
@@ -145,7 +145,7 @@ class RedisCartPersisterTest extends TestCase
             ->method('del')
             ->with(static::equalTo(RedisCartPersister::PREFIX . $token));
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -169,7 +169,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($compressedRedis, $dispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($compressedRedis, $dispatcher, $cartSerializationCleaner, true,90);
 
         $persister->save($cart, $context);
 
@@ -187,7 +187,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, false))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, false,90))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -221,7 +221,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90);
 
         $persister->replace($oldToken, $newToken, $context);
     }
@@ -239,7 +239,7 @@ class RedisCartPersisterTest extends TestCase
             ->with(static::equalTo(RedisCartPersister::PREFIX . $token))
             ->willReturn(null);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true,90);
 
         $context = $this->createMock(SalesChannelContext::class);
 

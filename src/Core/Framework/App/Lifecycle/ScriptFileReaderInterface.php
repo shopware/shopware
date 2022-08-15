@@ -10,7 +10,7 @@ interface ScriptFileReaderInterface
     /**
      * Returns the list of script paths the given app contains
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getScriptPathsForApp(string $appPath): array;
 

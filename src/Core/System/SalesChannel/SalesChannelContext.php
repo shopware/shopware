@@ -120,6 +120,8 @@ class SalesChannelContext extends Struct
     /**
      * @deprecated tag:v6.5.0 - __construct will be internal, use context factory to create a new context
      * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
+     *
+     * @param array<string> $rulesIds
      */
     public function __construct(
         Context $baseContext,
@@ -244,6 +246,9 @@ class SalesChannelContext extends Struct
         return $this->rulesIds;
     }
 
+    /**
+     * @param array<string> $ruleIds
+     */
     public function setRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {

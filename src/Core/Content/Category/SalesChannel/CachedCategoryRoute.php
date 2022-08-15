@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheKeyEvent;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheTagsEvent;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -75,33 +74,6 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *     path="/category/{categoryId}",
-     *     summary="Fetch a single category",
-     *     description="This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
-     *     operationId="readCategory",
-     *     tags={"Store API", "Category"},
-     *     @OA\Parameter(
-     *         name="categoryId",
-     *         description="Identifier of the category to be fetched",
-     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *         in="path",
-     *         required=true
-     *     ),
-     *     @OA\Parameter(
-     *         name="slots",
-     *         description="Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character",
-     *         @OA\Schema(type="string"),
-     *         in="query",
-     *     ),
-     *     @OA\Parameter(name="Api-Basic-Parameters"),
-     *     @OA\Response(
-     *          response="200",
-     *          description="The loaded category with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/Category")
-     *     )
-     * )
-     *
      * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse

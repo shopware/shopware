@@ -163,6 +163,10 @@ parameters:
 
         # Can be removed with Symfony 6.0 upgrade
         -
+            message: '#PHPDoc tag @param references unknown parameter: \$key#'
+            path: src/Core/Framework/Validation/DataBag/DataBag.php
+
+        -
             message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no type specified.#'
             path: src/Storefront/Framework/Twig/TwigAppVariable.php
 

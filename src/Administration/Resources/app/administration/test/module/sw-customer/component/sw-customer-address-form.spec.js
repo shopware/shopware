@@ -128,4 +128,17 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeFalsy();
         expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeFalsy();
     });
+
+    it('should display company, department and vat fields by default when account type is empty', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            customer: {
+                accountType: null,
+            },
+            address: {}
+        });
+
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
+        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+    });
 });

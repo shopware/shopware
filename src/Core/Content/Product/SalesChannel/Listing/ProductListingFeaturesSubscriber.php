@@ -16,8 +16,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -25,8 +23,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -163,6 +164,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         Profiler::trace('product-listing::feature-subscriber', function () use ($event): void {
             $this->groupOptionAggregations($event);
+            $this->filterAggregations($event);
 
             $this->addCurrentFilters($event);
 
@@ -336,10 +338,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     /**
      * @return list<string>
      */
-    private function collectOptionIds(ProductListingResultEvent $event): array
+    private function collectOptionIds(AggregationResultCollection $aggregations): array
     {
-        $aggregations = $event->getResult()->getAggregations();
-
         /** @var TermsResult|null $properties */
         $properties = $aggregations->get('properties');
 
@@ -354,7 +354,13 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void
     {
-        $ids = $this->collectOptionIds($event);
+        $aggregations = $event->getResult()->getAggregations();
+        $ids = $this->collectOptionIds($aggregations);
+
+        // remove id results to prevent wrong usages
+        $aggregations->remove('properties');
+        $aggregations->remove('configurators');
+        $aggregations->remove('options');
 
         if (empty($ids)) {
             return;
@@ -383,14 +389,34 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $grouped->sortByPositions();
         $grouped->sortByConfig();
 
-        $aggregations = $event->getResult()->getAggregations();
-
-        // remove id results to prevent wrong usages
-        $aggregations->remove('properties');
-        $aggregations->remove('configurators');
-        $aggregations->remove('options');
-        /** @var EntityCollection<Entity> $grouped */
         $aggregations->add(new EntityResult('properties', $grouped));
+    }
+
+    private function filterAggregations(ProductListingResultEvent $event): void
+    {
+        $aggregations = $event->getResult()->getAggregations();
+        foreach ($aggregations as $aggregationName => $aggregation) {
+            if ($aggregation instanceof MaxResult
+                && $aggregation->getMax() === null) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
+
+            if ($aggregation instanceof EntityResult
+                && $aggregation->getEntities()->count() === 0) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
+
+            if ($aggregation instanceof StatsResult
+                && $aggregation->getMin() === null && $aggregation->getMax() === null) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
+        }
     }
 
     private function addCurrentFilters(ProductListingResultEvent $event): void

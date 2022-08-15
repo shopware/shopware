@@ -942,6 +942,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
 
         return [
+            // property-filter without any properties
+            [
+                $ids,
+                array_merge($defaults, [
+                    'properties' => [],
+                ]),
+                new Request([], ['property-filter' => true]),
+                [
+                    'aggregation' => 'properties',
+                    'instanceOf' => null,
+                ],
+            ],
             // property-filter
             [
                 $ids,
@@ -1122,7 +1134,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'manufacturer',
-                    'instanceOf' => EntityResult::class,
+                    'instanceOf' => null,
                 ],
             ],
             [
@@ -1190,12 +1202,43 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'rating',
+                    'instanceOf' => null,
+                ],
+            ],
+            [
+                $ids,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => 3,
+                            'status' => true,
+                        ],
+                    ],
+                ]),
+                new Request(),
+                [
+                    'aggregation' => 'rating',
                     'instanceOf' => MaxResult::class,
                 ],
             ],
             [
                 $ids,
-                $defaults,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => 3,
+                            'status' => true,
+                        ],
+                    ],
+                ]),
                 new Request([], ['rating-filter' => true]),
                 [
                     'aggregation' => 'rating',
@@ -1204,7 +1247,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
             [
                 $ids,
-                $defaults,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => '3',
+                            'status' => true,
+                        ],
+                    ],
+                ]),
                 new Request([], ['rating-filter' => false]),
                 [
                     'aggregation' => 'rating',
@@ -1221,7 +1275,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'shipping-free',
-                    'instanceOf' => MaxResult::class,
+                    'instanceOf' => null,
                 ],
             ],
             [

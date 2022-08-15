@@ -62,6 +62,8 @@ class ProductBuilder
 
     protected ?float $purchasePrice;
 
+    protected bool $shippingFree = false;
+
     protected ?string $parentId;
 
     protected array $children = [];
@@ -260,6 +262,13 @@ class ProductBuilder
                 $this->buildCurrencyPrice($currencyKey, $price),
             ],
         ];
+
+        return $this;
+    }
+
+    public function shippingFree(bool $shippingFree = true): self
+    {
+        $this->shippingFree = $shippingFree;
 
         return $this;
     }

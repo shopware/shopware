@@ -3344,6 +3344,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(300, null, 'anotherCurrency')
                 ->releaseDate('2019-01-01 10:13:00')
                 ->purchasePrice(0)
+                ->shippingFree(true)
                 ->stock(10)
                 ->category('c1')
                 ->property('green', 'color')

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Routing\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
@@ -37,8 +38,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = $this->createMock(Context::class);
-        $context->method('getRuleIds')->willReturn([$ruleId]);
+        $context = new Context(new SystemSource(), [$ruleId]);
         $salesChannelContext->method('getContext')->willReturn($context);
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());
 

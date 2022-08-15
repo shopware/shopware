@@ -20,7 +20,7 @@ class ImportExportExceptionRecordTest extends TestCase
     public function setUp(): void
     {
         $exception = $this->createMock(\Throwable::class);
-        $context = $this->createMock(Context::class);
+        $context = Context::createDefaultContext();
         $config = $this->createMock(Config::class);
 
         $this->exceptionRecord = new ImportExportExceptionImportRecordEvent(

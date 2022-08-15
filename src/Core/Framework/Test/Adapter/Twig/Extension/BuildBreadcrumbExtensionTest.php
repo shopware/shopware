@@ -46,7 +46,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
                 null,
             ],
             [
-                $this->createMock(SalesChannelEntity::class),
+                new SalesChannelEntity(),
                 null,
             ],
             [
@@ -54,7 +54,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
                 Uuid::randomHex(),
             ],
             [
-                $this->createMock(SalesChannelEntity::class),
+                new SalesChannelEntity(),
                 Uuid::randomHex(),
             ],
         ];
@@ -67,7 +67,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
     {
         Feature::skipTestIfActive('v6.5.0.0', $this);
 
-        $category = $this->createMock(CategoryEntity::class);
+        $category = new CategoryEntity();
 
         $context = null;
         if ($salesChannelEntity !== null) {

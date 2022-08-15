@@ -19,7 +19,7 @@ class BillingStreetRuleTest extends TestCase
     {
         $rule = (new BillingStreetRule())->assign(['streetName' => 'example street']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -42,7 +42,7 @@ class BillingStreetRuleTest extends TestCase
     {
         $rule = (new BillingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -65,7 +65,7 @@ class BillingStreetRuleTest extends TestCase
     {
         $rule = (new BillingStreetRule())->assign(['streetName' => 'example street']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -88,7 +88,7 @@ class BillingStreetRuleTest extends TestCase
     {
         $rule = (new BillingStreetRule())->assign(['streetName' => '.ExaMple StreEt']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

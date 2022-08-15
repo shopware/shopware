@@ -61,9 +61,8 @@ class IsNewsletterRecipientRuleTest extends TestCase
     public function testExistingNewsletterSalesChannelIdMatchesToTrue(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getNewsletterSalesChannelids')
-            ->willReturn([Uuid::randomHex() => 'foo', Uuid::randomHex() => 'bar']);
+        $customer = new CustomerEntity();
+        $customer->setNewsletterSalesChannelIds([Uuid::randomHex() => 'foo', Uuid::randomHex() => 'bar']);
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
@@ -79,7 +78,7 @@ class IsNewsletterRecipientRuleTest extends TestCase
     public function testEmptyNewsletterSalesChannelIdsMatchesToFalse(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
@@ -93,9 +92,8 @@ class IsNewsletterRecipientRuleTest extends TestCase
     public function testMissingNewsletterSalesChannelIdMatchesToFalse(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getNewsletterSalesChannelids')
-            ->willReturn([Uuid::randomHex() => 'bar']);
+        $customer = new CustomerEntity();
+        $customer->setNewsletterSalesChannelIds([Uuid::randomHex() => 'bar']);
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);

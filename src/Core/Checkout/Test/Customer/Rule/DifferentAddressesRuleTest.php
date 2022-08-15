@@ -80,7 +80,7 @@ class DifferentAddressesRuleTest extends TestCase
 
         static::assertFalse($rule->match(new CheckoutRuleScope($salesChannelContext)));
 
-        $customerAddress = $this->createMock(CustomerAddressEntity::class);
+        $customerAddress = new CustomerAddressEntity();
         $customer->setActiveBillingAddress($customerAddress);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 

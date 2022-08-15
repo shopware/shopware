@@ -21,7 +21,7 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = (new ShippingStreetRule())->assign(['streetName' => 'example street']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -42,7 +42,7 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = (new ShippingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -63,7 +63,7 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = (new ShippingStreetRule())->assign(['streetName' => 'example street']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -84,7 +84,7 @@ class ShippingStreetRuleTest extends TestCase
     {
         $rule = (new ShippingStreetRule())->assign(['streetName' => 'ExaMple StreEt']);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

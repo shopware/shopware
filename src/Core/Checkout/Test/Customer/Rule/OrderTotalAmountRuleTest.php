@@ -293,15 +293,15 @@ class OrderTotalAmountRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $orderCollection = new OrderCollection();
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getOrderTotalAmount')->willReturn($orderAmount);
+        $customer = new CustomerEntity();
+        $customer->setOrderTotalAmount($orderAmount ?? 0);
 
         if ($noCustomer) {
             $customer = null;
         }
 
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $orderCollection->add($this->createMock(OrderEntity::class));
+        $orderCollection->add(new OrderEntity());
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);

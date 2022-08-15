@@ -4,6 +4,8 @@ namespace Shopware\Core\System\Test\Language;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -182,9 +184,8 @@ class LanguageRuleTest extends TestCase
     {
         $languageIds = ['kyln123', 'kyln456'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = $this->createMock(Context::class);
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
 
-        $context->method('getLanguageId')->willReturn($languageId);
         $salesChannelContext->method('getContext')->willReturn($context);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['languageIds' => $languageIds, 'operator' => $operator]);

@@ -341,8 +341,8 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $product->setAvailableStock($availableStock);
         $product->setIsCloseout($closeout);
 
-        $salesChannel = $this->createMock(SalesChannelEntity::class);
-        $salesChannel->method('getId')->willReturn($salesChannelId);
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);

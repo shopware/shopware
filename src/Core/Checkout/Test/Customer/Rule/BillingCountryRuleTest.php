@@ -205,8 +205,7 @@ class BillingCountryRuleTest extends TestCase
 
         static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
 
-        $customerAddress = $this->createMock(CustomerAddressEntity::class);
-        $customerAddress->method('getCountry')->willReturn(null);
+        $customerAddress = new CustomerAddressEntity();
         $customer->setActiveBillingAddress($customerAddress);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
@@ -220,7 +219,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $countryIds = ['kyln123', 'kyln456'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customerAddress = $this->createMock(CustomerAddressEntity::class);
+        $customerAddress = new CustomerAddressEntity();
 
         $country = new CountryEntity();
         $customer = new CustomerEntity();
@@ -231,7 +230,10 @@ class BillingCountryRuleTest extends TestCase
         }
 
         if (!$noAddress) {
-            $customerAddress->method('getCountry')->willReturn($country);
+            if ($country) {
+                $customerAddress->setCountry($country);
+            }
+
             $customer->setActiveBillingAddress($customerAddress);
         }
 

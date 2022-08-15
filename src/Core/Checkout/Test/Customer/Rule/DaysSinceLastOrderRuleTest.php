@@ -170,17 +170,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatchesWithDayBefore(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->modify('-1 day'));
+        $customer->setLastOrderDate($datetime->modify('-1 day'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -191,12 +187,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatchesWithDayBeforePlusOneMinute59(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $dateTime = $datetime->setTime(11, 59);
         $orderDate = clone $dateTime;
@@ -204,8 +197,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($orderDate);
+        $customer->setLastOrderDate($orderDate);
 
         $rule = new DaysSinceLastOrderRule($dateTime);
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -216,17 +208,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleDoesNotMatchWithSameDay(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->setTime(0, 0));
+
+        $customer->setLastOrderDate($datetime->setTime(0, 0));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -237,17 +226,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleDoesNotMatchOnSameDayInLastMinute(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->setTime(23, 59));
+        $customer->setLastOrderDate($datetime->setTime(23, 59));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -258,17 +243,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatchesWithDayBeforePlusOneMinute(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->modify('-1 day')->modify('+1 minute'));
+
+        $customer->setLastOrderDate($datetime->modify('-1 day')->modify('+1 minute'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -279,17 +261,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatchesWithDayBeforeMinusOneMinute(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->modify('-1 day')->modify('-1 minute'));
+
+        $customer->setLastOrderDate($datetime->modify('-1 day')->modify('-1 minute'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -300,17 +279,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatchesWithSameDayButLater(): void
     {
         $checkoutContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTime) {
-            throw new \Error();
-        }
 
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
-        $customer->method('getLastOrderDate')
-            ->willReturn($datetime->modify('-30 minutes'));
+
+        $customer->setLastOrderDate($datetime->modify('-30 minutes'));
 
         $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
@@ -407,9 +383,8 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTime $day, bool $noCustomer = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getLastOrderDate')
-            ->willReturn($day);
+        $customer = new CustomerEntity();
+        $customer->setLastOrderDate($day);
 
         if ($noCustomer) {
             $customer = null;
@@ -500,7 +475,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         return $result->first();
     }
 
-    private static function getTestTimestamp(): \DateTimeInterface
+    private static function getTestTimestamp(): \DateTime
     {
         return new \DateTime('2020-03-10T15:00:00+00:00');
     }

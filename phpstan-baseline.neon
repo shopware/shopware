@@ -2691,41 +2691,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/CartTaxTest.php
 
 		-
-			message: "#^Cannot call method getShippingCosts\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\Delivery\\|null\\.$#"
-			count: 24
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^Cannot call method getTaxRate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\TaxRule\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Delivery\\\\DeliveryCalculatorTest\\:\\:createLineItem\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Delivery\\\\DeliveryCalculatorTest\\:\\:mixedShippingProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$price of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition constructor expects Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryCalculatorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Delivery\\\\DeliveryPositionCollectionTest\\:\\:volumeDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryPositionCollectionTest.php
@@ -29109,21 +29074,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$shortcut of class Symfony\\\\Component\\\\Console\\\\Input\\\\InputOption constructor expects array\\|string\\|null, int given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/PersonalData/CleanPersonalDataCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Command\\\\PluginListCommandTest\\:\\:arrayAsGenerator\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Command/PluginListCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Command\\\\PluginListCommandTest\\:\\:executeCommand\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Command/PluginListCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Command\\\\PluginListCommandTest\\:\\:setupEntityCollection\\(\\) has parameter \\$entities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Command/PluginListCommandTest.php
 
 		-
 			message: "#^Access to an undefined property Shopware\\\\Core\\\\Framework\\\\Plugin\\:\\:\\$categoryRepository\\.$#"

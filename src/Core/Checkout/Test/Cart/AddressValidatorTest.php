@@ -191,36 +191,30 @@ class AddressValidatorTest extends TestCase
         return $context;
     }
 
-    /**
-     * @return MockObject|CustomerAddressEntity
-     */
-    private function getCustomerAddressMock(?string $salutationId = null)
+    private function getCustomerAddressMock(?string $salutationId = null): CustomerAddressEntity
     {
-        $mock = $this->createMock(CustomerAddressEntity::class);
+        $address = new CustomerAddressEntity();
+        if ($salutationId) {
+            $address->setSalutationId($salutationId);
+        }
 
-        $mock->method('getSalutationId')
-            ->willReturn($salutationId);
-
-        return $mock;
+        return $address;
     }
 
-    /**
-     * @return MockObject|CustomerEntity
-     */
     private function getCustomerMock(
         ?string $salutationId = null,
         ?string $billingAddressSalutationId = null,
         ?string $shippingAddressSalutationId = null
-    ) {
-        $mock = $this->createMock(CustomerEntity::class);
+    ): CustomerEntity {
+        $customer = new CustomerEntity();
 
-        $mock->method('getSalutationId')
-            ->willReturn($salutationId);
-        $mock->method('getActiveBillingAddress')
-            ->willReturn($this->getCustomerAddressMock($billingAddressSalutationId));
-        $mock->method('getActiveShippingAddress')
-            ->willReturn($this->getCustomerAddressMock($shippingAddressSalutationId));
+        if ($salutationId) {
+            $customer->setSalutationId($salutationId);
+        }
 
-        return $mock;
+        $customer->setActiveBillingAddress($this->getCustomerAddressMock($billingAddressSalutationId));
+        $customer->setActiveShippingAddress($this->getCustomerAddressMock($shippingAddressSalutationId));
+
+        return $customer;
     }
 }

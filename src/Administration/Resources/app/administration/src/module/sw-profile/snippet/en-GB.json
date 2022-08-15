@@ -64,7 +64,8 @@
           "orderNumber": "Order number",
           "email": "Email address",
           "tagsName": "Tags",
-          "customerNumber": "Customer number"
+          "customerNumber": "Customer number",
+          "documentNumber": "Document number"
         },
         "customer": {
           "tagsName": "Tags",

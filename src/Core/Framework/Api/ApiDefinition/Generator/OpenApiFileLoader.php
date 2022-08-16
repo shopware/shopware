@@ -46,7 +46,7 @@ class OpenApiFileLoader
         foreach ($finder as $entry) {
             $data = json_decode((string) file_get_contents($entry->getPathname()), true, \JSON_THROW_ON_ERROR);
 
-            $spec['paths'] = array_merge($spec['paths'], $data['paths'] ?? []);
+            $spec['paths'] = \array_replace_recursive($spec['paths'], $data['paths'] ?? []);
             $spec['components']['schemas'] = array_merge(
                 $spec['components']['schemas'],
                 $data['components']['schemas'] ?? []

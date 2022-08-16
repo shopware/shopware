@@ -5,17 +5,20 @@ namespace Shopware\Core\Framework\Rule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @extends Collection<Rule>
+ */
 class RuleCollection extends Collection
 {
     /**
      * @var Rule[]
      */
-    protected $flat = [];
+    protected array $flat = [];
 
     /**
      * @var bool[]
      */
-    protected $classes = [];
+    protected array $classes = [];
 
     /**
      * @param Rule $rule

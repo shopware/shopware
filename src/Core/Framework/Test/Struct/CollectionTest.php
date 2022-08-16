@@ -230,6 +230,8 @@ class CollectionTest extends TestCase
 
 /**
  * @internal
+ *
+ * @extends Collection<string>
  */
 class TestCollection extends Collection
 {

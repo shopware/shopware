@@ -5,12 +5,7 @@ namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(UserRecoveryEntity $entity)
- * @method UserRecoveryEntity[]    getIterator()
- * @method UserRecoveryEntity[]    getElements()
- * @method UserRecoveryEntity|null get(string $key)
- * @method UserRecoveryEntity|null first()
- * @method UserRecoveryEntity|null last()
+ * @extends EntityCollection<UserRecoveryEntity>
  */
 class UserRecoveryCollection extends EntityCollection
 {

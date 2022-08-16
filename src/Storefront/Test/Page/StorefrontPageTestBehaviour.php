@@ -301,8 +301,8 @@ trait StorefrontPageTestBehaviour
     }
 
     /**
-     * @param array<string, string> $salesChannel
-     * @param array<string, string> $options
+     * @param array<string, mixed> $salesChannel
+     * @param array<string, mixed> $options
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {

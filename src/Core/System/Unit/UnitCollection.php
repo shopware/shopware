@@ -5,13 +5,7 @@ namespace Shopware\Core\System\Unit;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void            add(UnitEntity $entity)
- * @method void            set(string $key, UnitEntity $entity)
- * @method UnitEntity[]    getIterator()
- * @method UnitEntity[]    getElements()
- * @method UnitEntity|null get(string $key)
- * @method UnitEntity|null first()
- * @method UnitEntity|null last()
+ * @extends EntityCollection<UnitEntity>
  */
 class UnitCollection extends EntityCollection
 {

@@ -5,13 +5,7 @@ namespace Shopware\Core\System\Currency;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                add(CurrencyEntity $entity)
- * @method void                set(string $key, CurrencyEntity $entity)
- * @method CurrencyEntity[]    getIterator()
- * @method CurrencyEntity[]    getElements()
- * @method CurrencyEntity|null get(string $key)
- * @method CurrencyEntity|null first()
- * @method CurrencyEntity|null last()
+ * @extends EntityCollection<CurrencyEntity>
  */
 class CurrencyCollection extends EntityCollection
 {

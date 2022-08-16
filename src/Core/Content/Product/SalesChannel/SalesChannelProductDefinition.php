@@ -30,6 +30,11 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         return SalesChannelProductEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return SalesChannelProductCollection::class;
+    }
+
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
         if (empty($criteria->getFields())) {

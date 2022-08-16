@@ -10,28 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 
-/**
- * @method void          set(string $key, Field $entity)
- * @method array<string, Field> getIterator()
- * @method Field|null    first()
- * @method Field|null    last()
- */
 class CompiledFieldCollection extends FieldCollection
 {
     /**
      * @var Field[]
      */
-    protected $mappedByStorageName = [];
+    protected array $mappedByStorageName = [];
 
-    /**
-     * @var ChildrenAssociationField|null
-     */
-    private $childrenAssociationField;
+    private ?ChildrenAssociationField $childrenAssociationField;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     /**
      * @var TranslatedField[]

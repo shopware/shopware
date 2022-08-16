@@ -2,13 +2,19 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+/**
+ * @template TElement
+ */
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array
+     * @var array<TElement>
      */
     protected $elements = [];
 
+    /**
+     * @param array<TElement> $elements
+     */
     public function __construct(iterable $elements = [])
     {
         foreach ($elements as $key => $element) {
@@ -16,6 +22,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         }
     }
 
+    /**
+     * @param TElement $element
+     */
     public function add($element): void
     {
         $this->validateType($element);
@@ -23,6 +32,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         $this->elements[] = $element;
     }
 
+    /**
+     * @param TElement $element
+     */
     public function set($key, $element): void
     {
         $this->validateType($element);
@@ -37,7 +49,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param mixed|null $key
      *
-     * @return mixed|null
+     * @return TElement|null
      */
     public function get($key)
     {
@@ -114,26 +126,41 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return $this->createNew(\array_slice($this->elements, $offset, $length, true));
     }
 
+    /**
+     * @return array<TElement>
+     */
     public function getElements(): array
     {
         return $this->elements;
     }
 
+    /**
+     * @return list<TElement>
+     */
     public function jsonSerialize(): array
     {
         return array_values($this->elements);
     }
 
+    /**
+     * @return ($this->elements is non-empty-array ? TElement : null)
+     */
     public function first()
     {
         return array_values($this->elements)[0] ?? null;
     }
 
+    /**
+     * @return TElement|null
+     */
     public function getAt(int $position)
     {
         return array_values($this->elements)[$position] ?? null;
     }
 
+    /**
+     * @return ($this->elements is non-empty-array ? TElement : null)
+     */
     public function last()
     {
         return array_values($this->elements)[\count($this->elements) - 1] ?? null;
@@ -149,6 +176,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will be changed to \Traversable
+     *
+     * @return \Generator<TElement>
      */
     #[\ReturnTypeWillChange]
     public function getIterator(): \Generator/* :\Traversable */
@@ -156,6 +185,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         yield from $this->elements;
     }
 
+    /**
+     * @return class-string<TElement>|null
+     */
     protected function getExpectedClass(): ?string
     {
         return null;

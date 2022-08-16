@@ -2,18 +2,12 @@
 
 namespace Shopware\Core\Content\Seo\Hreflang;
 
-use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                add(HreflangStruct $entity)
- * @method void                set(string $key, HreflangStruct $entity)
- * @method HreflangStruct[]    getIterator()
- * @method HreflangStruct[]    getElements()
- * @method HreflangStruct|null get(string $key)
- * @method HreflangStruct|null first()
- * @method HreflangStruct|null last()
+ * @extends Collection<HreflangStruct>
  */
-class HreflangCollection extends StructCollection
+class HreflangCollection extends Collection
 {
     public function getApiAlias(): string
     {

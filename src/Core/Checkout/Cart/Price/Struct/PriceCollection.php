@@ -8,12 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                 add(CalculatedPrice $entity)
- * @method void                 set(string $key, CalculatedPrice $entity)
- * @method CalculatedPrice[]    getIterator()
- * @method CalculatedPrice[]    getElements()
- * @method CalculatedPrice|null first()
- * @method CalculatedPrice|null last()
+ * @extends Collection<CalculatedPrice>
  */
 class PriceCollection extends Collection
 {

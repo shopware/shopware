@@ -6,11 +6,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @method Mapping[]    getIterator()
- * @method Mapping[]    getElements()
- * @method Mapping|null get(string $key)
- * @method Mapping|null first()
- * @method Mapping|null last()
+ * @extends Collection<Mapping>
  */
 class MappingCollection extends Collection
 {

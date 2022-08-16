@@ -71,9 +71,13 @@ trait EntityFixturesBase
 
         $criteria = new Criteria([$fixtureData[$fixtureName]['id']]);
 
-        return $repository
+        $entity = $repository
             ->search($criteria, $this->entityFixtureContext)
             ->get($fixtureData[$fixtureName]['id']);
+
+        static::assertInstanceOf(Entity::class, $entity);
+
+        return $entity;
     }
 
     private static function ensureATransactionIsActive(): void

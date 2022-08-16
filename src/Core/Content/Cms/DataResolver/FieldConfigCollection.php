@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Cms\DataResolver;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method FieldConfig[]    getIterator()
- * @method FieldConfig[]    getElements()
- * @method FieldConfig|null get(string $key)
- * @method FieldConfig|null first()
- * @method FieldConfig|null last()
+ * @extends Collection<FieldConfig>
  */
 class FieldConfigCollection extends Collection
 {

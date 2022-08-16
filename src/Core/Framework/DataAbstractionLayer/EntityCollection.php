@@ -4,6 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+
+/**
+ * @template TElement of Entity
+ *
+ * @extends Collection<TElement>
+ */
 class EntityCollection extends Collection
 {
     public function __construct(iterable $elements = [])
@@ -23,7 +29,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param Entity $entity
+     * @param TElement $entity
      */
     public function add($entity): void
     {
@@ -72,6 +78,9 @@ class EntityCollection extends Collection
         }
     }
 
+    /**
+     * @param TElement $entity
+     */
     public function insert(int $position, Entity $entity): void
     {
         $items = array_values($this->elements);

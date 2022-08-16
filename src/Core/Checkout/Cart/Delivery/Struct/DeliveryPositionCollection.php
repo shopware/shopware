@@ -8,10 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method DeliveryPosition[]    getIterator()
- * @method DeliveryPosition[]    getElements()
- * @method DeliveryPosition|null first()
- * @method DeliveryPosition|null last()
+ * @extends Collection<DeliveryPosition>
  */
 class DeliveryPositionCollection extends Collection
 {

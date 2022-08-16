@@ -5,12 +5,7 @@ namespace Shopware\Core\System\User\Aggregate\UserConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                  add(UserConfigEntity $entity)
- * @method UserConfigEntity[]    getIterator()
- * @method UserConfigEntity[]    getElements()
- * @method UserConfigEntity|null get(string $key)
- * @method UserConfigEntity|null first()
- * @method UserConfigEntity|null last()
+ * @extends EntityCollection<UserConfigEntity>
  */
 class UserConfigCollection extends EntityCollection
 {

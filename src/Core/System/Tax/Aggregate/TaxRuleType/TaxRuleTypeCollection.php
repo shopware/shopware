@@ -5,12 +5,7 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRuleType;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                   add(TaxRuleTypeEntity $type)
- * @method TaxRuleTypeEntity[]    getIterator()
- * @method TaxRuleTypeEntity[]    getElements()
- * @method TaxRuleTypeEntity|null get(string $key)
- * @method TaxRuleTypeEntity|null first()
- * @method TaxRuleTypeEntity|null last()
+ * @extends EntityCollection<TaxRuleTypeEntity>
  */
 class TaxRuleTypeCollection extends EntityCollection
 {

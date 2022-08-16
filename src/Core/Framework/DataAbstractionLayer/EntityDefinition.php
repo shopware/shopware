@@ -66,6 +66,9 @@ abstract class EntityDefinition
         $this->className = static::class;
     }
 
+    /**
+     * @return class-string<EntityDefinition>
+     */
     final public function getClass(): string
     {
         return static::class;

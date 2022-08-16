@@ -5,10 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method TaxRule[]    getIterator()
- * @method TaxRule[]    getElements()
- * @method TaxRule|null first()
- * @method TaxRule|null last()
+ * @extends Collection<TaxRule>
  */
 class TaxRuleCollection extends Collection
 {

@@ -10,13 +10,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
 
 /**
- * @method void               add(ProductEntity $entity)
- * @method void               set(string $key, ProductEntity $entity)
- * @method ProductEntity[]    getIterator()
- * @method ProductEntity[]    getElements()
- * @method ProductEntity|null get(string $key)
- * @method ProductEntity|null first()
- * @method ProductEntity|null last()
+ * @extends EntityCollection<ProductEntity>
  */
 class ProductCollection extends EntityCollection
 {

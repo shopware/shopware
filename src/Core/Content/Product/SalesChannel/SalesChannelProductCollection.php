@@ -1,0 +1,17 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\SalesChannel;
+
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+
+/**
+ * @extends EntityCollection<SalesChannelProductEntity>
+ */
+class SalesChannelProductCollection extends ProductCollection
+{
+    public function getExpectedClass(): string
+    {
+        return SalesChannelProductEntity::class;
+    }
+}

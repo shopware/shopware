@@ -8,13 +8,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void          add(Delivery $entity)
- * @method void          set(string $key, Delivery $entity)
- * @method Delivery[]    getIterator()
- * @method Delivery[]    getElements()
- * @method Delivery|null get(string $key)
- * @method Delivery|null first()
- * @method Delivery|null last()
+ * @extends Collection<Delivery>
  */
 class DeliveryCollection extends Collection
 {

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,8 +40,6 @@ class RedisCartPersisterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
-        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
-
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
@@ -67,8 +64,6 @@ class RedisCartPersisterTest extends TestCase
         $redis->expects(static::once())
             ->method('del')
             ->with(static::equalTo(RedisCartPersister::PREFIX . $token));
-
-        $context = $this->createMock(SalesChannelContext::class);
 
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $context = $this->createMock(SalesChannelContext::class);
@@ -254,33 +249,12 @@ class RedisCartPersisterTest extends TestCase
         $cart->add(new LineItem('test', 'test'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $compressedCart = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
-
-        $content = \serialize([
-            'compressed' => true,
-            'content' => $compressedCart,
-            // used for migration
-            'token' => $cart->getToken(),
-            'customer_id' => $context->getCustomerId(),
-            'name' => $cart->getName(),
-            'rule_ids' => $context->getRuleIds(),
-            'currency_id' => $context->getCurrency()->getId(),
-            'shipping_method_id' => $context->getShippingMethod()->getId(),
-            'payment_method_id' => $context->getPaymentMethod()->getId(),
-            'country_id' => $context->getShippingLocation()->getCountry()->getId(),
-            'sales_channel_id' => $context->getSalesChannel()->getId(),
-            'price' => $cart->getPrice()->getTotalPrice(),
-            'line_item_count' => $cart->getLineItems()->count(),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
               ->method('set')
-              ->with(RedisCartPersister::PREFIX . $token, $content, ['EX' => 90 * 86400]);
+              ->with(RedisCartPersister::PREFIX . $token, static::anything(), ['EX' => 90 * 86400]);
 
         $context = $this->createMock(SalesChannelContext::class);
 

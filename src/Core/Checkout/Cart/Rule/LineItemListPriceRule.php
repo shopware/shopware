@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Constraints\IsNull;
 
 class LineItemListPriceRule extends Rule
 {
@@ -58,6 +59,7 @@ class LineItemListPriceRule extends Rule
     {
         $constraints = [
             'operator' => RuleConstraints::numericOperators(),
+            'amount' => new IsNull()
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {

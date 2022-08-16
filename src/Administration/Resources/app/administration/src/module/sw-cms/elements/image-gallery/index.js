@@ -4,6 +4,9 @@ import './preview';
 
 const utils = Shopware.Utils;
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-gallery',
     label: 'sw-cms.elements.imageGallery.label',

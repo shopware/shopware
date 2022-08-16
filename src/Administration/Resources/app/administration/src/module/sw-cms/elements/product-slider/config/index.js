@@ -4,7 +4,9 @@ import './sw-cms-el-config-product-slider.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-el-config-product-slider', {
     template,
 

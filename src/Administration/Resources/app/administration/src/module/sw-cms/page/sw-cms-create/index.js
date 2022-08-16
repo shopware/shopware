@@ -3,6 +3,9 @@ import template from './sw-cms-create.html.twig';
 const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
+/**
+ * @private since v6.5.0
+ */
 Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,
 

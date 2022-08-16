@@ -4,7 +4,9 @@ import './sw-cms-el-cross-selling.scss';
 const { Component, Mixin } = Shopware;
 const { isEmpty } = Shopware.Utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-el-cross-selling', {
     template,
 

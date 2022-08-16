@@ -2,6 +2,9 @@ import './sw-cms-el-product-name.scss';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @private since v6.5.0
+ */
 Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
     mixins: [
         Mixin.getByName('cms-element'),

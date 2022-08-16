@@ -2,6 +2,9 @@ import CMS from '../../../constant/sw-cms.constant';
 import './component';
 import './preview';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-bubble-row',
     label: 'sw-cms.blocks.image.imageBubbleRow.label',

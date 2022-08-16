@@ -127,6 +127,14 @@ class StorefrontCartFacade
                 continue;
             }
 
+            if ($error instanceof ShippingMethodChangedError) {
+                $cartErrors->add(new ShippingMethodBlockedError($error->getOldShippingMethodName()));
+            }
+
+            if ($error instanceof PaymentMethodChangedError) {
+                $cartErrors->add(new PaymentMethodBlockedError($error->getOldPaymentMethodName()));
+            }
+
             $cartErrors->remove($error->getId());
         }
     }

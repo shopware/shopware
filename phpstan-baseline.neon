@@ -3001,46 +3001,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/SalesChannel/CartLoadRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:catchEvent\\(\\) has parameter \\$eventResult with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:createCustomerAndLogin\\(\\) has parameter \\$email with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:createCustomerAndLogin\\(\\) has parameter \\$password with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:login\\(\\) has parameter \\$email with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:login\\(\\) has parameter \\$password with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 17
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$value of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:setServerParameter\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$paymentHandler of method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartOrderRouteTest\\:\\:createCustomer\\(\\) expects class\\-string, string given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Tax\\\\TaxCalculationTypeTest\\:\\:calculationProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Tax/TaxCalculationTypeTest.php
@@ -33682,26 +33642,6 @@ parameters:
 			path: src/Storefront/Pagelet/Newsletter/Account/NewsletterAccountPagelet.php
 
 		-
-			message: "#^Cannot call method getAvailabilityRuleId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingMethodEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Checkout/Cart/SalesChannel/StorefrontCartFacadeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Checkout\\\\Cart\\\\SalesChannel\\\\StorefrontCartFacadeTest\\:\\:providerTestGet\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Checkout/Cart/SalesChannel/StorefrontCartFacadeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of class Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\Error\\\\PaymentMethodBlockedError constructor expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Checkout/Cart/SalesChannel/StorefrontCartFacadeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of class Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Cart\\\\Error\\\\ShippingMethodBlockedError constructor expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Test/Checkout/Cart/SalesChannel/StorefrontCartFacadeTest.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
@@ -33755,16 +33695,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:promotions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CartLineItemControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:customerComments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:errorDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"

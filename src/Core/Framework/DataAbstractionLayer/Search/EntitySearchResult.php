@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @final
+ *
  * @extends EntityCollection<Entity>
  */
 class EntitySearchResult extends EntityCollection
@@ -57,7 +58,7 @@ class EntitySearchResult extends EntityCollection
     protected $limit;
 
     /**
-     * @param EntityCollection<Entity> $entities
+     * @phpstan-ignore-next-line -> we can't generalize the type of EntityCollection here
      */
     final public function __construct(
         string $entity,
@@ -188,7 +189,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @param EntityCollection<Entity>|array<Entity> $elements
+     * @phpstan-ignore-next-line -> we can't generalize the iterable type here
      */
     protected function createNew(iterable $elements = [])
     {

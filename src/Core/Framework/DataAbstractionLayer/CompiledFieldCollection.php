@@ -17,7 +17,7 @@ class CompiledFieldCollection extends FieldCollection
      */
     protected array $mappedByStorageName = [];
 
-    private ?ChildrenAssociationField $childrenAssociationField;
+    private ?ChildrenAssociationField $childrenAssociationField = null;
 
     private DefinitionInstanceRegistry $registry;
 

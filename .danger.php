@@ -75,14 +75,15 @@ return (new Config())
 
                 $newRepoUseInFrontend = array_merge(
                     $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                        ->matchesContent('/EntityRepository/')->getElements(),
+                        ->matchesContent('/EntityRepository/')
+                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
                     $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                        ->matchesContent('/EntityRepository/')->getElements(),
+                        ->matchesContent('/EntityRepository/')
+                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
                     $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                        ->matchesContent('/EntityRepository/')->getElements(),
+                        ->matchesContent('/EntityRepository/')
+                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
                 );
-
-
 
                 if (count($newRepoUseInFrontend) > 0) {
                     $errorFiles = [];

@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Seo\Hreflang;
 
-use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\StructCollection;
 
 /**
- * @extends Collection<HreflangStruct>
+ * @extends StructCollection<HreflangStruct>
  */
-class HreflangCollection extends Collection
+class HreflangCollection extends StructCollection
 {
     public function getApiAlias(): string
     {

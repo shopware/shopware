@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use function array_filter;
 
@@ -397,8 +398,10 @@ class EntityReader implements EntityReaderInterface
         $property = $association->getPropertyName();
         /** @var Entity $struct */
         foreach ($collection as $struct) {
+            /** @var ArrayStruct<string, mixed> $ext */
+            $ext = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
             /** @var array<string> $tmp */
-            $tmp = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE)->get($property);
+            $tmp = $ext->get($property);
             foreach ($tmp as $id) {
                 $ids[] = $id;
             }

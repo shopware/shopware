@@ -90,6 +90,10 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 
         $registry = $this->createMock(ElasticsearchRegistry::class);
         $repository = $this->createMock(EntityRepository::class);
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->method('search')
+            ->willReturn(new EntitySearchResult('test', 0, new LanguageCollection(), null, new Criteria(), Context::createDefaultContext()));
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);

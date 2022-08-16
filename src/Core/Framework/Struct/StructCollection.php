@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Struct;
 
 /**
- * @extends Collection<Struct>
+ * @template TElement of Struct
+ *
+ * @extends Collection<TElement>
  */
 class StructCollection extends Collection
 {
@@ -12,6 +14,9 @@ class StructCollection extends Collection
         return 'dal_struct_collection';
     }
 
+    /**
+     * @return class-string<Struct>
+     */
     protected function getExpectedClass(): ?string
     {
         return Struct::class;

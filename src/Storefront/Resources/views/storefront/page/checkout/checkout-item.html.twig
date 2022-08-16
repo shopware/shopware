@@ -114,11 +114,11 @@
                                                                data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
-                                                            {{ label|u.truncate(60, '...', false) }}
+                                                            {{ label|u.truncate(60, '...', false)|raw }}
                                                         </a>
                                                     {% else %}
                                                         <div class="cart-item-label">
-                                                            {{ label|u.truncate(60, '...', false) }}
+                                                            {{ label|u.truncate(60, '...', false)|raw }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}

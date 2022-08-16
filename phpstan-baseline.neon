@@ -22366,11 +22366,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Command\\\\DemodataCommand\\:\\:getCustomFieldOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Command/DemodataCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\DemodataContext\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/DemodataContext.php
@@ -23054,11 +23049,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEvent\\:\\:jsonSerialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Event/NestedEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Framework\\:\\:getCoreMigrationPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Framework.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"

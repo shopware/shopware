@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableExtensionsCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
@@ -118,6 +119,8 @@ class Framework extends Bundle
             $container->addCompilerPass(new AnnotationReaderCompilerPass());
         }
 
+        $container->addCompilerPass(new DemodataCompilerPass());
+
         parent::build($container);
     }
 
@@ -144,6 +147,9 @@ class Framework extends Bundle
         );
     }
 
+    /**
+     * @return string[]
+     */
     protected function getCoreMigrationPaths(): array
     {
         return [

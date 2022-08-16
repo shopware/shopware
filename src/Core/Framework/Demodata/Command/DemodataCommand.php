@@ -32,27 +32,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DemodataCommand extends Command
 {
-    private const DEFAULT_COUNTS = [
-        'products' => 1000,
-        'promotions' => 50,
-        'categories' => 10,
-        'orders' => 60,
-        'manufacturers' => 60,
-        'customers' => 60,
-        'media' => 300,
-        'properties' => 10,
-        'users' => 0,
-        'product-streams' => 10,
-        'mail-template' => 10,
-        'mail-header-footer' => 3,
-        'reviews' => 20,
-        'attribute-sets' => 4,
-        'flows' => 0,
-        'rules' => 25,
-        'tags' => 50,
-    ];
-
     protected static $defaultName = 'framework:demodata';
+
+    /**
+     * @var array<string,int>
+     */
+    private array $defaults = [];
 
     private DemodataService $demodataService;
 
@@ -75,34 +60,18 @@ class DemodataCommand extends Command
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    public function addDefault(string $name, int $value): void
+    {
+        $this->defaults[$name] = $value;
+    }
+
     protected function configure(): void
     {
-        $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count');
-        $this->addOption('promotions', 'pr', InputOption::VALUE_REQUIRED, 'Promotion count');
-        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count');
-        $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count');
-        $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count');
-        $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count');
-        $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count');
-        $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300))');
-        $this->addOption('users', '', InputOption::VALUE_REQUIRED, 'Users count');
-
-        $this->addOption('product-streams', 'ps', InputOption::VALUE_REQUIRED, 'Product streams count');
-
-        $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count');
-        $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count');
-        $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', '1');
-        $this->addOption('reviews', 'r', InputOption::VALUE_OPTIONAL, 'Reviews count');
-
-        $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count');
-        $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
-        $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
-        $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
-        $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
-        $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
-        $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count');
-        $this->addOption('rules', 'R', InputOption::VALUE_OPTIONAL, 'Rules count');
-        $this->addOption('tags', null, InputOption::VALUE_OPTIONAL, 'Tags count');
+        $this->addOption('product-attributes', null, InputOption::VALUE_OPTIONAL, 'Products attribute count');
+        $this->addOption('manufacturer-attributes', null, InputOption::VALUE_OPTIONAL, 'Manufacturer attribute count');
+        $this->addOption('order-attributes', null, InputOption::VALUE_OPTIONAL, 'Order attribute count');
+        $this->addOption('customer-attributes', null, InputOption::VALUE_OPTIONAL, 'Customer attribute count');
+        $this->addOption('media-attributes', null, InputOption::VALUE_OPTIONAL, 'Media attribute count');
 
         $this->addOption('reset-defaults', null, InputOption::VALUE_NONE, 'Set all counts to 0 unless specified');
     }
@@ -146,7 +115,7 @@ class DemodataCommand extends Command
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
 
-        $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context));
+        $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 
         $demoContext = $this->demodataService->generate($request, $context, $io);
 
@@ -158,22 +127,25 @@ class DemodataCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, array<string, int>>
+     */
     private function getCustomFieldOptions(InputInterface $input): array
     {
         return [
             'relations' => [
-                'product' => ($input->getOption('product-attributes') ?? (int) $input->getOption('product-attributes') * 0.1),
-                'product_manufacturer' => ($input->getOption('manufacturer-attributes') ?? (int) $input->getOption('manufacturer-attributes') * 0.1),
-                'order' => ($input->getOption('order-attributes') ?? (int) $input->getOption('order-attributes') * 0.1),
-                'customer' => ($input->getOption('customer-attributes') ?? (int) $input->getOption('customer-attributes') * 0.1),
-                'media' => ($input->getOption('media-attributes') ?? (int) $input->getOption('media-attributes') * 0.1),
+                'product' => $this->getCount($input, 'product-attributes'),
+                'product_manufacturer' => $this->getCount($input, 'manufacturer-attributes'),
+                'order' => $this->getCount($input, 'order-attributes'),
+                'customer' => $this->getCount($input, 'customer-attributes'),
+                'media' => $this->getCount($input, 'media-attributes'),
             ],
         ];
     }
 
     private function getCount(InputInterface $input, string $name): int
     {
-        if ($input->getOption($name) !== null) {
+        if ($input->hasOption($name) && $input->getOption($name) !== null) {
             return (int) $input->getOption($name);
         }
 
@@ -181,6 +153,6 @@ class DemodataCommand extends Command
             return 0;
         }
 
-        return self::DEFAULT_COUNTS[$name];
+        return $this->defaults[$name] ?? 0;
     }
 }

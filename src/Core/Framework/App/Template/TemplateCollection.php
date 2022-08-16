@@ -7,13 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @method void                       add(TemplateEntity $entity)
- * @method void                       set(string $key, TemplateEntity $entity)
- * @method \Generator<TemplateEntity> getIterator()
- * @method array<TemplateEntity>      getElements()
- * @method TemplateEntity|null        get(string $key)
- * @method TemplateEntity|null        first()
- * @method TemplateEntity|null        last()
+ * @extends EntityCollection<TemplateEntity>
  */
 class TemplateCollection extends EntityCollection
 {

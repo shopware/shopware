@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -225,7 +225,7 @@ class RuleValidator implements EventSubscriberInterface
         }
     }
 
-    private function getSavedConditions(array $commandQueue, Context $context): EntityCollection
+    private function getSavedConditions(array $commandQueue, Context $context): RuleConditionCollection
     {
         $ids = array_map(function ($command) {
             $uuidBytes = $command->getPrimaryKey()['id'];
@@ -236,7 +236,10 @@ class RuleValidator implements EventSubscriberInterface
         $criteria = new Criteria($ids);
         $criteria->setLimit(null);
 
-        return $this->ruleConditionRepository->search($criteria, $context)->getEntities();
+        /** @var RuleConditionCollection $entities */
+        $entities = $this->ruleConditionRepository->search($criteria, $context)->getEntities();
+
+        return $entities;
     }
 
     private function buildViolation(

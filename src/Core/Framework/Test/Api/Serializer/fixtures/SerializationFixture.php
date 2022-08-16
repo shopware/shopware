@@ -15,7 +15,7 @@ abstract class SerializationFixture
     public const API_VERSION = 1;
 
     /**
-     * @return EntityCollection|Entity
+     * @return EntityCollection<Entity>|Entity
      */
     abstract public function getInput();
 

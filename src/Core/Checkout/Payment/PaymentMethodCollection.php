@@ -6,13 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @method void                     add(PaymentMethodEntity $entity)
- * @method void                     set(string $key, PaymentMethodEntity $entity)
- * @method PaymentMethodEntity[]    getIterator()
- * @method PaymentMethodEntity[]    getElements()
- * @method PaymentMethodEntity|null get(string $key)
- * @method PaymentMethodEntity|null first()
- * @method PaymentMethodEntity|null last()
+ * @extends EntityCollection<PaymentMethodEntity>
  */
 class PaymentMethodCollection extends EntityCollection
 {
@@ -29,6 +23,9 @@ class PaymentMethodCollection extends EntityCollection
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPluginIds(): array
     {
         return $this->fmap(function (PaymentMethodEntity $paymentMethod) {

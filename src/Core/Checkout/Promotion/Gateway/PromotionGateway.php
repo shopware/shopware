@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Promotion\Gateway;
 
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,6 +28,8 @@ class PromotionGateway implements PromotionGatewayInterface
     /**
      * Gets a list of promotions for the provided criteria and
      * sales channel context.
+     *
+     * @return EntityCollection<PromotionEntity>
      */
     public function get(Criteria $criteria, SalesChannelContext $context): EntityCollection
     {
@@ -34,6 +38,9 @@ class PromotionGateway implements PromotionGatewayInterface
             new FieldSorting('priority', FieldSorting::DESCENDING)
         );
 
-        return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+        /** @var PromotionCollection $entities */
+        $entities = $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
+
+        return $entities;
     }
 }

@@ -245,6 +245,9 @@ class EntityRepository implements EntityRepositoryInterface
         return $event;
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     private function read(Criteria $criteria, Context $context): EntityCollection
     {
         $criteria = clone $criteria;
@@ -286,6 +289,7 @@ class EntityRepository implements EntityRepositoryInterface
         $ids = $this->searchIds($criteria, $context);
 
         if (empty($ids->getIds())) {
+            /** @var EntityCollection<Entity> $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $context);

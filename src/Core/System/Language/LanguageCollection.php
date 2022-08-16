@@ -6,16 +6,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
- * @method void                add(LanguageEntity $entity)
- * @method void                set(string $key, LanguageEntity $entity)
- * @method LanguageEntity[]    getIterator()
- * @method LanguageEntity[]    getElements()
- * @method LanguageEntity|null get(string $key)
- * @method LanguageEntity|null first()
- * @method LanguageEntity|null last()
+ * @extends EntityCollection<LanguageEntity>
  */
 class LanguageCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getParentIds(): array
     {
         return $this->fmap(function (LanguageEntity $language) {
@@ -30,6 +27,9 @@ class LanguageCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLocaleIds(): array
     {
         return $this->fmap(function (LanguageEntity $language) {

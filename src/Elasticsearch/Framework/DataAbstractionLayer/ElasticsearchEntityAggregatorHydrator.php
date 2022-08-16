@@ -5,6 +5,8 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -138,6 +140,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 
         if (empty($ids)) {
             $definition = $this->registry->getByEntityName($aggregation->getEntity());
+            /** @var EntityCollection<Entity> $class */
             $class = $definition->getCollectionClass();
 
             return new EntityResult($aggregation->getName(), new $class());

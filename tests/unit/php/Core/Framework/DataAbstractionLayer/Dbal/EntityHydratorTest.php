@@ -139,7 +139,8 @@ class EntityHydratorTest extends TestCase
 
         static::assertIsArray($customFields);
         static::assertCount(2, $customFields);
-        static::assertSame('Example', $customFields['custom_test_text']);static::assertNull($customFields['custom_test_check']);
+        static::assertSame('Example', $customFields['custom_test_text']);
+        static::assertNull($customFields['custom_test_check']);
     }
 
     public function testCustomFieldHydrationWithTranslationWithInheritance(): void

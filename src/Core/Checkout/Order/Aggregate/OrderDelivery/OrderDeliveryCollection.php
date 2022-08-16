@@ -7,16 +7,13 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                     add(OrderDeliveryEntity $entity)
- * @method void                     set(string $key, OrderDeliveryEntity $entity)
- * @method OrderDeliveryEntity[]    getIterator()
- * @method OrderDeliveryEntity[]    getElements()
- * @method OrderDeliveryEntity|null get(string $key)
- * @method OrderDeliveryEntity|null first()
- * @method OrderDeliveryEntity|null last()
+ * @extends EntityCollection<OrderDeliveryEntity>
  */
 class OrderDeliveryCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getOrderIds(): array
     {
         return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
@@ -31,6 +28,9 @@ class OrderDeliveryCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getShippingAddressIds(): array
     {
         return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {
@@ -45,6 +45,9 @@ class OrderDeliveryCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getShippingMethodIds(): array
     {
         return $this->fmap(function (OrderDeliveryEntity $orderDelivery) {

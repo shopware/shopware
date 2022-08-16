@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                         add(ProductVisibilityEntity $entity)
- * @method void                         set(string $key, ProductVisibilityEntity $entity)
- * @method ProductVisibilityEntity[]    getIterator()
- * @method ProductVisibilityEntity[]    getElements()
- * @method ProductVisibilityEntity|null get(string $key)
- * @method ProductVisibilityEntity|null first()
- * @method ProductVisibilityEntity|null last()
+ * @extends EntityCollection<ProductVisibilityEntity>
  */
 class ProductVisibilityCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductVisibilityEntity $visibility) {

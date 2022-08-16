@@ -23346,11 +23346,6 @@ parameters:
 			path: src/Core/Framework/Rule/RuleCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleCollection\\:\\:set\\(\\) has parameter \\$rule with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/RuleCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Rule\\\\RuleComparison\\:\\:stringArray\\(\\) has parameter \\$ruleValue with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/RuleComparison.php
@@ -24166,11 +24161,6 @@ parameters:
 			path: src/Core/Framework/Store/Struct/BinaryStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\CartPositionCollection\\:\\:__construct\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/CartPositionCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\CartPositionCollection\\:\\:getElementFromArray\\(\\) has parameter \\$element with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/CartPositionCollection.php
@@ -24296,16 +24286,6 @@ parameters:
 			path: src/Core/Framework/Store/Struct/ImageStruct.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseDomainCollection\\:\\:add\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/LicenseDomainCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseDomainCollection\\:\\:set\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/LicenseDomainCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseDomainCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/LicenseDomainCollection.php
@@ -24314,11 +24294,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/LicenseStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PermissionCollection\\:\\:__construct\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/PermissionCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PermissionCollection\\:\\:generatePrivileges\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
@@ -24349,21 +24324,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PermissionStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/PermissionStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRecommendationCollection\\:\\:__construct\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/PluginRecommendationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRecommendationCollection\\:\\:add\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/PluginRecommendationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRecommendationCollection\\:\\:set\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/PluginRecommendationCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\PluginRecommendationCollection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
@@ -24439,11 +24399,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\StoreCategoryStruct\\:\\:\\$details type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/StoreCategoryStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\StoreCollection\\:\\:__construct\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Struct/StoreCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\StoreCollection\\:\\:getElementFromArray\\(\\) has parameter \\$element with no value type specified in iterable type array\\.$#"
@@ -24551,16 +24506,6 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:__construct\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:add\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:createNew\\(\\) has parameter \\$elements with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
@@ -24576,27 +24521,12 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getAt\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getElements\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:has\\(\\) has parameter \\$key with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:jsonSerialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
 
@@ -24621,22 +24551,12 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:set\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:set\\(\\) has parameter \\$key with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:validateType\\(\\) has parameter \\$element with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:\\$elements type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
 
@@ -35246,11 +35166,6 @@ parameters:
 			path: src/Docs/Inspection/ArrayWriter.php
 
 		-
-			message: "#^Method Shopware\\\\Docs\\\\Inspection\\\\CharacteristicsCollection\\:\\:filterTagName\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Docs/Inspection/CharacteristicsCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Docs\\\\Inspection\\\\ErdGenerator\\:\\:generateFromModules\\(\\) has parameter \\$modules with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Docs/Inspection/ErdGenerator.php
@@ -38147,17 +38062,12 @@ parameters:
 
 		-
 			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
 			message: "#^Cannot call method getDependentThemes\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\|null\\.$#"
 			count: 2
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getHelpTexts\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
@@ -38176,18 +38086,8 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
-			message: "#^Cannot call method getLabels\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Cannot call method getLanguage\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
 			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
@@ -38217,11 +38117,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeLifecycleServiceTest\\:\\:getTheme\\(\\) has parameter \\$withChild with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeLifecycleServiceTest\\:\\:getTranslationByLocale\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity but returns Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
@@ -38289,16 +38184,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationCollection\\:\\:getThemeIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationCollection.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:getHelpTexts\\(\\) return type has no value type specified in iterable type array\\.$#"

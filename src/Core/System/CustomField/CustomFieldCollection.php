@@ -5,13 +5,7 @@ namespace Shopware\Core\System\CustomField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                   add(CustomFieldEntity $entity)
- * @method void                   set(string $key, CustomFieldEntity $entity)
- * @method CustomFieldEntity[]    getIterator()
- * @method CustomFieldEntity[]    getElements()
- * @method CustomFieldEntity|null get(string $key)
- * @method CustomFieldEntity|null first()
- * @method CustomFieldEntity|null last()
+ * @extends EntityCollection<CustomFieldEntity>
  */
 class CustomFieldCollection extends EntityCollection
 {

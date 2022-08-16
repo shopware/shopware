@@ -231,7 +231,7 @@ class CollectionTest extends TestCase
 /**
  * @internal
  *
- * @extends Collection<string>
+ * @extends Collection<string|ProductEntity|CategoryEntity>
  */
 class TestCollection extends Collection
 {

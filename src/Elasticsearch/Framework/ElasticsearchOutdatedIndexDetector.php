@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Framework;
 
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -70,11 +69,14 @@ class ElasticsearchOutdatedIndexDetector
         }, $allIndices);
     }
 
-    private function getLanguages(): EntityCollection
+    private function getLanguages(): LanguageCollection
     {
-        return $this->languageRepository
+        /** @var LanguageCollection $entities */
+        $entities = $this->languageRepository
             ->search(new Criteria(), Context::createDefaultContext())
             ->getEntities();
+
+        return $entities;
     }
 
     /**

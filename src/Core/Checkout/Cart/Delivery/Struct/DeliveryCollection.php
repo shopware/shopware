@@ -75,7 +75,7 @@ class DeliveryCollection extends Collection
         foreach ($this->getIterator() as $delivery) {
             $address = $delivery->getLocation()->getAddress();
             if ($address !== null) {
-                $addresses->add($delivery->getLocation()->getAddress());
+                $addresses->add($address);
             }
         }
 

@@ -32,7 +32,7 @@ class JsonEntityEncoder
     }
 
     /**
-     * @param EntityCollection|Entity|null $data
+     * @param EntityCollection<Entity>|Entity|null $data
      */
     public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl): array
     {
@@ -47,6 +47,9 @@ class JsonEntityEncoder
         return $this->getDecodedEntity($criteria, $data, $definition, $baseUrl);
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl): array
     {
         $decoded = [];
@@ -95,6 +98,7 @@ class JsonEntityEncoder
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
+                /** @var Struct $object */
                 $object = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {

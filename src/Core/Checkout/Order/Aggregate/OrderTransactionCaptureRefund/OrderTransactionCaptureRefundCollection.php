@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                     add(OrderTransactionCaptureRefundEntity $entity)
- * @method void                                     set(string $key, OrderTransactionCaptureRefundEntity $entity)
- * @method OrderTransactionCaptureRefundEntity[]    getIterator()
- * @method OrderTransactionCaptureRefundEntity[]    getElements()
- * @method OrderTransactionCaptureRefundEntity|null get(string $key)
- * @method OrderTransactionCaptureRefundEntity|null first()
- * @method OrderTransactionCaptureRefundEntity|null last()
+ * @extends EntityCollection<OrderTransactionCaptureRefundEntity>
  */
 class OrderTransactionCaptureRefundCollection extends EntityCollection
 {

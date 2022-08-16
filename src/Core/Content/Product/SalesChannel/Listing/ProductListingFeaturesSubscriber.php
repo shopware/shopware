@@ -16,7 +16,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -302,7 +301,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         throw new ProductSortingNotFoundException($key);
     }
 
-    private function getAvailableSortings(Request $request, Context $context): EntityCollection
+    private function getAvailableSortings(Request $request, Context $context): ProductSortingCollection
     {
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');

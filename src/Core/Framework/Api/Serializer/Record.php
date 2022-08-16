@@ -182,7 +182,7 @@ class Record implements \JsonSerializable
         }
 
         foreach ($this->relationships as $key => &$relationship) {
-            /** @var Entity|EntityCollection|null $relationData */
+            /** @var Entity|EntityCollection<Entity>|null $relationData */
             $relationData = $data[$key] ?? null;
 
             if ($relationData === null) {

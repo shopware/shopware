@@ -192,6 +192,7 @@ class AfterSortTest extends TestCase
 
 /**
  * @internal
+ * @extends EntityCollection<TestEntity>
  */
 class AfterSortCollection extends EntityCollection
 {

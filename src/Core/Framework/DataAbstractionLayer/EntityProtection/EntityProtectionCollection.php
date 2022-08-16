@@ -5,11 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method EntityProtection[]    getIterator()
- * @method EntityProtection[]    getElements()
- * @method EntityProtection|null get(string $key)
- * @method EntityProtection|null first()
- * @method EntityProtection|null last()
+ * @extends Collection<EntityProtection>
  */
 class EntityProtectionCollection extends Collection
 {

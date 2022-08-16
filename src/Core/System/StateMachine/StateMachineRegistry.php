@@ -374,6 +374,7 @@ class StateMachineRegistry
             throw new StateMachineInvalidStateFieldException($stateFieldName);
         }
 
+        /** @var StateMachineStateEntity|null $fromPlace */
         $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->get($fromPlaceId);
 
         if (!$fromPlace) {

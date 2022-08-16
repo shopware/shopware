@@ -87,6 +87,7 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
+        /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($paymentMethod === null) {

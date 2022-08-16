@@ -6,16 +6,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 
 /**
- * @method void                add(CategoryEntity $entity)
- * @method void                set(string $key, CategoryEntity $entity)
- * @method CategoryEntity[]    getIterator()
- * @method CategoryEntity[]    getElements()
- * @method CategoryEntity|null get(string $key)
- * @method CategoryEntity|null first()
- * @method CategoryEntity|null last()
+ * @extends EntityCollection<CategoryEntity>
  */
 class CategoryCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getParentIds(): array
     {
         return $this->fmap(function (CategoryEntity $category) {
@@ -30,6 +27,9 @@ class CategoryCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
         return $this->fmap(function (CategoryEntity $category) {

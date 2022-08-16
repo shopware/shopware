@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Struct\Collection;
 
-
 /**
  * @template TElement of Entity
  *
@@ -36,6 +35,9 @@ class EntityCollection extends Collection
         $this->set($entity->getUniqueIdentifier(), $entity);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         return $this->fmap(static function (Entity $entity) {
@@ -67,9 +69,12 @@ class EntityCollection extends Collection
         return $this->createNew($filtered);
     }
 
+    /**
+     * @param EntityCollection<TElement> $collection
+     */
     public function merge(self $collection): void
     {
-        /** @var Entity $entity */
+        /** @var TElement $entity */
         foreach ($collection as $entity) {
             if ($this->has($entity->getUniqueIdentifier())) {
                 continue;

@@ -5,16 +5,13 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(SalesChannelTranslationEntity $entity)
- * @method void                               set(string $key, SalesChannelTranslationEntity $entity)
- * @method SalesChannelTranslationEntity[]    getIterator()
- * @method SalesChannelTranslationEntity[]    getElements()
- * @method SalesChannelTranslationEntity|null get(string $key)
- * @method SalesChannelTranslationEntity|null first()
- * @method SalesChannelTranslationEntity|null last()
+ * @extends EntityCollection<SalesChannelTranslationEntity>
  */
 class SalesChannelTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getSalesChannelIds(): array
     {
         return $this->fmap(function (SalesChannelTranslationEntity $salesChannelTranslation) {
@@ -29,6 +26,9 @@ class SalesChannelTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (SalesChannelTranslationEntity $salesChannelTranslation) {

@@ -7,12 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal only for use by the app-system
  *
- * @method void       set(string $key, Error $entity)
- * @method Error[]    getIterator()
- * @method Error[]    getElements()
- * @method Error|null get(string $key)
- * @method Error|null first()
- * @method Error|null last()
+ * @extends Collection<Error>
  */
 class ErrorCollection extends Collection
 {

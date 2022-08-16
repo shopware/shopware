@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                      add(ProductSortingEntity $entity)
- * @method void                      set(string $key, ProductSortingEntity $entity)
- * @method ProductSortingEntity[]    getIterator()
- * @method ProductSortingEntity[]    getElements()
- * @method ProductSortingEntity|null get(string $key)
- * @method ProductSortingEntity|null first()
- * @method ProductSortingEntity|null last()
+ * @extends EntityCollection<ProductSortingEntity>
  */
 class ProductSortingCollection extends EntityCollection
 {

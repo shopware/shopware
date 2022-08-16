@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                        add(MailHeaderFooterEntity $entity)
- * @method void                        set(string $key, MailHeaderFooterEntity $entity)
- * @method MailHeaderFooterEntity[]    getIterator()
- * @method MailHeaderFooterEntity[]    getElements()
- * @method MailHeaderFooterEntity|null get(string $key)
- * @method MailHeaderFooterEntity|null first()
- * @method MailHeaderFooterEntity|null last()
+ * @extends EntityCollection<MailHeaderFooterEntity>
  */
 class MailHeaderFooterCollection extends EntityCollection
 {

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -88,7 +89,7 @@ class AdminSearchController extends AbstractController
             $criteria = $criteriaCollection->get($entityName);
             $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-            /** @var EntityCollection $entityCollection */
+            /** @var EntityCollection<Entity> $entityCollection */
             $entityCollection = $result['data'];
             $entities = [];
 

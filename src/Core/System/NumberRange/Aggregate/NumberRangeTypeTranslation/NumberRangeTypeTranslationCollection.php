@@ -5,16 +5,13 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                  add(NumberRangeTypeTranslationEntity $type)
- * @method void                                  set(string $key, NumberRangeTypeTranslationEntity $entity)
- * @method NumberRangeTypeTranslationEntity[]    getIterator()
- * @method NumberRangeTypeTranslationEntity[]    getElements()
- * @method NumberRangeTypeTranslationEntity|null get(string $key)
- * @method NumberRangeTypeTranslationEntity|null first()
- * @method NumberRangeTypeTranslationEntity|null last()
+ * @extends EntityCollection<NumberRangeTypeTranslationEntity>
  */
 class NumberRangeTypeTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getNumberRangeTypeIds(): array
     {
         return $this->fmap(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) {
@@ -29,6 +26,9 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) {

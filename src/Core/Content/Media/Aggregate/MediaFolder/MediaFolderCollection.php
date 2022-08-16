@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                   add(MediaFolderEntity $entity)
- * @method void                   set(string $key, MediaFolderEntity $entity)
- * @method MediaFolderEntity[]    getIterator()
- * @method MediaFolderEntity[]    getElements()
- * @method MediaFolderEntity|null get(string $key)
- * @method MediaFolderEntity|null first()
- * @method MediaFolderEntity|null last()
+ * @extends EntityCollection<MediaFolderEntity>
  */
 class MediaFolderCollection extends EntityCollection
 {

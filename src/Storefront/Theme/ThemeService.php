@@ -518,14 +518,21 @@ class ThemeService
                 $translations = array_replace_recursive($parentTranslations, $translations);
             }
         } elseif ($theme->getParentThemeId() !== null) {
+            /** @var ThemeEntity|null $parentTheme */
             $parentTheme = $this->themeRepository->search(new Criteria([$theme->getParentThemeId()]), $context)
                 ->get($theme->getParentThemeId());
+            if (!$parentTheme) {
+                throw new \RuntimeException(sprintf('Parent theme with id "%s" not found', $theme->getParentThemeId()));
+            }
             $parentTranslations = $parentTheme->getLabels() ?: [];
             $translations = array_replace_recursive($parentTranslations, $translations);
             $criteria = new Criteria();
 
             $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
             $baseTheme = $this->themeRepository->search($criteria, $context)->first();
+            if (!$baseTheme) {
+                throw new \RuntimeException(sprintf('Base theme with name "%s" not found', StorefrontPluginRegistry::BASE_THEME_NAME));
+            }
             $baseTranslations = $baseTheme->getLabels() ?: [];
 
             return array_replace_recursive($baseTranslations, $translations);

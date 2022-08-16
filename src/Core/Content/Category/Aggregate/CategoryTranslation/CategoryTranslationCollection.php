@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                           add(CategoryTranslationEntity $entity)
- * @method void                           set(string $key, CategoryTranslationEntity $entity)
- * @method CategoryTranslationEntity[]    getIterator()
- * @method CategoryTranslationEntity[]    getElements()
- * @method CategoryTranslationEntity|null get(string $key)
- * @method CategoryTranslationEntity|null first()
- * @method CategoryTranslationEntity|null last()
+ * @extends EntityCollection<CategoryTranslationEntity>
  */
 class CategoryTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getCategoryIds(): array
     {
         return $this->fmap(function (CategoryTranslationEntity $categoryTranslation) {
@@ -29,6 +26,9 @@ class CategoryTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (CategoryTranslationEntity $categoryTranslation) {

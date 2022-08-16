@@ -7,13 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @method void                           add(ActionButtonEntity $entity)
- * @method void                           set(string $key, ActionButtonEntity $entity)
- * @method \Generator<ActionButtonEntity> getIterator()
- * @method array<ActionButtonEntity>      getElements()
- * @method ActionButtonEntity|null        get(string $key)
- * @method ActionButtonEntity|null        first()
- * @method ActionButtonEntity|null        last()
+ * @extends EntityCollection<ActionButtonEntity>
  */
 class ActionButtonCollection extends EntityCollection
 {

@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                add(PropertyGroupTranslationEntity $entity)
- * @method void                                set(string $key, PropertyGroupTranslationEntity $entity)
- * @method PropertyGroupTranslationEntity[]    getIterator()
- * @method PropertyGroupTranslationEntity[]    getElements()
- * @method PropertyGroupTranslationEntity|null get(string $key)
- * @method PropertyGroupTranslationEntity|null first()
- * @method PropertyGroupTranslationEntity|null last()
+ * @extends EntityCollection<PropertyGroupTranslationEntity>
  */
 class PropertyGroupTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getPropertyGroupIds(): array
     {
         return $this->fmap(function (PropertyGroupTranslationEntity $propertyGroupTranslation) {
@@ -29,6 +26,9 @@ class PropertyGroupTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (PropertyGroupTranslationEntity $propertyGroupTranslation) {

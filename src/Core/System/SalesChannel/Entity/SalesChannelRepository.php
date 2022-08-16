@@ -120,6 +120,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
         if (empty($ids->getIds())) {
+            /** @var EntityCollection<Entity> $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
@@ -182,6 +183,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         return $this->doSearch($criteria, $salesChannelContext);
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
         $criteria = clone $criteria;

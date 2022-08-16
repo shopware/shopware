@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                        add(MediaTranslationEntity $entity)
- * @method void                        set(string $key, MediaTranslationEntity $entity)
- * @method MediaTranslationEntity[]    getIterator()
- * @method MediaTranslationEntity[]    getElements()
- * @method MediaTranslationEntity|null get(string $key)
- * @method MediaTranslationEntity|null first()
- * @method MediaTranslationEntity|null last()
+ * @extends EntityCollection<MediaTranslationEntity>
  */
 class MediaTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
         return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {
@@ -29,6 +26,9 @@ class MediaTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {

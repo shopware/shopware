@@ -28,7 +28,7 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
-     * @param EntityCollection|Entity|null $data
+     * @param EntityCollection<Entity>|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
@@ -85,7 +85,7 @@ class JsonApiEncoder
             $relationship['links']['related'] = $record->getLink('self') . '/' . $this->camelCaseToSnailCase($propertyName);
 
             try {
-                /** @var Entity|EntityCollection|null $relationData */
+                /** @var Entity|EntityCollection<Entity>|null $relationData */
                 $relationData = $entity->get($propertyName);
             } catch (\InvalidArgumentException $ex) {
                 continue;
@@ -122,7 +122,7 @@ class JsonApiEncoder
     }
 
     /**
-     * @param Entity|EntityCollection|null $data
+     * @param Entity|EntityCollection<Entity>|null $data
      */
     private function encodeData(ResponseFields $fields, EntityDefinition $definition, $data, JsonApiEncodingResult $result): void
     {

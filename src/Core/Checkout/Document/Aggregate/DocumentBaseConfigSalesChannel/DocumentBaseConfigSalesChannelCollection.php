@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChann
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                      add(DocumentBaseConfigSalesChannelEntity $entity)
- * @method void                                      set(string $key, DocumentBaseConfigSalesChannelEntity $entity)
- * @method DocumentBaseConfigSalesChannelEntity[]    getIterator()
- * @method DocumentBaseConfigSalesChannelEntity[]    getElements()
- * @method DocumentBaseConfigSalesChannelEntity|null get(string $key)
- * @method DocumentBaseConfigSalesChannelEntity|null first()
- * @method DocumentBaseConfigSalesChannelEntity|null last()
+ * @extends EntityCollection<DocumentBaseConfigSalesChannelEntity>
  */
 class DocumentBaseConfigSalesChannelCollection extends EntityCollection
 {

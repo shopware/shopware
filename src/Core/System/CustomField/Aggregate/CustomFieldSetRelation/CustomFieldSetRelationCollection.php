@@ -5,13 +5,7 @@ namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                              add(CustomFieldSetRelationEntity $entity)
- * @method void                              set(string $key, CustomFieldSetRelationEntity $entity)
- * @method CustomFieldSetRelationEntity[]    getIterator()
- * @method CustomFieldSetRelationEntity[]    getElements()
- * @method CustomFieldSetRelationEntity|null get(string $key)
- * @method CustomFieldSetRelationEntity|null first()
- * @method CustomFieldSetRelationEntity|null last()
+ * @extends EntityCollection<CustomFieldSetRelationEntity>
  */
 class CustomFieldSetRelationCollection extends EntityCollection
 {

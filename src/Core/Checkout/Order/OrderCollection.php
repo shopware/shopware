@@ -9,16 +9,13 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @method void             add(OrderEntity $entity)
- * @method void             set(string $key, OrderEntity $entity)
- * @method OrderEntity[]    getIterator()
- * @method OrderEntity[]    getElements()
- * @method OrderEntity|null get(string $key)
- * @method OrderEntity|null first()
- * @method OrderEntity|null last()
+ * @extends EntityCollection<OrderEntity>
  */
 class OrderCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getCurrencyIds(): array
     {
         return $this->fmap(function (OrderEntity $order) {
@@ -33,6 +30,9 @@ class OrderCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getSalesChannelIs(): array
     {
         return $this->fmap(function (OrderEntity $order) {

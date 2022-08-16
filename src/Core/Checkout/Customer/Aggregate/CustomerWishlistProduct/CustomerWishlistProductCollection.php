@@ -6,13 +6,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(CustomerWishlistProductEntity $entity)
- * @method void                               set(string $key, CustomerWishlistProductEntity $entity)
- * @method CustomerWishlistProductEntity[]    getIterator()
- * @method CustomerWishlistProductEntity[]    getElements()
- * @method CustomerWishlistProductEntity|null get(string $key)
- * @method CustomerWishlistProductEntity|null first()
- * @method CustomerWishlistProductEntity|null last()
+ * @extends EntityCollection<CustomerWishlistProductEntity>
  */
 class CustomerWishlistProductCollection extends EntityCollection
 {

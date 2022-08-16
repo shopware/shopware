@@ -5,13 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                             add(SalesChannelAnalyticsEntity $entity)
- * @method void                             set(string $key, SalesChannelAnalyticsEntity $entity)
- * @method SalesChannelAnalyticsEntity[]    getIterator()
- * @method SalesChannelAnalyticsEntity[]    getElements()
- * @method SalesChannelAnalyticsEntity|null get(string $key)
- * @method SalesChannelAnalyticsEntity|null first()
- * @method SalesChannelAnalyticsEntity|null last()
+ * @extends EntityCollection<SalesChannelAnalyticsEntity>
  */
 class SalesChannelAnalyticsCollection extends EntityCollection
 {

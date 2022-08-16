@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
-use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -205,7 +204,7 @@ class StoreClient
 
     public function checkForViolations(
         Context $context,
-        Collection $extensions,
+        ExtensionCollection $extensions,
         string $hostName
     ): void {
         $indexedExtensions = [];

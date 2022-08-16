@@ -6,13 +6,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                     add(PropertyGroupEntity $entity)
- * @method void                     set(string $key, PropertyGroupEntity $entity)
- * @method PropertyGroupEntity[]    getIterator()
- * @method PropertyGroupEntity[]    getElements()
- * @method PropertyGroupEntity|null get(string $key)
- * @method PropertyGroupEntity|null first()
- * @method PropertyGroupEntity|null last()
+ * @extends EntityCollection<PropertyGroupEntity>
  */
 class PropertyGroupCollection extends EntityCollection
 {

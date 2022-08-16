@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Seo\SeoUrl;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void              add(SeoUrlEntity $entity)
- * @method void              set(string $key, SeoUrlEntity $entity)
- * @method SeoUrlEntity[]    getIterator()
- * @method SeoUrlEntity[]    getElements()
- * @method SeoUrlEntity|null get(string $key)
- * @method SeoUrlEntity|null first()
- * @method SeoUrlEntity|null last()
+ * @extends EntityCollection<SeoUrlEntity>
  */
 class SeoUrlCollection extends EntityCollection
 {

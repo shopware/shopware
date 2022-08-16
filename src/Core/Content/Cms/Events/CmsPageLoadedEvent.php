@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Events;
 
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
@@ -17,7 +18,7 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     protected $request;
 
     /**
-     * @var EntityCollection
+     * @var EntityCollection<CmsPageEntity>
      */
     protected $result;
 
@@ -26,6 +27,9 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
      */
     protected $salesChannelContext;
 
+    /**
+     * @param EntityCollection<CmsPageEntity> $result
+     */
     public function __construct(Request $request, EntityCollection $result, SalesChannelContext $salesChannelContext)
     {
         $this->request = $request;
@@ -38,6 +42,9 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
         return $this->request;
     }
 
+    /**
+     * @return EntityCollection<CmsPageEntity>
+     */
     public function getResult(): EntityCollection
     {
         return $this->result;

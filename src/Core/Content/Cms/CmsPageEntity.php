@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
@@ -39,7 +40,7 @@ class CmsPageEntity extends Entity
     protected $sections;
 
     /**
-     * @var EntityCollection|null
+     * @var EntityCollection<CmsPageTranslationEntity>|null
      */
     protected $translations;
 
@@ -128,11 +129,17 @@ class CmsPageEntity extends Entity
         $this->sections = $sections;
     }
 
+    /**
+     * @return EntityCollection<CmsPageTranslationEntity>|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param EntityCollection<CmsPageTranslationEntity> $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;

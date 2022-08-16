@@ -8,13 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @method void            add(RuleEntity $entity)
- * @method void            set(string $key, RuleEntity $entity)
- * @method RuleEntity[]    getIterator()
- * @method RuleEntity[]    getElements()
- * @method RuleEntity|null get(string $key)
- * @method RuleEntity|null first()
- * @method RuleEntity|null last()
+ * @extends EntityCollection<RuleEntity>
  */
 class RuleCollection extends EntityCollection
 {

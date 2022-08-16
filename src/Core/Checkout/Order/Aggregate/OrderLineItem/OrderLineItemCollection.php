@@ -7,16 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
 /**
- * @method void                     add(OrderLineItemEntity $entity)
- * @method void                     set(string $key, OrderLineItemEntity $entity)
- * @method OrderLineItemEntity[]    getIterator()
- * @method OrderLineItemEntity[]    getElements()
- * @method OrderLineItemEntity|null get(string $key)
- * @method OrderLineItemEntity|null first()
- * @method OrderLineItemEntity|null last()
+ * @extends EntityCollection<OrderLineItemEntity>
  */
 class OrderLineItemCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getOrderIds(): array
     {
         return $this->fmap(function (OrderLineItemEntity $orderLineItem) {
@@ -49,6 +46,9 @@ class OrderLineItemCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPayloadsProperty(string $property): array
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {

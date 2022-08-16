@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                add(DocumentIdStruct $entity)
- * @method void                set(string $key, DocumentIdStruct $entity)
- * @method DocumentIdStruct[]    getIterator()
- * @method DocumentIdStruct[]    getElements()
- * @method DocumentIdStruct|null get(string $key)
- * @method DocumentIdStruct|null first()
- * @method DocumentIdStruct|null last()
+ * @extends Collection<DocumentIdStruct>
  */
 class DocumentIdCollection extends Collection
 {

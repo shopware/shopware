@@ -6,16 +6,13 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(ProductMediaEntity $entity)
- * @method void                    set(string $key, ProductMediaEntity $entity)
- * @method ProductMediaEntity[]    getIterator()
- * @method ProductMediaEntity[]    getElements()
- * @method ProductMediaEntity|null get(string $key)
- * @method ProductMediaEntity|null first()
- * @method ProductMediaEntity|null last()
+ * @extends EntityCollection<ProductMediaEntity>
  */
 class ProductMediaCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductMediaEntity $productMedia) {
@@ -30,6 +27,9 @@ class ProductMediaCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
         return $this->fmap(function (ProductMediaEntity $productMedia) {

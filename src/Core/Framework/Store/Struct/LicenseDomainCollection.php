@@ -7,11 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @codeCoverageIgnore
  *
- * @method LicenseDomainStruct[]    getIterator()
- * @method LicenseDomainStruct[]    getElements()
- * @method LicenseDomainStruct|null get(string $key)
- * @method LicenseDomainStruct|null first()
- * @method LicenseDomainStruct|null last()
+ * @extends Collection<LicenseDomainStruct>
  */
 class LicenseDomainCollection extends Collection
 {

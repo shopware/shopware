@@ -17,7 +17,7 @@ class ProductVariationBuilder extends AbstractProductVariationBuilder
 
     public function build(Entity $product): void
     {
-        /** @var EntityCollection|null $options */
+        /** @var EntityCollection<Entity>|null $options */
         $options = $product->get('options');
         if ($options === null) {
             $product->assign([

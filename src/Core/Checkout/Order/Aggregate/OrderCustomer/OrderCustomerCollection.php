@@ -7,16 +7,13 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                     add(OrderCustomerEntity $entity)
- * @method void                     set(string $key, OrderCustomerEntity $entity)
- * @method OrderCustomerEntity[]    getIterator()
- * @method OrderCustomerEntity[]    getElements()
- * @method OrderCustomerEntity|null get(string $key)
- * @method OrderCustomerEntity|null first()
- * @method OrderCustomerEntity|null last()
+ * @extends EntityCollection<OrderCustomerEntity>
  */
 class OrderCustomerCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getCustomerIds(): array
     {
         return $this->fmap(function (OrderCustomerEntity $orderCustomer) {

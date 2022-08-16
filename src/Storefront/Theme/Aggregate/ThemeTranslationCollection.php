@@ -5,16 +5,13 @@ namespace Shopware\Storefront\Theme\Aggregate;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                        add(ThemeTranslationEntity $entity)
- * @method void                        set(string $key, ThemeTranslationEntity $entity)
- * @method ThemeTranslationEntity[]    getIterator()
- * @method ThemeTranslationEntity[]    getElements()
- * @method ThemeTranslationEntity|null get(string $key)
- * @method ThemeTranslationEntity|null first()
- * @method ThemeTranslationEntity|null last()
+ * @extends EntityCollection<ThemeTranslationEntity>
  */
 class ThemeTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getThemeIds(): array
     {
         return $this->fmap(function (ThemeTranslationEntity $themeTranslation) {
@@ -29,6 +26,9 @@ class ThemeTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (ThemeTranslationEntity $themeTranslation) {

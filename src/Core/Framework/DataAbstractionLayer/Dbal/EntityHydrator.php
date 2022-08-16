@@ -66,8 +66,11 @@ class EntityHydrator
     }
 
     /**
-     * @param array<string|array<string>> $partial
+     * @param EntityCollection<Entity> $collection
      * @param array<mixed> $rows
+     * @param array<string|array<string>> $partial
+     *
+     * @return EntityCollection<Entity>
      */
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context, array $partial = []): EntityCollection
     {

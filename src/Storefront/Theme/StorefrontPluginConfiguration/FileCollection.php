@@ -5,13 +5,7 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void      add(File $entity)
- * @method void      set(string $key, File $entity)
- * @method File[]    getIterator()
- * @method File[]    getElements()
- * @method File|null get(string $key)
- * @method File|null first()
- * @method File|null last()
+ * @extends Collection<File>
  */
 class FileCollection extends Collection
 {

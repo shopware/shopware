@@ -9,16 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @method void                add(CustomerEntity $entity)
- * @method void                set(string $key, CustomerEntity $entity)
- * @method CustomerEntity[]    getIterator()
- * @method CustomerEntity[]    getElements()
- * @method CustomerEntity|null get(string $key)
- * @method CustomerEntity|null first()
- * @method CustomerEntity|null last()
+ * @extends EntityCollection<CustomerEntity>
  */
 class CustomerCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getGroupIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -33,6 +30,9 @@ class CustomerCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefaultPaymentMethodIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -47,6 +47,9 @@ class CustomerCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getSalesChannelIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -61,6 +64,9 @@ class CustomerCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLastPaymentMethodIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -75,6 +81,9 @@ class CustomerCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefaultBillingAddressIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -89,6 +98,9 @@ class CustomerCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefaultShippingAddressIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -157,6 +169,9 @@ class CustomerCollection extends EntityCollection
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getListVatIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {

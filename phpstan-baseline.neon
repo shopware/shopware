@@ -34956,11 +34956,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:\\$eventDispatcher \\(Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcher\\) does not accept Symfony\\\\Component\\\\HttpKernel\\\\Debug\\\\TraceableEventDispatcher\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorerTest\\:\\:\\$events type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php

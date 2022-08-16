@@ -20,14 +20,18 @@ Lighthouse (Administration):
         - changes:
             - 'src/Administration/Resources/app/administration/**/*'
     script:
-        - APP_ENV=prod bin/console framework:demodata
-        - APP_ENV=prod bin/console dal:refresh:index
-        - npm --prefix $ADMIN_PATH run lighthouse
+      - APP_ENV=prod bin/console framework:demodata
+      - APP_ENV=prod bin/console dal:refresh:index
+      - cd $ADMIN_PATH
+      - node createlighthouserc.js
+      - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
+      - node lighthouse-tests.js
+      - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
         paths:
-            - build/artifacts/lighthouse-results
+            - build/artifacts
 
 Lighthouse Server (Storefront):
     extends: .base

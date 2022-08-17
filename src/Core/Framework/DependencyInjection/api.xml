@@ -147,8 +147,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\PluginSchemaPathCollection">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection">
+            <argument type="service" id="kernel.bundles"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
@@ -157,7 +157,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\PluginSchemaPathCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator">
@@ -165,7 +165,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\PluginSchemaPathCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">

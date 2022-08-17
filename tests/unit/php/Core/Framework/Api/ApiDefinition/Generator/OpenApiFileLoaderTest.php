@@ -42,4 +42,17 @@ class OpenApiFileLoaderTest extends TestCase
             $spec
         );
     }
+
+    public function testSchemaOverrides(): void
+    {
+        $paths = [
+            __DIR__ . '/_fixtures/Api/ApiDefinition/Generator/Schema/StoreApi',
+            __DIR__ . '/_fixtures/BundleWithOverride/Resources/Schema/StoreApi',
+        ];
+        $fsLoader = new OpenApiFileLoader($paths);
+
+        $spec = $fsLoader->loadOpenapiSpecification();
+
+        static::assertSame('Override', $spec['paths']['/_action/order_delivery/{orderDeliveryId}/state/{transition}']['post']['description']);
+    }
 }

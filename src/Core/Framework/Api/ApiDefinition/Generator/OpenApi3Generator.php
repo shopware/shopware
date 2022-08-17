@@ -34,7 +34,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private string $schemaPath;
 
-    private PluginSchemaPathCollection $pluginSchemaPathCollection;
+    private BundleSchemaPathCollection $bundleSchemaPathCollection;
 
     /**
      * @param array{Framework: array{path: string}} $bundles
@@ -45,14 +45,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         OpenApiLoader $openApiLoader,
         array $bundles,
-        PluginSchemaPathCollection $pluginSchemaPathCollection
+        BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
         $this->openApiBuilder = $openApiBuilder;
         $this->pathBuilder = $pathBuilder;
         $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->openApiLoader = $openApiLoader;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
-        $this->pluginSchemaPathCollection = $pluginSchemaPathCollection;
+        $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -111,7 +111,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $data['paths'] = $data['paths'] ?? [];
 
         $schemaPaths = [$this->schemaPath];
-        $schemaPaths = $schemaPaths + $this->pluginSchemaPathCollection->getSchemaPaths($api);
+        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
 
         $loader = new OpenApiFileLoader($schemaPaths);
 

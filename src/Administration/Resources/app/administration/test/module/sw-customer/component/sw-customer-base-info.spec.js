@@ -104,7 +104,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the last login date', async () => {
-        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14 October 2021, 11:23');
+        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14 October 2021 at 11:23');
     });
 
     it('should display the last login snippet placeholder', async () => {

@@ -60,7 +60,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         ['profile name', '.sw-import-export-activity-log-info-modal__item-profile dd', 'Default product'],
         ['updated records', '.sw-import-export-activity-log-info-modal__item-records dd', '1'],
         ['file size', '.sw-import-export-activity-log-info-modal__item-size dd', '458.00B'],
-        ['date', '.sw-import-export-activity-log-info-modal__item-date dd', '5 November 2021, 09:08'],
+        ['date', '.sw-import-export-activity-log-info-modal__item-date dd', '5 November 2021 at 09:08'],
         ['user', '.sw-import-export-activity-log-info-modal__item-user dd', 'admin'],
     ])('should display the %s', (_, selector, expectedText) => {
         wrapper = createWrapper();

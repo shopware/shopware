@@ -1,24 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Twig;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Symfony\Component\Translation\Translator;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer
  */
-class LineItemLabelTranslateTest extends TestCase
+class StringTemplateRendererTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @dataProvider labelRenderingDataProvider
      */
-    public function testLabelRendering(string $label, string $expected): void
+    public function testTranslationRendering(string $label, string $expected): void
     {
         $template = <<<TWIG
 {% set label = item.label|trans({}, 'storefront') %}
@@ -30,8 +33,22 @@ TWIG;
         $item = new LineItem('test', 'test');
         $item->setLabel($label);
 
-        $result = $this->getContainer()->get(StringTemplateRenderer::class)
-            ->render($template, ['item' => $item], $context);
+        $environment = new Environment(new ArrayLoader());
+        $translator = $this->createMock(Translator::class);
+        $translator
+            ->method('trans')
+            ->willReturnCallback(static function (string $id) {
+                if ($id === 'general.homeLink') {
+                    return 'Home';
+                }
+
+                return $id;
+            });
+
+        $environment->addExtension(new TranslationExtension($translator));
+
+        $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+        $result = $renderer->render($template, ['item' => $item], $context);
 
         static::assertEquals($expected, $result);
     }

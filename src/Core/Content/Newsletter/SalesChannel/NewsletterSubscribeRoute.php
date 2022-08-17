@@ -34,6 +34,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
+ *
+ * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
@@ -128,6 +130,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
         $this->validator->validate($dataBag->all(), $validator);
 
+        /** @var SubscribeRequest $data */
         $data = $dataBag->only(
             'email',
             'title',
@@ -136,11 +139,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             'zipCode',
             'city',
             'street',
-            'tags',
             'salutationId',
-            'languageId',
             'option',
-            'customFields',
             'storefrontUrl'
         );
 
@@ -196,6 +196,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return $definition;
     }
 
+    /**
+     * @param SubscribeRequest $data
+     *
+     * @return array{id: string, languageId: string, salesChannelId: string, status: string, hash: string, email: string, storefrontUrl: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+     */
     private function completeData(array $data, SalesChannelContext $context): array
     {
         $id = $this->getNewsletterRecipientId($data['email'], $context);
@@ -213,9 +218,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_AND),
-            new EqualsFilter('email', $email),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('email', $email),
+                new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+            ]),
         );
         $criteria->setLimit(1);
 
@@ -224,6 +230,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             ->firstId();
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getOptionSelection(): array
     {
         return [
@@ -250,13 +259,24 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return $newsletterRecipient;
     }
 
+    /**
+     * @return string[]
+     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
+        $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
+        if ($salesChannelDomainCollection === null) {
+            return [];
+        }
+
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return rtrim($domainEntity->getUrl(), '/');
-        }, $context->getSalesChannel()->getDomains()->getElements());
+        }, $salesChannelDomainCollection->getElements());
     }
 
+    /**
+     * @param array{storefrontUrl: string} $data
+     */
     private function getSubscribeUrl(
         SalesChannelContext $context,
         string $hashedEmail,

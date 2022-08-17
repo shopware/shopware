@@ -8316,36 +8316,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterUnsubscribeEvent.php
 
 		-
-			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:completeData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:completeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:getDomainUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:getOptionSelection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRoute\\:\\:getSubscribeUrl\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\ScheduledTask\\\\NewsletterRecipientTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Newsletter/ScheduledTask/NewsletterRecipientTaskHandler.php

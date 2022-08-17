@@ -7,9 +7,7 @@ const { Component } = Shopware;
 Component.register('sw-customer-default-addresses', {
     template,
 
-    inject: [
-        'countryAddressService',
-    ],
+    inject: ['customSnippetApiService'],
 
     props: {
         customer: {
@@ -69,13 +67,21 @@ Component.register('sw-customer-default-addresses', {
         },
 
         renderFormattingAddress() {
-            this.countryAddressService.formattingAddress(this.customer.defaultShippingAddress).then((res) => {
-                this.formattingShippingAddress = res;
-            });
+            this.customSnippetApiService
+                .render(
+                    this.customer.defaultShippingAddress,
+                    this.customer.defaultShippingAddress.country?.addressFormat,
+                ).then((res) => {
+                    this.formattingShippingAddress = res.rendered;
+                });
 
-            this.countryAddressService.formattingAddress(this.customer.defaultBillingAddress).then((res) => {
-                this.formattingBillingAddress = res;
-            });
+            this.customSnippetApiService
+                .render(
+                    this.customer.defaultBillingAddress,
+                    this.customer.defaultBillingAddress.country?.addressFormat,
+                ).then((res) => {
+                    this.formattingBillingAddress = res.rendered;
+                });
         },
     },
 });

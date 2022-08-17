@@ -19,31 +19,6 @@
         padding: 16px;
     }
 
-    .advanced-postal-code {
-        margin: 12px 0;
-        position: relative;
-
-        .sw-field--switch {
-            width: 100%;
-            padding: 0 16px;
-            margin: 0;
-            position: absolute;
-        }
-
-        .sw-field--text {
-            min-height: 48px;
-            margin-bottom: 0;
-        }
-
-        .sw-field--text > div {
-            margin-top: 26px;
-        }
-
-        .sw-field--text.is--disabled > div {
-            display: none;
-        }
-    }
-
     &__address-markup {
         display: flex;
         flex-direction: column;

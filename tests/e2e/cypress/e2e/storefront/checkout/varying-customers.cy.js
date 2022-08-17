@@ -94,7 +94,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
                         cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
                             cy.contains('Set as default shipping').click();
                         })
-                        cy.get('.shipping-address p').contains('Sherman');
+                        cy.get('.shipping-address').contains('Sherman');
                     }
 
                     // Product detail

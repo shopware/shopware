@@ -11,7 +11,7 @@ Component.register('sw-order-user-card', {
     template,
 
     inject: [
-        'countryAddressService',
+        'customSnippetApiService',
         'orderService',
         'repositoryFactory',
         'feature',
@@ -134,8 +134,11 @@ Component.register('sw-order-user-card', {
         },
 
         renderFormattingAddress() {
-            this.countryAddressService.formattingAddress(this.billingAddress).then((res) => {
-                this.formattingAddress = res;
+            this.customSnippetApiService.render(
+                this.billingAddress,
+                this.billingAddress.country?.addressFormat,
+            ).then((res) => {
+                this.formattingAddress = res.rendered;
             });
         },
 

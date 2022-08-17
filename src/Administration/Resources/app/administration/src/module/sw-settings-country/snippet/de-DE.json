@@ -9,7 +9,7 @@
       "mainMenuItemGeneral": "Länder",
       "placeholderSearchBar": "Durchsuche Länder ...",
       "actions": {
-        "newSnippet": "Add new snippet",
+        "newSnippet": "Neuer Textbaustein hinzufügen",
         "createBefore": "Neue Zeile davor",
         "createAfter": "Neue Zeile danach",
         "moveTop": "Zeile nach oben verschieben",
@@ -70,7 +70,7 @@
       "labelCheckPostalCodePattern": "Postleitzahl validieren",
       "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
       "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an...",
-      "helpTextAdvancedPostalCodePattern": "Das Postleitzahl-Format als regulärer Ausdruck",
+      "helpTextAdvancedPostalCodePattern": "Mögliche Formate: <br><br> ^\\d{5}$ - Genau 5 Ziffern, z. B. 12345 <br>^(\\d{4})\\s*([A-Z]{2})$ - Genau 4 Ziffern und 2 Buchstaben, z. B. 1234 AB",
       "labelCheckDefaultAddressFormat": "Benutzerdefiniertes Adressformat",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Addressformat",
@@ -102,6 +102,22 @@
       "country": {
         "label": "Länder/Regionen"
       }
+    }
+  },
+  "sw-custom-snippet": {
+    "address": {
+      "countryState": "Bundesland",
+      "salutation": "Anrede",
+      "country": "Land",
+      "zipcode": "Postleitzahl",
+      "lastName": "Nachname",
+      "firstName": "Vorname",
+      "street": "Straße",
+      "city": "Stadt",
+      "company": "Firma",
+      "phoneNumber": "Telefonnummer",
+      "department": "Abteilung",
+      "title": "Titel"
     }
   }
 }

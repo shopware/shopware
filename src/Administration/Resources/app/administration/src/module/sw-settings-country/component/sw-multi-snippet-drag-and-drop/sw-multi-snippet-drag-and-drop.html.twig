@@ -39,9 +39,9 @@
                             <span class="sw-select-selection-list__item">
                                 <slot
                                     name="label-property"
-                                    v-bind="{ item: snippet, index, labelProperty, valueProperty }"
+                                    v-bind="{ item: snippet, index, labelProperty, valueProperty, getLabelProperty }"
                                 >
-                                    {{ snippet[labelProperty] }}
+                                    {{ getLabelProperty(snippet[labelProperty]) }}
                                 </slot>
                             </span>
                         </sw-label>

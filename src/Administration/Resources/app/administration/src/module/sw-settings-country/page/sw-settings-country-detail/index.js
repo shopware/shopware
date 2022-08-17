@@ -13,6 +13,7 @@ Component.register('sw-settings-country-detail', {
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
+        'feature',
     ],
 
     mixins: [

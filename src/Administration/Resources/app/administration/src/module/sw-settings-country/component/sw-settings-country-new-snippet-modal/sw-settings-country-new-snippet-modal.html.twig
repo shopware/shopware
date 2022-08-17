@@ -1,4 +1,3 @@
-{% block sw_settings_country_new_snippet_modal %}
 <sw-modal
     class="sw-settings-country-new-snippet-modal"
     :title="$tc('sw-settings-country.detail.newSnippetModalTitle')"
@@ -11,7 +10,6 @@
         :error="null"
     >
         <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
-            {% block sw_flow_trigger_select_field_input %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 ref="searchInput"
@@ -22,27 +20,21 @@
                 :disabled="disabled"
                 @input="debouncedSearch"
             >
-            {% endblock %}
 
-            {% block sw_flow_trigger_loader %}
             <sw-loader
                 v-if="isLoading"
                 class="sw-settings-country-new-snippet-modal__loader"
                 size="16px"
             />
-            {% endblock %}
 
-            {% block sw_flow_trigger_dropdown_icon %}
             <sw-icon
                 class="sw-settings-country-new-snippet-modal__search-icon"
                 name="regular-search-s"
                 small
             />
-            {% endblock %}
         </template>
     </sw-contextual-field>
 
-    {% block sw_settings_country_new_snippet_modal_content %}
     <sw-tree
         :sortable="false"
         :items="searchResults"
@@ -54,17 +46,13 @@
         route-params-active-element-id="snippet"
     >
 
-        {% block sw_settings_country_new_snippet_tree_headline %}
         <template #headline>
             <span></span>
         </template>
-        {% endblock %}
 
-        {% block sw_settings_country_new_snippet_search %}
         <template #search>
             <span></span>
         </template>
-        {% endblock %}
 
         <template
             #items="{
@@ -92,25 +80,19 @@
                 @check-item="checkItem"
             >
 
-                {% block sw_settings_country_new_snippet_item_actions %}
                 <template #actions="{ item }">
 
-                    {% block sw_settings_country_new_snippet_item_actions_add %}
                     <sw-button
                         v-if="item.childCount === 0"
-                        @click="addElement(item)"
+                        @click="addElement(item.data)"
                     >
                         {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}
                     </sw-button>
-                    {% endblock %}
                 </template>
-                {% endblock %}
             </sw-tree-item>
         </template>
     </sw-tree>
-    {% endblock %}
 
-    {% block sw_settings_country_new_snippet_modal_select_base %}
     <sw-select-base
         class="sw-multi-snippet-select"
         :is-loading="isLoading"
@@ -118,24 +100,19 @@
         v-bind="$attrs"
         v-on="$listeners"
     >
-        {% block sw_multi_snippet_drag_and_drop_base %}
-        {% block sw_multi_snippet_drag_and_drop_base_selection %}
         <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
-            {% block sw_multi_snippet_drag_and_drop_base_selection_slot %}
             <ul
                 ref="selectionList"
                 class="sw-select-selection-list"
             >
-                {% block sw_select_selection_list_item %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <li
                     v-for="(snippet, index) in selection"
                     :key="index"
                     class="sw-select-selection-list__item-holder"
                     :class="'sw-select-selection-list__item-holder--' + index"
-                    :data-id="snippet['label']"
+                    :data-id="snippet['value']"
                 >
-                    {% block sw_select_selection_list_item_inner %}
                     <slot
                         name="selected-option"
                         v-bind="{ snippet, defaultLabel: snippet['label'], disabled }"
@@ -145,23 +122,18 @@
                             :size="size"
                             @dismiss="onClickDismiss(index)"
                         >
-                            {% block sw_select_selection_list_item_text %}
                             <span class="sw-select-selection-list__item">
                                 <slot
                                     name="label-property"
                                     v-bind="{ item: snippet, index }"
                                 >
-                                    {{ snippet['label'] }}
+                                    {{ getLabelProperty(snippet['value']) }}
                                 </slot>
                             </span>
-                            {% endblock %}
                         </sw-label>
                     </slot>
-                    {% endblock %}
                 </li>
-                {% endblock %}
 
-                {% block sw_select_selection_list_input %}
                 <li>
                     <slot name="input">
                         <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
@@ -172,13 +144,7 @@
                         >
                     </slot>
                 </li>
-                {% endblock %}
             </ul>
-            {% endblock %}
         </template>
-        {% endblock %}
-        {% endblock %}
     </sw-select-base>
-    {% endblock %}
 </sw-modal>
-{% endblock %}

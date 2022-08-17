@@ -1,16 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-delivery-metadata';
-
-const responses = global.repositoryFactoryMock.responses;
-
-responses.addResponse({
-    method: 'Post',
-    url: '/_action/country/formatting-address',
-    status: 200,
-    response: {
-        data: 'random-address',
-    }
-});
+import 'src/app/component/base/sw-address';
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-order-delivery-metadata'), {
@@ -23,8 +13,7 @@ function createWrapper() {
                 },
                 shippingOrderAddress: {
                     country: {
-                        useDefaultAddressFormat: false,
-                        advancedAddressFormatPlain: 'random-format',
+                        addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
                     },
                 },
             },
@@ -37,14 +26,16 @@ function createWrapper() {
         },
         stubs: {
             'sw-container': true,
-            'sw-address': true,
+            'sw-address': Shopware.Component.build('sw-address'),
             'sw-card': true,
             'sw-description-list': true,
         },
         provide: {
-            countryAddressService: {
-                formattingAddress() {
-                    return Promise.resolve('random-address');
+            customSnippetApiService: {
+                render() {
+                    return Promise.resolve({
+                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                    });
                 }
             }
         }
@@ -60,10 +51,11 @@ describe('module/sw-order/component/sw-order-delivery-metadata', () => {
     });
 
     it('should render formatting address for delivery address', async () => {
+        global.activeFeatureFlags = ['v6.5.0.0'];
+
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const billingAddress = wrapper.find('sw-address-stub[headline="sw-order.detailBase.headlineDeliveryAddress"]');
-        expect(billingAddress.attributes()['formatting-address']).toBe('random-address');
+        expect(wrapper.find('.sw-address .sw-address__formatting').text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
     });
 });

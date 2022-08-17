@@ -7,9 +7,7 @@ const { Component } = Shopware;
 Component.register('sw-order-delivery-metadata', {
     template,
 
-    inject: [
-        'countryAddressService',
-    ],
+    inject: ['customSnippetApiService'],
 
     props: {
         delivery: {
@@ -50,9 +48,13 @@ Component.register('sw-order-delivery-metadata', {
         },
 
         renderFormattingAddress() {
-            this.countryAddressService.formattingAddress(this.delivery.shippingOrderAddress).then((res) => {
-                this.formattingAddress = res;
-            });
+            this.customSnippetApiService
+                .render(
+                    this.delivery.shippingOrderAddress,
+                    this.delivery.shippingOrderAddress.country.addressFormat,
+                ).then((res) => {
+                    this.formattingAddress = res.rendered;
+                });
         },
     },
 });

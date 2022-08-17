@@ -1,16 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-default-addresses';
-
-const responses = global.repositoryFactoryMock.responses;
-
-responses.addResponse({
-    method: 'Post',
-    url: '/_action/country/formatting-address',
-    status: 200,
-    response: {
-        data: 'random-address',
-    }
-});
+import 'src/app/component/base/sw-address';
 
 function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
     return shallowMount(Shopware.Component.build('sw-customer-default-addresses'), {
@@ -27,12 +17,14 @@ function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) 
             'sw-card-section': {
                 template: '<div class="sw-card-section"><slot></slot></div>'
             },
-            'sw-address': true,
+            'sw-address': Shopware.Component.build('sw-address'),
         },
         provide: {
-            countryAddressService: {
-                formattingAddress() {
-                    return Promise.resolve('random-address');
+            customSnippetApiService: {
+                render() {
+                    return Promise.resolve({
+                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                    });
                 }
             }
         }
@@ -52,29 +44,32 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should render formatting address for billing address and shipping address', async () => {
+        global.activeFeatureFlags = ['v6.5.0.0'];
+
         const shippingAddress = {
             id: 'address1',
             country: {
-                useDefaultAddressFormat: false,
-                advancedAddressFormatPlain: 'random-format',
+                addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
             }
         };
 
         const billingAddress = {
             id: 'address1',
             country: {
-                useDefaultAddressFormat: false,
-                advancedAddressFormatPlain: 'random-format',
+                addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
             }
         };
 
         wrapper = await createWrapper(shippingAddress, billingAddress);
+
         await wrapper.vm.$nextTick();
 
-        const shippingSwAddress = wrapper.find('sw-address-stub[headline="sw-customer.detailBase.titleDefaultShippingAddress"]');
-        const billingSwAddress = wrapper.find('sw-address-stub[headline="sw-customer.detailBase.titleDefaultBillingAddress"]');
+        const swAddress = wrapper.findAll('.sw-address');
 
-        expect(shippingSwAddress.attributes()['formatting-address']).toBe('random-address');
-        expect(billingSwAddress.attributes()['formatting-address']).toBe('random-address');
+        const shippingSwAddress = swAddress.at(0).find('.sw-address__formatting');
+        const billingSwAddress = swAddress.at(1).find('.sw-address__formatting');
+
+        expect(shippingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
+        expect(billingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
     });
 });

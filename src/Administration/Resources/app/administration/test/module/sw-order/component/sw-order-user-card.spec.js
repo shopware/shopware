@@ -1,24 +1,14 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-user-card';
-
-const responses = global.repositoryFactoryMock.responses;
-
-responses.addResponse({
-    method: 'Post',
-    url: '/_action/country/formatting-address',
-    status: 200,
-    response: {
-        data: 'random-address',
-    }
-});
+import 'src/app/component/base/sw-address';
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-order-user-card'), {
         propsData: {
             billingAddress: {
+                company: 'Shopware - AG',
                 country: {
-                    useDefaultAddressFormat: false,
-                    advancedAddressFormatPlain: 'random-format',
+                    addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
                 },
             },
             versionContext: {},
@@ -44,7 +34,11 @@ function createWrapper() {
                     street: 'Denesik Bridge',
                     zipcode: '05132',
                     city: 'Bernierstad',
-                    id: '38e8895864a649a1b2ec806dad02ab87'
+                    id: '38e8895864a649a1b2ec806dad02ab87',
+                    company: 'Shopware - AG',
+                    country: {
+                        addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
+                    },
                 }],
                 deliveries: [],
                 billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
@@ -57,7 +51,7 @@ function createWrapper() {
         },
         stubs: {
             'sw-container': true,
-            'sw-address': true,
+            'sw-address': Shopware.Component.build('sw-address'),
             'sw-card': true,
             'sw-button': true,
             'sw-avatar': true,
@@ -79,9 +73,11 @@ function createWrapper() {
         },
         provide: {
             orderService: {},
-            countryAddressService: {
-                formattingAddress() {
-                    return Promise.resolve('random-address');
+            customSnippetApiService: {
+                render() {
+                    return Promise.resolve({
+                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                    });
                 }
             },
             repositoryFactory: {
@@ -104,9 +100,11 @@ describe('module/sw-order/component/sw-order-user-card', () => {
     });
 
     it('should render formatting address for billing address', async () => {
+        global.activeFeatureFlags = ['v6.5.0.0'];
+
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('sw-address-stub').attributes()['formatting-address']).toBe('random-address');
+        expect(wrapper.find('.sw-address .sw-address__formatting').text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
     });
 });

@@ -137,7 +137,11 @@ describe('Form country state select plugin', () => {
                </div>
             </form>
         `;
+
         document.body.innerHTML = template;
+
+        createPlugin();
+
         const formCountryStateSelectPlugin = createPlugin();
         const spy = jest.spyOn(formCountryStateSelectPlugin._client, 'post').mockImplementation(
             (url, payload,cb) => { cb(

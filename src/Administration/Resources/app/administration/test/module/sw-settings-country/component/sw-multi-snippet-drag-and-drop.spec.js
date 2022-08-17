@@ -32,9 +32,9 @@ function createWrapper(customPropsData = {}) {
 
         propsData: {
             value: [
-                { value: 'customer.defaultBillingAddress.company', label: 'Company name' },
-                { value: 'snippet.custom', label: '-' },
-                { value: 'customer.defaultBillingAddress.department', label: 'Department' },
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
             ],
             linePosition: 0,
             ...customPropsData
@@ -132,7 +132,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted('change')).toBeTruthy();
-        expect(wrapper.emitted('change')[0]).toEqual([0, [], true]);
+        expect(wrapper.emitted('change')[0]).toEqual([0]);
     });
 
     it('should emit `change` when dismiss value in selection', async () => {
@@ -146,11 +146,44 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
             [
-                { value: 'snippet.custom', label: '-' },
+                { value: '-', type: 'plain' },
                 {
-                    value: 'customer.defaultBillingAddress.department',
-                    label: 'Department'
+                    type: 'snippet',
+                    value: 'address/department'
                 }
+            ]
+        ]);
+    });
+
+    it('should emit `change` when swap on the same line on dragging', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.value[1]).toEqual({ type: 'plain', value: '-' });
+        expect(wrapper.vm.value[0])
+            .toEqual({ type: 'snippet', value: 'address/company' });
+
+        await wrapper.vm.dragEnd(
+            {
+                index: 0,
+                linePosition: 0,
+                snippet: {
+                    type: 'snippet',
+                    value: 'address/company'
+                }
+            }, {
+                index: 1,
+                linePosition: 0,
+                snippet: { type: 'plain', value: '-' }
+            },
+        );
+
+        expect(wrapper.emitted('change')).toBeTruthy();
+        expect(wrapper.emitted('change')[0]).toEqual([
+            0,
+            [
+                { value: '-', type: 'plain' },
+                { value: 'address/company', type: 'snippet' },
+                { value: 'address/department', type: 'snippet' }
             ]
         ]);
     });

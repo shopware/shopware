@@ -535,11 +535,10 @@ class CreditNoteGeneratorTest extends TestCase
             ->addAssociation('language.locale')
             ->addAssociation('transactions');
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)
             ->get($orderId);
-
-        static::assertNotNull($order);
 
         return $order;
     }

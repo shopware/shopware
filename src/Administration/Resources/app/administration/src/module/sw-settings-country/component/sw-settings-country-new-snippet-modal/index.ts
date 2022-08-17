@@ -1,15 +1,39 @@
+import type { PropType } from 'vue';
+import type { Snippet } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-settings-country-new-snippet-modal.html.twig';
 import './sw-settings-country-new-snippet-modal.scss';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
+interface Selection {
+    id: string,
+    name: string,
+    parentId?: string | null,
+}
+
+interface TreeItem {
+    id: string,
+    name: string,
+    parentId?: string | null,
+    childCount?: number,
+    children: {
+        [key: string]: TreeItem
+    }
+}
+
+const CUSTOM_SNIPPET_TYPE = {
+    PLAIN: 'plain',
+    SNIPPET: 'snippet',
+} as { PLAIN: string, SNIPPET: string };
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-country-new-snippet-modal', {
     template,
 
     props: {
         selections: {
-            type: Array,
+            type: Array as PropType<Selection[]>,
             required: false,
             default: () => [],
         },
@@ -19,8 +43,8 @@ Component.register('sw-settings-country-new-snippet-modal', {
             required: true,
         },
 
-        advancedAddressFormat: {
-            type: Array,
+        addressFormat: {
+            type: Array as PropType<Array<Snippet[]>>,
             required: true,
         },
 
@@ -29,11 +53,22 @@ Component.register('sw-settings-country-new-snippet-modal', {
             required: false,
             default: false,
         },
+
+        getLabelProperty: {
+            type: Function,
+            required: false,
+            default: (value: string) => value,
+        },
     },
 
-    data() {
+    data(): {
+        searchTerm: string,
+        isLoading: boolean,
+        searchResults: TreeItem[] | null,
+        activeFocusId: string | null,
+        } {
         return {
-            searchTerm: null,
+            searchTerm: '',
             isLoading: false,
             searchResults: null,
             activeFocusId: null,
@@ -41,8 +76,8 @@ Component.register('sw-settings-country-new-snippet-modal', {
     },
 
     computed: {
-        selection() {
-            return this.advancedAddressFormat[this.currentPosition];
+        selection(): Snippet[] {
+            return this.addressFormat[this.currentPosition];
         },
     },
 
@@ -50,6 +85,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
         activeFocusId: {
             immediate: true,
             handler(value) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 this.$route.params.snippet = value;
             },
         },
@@ -68,34 +104,43 @@ Component.register('sw-settings-country-new-snippet-modal', {
             this.$emit('modal-close');
         },
 
-        addElement({ data }) {
-            this.advancedAddressFormat[this.currentPosition].push({
-                label: data.name,
-                value: data.id,
-            });
+        addElement(data: Selection) {
+            const plain = data.parentId === CUSTOM_SNIPPET_TYPE.PLAIN;
 
-            this.$emit('change', this.currentPosition, this.advancedAddressFormat[this.currentPosition]);
+            this.addressFormat[this.currentPosition].push({
+                type: plain ? CUSTOM_SNIPPET_TYPE.PLAIN : CUSTOM_SNIPPET_TYPE.SNIPPET,
+                value: plain ? data.name : data.id.replace('.', '/'),
+            } as Snippet);
+
+            this.$emit('change', this.currentPosition, this.addressFormat[this.currentPosition]);
         },
 
-        debouncedSearch: utils.debounce(function updateSnippets() {
-            this.activeFocusId = null;
-
+        debouncedSearch: utils.debounce(function updateSnippets(this: $TSFixMe): void {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (!this.searchTerm) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 this.getSnippetsTree(this.selections);
                 return;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             this.search();
         }, 750),
 
-        search() {
+        search(): void {
+            this.activeFocusId = null;
+
             const keyWords = this.searchTerm.split(/[\W_]+/ig);
+
+            if (!keyWords) {
+                return;
+            }
 
             const results = this.selections.filter(
                 item => keyWords.every(key => item.name.toLowerCase().includes(key.toLowerCase())),
             );
 
-            if (!results?.length) {
+            if (results.length === 0) {
                 return;
             }
 
@@ -103,10 +148,15 @@ Component.register('sw-settings-country-new-snippet-modal', {
             this.getSnippetsTree(results);
         },
 
-        getSnippetsTree(selections) {
+        getSnippetsTree(selections: Selection[]): void {
             const mappedObj = {};
 
-            const generate = (currentIndex, { keyWords, name }, result) => {
+            const generate = (
+                currentIndex: number,
+                argument: { keyWords: string[], name: string },
+                result: { [key: string]: TreeItem },
+            ) => {
+                const { keyWords, name } = argument;
                 const currentKey = keyWords[currentIndex];
 
                 // next key is child of current key
@@ -124,7 +174,7 @@ Component.register('sw-settings-country-new-snippet-modal', {
                 }
 
                 // Put next key into children of current key
-                result[currentKey].children[nextKey] = result[currentKey].children[nextKey] || {
+                result[currentKey].children[nextKey] = result[currentKey]?.children[nextKey] || {
                     id: `${result[currentKey].id}.${nextKey}`,
                     name,
                     parentId: result[currentKey].id,
@@ -134,8 +184,8 @@ Component.register('sw-settings-country-new-snippet-modal', {
                 generate(currentIndex + 1, { keyWords, name }, result[currentKey].children);
             };
 
-            const convertTreeToArray = (nodes, output = []) => {
-                const getName = ({ parentId = null, id, children, name }) => {
+            const convertTreeToArray = (nodes: TreeItem[], output: TreeItem[] = []) => {
+                const getName = ({ parentId = null, id, children, name }: TreeItem): string => {
                     const [eventName] = parentId ? id.split('.').reverse() : [id];
 
                     // Replace '_' or '-' to blank space.
@@ -149,17 +199,19 @@ Component.register('sw-settings-country-new-snippet-modal', {
                         name: getName(node),
                         childCount: children.length,
                         parentId: node.parentId,
+                        children: {},
                     });
 
                     if (children.length > 0) {
                         output = convertTreeToArray(children, output);
                     }
                 });
+
                 return output;
             };
 
             selections.forEach(snippet => {
-                const keyWords = snippet.id.split('.');
+                const keyWords = snippet.id.split('/');
                 if (keyWords.length === 0) {
                     return;
                 }
@@ -170,11 +222,11 @@ Component.register('sw-settings-country-new-snippet-modal', {
             this.searchResults = convertTreeToArray(Object.values(mappedObj));
         },
 
-        onClickDismiss(index) {
+        onClickDismiss(index: number) {
             this.$emit(
                 'change',
                 this.currentPosition,
-                this.advancedAddressFormat[this.currentPosition].filter((_, key) => key !== index),
+                this.addressFormat[this.currentPosition].filter((_, key) => key !== index),
             );
         },
     },

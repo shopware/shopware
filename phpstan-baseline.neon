@@ -2936,11 +2936,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:getOrderById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
-
-		-
 			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\>\\:\\:getMock\\(\\) contains unresolvable type\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php

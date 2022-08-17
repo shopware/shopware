@@ -38,48 +38,47 @@ function createWrapper(customPropsData = {}) {
         propsData: {
             selections: [
                 {
-                    id: 'customer.defaultBillingAddress.company',
-                    name: 'Company name',
-                    parentId: 'customer.defaultBillingAddress',
-                    schema: 'customer.defaultBillingAddress.company',
+                    id: 'plain/-',
+                    name: '-',
+                    parentId: 'plain'
                 },
                 {
-                    id: 'customer.defaultBillingAddress.department',
-                    name: 'Department',
-                    parentId: 'customer.defaultBillingAddress',
-                    schema: 'customer.defaultBillingAddress.department',
+                    id: 'plain/,',
+                    name: ',',
+                    parentId: 'plain'
                 },
                 {
-                    id: 'customer.firstName',
-                    name: 'First name',
-                    parentId: 'customer',
-                    schema: 'customer.firstName',
+                    id: 'address/country_state',
+                    name: 'Country State',
+                    parentId: null
                 },
                 {
-                    id: 'customer.lastName',
-                    name: 'Last name',
-                    parentId: 'customer',
-                    schema: 'customer.lastName',
+                    id: 'address/salutation',
+                    name: 'Salutation',
+                    parentId: null,
                 },
                 {
-                    id: 'customer.defaultBillingAddress.street',
-                    name: 'Street name',
-                    parentId: 'customer.defaultBillingAddress',
-                    schema: 'customer.defaultBillingAddress.street',
+                    id: 'address/country',
+                    name: 'Country',
+                    parentId: null
                 },
                 {
-                    id: 'customer.defaultBillingAddress.zipcode',
+                    id: 'address/zipcode',
                     name: 'Zip code',
-                    parentId: 'customer.defaultBillingAddress',
-                    schema: 'customer.defaultBillingAddress.zipcode',
+                    parentId: null
                 },
+                {
+                    id: 'address/first_name',
+                    name: 'First name',
+                    parentId: null
+                }
             ],
             currentPosition: 0,
-            advancedAddressFormat: [
+            addressFormat: [
                 [
-                    { value: 'customer.defaultBillingAddress.company', label: 'Company name' },
-                    { value: 'snippet.custom', label: '-' },
-                    { value: 'customer.defaultBillingAddress.department', label: 'Department' },
+                    { value: 'address/company', type: 'snippet' },
+                    { value: '-', type: 'plain' },
+                    { value: 'address/department', type: 'snippet' },
                 ]
             ],
             ...customPropsData
@@ -116,6 +115,7 @@ function createWrapper(customPropsData = {}) {
                     </div>`
             },
             'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
+            'sw-skeleton': true,
         }
     });
 }
@@ -146,11 +146,8 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
             [
-                { value: 'snippet.custom', label: '-' },
-                {
-                    value: 'customer.defaultBillingAddress.department',
-                    label: 'Department'
-                }
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' }
             ]
         ]);
     });
@@ -166,16 +163,10 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         expect(wrapper.emitted('change')[0]).toEqual([
             0,
             [
-                {
-                    value: 'customer.defaultBillingAddress.company',
-                    label: 'Company name'
-                },
-                { value: 'snippet.custom', label: '-' },
-                {
-                    value: 'customer.defaultBillingAddress.department',
-                    label: 'Department'
-                },
-                { label: 'First name', value: 'customer.firstName' }
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+                { type: 'plain', value: '-' }
             ]
         ]);
     });
@@ -186,7 +177,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         const searchInputField = wrapper.find('.sw-settings-country-new-snippet-modal__input-field');
         let treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
-        expect(treesItem.findAll('.sw-tree-item').length).toBe(3);
+        expect(treesItem.findAll('.sw-tree-item').length).toBe(2);
 
         await searchInputField.setValue('First');
         await searchInputField.trigger('input');
@@ -219,6 +210,6 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
 
         treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
-        expect(treesItem.findAll('.sw-tree-item').length).toBe(3);
+        expect(treesItem.findAll('.sw-tree-item').length).toBe(2);
     });
 });

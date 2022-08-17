@@ -70,7 +70,7 @@
       "labelCheckPostalCodePattern": "Postal code validation",
       "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
       "placeholderAdvancedPostalCodePattern": "Enter postal code pattern...",
-      "helpTextAdvancedPostalCodePattern": "",
+      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<br><br>^\\d{5}$ - Exact 5 Digits, e.g 12345<br><br>^(\\d{4})\\s*([A-Z]{2})$ - Exact 4 Digits and 2 Letters, e.g 1234 AB",
       "labelCheckDefaultAddressFormat": "Custom address format",
       "labelAddressFormatPlain": "Format",
       "titleFormatting": "Address markup",
@@ -102,6 +102,22 @@
       "country": {
         "label": "Countries"
       }
+    }
+  },
+  "sw-custom-snippet": {
+    "address": {
+      "countryState": "State",
+      "salutation": "Salutation",
+      "country": "Country",
+      "zipcode": "Postal code",
+      "lastName": "Last name",
+      "firstName": "First name",
+      "street": "Street",
+      "city": "City",
+      "company": "Company",
+      "phoneNumber": "Phone number",
+      "department": "Department",
+      "title": "Title"
     }
   }
 }

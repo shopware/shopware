@@ -1,6 +1,6 @@
 ---
 title: Set an expiration for the redis cart integration
-issue: -
+issue: NEXT-22877
 author: Micha Hobert
 author_email: info@the-cake-shop.de
 author_github: Isengo1989

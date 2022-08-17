@@ -2311,11 +2311,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/PromotionEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Rule\\\\PromotionLineItemRule\\:\\:__construct\\(\\) has parameter \\$identifiers with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Rule/PromotionLineItemRule.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Subscriber/PromotionIndividualCodeRedeemer.php
@@ -3234,31 +3229,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionCodeOfTypeRuleTest\\:\\:getCartRuleScopeTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Rule/PromotionCodeOfTypeRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionLineItemRuleTest\\:\\:cartScopeProvider\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/PromotionLineItemRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionLineItemRuleTest\\:\\:getDataWithMatchAllLineItemsRule\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/PromotionLineItemRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionLineItemRuleTest\\:\\:lineItemScope\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/PromotionLineItemRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionLineItemRuleTest\\:\\:testCartScope\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/PromotionLineItemRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\PromotionLineItemRuleTest\\:\\:testIfMatchesWithMatchAllLineItemsRule\\(\\) has parameter \\$lineItems with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/PromotionLineItemRuleTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\ShippingMethodRuleTest\\:\\:matchDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

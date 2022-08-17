@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class PromotionLineItemRule extends Rule
 {
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $identifiers;
 
@@ -23,6 +23,8 @@ class PromotionLineItemRule extends Rule
 
     /**
      * @internal
+     *
+     * @param list<string>|null $identifiers
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -43,17 +45,13 @@ class PromotionLineItemRule extends Rule
         }
 
         $promotionLineItems = $scope->getCart()->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE);
-        $hasPromotionLineItems = \count($promotionLineItems) === 0;
+        $hasNoPromotionLineItems = \count($promotionLineItems) === 0;
 
-        if ($this->operator === self::OPERATOR_EQ && $hasPromotionLineItems) {
-            return false;
+        if ($hasNoPromotionLineItems) {
+            return $this->operator === self::OPERATOR_NEQ;
         }
 
-        if ($this->operator === self::OPERATOR_NEQ && $hasPromotionLineItems) {
-            return true;
-        }
-
-        foreach ($scope->getCart()->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE) as $lineItem) {
+        foreach ($promotionLineItems as $lineItem) {
             if ($lineItem->getPayloadValue('promotionId') === null) {
                 continue;
             }
@@ -96,8 +94,8 @@ class PromotionLineItemRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if ($this->identifiers === null) {
-            return false;
+        if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+            return $this->operator === self::OPERATOR_NEQ;
         }
 
         $promotionId = $lineItem->getPayloadValue('promotionId');

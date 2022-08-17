@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Webhook;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -319,14 +320,14 @@ class WebhookDispatcherTest extends TestCase
             'test@example.com'
         );
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -366,14 +367,14 @@ class WebhookDispatcherTest extends TestCase
             );
         }
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -615,14 +616,14 @@ class WebhookDispatcherTest extends TestCase
             'testToken'
         );
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -784,14 +785,14 @@ class WebhookDispatcherTest extends TestCase
             'testToken'
         );
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -838,14 +839,14 @@ class WebhookDispatcherTest extends TestCase
 
         $event = $this->getEntityWrittenEvent(Uuid::randomHex());
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -989,14 +990,14 @@ class WebhookDispatcherTest extends TestCase
         // Deleted app is another app then the one subscriped to the deleted event
         $event = new AppDeletedEvent(Uuid::randomHex(), Context::createDefaultContext());
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -1310,9 +1311,9 @@ class WebhookDispatcherTest extends TestCase
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $payload = [
             'data' => [
@@ -1358,7 +1359,7 @@ class WebhookDispatcherTest extends TestCase
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -1410,9 +1411,9 @@ class WebhookDispatcherTest extends TestCase
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $this->bus->expects(static::never())
             ->method('dispatch');
@@ -1420,7 +1421,7 @@ class WebhookDispatcherTest extends TestCase
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
@@ -1446,9 +1447,9 @@ class WebhookDispatcherTest extends TestCase
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
 
-        $clientMock = $this->createMock(Client::class);
-        $clientMock->expects(static::never())
-            ->method('sendAsync');
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
         $payload = [
             'data' => [
@@ -1491,7 +1492,7 @@ class WebhookDispatcherTest extends TestCase
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
-            $clientMock,
+            $client,
             $this->shopUrl,
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),

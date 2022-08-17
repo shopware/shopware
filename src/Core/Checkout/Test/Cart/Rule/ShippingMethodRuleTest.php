@@ -296,14 +296,14 @@ class ShippingMethodRuleTest extends TestCase
         $shippingRule = new ShippingMethodRule();
         $shippingRule->assign($ruleProperties);
 
-        $shippingMethod = $this->createMock(ShippingMethodEntity::class);
-        $shippingMethod->method('getId')->willReturn($shippingMethodId);
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($shippingMethodId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test', 'test'),
             $salesChannelContext
         );
 
@@ -315,14 +315,14 @@ class ShippingMethodRuleTest extends TestCase
         $shippingMethodRule = new ShippingMethodRule();
         $shippingMethodRule->assign(['operator' => 'FOO', 'shippingMethodIds' => []]);
 
-        $shippingMethod = $this->createMock(ShippingMethodEntity::class);
-        $shippingMethod->method('getId')->willReturn(Uuid::randomHex());
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('965a0713093841ceb86b0f83edd7dab4');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test', 'test'),
             $salesChannelContext
         );
 

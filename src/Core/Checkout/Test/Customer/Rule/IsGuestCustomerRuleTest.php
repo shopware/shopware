@@ -61,9 +61,8 @@ class IsGuestCustomerRuleTest extends TestCase
     public function testThatFilledCompanyInformationMatchesToTrue(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getGuest')
-            ->willReturn(true);
+        $customer = new CustomerEntity();
+        $customer->setGuest(true);
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
@@ -77,7 +76,8 @@ class IsGuestCustomerRuleTest extends TestCase
     public function testThatUnfilledCompanyInformationMatchesToFalse(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
+        $customer->setGuest(false);
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);

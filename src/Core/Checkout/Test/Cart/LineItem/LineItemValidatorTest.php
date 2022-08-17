@@ -7,9 +7,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemValidator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -19,8 +20,7 @@ class LineItemValidatorTest extends TestCase
 {
     public function testValidateEmptyCart(): void
     {
-        $cart = $this->createMock(Cart::class);
-        $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection());
+        $cart = new Cart('test', 'test');
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -31,11 +31,12 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithValidLineItem(): void
     {
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
-        $lineItem->setPrice($this->createMock(CalculatedPrice::class));
-        $cart->expects(static::once())->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $cart->add($lineItem);
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -46,10 +47,10 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabel(): void
     {
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
         $lineItem = new LineItem('id', 'fake');
-        $lineItem->setPrice($this->createMock(CalculatedPrice::class));
-        $cart->expects(static::exactly(2))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $cart->add($lineItem);
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -63,10 +64,10 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabelGotRemoved(): void
     {
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
         $lineItem = new LineItem('id', 'fake');
-        $lineItem->setPrice($this->createMock(CalculatedPrice::class));
-        $cart->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $lineItem->setPrice(new CalculatedPrice(5, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $cart->add($lineItem);
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -77,10 +78,10 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutPrice(): void
     {
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
         $lineItem = new LineItem('id', 'fake');
         $lineItem->setLabel('Label');
-        $cart->expects(static::exactly(2))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $cart->add($lineItem);
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();
@@ -94,9 +95,9 @@ class LineItemValidatorTest extends TestCase
 
     public function testValidateWithoutLabelAndPrice(): void
     {
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
         $lineItem = new LineItem('id', 'fake');
-        $cart->expects(static::exactly(3))->method('getLineItems')->willReturn(new LineItemCollection([$lineItem]));
+        $cart->add($lineItem);
 
         $validator = new LineItemValidator();
         $errors = new ErrorCollection();

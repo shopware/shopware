@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -286,11 +287,11 @@ class ShippingZipCodeRuleTest extends TestCase
     {
         $zipCodes = ['90210', '81985'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $location = $this->createMock(ShippingLocation::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($zipCode);
-        $location->method('getAddress')->willReturn($customerAddress);
+
+        $location = new ShippingLocation(new CountryEntity(), null, $customerAddress);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['zipCodes' => $zipCodes, 'operator' => $operator]);
@@ -328,7 +329,6 @@ class ShippingZipCodeRuleTest extends TestCase
         bool $noAddress = false
     ): void {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $location = $this->createMock(ShippingLocation::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($customerZipCode);
@@ -337,7 +337,7 @@ class ShippingZipCodeRuleTest extends TestCase
             $customerAddress = null;
         }
 
-        $location->method('getAddress')->willReturn($customerAddress);
+        $location = new ShippingLocation(new CountryEntity(), null, $customerAddress);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['zipCodes' => $zipCode ? [$zipCode] : null, 'operator' => $operator]);

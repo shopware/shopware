@@ -271,6 +271,11 @@ services:
             - phpstan.rules.rule
 
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
+        tags:
+            - phpstan.rules.rule
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
         tags:
             - phpstan.rules.rule

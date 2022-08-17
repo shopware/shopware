@@ -184,15 +184,17 @@ class OrderCountRuleTest extends TestCase
         $scope = $this->createMock(CheckoutRuleScope::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $orderCollection = new OrderCollection();
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getOrderCount')->willReturn($orderCount);
+        $customer = new CustomerEntity();
+        $customer->setOrderCount($orderCount ?? 0);
 
         if ($noCustomer) {
             $customer = null;
         }
 
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $orderCollection->add($this->createMock(OrderEntity::class));
+        $entity = new OrderEntity();
+        $entity->setUniqueIdentifier('test');
+        $orderCollection->add($entity);
 
         $scope->method('getSalesChannelContext')
             ->willReturn($salesChannelContext);

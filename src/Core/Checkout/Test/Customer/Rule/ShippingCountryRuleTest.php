@@ -243,11 +243,10 @@ class ShippingCountryRuleTest extends TestCase
     {
         $countryIds = ['kyln123', 'kyln456'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $location = $this->createMock(ShippingLocation::class);
 
         $country = new CountryEntity();
         $country->setId($countryId);
-        $location->method('getCountry')->willReturn($country);
+        $location = new ShippingLocation($country, null, null);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['countryIds' => $countryIds, 'operator' => $operator]);

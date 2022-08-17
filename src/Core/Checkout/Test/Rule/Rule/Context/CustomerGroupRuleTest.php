@@ -18,7 +18,7 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-1');
@@ -38,7 +38,7 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-3');
@@ -58,7 +58,7 @@ class CustomerGroupRuleTest extends TestCase
     {
         $rule = (new CustomerGroupRule())->assign(['customerGroupIds' => ['SWAG-CUSTOMER-GROUP-ID-2', 'SWAG-CUSTOMER-GROUP-ID-3', 'SWAG-CUSTOMER-GROUP-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $group = new CustomerGroupEntity();
         $group->setId('SWAG-CUSTOMER-GROUP-ID-5');

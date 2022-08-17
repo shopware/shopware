@@ -27,12 +27,19 @@ class AppCmsControllerTest extends TestCase
         $expected = json_decode(file_get_contents(__DIR__ . '/_fixtures/expectedCmsBlocks.json'), true, 512, \JSON_THROW_ON_ERROR);
         $actual = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        // Remove template
-        unset($expected['blocks'][1]['template'], $actual['blocks'][1]['template']);
+        $expected['blocks'][0]['template'] = $this->stripWhitespace($expected['blocks'][0]['template']);
+        $expected['blocks'][1]['template'] = $this->stripWhitespace($expected['blocks'][1]['template']);
+        $actual['blocks'][0]['template'] = $this->stripWhitespace($actual['blocks'][0]['template']);
+        $actual['blocks'][1]['template'] = $this->stripWhitespace($actual['blocks'][1]['template']);
 
         static::assertEquals(
             $expected,
             $actual
         );
+    }
+
+    private function stripWhitespace(string $text): string
+    {
+        return (string) preg_replace('/\s/m', '', $text);
     }
 }

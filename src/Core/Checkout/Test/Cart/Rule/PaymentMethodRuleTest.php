@@ -296,14 +296,14 @@ class PaymentMethodRuleTest extends TestCase
         $paymentMethodRule = new PaymentMethodRule();
         $paymentMethodRule->assign($ruleProperties);
 
-        $paymentMethodEntity = $this->createMock(PaymentMethodEntity::class);
-        $paymentMethodEntity->method('getId')->willReturn($paymentMethodId);
+        $paymentMethodEntity = new PaymentMethodEntity();
+        $paymentMethodEntity->setId($paymentMethodId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test', 'test'),
             $salesChannelContext
         );
 
@@ -315,14 +315,14 @@ class PaymentMethodRuleTest extends TestCase
         $paymentMethodRule = new PaymentMethodRule();
         $paymentMethodRule->assign(['operator' => 'FOO', 'paymentMethodIds' => []]);
 
-        $paymentMethodEntity = $this->createMock(PaymentMethodEntity::class);
-        $paymentMethodEntity->method('getId')->willReturn(Uuid::randomHex());
+        $paymentMethodEntity = new PaymentMethodEntity();
+        $paymentMethodEntity->setId('965a0713093841ceb86b0f83edd7dab4');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethodEntity);
 
         $ruleScope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test', 'test'),
             $salesChannelContext
         );
 

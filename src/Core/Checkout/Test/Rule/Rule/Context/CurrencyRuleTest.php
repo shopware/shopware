@@ -18,14 +18,12 @@ class CurrencyRuleTest extends TestCase
     {
         $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $context = $this->createMock(Context::class);
-        $context
-            ->method('getCurrencyId')
-            ->willReturn('SWAG-CURRENCY-ID-1');
+        $context = Context::createDefaultContext();
+        $context->assign(['currencyId' => 'SWAG-CURRENCY-ID-1']);
 
         $salesChannelContext
             ->method('getContext')
@@ -40,14 +38,12 @@ class CurrencyRuleTest extends TestCase
     {
         $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $context = $this->createMock(Context::class);
-        $context
-            ->method('getCurrencyId')
-            ->willReturn('SWAG-CURRENCY-ID-5');
+        $context = Context::createDefaultContext();
+        $context->assign(['currencyId' => 'SWAG-CURRENCY-ID-5']);
 
         $salesChannelContext
             ->method('getContext')
@@ -62,14 +58,12 @@ class CurrencyRuleTest extends TestCase
     {
         $rule = (new CurrencyRule())->assign(['currencyIds' => ['SWAG-CURRENCY-ID-2', 'SWAG-CURRENCY-ID-3', 'SWAG-CURRENCY-ID-1']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $context = $this->createMock(Context::class);
-        $context
-            ->method('getCurrencyId')
-            ->willReturn('SWAG-CURRENCY-ID-3');
+        $context = Context::createDefaultContext();
+        $context->assign(['currencyId' => 'SWAG-CURRENCY-ID-3']);
 
         $salesChannelContext
             ->method('getContext')

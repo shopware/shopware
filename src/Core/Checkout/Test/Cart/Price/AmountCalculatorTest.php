@@ -36,10 +36,8 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
-        $shop = $this->createMock(SalesChannelEntity::class);
-
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
@@ -62,10 +60,8 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
-        $shop = $this->createMock(SalesChannelEntity::class);
-
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannel')->willReturn($shop);
+        $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
@@ -88,10 +84,8 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
-        $shop = $this->createMock(SalesChannelEntity::class);
-
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($shop);
+        $context->method('getSalesChannel')->willReturn(new SalesChannelEntity());
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_FREE);
 
         $calculator = new AmountCalculator(

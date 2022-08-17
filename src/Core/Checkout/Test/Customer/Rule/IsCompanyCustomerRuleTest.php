@@ -70,9 +70,8 @@ class IsCompanyCustomerRuleTest extends TestCase
     public function testThatFilledCompanyInformationMatchesToTrue(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getCompany')
-            ->willReturn('shopware AG');
+        $customer = new CustomerEntity();
+        $customer->setCompany('shopware AG');
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
@@ -86,7 +85,7 @@ class IsCompanyCustomerRuleTest extends TestCase
     public function testThatUnfilledCompanyInformationMatchesToFalse(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);
@@ -100,9 +99,8 @@ class IsCompanyCustomerRuleTest extends TestCase
     public function testThatEmptyStringCompanyInformationMatchesToFalse(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getCompany')
-            ->willReturn('');
+        $customer = new CustomerEntity();
+        $customer->setCompany('');
 
         $salesChannelContext->method('getCustomer')
             ->willReturn($customer);

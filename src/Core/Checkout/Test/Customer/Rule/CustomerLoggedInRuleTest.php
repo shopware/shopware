@@ -50,7 +50,7 @@ class CustomerLoggedInRuleTest extends TestCase
     {
         $this->rule->assign(['isLoggedIn' => $isLoggedIn]);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $hasCustomer ? $this->createMock(CustomerEntity::class) : null;
+        $customer = $hasCustomer ? new CustomerEntity() : null;
 
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($salesChannelContext);

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field {
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
     use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+    use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
     use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
     use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
     use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -28,7 +29,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field {
 
             static::assertSame(0, $serializer->getConstraintsCallCounter);
             $entityExistence = new EntityExistence('test', ['id' => Uuid::randomHex()], true, false, false, []);
-            $field = $this->createMock(Field::class);
+            $field = new StringField('test', 'test');
 
             $data = new KeyValuePair('foo', 'bar', true);
 
@@ -53,12 +54,12 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field {
             $entityExistence = new EntityExistence('test', ['id' => Uuid::randomHex()], true, false, false, []);
 
             $data = new KeyValuePair('foo', 'bar', true);
-            $field = $this->createMock(Field::class);
+            $field = new StringField('test', 'test');
             static::assertNotNull($serializer->encode($field, $entityExistence, $data, $parameters)->current());
             static::assertSame(1, $serializer->getConstraintsCallCounter);
 
             $serializer->getConstraintsCallCounter = 0;
-            $newField = $this->createMock(Field::class);
+            $newField = new StringField('test', 'test');
             // a different field object should not return the cached constraints of the other field
             static::assertNotNull($serializer->encode($newField, $entityExistence, $data, $parameters)->current());
             static::assertSame(1, $serializer->getConstraintsCallCounter);

@@ -21,7 +21,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC123']]);
         $address = $this->createAddress('ABC123');
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -41,7 +41,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC2');
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -61,7 +61,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC4');
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -80,7 +80,7 @@ class ShippingZipCodeRuleTest extends TestCase
     {
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

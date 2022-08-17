@@ -16,7 +16,7 @@ use Symfony\Component\Routing\RequestContext;
 /**
  * @internal
  */
-class ContextControllerTest extends TestCase
+class ContextControllerContextTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 

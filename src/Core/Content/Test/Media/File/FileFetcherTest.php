@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,14 +31,12 @@ class FileFetcherTest extends TestCase
     public function testFetchRequestData(): void
     {
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $request = $this->createMock(Request::class);
-        $request->expects(static::once())
-            ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
 
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
 
         $fileSize = filesize(self::TEST_IMAGE);
         $request->headers = new HeaderBag();
@@ -65,16 +62,12 @@ class FileFetcherTest extends TestCase
         $this->expectExceptionMessage('expected content-length did not match actual size');
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $request = $this->createMock(Request::class);
-        $request->expects(static::once())
-            ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
 
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
 
-        $request->headers = new HeaderBag();
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
         $request->headers->set('content-length', '-100');
 
         $this->fileFetcher->fetchRequestData(
@@ -88,12 +81,9 @@ class FileFetcherTest extends TestCase
         $this->expectException(MissingFileExtensionException::class);
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $request = $this->createMock(Request::class);
-
-        $request->query = new InputBag();
+        $request = new Request();
 
         $fileSize = filesize(self::TEST_IMAGE);
-        $request->headers = new HeaderBag();
         $request->headers->set('content-length', (string) $fileSize);
 
         $this->fileFetcher->fetchRequestData(
@@ -108,17 +98,12 @@ class FileFetcherTest extends TestCase
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage("Could not open Stream to write upload data: {$fileName}");
 
-        $request = $this->createMock(Request::class);
-        $request->expects(static::once())
-            ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
-
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
 
         $fileSize = filesize(self::TEST_IMAGE);
-        $request->headers = new HeaderBag();
         $request->headers->set('content-length', (string) $fileSize);
 
         $this->fileFetcher->fetchRequestData(
@@ -132,14 +117,12 @@ class FileFetcherTest extends TestCase
         $url = 'http://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $request = $this->createMock(Request::class);
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
 
-        $request->request = new InputBag([
-            'url' => $url,
-        ]);
+        $content = fopen(self::TEST_IMAGE, 'rb');
+        static::assertIsResource($content);
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', 'png');
+        $request->request->set('url', $url);
 
         try {
             $mediaFile = $this->fileFetcher->fetchFileFromURL(
@@ -164,11 +147,8 @@ class FileFetcherTest extends TestCase
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('You must provide a valid url.');
 
-        $request = $this->createMock(Request::class);
-        $request->request = new InputBag();
-
         $this->fileFetcher->fetchFileFromURL(
-            $request,
+            new Request(),
             'not used in this test'
         );
     }
@@ -178,14 +158,9 @@ class FileFetcherTest extends TestCase
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('malformed url');
 
-        $request = $this->createMock(Request::class);
-
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
-        $request->request = new InputBag([
-            'url' => 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg',
-        ]);
+        $request = new Request();
+        $request->query->set('extension', 'png');
+        $request->request->set('url', 'ssh://de.shopware.com/press/company/Shopware_Jamaica.jpg');
 
         $this->fileFetcher->fetchFileFromURL(
             $request,
@@ -202,13 +177,9 @@ class FileFetcherTest extends TestCase
 
         $this->expectException(IllegalUrlException::class);
 
-        $request = $this->createMock(Request::class);
-        $request->request = new InputBag([
-            'url' => $url,
-        ]);
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $request = new Request();
+        $request->request->set('url', $url);
+        $request->query->set('extension', 'png');
 
         $this->fileFetcher->fetchFileFromURL(
             $request,
@@ -222,13 +193,9 @@ class FileFetcherTest extends TestCase
 
         $this->expectException(IllegalUrlException::class);
 
-        $request = $this->createMock(Request::class);
-        $request->request = new InputBag([
-            'url' => $url,
-        ]);
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $request = new Request();
+        $request->request->set('url', $url);
+        $request->query->set('extension', 'png');
 
         $this->fileFetcher->fetchFileFromURL(
             $request,
@@ -242,13 +209,9 @@ class FileFetcherTest extends TestCase
 
         $this->expectException(IllegalUrlException::class);
 
-        $request = $this->createMock(Request::class);
-        $request->request = new InputBag([
-            'url' => $url,
-        ]);
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $request = new Request();
+        $request->request->set('url', $url);
+        $request->query->set('extension', 'png');
 
         $this->fileFetcher->fetchFileFromURL(
             $request,
@@ -262,13 +225,9 @@ class FileFetcherTest extends TestCase
 
         $this->expectException(IllegalUrlException::class);
 
-        $request = $this->createMock(Request::class);
-        $request->request = new InputBag([
-            'url' => $url,
-        ]);
-        $request->query = new InputBag([
-            'extension' => 'png',
-        ]);
+        $request = new Request();
+        $request->request->set('url', $url);
+        $request->query->set('extension', 'png');
 
         $this->fileFetcher->fetchFileFromURL(
             $request,

@@ -251,7 +251,10 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimtitUserRecovery(): void
     {
         $recoveryService = $this->createMock(UserRecoveryService::class);
-        $recoveryService->method('getUserByHash')->willReturn($this->createMock(UserEntity::class));
+        $userEntity = new UserEntity();
+        $userEntity->setUsername('admin');
+        $userEntity->setEmail('test@test.de');
+        $recoveryService->method('getUserByHash')->willReturn($userEntity);
         $recoveryService->method('updatePassword')->willReturn(true);
 
         $controller = new UserRecoveryController(

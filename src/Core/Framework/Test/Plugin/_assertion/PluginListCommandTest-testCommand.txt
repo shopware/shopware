@@ -8,4 +8,4 @@ Plugin List Plugin   plp     2.5.3     3.0.1             Fabian Blechschmidt   Y
 Shopware Next        swn     5.5.3     6.0.0             Shopware AG           Yes         No       Yes
 -------------------- ------- --------- ----------------- --------------------- ----------- -------- -------------
 
-0 plugins, 2 installed, 1 active , 2 upgradeable
+2 plugins, 2 installed, 1 active , 2 upgradeable

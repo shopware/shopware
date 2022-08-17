@@ -256,6 +256,9 @@ trait PromotionTestFixtureBehaviour
         return $this->createPromotionWithCustomData($data, $promotionRepository, $context);
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function createPromotionWithCustomData(array $data, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
     {
         $data = array_merge([

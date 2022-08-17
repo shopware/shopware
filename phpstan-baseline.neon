@@ -2346,26 +2346,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdater\\:\\:getAllCustomerCounts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionRedemptionUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdater\\:\\:groupByPromotion\\(\\) has parameter \\$promotions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionRedemptionUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdater\\:\\:groupByPromotion\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionRedemptionUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionRedemptionUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
@@ -2771,11 +2751,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupBuilderTest\\:\\:createSetGroup\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/LineItem/Group/LineItemGroupBuilderTest.php
@@ -3001,29 +2976,14 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/PromotionFixtureBuilder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionAbsoluteCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionAbsoluteCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionAbsoluteCalculationTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionFixedPriceCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionFixedPriceCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionMixedCalculationTest\\:\\:createSetGroup\\(\\) has parameter \\$rules with no value type specified in iterable type array\\.$#"
@@ -3051,19 +3011,9 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionMixedCalculationTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionPercentageCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionPercentageCalculationTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionSetGroupCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/Calculation/PromotionSetGroupCalculationTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\Calculation\\\\PromotionSetGroupCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -3086,11 +3036,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DataAbstractionLayer/Indexer/PromotionExclusionIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DeliveryPromotionCalculationTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\DeliveryPromotionCalculationTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/DeliveryPromotionCalculationTest.php
@@ -3106,19 +3051,9 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionCartEventTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionCartEventTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionCartEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionDiscountCompositionTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionDiscountCompositionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionDiscountCompositionTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -3136,19 +3071,9 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionExtensionCodesTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionExtensionCodesTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionExtensionCodesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionHandlingTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Integration\\\\PromotionHandlingTest\\:\\:getSessionCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -3524,11 +3449,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Checkout/Test/Cart/SalesChannel/CartDeleteRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\SalesChannel\\\\CartItemAddRouteTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/SalesChannel/CartItemAddRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -4656,11 +4576,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/OrderRepositoryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php
@@ -4836,32 +4751,12 @@ parameters:
 			path: src/Core/Checkout/Test/Promotion/Cart/PromotionCalculatorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexerTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionRedemptionUpdaterTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/DataAbstractionLayer/PromotionRedemptionUpdaterTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:codePreviewDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Promotion\\\\Util\\\\PromotionCodeServiceTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Promotion/Util/PromotionCodeServiceTest.php
 
@@ -25831,11 +25726,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\SalesChannelProxyControllerTest\\:\\:createSalesChannel\\(\\) has parameter \\$salesChannel with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/SalesChannelProxyControllerTest.php
@@ -31817,11 +31707,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createPromotionWithCustomData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
 

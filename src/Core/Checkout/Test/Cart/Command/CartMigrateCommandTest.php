@@ -52,10 +52,10 @@ class CartMigrateCommandTest extends TestCase
         $redis = $factory->create((string) $url);
         $redis->flushAll();
 
-        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), false);
+        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), false, 90);
         $persister->save($redisCart, $context);
 
-        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), false, $factory);
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), false, 90, $factory);
         $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
 
         $persister = new CartPersister(
@@ -95,10 +95,10 @@ class CartMigrateCommandTest extends TestCase
         $redis = $factory->create((string) $url);
         $redis->flushAll();
 
-        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed);
+        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed, 90);
         $persister->save($redisCart, $context);
 
-        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, $factory);
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, 90, $factory);
         $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
 
         $persister = new CartPersister(
@@ -150,10 +150,10 @@ class CartMigrateCommandTest extends TestCase
         $redis = $factory->create((string) $url);
         $redis->flushAll();
 
-        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, $factory);
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, 90, $factory);
         $command->run(new ArrayInput(['from' => 'sql']), new NullOutput());
 
-        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed);
+        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $this->getContainer()->get(CartSerializationCleaner::class), $redisCompressed, 90);
         $redisCart = $persister->load($sqlCart->getToken(), $context);
 
         static::assertInstanceOf(Cart::class, $redisCart);

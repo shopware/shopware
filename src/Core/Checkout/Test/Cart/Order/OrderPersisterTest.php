@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -101,7 +103,7 @@ class OrderPersisterTest extends TestCase
                 new EntityCollection([$order]),
                 null,
                 new Criteria(),
-                $this->getSalesChannelContext()->getContext()
+                Context::createDefaultContext()
             )
         );
 
@@ -124,6 +126,17 @@ class OrderPersisterTest extends TestCase
         $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());
 
         $exception = null;
+
+        if (Feature::isActive('v6.5.0.0')) {
+            try {
+                $this->orderPersister->persist($processedCart, $context);
+            } catch (CartException $exception) {
+            }
+            static::assertInstanceOf(CartException::class, $exception);
+            static::assertStringContainsString('Line item "test" incomplete. Property "label" missing.', $exception->getMessage());
+
+            return;
+        }
 
         try {
             $this->orderPersister->persist($processedCart, $context);
@@ -165,7 +178,10 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    private function getSalesChannelContext(): MockObject
+    /**
+     * @return MockObject|SalesChannelContext
+     */
+    private function getSalesChannelContext()
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();

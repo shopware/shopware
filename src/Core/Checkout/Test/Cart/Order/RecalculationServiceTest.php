@@ -110,6 +110,9 @@ class RecalculationServiceTest extends TestCase
         $product1 = $cart->get($parentProductId);
         $product2 = $cart->get($childProductId);
 
+        static::assertNotNull($product1);
+        static::assertNotNull($product2);
+
         $product1->getChildren()->add($product2);
         $cart->remove($childProductId);
 

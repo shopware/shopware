@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -85,6 +84,9 @@ class DiscountPercentageCalculator
         return new DiscountCalculatorResult($calculatedPrice, $composition);
     }
 
+    /**
+     * @return DiscountCompositionItem[]
+     */
     private function getCompositionItems(float $percentage, DiscountPackageCollection $packages): array
     {
         $items = [];
@@ -111,15 +113,15 @@ class DiscountPercentageCalculator
 
     private function hasMaxValue(DiscountLineItem $discount): bool
     {
-        try {
-            $maxValue = trim($discount->getPayloadValue('maxValue'));
-        } catch (PayloadKeyNotFoundException $e) {
+        if (!$discount->hasPayloadValue('maxValue')) {
             return false;
         }
 
-        // if we have an empty string value
-        // then we convert it to 0.00 when casting it,
-        // thus we create an early return
-        return $maxValue !== '';
+        if (\is_array($discount->getPayloadValue('maxValue'))) {
+            return false;
+        }
+
+        // if we have an empty string value then we convert it to 0.00 when casting it,  thus we create an early return
+        return trim((string) $discount->getPayloadValue('maxValue')) !== '';
     }
 }

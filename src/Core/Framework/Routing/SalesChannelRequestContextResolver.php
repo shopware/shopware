@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -161,11 +161,11 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             }
 
             if ($context->getCustomer() === null) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             return;
@@ -184,11 +184,11 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             }
 
             if ($context->getCustomer() === null) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             return;
@@ -198,6 +198,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        throw new CustomerNotLoggedInException();
+        throw CartException::customerNotLoggedIn();
     }
 }

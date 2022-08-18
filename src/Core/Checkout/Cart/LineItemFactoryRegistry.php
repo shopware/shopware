@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -21,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class LineItemFactoryRegistry
 {
     /**
-     * @var LineItemFactoryInterface[]
+     * @var LineItemFactoryInterface[]|iterable
      */
     private $handlers;
 
@@ -41,6 +42,8 @@ class LineItemFactoryRegistry
     private $eventDispatcher;
 
     /**
+     * @param LineItemFactoryInterface[]|iterable $handlers
+     *
      * @internal
      */
     public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
@@ -51,6 +54,9 @@ class LineItemFactoryRegistry
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
         if (!isset($data['id'])) {
@@ -67,11 +73,18 @@ class LineItemFactoryRegistry
         return $lineItem;
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     public function update(Cart $cart, array $data, SalesChannelContext $context): void
     {
         $identifier = $data['id'];
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotFound($identifier);
+            }
+
             throw new LineItemNotFoundException($identifier);
         }
 
@@ -102,9 +115,16 @@ class LineItemFactoryRegistry
             }
         }
 
+        if (Feature::isActive('v6.5.0.0')) {
+            throw CartException::lineItemTypeNotSupported($type);
+        }
+
         throw new LineItemTypeNotSupportedException($type);
     }
 
+    /**
+     * @param array<string|int, mixed> $data
+     */
     private function validate(array $data): void
     {
         $this->validator->validate($data, $this->validatorDefinition);

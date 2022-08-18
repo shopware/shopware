@@ -4,15 +4,14 @@ namespace Shopware\Core\Checkout\Cart\Processor;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Error\IncompleteLineItemError;
-use Shopware\Core\Checkout\Cart\Exception\MissingPriceDefinitionException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -46,7 +45,7 @@ class DiscountCartProcessor implements CartProcessorInterface
 
             try {
                 $price = $this->calculate($definition, $goods, $context);
-            } catch (MissingPriceDefinitionException $e) {
+            } catch (CartException $e) {
                 $original->remove($item->getId());
                 $toCalculate->addErrors(new IncompleteLineItemError($item->getId(), 'price'));
 
@@ -95,10 +94,6 @@ class DiscountCartProcessor implements CartProcessorInterface
             return $this->currencyCalculator->calculate($definition->getPrice(), $goods->getPrices(), $context);
         }
 
-        if ($definition instanceof AbsolutePriceDefinition) {
-            throw new MissingPriceDefinitionException('AbsolutePriceDefinitions are not supported for generic discounts, use CurrencyPriceDefinition instead');
-        }
-
-        throw new MissingPriceDefinitionException();
+        throw CartException::invalidPriceDefinition();
     }
 }

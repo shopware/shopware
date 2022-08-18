@@ -15,12 +15,14 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -32,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -97,6 +100,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
@@ -141,6 +145,8 @@ class RecalculationService
 
         $this->validateOrder($order, $orderId);
 
+        \assert($order instanceof OrderEntity);
+
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $cart->add($lineItem);
@@ -183,6 +189,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
@@ -209,6 +216,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $options = [
             SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
@@ -256,6 +264,7 @@ class RecalculationService
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
+        \assert($order instanceof OrderEntity);
 
         $options = [
             SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
@@ -328,12 +337,15 @@ class RecalculationService
             return;
         }
 
-        $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $delivery->getDeliveryDate());
+        $calculatedPrice = $item->getPrice();
+        \assert($calculatedPrice instanceof CalculatedPrice);
+
+        $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $calculatedPrice, $delivery->getDeliveryDate());
 
         $delivery->getPositions()->add($position);
     }
 
-    private function fetchOrder(string $orderId, Context $context)
+    private function fetchOrder(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -382,12 +394,13 @@ class RecalculationService
         }
     }
 
-    /**
-     * @throws OrderRecalculationException
-     */
     private function checkVersion(Entity $entity): void
     {
         if ($entity->getVersionId() === Defaults::LIVE_VERSION) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::canNotRecalculateLiveVersion($entity->getUniqueIdentifier());
+            }
+
             throw new OrderRecalculationException(
                 $entity->getUniqueIdentifier(),
                 'Live versions can\'t be recalculated. Please create a new version.'

@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -57,6 +59,10 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['priceDefinition']) && !$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::insufficientPermission();
+            }
+
             throw new InsufficientPermissionException();
         }
 

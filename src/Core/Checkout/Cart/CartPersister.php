@@ -7,11 +7,11 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,12 +62,16 @@ class CartPersister extends AbstractCartPersister
         }
 
         if (!\is_array($content)) {
-            throw new CartTokenNotFoundException($token);
+            throw CartException::tokenNotFound($token);
         }
 
         $cart = $content['compressed'] ? CacheValueCompressor::uncompress($content['payload']) : unserialize((string) $content['payload']);
 
         if (!$cart instanceof Cart) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::deserializeFailed();
+            }
+
             throw new CartDeserializeFailedException();
         }
 

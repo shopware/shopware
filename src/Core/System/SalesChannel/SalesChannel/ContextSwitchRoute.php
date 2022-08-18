@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -92,11 +92,11 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         } else {
             // do not allow to set address ids if the customer is not logged in
             if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             if (isset($parameters[self::BILLING_ADDRESS_ID])) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
         }
 

@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Page\Account\Order;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -72,7 +75,7 @@ class AccountEditOrderPageLoader
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
         if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $page = $this->genericLoader->load($request, $salesChannelContext);
@@ -89,6 +92,10 @@ class AccountEditOrderPageLoader
         $order = $orderRouteResponse->getOrders()->first();
 
         if ($this->isOrderPaid($order)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderAlreadyPaid($order->getId());
+            }
+
             throw new OrderPaidException($order->getId());
         }
 
@@ -141,7 +148,7 @@ class AccountEditOrderPageLoader
         } elseif ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
         } else {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         return $criteria;

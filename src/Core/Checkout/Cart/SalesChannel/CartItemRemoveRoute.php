@@ -4,11 +4,13 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -66,6 +68,10 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
             $lineItems[] = $lineItem;
 
             if (!$lineItem) {
+                if (Feature::isActive('v6.5.0.0')) {
+                    throw CartException::lineItemNotFound($id);
+                }
+
                 throw new LineItemNotFoundException($id);
             }
 

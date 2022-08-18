@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,6 +15,8 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -67,6 +70,10 @@ class CartLineItemController extends StorefrontController
         return Profiler::trace('cart::delete-line-item', function () use ($cart, $id, $request, $context) {
             try {
                 if (!$cart->has($id)) {
+                    if (Feature::isActive('v6.5.0.0')) {
+                        throw CartException::lineItemNotFound($id);
+                    }
+
                     throw new LineItemNotFoundException($id);
                 }
 
@@ -144,6 +151,10 @@ class CartLineItemController extends StorefrontController
                 }
 
                 if (!$cart->has($id)) {
+                    if (Feature::isActive('v6.5.0.0')) {
+                        throw CartException::lineItemNotFound($id);
+                    }
+
                     throw new LineItemNotFoundException($id);
                 }
 

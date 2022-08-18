@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
@@ -137,6 +138,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition = $item->getPriceDefinition();
 
                 if (!$definition instanceof QuantityPriceDefinition) {
+                    if (Feature::isActive('v6.5.0.0')) {
+                        throw CartException::missingLineItemPrice($item->getId());
+                    }
+
                     throw new MissingLineItemPriceException($item->getId());
                 }
                 $definition->setQuantity($item->getQuantity());

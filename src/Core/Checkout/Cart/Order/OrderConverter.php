@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -10,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -125,7 +127,7 @@ class OrderConverter
         if ($conversionContext->shouldIncludeCustomer()) {
             $customer = $context->getCustomer();
             if ($customer === null) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             $data['orderCustomer'] = CustomerTransformer::transform($customer);
@@ -150,7 +152,7 @@ class OrderConverter
         if ($conversionContext->shouldIncludeBillingAddress()) {
             $customer = $context->getCustomer();
             if ($customer === null) {
-                throw new CustomerNotLoggedInException();
+                throw CartException::customerNotLoggedIn();
             }
 
             $activeBillingAddress = $customer->getActiveBillingAddress();
@@ -213,10 +215,18 @@ class OrderConverter
     public function convertToCart(OrderEntity $order, Context $context): Cart
     {
         if ($order->getLineItems() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('lineItems');
+            }
+
             throw new MissingOrderRelationException('lineItems');
         }
 
         if ($order->getDeliveries() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('deliveries');
+            }
+
             throw new MissingOrderRelationException('deliveries');
         }
 
@@ -228,6 +238,10 @@ class OrderConverter
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingOrderNumber($order->getId());
+            }
+
             throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
         }
 
@@ -255,9 +269,17 @@ class OrderConverter
     public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         if ($order->getTransactions() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('transactions');
+            }
+
             throw new MissingOrderRelationException('transactions');
         }
         if ($order->getOrderCustomer() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('orderCustomer');
+            }
+
             throw new MissingOrderRelationException('orderCustomer');
         }
 

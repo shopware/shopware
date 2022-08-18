@@ -44,6 +44,9 @@ parameters:
         # twig override
         - src/Core/Framework/Adapter/Twig/functions.php
 
+        # class behind feature flags
+        - src/Core/Checkout/Cart/Exception/InvalidCartException.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -135,6 +138,12 @@ parameters:
         -
             message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array<string, array<int, mixed>> given\.$#'
             path: src/Core/Framework/Api/Sync/SyncService.php
+
+        # Shopware\\Core\\Checkout\\Cart\\Exception\\InvalidCartException is behind a feature flag
+        -
+            message: '#.*Shopware\\Core\\Checkout\\Cart\\Exception\\InvalidCartException.*#'
+            path: src/Core/Checkout/Cart/CartException.php
+
         # can be removed with feature flag FEATURE_NEXT_12455
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'

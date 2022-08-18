@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -78,6 +79,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
 
         $info = $lineItem->getDeliveryInformation();
@@ -95,6 +97,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
 
         $info = $lineItem->getDeliveryInformation();
@@ -110,6 +113,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
 
         $lineItem = $cart->get($this->ids->get('product'));
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertSame('test', $lineItem->getLabel());
 
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
@@ -118,6 +122,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
 
         $lineItem = $cart->get($this->ids->get('product'));
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertSame('update', $lineItem->getLabel());
     }
 
@@ -135,12 +140,14 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertInstanceOf(QuantityPriceDefinition::class, $lineItem->getPriceDefinition());
 
         /** @var QuantityPriceDefinition $priceDefinition */
         $priceDefinition = $lineItem->getPriceDefinition();
         static::assertNull($priceDefinition->getReferencePriceDefinition());
 
+        static::assertInstanceOf(CalculatedPrice::class, $lineItem->getPrice());
         static::assertNull($lineItem->getPrice()->getReferencePrice());
     }
 
@@ -211,6 +218,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertSame('test', $actualProduct->getLabel());
     }
 
@@ -235,6 +243,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertSame('My special product', $actualProduct->getLabel());
     }
 
@@ -259,6 +268,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertSame('test', $actualProduct->getLabel());
     }
 
@@ -285,7 +295,10 @@ class ProductCartProcessorTest extends TestCase
             new CartBehavior()
         );
 
-        $payload = $cart->get($product->getId())->getPayload();
+        $lineItem = $cart->get($product->getId());
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        $payload = $lineItem->getPayload();
         $purchasePrices = json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
@@ -300,6 +313,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertArrayHasKey('features', $lineItem->getPayload());
     }
 
@@ -322,6 +336,7 @@ class ProductCartProcessorTest extends TestCase
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
 
+        static::assertInstanceOf(LineItem::class, $lineItem);
         $features = $lineItem->getPayload()['features'];
         $feature = array_pop($features);
 
@@ -563,6 +578,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
@@ -603,6 +620,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertEquals($quantityExpected, $actualProduct->getQuantity());
         if ($errorKey !== null) {
             $error = $service->getCart($token, $context)->getErrors()->first();
@@ -661,6 +679,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
@@ -691,6 +711,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $product);
+        static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
         static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
@@ -723,6 +745,8 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
 
+        static::assertInstanceOf(LineItem::class, $actualProduct);
+        static::assertInstanceOf(DeliveryInformation::class, $actualProduct->getDeliveryInformation());
         static::assertFalse($actualProduct->getDeliveryInformation()->getFreeDelivery());
     }
 

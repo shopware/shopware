@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
@@ -85,10 +87,18 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             ->first();
 
         if ($orderDelivery === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderDeliveryNotFound($orderDeliveryId);
+            }
+
             throw new OrderDeliveryNotFoundException($orderDeliveryId);
         }
 
         if ($orderDelivery->getOrder() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderDeliveryNotFound($orderDeliveryId);
+            }
+
             throw new OrderNotFoundException($orderDeliveryId);
         }
 
@@ -117,14 +127,26 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             ->first();
 
         if ($orderTransaction === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderTransactionNotFound($orderTransactionId);
+            }
+
             throw new OrderTransactionNotFoundException($orderTransactionId);
         }
 
         if ($orderTransaction->getPaymentMethod() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderTransactionNotFound($orderTransactionId);
+            }
+
             throw new OrderTransactionNotFoundException($orderTransactionId);
         }
 
         if ($orderTransaction->getOrder() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::orderTransactionNotFound($orderTransactionId);
+            }
+
             throw new OrderNotFoundException($orderTransactionId);
         }
 

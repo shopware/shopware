@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -117,7 +118,7 @@ class CheckoutConfirmPageLoader
     {
         $customer = $context->getCustomer();
         if ($customer === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $billingAddress = $customer->getActiveBillingAddress();

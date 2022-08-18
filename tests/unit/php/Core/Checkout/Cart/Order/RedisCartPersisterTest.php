@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
-use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -102,6 +103,8 @@ class RedisCartPersisterTest extends TestCase
     }
 
     /**
+     * @ActiveFeatures(features={"v6_5_0_0"})
+     *
      * @dataProvider dataProviderInvalidData
      *
      * @param mixed $data
@@ -130,7 +133,7 @@ class RedisCartPersisterTest extends TestCase
         yield 'invalid serialize' => ['abc', CartTokenNotFoundException::class];
         yield 'not cart serialize' => [\serialize(new \ArrayObject()), CartTokenNotFoundException::class];
         yield 'valid outer object, but invalid content' => [\serialize(['compressed' => false, 'content' => \serialize(new \ArrayObject())]), CartTokenNotFoundException::class];
-        yield 'valid outer object, but not cart' => [\serialize(['compressed' => false, 'content' => \serialize(['cart' => ''])]), CartDeserializeFailedException::class];
+        yield 'valid outer object, but not cart' => [serialize(['compressed' => false, 'content' => serialize(['cart' => ''])]), CartException::class];
     }
 
     public function testDelete(): void

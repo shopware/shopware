@@ -32972,11 +32972,6 @@ parameters:
 			path: src/Storefront/Test/Page/Account/PaymentMethodPageTest.php
 
 		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 4
-			path: src/Storefront/Test/Page/Checkout/ConfirmPageTest.php
-
-		-
 			message: "#^Constant Shopware\\\\Storefront\\\\Test\\\\Page\\\\Cms\\\\DefaultMediaResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
 			count: 1
 			path: src/Storefront/Test/Page/Cms/DefaultMediaResolverTest.php

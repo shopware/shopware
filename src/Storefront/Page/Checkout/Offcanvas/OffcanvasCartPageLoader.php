@@ -70,14 +70,6 @@ class OffcanvasCartPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', '1');
 
-        $shippingMethods = $this->shippingMethodRoute
-            ->load($request, $context, new Criteria())
-            ->getShippingMethods();
-
-        if (!$shippingMethods->has($context->getShippingMethod()->getId())) {
-            $shippingMethods->add($context->getShippingMethod());
-        }
-
-        return $shippingMethods;
+        return $this->shippingMethodRoute->load($request, $context, new Criteria())->getShippingMethods();
     }
 }

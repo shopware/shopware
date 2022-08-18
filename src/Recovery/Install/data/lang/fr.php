@@ -29,7 +29,7 @@ return [
     'select_language_pl' => 'Polonais',
     'select_language_cs' => 'Tchèque',
     'select_language_sv' => 'Suédois',
-    'select_language_nb' => 'Norvégien',
+    'select_language_no' => 'Norvégien',
 
     'language-selection_welcome_title' => 'Bienvenue sur Shopware 6',
     'language-selection_select_language' => 'Langue de l\'assistant d\'installation',

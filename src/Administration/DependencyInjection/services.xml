@@ -122,7 +122,7 @@
 
         <service id="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="kernel" />
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">

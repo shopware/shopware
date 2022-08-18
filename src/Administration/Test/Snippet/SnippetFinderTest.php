@@ -2,9 +2,9 @@
 
 namespace Shopware\Administration\Test\Snippet;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -26,7 +26,7 @@ class SnippetFinderTest extends TestCase
     {
         $this->snippetFinder = new SnippetFinder(
             $this->getKernel(),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->getContainer()->get(Connection::class)
         );
     }
 
@@ -52,7 +52,7 @@ class SnippetFinderTest extends TestCase
 
         $this->snippetFinder = new SnippetFinder(
             $kernelMock,
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->getContainer()->get(Connection::class)
         );
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
@@ -91,7 +91,7 @@ class SnippetFinderTest extends TestCase
 
         $this->snippetFinder = new SnippetFinder(
             $kernelMock,
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->getContainer()->get(Connection::class)
         );
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
@@ -219,7 +219,7 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string|array>
+     * @return array<string, mixed>
      */
     private function getResultSnippetsByCase(string $folder, string $locale): array
     {
@@ -237,7 +237,9 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @param array<int, string> $files
+     *
+     * @return array<int, string>
      */
     private function ensureFileOrder(array $files): array
     {

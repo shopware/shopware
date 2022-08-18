@@ -109,6 +109,11 @@
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister">
+            <argument type="service" id="app_administration_snippet.repository"/>
+            <argument type="service" id="locale.repository"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\AppService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
@@ -210,6 +215,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

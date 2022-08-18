@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
@@ -106,6 +108,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private FlowActionPersister $flowBuilderActionPersister;
 
+    private AppAdministrationSnippetPersister $appAdministrationSnippetPersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -132,7 +136,8 @@ class AppLifecycle extends AbstractAppLifecycle
         CustomEntityPersister $customEntityPersister,
         CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         Connection $connection,
-        FlowActionPersister $flowBuilderActionPersister
+        FlowActionPersister $flowBuilderActionPersister,
+        AppAdministrationSnippetPersister $appAdministrationSnippetPersister
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -160,6 +165,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
         $this->connection = $connection;
         $this->flowBuilderActionPersister = $flowBuilderActionPersister;
+        $this->appAdministrationSnippetPersister = $appAdministrationSnippetPersister;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -191,8 +197,14 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->updateAclRole($app->getName(), $context);
+
+        $snippets = $this->appLoader->getSnippets($app);
+        $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
     }
 
+    /**
+     * @param array{id: string, roleId: string} $app
+     */
     public function update(Manifest $manifest, array $app, Context $context): void
     {
         $defaultLocale = $this->getDefaultLocale($context);
@@ -202,8 +214,14 @@ class AppLifecycle extends AbstractAppLifecycle
         $event = new AppUpdatedEvent($appEntity, $manifest, $context);
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppUpdatedHook($event));
+
+        $snippets = $this->appLoader->getSnippets($appEntity);
+        $this->appAdministrationSnippetPersister->updateSnippets($appEntity, $snippets, $context);
     }
 
+    /**
+     * @param array{id: string} $app
+     */
     public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $appEntity = $this->loadApp($app['id'], $context);
@@ -217,6 +235,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customEntitySchemaUpdater->update();
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     private function updateApp(
         Manifest $manifest,
         array $metadata,
@@ -332,6 +353,9 @@ class AppLifecycle extends AbstractAppLifecycle
         });
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     private function updateMetadata(array $metadata, Context $context): void
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($metadata): void {
@@ -339,6 +363,11 @@ class AppLifecycle extends AbstractAppLifecycle
         });
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     *
+     * @return array<string, mixed>
+     */
     private function enrichInstallMetadata(Manifest $manifest, array $metadata, string $roleId): array
     {
         $secret = AccessKeyHelper::generateSecretAccessKey();
@@ -436,6 +465,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ];
         $dataUpdate = [];
 
+        /** @var AclRoleEntity $role */
         foreach ($roles as $role) {
             $currentPrivileges = $role->getPrivileges();
 
@@ -466,6 +496,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $appPrivileges = 'app.' . $appName;
         $dataUpdate = [];
 
+        /** @var AclRoleEntity $role */
         foreach ($roles as $role) {
             $currentPrivileges = $role->getPrivileges();
 
@@ -551,6 +582,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appRepository->update([$data], $context);
     }
 
+    /**
+     * @return array<array<string, array{name: string, eventName: string, url: string, appId: string, active: bool, errorCount: int}>>
+     */
     private function getWebhooks(Manifest $manifest, ?FlowAction $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
         $actions = [];
@@ -573,6 +607,7 @@ class AppLifecycle extends AbstractAppLifecycle
         }, $actions);
 
         if (!$hasAppSecret) {
+            /** @phpstan-ignore-next-line - return typehint with active: bool, errorCount: int does not work here because active will always be true and errorCount will always be 0 */
             return $webhooks;
         }
 

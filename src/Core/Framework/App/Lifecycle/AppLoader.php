@@ -84,6 +84,9 @@ class AppLoader extends AbstractAppLoader
         return $icon;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getConfiguration(AppEntity $app): ?array
     {
         $configPath = sprintf('%s/%s/Resources/config/config.xml', $this->projectDir, $app->getPath());
@@ -164,5 +167,30 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $icon;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getSnippets(AppEntity $app): array
+    {
+        $snippets = [];
+
+        $path = sprintf('%s/%s/Resources/app/administration/snippet', $this->projectDir, $app->getPath());
+
+        if (!file_exists($path)) {
+            return $snippets;
+        }
+
+        $finder = new Finder();
+        $finder->in($path)
+            ->files()
+            ->name('*.json');
+
+        foreach ($finder->files() as $file) {
+            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
+        }
+
+        return $snippets;
     }
 }

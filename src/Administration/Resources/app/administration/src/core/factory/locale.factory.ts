@@ -16,6 +16,9 @@ export default {
     storeCurrentLocale,
 };
 
+/**
+ * @private
+ */
 export type Snippets = {
     [key: string]: string|Snippets,
 };

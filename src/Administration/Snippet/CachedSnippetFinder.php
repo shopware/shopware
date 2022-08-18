@@ -25,6 +25,9 @@ class CachedSnippetFinder implements SnippetFinderInterface
         $this->cache = $cache;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function findSnippets(string $locale): array
     {
         $cacheKey = $this->getCacheKey($locale);

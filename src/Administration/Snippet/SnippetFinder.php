@@ -2,8 +2,7 @@
 
 namespace Shopware\Administration\Snippet;
 
-use Shopware\Administration\Snippet\Exception\DuplicateAppSnippetKeysException;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
@@ -12,37 +11,38 @@ class SnippetFinder implements SnippetFinderInterface
 {
     private Kernel $kernel;
 
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private string $projectDir;
+    private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(Kernel $kernel, ActiveAppsLoader $activeAppsLoader)
-    {
+    public function __construct(
+        Kernel $kernel,
+        Connection $connection
+    ) {
         $this->kernel = $kernel;
-        $this->activeAppsLoader = $activeAppsLoader;
-
-        $this->projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
+        $this->connection = $connection;
     }
 
     /**
-     * @return array<string|array>
+     * @return array<string, mixed>
      */
     public function findSnippets(string $locale): array
     {
         $snippetFiles = $this->findSnippetFiles($locale);
+        $snippets = $this->parseFiles($snippetFiles);
 
-        if (!\count($snippetFiles)) {
+        $snippets = array_merge($snippets, $this->getAppAdministrationSnippets($locale, $snippets));
+
+        if (!\count($snippets)) {
             return [];
         }
 
-        return $this->parseFiles($snippetFiles);
+        return $snippets;
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     private function getPluginPaths(): array
     {
@@ -78,29 +78,9 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
-    private function getAppPaths(): array
-    {
-        $apps = $this->activeAppsLoader->getActiveApps();
-
-        $paths = [];
-        foreach ($apps as $app) {
-            $appPath = sprintf('%s/%s/Resources/app/administration/snippet', $this->projectDir, $app['path']);
-            if (!file_exists($appPath)) {
-                continue;
-            }
-
-            $paths[] = $appPath;
-        }
-
-        return $paths;
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function findSnippetFiles(?string $locale = null, bool $withPlugins = true, bool $withApps = true): array
+    private function findSnippetFiles(?string $locale = null, bool $withPlugins = true): array
     {
         $finder = (new Finder())
             ->files()
@@ -118,10 +98,6 @@ class SnippetFinder implements SnippetFinderInterface
             $finder->in($this->getPluginPaths());
         }
 
-        if ($withApps) {
-            $finder->in($this->getAppPaths());
-        }
-
         $iterator = $finder->getIterator();
         $files = [];
 
@@ -133,13 +109,13 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @return array<string|array>
+     * @param array<int, string> $files
+     *
+     * @return array<string, mixed>
      */
     private function parseFiles(array $files): array
     {
-        $appsPath = sprintf('%s/custom/apps', $this->projectDir);
         $snippets = [[]];
-        $appSnippets = [];
 
         foreach ($files as $file) {
             if (is_file($file) === false) {
@@ -148,27 +124,11 @@ class SnippetFinder implements SnippetFinderInterface
 
             $content = file_get_contents($file);
             if ($content !== false) {
-                $currentSnippetFile = json_decode($content, true) ?? [];
-
-                $startWithAppsPath = substr($file, 0, \strlen($appsPath)) === $appsPath;
-                if ($startWithAppsPath) {
-                    $appSnippets[$file] = $currentSnippetFile;
-
-                    continue;
-                }
-
-                $snippets[] = $currentSnippetFile;
+                $snippets[] = json_decode($content, true) ?? [];
             }
         }
 
         $snippets = array_replace_recursive(...$snippets);
-
-        if (\count($appSnippets) > 0) {
-            $this->validateAppSnippets($snippets, $appSnippets);
-            $appSnippets = array_replace_recursive(...array_values($appSnippets));
-            $appSnippets = $this->sanitizeAppSnippets($appSnippets);
-            $snippets = array_merge($snippets, $appSnippets);
-        }
 
         ksort($snippets);
 
@@ -176,46 +136,61 @@ class SnippetFinder implements SnippetFinderInterface
     }
 
     /**
-     * @param array<string|array> $coreSnippets
-     * @param array<string|array> $appSnippetFiles
+     * @param array<string, mixed> $existingSnippets
      *
-     * @throws DuplicateAppSnippetKeysException
+     * @return array<string, mixed>
      */
-    private function validateAppSnippets(array $coreSnippets, array $appSnippetFiles): void
+    private function getAppAdministrationSnippets(string $locale, array $existingSnippets): array
     {
-        $coreKeys = array_keys($coreSnippets);
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT app_administration_snippet.value
+             FROM locale
+             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
+             INNER JOIN app ON app_administration_snippet.app_id = app.id
+             WHERE locale.code = :code AND app.active = 1;',
+            ['code' => $locale]
+        );
 
-        $invalidEntries = [];
-        foreach ($appSnippetFiles as $filePath => $fileSnippets) {
-            $invalidEntriesPerFile = [];
-            foreach (array_keys($fileSnippets) as $key) {
-                if (\in_array($key, $coreKeys)) {
-                    $invalidEntriesPerFile[] = $key;
-                }
-            }
-            if (\count($invalidEntriesPerFile) > 0) {
-                $invalidEntries[$filePath] = $invalidEntriesPerFile;
-            }
+        $snippets = [];
+        foreach ($result as $data) {
+            $decodedSnippet = json_decode($data['value'], true);
+            $this->validateAppSnippets($existingSnippets, $decodedSnippet);
+            $decodedSnippet = $this->sanitizeAppSnippets($decodedSnippet);
+
+            $snippets = array_merge($snippets, $decodedSnippet);
         }
 
-        if (\count($invalidEntries) > 0) {
-            throw new DuplicateAppSnippetKeysException($invalidEntries);
+        return $snippets;
+    }
+
+    /**
+     * @param array<string, mixed> $existingSnippets
+     * @param array<string, mixed> $appSnippets
+     */
+    private function validateAppSnippets(array $existingSnippets, array $appSnippets): void
+    {
+        $existingSnippetKeys = array_keys($existingSnippets);
+        $appSnippetKeys = array_keys($appSnippets);
+
+        if ($duplicatedKeys = array_intersect($existingSnippetKeys, $appSnippetKeys)) {
+            throw SnippetException::duplicatedFirstLevelKey($duplicatedKeys);
         }
     }
 
     /**
-     * @param array<string|array> $snippets
+     * @param array<string, mixed> $snippets
      *
-     * @return array<string|array>
+     * @return array<string, mixed>
      */
     private function sanitizeAppSnippets(array $snippets): array
     {
         $sanitizer = new HtmlSanitizer();
 
         $sanitizedSnippets = [];
-        foreach($snippets as $key => $value) {
+        foreach ($snippets as $key => $value) {
             if (\is_string($value)) {
                 $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+
                 continue;
             }
 

@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
@@ -58,27 +59,70 @@ class IndexCreatorTest extends TestCase
             ->method('indices')
             ->willReturn($indices);
 
-        $eventDispatcher = new EventDispatcher();
         $index = new IndexCreator(
             $client,
             [
                 'settings' => $constructorConfig,
             ],
             [],
+            new EventDispatcher()
+        );
+
+        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
+    }
+
+    public function testIndexCreationFiresEvents(): void
+    {
+        $client = $this->createMock(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices
+            ->expects(static::once())
+            ->method('create')
+            ->willReturnCallback(static function (array $config): void {
+                static::assertArrayHasKey('body', $config);
+                static::assertArrayHasKey('event', $config['body']);
+                static::assertTrue($config['body']['event']);
+            });
+
+        // Alias does not exists, swap directly
+        $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
+        $indices->expects(static::once())->method('refresh')->with(['index' => 'foo']);
+        $indices->expects(static::once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
+
+        $client
+            ->method('indices')
+            ->willReturn($indices);
+
+        $eventDispatcher = new EventDispatcher();
+        $index = new IndexCreator(
+            $client,
+            [
+                'settings' => [],
+            ],
+            [],
             $eventDispatcher
         );
 
-        $called = false;
-        $eventDispatcher->addListener(ElasticsearchIndexCreatedEvent::class, static function (ElasticsearchIndexCreatedEvent $event) use (&$called): void {
-            $called = true;
+        $calledCreateEvent = false;
+        $eventDispatcher->addListener(ElasticsearchIndexCreatedEvent::class, static function (ElasticsearchIndexCreatedEvent $event) use (&$calledCreateEvent): void {
+            $calledCreateEvent = true;
             static::assertSame('foo', $event->getIndexName());
             static::assertInstanceOf(ElasticsearchProductDefinition::class, $event->getDefinition());
+        });
+
+        $calledConfigEvent = false;
+        $eventDispatcher->addListener(ElasticsearchIndexConfigEvent::class, function (ElasticsearchIndexConfigEvent $event) use (&$calledConfigEvent): void {
+            $calledConfigEvent = true;
+
+            $event->setConfig($event->getConfig() + ['event' => true]);
         });
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
 
-        static::assertTrue($called, 'Event was not dispatched');
+        static::assertTrue($calledCreateEvent, 'Event ElasticsearchIndexCreatedEvent was not dispatched');
+        static::assertTrue($calledConfigEvent, 'Event ElasticsearchIndexConfigEvent was not dispatched');
     }
 
     public function testCreateIndexWithSourceField(): void

@@ -18,6 +18,8 @@ class CheapestPriceContainer extends Struct
 
     protected ?array $default = null;
 
+    private ?array $ruleIds = null;
+
     public function __construct(array $value)
     {
         if (isset($value['default'])) {
@@ -154,15 +156,23 @@ class CheapestPriceContainer extends Struct
 
     public function getRuleIds(): array
     {
-        $ruleIds = [];
+        if ($this->ruleIds === null) {
+            $ruleIds = [];
 
-        foreach ($this->value as $group) {
-            foreach ($group as $price) {
-                $ruleIds[] = $price['rule_id'] ?? null;
+            foreach ($this->value as $group) {
+                foreach ($group as $price) {
+                    if (($price['rule_id'] ?? null) === null) {
+                        continue;
+                    }
+
+                    $ruleIds[$price['rule_id']] = true;
+                }
             }
+
+            $this->ruleIds = array_keys($ruleIds);
         }
 
-        return array_filter(array_unique($ruleIds));
+        return $this->ruleIds;
     }
 
     private function filterByRuleId(array $prices, string $ruleId, bool &$defaultWasAdded): ?array

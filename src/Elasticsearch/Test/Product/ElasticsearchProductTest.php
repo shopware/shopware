@@ -3081,6 +3081,31 @@ class ElasticsearchProductTest extends TestCase
         static::assertEmpty($agg->getEntities());
     }
 
+    /**
+     * @depends testIndexing
+     *
+     * @dataProvider variantListingConfigProvider
+     */
+    public function testVariantListingConfig(string $productIds, int $expected, IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed($productIds));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+        static::assertCount($expected, $result);
+    }
+
+    /**
+     * @return array<string, array{productIds: string, expected: int}>
+     */
+    public function variantListingConfigProvider(): iterable
+    {
+        yield 'Should index main product when displayParent is true' => ['productIds' => 'variant-1', 'expected' => 3];
+        yield 'Should not index main product when displayParent is false' => ['productIds' => 'variant-2', 'expected' => 2];
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -3763,10 +3788,56 @@ class ElasticsearchProductTest extends TestCase
                 ->price(1)
                 ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_ALL)
                 ->build(),
+            (new ProductBuilder($this->ids, 'variant-1'))
+                ->name('Main-Product-1')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-1.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-1.2'))
+                        ->build()
+                )
+                ->build(),
+            (new ProductBuilder($this->ids, 'variant-2'))
+                ->name('Main-Product-2')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-2.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-2.2'))
+                        ->build()
+                )
+                ->build(),
         ];
 
         $this->getContainer()->get('product.repository')
             ->create($products, $this->context);
+
+        $products = [
+            [
+                'id' => $this->ids->get('variant-1'),
+                'variantListingConfig' => [
+                    'displayParent' => true,
+                    'mainVariantId' => $this->ids->get('variant-1.1'),
+                ],
+            ],
+            [
+                'id' => $this->ids->get('variant-2'),
+                'variantListingConfig' => [
+                    'displayParent' => false,
+                    'mainVariantId' => $this->ids->get('variant-2.1'),
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->update($products, $this->context);
     }
 
     private function createLanguage(?string $parentId = null): string

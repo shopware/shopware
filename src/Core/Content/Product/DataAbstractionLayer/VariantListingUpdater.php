@@ -57,12 +57,7 @@ class VariantListingUpdater
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
 
-            // display parent in listing
-            if ($config['display_parent']) {
-                $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
-            }
-
-            if ($config['main_variant']) {
+            if ($config['main_variant'] || $config['display_parent']) {
                 $groups = [];
             }
 

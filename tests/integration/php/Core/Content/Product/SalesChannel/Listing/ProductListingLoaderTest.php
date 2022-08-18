@@ -246,6 +246,71 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($mainProduct->hasExtension('search'));
     }
 
+    public function testMainProductIsHiddenIfVariantsOutOfStock(): void
+    {
+        $this->createProduct([]);
+
+        $this->systemConfigService->set(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            true,
+            $this->salesChannelContext->getSalesChannel()->getId()
+        );
+
+        $this->repository->update([[
+            'id' => $this->productId,
+            'displayParent' => true,
+            'mainVariantId' => $this->mainVariantId,
+            'configuratorGroupConfig' => [],
+            'isCloseout' => true,
+        ]], $this->salesChannelContext->getContext());
+
+        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
+
+        $this->repository->update($variants, $this->salesChannelContext->getContext());
+
+        $listing = $this->fetchListing();
+        static::assertEquals(0, $listing->getTotal());
+    }
+
+    public function testMainProductIsHiddenIfAllVariantsDisabled(): void
+    {
+        $this->createProduct([]);
+
+        $this->repository->update([[
+            'id' => $this->productId,
+            'displayParent' => true,
+            'mainVariantId' => $this->mainVariantId,
+            'configuratorGroupConfig' => [],
+        ]], $this->salesChannelContext->getContext());
+
+        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
+
+        $this->repository->update($variants, $this->salesChannelContext->getContext());
+
+        $listing = $this->fetchListing();
+        static::assertEquals(0, $listing->getTotal());
+    }
+
+    public function testNoListConfig(): void
+    {
+        $this->createProduct([]);
+
+        $this->repository->update([[
+            'id' => $this->productId,
+            'displayParent' => null,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => null,
+        ]], $this->salesChannelContext->getContext());
+
+        $listing = $this->fetchListing();
+
+        static::assertEquals(1, $listing->getTotal());
+
+        $variantId = $listing->first()->getId();
+
+        static::assertContains($variantId, $this->variantIds);
+    }
+
     public function testChangeProductConfigToVariantGroups(): void
     {
         // main variant will be set initially

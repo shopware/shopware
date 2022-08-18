@@ -48,9 +48,14 @@
                                                         {% set price = product.calculatedPrices.last %}
                                                     {% endif %}
 
+                                                    {% if product.variantListingConfig.displayParent and product.parentId === null %}
+                                                        {% set displayFromVariants = price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+                                                        {% set price = product.calculatedCheapestPrice %}
+                                                    {% endif %}
+
                                                     {% set referencePrice = price.referencePrice %}
 
-                                                    {% if product.calculatedPrices.count > 1 %}
+                                                    {% if product.calculatedPrices.count > 1 or displayFromVariants %}
                                                         {{ "listing.listingTextFrom"|trans|sw_sanitize }}
                                                     {% endif %}
                                                     <span class="search-suggest-product-price">

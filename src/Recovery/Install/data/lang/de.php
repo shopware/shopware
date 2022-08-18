@@ -32,7 +32,6 @@ return [
     'select_language_pl' => 'Polnisch',
     'select_language_cs' => 'Tschechisch',
     'select_language_sv' => 'Schwedisch',
-    'select_language_nb' => 'Norwegisch',
 
     'select_country_jam' => 'Jamaika',
     'select_country_mmr' => 'Myanmar',

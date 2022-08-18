@@ -30,7 +30,6 @@ return [
     'select_language_cs' => 'Tjekkisk',
     'select_language_sv' => 'Svensk',
     'select_language_da' => 'Dansk',
-    'select_language_nb' => 'Norsk',
 
     'language-selection_welcome_title' => 'Velkommen til Shopware 6',
     'language-selection_select_language' => 'Installationsguidens sprog',

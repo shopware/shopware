@@ -29,7 +29,6 @@ return [
     'select_language_pl' => 'Pools',
     'select_language_cs' => 'Tsjechisch',
     'select_language_sv' => 'Zweeds',
-    'select_language_no' => 'Noors',
 
     'language-selection_welcome_title' => 'Welkom bij Shopware 6',
     'language-selection_select_language' => 'Taal van de installatie-assistent',

@@ -36081,31 +36081,6 @@ parameters:
 			path: src/Elasticsearch/Framework/ElasticsearchOutdatedIndexDetector.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchRegistry\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchRegistry.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchRegistry\\:\\:\\$definitions type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\CreateAliasTaskHandler\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\CreateAliasTaskHandler\\:\\:getHandledMessages\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\CreateAliasTaskHandler\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:generateMessages\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
@@ -36159,36 +36134,6 @@ parameters:
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:mapFields\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:__construct\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:addFullText\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:addFullText\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexCreator\\:\\:\\$mapping type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexCreator.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"

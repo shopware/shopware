@@ -12,14 +12,23 @@ class IndexCreator
 {
     private Client $client;
 
+    /**
+     * @var array<mixed>
+     */
     private array $config;
 
+    /**
+     * @var array<mixed>
+     */
     private array $mapping;
 
     private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
+     *
+     * @param array<mixed> $config
+     * @param array<mixed> $mapping
      */
     public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
     {
@@ -77,6 +86,11 @@ class IndexCreator
         return $this->client->indices()->exists(['index' => $index]);
     }
 
+    /**
+     * @param array<mixed> $mapping
+     *
+     * @return array<mixed>
+     */
     private function addFullText(array $mapping): array
     {
         $mapping['properties']['fullText'] = [

@@ -18,12 +18,17 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private ElasticsearchHelper $elasticsearchHelper;
 
+    /**
+     * @var array<mixed>
+     */
     private array $config;
 
     private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
+     *
+     * @param array<mixed> $config
      */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
@@ -41,6 +46,9 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     public static function getHandledMessages(): iterable
     {
         return [CreateAliasTask::class];

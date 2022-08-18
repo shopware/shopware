@@ -16,6 +16,9 @@ export default class FormSubmitLoaderPlugin extends Plugin {
             return;
         }
 
+        // check if validation plugin is active for this form
+        this._validationPluginActive = !!window.PluginManager.getPluginInstanceFromElement(this._form, 'FormValidation');
+
         this._registerEvents();
     }
 
@@ -75,6 +78,13 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _onFormSubmit() {
+        // Abort when form.validation.plugin is active and form is not valid.
+        // The validation plugin handles the submit itself in this case
+        if(this._validationPluginActive) {
+            if (this.el.checkValidity() === false) {
+                return;
+            }
+        }
         // show loading indicator in submit buttons
         this._submitButtons.forEach((submitButton) => {
             const loader = new ButtonLoadingIndicator(submitButton);

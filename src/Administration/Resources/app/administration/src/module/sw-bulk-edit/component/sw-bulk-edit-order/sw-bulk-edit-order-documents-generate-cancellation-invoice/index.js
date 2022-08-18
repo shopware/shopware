@@ -5,12 +5,12 @@ Component.extend('sw-bulk-edit-order-documents-generate-cancellation-invoice', '
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit').orderDocuments.storno;
+                return State.get('swBulkEdit')?.orderDocuments?.storno?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocuments', {
+                State.commit('swBulkEdit/setOrderDocumentsValue', {
                     type: 'storno',
-                    payload: generateData,
+                    value: generateData,
                 });
             },
         },

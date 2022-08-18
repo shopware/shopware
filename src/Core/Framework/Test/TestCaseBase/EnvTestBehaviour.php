@@ -4,8 +4,14 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait EnvTestBehaviour
 {
+    /**
+     * @var array<string, (string|int|bool)>
+     */
     private array $originalEnvVars = [];
 
+    /**
+     * @param array<string, (string|int|bool)> $envVars
+     */
     public function setEnvVars(array $envVars): void
     {
         foreach ($envVars as $envVar => $value) {

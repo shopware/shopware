@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -30,30 +28,13 @@ class DeliveryPromotionCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use ShippingMethodPricesTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $promotionRepository;
+    private EntityRepositoryInterface $promotionRepository;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private string $token;
 
-    /**
-     * @var string
-     */
-    private $token;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {

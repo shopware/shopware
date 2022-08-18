@@ -1,0 +1,25 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductListingFlags": {
+                "type": "object",
+                "description": "Additional flags for product listings",
+                "properties": {
+                    "no-aggregations": {
+                        "description": "Resets all aggregations in the criteria. This parameter is a flag, the value has no effect.",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "only-aggregations": {
+                        "description": "If this flag is set, no products are fetched. Sorting and associations are also ignored. This parameter is a flag, the value has no effect.",
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            }
+        }
+    }
+}

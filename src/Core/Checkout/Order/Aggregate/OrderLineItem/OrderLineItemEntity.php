@@ -105,7 +105,7 @@ class OrderLineItemEntity extends Entity
     protected $priceDefinition;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $payload;
 

@@ -75,7 +75,7 @@ module.exports = {
     ],
 
     transform: {
-        '^.+\\.js$': 'babel-jest',
+        '^.+\\.(t|j)s$': 'babel-jest',
         '^.+\\.html$': 'html-loader-jest',
     },
 

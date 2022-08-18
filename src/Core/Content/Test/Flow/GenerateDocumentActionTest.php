@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -21,6 +22,15 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -32,6 +42,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -54,23 +66,26 @@ class GenerateDocumentActionTest extends TestCase
     use AdminApiTestBehaviour;
     use ImportTranslationsTrait;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
-    private ?EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    private ?DocumentService $documentService;
+    private DocumentService $documentService;
 
-    private ?NumberRangeValueGeneratorInterface $numberRange;
+    private DocumentGenerator $documentGenerator;
 
-    private ?LoggerInterface $logger;
+    private NumberRangeValueGeneratorInterface $numberRange;
+
+    private Logger $logger;
 
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->documentService = $this->getContainer()->get(DocumentService::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->numberRange = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
-        $this->logger = $this->getContainer()->get(LoggerInterface::class);
+        $this->logger = $this->getContainer()->get('logger');
     }
 
     /**
@@ -83,15 +98,10 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-            $this->logger
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->numberRange, $this->connection, $this->logger);
 
         if ($multipleDoc) {
-            $config = array_filter([
+            $config = [
                 'documentTypes' => [
                     [
                         'documentType' => $documentType,
@@ -103,20 +113,20 @@ class GenerateDocumentActionTest extends TestCase
                         'documentRangerType' => 'document_delivery_note',
                     ],
                 ],
-            ]);
+            ];
         } else {
-            $config = array_filter([
+            $config = [
                 'documentType' => $documentType,
                 'documentRangerType' => $documentRangerType,
                 'custom' => [
                     'invoiceNumber' => '1100',
                 ],
-            ]);
+            ];
         }
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
-        if ($documentType === CreditNoteGenerator::CREDIT_NOTE) {
+        if ($documentType === CreditNoteRenderer::TYPE) {
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
@@ -144,11 +154,7 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->numberRange, $this->connection, $this->logger);
 
         $config = array_filter([
             'documentType' => $documentType,
@@ -161,8 +167,28 @@ class GenerateDocumentActionTest extends TestCase
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
-        static::expectException(GenerateDocumentActionException::class);
+        if (!Feature::isActive('v6.5.0.0')) {
+            static::expectException(GenerateDocumentActionException::class);
+        }
+
+        $handler = new TestHandler(Logger::ERROR);
+
+        $this->logger->pushHandler($handler);
+
         $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertNotEmpty($handler->getRecords());
+            static::assertNotEmpty($record = $handler->getRecords()[0]);
+            static::assertEquals(
+                sprintf(
+                    'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
+                    str_replace('_', ' ', $documentType),
+                    $order->getId(),
+                ),
+                $record['message']
+            );
+        }
     }
 
     public function testGenerateCustomDocument(): void
@@ -172,33 +198,42 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->numberRange, $this->connection, $this->logger);
 
-        $config = array_filter([
+        $config = [
             'documentType' => 'customDoc',
             'documentRangerType' => 'document_example',
             'custom' => [
                 'invoiceNumber' => '1100',
             ],
-        ]);
+        ];
 
         $this->insertCustomDocument();
         $this->insertRange();
 
-        $registry = $this->getContainer()->get(DocumentGeneratorRegistry::class);
-        $customDocGenerator = new CustomDoc();
-        $class = new \ReflectionClass($registry);
-        $property = $class->getProperty('documentGenerators');
-        $property->setAccessible(true);
-        $oldValue = $property->getValue($registry);
-        $property->setValue(
-            $registry,
-            [$customDocGenerator]
-        );
+        if (Feature::isActive('v6.5.0.0')) {
+            $registry = $this->getContainer()->get(DocumentRendererRegistry::class);
+            $customDocGenerator = new CustomDocRenderer();
+            $class = new \ReflectionClass($registry);
+            $property = $class->getProperty('documentRenderers');
+            $property->setAccessible(true);
+            $oldValue = $property->getValue($registry);
+            $property->setValue(
+                $registry,
+                [$customDocGenerator]
+            );
+        } else {
+            $registry = $this->getContainer()->get(DocumentGeneratorRegistry::class);
+            $customDocGenerator = new CustomDoc();
+            $class = new \ReflectionClass($registry);
+            $property = $class->getProperty('documentGenerators');
+            $property->setAccessible(true);
+            $oldValue = $property->getValue($registry);
+            $property->setValue(
+                $registry,
+                [$customDocGenerator]
+            );
+        }
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
@@ -231,6 +266,13 @@ class GenerateDocumentActionTest extends TestCase
             $docConfig = DocumentConfigurationFactory::createConfiguration($config['documentTypes'][0]);
         } else {
             $docConfig = DocumentConfigurationFactory::createConfiguration($config);
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $docConfig->jsonSerialize());
+            $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $context);
+
+            return;
         }
 
         $this->documentService->create(
@@ -287,11 +329,12 @@ class GenerateDocumentActionTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            json_encode($data)
+            json_encode($data) ?: ''
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertEmpty($response->getContent());
 
         // read versioned order
         $criteria = new Criteria([$orderId]);
@@ -312,8 +355,8 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        $content = json_decode($response->getContent(), true);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $content = json_decode($response->getContent() ?: '', true);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -491,6 +534,7 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 }
+
 /**
  * @internal
  */
@@ -511,5 +555,37 @@ class CustomDoc implements DocumentGeneratorInterface
     public function getFileName(DocumentConfiguration $config): string
     {
         return '';
+    }
+}
+
+/**
+ * @internal
+ */
+class CustomDocRenderer extends AbstractDocumentRenderer
+{
+    public const TYPE = 'customDoc';
+
+    public function supports(): string
+    {
+        return self::TYPE;
+    }
+
+    public function getDecorated(): AbstractDocumentRenderer
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
+    {
+        $result = new RendererResult();
+
+        foreach ($operations as $operation) {
+            $rendered = new RenderedDocument('<html>test</html>');
+            $rendered->setName('custom.pdf');
+
+            $result->addSuccess($operation->getOrderId(), $rendered);
+        }
+
+        return $result;
     }
 }

@@ -27,7 +27,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: edit order state', () => {
+    it('@base @order: edit order state', { tags: ['quarantined'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();

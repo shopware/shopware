@@ -43,7 +43,7 @@ Module.register('sw-cms', {
         },
         create: {
             component: 'sw-cms-create',
-            path: 'create',
+            path: 'create/:type/:id',
             meta: {
                 parentPath: 'sw.cms.index',
                 privilege: 'cms.creator',

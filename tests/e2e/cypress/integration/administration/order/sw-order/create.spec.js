@@ -683,9 +683,8 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
         cy.get('.sw-order-create-initial-modal__tab-product').click();
 
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(10);
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="checkbox"]').check();
-
+        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(10).type('{enter}');
+    
         cy.get('.sw-button--primary').click();
 
         cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);

@@ -200,6 +200,7 @@ function createWrapper(productEntityOverride) {
             'sw-text-editor': true,
             'sw-language-switch': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-icon': true,
             'sw-multi-tag-select': true,
             'sw-entity-tag-select': true,
@@ -288,6 +289,14 @@ function createWrapper(productEntityOverride) {
 
                     return { search: () => Promise.resolve([{ id: 'Id' }]) };
                 }
+            },
+            orderDocumentApiService: {
+                create: () => {
+                    return Promise.resolve();
+                },
+                download: () => {
+                    return Promise.resolve();
+                },
             },
             repository: {
                 get: () => Promise.resolve({})
@@ -397,6 +406,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         footerRight.find('button').trigger('click');
 
         expect(wrapper.vm.$route.path).toEqual('/process');
+        await flushPromises();
     });
 
     it('should open success modal', async () => {
@@ -440,6 +450,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/process');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.$route.path).toEqual('/error');

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
@@ -26,45 +27,29 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 class HttpKernel
 {
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     /**
      * @var class-string<Kernel>
      */
-    protected static $kernelClass = Kernel::class;
+    protected static string $kernelClass = Kernel::class;
 
     /**
-     * @var ClassLoader|null
+     * @var class-string<HttpCache>
      */
-    protected $classLoader;
+    protected static string $httpCacheClass = HttpCache::class;
 
-    /**
-     * @var string
-     */
-    protected $environment;
+    protected ?ClassLoader $classLoader;
 
-    /**
-     * @var bool
-     */
-    protected $debug;
+    protected string $environment;
 
-    /**
-     * @var string
-     */
-    protected $projectDir;
+    protected bool $debug;
 
-    /**
-     * @var KernelPluginLoader|null
-     */
-    protected $pluginLoader;
+    protected ?string $projectDir = null;
 
-    /**
-     * @var KernelInterface|null
-     */
-    protected $kernel;
+    protected ?KernelPluginLoader $pluginLoader = null;
+
+    protected ?KernelInterface $kernel = null;
 
     public function __construct(string $environment, bool $debug, ?ClassLoader $classLoader = null)
     {
@@ -73,14 +58,25 @@ class HttpKernel
         $this->debug = $debug;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - parameter `$type` will be typed to `int` and parameter `$catch` will be typed to `bool`
+     */
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
     {
+        if (!\is_int($type)) {
+            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The second parameter `$type` of `HttpKernel->handle()` will be typed to `int`');
+        }
+
+        if (!\is_bool($catch)) {
+            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The third parameter `$catch` of `HttpKernel->handle()` will be typed to `bool`');
+        }
+
         try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
         } catch (DBALException $e) {
             $connectionParams = self::getConnection()->getParams();
 
-            $message = str_replace([$connectionParams['url'], $connectionParams['password'], $connectionParams['user']], '******', $e->getMessage());
+            $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
 
             throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
         }
@@ -147,7 +143,7 @@ class HttpKernel
         $enabled = $container->hasParameter('shopware.http.cache.enabled')
             && $container->getParameter('shopware.http.cache.enabled');
         if ($enabled && $container->has(CacheStore::class)) {
-            $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
+            $kernel = new static::$httpCacheClass($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }
 
         $response = $kernel->handle($transformed, $type, $catch);
@@ -194,7 +190,7 @@ class HttpKernel
         );
     }
 
-    private function getProjectDir()
+    private function getProjectDir(): string
     {
         if ($this->projectDir === null) {
             if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {

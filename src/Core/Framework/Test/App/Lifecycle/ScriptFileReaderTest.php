@@ -5,25 +5,22 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 class ScriptFileReaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private ScriptFileReaderInterface $scriptReader;
 
     public function setUp(): void
     {
-        $this->scriptReader = $this->getContainer()->get(ScriptFileReader::class);
+        $this->scriptReader = new ScriptFileReader(\dirname(__DIR__) . '/');
     }
 
     public function testGetScriptPathsForApp(): void
     {
-        $scripts = $this->scriptReader->getScriptPathsForApp(__DIR__ . '/../Manifest/_fixtures/test');
+        $scripts = $this->scriptReader->getScriptPathsForApp('Manifest/_fixtures/test');
         sort($scripts);
 
         static::assertEquals(
@@ -51,7 +48,7 @@ class ScriptFileReaderTest extends TestCase
     {
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig',
-            $this->scriptReader->getScriptContent('product-page-loaded/product-page-script.twig', __DIR__ . '/../Manifest/_fixtures/test')
+            $this->scriptReader->getScriptContent('product-page-loaded/product-page-script.twig', 'Manifest/_fixtures/test')
         );
     }
 

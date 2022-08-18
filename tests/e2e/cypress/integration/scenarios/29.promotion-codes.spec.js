@@ -8,23 +8,22 @@ const promoCode = 'Flash sale';
 
 describe('Create promotion codes to the product and check it at the storefront', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
-            cy.loginViaApi();
-        }).then(() => {
-            cy.createProductFixture({
-                name: 'Test Product',
-                productNumber: 'Test-3096',
-                price: [{
-                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                    linked: true,
-                    gross: 60
-                }]
+        cy.loginViaApi()
+            .then(() => {
+                cy.createProductFixture({
+                    name: 'Test Product',
+                    productNumber: 'Test-3096',
+                    price: [{
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        linked: true,
+                        gross: 60
+                    }]
+                });
+            }).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
     });
 
     it('@package: should create promotion, configure conditions and discounts', () => {
@@ -268,7 +267,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--selectedCodeType').select('Individuele promotie codes');
-        cy.contains('Codes genereren').click();
+        cy.contains('Generate new codes').click();
         cy.get('#modalTitleEl').should('be.visible');
         cy.get('input#sw-field--pattern-prefix').clearTypeAndCheck('EK_');
         cy.get('input#sw-field--preview').should('have.attr', 'label', 'Voorbeeld promotieco');

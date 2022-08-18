@@ -43,6 +43,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private MaintenanceModeResolver $maintenanceResolver;
 
+    private ?string $staleWhileRevalidate;
+
+    private ?string $staleIfError;
+
     /**
      * @internal
      */
@@ -51,13 +55,17 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         int $defaultTtl,
         bool $httpCacheEnabled,
         MaintenanceModeResolver $maintenanceModeResolver,
-        bool $reverseProxyEnabled
+        bool $reverseProxyEnabled,
+        ?string $staleWhileRevalidate,
+        ?string $staleIfError
     ) {
         $this->cartService = $cartService;
         $this->defaultTtl = $defaultTtl;
         $this->httpCacheEnabled = $httpCacheEnabled;
         $this->maintenanceResolver = $maintenanceModeResolver;
         $this->reverseProxyEnabled = $reverseProxyEnabled;
+        $this->staleWhileRevalidate = $staleWhileRevalidate;
+        $this->staleIfError = $staleIfError;
     }
 
     /**
@@ -151,6 +159,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             self::INVALIDATION_STATES_HEADER,
             implode(',', $cache->getStates())
         );
+
+        if ($this->staleIfError !== null) {
+            $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+        }
+
+        if ($this->staleWhileRevalidate !== null) {
+            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
+        }
     }
 
     /**
@@ -196,7 +212,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
             $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 
     /**

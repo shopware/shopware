@@ -16,6 +16,7 @@
         <div class="sw-order-product-grid__container">
             {% block sw_order_product_grid_product_list %}
             <sw-entity-listing
+                ref="orderProductGrid"
                 show-selection
                 class="sw-order-product-grid-product-list"
                 :allow-delete="false"
@@ -24,6 +25,7 @@
                 :repository="productRepository"
                 :is-loading="isLoading"
                 @selection-change="onSelectionChange"
+                @select-item="onSelectItem"
             >
                 {% block sw_order_product_grid_product_grid_column_amount %}
                 <template #column-amount="{ item }">
@@ -31,6 +33,7 @@
                         v-model="item.amount"
                         size="small"
                         class="sw-order-product-grid__amount"
+                        :placeholder="$tc('sw-order.itemModal.productGrid.textValue')"
                         :min="0"
                         @change="changeProductAmount(item)"
                     />

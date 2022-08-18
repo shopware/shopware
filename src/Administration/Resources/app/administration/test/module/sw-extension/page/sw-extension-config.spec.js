@@ -25,6 +25,7 @@ function createWrapper() {
             'sw-meteor-page': Shopware.Component.build('sw-meteor-page'),
             'sw-search-bar': true,
             'sw-notification-center': true,
+            'sw-help-center': true,
             'sw-meteor-navigation': true,
             'sw-external-link': true,
             'sw-system-config': true,

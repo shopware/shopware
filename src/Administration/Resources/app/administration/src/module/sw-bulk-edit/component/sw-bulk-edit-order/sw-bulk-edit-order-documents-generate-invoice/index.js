@@ -9,12 +9,12 @@ Component.register('sw-bulk-edit-order-documents-generate-invoice', {
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit').orderDocuments.invoice;
+                return State.get('swBulkEdit')?.orderDocuments?.invoice?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocuments', {
+                State.commit('swBulkEdit/setOrderDocumentsValue', {
                     type: 'invoice',
-                    payload: generateData,
+                    value: generateData,
                 });
             },
         },

@@ -25,7 +25,7 @@ class CustomFieldSet extends XmlElement
     protected string $name;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $relatedEntities = [];
 
@@ -84,7 +84,7 @@ class CustomFieldSet extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getRelatedEntities(): array
     {

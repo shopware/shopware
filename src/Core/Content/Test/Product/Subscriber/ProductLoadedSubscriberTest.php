@@ -352,6 +352,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
+     * @param non-empty-array<string> $languageChain
+     *
      * @dataProvider variationCases
      */
     public function testVariation(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
@@ -1200,7 +1202,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testListPrices(): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $taxId = $this->getContainer()->get(Connection::class)
             ->fetchColumn('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
@@ -1218,7 +1220,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     'itemRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
                     'totalRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
                 ],
-            ], $ids->context);
+            ], Context::createDefaultContext());
 
         $defaults = [
             'id' => 1,
@@ -1292,7 +1294,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ]);
 
             $this->getContainer()->get('product.repository')
-                ->create([$data], $ids->context);
+                ->create([$data], Context::createDefaultContext());
 
             $product = $this->getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)

@@ -10,6 +10,8 @@ interface RequestTransformerInterface
 
     /**
      * Return only attributes that should be inherited by subrequests
+     *
+     * @return array<string, mixed>
      */
     public function extractInheritableAttributes(Request $sourceRequest): array;
 }

@@ -48,6 +48,8 @@ use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
+use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use function preg_replace;
@@ -1440,6 +1442,7 @@ class AppLifecycleTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addAssociation('relations');
+        $criteria->addAssociation('customFields');
 
         /** @var CustomFieldSetCollection $customFieldSets */
         $customFieldSets = $customFieldSetRepository->search($criteria, $this->context)->getEntities();
@@ -1468,6 +1471,21 @@ class AppLifecycleTest extends TestCase
             'translated' => true,
         ], $customFieldSet->getConfig());
         static::assertTrue($customFieldSet->isGlobal());
+
+        $customFieldCollection = $customFieldSet->getCustomFields();
+        static::assertInstanceOf(CustomFieldCollection::class, $customFieldCollection);
+
+        static::assertCount(2, $customFieldCollection);
+
+        $fieldWithoutAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test')->first();
+        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithoutAllowWrite);
+
+        static::assertFalse($fieldWithoutAllowWrite->isAllowCustomerWrite());
+
+        $fieldWithAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test2')->first();
+        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithAllowWrite);
+
+        static::assertTrue($fieldWithAllowWrite->isAllowCustomerWrite());
     }
 
     private function assertDefaultWebhooks(string $appId): void

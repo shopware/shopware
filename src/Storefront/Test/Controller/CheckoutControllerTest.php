@@ -196,7 +196,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @dataProvider errorDataProvider
      *
-     * @param string[] $errorKeys
+     * @param array<string> $errorKeys
      */
     public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
     {
@@ -253,7 +253,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @dataProvider errorDataProvider
      *
-     * @param string[] $errorKeys
+     * @param array<string> $errorKeys
      */
     public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
     {

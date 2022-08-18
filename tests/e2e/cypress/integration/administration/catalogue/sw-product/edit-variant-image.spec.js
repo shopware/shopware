@@ -34,6 +34,7 @@ function createVariant(page) {
     // Create and verify one-dimensional variant
     page.generateVariants('Color', [0, 1, 2], 3);
     cy.get('.sw-product-variants-overview').should('be.visible');
+    cy.get('.sw-skeleton').should('not.exist');
 
     cy.contains('.sw-data-grid__body', 'Red');
     cy.contains('.sw-data-grid__body', 'Yellow');
@@ -185,6 +186,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-delivery-listing-mode .sw-field__radio-option:nth-of-type(1)').click();
         cy.get('.sw-product-variants-delivery-listing_entity-select').click();
         cy.contains('.sw-product-variant-info__specification', 'Green').click();
+
+        cy.contains('.sw-field__radio-option', 'Single variant').should('be.visible');
+        cy.contains('.sw-field__radio-option', 'Single variant').click();
 
         cy.get('.sw-product-modal-delivery__save-button').click();
         cy.get('.sw-modal__body').should('not.exist');

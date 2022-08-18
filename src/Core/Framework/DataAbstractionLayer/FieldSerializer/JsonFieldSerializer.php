@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -18,23 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteField
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class JsonFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @internal
-     */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        ValidatorInterface $validator
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
      *

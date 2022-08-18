@@ -38,7 +38,7 @@ class DeleteCustomerRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -115,7 +115,7 @@ class DeleteCustomerRouteTest extends TestCase
         static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         $criteria = new Criteria([$id]);
-        $customer = $this->customerRepository->searchIds($criteria, $this->ids->getContext())->firstId();
+        $customer = $this->customerRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertNull($customer);
 
         static::assertArrayHasKey(CustomerDeletedEvent::class, $this->events);
@@ -142,7 +142,7 @@ class DeleteCustomerRouteTest extends TestCase
         static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->searchIds($criteria, $this->ids->getContext())->firstId();
+        $customer = $this->customerRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertNull($customer);
     }
 }

@@ -61,7 +61,7 @@ class CartWeightRule extends Rule
 
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $itemWeight = 0.0;
-            if ($lineItem->getDeliveryInformation() !== null) {
+            if ($lineItem->getDeliveryInformation() !== null && $lineItem->getDeliveryInformation()->getWeight() !== null) {
                 $itemWeight = $lineItem->getDeliveryInformation()->getWeight();
             }
 

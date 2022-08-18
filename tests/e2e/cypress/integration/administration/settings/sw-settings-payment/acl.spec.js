@@ -9,7 +9,7 @@ describe('Payment: Test ACL privileges', () => {
                 return cy.createDefaultFixture('payment-method');
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             });
     });
 
@@ -20,7 +20,7 @@ describe('Payment: Test ACL privileges', () => {
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
@@ -31,23 +31,30 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-list').should('not.exist');
     });
 
-    it('@settings: can view payment', () => {
+    it('@settings: can view payment but is not able to edit or activate payment ', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
                 role: 'viewer'
             }
         ]).then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
         // open settings-payment
-        cy.contains('.sw-data-grid__cell-value', 'CredStick').click();
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('.sw-internal-link.sw-internal-link--disabled', 'Edit detail');
 
         // check settings-payment values
-        cy.get('.sw-payment-detail__save-action').should('be.disabled');
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .get('input[type=checkbox]')
+            .should('be.disabled');
     });
 
     it('@settings: can edit payment', () => {
@@ -68,13 +75,18 @@ describe('Payment: Test ACL privileges', () => {
                 role: 'editor'
             }
         ]).then(() => {
-            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
 
-        // open payment method
-        cy.contains('.sw-data-grid__cell-value', 'CredStick').click();
+        // open settings-payment
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('Edit detail')
+            .click();
+
         cy.get('#sw-field--paymentMethod-description').type('My description');
         cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
 
@@ -84,7 +96,11 @@ describe('Payment: Test ACL privileges', () => {
         cy.wait('@savePayment').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`, 'My description');
+
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('My description');
     });
 
     it('@settings: can create payment', () => {
@@ -120,8 +136,11 @@ describe('Payment: Test ACL privileges', () => {
 
         // Verify payment method in listing
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
         cy.get(page.elements.smartBarBack).click();
-        cy.contains('.sw-data-grid__row', '1 Coleur');
+
+        cy.get('.sw-card__title')
+            .contains('1 Coleur');
     });
 
     it('@settings: can delete settings-payment', () => {

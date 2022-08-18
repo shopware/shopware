@@ -12,10 +12,12 @@ use OpenApi\Context;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 use function OpenApi\scan;
 use const OpenApi\Annotations\UNDEFINED;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed
+ */
 class OpenApiLoader
 {
     private const OPERATION_KEYS = [
@@ -27,11 +29,6 @@ class OpenApiLoader
     ];
 
     /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -39,17 +36,23 @@ class OpenApiLoader
     /**
      * @internal
      */
-    public function __construct(RouterInterface $router, EventDispatcherInterface $eventDispatcher)
+    public function __construct(EventDispatcherInterface $eventDispatcher)
     {
-        $this->router = $router;
         $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(string $api): OpenApi
     {
-        $pathsToScan = array_unique(iterator_to_array($this->getApiRoutes(), false));
-        $openApiPathsEvent = new OpenApiPathsEvent($pathsToScan);
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+        $openApiPathsEvent = new OpenApiPathsEvent([]);
         $this->eventDispatcher->dispatch($openApiPathsEvent);
+        if ($openApiPathsEvent->isEmpty()) {
+            return new OpenApi([]);
+        }
+
         $openApi = scan($openApiPathsEvent->getPaths(), ['analysis' => new DeactivateValidationAnalysis()]);
 
         $calculatedPaths = [];
@@ -105,23 +108,6 @@ class OpenApiLoader
         $this->replaceBasicApiParameter($openApi);
 
         return $openApi;
-    }
-
-    private function getApiRoutes(): \Generator
-    {
-        foreach ($this->router->getRouteCollection() as $item) {
-            $path = $item->getPath();
-            if (
-                strpos($path, '/api/') !== 0
-                && strpos($path, '/store-api/') !== 0
-            ) {
-                continue;
-            }
-
-            $controllerClass = strtok($item->getDefault('_controller'), ':');
-            $refClass = new \ReflectionClass($controllerClass);
-            yield $refClass->getFileName();
-        }
     }
 
     private function replaceBasicApiParameter(OpenApi $api): void
@@ -183,38 +169,35 @@ class OpenApiLoader
     private function routeIsActive(PathItem $item): bool
     {
         $docBlock = $item->_context->comment ?: '';
-        $pattern = '#@([a-zA-Z]+)#';
 
-        preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
-
-        if (!\in_array('internal', $matches[1], true)) {
-            //get the comment from the Class
-            if ($item->_context->with('comment') instanceof Context) {
-                $classDocBlock = $item->_context->with('comment')->__get('comment') ?: '';
-                $pattern = '#@([a-zA-Z]+)#';
-
-                preg_match_all($pattern, $classDocBlock, $matches, \PREG_PATTERN_ORDER);
-
-                if (\in_array('internal', $matches[1], true)) {
-                    return $this->featureIsActive($classDocBlock);
-                }
-            }
-
-            return true;
+        if (strpos($docBlock, '@internal') !== false) {
+            return $this->featureIsActive($docBlock);
         }
 
-        return $this->featureIsActive($docBlock);
+        //get the comment from the Class
+        $classContext = $item->_context->with('comment');
+        if (!$classContext instanceof Context) {
+            return true;
+        }
+        $classDocBlock = $classContext->__get('comment') ?: '';
+
+        return $this->featureIsActive($classDocBlock);
     }
 
     private function featureIsActive(string $docBlock): bool
     {
-        $flagPattern = "#@internal \(flag:([a-zA-Z_0-9]+)\)#";
-        preg_match_all($flagPattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
+        $internalPattern = '/@(internal.*)$/m';
+        $flagPattern = "#\(flag:([a-zA-Z_0-9]+)\)#";
 
-        if (\count($matches[1]) > 0 && strpos($matches[1][0], 'FEATURE_') === 0 && Feature::isActive($matches[1][0])) {
+        if (!preg_match($internalPattern, $docBlock, $matches)) {
+            return true;
+        }
+        $internalAnnotation = $matches[1];
+
+        if (!preg_match($flagPattern, $internalAnnotation, $matches)) {
             return true;
         }
 
-        return false;
+        return Feature::isActive($matches[1]);
     }
 }

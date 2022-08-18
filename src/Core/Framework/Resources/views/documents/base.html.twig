@@ -31,6 +31,8 @@ merge 16.11.2020
 
     {% set locale = order.language.locale.code %}
 
+    {% set nestedLineItems = order.nestedLineItems %}
+
     {% if config.itemsPerPage <= 0 %}
         {% set itemsPerPage = 10 %}
     {% else %}
@@ -72,7 +74,7 @@ merge 16.11.2020
         {% set prefix = '' %}
         {% set level = 0 %}
 
-        {% for lineItem in order.nestedLineItems %}
+        {% for lineItem in nestedLineItems %}
             {{ block('loop') }}
 
             {% set position = position + 1 %}

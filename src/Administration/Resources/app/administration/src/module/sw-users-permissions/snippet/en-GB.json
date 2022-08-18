@@ -126,9 +126,9 @@
         "labelPermissions": "Permissions",
         "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",
         "passwordConfirmation": {
-          "titleConfirmPasswordModal": "Enter your current password to confirm",
+          "titleConfirmPasswordModal": "Confirm password",
           "labelConfirmPassword": "Password",
-          "placeholderConfirmPassword": "Please enter your current password...",
+          "placeholderConfirmPassword": "Enter your current password...",
           "labelButtonCancel": "Cancel",
           "labelButtonConfirm": "Confirm",
           "notificationPasswordErrorTitle": "Error",

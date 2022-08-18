@@ -9,6 +9,9 @@ export type action = {
     appName: string,
 };
 
+/**
+ * @internal Only to be used by the extension sdk
+ */
 export default class ExtensionSdkService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, 'extension-sdk', 'application/json');
@@ -16,9 +19,6 @@ export default class ExtensionSdkService extends ApiService {
         this.name = 'extensionSdkService';
     }
 
-    /**
-     * @internal Only to be used by the extension sdk
-     */
     runAction(action: action, entityIdList: string[]): Promise<unknown> {
         return this.httpClient.post(
             `/_action/${this.getApiBasePath()}/run-action`,
@@ -32,6 +32,22 @@ export default class ExtensionSdkService extends ApiService {
             },
         ).then((response: AxiosResponse<unknown>) => {
             ApiService.handleResponse(response);
+        });
+    }
+
+    signIframeSrc(appName: string, src: string): Promise<unknown> {
+        return this.httpClient.post(
+            `/_action/${this.getApiBasePath()}/sign-uri`,
+            {
+                appName,
+                uri: src,
+            },
+            {
+                params: {},
+                headers: this.getBasicHeaders(),
+            },
+        ).then((response: AxiosResponse<unknown>) => {
+            return ApiService.handleResponse(response);
         });
     }
 }

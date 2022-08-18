@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -319,13 +320,23 @@ class ShippingZipCodeRuleTest extends TestCase
     /**
      * @dataProvider getMatchValuesAlphanumeric
      */
-    public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, ?string $zipCode, string $customerZipCode = '9E21L'): void
-    {
+    public function testRuleMatchingAlphanumeric(
+        string $operator,
+        bool $isMatching,
+        ?string $zipCode,
+        string $customerZipCode = '9E21L',
+        bool $noAddress = false
+    ): void {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $location = $this->createMock(ShippingLocation::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($customerZipCode);
+
+        if ($noAddress) {
+            $customerAddress = null;
+        }
+
         $location->method('getAddress')->willReturn($customerAddress);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
@@ -339,20 +350,28 @@ class ShippingZipCodeRuleTest extends TestCase
         }
     }
 
-    public function getMatchValuesAlphanumeric(): array
+    public function getMatchValuesAlphanumeric(): \Traversable
     {
-        return [
-            'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'],
-            'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'],
-            'operator_eq / not match partially / zip code' => [Rule::OPERATOR_EQ, false, '*6A*0'],
-            'operator_eq / match partially / zip code' => [Rule::OPERATOR_EQ, true, 'B*9D*', 'B19D5'],
-            'operator_neq / match exact / zip code' => [Rule::OPERATOR_NEQ, true, '56000'],
-            'operator_neq / not match exact / zip code' => [Rule::OPERATOR_NEQ, false, '9E21L'],
-            'operator_neq / match partially / zip code' => [Rule::OPERATOR_NEQ, true, '*6A*0'],
-            'operator_neq / not match partially / zip code' => [Rule::OPERATOR_NEQ, false, 'B*9D*', 'B19D5'],
-            'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'],
-            'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '],
-            'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '],
-        ];
+        yield 'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'];
+        yield 'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'];
+        yield 'operator_eq / not match partially / zip code' => [Rule::OPERATOR_EQ, false, '*6A*0'];
+        yield 'operator_eq / match partially / zip code' => [Rule::OPERATOR_EQ, true, 'B*9D*', 'B19D5'];
+        yield 'operator_neq / match exact / zip code' => [Rule::OPERATOR_NEQ, true, '56000'];
+        yield 'operator_neq / not match exact / zip code' => [Rule::OPERATOR_NEQ, false, '9E21L'];
+        yield 'operator_neq / match partially / zip code' => [Rule::OPERATOR_NEQ, true, '*6A*0'];
+        yield 'operator_neq / not match partially / zip code' => [Rule::OPERATOR_NEQ, false, 'B*9D*', 'B19D5'];
+        yield 'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'];
+        yield 'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '];
+        yield 'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no address' => [Rule::OPERATOR_NEQ, false, 'ky', '', true];
+            yield 'operator_empty / no match / no address' => [Rule::OPERATOR_EMPTY, false, 'ky', '', true];
+
+            return;
+        }
+
+        yield 'operator_neq / match / no address' => [Rule::OPERATOR_NEQ, true, 'ky', '', true];
+        yield 'operator_empty / match / no address' => [Rule::OPERATOR_EMPTY, true, 'ky', '', true];
     }
 }

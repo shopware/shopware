@@ -4,6 +4,7 @@ import swBulkEditState from '../../state/sw-bulk-edit.state';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -51,6 +52,9 @@ Component.register('sw-bulk-edit-customer', {
             return this.repositoryFactory.create('customer');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
         hasSelectedChanges() {
             return Object.values(this.bulkEditData).some(field => field.isChanged) || this.bulkEditData.length > 0;
         },
@@ -64,7 +68,11 @@ Component.register('sw-bulk-edit-customer', {
         },
 
         hasChanges() {
-            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const customFieldsValue = this.bulkEditData.customFields?.value;
+            const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
+            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+
+            return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
         actionsRequestGroup() {

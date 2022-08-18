@@ -191,11 +191,6 @@ shopware:
         major: true
         description: "Change ExceptionHandlerInterface by removing Command $command argument"
         # issue: NEXT-16640
-      - name: FEATURE_NEXT_17261
-        default: false
-        major: false
-        description: "Bulk Edit for Order Documents and Status Mails"
-        # issue: NEXT-17261
       - name: FEATURE_NEXT_17858
         default: false
         major: true

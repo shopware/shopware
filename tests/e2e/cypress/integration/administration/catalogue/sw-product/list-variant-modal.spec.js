@@ -82,7 +82,7 @@ describe('Product: Test variants', () => {
             .click();
     });
 
-    it('@catalogue @base: delete variants in modal', () => {
+    it('@catalogue @base: delete variants in modal', { tags: ['quarantined'] }, () => {
         cy.intercept({
             method: 'POST',
             url: 'api/_action/sync'
@@ -110,7 +110,7 @@ describe('Product: Test variants', () => {
 
         // check delete modal has been closed
         cy.get('.sw-product-variant-modal__delete-modal')
-            .should('be.not.visible');
+            .should('not.be.visible');
 
         cy.awaitAndCheckNotification('Successfully deleted "Parent Product".');
 

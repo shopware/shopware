@@ -115,7 +115,7 @@ Component.register('sw-flow-detail', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(

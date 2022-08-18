@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
@@ -11,33 +12,53 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 class GenerateDocumentAction extends FlowAction
 {
+    /**
+     * @deprecated tag:v6.5.0 - Property $documentService will be removed due to unused
+     */
     protected DocumentService $documentService;
 
+    /**
+     * @deprecated tag:v6.5.0 - Property $connection will be removed due to unused
+     */
     protected Connection $connection;
 
+    private DocumentGenerator $documentGenerator;
+
+    /**
+     * @deprecated tag:v6.5.0 - Property $connection will be removed due to unused
+     */
     private NumberRangeValueGeneratorInterface $valueGenerator;
+
+    private LoggerInterface $logger;
 
     /**
      * @internal
      */
     public function __construct(
         DocumentService $documentService,
+        DocumentGenerator $documentGenerator,
         NumberRangeValueGeneratorInterface $valueGenerator,
-        Connection $connection
+        Connection $connection,
+        LoggerInterface $logger
     ) {
         $this->documentService = $documentService;
-        $this->valueGenerator = $valueGenerator;
+        $this->documentGenerator = $documentGenerator;
         $this->connection = $connection;
+        $this->valueGenerator = $valueGenerator;
+        $this->logger = $logger;
     }
 
     public static function getName(): string
@@ -103,6 +124,24 @@ class GenerateDocumentAction extends FlowAction
         $documentRangerType = $eventConfig['documentRangerType'];
 
         if (!$documentType || !$documentRangerType) {
+            return;
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $fileType = $eventConfig['fileType'] ?? FileTypes::PDF;
+            $config = $eventConfig['config'] ?? [];
+            $static = $eventConfig['static'] ?? false;
+
+            $operation = new DocumentGenerateOperation($baseEvent->getOrderId(), $fileType, $config, null, $static);
+
+            $result = $this->documentGenerator->generate($documentType, [$baseEvent->getOrderId() => $operation], $baseEvent->getContext());
+
+            if (!empty($result->getErrors())) {
+                foreach ($result->getErrors() as $error) {
+                    $this->logger->error($error->getMessage());
+                }
+            }
+
             return;
         }
 

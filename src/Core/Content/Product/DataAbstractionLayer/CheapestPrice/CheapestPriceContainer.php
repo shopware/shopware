@@ -12,12 +12,18 @@ use Shopware\Core\Framework\Struct\Struct;
 class CheapestPriceContainer extends Struct
 {
     /**
-     * @var array[]
+     * @var array<mixed>
      */
     protected array $value;
 
+    /**
+     * @var array<mixed>|null
+     */
     protected ?array $default = null;
 
+    /**
+     * @param array<mixed> $value
+     */
     public function __construct(array $value)
     {
         if (isset($value['default'])) {
@@ -112,6 +118,17 @@ class CheapestPriceContainer extends Struct
                 $price->setListPrice($list);
             }
 
+            if (isset($row['regulationPrice'])) {
+                $regulation = clone $blueprint;
+
+                $regulation->setCurrencyId($row['currencyId']);
+                $regulation->setGross((float) $row['regulationPrice']['gross']);
+                $regulation->setNet((float) $row['regulationPrice']['net']);
+                $regulation->setLinked((bool) $row['regulationPrice']['linked']);
+
+                $price->setRegulationPrice($regulation);
+            }
+
             if (isset($row['percentage'])) {
                 $price->setPercentage([
                     'gross' => $row['percentage']['gross'],
@@ -132,26 +149,41 @@ class CheapestPriceContainer extends Struct
         return 'cheapest_price_container';
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getValue(): array
     {
         return $this->value;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPricesForVariant(string $variantId): array
     {
         return $this->value[$variantId] ?? [];
     }
 
+    /**
+     * @return array<string>
+     */
     public function getVariantIds(): array
     {
         return \array_keys($this->value);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getDefault(): ?array
     {
         return $this->default;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getRuleIds(): array
     {
         $ruleIds = [];
@@ -165,6 +197,11 @@ class CheapestPriceContainer extends Struct
         return array_filter(array_unique($ruleIds));
     }
 
+    /**
+     * @param array<mixed> $prices
+     *
+     * @return array<mixed>|null
+     */
     private function filterByRuleId(array $prices, string $ruleId, bool &$defaultWasAdded): ?array
     {
         if (\array_key_exists($ruleId, $prices)) {
@@ -182,6 +219,9 @@ class CheapestPriceContainer extends Struct
         return null;
     }
 
+    /**
+     * @param array<mixed> $price
+     */
     private function getPriceValue(array $price, Context $context): ?float
     {
         $currency = $this->getCurrencyPrice($price['price'], $context->getCurrencyId());
@@ -199,6 +239,11 @@ class CheapestPriceContainer extends Struct
         return $value;
     }
 
+    /**
+     * @param array<mixed> $collection
+     *
+     * @return array<mixed>|null
+     */
     private function getCurrencyPrice(array $collection, string $currencyId, bool $fallback = true): ?array
     {
         foreach ($collection as $price) {

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -57,9 +59,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
+    /**
+     * @return never
+     */
     public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
     {
-        return $this->getSchema($definitions);
+        throw new \RuntimeException();
     }
 
     public function getSchema(array $definitions): array
@@ -71,12 +76,21 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         foreach ($definitions as $definition) {
             $entity = $definition->getEntityName();
 
-            $schema[$entity] = $this->getEntitySchema($definition);
+            $entitySchema = $this->getEntitySchema($definition);
+
+            if ($entitySchema['write-protected'] && $entitySchema['read-protected']) {
+                continue;
+            }
+
+            $schema[$entity] = $entitySchema;
         }
 
         return $schema;
     }
 
+    /**
+     * @return array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}
+     */
     private function getEntitySchema(EntityDefinition $definition): array
     {
         $fields = $definition->getFields();
@@ -89,9 +103,14 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return [
             'entity' => $definition->getEntityName(),
             'properties' => $properties,
+            'write-protected' => $definition->getProtections()->get(WriteProtection::class) !== null,
+            'read-protected' => $definition->getProtections()->get(ReadProtection::class) !== null,
         ];
     }
 
+    /**
+     * @return array{type: string, flags: list<Flag>}
+     */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
         $flags = [];
@@ -267,6 +286,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * @param Flag[] $flags
+     *
+     * @return array{type: string, properties: array<string, mixed>, flags: list<Flag> }
      */
     private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
     {

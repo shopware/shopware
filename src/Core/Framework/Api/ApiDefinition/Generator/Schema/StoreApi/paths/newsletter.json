@@ -1,0 +1,171 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/newsletter/confirm": {
+            "post": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Confirm a newsletter registration",
+                "description": "You have to use the hash from the link sent out via email to confirm the user registration.",
+                "operationId": "confirmNewsletter",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hash",
+                                    "em"
+                                ],
+                                "properties": {
+                                    "hash": {
+                                        "description": "Hash parameter from link the in the confirmation mail",
+                                        "type": "string"
+                                    },
+                                    "em": {
+                                        "description": "Email hash parameter from the link in the confirmation mail",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The newsletter confirmation was successful."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/newsletter/subscribe": {
+            "post": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Create or remove a newsletter subscription",
+                "description": "This route is used to create/remove/confirm a newsletter subscription.\n\nThe `option` property controls what should happen:\n* `direct`: The subscription is directly active and does not need a confirmation.\n* `subscribe`: An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.\nThe subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.\n* `unsubscribe`: The email address will be removed from the newsletter subscriptions.\n* `confirmSubscribe`: Confirmes the newsletter subscription for the provided email address.",
+                "operationId": "subscribeToNewsletter",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "option",
+                                    "storefrontUrl"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email address that will receive the confirmation and the newsletter.",
+                                        "type": "string"
+                                    },
+                                    "option": {
+                                        "description": "Defines what should be done."
+                                    },
+                                    "storefrontUrl": {
+                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
+                                        "type": "string"
+                                    },
+                                    "salutationId": {
+                                        "description": "Identifier of the salutation."
+                                    },
+                                    "firstName": {
+                                        "description": "First name",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Last name",
+                                        "type": "string"
+                                    },
+                                    "street": {
+                                        "description": "Street",
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "description": "City",
+                                        "type": "string"
+                                    },
+                                    "zipCode": {
+                                        "description": "Zip code",
+                                        "type": "string"
+                                    },
+                                    "tags": {
+                                        "description": "Zip code",
+                                        "type": "string"
+                                    },
+                                    "languageId": {
+                                        "description": "Identifier of the language."
+                                    },
+                                    "customFields": {
+                                        "description": "Custom field data that should be added to the subscription.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/newsletter/unsubscribe": {
+            "post": {
+                "tags": [
+                    "Newsletter"
+                ],
+                "summary": "Remove a newsletter subscription",
+                "description": "Removes a newsletter recipient from the mailing lists.",
+                "operationId": "unsubscribeToNewsletter",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email address that should be removed from the mailing lists.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Unsubscribing was successful."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

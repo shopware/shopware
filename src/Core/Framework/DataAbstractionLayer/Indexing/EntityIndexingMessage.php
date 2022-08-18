@@ -26,7 +26,7 @@ class EntityIndexingMessage
     private $forceQueue;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $skip = [];
 
@@ -78,7 +78,7 @@ class EntityIndexingMessage
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getSkip(): array
     {
@@ -86,7 +86,7 @@ class EntityIndexingMessage
     }
 
     /**
-     * @param string[] $skip
+     * @param array<string> $skip
      */
     public function setSkip(array $skip): void
     {

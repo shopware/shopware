@@ -39,7 +39,7 @@
         "scssphp/scssphp": "1.10.0",
         "shopware/core": "*",
         "symfony/cache": "~5.4.0",
-        "symfony/cache-contracts": "2.2.0",
+        "symfony/cache-contracts": "v2.5.2",
         "symfony/console": "~5.4.1",
         "symfony/config": "~5.4.0",
         "symfony/dependency-injection": "~5.4.1",

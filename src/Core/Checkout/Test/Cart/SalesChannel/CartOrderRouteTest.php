@@ -51,7 +51,7 @@ class CartOrderRouteTest extends TestCase
 
     public function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -347,7 +347,7 @@ class CartOrderRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
@@ -520,7 +520,7 @@ class CartOrderRouteTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createCustomerAndLogin($email = null, $password = null, string $paymentHandler = SyncTestPaymentHandler::class): void
@@ -593,7 +593,7 @@ class CartOrderRouteTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }

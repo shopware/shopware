@@ -221,7 +221,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function formatPluginList(PluginCollection $plugins): array
     {

@@ -66,6 +66,7 @@ class SnippetFinder implements SnippetFinderInterface
         $finder = (new Finder())
             ->files()
             ->in(__DIR__ . '/../../*/Resources/app/administration/src/')
+            ->exclude('node_modules')
             ->ignoreUnreadableDirs();
 
         if ($locale) {

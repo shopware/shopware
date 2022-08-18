@@ -8,7 +8,7 @@ const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
-type LinkCategories = 'link' | 'detail' | 'category' | 'email' | 'phone';
+type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 interface TextEditorLinkMenuConfig {
     title: string,
     icon: string,
@@ -82,7 +82,18 @@ Component.register('sw-text-editor-link-menu', {
 
         entityFilter(): CriteriaType {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null),
+                    ],
+                ),
+            );
 
             return criteria;
         },
@@ -144,17 +155,11 @@ Component.register('sw-text-editor-link-menu', {
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories, target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix)) {
-                const [productId] = slicedLink.splice(-1);
-                return { type: 'detail', target: productId };
-            }
-
-            if (link.startsWith('category')) {
-                this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
-                return {
-                    type: 'category',
-                    target: slicedLink[2],
-                };
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail'].includes(slicedLink[1])) {
+                if (slicedLink[1] === 'navigation') {
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                }
+                return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
             }
 
             if (link.startsWith('mailto:')) {
@@ -172,8 +177,8 @@ Component.register('sw-text-editor-link-menu', {
             }
 
             return {
-                target: link,
                 type: (detectedLinkType ?? 'link') as LinkCategories,
+                target: link,
             };
         },
 
@@ -189,7 +194,7 @@ Component.register('sw-text-editor-link-menu', {
             switch (this.linkCategory) {
                 case 'detail':
                     return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
-                case 'category':
+                case 'navigation':
                     return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
@@ -232,7 +237,8 @@ Component.register('sw-text-editor-link-menu', {
             });
         },
 
-        onSelectFieldChange(): void {
+        onSelectFieldChange(category: LinkCategories): void {
+            this.linkCategory = category;
             this.linkTarget = '';
         },
     },

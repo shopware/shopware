@@ -13,20 +13,30 @@ class Repository {
 
     #amounts = [];
 
-    #invocation = 0;
+    invocation = 0;
 
-    search() {
-        const desiredAmount = this.#amounts[this.#invocation];
-        this.#invocation += 1;
+    lastUsedCriteria;
+
+    search(criteria) {
+        const desiredAmount = this.#amounts[this.invocation];
+
+        this.invocation += 1;
+        this.lastUsedCriteria = criteria;
+
         const data = [];
+
+        if (desiredAmount === null) {
+            return Promise.reject();
+        }
+
         for (let i = 0; i < desiredAmount; i += 1) {
             data.push({
-                id: `${this.#entityName}-${this.#invocation}-${i}`,
+                id: `${this.#entityName}-${this.invocation}-${i}`,
                 getEntityName: () => this.#entityName
             });
         }
 
-        return data;
+        return Promise.resolve(data);
     }
 }
 
@@ -185,6 +195,115 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(wrapper.vm.folderLoaderDone).toBe(true);
 
         // Check that the 'Load more' button disappeared
+        loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
+        expect(loadMoreButton.exists()).toBe(false);
+    });
+    it('should limit association loading to 25', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.nextMedia();
+
+        const usedCriteria = wrapper.vm.mediaRepository.lastUsedCriteria;
+
+        expect(wrapper.vm.mediaRepository.invocation).toBe(1);
+
+        [
+            'tags',
+            'productMedia.product',
+            'categories',
+            'productManufacturers.products',
+            'mailTemplateMedia.mailTemplate',
+            'documentBaseConfigs',
+            'avatarUser',
+            'paymentMethods',
+            'shippingMethods',
+            'cmsBlocks.section.page',
+            'cmsSections.page',
+            'cmsPages',
+        ].forEach(association => {
+            const associationParts = association.split('.');
+
+            let path = null;
+            associationParts.forEach(currentPart => {
+                path = path ? `${path}.${currentPart}` : currentPart;
+
+                expect(usedCriteria.getAssociation(path).getLimit()).toBe(25);
+            });
+        });
+    });
+
+    it('should show the load more button if the folder request fails', async () => {
+        const wrapper = createWrapper({ folderAmount: [null, 3], mediaAmount: [3, undefined] });
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Check that it starts with the correct amounts
+        expect(wrapper.vm.subFolders.length).toBe(0);
+        expect(wrapper.vm.items.length).toBe(3);
+        expect(wrapper.vm.selectableItems.length).toBe(3);
+
+        // Check that additional media and folders can be loaded
+        expect(wrapper.vm.itemLoaderDone).toBe(true);
+        expect(wrapper.vm.folderLoaderDone).toBe(false);
+
+        // Initiate another load
+        let loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
+        expect(loadMoreButton.exists()).toBe(true);
+        wrapper.vm.loadNextItems();
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Check that appropriate amounts were loaded
+        expect(wrapper.vm.subFolders.length).toBe(3);
+        expect(wrapper.vm.items.length).toBe(3);
+        expect(wrapper.vm.selectableItems.length).toBe(6);
+
+        // Check that additional folders can be loaded, but not media
+        expect(wrapper.vm.itemLoaderDone).toBe(true);
+        expect(wrapper.vm.folderLoaderDone).toBe(true);
+
+        loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
+        expect(loadMoreButton.exists()).toBe(false);
+    });
+
+    it('should show the load more button if the media request fails', async () => {
+        const wrapper = createWrapper({ folderAmount: [3, undefined], mediaAmount: [null, 3] });
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Check that it starts with the correct amounts
+        expect(wrapper.vm.subFolders.length).toBe(3);
+        expect(wrapper.vm.items.length).toBe(0);
+        expect(wrapper.vm.selectableItems.length).toBe(3);
+
+        // Check that additional media and folders can be loaded
+        expect(wrapper.vm.itemLoaderDone).toBe(false);
+        expect(wrapper.vm.folderLoaderDone).toBe(true);
+
+        // Initiate another load
+        let loadMoreButton = wrapper.get('.sw-media-library__load-more-button');
+        expect(loadMoreButton.exists()).toBe(true);
+        wrapper.vm.loadNextItems();
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Check that appropriate amounts were loaded
+        expect(wrapper.vm.subFolders.length).toBe(3);
+        expect(wrapper.vm.items.length).toBe(3);
+        expect(wrapper.vm.selectableItems.length).toBe(6);
+
+        // Check that additional folders can be loaded, but not media
+        expect(wrapper.vm.itemLoaderDone).toBe(true);
+        expect(wrapper.vm.folderLoaderDone).toBe(true);
+
         loadMoreButton = wrapper.find('.sw-media-library__load-more-button');
         expect(loadMoreButton.exists()).toBe(false);
     });

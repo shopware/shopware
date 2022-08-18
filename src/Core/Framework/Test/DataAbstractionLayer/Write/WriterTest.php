@@ -743,13 +743,13 @@ class WriterTest extends TestCase
             )
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $behavior = new CloneBehavior(['productNumber' => 'new-parent'], false);
 
         $this->getContainer()->get('product.repository')->clone(
             $ids->get('parent'),
-            $ids->getContext(),
+            Context::createDefaultContext(),
             $ids->get('new-parent'),
             $behavior
         );
@@ -761,7 +761,7 @@ class WriterTest extends TestCase
 
         $this->getContainer()->get('product.repository')->clone(
             $ids->get('child'),
-            $ids->getContext(),
+            Context::createDefaultContext(),
             $ids->get('new-child'),
             $behavior
         );

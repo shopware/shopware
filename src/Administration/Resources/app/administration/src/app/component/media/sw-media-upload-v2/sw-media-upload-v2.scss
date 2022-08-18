@@ -45,6 +45,11 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         overflow: hidden;
         width: 100%;
 
+        &.is--small {
+            flex-direction: row;
+            justify-content: flex-end;
+        }
+
         &.has--source {
             .sw-media-upload-v2__file-info {
                 width: 100%;
@@ -123,6 +128,11 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     .sw-media-upload-v2__button {
         min-width: 144px;
         margin: 8px 0;
+
+        &.is--small {
+            min-width: 0;
+            margin-right: 10px;
+        }
     }
 
     .sw-media-preview-v2 {
@@ -173,6 +183,11 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
                 color: $sw-media-upload-v2-color-highlighted;
             }
         }
+    }
+
+    &.is--small {
+        min-height: 60px;
+        padding: 6px;
     }
 
     .sw-media-upload-v2__upload-caption {

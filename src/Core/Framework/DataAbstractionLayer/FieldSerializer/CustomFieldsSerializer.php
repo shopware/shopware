@@ -38,7 +38,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         CustomFieldService $attributeService,
         WriteCommandExtractor $writeExtractor
     ) {
-        parent::__construct($compositeHandler, $validator);
+        parent::__construct($validator, $compositeHandler);
         $this->attributeService = $attributeService;
         $this->writeExtractor = $writeExtractor;
     }

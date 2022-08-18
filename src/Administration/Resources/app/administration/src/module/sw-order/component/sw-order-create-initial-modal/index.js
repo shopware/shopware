@@ -106,6 +106,9 @@ Component.register('sw-order-create-initial-modal', {
                 if (responses) {
                     this.$emit('order-preview');
                 }
+            } catch (error) {
+                this.createNotificationError({ message: error.message });
+                items = [];
             } finally {
                 this.isLoading = false;
             }

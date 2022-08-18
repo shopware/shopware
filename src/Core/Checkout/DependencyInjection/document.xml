@@ -7,10 +7,12 @@
     <services>
         <service id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator">
             <tag name="file.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorRegistry">
             <argument type="tagged" tag="file.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
@@ -18,6 +20,7 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
@@ -25,6 +28,7 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
@@ -32,6 +36,7 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
@@ -39,10 +44,12 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry">
             <argument type="tagged" tag="document.generator"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentDefinition">
@@ -83,21 +90,112 @@
             <argument type="service" id="document_base_config.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="event_dispatcher"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGeneratorController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
+        <service id="pdf.merger" class="setasign\Fpdi\Tcpdf\Fpdi" />
+
+        <service id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader">
+            <argument type="service" id="document_base_config.repository"/>
+
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\StornoRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry">
+            <argument type="tagged" tag="document.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
+
+        <service id="Shopware\Core\Checkout\Document\Service\DocumentGenerator">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService" />
+            <argument type="service" id="document.repository" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Service\DocumentMerger">
+            <argument type="service" id="document.repository" />
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator" />
+            <argument type="service" id="pdf.merger" />
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentMerger"/>
             <argument type="service" id="document.repository"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
         </service>
     </services>
 </container>

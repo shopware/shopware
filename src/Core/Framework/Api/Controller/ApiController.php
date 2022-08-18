@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -129,60 +128,6 @@ class ApiController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Get(
-     *      path="/_search",
-     *      summary="Search for multiple entites by a given term",
-     *      operationId="compositeSearch",
-     *      tags={"Admin Api"},
-     *      deprecated=true,
-     *      @OA\Parameter(
-     *          name="limit",
-     *          in="query",
-     *          description="Max amount of resources per entity",
-     *          @OA\Schema(type="integer"),
-     *      ),
-     *      @OA\Parameter(
-     *          name="term",
-     *          in="query",
-     *          description="The term to search for",
-     *          required=true,
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="The list of found entities",
-     *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(
-     *                  type="object",
-     *                  @OA\Property(
-     *                      property="entity",
-     *                      type="string",
-     *                      description="The name of the entity",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="total",
-     *                      type="integer",
-     *                      description="The total amount of search results for this entity",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="entities",
-     *                      type="array",
-     *                      description="The found entities",
-     *                      @OA\Items(type="object", additionalProperties=true),
-     *                  ),
-     *              ),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/400"
-     *      ),
-     *     @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/401"
-     *      )
-     * )
      * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"})
      *
      * @deprecated tag:v6.5.0 - Will be removed in the next major

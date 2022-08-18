@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
@@ -146,99 +146,6 @@ describe('Product: Test variants', () => {
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="L"]')
             .should('be.visible');
-    });
-
-    it('@base @catalogue: test multidimensional variant with diversification', () => {
-        const page = new ProductPageObject();
-
-        // Request we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'POST'
-        }).as('loadCategory');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
-        }).as('saveData');
-
-        // Navigate to variant generator listing and start
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-
-        cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-product-category-form').scrollIntoView();
-        cy.get('.sw-category-tree__input-field').should('be.visible');
-        cy.get('.sw-category-tree__input-field').click();
-        cy.get('.sw-category-tree__input-field').type('Home');
-        cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
-
-        cy.get('.sw-category-tree__input-field').type('{enter}');
-
-
-        // Save product
-        cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
-
-        cy.get('.sw-product-detail__select-category').scrollIntoView();
-        cy.contains('.sw-label', 'Home').should('be.visible');
-
-        cy.get('.sw-product-detail__tab-variants').scrollIntoView();
-        cy.get('.sw-product-detail__tab-variants').click();
-        cy.get(page.elements.loader).should('not.exist');
-        cy.contains(page.elements.ghostButton, 'Generate variants')
-            .should('be.visible')
-            .click();
-        cy.get('.sw-product-modal-variant-generation').should('be.visible');
-
-        // Request we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST'
-        }).as('loadPropertyGroup');
-
-        page.generateVariants('Size', [0, 1, 2], 6);
-
-        // Reload the variant tab to avoid xhr timing issues from previous requests
-        cy.get('.sw-product-detail__tab-variants').click();
-
-        cy.get(page.elements.loader).should('not.exist');
-
-        // Wait for every needed xhr request to load the current product
-        // `@searchCall` was defined in `page.generateVariants`
-        cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
-        cy.wait('@loadPropertyGroup').its('response.statusCode').should('equal', 200);
-
-        cy.get('.sw-product-variants-overview').should('be.visible');
-
-        // Activate diversification
-        cy.get('.sw-product-variants__configure-storefront-action').click();
-        cy.get('.sw-modal').should('be.visible');
-        cy.contains('Product listings').click();
-
-        cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
-
-        // Verify 'Expand property values in product listings' is checked
-        cy.contains('.sw-field__radio-option > label', 'Expand property values in product listings')
-            .invoke('attr', 'for')
-            .then((id) => {
-                cy.get(`#${id}`);
-            })
-            .click()
-            .should('be.checked');
-
-        cy.contains('.sw-field__label', 'Color').click();
-        cy.contains('.sw-field__label', 'Size').click();
-        cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-modal').should('not.exist');
-
-        // Verify in storefront
-        cy.visit('/');
-        cy.get('.product-box').its('length').should('be.gt', 5);
-        cy.contains('.product-variant-characteristics', 'Color: Red | Size: S');
-        cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
     // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards

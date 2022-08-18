@@ -11,7 +11,7 @@ class Feature
     public const ALL_MAJOR = 'major';
 
     /**
-     * @var array[]
+     * @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>
      */
     private static array $registeredFeatures = [];
 
@@ -25,6 +25,42 @@ class Feature
          * - v6.5.0.0 => v6_5_0_0
          */
         return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+    }
+
+    /**
+     * @param array<string> $features
+     *
+     * @return mixed|null
+     */
+    public static function fake(array $features, \Closure $closure)
+    {
+        $before = self::$registeredFeatures;
+        $serverVarsBackup = $_SERVER;
+
+        $result = null;
+
+        try {
+            self::$registeredFeatures = [];
+            foreach ($_SERVER as $key => $value) {
+                if (str_starts_with($key, 'v6.') || $key === 'PERFORMANCE_TWEAKS' || str_starts_with($key, 'FEATURE_')) {
+                    // set to false so that $_ENV is not checked
+                    $_SERVER[$key] = false;
+                }
+            }
+
+            if ($features) {
+                foreach ($features as $feature) {
+                    $_SERVER[Feature::normalizeName($feature)] = true;
+                }
+            }
+
+            $result = $closure();
+        } finally {
+            self::$registeredFeatures = $before;
+            $_SERVER = $serverVarsBackup;
+        }
+
+        return $result;
     }
 
     public static function isActive(string $feature): bool
@@ -126,7 +162,7 @@ class Feature
 
     public static function throwException(string $flag, string $message, bool $state = true): void
     {
-        if (self::isActive($flag) === $state || !self::has($flag)) {
+        if (self::isActive($flag) === $state || (self::$registeredFeatures !== [] && !self::has($flag))) {
             throw new \RuntimeException($message);
         }
 
@@ -137,7 +173,7 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (self::isActive($majorFlag) || !self::has($majorFlag)) {
+        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 
@@ -186,6 +222,9 @@ class Feature
         return isset(self::$registeredFeatures[$flag]);
     }
 
+    /**
+     * @return array<string, bool>
+     */
     public static function getAll(bool $denormalized = true): array
     {
         $resolvedFlags = [];
@@ -204,6 +243,8 @@ class Feature
     }
 
     /**
+     * @param array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData
+     *
      * @internal
      */
     public static function registerFeature(string $name, array $metaData = []): void
@@ -211,6 +252,8 @@ class Feature
         $name = self::normalizeName($name);
 
         // merge with existing data
+
+        /** @var array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData */
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],
             $metaData
@@ -225,6 +268,8 @@ class Feature
     }
 
     /**
+     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>|string[] $registeredFeatures
+     *
      * @internal
      */
     public static function registerFeatures(iterable $registeredFeatures): void
@@ -250,6 +295,8 @@ class Feature
 
     /**
      * @internal
+     *
+     * @return array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
      */
     public static function getRegisteredFeatures(): array
     {

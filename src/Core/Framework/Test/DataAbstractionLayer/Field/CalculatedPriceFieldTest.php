@@ -35,7 +35,7 @@ class CalculatedPriceFieldTest extends TestCase
         $connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
         $connection->beginTransaction();
 
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $ids = new TestDataCollection();
 
         $data = [
             'id' => $ids->create('entity'),
@@ -50,13 +50,13 @@ class CalculatedPriceFieldTest extends TestCase
             ),
         ];
 
-        $writeContext = WriteContext::createFromContext($ids->context);
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 
         $this->getContainer()->get(EntityWriter::class)
             ->insert($definition, [$data], $writeContext);
 
         $entity = $this->getContainer()->get(EntityReaderInterface::class)
-            ->read($definition, new Criteria([$ids->get('entity')]), $ids->context)
+            ->read($definition, new Criteria([$ids->get('entity')]), Context::createDefaultContext())
             ->get($ids->get('entity'));
 
         /** @var ArrayEntity $entity */

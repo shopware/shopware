@@ -8,7 +8,7 @@ namespace Shopware\Core\Framework\Struct;
 trait SortArrayByKeysTrait
 {
     /**
-     * @param int[]|string[] $sortedKeys
+     * @param int[]|array<string> $sortedKeys
      * @param array          $indexedArray - indexed with keys
      */
     protected function sortIndexedArrayByKeys(array $sortedKeys, array $indexedArray): array

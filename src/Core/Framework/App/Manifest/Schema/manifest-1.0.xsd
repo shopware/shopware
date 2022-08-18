@@ -260,6 +260,7 @@
             <xs:element name="help-text" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="required" type="xs:boolean" minOccurs="0" default="false"/>
             <xs:element name="position" type="xs:int" minOccurs="0" default="1"/>
+            <xs:element name="allow-customer-write" type="xs:boolean" minOccurs="0" default="false"/>
         </xs:choice>
     </xs:group>
     <xs:complexType name="custom-field-int-type">

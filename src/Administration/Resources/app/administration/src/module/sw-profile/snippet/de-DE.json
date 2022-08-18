@@ -32,7 +32,7 @@
       "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
       "placeholderNewPassword": "Gib ein neues Passwort ein ...",
       "placeholderOldPassword": "Gib Dein altes Passwort ein ...",
-      "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+      "titleConfirmPasswordModal": "Passwort bestätigen",
       "labelConfirmPassword": "Passwort",
       "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
       "labelButtonCancel": "Abbrechen",
@@ -67,7 +67,8 @@
           "orderNumber": "Bestellnummer",
           "email": "E-Mail-Adresse",
           "tagsName": "Tags",
-          "customerNumber": "Kundennummer"
+          "customerNumber": "Kundennummer",
+          "documentNumber": "Die Dokumentnummer"
         },
         "customer": {
           "tagsName": "Tags",

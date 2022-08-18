@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -83,18 +82,6 @@ class ExportController
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Get(
-     *      path="/product-export/{accessKey}/{fileName}",
-     *      summary="Export product export",
-     *      operationId="readProductExport",
-     *      tags={"Store API", "Product"},
-     *      @OA\Parameter(name="accessKey", description="Access Key", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Parameter(name="fileName", description="File Name", @OA\Schema(type="string"), in="path", required=true),
-     *      @OA\Response(
-     *          response="200",
-     *          description=""
-     *     )
-     * )
      * @Route("/store-api/product-export/{accessKey}/{fileName}", name="store-api.product.export", methods={"GET"}, defaults={"auth_required"=false})
      */
     public function index(Request $request): Response

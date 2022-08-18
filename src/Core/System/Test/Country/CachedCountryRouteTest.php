@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Country;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -144,7 +145,7 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -159,7 +160,7 @@ class CachedCountryRouteTest extends TestCase
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -171,7 +172,7 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
@@ -179,7 +180,7 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'update',
                 ];
 
-                $this->getContainer()->get('country.repository')->update([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->update([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -192,7 +193,7 @@ class CachedCountryRouteTest extends TestCase
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
@@ -200,7 +201,7 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'update',
                 ];
 
-                $this->getContainer()->get('country.repository')->update([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -212,14 +213,14 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                 ];
 
-                $this->getContainer()->get('country.repository')->delete([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -232,14 +233,14 @@ class CachedCountryRouteTest extends TestCase
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                 ];
 
-                $this->getContainer()->get('country.repository')->delete([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -251,7 +252,7 @@ class CachedCountryRouteTest extends TestCase
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
@@ -260,7 +261,7 @@ class CachedCountryRouteTest extends TestCase
                 ];
 
                 $this->getContainer()->get('sales_channel_country.repository')
-                    ->create([$data], $ids->getContext());
+                    ->create([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -273,7 +274,7 @@ class CachedCountryRouteTest extends TestCase
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $data = [
@@ -282,7 +283,7 @@ class CachedCountryRouteTest extends TestCase
                 ];
 
                 $this->getContainer()->get('sales_channel_country.repository')
-                    ->delete([$data], $ids->getContext());
+                    ->delete([$data], Context::createDefaultContext());
             },
             2,
         ];

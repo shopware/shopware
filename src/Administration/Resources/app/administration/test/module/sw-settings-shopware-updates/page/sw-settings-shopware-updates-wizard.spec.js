@@ -176,6 +176,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'sw-notification-center': {
                     template: '<div></div>'
                 },
+                'sw-help-center': true,
                 'sw-tooltip': {
                     template: '<div></div>'
                 },

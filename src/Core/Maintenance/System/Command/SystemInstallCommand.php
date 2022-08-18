@@ -5,7 +5,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
-use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
+use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -23,10 +23,13 @@ class SystemInstallCommand extends Command
 
     private string $projectDir;
 
-    public function __construct(string $projectDir)
+    private SetupDatabaseAdapter $setupDatabaseAdapter;
+
+    public function __construct(string $projectDir, SetupDatabaseAdapter $setupDatabaseAdapter)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
+        $this->setupDatabaseAdapter = $setupDatabaseAdapter;
     }
 
     protected function configure(): void
@@ -207,21 +210,19 @@ class SystemInstallCommand extends Command
         $output->writeln('Prepare installation');
         $output->writeln('');
 
-        $databaseInitializer = new DatabaseInitializer($connection);
-
         $dropDatabase = $input->getOption('drop-database');
         if ($dropDatabase) {
-            $databaseInitializer->dropDatabase($databaseConnectionInformation->getDatabaseName());
+            $this->setupDatabaseAdapter->dropDatabase($connection, $databaseConnectionInformation->getDatabaseName());
             $output->writeln('Drop database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
 
         $createDatabase = $input->getOption('create-database') || $dropDatabase;
         if ($createDatabase) {
-            $databaseInitializer->createDatabase($databaseConnectionInformation->getDatabaseName());
+            $this->setupDatabaseAdapter->createDatabase($connection, $databaseConnectionInformation->getDatabaseName());
             $output->writeln('Created database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
 
-        $importedBaseSchema = $databaseInitializer->initializeShopwareDb($databaseConnectionInformation->getDatabaseName());
+        $importedBaseSchema = $this->setupDatabaseAdapter->initializeShopwareDb($connection, $databaseConnectionInformation->getDatabaseName());
 
         if ($importedBaseSchema) {
             $output->writeln('Imported base schema.sql');

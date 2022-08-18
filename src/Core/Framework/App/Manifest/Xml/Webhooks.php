@@ -31,7 +31,7 @@ class Webhooks extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getUrls(): array
     {

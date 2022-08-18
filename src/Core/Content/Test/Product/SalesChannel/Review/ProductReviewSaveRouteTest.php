@@ -35,7 +35,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -194,7 +194,7 @@ class ProductReviewSaveRouteTest extends TestCase
             ],
         ];
         $this->getContainer()->get('product.repository')
-            ->update($update, $this->ids->context);
+            ->update($update, Context::createDefaultContext());
     }
 
     private function getUrl()

@@ -41,7 +41,7 @@ All blocks of this template are available in the template which renders this tem
                 {% block document_footer_second_column %}
                     <ul>
                         {% block document_footer_bank_account %}
-                            {% if config.companyName %}<li class="bold">{{ 'document.bankAccount'|trans|sw_sanitize }}</li>{% endif %}
+                            {% if config.bankName %}<li class="bold">{{ 'document.bankAccount'|trans|sw_sanitize }}</li>{% endif %}
                         {% endblock %}
                         {% block document_footer_bank_name %}
                             {% if config.bankName %}<li>{{ config.bankName }}</li>{% endif %}

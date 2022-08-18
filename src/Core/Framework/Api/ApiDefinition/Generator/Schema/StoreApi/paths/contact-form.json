@@ -1,0 +1,88 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/contact-form": {
+            "post": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Submit a contact form message",
+                "description": "Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
+                "operationId": "sendContactMail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "salutationId",
+                                    "email",
+                                    "subject",
+                                    "comment"
+                                ],
+                                "properties": {
+                                    "salutationId": {
+                                        "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
+                                        "type": "string"
+                                    },
+                                    "firstName": {
+                                        "description": "Firstname. This field may be required depending on the system settings.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Lastname. This field may be required depending on the system settings.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email address",
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "description": "Phone. This field may be required depending on the system settings.",
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "description": "The subject of the contact form.",
+                                        "type": "string"
+                                    },
+                                    "comment": {
+                                        "description": "The message of the contact form",
+                                        "type": "string"
+                                    },
+                                    "navigationId": {
+                                        "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a concact form in the administration.",
+                                        "type": "string"
+                                    },
+                                    "slotId": {
+                                        "description": "Identifier of the cms element",
+                                        "type": "string"
+                                    },
+                                    "cmsPageType": {
+                                        "description": "Type of the content management page",
+                                        "type": "string"
+                                    },
+                                    "entityName": {
+                                        "description": "Entity name for slot config",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message sent successful."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

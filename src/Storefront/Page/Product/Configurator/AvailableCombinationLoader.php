@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Product\Configurator;
 
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader as CoreAvailableCombinationLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal Class will be removed, use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader instead
@@ -25,6 +26,11 @@ class AvailableCombinationLoader extends CoreAvailableCombinationLoader
      */
     public function load(string $productId, Context $context/*, string $salesChannelId*/): AvailableCombinationResult
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', CoreAvailableCombinationLoader::class)
+        );
+
         if (\func_num_args() === 3) {
             $salesChannelId = func_get_arg(2);
 

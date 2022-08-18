@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -28,32 +27,17 @@ class PromotionMixedCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionSetGroupTestFixtureBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $promotionRepository;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
@@ -245,9 +229,13 @@ class PromotionMixedCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
+        static::assertNotNull($cart->getLineItems()->get($discountId1));
+        static::assertNotNull($cart->getLineItems()->get($discountId2));
         $group1DiscountPrice = $cart->getLineItems()->get($discountId1)->getPrice();
         $group2DiscountPrice = $cart->getLineItems()->get($discountId2)->getPrice();
 
+        static::assertNotNull($group1DiscountPrice);
+        static::assertNotNull($group2DiscountPrice);
         static::assertEquals(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
         static::assertEquals(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
     }
@@ -318,8 +306,9 @@ class PromotionMixedCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
+        static::assertNotNull($cart->getLineItems()->get($discountId));
         $group1DiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
-
+        static::assertNotNull($group1DiscountPrice);
         static::assertEquals($expectedDiscount, $group1DiscountPrice->getTotalPrice());
     }
 
@@ -696,7 +685,9 @@ class PromotionMixedCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
+        static::assertNotNull($cart->getLineItems()->get($discountId));
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
+        static::assertNotNull($groupDiscountPrice);
 
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
@@ -776,7 +767,9 @@ class PromotionMixedCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
+        static::assertNotNull($cart->getLineItems()->get($discountId));
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
+        static::assertNotNull($groupDiscountPrice);
 
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }

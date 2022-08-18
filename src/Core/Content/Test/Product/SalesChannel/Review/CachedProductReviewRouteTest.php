@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -128,7 +129,7 @@ class CachedProductReviewRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')
-            ->upsert($products, $ids->getContext());
+            ->upsert($products, Context::createDefaultContext());
 
         $productId = $ids->get('product');
 
@@ -165,7 +166,7 @@ class CachedProductReviewRouteTest extends TestCase
             function (IdsCollection $ids): void {
                 $data = self::review($ids->get('review'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -175,12 +176,12 @@ class CachedProductReviewRouteTest extends TestCase
             function (IdsCollection $ids): void {
                 $data = self::review($ids->get('review-update'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             function (IdsCollection $ids): void {
                 $data = ['id' => $ids->get('review-update'), 'title' => 'updated'];
 
-                $this->getContainer()->get('product_review.repository')->update([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
@@ -190,12 +191,12 @@ class CachedProductReviewRouteTest extends TestCase
             function (IdsCollection $ids): void {
                 $data = self::review($ids->get('to-delete'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             function (IdsCollection $ids): void {
                 $data = ['id' => $ids->get('to-delete')];
 
-                $this->getContainer()->get('product_review.repository')->delete([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->delete([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -207,7 +208,7 @@ class CachedProductReviewRouteTest extends TestCase
             function (IdsCollection $ids): void {
                 $data = self::review($ids->get('other-review'), $ids->get('other-product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
+                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             0,
         ];

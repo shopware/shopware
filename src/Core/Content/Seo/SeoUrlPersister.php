@@ -113,7 +113,7 @@ class SeoUrlPersister
         }
 
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $dateTime, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
-            $this->obsoleteIds($obsoleted, $dateTime, $salesChannelId);
+            $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
@@ -126,6 +126,10 @@ class SeoUrlPersister
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
 
+    /**
+     * @param array{'isModified': bool, 'seoPathInfo': string, 'salesChannelId': string} $existing
+     * @param array{'isModified': bool, 'seoPathInfo': string, 'salesChannelId': string} $seoUrl
+     */
     private function skipUpdate($existing, $seoUrl): bool
     {
         if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
@@ -179,7 +183,7 @@ class SeoUrlPersister
     /**
      * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannelId will be required
      */
-    private function obsoleteIds(array $ids, string $dateTime, ?string $salesChannelId): void
+    private function obsoleteIds(array $ids, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
@@ -190,9 +194,7 @@ class SeoUrlPersister
         $query = $this->connection->createQueryBuilder()
             ->update('seo_url')
             ->set('is_canonical', 'NULL')
-            ->set('updated_at', ':dateTime')
             ->where('id IN (:ids)')
-            ->setParameter('dateTime', $dateTime)
             ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
 
         if ($salesChannelId) {
@@ -218,9 +220,7 @@ class SeoUrlPersister
         $query = $this->connection->createQueryBuilder()
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
-            ->set('updated_at', ':dateTime')
             ->where('foreign_key IN (:fks)')
-            ->setParameter('dateTime', $dateTime)
             ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY);
 
         if ($salesChannelId) {

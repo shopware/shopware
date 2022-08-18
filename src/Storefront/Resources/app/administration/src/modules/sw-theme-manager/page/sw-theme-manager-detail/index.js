@@ -580,11 +580,22 @@ Component.register('sw-theme-manager-detail', {
         getBind(field) {
             const config = Object.assign({}, field);
 
+            if (config?.type !== 'switch' &&
+                config?.type !== 'checkbox' &&
+                config.custom?.componentName !== 'sw-switch-field' &&
+                config.custom?.componentName !== 'sw-checkbox-field'
+            ) {
+                config.label = '';
+            }
+
             delete config.type;
 
             Object.assign(config, config.custom);
-            delete config.custom;
-            config.label = '';
+
+            if (config.custom?.componentName !== 'sw-switch-field' && config.custom?.componentName !== 'sw-checkbox-field') {
+                delete config.custom;
+            }
+
             return { type: field.type, config: config };
         },
 

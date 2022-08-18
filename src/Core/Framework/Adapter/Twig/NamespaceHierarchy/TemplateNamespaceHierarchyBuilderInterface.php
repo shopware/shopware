@@ -14,9 +14,9 @@ interface TemplateNamespaceHierarchyBuilderInterface
      *     'MyOwnTheme',
      * ]
      *
-     * @param string[] $namespaceHierarchy
+     * @param array<string> $namespaceHierarchy
      *
-     * @return string[]
+     * @return array<string>
      */
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array;
 }

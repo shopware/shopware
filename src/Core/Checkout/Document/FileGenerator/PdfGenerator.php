@@ -5,7 +5,11 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use PdfRenderer instead
+ */
 class PdfGenerator implements FileGeneratorInterface
 {
     public const FILE_EXTENSION = 'pdf';
@@ -13,21 +17,41 @@ class PdfGenerator implements FileGeneratorInterface
 
     public function supports(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return FileTypes::PDF;
     }
 
     public function getExtension(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return self::FILE_EXTENSION;
     }
 
     public function getContentType(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return self::FILE_CONTENT_TYPE;
     }
 
     public function generate(GeneratedDocument $generatedDocument): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'Will be removed, use PdfRenderer::render instead'
+        );
+
         $options = new Options();
         $options->set('isRemoteEnabled', true);
         $options->setIsHtml5ParserEnabled(true);
@@ -51,6 +75,6 @@ class PdfGenerator implements FileGeneratorInterface
             gc_enable();
         }
 
-        return $dompdf->output();
+        return $dompdf->output() ?? '';
     }
 }

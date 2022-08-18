@@ -13,9 +13,16 @@ class ScriptFileReader implements ScriptFileReaderInterface
 
     private const ALLOWED_FILE_EXTENSIONS = '*.twig';
 
+    private string $projectDir;
+
+    public function __construct(string $projectDir)
+    {
+        $this->projectDir = $projectDir;
+    }
+
     public function getScriptPathsForApp(string $appPath): array
     {
-        $scriptDirectory = $appPath . self::SCRIPT_DIR;
+        $scriptDirectory = $this->projectDir . $appPath . self::SCRIPT_DIR;
 
         if (!is_dir($scriptDirectory)) {
             return [];
@@ -36,10 +43,10 @@ class ScriptFileReader implements ScriptFileReaderInterface
 
     public function getScriptContent(string $name, string $appPath): string
     {
-        $content = @file_get_contents($appPath . self::SCRIPT_DIR . '/' . $name);
+        $content = @file_get_contents($this->projectDir . $appPath . self::SCRIPT_DIR . '/' . $name);
 
         if ($content === false) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $appPath . self::SCRIPT_DIR . '/' . $name));
+            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $this->projectDir . $appPath . self::SCRIPT_DIR . '/' . $name));
         }
 
         return $content;

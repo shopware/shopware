@@ -49,10 +49,7 @@ class WriteCommandExtractor
 {
     private EntityWriteGatewayInterface $entityExistenceGateway;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
     private array $fieldsForPrimaryKeyMapping = [];
 

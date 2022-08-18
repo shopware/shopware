@@ -443,6 +443,15 @@
         "illegalFilename": {
           "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        },
+        "invalidUrl": {
+          "message": "Die eingegebene URL ist ungültig."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"
@@ -474,8 +483,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:",
-      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -551,7 +560,7 @@
       "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",
       "moduleFilter": "Modulfilter",
-      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsV2": "Keine genauen Übereinstimmungen mit \"{term}\" gefunden.",
       "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Konfiguration Deiner Suche.",
       "addNew": "neue hinzufügen"
     },
@@ -588,14 +597,14 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
-      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen..."
+      "labelShowResultsInModuleV2": "Alle Suchtreffer in {entityName} anzeigen ..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
-        "placeholder": "Operator auswählen...",
+        "placeholder": "Operator auswählen ...",
         "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
         "equals": "Ist gleich | Sind gleich",
         "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
@@ -730,10 +739,10 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Fieldset wählen..."
+              "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen..."
+              "placeholder": "Zusatzfeld wählen ..."
             }
           }
         },
@@ -988,6 +997,20 @@
       "description": "Nur die hier ausgewählten Elemente werden als Suchergebnisse angezeigt. Für detailierte Anpassungen der Suche <span id='sw-search-preferences-modal-link'>öffne die Sucheinstellungen &#8594;</span>",
       "columnActive": "Aktiv",
       "columnModuleName": "Modulname"
+    },
+    "sw-help-center": {
+      "title": "Support",
+      "documentation": {
+        "headline": "Brauchst Du Hilfe?",
+        "linkText": "Dokumentation ansehen",
+        "linkUrl": "https://docs.shopware.com/de/shopware-6-de"
+      },
+      "support": {
+        "headline": "Wir sind für dich da!",
+        "paragraph": "Du hast in unserer Dokumentation nichts Hilfreiches gefunden? Dann wende Dich an den Shopware-Support und wir kümmern uns um Dein Problem.",
+        "linkText": "Supportanfrage erstellen",
+        "linkUrl": "https://account.shopware.com/shops/support"
+      }
     }
   },
   "sw-text-editor-toolbar": {
@@ -1155,7 +1178,7 @@
     "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen..."
+    "addNewRule": "Neue Regel erstellen ..."
   },
   "sw-shortcut-overview": {
     "title": "Tastenkürzel",

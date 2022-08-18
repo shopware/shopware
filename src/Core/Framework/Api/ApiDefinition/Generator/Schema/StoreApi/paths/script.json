@@ -1,0 +1,38 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/script/{hook}": {
+            "post": {
+                "tags": [
+                    "API",
+                    "Script",
+                    "App"
+                ],
+                "summary": "Access point for different api logics which are provided by apps over script hooks",
+                "operationId": "postScriptStoreApiRoute",
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "in": "path",
+                        "description": "Dynamic hook which used to build the hook name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns different structures of results based on the called script."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

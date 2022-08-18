@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -185,7 +186,7 @@ class HttpCacheIntegrationTest extends TestCase
             (new ProductBuilder($ids, 'p1'))
             ->price(100)
             ->build(),
-        ], $ids->getContext());
+        ], Context::createDefaultContext());
 
         $response = $kernel->handle($request);
         static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));

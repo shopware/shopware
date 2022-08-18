@@ -6,12 +6,13 @@ parameters:
     phpVersion: 70400
     level: 8
     treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
+    checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
     paths:
         - src
+        - tests
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/composer/InstalledVersions.php # somehow we are affected by this https://github.com/phpstan/phpstan/issues/4482
@@ -44,21 +45,32 @@ parameters:
         - src/Core/Framework/Adapter/Twig/functions.php
 
     ignoreErrors:
-        # We won't type all arrays/iterables for now
-        - '#no value type specified in iterable type#'
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
         -
             message: '#Service ".*" is not registered in the container\.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/unit/php
+                - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+                - tests/integration/**/*Test.php
 
         # ignore errors caused by static::markTestSkipped
         -
             message: '#Unreachable statement - code above always terminates.#'
-            path: src/**/*Test.php
+            paths:
+                - src/**/*Test.php
+
+        # benchmark tests create db tables on the fly, migration cases also work with DDL
+        -
+            message: '#Query error:#'
+            paths:
+                - tests/performance/**/*.php
+                - tests/migration/**/*.php
 
         # Method gets always an EntityCollection
         -
@@ -121,7 +133,7 @@ parameters:
         # Class behind feature flag - can be removed with feature flag
         - '#Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior#'
         -
-            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.$#'
+            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array<string, array<int, mixed>> given\.$#'
             path: src/Core/Framework/Api/Sync/SyncService.php
         # can be removed with feature flag FEATURE_NEXT_12455
         -
@@ -150,6 +162,10 @@ parameters:
             path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
 
         # Can be removed with Symfony 6.0 upgrade
+        -
+            message: '#PHPDoc tag @param references unknown parameter: \$key#'
+            path: src/Core/Framework/Validation/DataBag/DataBag.php
+
         -
             message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no type specified.#'
             path: src/Storefront/Framework/Twig/TwigAppVariable.php
@@ -180,11 +196,6 @@ parameters:
             message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
             count: 1
             path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
-
-        -
-            message: "#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
 
         # Invalid trait usage
         -
@@ -220,6 +231,18 @@ parameters:
             count: 2
             path: src/Storefront/Theme/ThemeService.php
 
+        # can be removed with 6.5
+
+        -
+        	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$catch with no type specified\\.$#"
+        	count: 1
+        	path: src/Core/HttpKernel.php
+
+        -
+        	message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$type with no type specified\\.$#"
+        	count: 1
+        	path: src/Core/HttpKernel.php
+
         # Maybe a bug in phpstan: https://github.com/phpstan/phpstan/issues/7560
         - '#Trait .* is used zero times and is not analysed.#'
 
@@ -240,5 +263,14 @@ services:
             - phpstan.rules.rule
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAnnotationRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
         tags:
             - phpstan.rules.rule

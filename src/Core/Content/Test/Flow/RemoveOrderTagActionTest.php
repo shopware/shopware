@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -25,6 +26,10 @@ class RemoveOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
 
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
+
     protected function setUp(): void
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
@@ -33,7 +38,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -49,7 +54,7 @@ class RemoveOrderTagActionTest extends TestCase
     {
         $this->createDataTest();
         $this->createCustomerAndLogin();
-        $orderId = $this->createOrder($this->ids->context);
+        $orderId = $this->createOrder(Context::createDefaultContext());
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -142,7 +147,7 @@ class RemoveOrderTagActionTest extends TestCase
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createOrder(Context $context): string

@@ -30,7 +30,7 @@ class CurrencyRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -125,6 +125,6 @@ class CurrencyRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('currency.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

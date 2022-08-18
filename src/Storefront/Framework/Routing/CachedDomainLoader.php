@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @phpstan-import-type Domain from AbstractDomainLoader
+ */
 class CachedDomainLoader extends AbstractDomainLoader
 {
     public const CACHE_KEY = 'routing-domains';
@@ -28,6 +31,9 @@ class CachedDomainLoader extends AbstractDomainLoader
         return $this->decorated;
     }
 
+    /**
+     * @return array<string, Domain>
+     */
     public function load(): array
     {
         $value = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
@@ -36,6 +42,9 @@ class CachedDomainLoader extends AbstractDomainLoader
             );
         });
 
-        return CacheValueCompressor::uncompress($value);
+        /** @var array<string, Domain> $value */
+        $value = CacheValueCompressor::uncompress($value);
+
+        return $value;
     }
 }

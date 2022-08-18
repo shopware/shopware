@@ -131,12 +131,9 @@ Component.register('sw-modal', {
         },
 
         beforeDestroyComponent() {
-            if (this.$parent?.$el !== this.$el) {
-                // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
-                this.$parent.$el.appendChild(this.$el);
-            } else {
+            window.setTimeout(() => {
                 this.$el.remove();
-            }
+            }, 400); // use timeout to wait for modal leave transition
         },
 
         destroyedComponent() {

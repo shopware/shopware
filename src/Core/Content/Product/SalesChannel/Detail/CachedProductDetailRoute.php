@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -69,25 +68,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     /**
      * @Since("6.3.2.0")
      * @Entity("product")
-     * @OA\Post(
-     *      path="/product/{productId}",
-     *      summary="Fetch a single product",
-     *      description="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
-     *      operationId="readProductDetail",
-     *      tags={"Store API","Product"},
-     *      @OA\Parameter(
-     *          name="productId",
-     *          description="Product ID",
-     *          @OA\Schema(type="string"),
-     *          in="path",
-     *          required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Product information along with variant groups and options",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductDetailResponse")
-     *     )
-     * )
      * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse

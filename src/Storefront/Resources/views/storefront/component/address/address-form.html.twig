@@ -380,6 +380,7 @@
                                         {% endif %}
                                         value="{{ country.id }}"
                                         data-vat-id-required="{{ country.vatIdRequired }}"
+                                        data-state-required="{{ country.forceStateInRegistration }}"
                                         {% if feature('FEATURE_NEXT_15707') and  not country.shippingAvailable and disableNonShippableCountries %}
                                             disabled="disabled"
                                         {% endif %}>
@@ -399,7 +400,7 @@
 
                     {% block component_address_form_country_state_label %}
                         <label class="form-label"
-                               for="{{ idPrefix ~ prefix }}AddressCountry">
+                               for="{{ idPrefix ~ prefix }}AddressCountryState">
                             {{ "address.countryStateLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}

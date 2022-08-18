@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -13,7 +14,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 class BillingCountryRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $countryIds;
 
@@ -24,6 +25,8 @@ class BillingCountryRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $countryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
@@ -37,17 +40,28 @@ class BillingCountryRule extends Rule
         if (!$scope instanceof CheckoutRuleScope) {
             return false;
         }
-
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$address = $customer->getActiveBillingAddress()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$country = $address->getCountry()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         $countryId = $country->getId();

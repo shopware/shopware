@@ -33,7 +33,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->flowRepository = $this->getContainer()->get('flow.repository');
         $this->migration = new Migration1636362839FlowBuilderGenerateMultipleDoc();
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
     }
 
     public function testMigration(): void

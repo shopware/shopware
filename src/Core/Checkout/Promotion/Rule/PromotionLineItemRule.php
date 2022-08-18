@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class PromotionLineItemRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $identifiers;
 
@@ -67,7 +67,7 @@ class PromotionLineItemRule extends Rule
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getIdentifiers(): ?array
     {

@@ -35,6 +35,9 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getSubscribedEvents()
     {
         return [

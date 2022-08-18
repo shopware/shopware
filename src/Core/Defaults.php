@@ -2,8 +2,6 @@
 
 namespace Shopware\Core;
 
-use Shopware\Core\Test\TestDefaults;
-
 /**
  * @Internal
  * System wide defaults that are fixed for performance measures
@@ -13,7 +11,7 @@ final class Defaults
     /**
      * @deprecated tag:v6.5.0 - Don't rely on this id, the headless sales channel could be deleted.
      */
-    public const SALES_CHANNEL = TestDefaults::SALES_CHANNEL;
+    public const SALES_CHANNEL = '98432def39fc4624b33213a56b8c944d';
 
     /**
      * Don't depend on this being en-GB, the underlying language can be overwritten by the installer!
@@ -23,7 +21,7 @@ final class Defaults
     /**
      * @deprecated tag:v6.5.0 - Use sales channel default customer group instead
      */
-    public const FALLBACK_CUSTOMER_GROUP = TestDefaults::FALLBACK_CUSTOMER_GROUP;
+    public const FALLBACK_CUSTOMER_GROUP = 'cfbd5018d38d41d8adca10d94fc8bdd6';
 
     public const LIVE_VERSION = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 

@@ -14,7 +14,7 @@ trait CountryAddToSalesChannelTestBehaviour
     abstract protected function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string;
 
     /**
-     * @param string[] $additionalCountryIds
+     * @param array<string> $additionalCountryIds
      */
     protected function addCountriesToSalesChannel(array $additionalCountryIds = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): void
     {

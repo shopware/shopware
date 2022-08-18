@@ -41,6 +41,10 @@ export default class CartWidgetPlugin extends Plugin {
      */
     fetch() {
         this._client.get(window.router['frontend.checkout.info'], (content, response) => {
+            if (response.status >= 500) {
+                return;
+            }
+
             if (response.status === 204) {
                 Storage.removeItem(this.options.cartWidgetStorageKey);
                 const emptyCartWidget = Storage.getItem(this.options.emptyCartWidgetStorageKey);

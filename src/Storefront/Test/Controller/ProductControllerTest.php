@@ -224,7 +224,7 @@ class ProductControllerTest extends TestCase
             )
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$products], $this->ids->context);
+        $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $controller = $this->getContainer()->get(ProductController::class);

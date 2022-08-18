@@ -123,7 +123,7 @@ let webpackConfig = {
     module: {
         rules: [
             {
-                test: /\.m?js$/,
+                test: /\.m?(t|j)s$/,
                 exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|eslint-plugin-cypress|fs-extra|nunito-fontface|query-string|split-on-first)\/).*/,
                 use: [
                     {
@@ -362,7 +362,7 @@ let webpackConfig = {
         })()
     ],
     resolve: {
-        extensions: [ '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
+        extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules')

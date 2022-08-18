@@ -67,7 +67,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
             $criteria->setIds($ids);
         }
 
-        /** @var string[] $salesChannelIds */
+        /** @var array<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
 
         if (empty($salesChannelIds)) {

@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -97,6 +98,8 @@ class MainCategoryExtensionTest extends TestCase
 
     public function testSeoUrlWithMainCategory(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
@@ -135,12 +138,14 @@ class MainCategoryExtensionTest extends TestCase
         static::assertCount(1, $products);
 
         $product = $products->first();
+        static::assertNotNull($product);
 
         $mainCategories = $product->getMainCategories();
         static::assertNotNull($mainCategories);
         static::assertCount(1, $mainCategories);
 
         $mainCategory = $mainCategories->first();
+        static::assertNotNull($mainCategory);
         static::assertEquals($categoryId, $mainCategory->getCategoryId());
 
         $seoUrls = $product->getSeoUrls();

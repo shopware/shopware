@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -58,6 +59,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      */
     private $systemConfigService;
 
+    private StoreApiCustomFieldMapper $storeApiCustomFieldMapper;
+
     /**
      * @internal
      */
@@ -66,13 +69,15 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         DataValidationFactoryInterface $addressValidationFactory,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        StoreApiCustomFieldMapper $storeApiCustomFieldMapper
     ) {
         $this->addressRepository = $addressRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->addressValidationFactory = $addressValidationFactory;
         $this->systemConfigService = $systemConfigService;
+        $this->storeApiCustomFieldMapper = $storeApiCustomFieldMapper;
     }
 
     public function getDecorated(): AbstractUpsertAddressRoute
@@ -82,39 +87,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Post(
-     *      path="/account/address",
-     *      summary="Create a new address for a customer",
-     *      description="Creates a new address for a customer.",
-     *      operationId="createCustomerAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CustomerAddress")),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/CustomerAddress")
-     *     )
-     * )
-     * @OA\Patch(
-     *      path="/account/address/{addressId}",
-     *      summary="Modify an address of a customer",
-     *      description="Modifies an existing address of a customer.",
-     *      operationId="updateCustomerAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CustomerAddress")),
-     *      @OA\Parameter(
-     *        name="addressId",
-     *        in="path",
-     *        description="Address ID",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/CustomerAddress")
-     *     )
-     * )
      * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId"=null, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
@@ -148,6 +120,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
+
+        if ($data->get('customFields') instanceof RequestDataBag) {
+            $addressData['customFields'] = $this->storeApiCustomFieldMapper->map(
+                CustomerAddressDefinition::ENTITY_NAME,
+                $data->get('customFields')
+            );
+        }
 
         $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
         $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_ADDRESS_CREATE);

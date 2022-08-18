@@ -189,7 +189,7 @@ class CartMigrateCommand extends Command
 
         $this->progress = $this->io->createProgressBar((int) $count);
         $this->progress->setFormat("<info>[%message%]</info>\n%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%");
-        $this->progress->setMessage('Migrating carts from Redis to SQL');
+        $this->progress->setMessage('Migrating carts from SQL to Redis');
 
         $iterator = $this->createIterator();
 

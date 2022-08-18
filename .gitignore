@@ -12,6 +12,8 @@ Thumbs.db
 
 # PhpStorm-Project
 /.idea/
+/.fleet/
+/*.http
 
 # Composer
 /composer.phar
@@ -75,6 +77,7 @@ src/Docs/Command/wiki.secret
 /.psh.yml.override
 /.env
 .env.local
+.env.local.php
 .env.test
 .env.e2e
 .env.dev
@@ -85,6 +88,7 @@ src/Core/DevOps/Locust/fixtures/*
 src/Core/DevOps/Locust/env.json
 src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
+/.tinkerwell
 
 .php-cs-fixer.cache
 
@@ -109,7 +113,6 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 /vendor/
 ###< symfony/framework-bundle ###
 
-.gitkeep
 config/jwt/
 config/packages/
 config/services*
@@ -125,3 +128,4 @@ vendor-bin/**/composer.lock
 
 # nix
 .direnv/
+.phpbench/*

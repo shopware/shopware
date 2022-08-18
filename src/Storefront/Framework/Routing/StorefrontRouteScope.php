@@ -12,7 +12,7 @@ class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelCon
     public const ID = 'storefront';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $allowedPaths = [];
 

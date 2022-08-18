@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 class PrimaryKeyBag
 {
     /**
-     * @var array<string, array<string[]>>
+     * @var array<string, array<array<string>>>
      */
     private array $primaryKeys = [];
 

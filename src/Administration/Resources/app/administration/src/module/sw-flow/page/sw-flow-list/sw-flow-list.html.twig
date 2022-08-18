@@ -39,6 +39,10 @@
 
     {% block sw_flow_list_smart_bar_actions %}
     <template #smart-bar-actions>
+
+        {% block sw_flow_list_smart_bar_actions_extension %}
+        {% endblock %}
+
         {% block sw_flow_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip="{
@@ -106,6 +110,10 @@
 
                 {% block sw_flow_list_grid_actions %}
                 <template #actions="{ item }">
+
+                    {% block sw_flow_list_grid_actions_custom %}
+                    {% endblock %}
+
                     {% block sw_flow_list_grid_actions_edit %}
                     <sw-context-menu-item
                         class="sw-flow-list__item-edit"
@@ -131,15 +139,15 @@
                 {% block sw_flow_list_grid_action_modal %}
                 <template #action-modals="{ item }">
                     <sw-modal
-                        v-if="currentFlow.id === item.id"
+                        v-if="currentFlow.id === item.id && isDeleting"
                         variant="small"
                         :title="$tc('global.default.warning')"
                         @modal-close="onCloseDeleteModal"
                     >
                         {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                        <p class="sw-flow-list__confirm-delete-text">
-                            {{ $tc('sw-flow.list.confirmText') }}
-                        </p>
+                        <sw-alert variant="warning">
+                            {{ deleteWarningMessage() }}
+                        </sw-alert>
                         {% endblock %}
 
                         <template #modal-footer>
@@ -165,7 +173,9 @@
 
                 {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                    {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+                    <sw-alert variant="warning">
+                        {{ bulkDeleteWarningMessage(selectionCount) }}
+                    </sw-alert>
                 </template>
                 {% endblock %}
             </sw-entity-listing>
@@ -187,6 +197,10 @@
                 {% endblock %}
             </sw-empty-state>
             {% endblock %}
+
+            {% block sw_flow_list_modal_content_custom %}
+            {% endblock %}
+
         </div>
     </template>
     {% endblock %}

@@ -39,7 +39,7 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
         $this->repository = $this->getContainer()->get('product.repository');
     }
 

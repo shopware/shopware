@@ -15,30 +15,15 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 abstract class KernelPluginLoader extends Bundle
 {
-    /**
-     * @var array
-     */
-    protected $pluginInfos = [];
+    protected array $pluginInfos = [];
 
-    /**
-     * @var ClassLoader
-     */
-    private $classLoader;
+    private ClassLoader $classLoader;
 
-    /**
-     * @var KernelPluginCollection
-     */
-    private $pluginInstances;
+    private KernelPluginCollection $pluginInstances;
 
-    /**
-     * @var string
-     */
-    private $pluginDir;
+    private string $pluginDir;
 
-    /**
-     * @var bool
-     */
-    private $initialized = false;
+    private bool $initialized = false;
 
     /**
      * @internal
@@ -76,7 +61,7 @@ abstract class KernelPluginLoader extends Bundle
         return $this->pluginInstances;
     }
 
-    final public function getBundles($kernelParameters = [], array $loadedBundles = []): iterable
+    final public function getBundles(array $kernelParameters = [], array $loadedBundles = []): iterable
     {
         if (!$this->initialized) {
             return;
@@ -152,7 +137,7 @@ abstract class KernelPluginLoader extends Bundle
         }
     }
 
-    final public function getPluginInstance(string $class)
+    final public function getPluginInstance(string $class): ?Plugin
     {
         $plugin = $this->pluginInstances->get($class);
         if (!$plugin || !$plugin->isActive()) {

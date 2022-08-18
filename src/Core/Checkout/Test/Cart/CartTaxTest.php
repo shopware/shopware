@@ -55,7 +55,7 @@ class CartTaxTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
@@ -66,6 +66,8 @@ class CartTaxTest extends TestCase
 
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
+     *
+     * @param array<string> $vatIds
      */
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyEuro(
         string $testCase,
@@ -96,14 +98,14 @@ class CartTaxTest extends TestCase
         if ($vatIds) {
             $this->customerRepository->update(
                 [['id' => $this->ids->get('customer'), 'vatIds' => $vatIds]],
-                $this->ids->context
+                Context::createDefaultContext()
             );
         }
 
         $this->currencyRepository->update([[
             'id' => Defaults::CURRENCY,
             'taxFreeFrom' => $currencyTaxFreeFrom,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
 
         $this->updateCountry(
             $countryId,
@@ -146,6 +148,8 @@ class CartTaxTest extends TestCase
 
     /**
      * @dataProvider dataTestHandlingTaxFreeInStorefront
+     *
+     * @param array<string> $vatIds
      */
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyCHF(
         string $testCase,
@@ -178,14 +182,14 @@ class CartTaxTest extends TestCase
         if ($vatIds) {
             $this->customerRepository->update(
                 [['id' => $this->ids->get('customer'), 'vatIds' => $vatIds]],
-                $this->ids->context
+                Context::createDefaultContext()
             );
         }
 
         $this->currencyRepository->update([[
             'id' => $currencyId,
             'taxFreeFrom' => $currencyTaxFreeFrom,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
 
         $this->updateCountry(
             $countryId,
@@ -378,7 +382,7 @@ class CartTaxTest extends TestCase
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function createCustomerAndLogin(string $countryId, ?string $email = null, ?string $password = null): void
@@ -440,7 +444,7 @@ class CartTaxTest extends TestCase
                 'vatIds' => ['DE123456789'],
                 'company' => 'Test',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
     }
 
     private function updateCountry(
@@ -466,7 +470,7 @@ class CartTaxTest extends TestCase
             ],
             'vatIdPattern' => '(DE)?[0-9]{9}',
             'checkVatIdPattern' => $checkVatIdPattern,
-        ]], $this->ids->context);
+        ]], Context::createDefaultContext());
     }
 
     private function getCountryIdByIso(string $iso = 'DE'): string
@@ -520,6 +524,6 @@ class CartTaxTest extends TestCase
         ];
 
         $this->getContainer()->get('shipping_method.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

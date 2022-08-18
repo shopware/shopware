@@ -1,40 +1,40 @@
 {% block sw_select_selection_list %}
 <ul class="sw-select-selection-list">
     {% block sw_select_selection_list_item %}
-    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-    <li
-        v-for="(selection, index) in selections"
-        v-if="!hideLabels"
-        :key="selection[valueProperty]"
-        class="sw-select-selection-list__item-holder"
-        :class="'sw-select-selection-list__item-holder--' + index"
-        :data-id="selection[valueProperty]"
-    >
-
-        {% block sw_select_selection_list_item_inner %}
-        <slot
-            name="selected-option"
-            v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }"
+    <template v-if="!hideLabels">
+        <li
+            v-for="(selection, index) in selections"
+            :key="selection[valueProperty]"
+            class="sw-select-selection-list__item-holder"
+            :class="'sw-select-selection-list__item-holder--' + index"
+            :data-id="selection[valueProperty]"
         >
-            <sw-label
-                :dismissable="!isSelectionDisabled(selection)"
-                :size="size"
-                @dismiss="onClickDismiss(selection)"
+
+            {% block sw_select_selection_list_item_inner %}
+            <slot
+                name="selected-option"
+                v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }"
             >
-                {% block sw_select_selection_list_item_text %}
-                <span class="sw-select-selection-list__item">
-                    <slot
-                        name="label-property"
-                        v-bind="{ item: selection, index, labelProperty, valueProperty }"
-                    >
-                        {{ selection[labelProperty] }}
-                    </slot>
-                </span>
+                <sw-label
+                    :dismissable="!isSelectionDisabled(selection)"
+                    :size="size"
+                    @dismiss="onClickDismiss(selection)"
+                >
+                    {% block sw_select_selection_list_item_text %}
+                    <span class="sw-select-selection-list__item">
+                        <slot
+                            name="label-property"
+                            v-bind="{ item: selection, index, labelProperty, valueProperty }"
+                        >
+                            {{ selection[labelProperty] }}
+                        </slot>
+                    </span>
                 {% endblock %}
-            </sw-label>
-        </slot>
+                </sw-label>
+            </slot>
         {% endblock %}
-    </li>
+        </li>
+    </template>
     {% endblock %}
 
     {% block sw_select_selection_list_load_more %}

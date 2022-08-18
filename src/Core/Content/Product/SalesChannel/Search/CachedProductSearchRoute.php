@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Events\ProductSearchRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -68,31 +67,6 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("product")
-     * @OA\Post(
-     *      path="/search",
-     *      summary="Search for products",
-     *      description="Performs a search for products which can be used to display a product listing.",
-     *      operationId="searchPage",
-     *      tags={"Store API","Product"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "search"
-     *              },
-     *              @OA\Property(
-     *                  property="search",
-     *                  type="string",
-     *                  description="Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag."
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a product listing containing all products and additional fields to display a listing.",
-     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
-     *     )
-     * )
      * @Route("/store-api/search", name="store-api.search", methods={"POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse

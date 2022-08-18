@@ -33,7 +33,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if (!$this->helper->allowSearch($this->productDefinition, $context->getContext())) {
+        if (!$this->helper->allowSearch($this->productDefinition, $context->getContext(), $context)) {
             $this->decorated->build($request, $criteria, $context);
 
             return;

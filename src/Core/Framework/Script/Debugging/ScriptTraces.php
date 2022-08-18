@@ -16,6 +16,9 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
+    /**
+     * @var array<string, mixed>
+     */
     protected array $traces = [];
 
     protected static array $deprecationNotices = [];
@@ -141,6 +144,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return $this->data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTraces(): array
     {
         return $this->traces;

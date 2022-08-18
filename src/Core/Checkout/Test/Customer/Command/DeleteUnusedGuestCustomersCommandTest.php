@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -74,7 +75,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
             $customerGuestWithOrder->build(),
             $customerGuest->build(),
             $customer->build(),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->createOrderForCustomer($customerGuestWithOrder->build());
 
@@ -91,7 +92,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
                 $this->ids->get('10001'),
                 $this->ids->get('10002'),
             ]))->addAssociation('orderCustomers'),
-            $this->ids->context
+            Context::createDefaultContext()
         )->getEntities();
 
         static::assertContains($this->ids->get('10000'), $customers->getIds());
@@ -134,7 +135,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
             $customerGuestWithOrder->build(),
             $customerGuest->build(),
             $customer->build(),
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         $this->createOrderForCustomer($customerGuestWithOrder->build());
 
@@ -148,7 +149,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
                 $this->ids->get('10001'),
                 $this->ids->get('10002'),
             ]))->addAssociation('orderCustomers'),
-            $this->ids->context
+            Context::createDefaultContext()
         )->getEntities();
 
         static::assertContains($this->ids->get('10000'), $customers->getIds());
@@ -177,7 +178,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
             ->price(10)
             ->build();
 
-        $productRepository->create([$product], $this->ids->context);
+        $productRepository->create([$product], Context::createDefaultContext());
 
         $orderId = Uuid::randomHex();
 
@@ -231,7 +232,7 @@ class DeleteUnusedGuestCustomersCommandTest extends TestCase
             'billingAddressId' => $customer['defaultBillingAddressId'],
         ];
 
-        $orderRepository->create([$order], $this->ids->context);
+        $orderRepository->create([$order], Context::createDefaultContext());
 
         return $orderId;
     }

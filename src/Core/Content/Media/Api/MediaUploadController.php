@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -61,66 +60,6 @@ class MediaUploadController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @OA\Post(
-     *     path="/_action/media/{mediaId}/upload",
-     *     summary="Upload a file to a media entity",
-     *     description="Adds a new file to a media entity. If the entity has an existing file, it will be replaced.
-
-The are two methods of providing a file to this route:
- * Use a typical file upload and provide the file in the request
- * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.
-To use file upload via url, the content type has to be `application/json` and the parameter `url` has to be provided.",
-     *     operationId="upload",
-     *     tags={"Admin API", "Asset Management"},
-     *     @OA\RequestBody(
-     *          @OA\MediaType(
-     *              mediaType="application/octet-stream",
-     *              @OA\Schema(
-     *                  type="string",
-     *                  format="binary"
-     *              )
-     *          ),
-     *          @OA\JsonContent(
-     *              required={
-     *                  "url"
-     *              },
-     *              @OA\Property(
-     *                  property="url",
-     *                  description="The url of the media file that will be downloaded.",
-     *                  type="string"
-     *              )
-     *          )
-     *     ),
-     *     @OA\Parameter(
-     *         name="mediaId",
-     *         description="Identifier of the media entity.",
-     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *         in="path",
-     *         required=true
-     *     ),
-     *     @OA\Parameter(
-     *         name="fileName",
-     *         description="Name of the uploaded file. If not provided the media identifier will be used as name",
-     *         @OA\Schema(type="string"),
-     *         in="query",
-     *     ),
-     *     @OA\Parameter(
-     *         name="extension",
-     *         description="Extension of the uploaded file. For example `png`",
-     *         required=true,
-     *         @OA\Schema(type="string"),
-     *         in="query",
-     *     ),
-     *     @OA\Response(
-     *         response="204",
-     *         description="Media file uploaded successful",
-     *         @OA\Header(
-     *             header="Location",
-     *             description="Contains the url to the uploaded media for a redirect.",
-     *             @OA\Schema(type="string")
-     *         )
-     *     )
-     * )
      * @Route("/api/_action/media/{mediaId}/upload", name="api.action.media.upload", methods={"POST"})
      */
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response

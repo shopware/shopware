@@ -153,15 +153,15 @@ default:
 .install-dev-tools: &install-dev-tools
     - >
         composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
-    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
     - composer config --global allow-plugins.composer/package-versions-deprecated true
     - composer config --global allow-plugins.bamarni/composer-bin-plugin true
     - composer config --global allow-plugins.phpstan/extension-installer true
+    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
 
 build zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     rules:
         - exists:
@@ -169,6 +169,7 @@ build zip:
     variables:
         ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+        SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS: 1
     script:
         - (cd ${PLUGIN_SOURCE_DIR}Resources/app/administration && npm ci) || true
         - (cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront && npm ci) || true
@@ -189,7 +190,7 @@ build zip:
 validate zip:
     stage: test
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.1
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none
@@ -441,11 +442,12 @@ percy storefront:
 
 upload zip to store:
     stage: deploy
+    allow_failure: true
     environment:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.13
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none

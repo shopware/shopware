@@ -38,7 +38,7 @@ class ChangePaymentMethodRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->ids = new TestDataCollection();
 
         $this->createData();
 
@@ -141,7 +141,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],
-        ], $this->ids->context);
+        ], Context::createDefaultContext());
 
         return $customerId;
     }
@@ -174,6 +174,6 @@ class ChangePaymentMethodRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('payment_method.repository')
-            ->create($data, $this->ids->context);
+            ->create($data, Context::createDefaultContext());
     }
 }

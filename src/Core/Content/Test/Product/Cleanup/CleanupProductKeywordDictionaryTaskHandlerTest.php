@@ -33,7 +33,7 @@ class CleanupProductKeywordDictionaryTaskHandlerTest extends TestCase
     {
         $now = new \DateTimeImmutable();
         $ids = new IdsCollection();
-        $context = $ids->getContext();
+        $context = Context::createDefaultContext();
 
         $product = (new ProductBuilder($ids, 'test'))->price(100)->build();
 

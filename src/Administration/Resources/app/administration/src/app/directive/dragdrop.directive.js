@@ -183,8 +183,12 @@ function moveDrag(event) {
         return;
     }
 
-    const pageX = event.pageX || event.touches[0].pageX;
-    const pageY = event.pageY || event.touches[0].pageY;
+    const pageX = event?.pageX || event.touches?.[0]?.pageX;
+    const pageY = event?.pageY || event.touches?.[0]?.pageY;
+
+    if (!pageX || !pageY) {
+        return;
+    }
 
     dragElement.style.left = `${pageX - dragMouseOffsetX}px`;
     dragElement.style.top = `${pageY - dragMouseOffsetY}px`;

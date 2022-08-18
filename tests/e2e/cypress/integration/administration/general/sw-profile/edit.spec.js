@@ -37,7 +37,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -67,7 +67,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -89,7 +89,7 @@ describe('Profile module', () => {
 
     it('@base @general: profile change avatar', () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
-            .first()
+            .eq(1)
             .click()
 
         // Add avatar to profile
@@ -112,7 +112,7 @@ describe('Profile module', () => {
         // expect modal to be open
         cy.get('.sw-modal')
             .should('be.visible');
-        cy.contains('.sw-modal__title', 'Enter your current password to confirm');
+        cy.contains('.sw-modal__title', 'Confirm password');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');

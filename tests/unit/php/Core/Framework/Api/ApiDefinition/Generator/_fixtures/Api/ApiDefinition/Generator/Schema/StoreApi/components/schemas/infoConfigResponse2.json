@@ -1,0 +1,23 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "infoConfigResponse2": {
+                "type": "object",
+                "properties": {
+                    "settings": {
+                        "type": "object",
+                        "properties": {
+                            "enableUrlFeature": {
+                                "type": "boolean",
+                                "description": "State of the `urlFeature` setting."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

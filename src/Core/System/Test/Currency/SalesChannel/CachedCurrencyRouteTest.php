@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\Currency\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -104,7 +105,7 @@ class CachedCurrencyRouteTest extends TestCase
             },
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             2,
         ];
@@ -112,11 +113,11 @@ class CachedCurrencyRouteTest extends TestCase
         yield 'Cache gets invalidated, if updated currency assigned to the sales channel' => [
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $update = ['id' => $ids->get('currency'), 'name' => 'update'];
-                $this->getContainer()->get('currency.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
@@ -124,11 +125,11 @@ class CachedCurrencyRouteTest extends TestCase
         yield 'Cache gets invalidated, if deleted currency assigned to the sales channel' => [
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $delete = ['id' => $ids->get('currency')];
-                $this->getContainer()->get('currency.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -138,7 +139,7 @@ class CachedCurrencyRouteTest extends TestCase
             },
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             1,
         ];
@@ -146,11 +147,11 @@ class CachedCurrencyRouteTest extends TestCase
         yield 'Cache gets not invalidated, if updated currency not assigned to the sales channel' => [
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $update = ['id' => $ids->get('currency'), 'name' => 'update'];
-                $this->getContainer()->get('currency.repository')->update([$update], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
@@ -158,11 +159,11 @@ class CachedCurrencyRouteTest extends TestCase
         yield 'Cache gets invalidated, if deleted currency is not assigned to the sales channel' => [
             function () use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             function () use ($ids): void {
                 $delete = ['id' => $ids->get('currency')];
-                $this->getContainer()->get('currency.repository')->delete([$delete], $ids->getContext());
+                $this->getContainer()->get('currency.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];

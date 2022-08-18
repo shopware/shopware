@@ -226,6 +226,24 @@
             {% endblock %}
         </div>
         {% endblock %}
+
+        {% block sw_settings_payment_list_content_deprecated_alert %}
+        <sw-alert
+            v-if="showDeprecatedAlert"
+            class="sw-settings-payment-list__deprecated-alert"
+            variant="warning"
+            closable
+            @close="showDeprecatedAlert = false"
+        >
+            {{ $tc('sw-settings-payment.deprecated-alert.message') }}
+            <sw-internal-link
+                inline
+                :router-link="{ name: 'sw.settings.payment.overview' }"
+            >
+                {{ $tc('sw-settings-payment.deprecated-alert.link') }}
+            </sw-internal-link>
+        </sw-alert>
+        {% endblock %}
     </template>
     {% endblock %}
 </sw-page>

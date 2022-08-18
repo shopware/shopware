@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Struct;
 trait AssignArrayTrait
 {
     /**
+     * @param array<mixed> $options
+     *
      * @return $this
      */
     public function assign(array $options)

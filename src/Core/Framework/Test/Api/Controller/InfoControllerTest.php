@@ -65,7 +65,10 @@ class InfoControllerTest extends TestCase
         $decodedResponse = json_decode($content, true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(array_keys($expected), array_keys($decodedResponse));
+
+        foreach (array_keys($expected) as $key) {
+            static::assertArrayHasKey($key, $decodedResponse);
+        }
 
         unset($expected['settings']);
         $expectedJson = json_encode($expected);
@@ -121,6 +124,7 @@ class InfoControllerTest extends TestCase
                 'additional' => ['user_change_me'],
             ],
             'version' => '1.0.0',
+            'name' => 'PHPUnit',
         ];
 
         $expected = [
@@ -145,8 +149,12 @@ class InfoControllerTest extends TestCase
         static::assertJson($content);
 
         $decodedResponse = json_decode($content, true);
+
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(array_keys($expected), array_keys($decodedResponse));
+
+        foreach (array_keys($expected) as $key) {
+            static::assertArrayHasKey($key, $decodedResponse);
+        }
 
         $bundles = $decodedResponse['bundles'];
         static::assertIsArray($bundles);
@@ -312,7 +320,7 @@ class InfoControllerTest extends TestCase
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
-            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(Connection::class),
             $eventCollector,
             true,
             []
@@ -365,7 +373,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('assets.packages'),
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
-            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(Connection::class),
             $eventCollector,
             true,
             []

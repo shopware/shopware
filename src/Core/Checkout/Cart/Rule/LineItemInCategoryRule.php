@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemInCategoryRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $categoryIds;
 
@@ -21,6 +21,8 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string> $categoryIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
     {

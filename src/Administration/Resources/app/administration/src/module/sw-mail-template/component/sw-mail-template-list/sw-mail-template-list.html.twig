@@ -45,7 +45,10 @@
             :skeleton-item-amount="skeletonItemAmount"
             @update-records="updateRecords"
         >
+            {% block sw_mail_template_list_grid_columns %}
+            {% endblock %}
 
+            {% block sw_mail_template_list_grid_actions %}
             <template #more-actions="{ item }">
                 {% block sw_mail_template_list_grid_columns_actions_duplicate %}
                 <sw-context-menu-item
@@ -57,6 +60,7 @@
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
+            {% endblock %}
         </sw-entity-listing>
     </template>
 </sw-card>

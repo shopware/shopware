@@ -13,12 +13,12 @@ class CartExtension extends Struct
     public const KEY = 'cart-promotions';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $addedCodes = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $blockedPromotionIds = [];
 
@@ -56,7 +56,7 @@ class CartExtension extends Struct
     }
 
     /**
-     * @return array|string[]
+     * @return array<string>
      */
     public function getCodes(): array
     {

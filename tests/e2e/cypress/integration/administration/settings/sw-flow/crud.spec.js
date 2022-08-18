@@ -77,7 +77,7 @@ describe('Flow builder: Test crud operations', () => {
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 
-        cy.awaitAndCheckNotification('The flow could not be saved.');
+        cy.awaitAndCheckNotification('Flow could not be saved.');
 
         cy.get('.sw-flow-detail-general__general-name').type('Order placed');
         cy.get('.sw-flow-detail-general__general-name .sw-field__error')
@@ -95,7 +95,7 @@ describe('Flow builder: Test crud operations', () => {
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 
-        cy.awaitAndCheckNotification('The flow could not be saved.');
+        cy.awaitAndCheckNotification('Flow could not be saved.');
     });
 
     it('@settings: Update and read flow', () => {
@@ -190,7 +190,7 @@ describe('Flow builder: Test crud operations', () => {
             true
         );
 
-        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

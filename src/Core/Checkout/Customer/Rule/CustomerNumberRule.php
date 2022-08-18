@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CustomerNumberRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $numbers;
 
@@ -39,7 +40,11 @@ class CustomerNumberRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            return false;
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
+            return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!\is_array($this->numbers)) {

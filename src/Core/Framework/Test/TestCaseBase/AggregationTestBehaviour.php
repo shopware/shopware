@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 trait AggregationTestBehaviour
 {
+    /**
+     * @return array<string>
+     */
     public function setupFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $taxRepository */
@@ -33,6 +36,9 @@ trait AggregationTestBehaviour
         return array_column($payload, 'id');
     }
 
+    /**
+     * @return array<string>
+     */
     public function setupGroupByFixtures(Context $context): array
     {
         /** @var EntityRepositoryInterface $productRepository */

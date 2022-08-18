@@ -67,6 +67,9 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string> $snippetSetIds
+     */
     private function clearCache(array $snippetSetIds): void
     {
         $snippetSetIds = array_unique($snippetSetIds);

@@ -3,8 +3,10 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Elasticsearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
 class IndexCreator
 {
@@ -14,10 +16,12 @@ class IndexCreator
 
     private array $mapping;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(Client $client, array $config, array $mapping = [])
+    public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
     {
         $this->client = $client;
         $this->mapping = $mapping;
@@ -33,6 +37,7 @@ class IndexCreator
         }
 
         $this->config = $config;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
@@ -58,6 +63,8 @@ class IndexCreator
             ), ]);
 
         $this->createAliasIfNotExisting($index, $alias);
+
+        $this->eventDispatcher->dispatch(new ElasticsearchIndexCreatedEvent($index, $definition));
     }
 
     public function aliasExists(string $alias): bool

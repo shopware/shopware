@@ -36426,21 +36426,6 @@ parameters:
 			path: src/Elasticsearch/Test/Framework/ElasticsearchOutdatedIndexDetectorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\Indexing\\\\IndexCreatorTest\\:\\:providerCreateIndices\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/Indexing/IndexCreatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\Indexing\\\\IndexCreatorTest\\:\\:testIndexCreation\\(\\) has parameter \\$constructorConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/Indexing/IndexCreatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\Indexing\\\\IndexCreatorTest\\:\\:testIndexCreation\\(\\) has parameter \\$expectedConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/Indexing/IndexCreatorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Profiler\\\\ClientProfilerTest\\:\\:providerQueries\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Elasticsearch/Test/Profiler/ClientProfilerTest.php

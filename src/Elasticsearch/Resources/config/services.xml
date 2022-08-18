@@ -48,6 +48,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
             <argument>%elasticsearch.index.mapping%</argument>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -138,6 +139,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument>%elasticsearch.index.config%</argument>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="messenger.message_handler"/>
         </service>

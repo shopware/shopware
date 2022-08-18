@@ -4,9 +4,11 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
@@ -16,25 +18,37 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private ElasticsearchHelper $elasticsearchHelper;
 
+    /**
+     * @var array<mixed>
+     */
     private array $config;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
+     *
+     * @param array<mixed> $config
      */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         Client $client,
         Connection $connection,
         ElasticsearchHelper $elasticsearchHelper,
-        array $config
+        array $config,
+        EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->client = $client;
         $this->connection = $connection;
         $this->elasticsearchHelper = $elasticsearchHelper;
         $this->config = $config;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @return iterable<class-string>
+     */
     public static function getHandledMessages(): iterable
     {
         return [CreateAliasTask::class];
@@ -79,10 +93,12 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private function handleQueue(): void
     {
-        $indices = $this->connection->fetchAll('SELECT * FROM elasticsearch_index_task');
+        $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         if (empty($indices)) {
             return;
         }
+
+        $changes = [];
 
         foreach ($indices as $row) {
             $index = $row['index'];
@@ -106,10 +122,14 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
                 ],
             ]);
 
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'DELETE FROM elasticsearch_index_task WHERE id = :id',
                 ['id' => $row['id']]
             );
+
+            $changes[(string) $index] = $alias;
         }
+
+        $this->eventDispatcher->dispatch(new ElasticsearchIndexAliasSwitchedEvent($changes));
     }
 }

@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Framework\Indexing;
+namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexCreator
@@ -17,6 +19,9 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 class IndexCreatorTest extends TestCase
 {
     /**
+     * @param array<mixed> $constructorConfig
+     * @param array<mixed> $expectedConfig
+     *
      * @dataProvider providerCreateIndices
      */
     public function testIndexCreation(array $constructorConfig, array $expectedConfig): void
@@ -53,16 +58,27 @@ class IndexCreatorTest extends TestCase
             ->method('indices')
             ->willReturn($indices);
 
+        $eventDispatcher = new EventDispatcher();
         $index = new IndexCreator(
             $client,
             [
                 'settings' => $constructorConfig,
             ],
-            []
+            [],
+            $eventDispatcher
         );
+
+        $called = false;
+        $eventDispatcher->addListener(ElasticsearchIndexCreatedEvent::class, static function (ElasticsearchIndexCreatedEvent $event) use (&$called): void {
+            $called = true;
+            static::assertSame('foo', $event->getIndexName());
+            static::assertInstanceOf(ElasticsearchProductDefinition::class, $event->getDefinition());
+        });
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
         $index->createIndex($definition, 'foo', 'bla', Context::createDefaultContext());
+
+        static::assertTrue($called, 'Event was not dispatched');
     }
 
     public function testCreateIndexWithSourceField(): void
@@ -97,7 +113,8 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            []
+            [],
+            new EventDispatcher()
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
@@ -146,7 +163,8 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            []
+            [],
+            new EventDispatcher()
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
@@ -167,12 +185,16 @@ class IndexCreatorTest extends TestCase
         $index = new IndexCreator(
             $client,
             [],
-            []
+            [],
+            new EventDispatcher()
         );
 
         static::assertTrue($index->aliasExists('foo'));
     }
 
+    /**
+     * @return iterable<array<mixed>>
+     */
     public function providerCreateIndices(): iterable
     {
         yield 'with given number of shards' => [

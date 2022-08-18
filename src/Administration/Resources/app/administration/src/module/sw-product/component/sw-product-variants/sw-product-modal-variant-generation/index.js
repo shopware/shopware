@@ -5,6 +5,7 @@ import './sw-product-modal-variant-generation.scss';
 const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-modal-variant-generation', {
     template,
 

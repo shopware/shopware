@@ -16,6 +16,7 @@ const { Component } = Shopware;
  *     Product in sidebar
  * </sw-sidebar-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar-item', {
     template,
 

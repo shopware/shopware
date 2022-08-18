@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 import type VueRouter from 'vue-router';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('windowReload', () => {

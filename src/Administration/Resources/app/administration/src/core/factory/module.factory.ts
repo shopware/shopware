@@ -8,6 +8,7 @@ import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import type { Route, RouteConfig } from 'vue-router';
 import type { ComponentConfig } from './component.factory';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getModuleRoutes,
     registerModule,
@@ -17,6 +18,7 @@ export default {
     getModuleByKey,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ModuleTypes = 'plugin' | 'core';
 type ModuleRoutes = Map<string, RouteConfig>
 

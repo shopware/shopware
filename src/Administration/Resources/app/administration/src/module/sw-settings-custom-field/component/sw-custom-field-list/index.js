@@ -5,6 +5,7 @@ const { Criteria } = Shopware.Data;
 const { Component, Mixin, Feature } = Shopware;
 const types = Shopware.Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-custom-field-list', {
     template,
 

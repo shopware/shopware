@@ -8,6 +8,7 @@ import initWorker from './worker.init';
 import initMarketing from './marketing.init';
 import initCookies from './cookie.init';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     cookies: initCookies,
     language: initLanguage,

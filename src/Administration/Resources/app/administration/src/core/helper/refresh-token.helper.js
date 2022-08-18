@@ -94,6 +94,7 @@ class RefreshTokenHelper {
 
 const refreshTokenHelper = new RefreshTokenHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function getRefreshTokenHelper() {
     return refreshTokenHelper;
 }

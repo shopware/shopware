@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div class="sw-condition-line-item-in-category sw-condition__condition-value">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_in_category_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
@@ -8,6 +10,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_in_category_field_identifiers %}
     <sw-entity-multi-select
         v-if="!isEmpty"
@@ -19,6 +22,7 @@
         @change="setCategoryIds"
     >
         <template #result-item="{ item, index, isSelected, addItem, displayLabelProperty, isSelectionDisabled, descriptionPosition, highlightSearchTerm, searchTerm }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_line_item_in_category_field_result_item %}
             <li
                 is="sw-select-result"
@@ -28,6 +32,7 @@
                 :description-position="descriptionPosition"
                 @item-select="addItem"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_condition_line_item_in_category_field_result_item_content %}
                 <span class="sw-condition-line-item-in-category__result-item">
                     <sw-highlight-text
@@ -48,11 +53,13 @@
                 {% endblock %}
 
                 <template #description>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_condition_line_item_in_category_field_description %}
                     <slot
                         name="result-description-property"
                         v-bind="{ item }"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_condition_line_item_in_category_field_description_default %}
                         {{ getCategoryBreadcrumb(item) }}
                         {% endblock %}

@@ -26,6 +26,7 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-data-grid', {
     template,
 

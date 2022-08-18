@@ -7,6 +7,7 @@ const { deepCopyObject } = Shopware.Utils.object;
  * @method createStateStyleService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createStateStyleService() {
     const $store = {
         placeholder: {

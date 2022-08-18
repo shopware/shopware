@@ -1,5 +1,6 @@
 const apiServices = Shopware._private.ApiServices();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeApiServices() {
     // Add custom api service providers
     apiServices.forEach((ApiService) => {

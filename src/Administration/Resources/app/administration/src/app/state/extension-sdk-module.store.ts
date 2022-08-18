@@ -2,13 +2,14 @@
 /* istanbul ignore file */
 import type { Module } from 'vuex';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ExtensionSdkModule = {
     id: string,
     heading: string,
     baseUrl: string,
     locationId: string,
     displaySearchBar: boolean,
-}
+};
 
 interface ExtensionSdkModuleState {
     modules: ExtensionSdkModule[],
@@ -48,5 +49,8 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ExtensionSdkModuleStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ExtensionSdkModuleState };

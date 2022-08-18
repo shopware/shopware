@@ -40,6 +40,7 @@ const colors = [
  *            :sourceContext="user"></sw-avatar>
  * </div>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-avatar', {
     template,
 

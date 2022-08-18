@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 import { publish } from '@shopware-ag/admin-extension-sdk/es/channel';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
     // Handle incoming context requests from the ExtensionAPI
     Shopware.ExtensionAPI.handle('contextCurrency', () => {

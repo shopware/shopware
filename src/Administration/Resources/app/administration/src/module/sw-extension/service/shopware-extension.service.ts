@@ -22,6 +22,7 @@ interface LabeledLocation extends Location {
     label: string|null
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareExtensionService {
     public readonly EXTENSION_VARIANT_TYPES: Readonly<EXTENSION_VARIANT_TYPES>;
 

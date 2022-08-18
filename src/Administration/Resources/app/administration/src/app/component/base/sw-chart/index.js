@@ -79,6 +79,7 @@ const { warn } = Shopware.Utils.debug;
  *     :sort="true">
  * </sw-chart>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-chart', {
     template,
     inheritAttrs: false,

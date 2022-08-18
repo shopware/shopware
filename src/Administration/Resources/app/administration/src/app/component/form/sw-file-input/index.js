@@ -17,6 +17,7 @@ const utils = Shopware.Utils;
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-file-input', {
     template,
 

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_gallery_config %}
 <div class="sw-cms-el-config-image-gallery">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_gallery_config_tabs %}
     <sw-tabs
         position-identifier="sw-cms-element-config-image-gallery"
@@ -7,6 +9,7 @@
         default-item="content"
     >
         <template slot-scope="{ active }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_config_tab_content %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -16,6 +19,7 @@
                 {{ $tc('sw-cms.elements.general.config.tab.content') }}
             </sw-tabs-item>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_config_tab_options %}
             <sw-tabs-item
                 :title="$tc('sw-cms.elements.general.config.tab.settings')"
@@ -31,12 +35,14 @@
             slot="content"
             slot-scope="{ active }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_config_content %}
             <sw-container
                 v-if="active === 'content'"
                 class="sw-cms-el-config-image-gallery__tab-content"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_config_media_selection %}
                 <sw-cms-mapping-field
                     v-model="element.config.sliderItems"
@@ -45,6 +51,7 @@
                     :label="$tc('sw-cms.elements.imageGallery.label')"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_media_list_selection %}
                     <sw-media-list-selection-v2
                         :entity-media-items="mediaItems"
@@ -57,9 +64,11 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_media_mapping_preview %}
                     <template #preview="{ demoValue }">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_media_preview_list %}
                         <div
                             v-if="demoValue && demoValue.length"
@@ -68,6 +77,7 @@
                             :style="gridAutoRows"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_media_preview_item %}
                             <div
                                 v-for="demo in demoValue"
@@ -83,6 +93,7 @@
                         </div>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_media_preview_info %}
                         <sw-alert
                             v-else
@@ -97,6 +108,7 @@
                 </sw-cms-mapping-field>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"
@@ -112,6 +124,7 @@
             </sw-container>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_config_settings %}
             <sw-container
                 v-if="active === 'settings'"
@@ -119,9 +132,11 @@
             >
                 <div class="sw-cms-el-config-image-gallery__settings-options">
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                     <div class="sw-cms-el-config-image-gallery__setting-option">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                         <sw-select-field
                             v-model="element.config.displayMode.value"
@@ -141,6 +156,7 @@
                         </sw-select-field>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                         <sw-text-field
                             v-model="element.config.minHeight.value"
@@ -151,6 +167,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                         <sw-select-field
                             v-model="element.config.verticalAlign.value"
@@ -172,10 +189,12 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_settings_navigation %}
                     <div class="sw-cms-el-config-image-gallery__setting-navigations sw-cms-el-config-image-gallery__setting-option">
                         <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_arrow_position %}
                             <sw-field
                                 v-model="element.config.navigationArrows.value"
@@ -199,6 +218,7 @@
 
                         <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_dots_position %}
                             <sw-field
                                 v-model="element.config.navigationDots.value"
@@ -222,6 +242,7 @@
 
                         <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_gallery_config_settings_navigation_preview_position %}
                             <sw-field
                                 v-model="element.config.galleryPosition.value"
@@ -242,9 +263,11 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_settings_zoom_toggles %}
                     <div class="sw-cms-el-config-image-gallery__setting-option">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_zoom %}
                         <sw-switch-field
                             v-model="element.config.zoom.value"
@@ -253,6 +276,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_fullscreen %}
                         <sw-switch-field
                             v-model="element.config.fullScreen.value"
@@ -263,9 +287,11 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles %}
                     <div class="sw-cms-el-config-image-gallery__setting-option">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom %}
                         <sw-switch-field
                             v-model="element.config.keepAspectRatioOnZoom.value"
@@ -274,6 +300,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery %}
                         <sw-switch-field
                             v-model="element.config.magnifierOverGallery.value"

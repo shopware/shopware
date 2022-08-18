@@ -38,6 +38,7 @@ function copyToClipboard(stringToCopy: string): void {
     document.body.removeChild(tempTextArea);
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getScrollbarHeight,
     getScrollbarWidth,

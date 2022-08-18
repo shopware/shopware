@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_mail_send_modal %}
 <sw-modal
     class="sw-flow-mail-send-modal"
@@ -5,6 +6,7 @@
     :closable="false"
     @modal-close="onClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient %}
     <sw-single-select
         v-model="mailRecipient"
@@ -15,6 +17,7 @@
         @change="onChangeRecipient"
     />
     {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient_emails_grid %}
     <sw-data-grid
         v-if="showRecipientEmails"
@@ -29,6 +32,7 @@
         @inline-edit-cancel="cancelSaveRecipient"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_grid_column_email %}
         <template #column-email="{ item, column, isInlineEdit, compact }">
             <sw-text-field
@@ -45,6 +49,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_grid_column_name %}
         <template #column-name="{ item, column, isInlineEdit, compact }">
             <sw-text-field
@@ -62,6 +67,7 @@
         {% endblock %}
 
         <template #actions="{ item, itemIndex }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_action_edit %}
             <sw-context-menu-item
                 class="sw-flow-mail-send-modal__grid-action-edit"
@@ -71,6 +77,7 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_action_delete %}
             <sw-context-menu-item
                 class="sw-flow-mail-send-modal__grid-action-delete"
@@ -85,6 +92,7 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_select %}
     <sw-entity-single-select
         v-model="mailTemplateId"
@@ -102,6 +110,7 @@
 
         <template #before-item-list>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
             <ul class="sw-select-result__item-list">
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
@@ -135,6 +144,7 @@
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_detail_link %}
     <div class="sw-flow-mail-send-modal__mail-template-detail">
         <router-link
@@ -148,6 +158,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
         v-model="documentTypeIds"
@@ -158,6 +169,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_create_new_template %}
     <sw-flow-create-mail-template-modal
         v-if="showCreateMailTemplateModal"
@@ -167,6 +179,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_warning %}
     <sw-alert
         class="sw-flow-mail-send-modal__document_warning"
@@ -176,11 +189,14 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_custom %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_mail_send_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-mail-send-modal__cancel-button"
@@ -191,6 +207,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_mail_send_modal_footer_save_button %}
         <sw-button
             class="sw-flow-mail-send-modal__save-button"

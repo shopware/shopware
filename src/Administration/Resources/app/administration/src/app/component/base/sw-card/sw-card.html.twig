@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_card %}
 <sw-ignore-class ref="swIgnoreClass">
     <sw-extension-component-section
@@ -22,6 +23,7 @@
             </div>
 
             <div class="sw-card__titles">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_card_title %}
                 <slot name="title">
                     <div
@@ -33,6 +35,7 @@
                 </slot>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_card_subtitle %}
                 <slot name="subtitle">
                     <div
@@ -52,19 +55,23 @@
             <slot name="tabs"></slot>
         </div>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_card_toolbar %}
         <div
             v-if="!!$slots.toolbar"
             class="sw-card__toolbar"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_toolbar_inner %}
             <slot name="toolbar">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_card_slot_toolbar %}{% endblock %}
             </slot>
             {% endblock %}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_card_content %}
         <div class="sw-card__content">
             <div
@@ -73,23 +80,28 @@
             >
                 <sw-context-button>
                     <slot name="context-actions">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_card_slot_context_menu_actions %}{% endblock %}
                     </slot>
                 </sw-context-button>
             </div>
             <slot>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_slot_default %}{% endblock %}
             </slot>
             <slot
                 name="grid"
                 :title="title"
             >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_slot_grid %}{% endblock %}
             </slot>
             <slot name="footer">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_slot_footer %}{% endblock %}
             </slot>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_loader %}
             <sw-loader v-if="isLoading" />
         {% endblock %}

@@ -3,6 +3,7 @@ import './sw-product-variants-configurator-restrictions.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-variants-configurator-restrictions', {
     template,
 

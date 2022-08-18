@@ -10,6 +10,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-highlight-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" searchTerm="sit"></sw-highlight-text>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-highlight-text', {
     template: '',
 

@@ -9,6 +9,7 @@ const { Component } = Shopware;
  * @description Base component for rendering selection lists.
  * @example-type code-only
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-selection-list', {
     template,
 

@@ -4,6 +4,7 @@ const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-v2-conditions', {
     template,
 

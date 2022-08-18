@@ -1,15 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_v2_detail %}
 <sw-page class="sw-promotion-v2-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleEdit')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_detail_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -21,6 +25,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_detail_actions_save %}
         <sw-button-process
             v-model="isSaveSuccessful"
@@ -40,6 +45,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -49,10 +55,12 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_detail_content %}
     <template #content>
         <sw-card-view>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
@@ -60,6 +68,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_content_tabs %}
             <sw-tabs
                 v-if="!isCreateMode"
@@ -67,6 +76,7 @@
                 position-identifier="sw-promotion-detail"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_detail_content_tabs_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
@@ -77,6 +87,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_detail_content_tabs_conditions %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
@@ -87,6 +98,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_detail_content_tabs_discounts %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
@@ -100,6 +112,7 @@
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_content_view %}
             <div
                 v-if="isLoading"
@@ -119,6 +132,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_change_code_type_modal %}
             <sw-modal
                 v-if="!!showCodeTypeChangeModal"
@@ -129,9 +143,11 @@
 
                 {{ $tc('sw-promotion-v2.detail.codeChangeModal.text') }}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_detail_change_code_type_modal_footer %}
                 <template #modal-footer>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_detail_change_code_type_modal_footer_cancel_action %}
                     <sw-button
                         class="sw-promotion-v2-detail__change-modal-cancel-action"
@@ -142,6 +158,7 @@
                     </sw-button>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_detail_change_code_type_modal_footer_confirm_action %}
                     <sw-button
                         class="sw-promotion-v2-detail__change-modal-confirm-action"

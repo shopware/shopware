@@ -4,6 +4,7 @@ import template from './sw-notification-center-item.html.twig';
 const { Component } = Shopware;
 const { date } = Shopware.Utils.format;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-notification-center-item', {
     template,
 

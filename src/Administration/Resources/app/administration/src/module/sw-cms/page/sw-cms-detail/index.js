@@ -11,6 +11,7 @@ const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-detail', {
     template,
 

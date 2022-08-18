@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FilterFactory {
     constructor() {
         this.STRING_FILTER_INPUT = 'string-filter';

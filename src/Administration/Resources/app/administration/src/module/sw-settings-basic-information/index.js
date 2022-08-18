@@ -5,6 +5,7 @@ import './component/sw-settings-captcha-select-v2';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('captchaService', () => {
     return new CaptchaService(
         Shopware.Application.getContainer('init').httpClient,
@@ -12,6 +13,7 @@ Shopware.Service().register('captchaService', () => {
     );
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-basic-information', {
     type: 'core',
     name: 'settings-basic-information',

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_youtube_video_config %}
 <div class="sw-cms-el-config-youtube-video">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_video_id %}
     <sw-text-field
         v-model="videoID"
@@ -12,6 +14,7 @@
 
     <div class="sw-cms-el-config-youtube-video__switches">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_autoplay %}
         <sw-switch-field
             v-model="element.config.autoPlay.value"
@@ -20,6 +23,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_loop %}
         <sw-switch-field
             v-model="element.config.loop.value"
@@ -27,6 +31,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_show_controls %}
         <sw-switch-field
             v-model="element.config.showControls.value"
@@ -34,6 +39,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_advanced_privacy_mode %}
         <sw-switch-field
             v-model="element.config.advancedPrivacyMode.value"
@@ -45,6 +51,7 @@
 
     <div class="sw-cms-el-config-youtube-video__start-and-end">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_start %}
         <sw-text-field
             :value="startValue"
@@ -54,6 +61,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_end %}
         <sw-text-field
             :value="endValue"
@@ -64,6 +72,7 @@
         {% endblock %}
     </div>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_display_mode %}
     <sw-select-field
         v-model="element.config.displayMode.value"
@@ -79,6 +88,7 @@
     </sw-select-field>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_needs_confirmation %}
     <div class="sw-cms-el-config-youtube-video__confirmation">
         <sw-switch-field
@@ -88,6 +98,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_preview_media %}
     <sw-cms-mapping-field
         v-if="element.config.needsConfirmation.value"
@@ -107,6 +118,7 @@
             @media-upload-remove-image="onImageRemove"
         />
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_youtube_video_config_preview_media_display %}
         <div
             slot="preview"
@@ -129,6 +141,7 @@
         {% endblock %}
     </sw-cms-mapping-field>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_preview_media_upload_listener %}
     <sw-upload-listener
         :upload-tag="uploadTag"
@@ -137,6 +150,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_youtube_video_config_preview_media_modal %}
     <sw-media-modal-v2
         v-if="mediaModalIsOpen"

@@ -42,6 +42,7 @@ const requestCacheTimeout = 1500;
  * @param requestCaches
  * @returns {(function(*=): (*))|*}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
         const requestChangesData = ['delete', 'patch'].includes(config?.method);

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_newsletter_recipient_list %}
 <sw-page class="sw-newsletter-recipient-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_list_search_bar %}
     <template slot="search-bar">
         <sw-search-bar
@@ -11,10 +13,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_list_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipient_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
             {{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}
             <sw-icon
@@ -24,6 +29,7 @@
             {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -37,9 +43,12 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipientlist_list_content %}
     <template slot="content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipientlist_list_content_card %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipientlist_list_grid %}
         <sw-entity-listing
             v-if="items && entitySearchable"
@@ -64,14 +73,17 @@
             @column-sort="onSortColumn"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_grid_name %}
             <template
                 slot="column-firstName"
                 slot-scope="{ item, compact, isInlineEdit }"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_inline_edit_name %}
                 <template v-if="isInlineEdit">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
                     <sw-text-field
                         v-model="item.firstName"
@@ -80,6 +92,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
                     <sw-text-field
                         v-model="item.lastName"
@@ -90,6 +103,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_name_link %}
                 <template v-else>
                     {{ item.firstName }} {{ item.lastName }}
@@ -98,11 +112,13 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_grid_status %}
             <template
                 slot="column-status"
                 slot-scope="{ item, compact, isInlineEdit }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_status_notSet %}
                 <template v-if="item.status === 'notSet'">
                     <sw-label
@@ -113,6 +129,7 @@
                     </sw-label>
                 </template>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_status_optIn %}
                 <template v-else-if="item.status === 'optIn'">
                     <sw-label
@@ -123,6 +140,7 @@
                     </sw-label>
                 </template>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_status_optOut %}
                 <template v-else-if="item.status === 'optOut'">
                     <sw-label
@@ -133,6 +151,7 @@
                     </sw-label>
                 </template>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_newsletter_recipientlist_list_grid_status_direct %}
                 <template v-else-if="item.status === 'direct'">
                     <sw-label
@@ -146,6 +165,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_grid_updated_at %}
             <template
                 slot="column-updatedAt"
@@ -155,6 +175,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_grid_created_at %}
             <template
                 slot="column-createdAt"
@@ -166,6 +187,7 @@
 
         </sw-entity-listing>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipient_list_empty_state %}
         <template v-if="!isLoading && !total">
             <sw-empty-state
@@ -195,8 +217,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_newsletter_recipient_list_sidebar %}
     <sw-sidebar slot="sidebar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipient_list_sidebar_refresh %}
         <sw-sidebar-item
             icon="regular-undo"
@@ -205,6 +229,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_newsletter_recipient_list_sidebar_filter %}
         <sw-sidebar-item
             ref="filterSideBar"
@@ -214,12 +239,14 @@
             @click="closeContent"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_list_sidebar_filter_status %}
             <sw-sidebar-collapse>
                 <template slot="header">
                     {{ $tc('sw-newsletter-recipient.list.status') }}
                 </template>
                 <template slot="content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_status_not_set %}
                     <sw-newsletter-recipient-filter-switch
                         id="notSet"
@@ -228,6 +255,7 @@
                         @change="onChange"
                     />
                     {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_status_direct %}
                     <sw-newsletter-recipient-filter-switch
                         id="direct"
@@ -236,6 +264,7 @@
                         @change="onChange"
                     />
                     {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_in %}
                     <sw-newsletter-recipient-filter-switch
                         id="optIn"
@@ -244,6 +273,7 @@
                         @change="onChange"
                     />
                     {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_out %}
                     <sw-newsletter-recipient-filter-switch
                         id="optOut"
@@ -256,12 +286,14 @@
             </sw-sidebar-collapse>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_list_sidebar_filter_language %}
             <sw-sidebar-collapse>
                 <template slot="header">
                     {{ $tc('sw-newsletter-recipient.general.language') }}
                 </template>
                 <template slot="content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_language_items %}
                     <div
                         v-for="(item, index) in languageFilters"
@@ -279,12 +311,14 @@
             </sw-sidebar-collapse>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel %}
             <sw-sidebar-collapse>
                 <template slot="header">
                     {{ $tc('sw-newsletter-recipient.general.salesChannel') }}
                 </template>
                 <template slot="content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
                     <div
                         v-for="(item, index) in salesChannelFilters"
@@ -302,12 +336,14 @@
             </sw-sidebar-collapse>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags %}
             <sw-sidebar-collapse>
                 <template slot="header">
                     {{ $tc('sw-newsletter-recipient.general.tags') }}
                 </template>
                 <template slot="content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
                     <sw-entity-multi-select
                         v-model="tagCollection"

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_event_action_list %}
 <sw-page class="sw-event-action-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -12,6 +14,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_list_smart_bar_header %}
     <template #smart-bar-header>
         <h2>
@@ -26,8 +29,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_list_smart_bar_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_list_actions_save %}
         <sw-button
             v-tooltip.bottom="{
@@ -46,9 +51,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_list_content %}
     <template #content>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_list_grid %}
         <sw-entity-listing
             class="sw-event-action-list__grid"
@@ -66,6 +73,7 @@
             @update-records="fetchMailTemplates"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_list_grid_column_event_name %}
             <template #column-eventName="{ item, column }">
                 <strong>
@@ -77,6 +85,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_list_grid_column_sales_channesl %}
             <template #column-salesChannels="{ item, isInlineEdit }">
                 <sw-event-action-list-expand-labels
@@ -86,6 +95,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_list_grid_column_rules %}
             <template #column-rules="{ item, isInlineEdit }">
                 <sw-event-action-list-expand-labels
@@ -95,6 +105,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_list_grid_column_active %}
             <template #column-active="{ item, isInlineEdit }">
                 <sw-data-grid-column-boolean
@@ -104,6 +115,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_list_grid_column_mail_template %}
             <template #column-mailTemplate="{ item }">
                 <template v-if="mailTemplates">
@@ -120,10 +132,12 @@
         </sw-entity-listing>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_list_deprecated_modal %}
         <sw-event-action-deprecated-modal />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_list_deprecated_alert %}
         <sw-event-action-deprecated-alert />
         {% endblock %}

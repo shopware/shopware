@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
     const context = require.context('./', true, /(?<!components)\.(js|ts)$/);
     return context.keys().reduce((accumulator, item) => {

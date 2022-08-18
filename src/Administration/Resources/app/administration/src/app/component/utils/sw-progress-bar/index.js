@@ -11,6 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-progress-bar :value="0" :maxValue="480"></sw-progress-bar>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-progress-bar', {
     template,
 

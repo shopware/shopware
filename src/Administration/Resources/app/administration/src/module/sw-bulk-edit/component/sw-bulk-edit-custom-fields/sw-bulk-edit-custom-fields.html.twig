@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_set_renderer_card_form_renderer %}
 <div class="sw-custom-field-set-renderer-card-form-renderer">
     <template v-for="customField in set.customFields">
@@ -6,6 +7,7 @@
             columns="240px 1fr"
             gap="32px"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_form_renderer_change_field %}
             <sw-field
                 class="sw-bulk-edit-custom-fields__change"
@@ -15,6 +17,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %}
             <sw-inherit-wrapper
                 v-if="entity && customField.config"

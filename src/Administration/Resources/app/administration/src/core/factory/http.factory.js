@@ -14,6 +14,7 @@ import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
  * @param {Context} context Information about the environment
  * @returns {AxiosInstance}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createHTTPClient(context) {
     return createClient(context);
 }
@@ -23,6 +24,7 @@ export default function createHTTPClient(context) {
  *
  * @returns { CancelToken, isCancel, Cancel}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const { CancelToken, isCancel, Cancel } = Axios;
 
 /**

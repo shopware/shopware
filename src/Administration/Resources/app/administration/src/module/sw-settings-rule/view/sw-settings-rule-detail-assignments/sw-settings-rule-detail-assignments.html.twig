@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_detail_assignments %}
 <div class="sw-settings-rule-detail-assignments">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_assignments_entity_cards %}
     <sw-card
         v-for="entity in associationEntities"
@@ -11,12 +13,14 @@
         :title="$tc(entity.label)"
     >
         <template #toolbar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_toolbar %}
             <sw-card-filter
                 placeholder=""
                 @sw-card-filter-term-change="onFilterEntity(entity, ...arguments)"
             >
                 <template #filter>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_rule_detail_assignments_add_button %}
                     <sw-button
                         v-if="entity.allowAdd"
@@ -36,6 +40,7 @@
         </template>
 
         <template #grid>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_entity_listing %}
             <sw-settings-rule-assignment-listing
                 v-if="entity.loadedData && entity.loadedData.length > 0"
@@ -85,12 +90,15 @@
                     </span>
                 </template>
                 <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_rule_detail_assignments_entity_listing_view_action %}
                     <sw-context-menu-item :router-link="getRouterLink(entity, item)">
                         {{ $tc('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_rule_detail_assignments_entity_listing_delete_action %}
                     <sw-context-menu-item
                         v-if="entity.deleteContext && acl.can('rule.editor')"
@@ -119,6 +127,7 @@
                 </template>
             </sw-settings-rule-assignment-listing>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_empty_state %}
             <sw-empty-state
                 v-else
@@ -142,8 +151,10 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - Will be removed #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_assignments_loader %}{% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_assignments_delete_modal %}
     <sw-modal
         v-if="deleteModal"
@@ -152,15 +163,18 @@
         @modal-close="onCloseDeleteModal"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_assignments_delete_modal_text %}
         <p class="sw-settings-rule-detail-assignments__delete-text">
             {{ $tc('sw-settings-rule.detail.textModalDelete') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_detail_assignments_delete_modal_footer %}
         <template #modal-footer>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
             <sw-button
                 size="small"
@@ -170,7 +184,9 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
             <sw-button
                 size="small"
@@ -186,6 +202,7 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_assignments_add_modal %}
     <sw-settings-rule-add-assignment-modal
         v-if="addModal"

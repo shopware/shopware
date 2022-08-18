@@ -42,6 +42,7 @@ interface Address {
  *     country: { name: 'Germany' }
  * }"></sw-address>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-address', {
     template,
 

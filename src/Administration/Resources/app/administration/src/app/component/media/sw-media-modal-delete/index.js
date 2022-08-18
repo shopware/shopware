@@ -11,6 +11,7 @@ const { Component, Context, Mixin, Filter } = Shopware;
  * <sw-media-modal-delete :itemsToDelete="[items]">
  * </sw-media-modal-delete>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-modal-delete', {
     template,
 

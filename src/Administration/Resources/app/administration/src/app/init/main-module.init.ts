@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('mainModuleAdd', async (mainModuleConfig, additionalInformation) => {
         const extensionName = Object.keys(Shopware.State.get('extensions'))

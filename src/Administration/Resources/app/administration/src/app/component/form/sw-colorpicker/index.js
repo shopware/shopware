@@ -19,6 +19,7 @@ const debounce = Shopware.Utils.debounce;
  *      zIndex="100">
  * </sw-colorpicker>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-colorpicker', {
     template,
 

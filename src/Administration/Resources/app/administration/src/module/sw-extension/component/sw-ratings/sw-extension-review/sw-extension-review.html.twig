@@ -1,23 +1,29 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_review %}
 <div class="sw-extension-review">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_headline %}
     <h4 class="sw-extension-review__headline">
         {{ review.headline }}
     </h4>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_stars %}
     <sw-extension-rating-stars :rating="review.rating" />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_text %}
     <p v-if="review.text">
         {{ review.text }}
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_meta_data %}
     <p class="sw-extension-review__meta-data">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_meta_data_date %}
         <span class="sw-extension-review__comma">
             {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate',
@@ -25,6 +31,7 @@
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_meta_data_version %}
         <span v-if="review.version">
             {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion',
@@ -34,8 +41,10 @@
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_replies %}
     <template v-if="reviewHasReplies">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_replies_loop %}
         <sw-extension-review-reply
             v-for="(reply, index) in review.replies"

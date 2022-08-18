@@ -3,6 +3,7 @@ import './sw-product-stream-field-select.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-stream-field-select', {
     template,
 

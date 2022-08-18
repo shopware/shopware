@@ -1,7 +1,8 @@
 import type { Module } from 'vuex';
 import type { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
 
-export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string }
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string };
 
 interface MenuItemState {
     menuItems: MenuItemEntry[],
@@ -26,5 +27,7 @@ const MenuItemStore: Module<MenuItemState, VuexRootState> = {
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default MenuItemStore;
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { MenuItemState };

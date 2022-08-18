@@ -12,6 +12,7 @@ import './view/sw-users-permissions-role-view-general';
 import './view/sw-users-permissions-role-view-detailed';
 import './acl';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {
     type: 'core',
     name: 'users-permissions',

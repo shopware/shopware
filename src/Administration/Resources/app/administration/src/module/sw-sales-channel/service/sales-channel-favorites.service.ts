@@ -158,4 +158,5 @@ Application.addServiceProvider('salesChannelFavorites', () => {
     return salesChannelFavoritesService;
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { SalesChannelFavoritesService as default };

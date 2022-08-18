@@ -1,5 +1,6 @@
 import './page/sw-extension-sdk-module';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-extension-sdk', {
     type: 'core',
     name: 'sw-extension-sdk',

@@ -4,6 +4,7 @@ import CMS from '../../constant/sw-cms.constant';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-page-form', {
     template,
 

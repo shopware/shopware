@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_list %}
 <sw-page class="sw-product-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -11,14 +13,18 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_header %}
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_smart_bar_header_title_text %}
             {{ $tc('sw-product.list.textProductOverview') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -32,8 +38,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip="{
@@ -51,6 +59,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -58,9 +67,11 @@
     {% endblock %}
 
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content %}
         <div class="sw-product-list__content">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -89,15 +100,19 @@
                 @update-records="updateTotal"
                 @bulk-edit-modal-open="onBulkEditModalOpen"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_name_preview %}
                 <template #preview-name="{ item }">
                     <sw-media-preview-v2 :source="item.cover ? item.cover.media : null" />
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_name %}
                 <template #column-name="{ item, isInlineEdit }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_name_inline_edit %}
                     <sw-text-field
                         v-if="isInlineEdit"
@@ -106,8 +121,10 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_name_content %}
                     <div v-else>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_grid_columns_name_content_variant_button %}
                         <sw-button
                             v-if="productHasVariants(item)"
@@ -123,6 +140,7 @@
                         </sw-button>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_grid_columns_name_content_link %}
                         <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                             {{ item.translated ? item.translated.name : item.name }}
@@ -133,14 +151,17 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_active %}
                 <template #column-active="{ item, isInlineEdit }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field v-model="item.active" />
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_active_content %}
                     <template v-else>
                         <sw-icon
@@ -160,6 +181,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_price %}
                 <template
                     v-for="currency in currencies"
@@ -170,8 +192,10 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_stock %}
                 <template #column-stock="{ item, isInlineEdit, compact }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-number-field
@@ -181,6 +205,7 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_stock_content %}
                     <template v-else>
                         {{ item.stock }}
@@ -190,8 +215,10 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_actions %}
                 <template #more-actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_actions_duplicate %}
                     <sw-context-menu-item
                         class="sw-product-list-grid__duplicate-action"
@@ -202,6 +229,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns_actions_open_variant %}
                     <sw-context-menu-item
                         v-if="productHasVariants(item)"
@@ -214,6 +242,7 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_bulk_edit_modal %}
                 <template #bulk-edit-modal="{ selection }">
                     <sw-bulk-edit-modal
@@ -224,6 +253,7 @@
                         @edit-items="onBulkEditItems"
                         @modal-close="showBulkEditModal = false"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_name %}
                         <template #column-name="{ item }">
                             <router-link
@@ -236,6 +266,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_active %}
                         <template #column-active="{ item }">
                             <sw-icon
@@ -246,6 +277,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_price %}
                         <template
                             v-for="currency in currencies"
@@ -256,6 +288,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_list_bulk_edit_grid_columns_stock %}
                         <template #column-stock="{ item }">
                             {{ item.stock }}
@@ -269,6 +302,7 @@
 
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -308,10 +342,12 @@
             {% endblock %}
 
             {# @deprecated tag:v6.5.0 - Will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_grid_loader %}{% endblock %}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content_clone_modal %}
         <sw-product-clone-modal
             v-if="cloning"
@@ -320,6 +356,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_list_content_variant_modal %}
         <sw-product-variant-modal
             v-if="showVariantModal"
@@ -329,9 +366,11 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"

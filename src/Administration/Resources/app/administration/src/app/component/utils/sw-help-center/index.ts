@@ -4,6 +4,7 @@ import './sw-help-center.scss';
 /**
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-help-center', {
     template,
 });

@@ -1,9 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_file_input %}
 <div class="sw-file-input">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_file_input_regular %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_file_input_regular_header %}
     <div class="sw-file-input__header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_file_input_regular_header_label %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label
@@ -17,6 +21,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_file_input_regular_drop_zone %}
     <div
         ref="dropzone"
@@ -24,6 +29,7 @@
         :class="isDragActiveClass"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_file_input_caption %}
         <div
             v-if="selectedFile === null"
@@ -36,6 +42,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_file_input_actions %}
         <div
             class="sw-file-input__actions"
@@ -57,6 +64,7 @@
                 />
             </div>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_file_input_regular_choose_button %}
             <sw-button
                 class="sw-file-input__button"
@@ -75,6 +83,7 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_file_input_hidden_form %}
     <form
         ref="fileForm"

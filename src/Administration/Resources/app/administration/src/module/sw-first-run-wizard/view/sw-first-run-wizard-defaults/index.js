@@ -3,6 +3,7 @@ import './sw-first-run-wizard-defaults.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-first-run-wizard-defaults', {
     template,
 

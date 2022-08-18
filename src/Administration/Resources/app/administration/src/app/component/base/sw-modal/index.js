@@ -14,6 +14,7 @@ const utils = Shopware.Utils;
  *     Lorem Ipsum
  * </sw-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-modal', {
     template,
 

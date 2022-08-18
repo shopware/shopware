@@ -2,6 +2,7 @@ import './sw-arrow-field.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-arrow-field', {
 
     render(h) {

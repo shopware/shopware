@@ -4,6 +4,7 @@ import './page/sw-dashboard-index';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-dashboard', {
     type: 'core',
     name: 'dashboard',

@@ -4,6 +4,7 @@ import './sw-bulk-edit-order-documents-download-documents.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-order-documents-download-documents', {
     template,
 

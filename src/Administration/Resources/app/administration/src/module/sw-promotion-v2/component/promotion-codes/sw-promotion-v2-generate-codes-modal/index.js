@@ -4,6 +4,7 @@ import './sw-promotion-v2-generate-codes-modal.scss';
 const { Component } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-v2-generate-codes-modal', {
     template,
 

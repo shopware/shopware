@@ -2,6 +2,7 @@ import type { AxiosInstance, AxiosResponse } from 'axios';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type action = {
     url: string,
     entity: string,
@@ -12,6 +13,7 @@ export type action = {
 /**
  * @internal Only to be used by the extension sdk
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionSdkService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, 'extension-sdk', 'application/json');

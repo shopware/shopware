@@ -15,6 +15,7 @@ const { Component } = Shopware;
  *      :bordered="bordered">
  * </sw-boolean-radio-group>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-boolean-radio-group', {
 
     template:

@@ -17,6 +17,7 @@ const { Component } = Shopware;
  *     \@save="onSave">
  * </sw-snippet-field-edit-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-snippet-field-edit-modal', {
     template,
 

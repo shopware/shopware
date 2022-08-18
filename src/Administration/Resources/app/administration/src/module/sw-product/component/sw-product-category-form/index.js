@@ -6,6 +6,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-category-form', {
     template,
 

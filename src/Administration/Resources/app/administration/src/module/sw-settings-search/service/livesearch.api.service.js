@@ -5,6 +5,7 @@ const ApiService = Shopware.Classes.ApiService;
  * @class
  * @extends ApiService
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class LiveSearchService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'search') {
         super(httpClient, loginService, apiEndpoint);

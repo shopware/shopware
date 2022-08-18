@@ -17,6 +17,7 @@ type AppModuleDefinition = {
     }>
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppModulesService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, '', 'application/json');
@@ -35,4 +36,5 @@ export default class AppModulesService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { AppModulesService, AppModuleDefinition };

@@ -19,6 +19,7 @@ const { Component, Mixin } = Shopware;
  *      </sw-data-grid-column-position>
  *  </template>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-data-grid-column-position', {
     template,
 

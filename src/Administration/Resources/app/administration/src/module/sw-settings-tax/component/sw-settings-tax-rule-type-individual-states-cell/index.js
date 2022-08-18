@@ -3,6 +3,7 @@ import template from './sw-settings-tax-rule-type-individual-states-cell.html.tw
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-tax-rule-type-individual-states-cell', {
     template,
 

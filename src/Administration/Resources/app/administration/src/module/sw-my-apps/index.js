@@ -3,6 +3,7 @@ import './page/sw-my-apps-page';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-my-apps', {
     type: 'core',
     name: 'sw-my-apps',

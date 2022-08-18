@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_single_select_base_results_list_result %}
 <!-- eslint-disable-next-line vue/valid-v-slot -->
 <template #result-item="{ item, index }">
@@ -25,6 +26,7 @@
             v-bind="{ item, index }"
             @item-select="setValue"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_single_select_base_results_list_result_label %}
             <slot
                 name="result-label-property"

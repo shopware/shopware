@@ -21,5 +21,7 @@ const PaymentOverviewCardsStore: Module<PaymentOverviewCardState, VuexRootState>
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default PaymentOverviewCardsStore;
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { PaymentOverviewCardState, PaymentOverviewCard };

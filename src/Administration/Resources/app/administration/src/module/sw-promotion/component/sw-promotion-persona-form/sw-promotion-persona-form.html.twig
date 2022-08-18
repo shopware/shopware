@@ -1,15 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_persona_form %}
 <div class="sw-promotion-persona-form">
     <sw-card
         :title="$tc('sw-promotion.detail.main.preconditions.persona.card')"
         position-identifier="sw-promotion-persona-form"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_persona_form_rules %}
         <div class="sw-promotion-persona-form-rules">
             <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
             <p>
                 {{ $tc('sw-promotion.detail.main.preconditions.persona.text') }}
             </p>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_persona_form_persona_rule_id_field %}
             <sw-promotion-rule-select
                 v-if="promotion"
@@ -23,6 +26,7 @@
                 :disabled="isEditingDisabled"
             />
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_persona_form_persona_customers_switch %}
             <sw-field
                 v-if="promotion"
@@ -41,8 +45,10 @@
         v-if="promotion && promotion.customerRestriction"
         position-identifier="sw-promotion-persona-form-customers"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_persona_form_customers %}
         <div class="sw-promotion-persona-form-customers">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_persona_form_customer_search_field %}
             <sw-entity-single-select
                 ref="selectCustomerSearch"
@@ -65,6 +71,7 @@
                 </template>
             </sw-entity-single-select>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_persona_form_customer_grid %}
             <sw-data-grid
                 ref="gridCustomers"
@@ -84,6 +91,7 @@
                     slot="actions"
                     slot-scope="{ item }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_persona_form_customer_grid_action_remove %}
                     <sw-context-menu-item
                         variant="danger"
@@ -106,6 +114,7 @@
                 </template>
             </sw-data-grid>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_persona_form_customer_grid_remove_all %}
             <sw-button
                 v-if="gridCustomersTotalCount > 0"

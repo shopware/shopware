@@ -3,6 +3,7 @@ import './sw-users-permissions-detailed-permissions-grid.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-users-permissions-detailed-permissions-grid', {
     template,
 

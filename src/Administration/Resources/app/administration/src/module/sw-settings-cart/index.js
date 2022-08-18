@@ -2,6 +2,7 @@ import './page/sw-settings-cart';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-cart', {
     type: 'core',
     name: 'settings-cart',

@@ -3,6 +3,7 @@ const { types } = Shopware.Utils;
 /**
  * @module core/service/validation
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     required,
     regex,
@@ -16,6 +17,7 @@ export default {
  * @param value
  * @returns {boolean}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function required(value) {
     if (typeof value === 'string' && value.length <= 0) {
         return false;
@@ -40,6 +42,7 @@ export function required(value) {
  * @param expression
  * @returns {boolean}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function regex(value, expression) {
     if (expression instanceof RegExp) {
         return expression.test(value);
@@ -55,6 +58,7 @@ export function regex(value, expression) {
  * @param value
  * @returns {boolean}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function email(value) {
     const emailValidation = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 

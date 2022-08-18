@@ -1,6 +1,7 @@
 import template from './sw-settings-search-search-behaviour.html.twig';
 import './sw-settings-search-search-behaviour.scss';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-settings-search-search-behaviour', {
     template,
 

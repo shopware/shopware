@@ -3,6 +3,7 @@
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     addEntityDefinition,
     getEntityDefinition,

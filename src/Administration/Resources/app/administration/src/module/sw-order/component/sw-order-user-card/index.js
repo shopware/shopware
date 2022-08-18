@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 const ApiService = Shopware.Classes.ApiService;
 const format = Shopware.Utils.format;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-user-card', {
     template,
 

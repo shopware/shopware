@@ -7,6 +7,7 @@ const { get, format, array } = Utils;
 /**
  * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-detail-base', {
     template,
 

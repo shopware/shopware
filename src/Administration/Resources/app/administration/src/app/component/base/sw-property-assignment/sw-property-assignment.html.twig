@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_assignment %}
 <div class="sw-property-assignment">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_assignment_search_field %}
     <sw-property-search
         ref="searchField"
@@ -12,6 +14,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_assignment_grid %}
     <sw-grid
         v-if="groupWithOptions.length > 0"
@@ -22,12 +25,14 @@
         table
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_assignment_grid_columns %}
         <template
             slot="columns"
             slot-scope="{ item }"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_assignment_grid_columns_name %}
             <sw-grid-column
                 flex="200px"
@@ -39,6 +44,7 @@
             </sw-grid-column>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_assignment_grid_columns_options %}
             <sw-grid-column
                 data-index="options"
@@ -46,6 +52,7 @@
                 flex="minmax(100px, 1fr)"
                 class="sw-property-assignment__grid_option_column"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_assignment_grid_columns_options_loop %}
                 <div
                     v-for="option in item.options"
@@ -65,6 +72,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_assignment_empty_state %}
         <template slot="empty">
             <sw-empty-state
@@ -77,6 +85,7 @@
     </sw-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_assignment_empty_state_no_options %}
     <template slot="empty">
         <sw-empty-state

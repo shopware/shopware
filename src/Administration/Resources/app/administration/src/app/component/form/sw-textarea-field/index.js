@@ -10,6 +10,7 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-textarea-field type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,

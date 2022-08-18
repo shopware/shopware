@@ -11,6 +11,7 @@ const { Component } = Shopware;
  * <sw-tagged-field label="Label" :addOnKey="['enter', ',']">
  * </sw-tagged-field>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-tagged-field', {
     template,
 

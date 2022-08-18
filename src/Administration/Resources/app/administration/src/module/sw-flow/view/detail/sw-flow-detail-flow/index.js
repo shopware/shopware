@@ -6,6 +6,7 @@ const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-detail-flow', {
     template,
 

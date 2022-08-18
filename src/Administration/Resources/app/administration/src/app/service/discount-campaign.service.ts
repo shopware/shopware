@@ -1,5 +1,6 @@
 import type { DiscountCampaign } from 'src/module/sw-extension/service/extension-store-action.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ShopwareDiscountCampaignService {
     public isDiscountCampaignActive(discountCampaign: DiscountCampaign) {
         if (!discountCampaign || !discountCampaign.startDate) {
@@ -38,4 +39,5 @@ export default class ShopwareDiscountCampaignService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ShopwareDiscountCampaignService };

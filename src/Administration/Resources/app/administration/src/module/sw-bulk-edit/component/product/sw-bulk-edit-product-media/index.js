@@ -5,6 +5,7 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-product-media', {
     template,
 

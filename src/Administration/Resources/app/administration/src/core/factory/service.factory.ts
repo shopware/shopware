@@ -30,4 +30,5 @@ function serviceAccessor<SN extends keyof ServiceContainer>(serviceName?: SN): S
     return serviceObject;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default serviceAccessor;

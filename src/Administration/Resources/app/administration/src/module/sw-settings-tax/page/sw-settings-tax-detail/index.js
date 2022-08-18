@@ -4,6 +4,7 @@ import './sw-settings-tax-detail.scss';
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-tax-detail', {
     template,
 

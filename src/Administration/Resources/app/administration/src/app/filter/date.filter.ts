@@ -9,4 +9,5 @@ Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions): st
     return date(value, options);
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {};

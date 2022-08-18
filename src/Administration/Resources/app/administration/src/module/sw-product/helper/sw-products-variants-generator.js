@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
         super();

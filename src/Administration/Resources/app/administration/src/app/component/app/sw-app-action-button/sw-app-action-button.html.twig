@@ -1,5 +1,6 @@
 {# @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - `component` will be removed use `div` as a replacement,
 `:is="openInNewTab ? 'a' : 'div'"` and `v-bind="linkData"` will be removed #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_connect_action_button %}
 <component
     :is="openInNewTab ? 'a' : 'div'"

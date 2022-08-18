@@ -6,6 +6,7 @@ const { EntityCollection } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { cloneDeep } = Shopware.Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-listing-default-sales-channel', {
     template,
 

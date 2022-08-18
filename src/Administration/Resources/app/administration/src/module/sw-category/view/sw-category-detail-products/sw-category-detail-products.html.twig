@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_detail_products %}
 <div class="sw-category-detail-products">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_product_assignment %}
     <sw-many-to-many-assignment-card
         v-if="category.type !== 'folder'"
@@ -16,9 +18,11 @@
         @paginate="onPaginateManualProductAssignment"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_type_select %}
         <template #prepend-select>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_type_select_field %}
             <sw-single-select
                 v-model="category.productAssignmentType"
@@ -32,6 +36,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_manual_alert %}
             <sw-alert
                 v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
@@ -43,12 +48,14 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_stream_select %}
         <template
             v-if="category.productAssignmentType === 'product_stream'"
             #select
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_stream_select_field %}
             <sw-entity-single-select
                 v-model="category.productStreamId"
@@ -63,6 +70,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_stream_preview_link %}
             <div class="sw-category-detail-products__product-stream-preview-link">
                 <router-link
@@ -80,6 +88,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_stream_preview_grid %}
         <template
             v-if="category.productAssignmentType === 'product_stream'"
@@ -92,6 +101,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_column_name %}
         <template #[nameColumn]="{ item, column }">
             <router-link
@@ -104,6 +114,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_column_manufacturer %}
         <template #[manufacturerColumn]="{ item, column }">
             <router-link
@@ -116,6 +127,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_product_assignment_empty_state %}
         <template #empty-state>
             <sw-empty-state

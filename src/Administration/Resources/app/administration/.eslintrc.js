@@ -23,6 +23,7 @@ const baseRules = {
         ],
     }],
     'sw-core-rules/require-criteria-constructor-arguments': 'error',
+    'sw-deprecation-rules/private-feature-declarations': 'error',
 };
 
 module.exports = {
@@ -50,6 +51,7 @@ module.exports = {
         'vuejs-accessibility',
         'file-progress',
         'sw-core-rules',
+        'sw-deprecation-rules',
     ],
 
     settings: {
@@ -165,6 +167,7 @@ module.exports = {
                 }],
                 'vue/v-slot-style': 'error',
                 'vue/attributes-order': 'error',
+                'sw-deprecation-rules/no-twigjs-blocks': 'error',
             },
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],

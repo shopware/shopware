@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_seo_form %}
 <div class="sw-category-seo-form">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_title %}
     <sw-text-field
         v-model="category.metaTitle"
@@ -11,6 +13,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_description %}
     <sw-textarea-field
         v-model="category.metaDescription"
@@ -22,6 +25,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_keywords %}
     <sw-text-field
         v-model="category.keywords"

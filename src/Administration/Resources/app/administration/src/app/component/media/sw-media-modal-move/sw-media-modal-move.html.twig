@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_modal_move %}
 <sw-modal
     variant="default"
@@ -6,7 +7,9 @@
     @modal-close="closeMoveModal"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_body %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_move_breadcrumbs %}
     <div class="sw-media-modal-move-folder-breadcrumbs">
         <sw-icon
@@ -63,8 +66,10 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_move_cancel_button %}
         <sw-button
             size="small"
@@ -74,6 +79,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_move_confirm_button %}
         <sw-button
             class="sw-media-modal-move__confirm"

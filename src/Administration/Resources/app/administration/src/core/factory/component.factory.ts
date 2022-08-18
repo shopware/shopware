@@ -13,6 +13,7 @@ import type {
 // eslint-disable-next-line import/no-unresolved
 } from 'vue/types/options';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     register,
     extend,
@@ -28,6 +29,7 @@ export default {
 };
 
 // @ts-expect-error
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V> {
     functional?: boolean,
     extends?: ComponentConfig<V> | string,

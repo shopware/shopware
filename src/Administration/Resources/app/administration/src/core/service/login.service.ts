@@ -14,6 +14,7 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>,
     verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>,
@@ -32,6 +33,7 @@ export interface LoginService {
     getStorage: () => CookieStorage,
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
     httpClient: InitContainer['httpClient'],
     context: VuexRootState['context']['api'],

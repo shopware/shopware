@@ -44,6 +44,7 @@ const { Component } = Shopware;
  * </template>
  * </sw-user-card>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-user-card', {
     template,
 

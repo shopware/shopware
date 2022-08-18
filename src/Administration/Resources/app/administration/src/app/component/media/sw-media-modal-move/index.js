@@ -10,6 +10,7 @@ const { Component, Mixin, Context } = Shopware;
  * @component-example
  * <sw-media-modal-move :items-to-move="[items]"></sw-media-modal-move>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-modal-move', {
     template,
 

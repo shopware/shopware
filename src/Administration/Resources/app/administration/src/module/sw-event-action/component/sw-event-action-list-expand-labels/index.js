@@ -4,6 +4,7 @@ import './sw-event-action-list-expand-labels.scss';
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-event-action-list-expand-labels', {
     template,
 

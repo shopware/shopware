@@ -3,6 +3,7 @@ import template from './sw-order-state-history-card-entry.html.twig';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-card-entry', {
     template,
 

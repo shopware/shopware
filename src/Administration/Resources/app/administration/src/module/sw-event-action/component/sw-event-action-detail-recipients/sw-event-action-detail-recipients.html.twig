@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_event_action_detail_recipients %}
 <sw-card
     class="sw-event-action-detail-recipients"
@@ -5,8 +6,10 @@
     :title="$tc('sw-event-action.detail.titleRecipientsCard')"
     :is-loading="isLoading"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_detail_recipients_toolbar %}
     <template #toolbar>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_action_add %}
         <sw-button
             v-tooltip="{
@@ -26,8 +29,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_detail_recipients_grid_slot_content %}
     <template #grid>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_empty_state %}
         <sw-empty-state
             v-if="!recipients.length && !isLoading"
@@ -36,6 +41,7 @@
             :absolute="false"
         >
             <template #icon>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_recipients_empty_state_image %}
                 <img
                     :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
@@ -46,6 +52,7 @@
         </sw-empty-state>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_recipients_grid %}
         <sw-data-grid
             v-if="recipients.length"
@@ -60,6 +67,7 @@
             @inline-edit-cancel="cancelSaveRecipient"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_column_email %}
             <template #column-email="{ item, column, isInlineEdit, compact }">
                 <sw-text-field
@@ -75,6 +83,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_event_action_detail_recipients_grid_column_name %}
             <template #column-name="{ item, column, isInlineEdit, compact }">
                 <sw-text-field
@@ -91,6 +100,7 @@
             {% endblock %}
 
             <template #actions="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_recipients_grid_action_edit %}
                 <sw-context-menu-item
                     class="sw-event-action-detail-recipients__grid-action-edit"
@@ -101,6 +111,7 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_recipients_grid_action_delete %}
                 <sw-context-menu-item
                     class="sw-event-action-detail-recipients__grid-action-delete"

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_form_field_renderer %}
 <component
     :is="componentName"
@@ -8,6 +9,7 @@
     class="sw-form-field-renderer"
     @change="$emit('change', $event)"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner %}
     {% parent %}
 

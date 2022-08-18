@@ -3,6 +3,7 @@ import './sw-condition-tree-node.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-tree-node', {
     template,
 

@@ -20,6 +20,7 @@ import actionButtons from './action-button.store';
 import ruleConditionsConfig from './rule-conditions-config.store';
 import sdkLocation from './sdk-location.store';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     notification,
     session,

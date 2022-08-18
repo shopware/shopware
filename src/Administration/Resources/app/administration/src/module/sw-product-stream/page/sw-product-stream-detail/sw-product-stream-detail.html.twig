@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_stream_detail %}
 <sw-page class="sw-product-stream-detail">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_detail_header %}
     <template slot="smart-bar-header">
         <h2 v-if="productStream">
@@ -14,8 +16,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_detail_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -35,6 +39,7 @@
             class="sw-product-stream-detail__save-button-group"
             :split-button="true"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_detail_actions_save %}
             <sw-button-process
                 v-model="isSaveSuccessful"
@@ -49,6 +54,7 @@
             </sw-button-process>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_detail_actions_save_context_menu %}
             <sw-context-button>
                 <template slot="button">
@@ -65,7 +71,9 @@
                     </sw-button>
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_detail_actions_save_context_menu_actions %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_detail_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-product-stream-detail__save-duplicate-action"
@@ -82,6 +90,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -93,6 +102,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_stream_detail_content %}
     <template #content>
         <sw-card-view>
@@ -103,18 +113,21 @@
 
             <template v-else>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="placeholder(productStream, 'name', $tc('sw-product-stream.detail.textHeadline'))"
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_detail_basic_info %}
                 <sw-card
                     position-identifier="sw-product-stream-detail-basic-info"
                     :large="true"
                     :title="$tc('sw-product-stream.detail.titleCard')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_basic_form_name_field %}
                     <sw-text-field
                         v-if="productStream"
@@ -129,6 +142,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_basic_form_description_field %}
                     <sw-textarea-field
                         v-if="productStream"
@@ -142,6 +156,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_detail_filter %}
                 <sw-card
                     :large="true"
@@ -150,6 +165,7 @@
                     :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
                     :title="$tc('sw-product-stream.detail.titleFilter')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_stream_detail_filter_tree %}
                     <sw-condition-tree
                         v-if="productStream"
@@ -165,6 +181,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_stream_detail_filter_preview_button %}
                     <sw-button
                         class="sw-product-stream-detail__open_modal_preview"
@@ -176,6 +193,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prouct_stream_detail_preview_modal %}
                 <sw-product-stream-modal-preview
                     v-if="showModalPreview"
@@ -185,6 +203,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_prouct_stream_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

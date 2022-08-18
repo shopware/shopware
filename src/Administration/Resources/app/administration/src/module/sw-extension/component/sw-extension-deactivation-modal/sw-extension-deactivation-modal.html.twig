@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_deactivation_modal %}
 <sw-modal
     class="sw-extension-deactivation-modal"
@@ -5,8 +6,10 @@
     variant="small"
     @modal-close="emitClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_deactivation_modal_content %}
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_installed_extension_card_deactivation_content_modal_body %}
         <p
             class="sw-extension-deactivation-modal__description"
@@ -24,7 +27,9 @@
     </template>
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_deactivation_modal_footer %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_deactivation_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -35,6 +40,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_deactivation_modal_footer_deactivate %}
         <sw-button
             variant="primary"

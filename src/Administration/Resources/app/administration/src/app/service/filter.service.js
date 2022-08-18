@@ -6,6 +6,7 @@ const { cloneDeep } = Shopware.Utils.object;
 * @module app/filter-service
 */
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FilterService {
     _userConfigRepository;
 

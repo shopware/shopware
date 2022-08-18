@@ -157,4 +157,5 @@ class DocumentApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { DocumentApiService as default, DocumentEvents };

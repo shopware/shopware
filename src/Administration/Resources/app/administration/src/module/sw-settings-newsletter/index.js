@@ -2,6 +2,7 @@ import './page/sw-settings-newsletter';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-newsletter', {
     type: 'core',
     name: 'settings-newsletter',

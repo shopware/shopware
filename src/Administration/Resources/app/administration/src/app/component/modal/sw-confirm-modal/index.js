@@ -17,6 +17,7 @@ const { Component } = Shopware;
  *     \@cancel="onCloseDeleteModal">
  * </sw-confirm-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-confirm-modal', {
     template,
 

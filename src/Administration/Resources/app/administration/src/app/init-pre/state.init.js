@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import VuexModules from 'src/app/state/index';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
     initVuexState(Shopware.State);
     initVuexModules(VuexModules, Shopware.State);

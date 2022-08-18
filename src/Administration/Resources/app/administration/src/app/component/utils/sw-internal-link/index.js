@@ -14,6 +14,7 @@ const { Component } = Shopware;
  *   Go to products
  * </sw-internal-link>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-internal-link', {
     template,
 

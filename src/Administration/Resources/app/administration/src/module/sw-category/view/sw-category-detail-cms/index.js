@@ -3,6 +3,7 @@ import './sw-category-detail-cms.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-detail-cms', {
     template,
 

@@ -3,6 +3,7 @@ import './sw-integration-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-integration-list', {
     template,
 

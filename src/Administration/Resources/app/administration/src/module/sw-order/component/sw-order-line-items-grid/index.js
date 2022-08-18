@@ -5,6 +5,7 @@ const { Component, Service, Utils } = Shopware;
 const { get, format } = Utils;
 
 // merge 16.11.2020
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-line-items-grid', {
     template,
 

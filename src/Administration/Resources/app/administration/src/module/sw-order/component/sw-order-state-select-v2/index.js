@@ -3,6 +3,7 @@ import template from './sw-order-state-select-v2.html.twig';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-select-v2', {
     template,
     props: {

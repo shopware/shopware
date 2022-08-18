@@ -3,6 +3,7 @@ import './sw-order-state-change-modal-attach-documents.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-change-modal-attach-documents', {
     template,
 

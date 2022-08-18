@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeShortcutService() {
     const factoryContainer = this.getContainer('factory');
     const shortcutFactory = factoryContainer.shortcut;

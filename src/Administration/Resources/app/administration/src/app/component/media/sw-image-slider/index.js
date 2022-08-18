@@ -26,6 +26,7 @@ const { Component, Filter } = Shopware;
  *     enable-descriptions
  * ></sw-image-slider>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-image-slider', {
     template,
 

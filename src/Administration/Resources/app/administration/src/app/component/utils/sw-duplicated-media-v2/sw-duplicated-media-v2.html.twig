@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_duplicated_media_v2 %}
 <sw-modal
     v-if="showModal"
@@ -5,13 +6,16 @@
     :title="$tc('global.sw-duplicated-media-v2.titleModal')"
     @modal-close="skipAll"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_duplicated_media_v2_body %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_duplicated_media_v2_body_description %}
     <p class="sw-duplicated-media-v2__description">
         {{ $tc('global.sw-duplicated-media-v2.description', 1, { fileName: `${currentTask.fileName}.${currentTask.extension}` }) }}
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_duplicated_media_v2_body_preview %}
     <sw-container
         class="sw-duplicated-media-v2__preview"
@@ -20,6 +24,7 @@
         align="center"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_body_preview_label_old_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
@@ -29,6 +34,7 @@
 
         <div class="sw-duplicated-media-v2__spacer"></div>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_body_preview_label_new_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
@@ -36,14 +42,17 @@
         </label>
         {%  endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_body_preview_new_media %}
         <div class="sw-duplicated-media-v2__target-upload">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_duplicated_media_target_preview %}
             <div class="sw-duplicated-media-v2__target-preview">
                 <sw-media-preview-v2 :source="currentTask.src" />
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_duplicated_media_target_name %}
             <span
                 v-if="selectedOption !== 'Rename'"
@@ -61,12 +70,14 @@
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_duplicated_media_target_details %}
             <span class="sw-duplicated-media-v2__target-details">{{ currentTaskDetails }}</span>
             {% endblock %}
         </div>
         {%  endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_body_preview_separator %}
         <sw-icon
             class="sw-duplicated-media-v2__preview-separator"
@@ -74,6 +85,7 @@
         />
         {%  endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_body_preview_old_media %}
         <sw-media-media-item
             v-if="existingMedia"
@@ -88,6 +100,7 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_duplicated_media_v2_body_options %}
     <sw-field
         v-model="selectedOption"
@@ -98,8 +111,10 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_duplicated_media_v2_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_save_selection %}
         <sw-field
             v-if="!isLoading && hasAdditionalErrors"
@@ -110,6 +125,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_cancel_button %}
         <sw-button
             size="small"
@@ -120,6 +136,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_duplicated_media_v2_upload_button %}
         <sw-button
             class="sw-duplicated-media-v2__upload"

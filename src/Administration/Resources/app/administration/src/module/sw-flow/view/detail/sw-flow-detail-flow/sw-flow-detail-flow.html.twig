@@ -1,14 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_detail_flow %}
 <div class="sw-flow-detail-flow">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_flow_content %}
     <div
         class="sw-flow-detail-flow__content"
         :style="flowContainerStyle"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_trigger_select %}
             <div class="sw-flow-detail-flow__trigger-select">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_single_select %}
                 <sw-flow-trigger
                     :disabled="!acl.can('flow.editor')"
@@ -19,15 +24,18 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_trigger_explains %}
             <div
                 v-if="!flow.eventName"
                 class="sw-flow-detail-flow__trigger-explain"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_trigger_explains_title %}
                 <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_trigger_explains_help_text %}
                 <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
                 {% endblock %}
@@ -36,20 +44,24 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_flow_sequence_diagram %}
         <div
             v-if="flow.eventName"
             class="sw-flow-detail-flow__sequence-diagram"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_start_line %}
             <div class="sw-flow-detail-flow__oval"></div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_flow_transition_group %}
             <transition-group
                 name="list"
                 tag="div"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_position %}
                 <div
                     v-for="sequence in formatSequences"
@@ -57,6 +69,7 @@
                     class="sw-flow-detail-flow__position list-item"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_icon_plus %}
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
@@ -71,6 +84,7 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_icon_connection %}
                     <div class="sw-flow-detail-flow__position-connection">
                         <sw-icon
@@ -80,6 +94,7 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_detail_flow_sequences %}
                     <div
                         class="sw-flow-detail-flow__sequences"
@@ -100,6 +115,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_flow_modal_extension %}
     {% endblock %}
 </div>

@@ -4,6 +4,7 @@ import './sw-bulk-edit-save-modal-process.scss';
 const { Component } = Shopware;
 const { chunk: chunkArray } = Shopware.Utils.array;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-save-modal-process', {
     template,
 

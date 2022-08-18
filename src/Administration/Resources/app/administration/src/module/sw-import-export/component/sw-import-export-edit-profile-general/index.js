@@ -10,6 +10,7 @@ const profileTypes = {
     IMPORT_EXPORT: 'import-export',
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-import-export-edit-profile-general', {
     template,
 

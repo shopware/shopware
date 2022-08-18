@@ -3,6 +3,7 @@ import './sw-bulk-edit-order-documents-generate-invoice.scss';
 
 const { Component, State } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-order-documents-generate-invoice', {
     template,
 

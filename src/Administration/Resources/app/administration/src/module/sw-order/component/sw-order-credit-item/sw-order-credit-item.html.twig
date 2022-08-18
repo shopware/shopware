@@ -1,11 +1,14 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_credit_item %}
 <div class="sw-order-credit-item">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_credit_item_container %}
     <sw-container
         class="sw-order-credit-item-container"
         gap="0px 30px"
         :columns="'1fr 1fr'"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_credit_item_credit_name %}
         <sw-text-field
             v-model="credit.label"
@@ -14,6 +17,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_credit_item_price %}
         <sw-number-field
             class="sw-order-credit-item__price"

@@ -11,6 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-overlay></sw-overlay>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-overlay', {
     template,
 });

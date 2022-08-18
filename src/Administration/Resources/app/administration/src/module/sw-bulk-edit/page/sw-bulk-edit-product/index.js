@@ -9,6 +9,7 @@ const { chunk } = Shopware.Utils.array;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-product', {
     template,
 

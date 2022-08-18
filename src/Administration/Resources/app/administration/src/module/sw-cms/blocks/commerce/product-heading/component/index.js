@@ -3,6 +3,7 @@ import './sw-cms-block-product-heading.scss';
 
 const { Component, State } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-block-product-heading', {
     template,
 

@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeEntities(container) {
     const loginService = Shopware.Service('loginService');
     const factoryContainer = this.getContainer('factory');

@@ -3,6 +3,7 @@ import './sw-product-variants-delivery-order.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-variants-delivery-order', {
     template,
 

@@ -34,6 +34,7 @@ import './acl';
 
 initState(Shopware);
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-extension', {
     type: 'core',
     title: 'sw-extension-store.title',

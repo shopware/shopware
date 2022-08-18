@@ -4,6 +4,7 @@ import './sw-order-product-select.scss';
 const { Component, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-product-select', {
     template,
 

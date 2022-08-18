@@ -34,4 +34,5 @@ function getDomainLink(salesChannel) {
     return salesChannel.domains[0].url;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { getDomainLink as default };

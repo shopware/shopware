@@ -5,6 +5,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-snippet-detail', {
     template,
 

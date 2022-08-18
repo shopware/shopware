@@ -10,4 +10,5 @@ Shopware.Directive.register('autofocus', {
     },
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export {};

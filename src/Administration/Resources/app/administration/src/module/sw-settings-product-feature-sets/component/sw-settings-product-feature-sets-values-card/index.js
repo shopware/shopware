@@ -6,6 +6,7 @@ import './sw-settings-product-feature-sets-values-card.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-product-feature-sets-values-card', {
     template,
 

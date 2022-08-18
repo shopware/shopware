@@ -3,6 +3,7 @@ import './sw-custom-field-detail.scss';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-custom-field-detail', {
     template,
 

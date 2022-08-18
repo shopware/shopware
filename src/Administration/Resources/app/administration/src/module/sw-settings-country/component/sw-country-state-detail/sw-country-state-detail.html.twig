@@ -1,14 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_country_state_detail %}
 <sw-modal
     class="sw-country-state-detail"
     :title="modalTitle"
     @modal-close="onCancel"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_country_state_detail_modal %}
     <sw-container
         columns="1fr 1fr"
         gap="20px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_technical_name %}
         <sw-field
             v-model="countryState.name"
@@ -19,6 +22,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
         <sw-field
             v-model="countryState.shortCode"
@@ -28,6 +32,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
         <sw-field
             v-model="countryState.position"
@@ -40,8 +45,10 @@
         {% endblock %}
     </sw-container>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_country_state_detail_modal_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -51,6 +58,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_footer_save %}
         <sw-button
             v-tooltip.bottom="tooltipSave"

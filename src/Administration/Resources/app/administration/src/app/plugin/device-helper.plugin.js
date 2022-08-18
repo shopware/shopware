@@ -3,6 +3,7 @@ const { DeviceHelper } = Shopware.Helper;
 
 let pluginInstalled = false;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     install(Vue) {
         if (pluginInstalled) {

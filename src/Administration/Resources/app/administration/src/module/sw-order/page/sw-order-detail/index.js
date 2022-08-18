@@ -7,6 +7,7 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const ApiService = Shopware.Classes.ApiService;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-detail', {
     template,
 

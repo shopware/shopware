@@ -28,6 +28,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 const { Module, State } = Shopware;
 State.registerModule('swPromotionDetail', swPromotionState);
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-promotion-v2', {
     type: 'core',
     name: 'promotion-v2',

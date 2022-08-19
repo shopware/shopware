@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
 class IndexCreator
@@ -64,12 +65,18 @@ class IndexCreator
 
         $mapping = array_merge_recursive($mapping, $this->mapping);
 
+        $body = array_merge(
+            $this->config,
+            ['mappings' => $mapping]
+        );
+
+        $event = new ElasticsearchIndexConfigEvent($index, $body, $definition, $context);
+        $this->eventDispatcher->dispatch($event);
+
         $this->client->indices()->create([
             'index' => $index,
-            'body' => array_merge(
-                $this->config,
-                ['mappings' => $mapping]
-            ), ]);
+            'body' => $event->getConfig(),
+        ]);
 
         $this->createAliasIfNotExisting($index, $alias);
 

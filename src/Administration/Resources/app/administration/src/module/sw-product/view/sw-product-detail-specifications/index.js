@@ -3,6 +3,7 @@ import template from './sw-product-detail-specifications.html.twig';
 const { Component } = Shopware;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-detail-specifications', {
     template,
 

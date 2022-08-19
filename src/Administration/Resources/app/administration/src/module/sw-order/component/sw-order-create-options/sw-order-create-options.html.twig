@@ -1,13 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_options %}
 <div class="sw-order-create-options">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_container %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_headline %}
     <h3 class="sw-order-create-options__headline">
         {{ $tc('sw-order.initialModal.options.textHeadlineOrder') }}
     </h3>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_switch_test_order %}
     <sw-switch-field
         v-model="testOrder"
@@ -17,6 +22,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_switch_disable_auto_promotion %}
     <sw-switch-field
         class="sw-order-create-options__disable-auto-promotion"
@@ -26,12 +32,14 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_order_field_container %}
     <sw-container
         class="sw-order-create-options__order-container"
         gap="0px 32px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_language %}
         <sw-entity-single-select
             v-model="context.languageId"
@@ -44,6 +52,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_sales_channel %}
         <sw-entity-single-select
             v-model="salesChannelId"
@@ -55,6 +64,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_promotions %}
         <sw-multi-tag-select
             class="sw-order-create-options__promotion-code"
@@ -75,17 +85,21 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlinePayment') }}</h3>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_payment_container %}
     <sw-container
         class="sw-order-create-options__payment-container"
         gap="0px 32px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_payment_method %}
         <sw-entity-single-select
             v-model="context.paymentMethodId"
@@ -100,6 +114,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_billing_address %}
         <sw-single-select
             ref="billingAddress"
@@ -116,6 +131,7 @@
             @change="changeBillingAddress"
         >
             <template #before-item-list>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_options_select_same_shipping_address %}
                 <ul
                     v-if="shippingAddressId !== billingAddressId"
@@ -143,6 +159,7 @@
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_options_select_billing_address_result_label %}
                     <sw-highlight-text
                         v-if="highlightSearchTerm && !isSelected(item)"
@@ -159,6 +176,7 @@
         </sw-single-select>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
             v-model="context.currencyId"
@@ -173,7 +191,9 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_options_shipment_headline %}
     <h3>{{ $tc('sw-order.initialModal.options.textHeadlineShipment') }}</h3>
     {% endblock %}
@@ -183,6 +203,7 @@
         gap="0px 32px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_orderaddr_create_options_shipping_method %}
         <sw-entity-single-select
             v-model="context.shippingMethodId"
@@ -195,6 +216,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
         <sw-single-select
             ref="shippingAddress"
@@ -210,6 +232,7 @@
             @search="searchShippingAddress"
         >
             <template #before-item-list>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_options_select_same_billing_address %}
                 <ul
                     v-if="shippingAddressId !== billingAddressId"
@@ -237,6 +260,7 @@
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_options_select_shipping_address_result_label %}
                     <sw-highlight-text
                         v-if="highlightSearchTerm && !isSelected(item)"

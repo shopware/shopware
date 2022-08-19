@@ -5,6 +5,7 @@ const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-rule-modal', {
     template,
 

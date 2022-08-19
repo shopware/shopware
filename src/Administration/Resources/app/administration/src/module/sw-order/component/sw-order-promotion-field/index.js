@@ -4,6 +4,7 @@ import template from './sw-order-promotion-field.html.twig';
 const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-promotion-field', {
     template,
 

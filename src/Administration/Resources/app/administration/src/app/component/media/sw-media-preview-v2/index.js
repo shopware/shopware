@@ -16,6 +16,7 @@ const { fileReader } = Shopware.Utils;
  *      :use-thumbnails="false">
  * </sw-media-preview-v2>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-preview-v2', {
     template,
 

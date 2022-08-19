@@ -3,6 +3,7 @@ import './sw-extension-permissions-modal.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-extension-permissions-modal', {
     template,
 

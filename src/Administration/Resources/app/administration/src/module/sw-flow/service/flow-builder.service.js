@@ -7,6 +7,7 @@ Application.addServiceProvider('flowBuilderService', () => {
     return flowBuilderService();
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function flowBuilderService() {
     const $icon = {
         addEntityTag: 'regular-tag',

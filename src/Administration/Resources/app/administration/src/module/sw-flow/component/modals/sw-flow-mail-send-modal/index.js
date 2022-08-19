@@ -6,6 +6,7 @@ const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-mail-send-modal', {
     template,
 

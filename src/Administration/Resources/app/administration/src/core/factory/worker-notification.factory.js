@@ -5,6 +5,7 @@ import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getRegistry,
     register,

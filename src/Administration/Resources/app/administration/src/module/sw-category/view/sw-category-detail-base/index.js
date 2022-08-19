@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const ShopwareError = Shopware.Classes.ShopwareError;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-detail-base', {
     template,
 

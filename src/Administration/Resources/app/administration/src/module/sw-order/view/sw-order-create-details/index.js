@@ -4,6 +4,7 @@ const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-details', {
     template,
 

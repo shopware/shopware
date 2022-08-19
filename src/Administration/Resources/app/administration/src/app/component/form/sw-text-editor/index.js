@@ -32,6 +32,7 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-editor', {
     template,
 

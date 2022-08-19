@@ -1,5 +1,6 @@
 import { initializeUserNotifications } from 'src/app/state/notification.store';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
     return new Promise((resolve) => {
         const loginService = Shopware.Service('loginService');

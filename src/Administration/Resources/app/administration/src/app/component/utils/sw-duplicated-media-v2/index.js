@@ -11,6 +11,7 @@ const { Criteria } = Shopware.Data;
 const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-duplicated-media-v2', {
     template,
 

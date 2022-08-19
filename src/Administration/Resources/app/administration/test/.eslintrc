@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "sw-deprecation-rules/private-feature-declarations": "off",
+    "sw-deprecation-rules/no-twigjs-blocks": "off"
+  }
+}

@@ -9,6 +9,7 @@ let enabledNotification = false;
 /**
  * Starts the worker
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
     const context = Shopware.Context.app;

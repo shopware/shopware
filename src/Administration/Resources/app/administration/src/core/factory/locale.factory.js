@@ -4,6 +4,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { object } from 'src/core/service/util.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getLocaleByName,
     getLocaleRegistry,

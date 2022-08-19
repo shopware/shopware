@@ -25,6 +25,7 @@ import './view/sw-import-export-view-profiles';
 import './component/sw-import-export-progress';
 import './acl';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExport', () => {
     return new ImportExportService(
         Shopware.Application.getContainer('init').httpClient,
@@ -33,14 +34,17 @@ Shopware.Service().register('importExport', () => {
 });
 
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExportProfileMapping', () => {
     return new ImportExportProfileMappingService(Shopware.EntityDefinition);
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('importExportUpdateByMapping', () => {
     return new ImportExportProfileUpdateByService(Shopware.EntityDefinition);
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-import-export', {
     type: 'core',
     name: 'ImportExport',

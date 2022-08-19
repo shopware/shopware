@@ -33,6 +33,7 @@ import type { SdkLocationState } from './app/state/sdk-location.store';
 
 // base methods for subContainer
 // Export for modules and plugins to extend the service definitions
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface SubContainer<ContainerName extends string> {
     $decorator(name: string | Decorator, func?: Decorator): this;
     $register(Obj: Bottle.IRegisterableObject): this;

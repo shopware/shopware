@@ -8,6 +8,7 @@ const { Component, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-base-form', {
     template,
 

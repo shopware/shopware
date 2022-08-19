@@ -1,11 +1,14 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_custom_item %}
 <div class="sw-order-custom-item">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_custom_item_container %}
     <sw-container
         class="sw-order-create-products-container"
         gap="0px 30px"
         columns="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_custom_item_name %}
         <sw-text-field
             v-model="customItem.label"
@@ -14,6 +17,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_custom_item_price_net %}
         <sw-number-field
             v-model="customItem.price"
@@ -28,6 +32,7 @@
         </sw-number-field>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_custom_item_amount %}
         <sw-number-field
             v-model="customItem.quantity"
@@ -37,6 +42,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_custom_item_vat %}
         <sw-entity-single-select
             v-model="taxId"

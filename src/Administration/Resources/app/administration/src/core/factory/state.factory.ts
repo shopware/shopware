@@ -36,6 +36,7 @@ class State {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface FullState extends State {
     _store: Store<VuexRootState>,
     list: () => (keyof VuexRootState)[],
@@ -51,6 +52,7 @@ export interface FullState extends State {
     unregisterModule: Store<VuexRootState>['unregisterModule'],
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function stateFactory(): FullState {
     // force the additional properties (added in "state.init")
     return new State() as FullState;

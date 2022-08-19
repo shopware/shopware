@@ -4,6 +4,7 @@ import './sw-settings-index.scss';
 const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-index', {
     template,
 

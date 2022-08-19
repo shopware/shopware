@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_list %}
 <sw-page class="sw-flow-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -11,10 +13,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_list_smart_bar_header %}
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -24,6 +29,7 @@
             {{ $tc('sw-flow.list.textHeadline') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -37,12 +43,15 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_list_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_smart_bar_actions_extension %}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip="{
@@ -62,6 +71,7 @@
     </template>
     {% endblock %}l
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_list_content %}
     <template #content>
         <div class="sw-flow-list__content">
@@ -84,10 +94,13 @@
                 @update-records="updateRecords"
                 @selection-change="selectionChange"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_columns %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_columns_active %}
                 <template #column-active="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_list_columns_active_label %}
                     <sw-icon
                         small
@@ -98,6 +111,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_columns_event_name %}
                 <template #column-eventName="{ item }">
                     <strong>
@@ -108,12 +122,15 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_actions %}
                 <template #actions="{ item }">
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_list_grid_actions_custom %}
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_list_grid_actions_edit %}
                     <sw-context-menu-item
                         class="sw-flow-list__item-edit"
@@ -124,6 +141,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_list_grid_actions_delete %}
                     <sw-context-menu-item
                         class="sw-context-menu-item--danger sw-flow-list__item-delete"
@@ -136,6 +154,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_action_modal %}
                 <template #action-modals="{ item }">
                     <sw-modal
@@ -144,6 +163,7 @@
                         :title="$tc('global.default.warning')"
                         @modal-close="onCloseDeleteModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
                         <sw-alert variant="warning">
                             {{ deleteWarningMessage() }}
@@ -151,6 +171,7 @@
                         {% endblock %}
 
                         <template #modal-footer>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_list_grid_action_modal_buttons %}
                             <sw-button
                                 size="small"
@@ -171,6 +192,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
                     <sw-alert variant="warning">
@@ -180,6 +202,7 @@
                 {% endblock %}
             </sw-entity-listing>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_empty_state %}
             <sw-empty-state
                 v-if="!total && !isLoading"
@@ -187,6 +210,7 @@
                 :title="$tc('sw-flow.list.emptyStateTitle')"
                 :subline="$tc('sw-flow.list.emptyStateSubTitle')"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_list_empty_state_icon %}
                 <template #icon>
                     <img
@@ -198,6 +222,7 @@
             </sw-empty-state>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_modal_content_custom %}
             {% endblock %}
 

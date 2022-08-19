@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_first_row %}
 <sw-container
     v-if="feature.isActive('FEATURE_NEXT_7530')"
     columns="1fr 1fr 1fr"
     gap="0 14px"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_credit_document_number %}
     <sw-text-field
         v-model="documentConfig.documentNumber"
@@ -11,6 +13,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
     <sw-select-field
         v-model="documentConfig.custom.invoiceNumber"
@@ -29,6 +32,7 @@
     </sw-select-field>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_date %}
     <sw-datepicker
         v-model="documentConfig.documentDate"
@@ -41,6 +45,7 @@
 {% endblock %}
 
 {# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_document_number %}
 <sw-text-field
     v-if="!feature.isActive('FEATURE_NEXT_7530')"
@@ -50,6 +55,7 @@
 {% endblock %}
 
 {# @feature-deprecated (FEATURE_NEXT_7530) tag:v6.5.0 - this block will be removed #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_settings_modal_form_additional_content %}
 <sw-select-field
     v-if="!feature.isActive('FEATURE_NEXT_7530')"

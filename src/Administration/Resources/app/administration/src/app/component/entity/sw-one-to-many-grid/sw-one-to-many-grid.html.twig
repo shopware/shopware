@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_pagination %}
 <sw-pagination
     v-bind="{ page, limit, total }"
@@ -6,6 +7,7 @@
 />
 {% endblock %}
 
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_slot_actions %}
 <slot
     name="more-actions"

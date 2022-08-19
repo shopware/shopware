@@ -18,6 +18,7 @@ const { Criteria } = Shopware.Data;
  *    </template>
  * </sw-sidebar-media-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar-media-item', {
     template,
 

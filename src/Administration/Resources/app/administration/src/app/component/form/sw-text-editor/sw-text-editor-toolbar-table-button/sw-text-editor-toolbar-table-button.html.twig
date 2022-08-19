@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor_toolbar_table_button %}
 <div class="sw-text-editor-toolbar-table-button">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
     <sw-field
         v-model="addTableHead"
@@ -9,6 +11,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_grid_input %}
     <div class="sw-text-editor-toolbar-table-button__grid-input">
         <sw-field
@@ -43,6 +46,7 @@
         {{ $tc('sw-text-editor-toolbar.table.editInfo') }}
     </p>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <table
@@ -50,15 +54,18 @@
         @click="emitTable"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_table_button_table_head %}
         <thead
             v-if="addTableHead"
             class="sw-text-editor-toolbar-table-button__table-head"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_text_editor_toolbar_table_button_table_head_row %}
             <tr class="sw-text-editor-toolbar-table-button__row">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_table_button_table_head_col %}
                 <td
                     v-for="colIndex in tableCols"
@@ -73,9 +80,11 @@
         </thead>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_table_button_table_body %}
         <tbody class="sw-text-editor-toolbar-table-button__table-body">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_text_editor_toolbar_table_button_table_body_row %}
             <tr
                 v-for="rowIndex in tableRows"
@@ -84,6 +93,7 @@
                 v-on="rowIndex === tableRows ? { mouseleave: (event) => onLastRowMouseOut(event) } : null"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_text_editor_toolbar_table_button_table_body_col %}
                 <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
                 <td
@@ -103,6 +113,7 @@
     </table>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_insert %}
     <div class="sw-text-editor-toolbar-table-button__insert">
         <sw-button

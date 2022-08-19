@@ -11,6 +11,7 @@ import './sw-media-base-item.scss';
  *     :is-list="true">
  * </sw-media-base-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-media-base-item', {
     template,
 

@@ -3,6 +3,7 @@ import './sw-settings-number-range-detail.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-number-range-detail', {
     template,
 

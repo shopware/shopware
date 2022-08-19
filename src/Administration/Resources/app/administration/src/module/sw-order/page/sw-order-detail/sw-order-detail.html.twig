@@ -1,15 +1,19 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail %}
 <sw-page
     v-if="orderId"
     class="sw-order-detail"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title %}
         <h2 v-if="orderIdentifier">
             {{ $tc('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_header_label_manual_order %}
             <sw-label
                 v-if="createdById"
@@ -23,6 +27,7 @@
         </h2>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_header_title_new %}
         <h2 v-else>
             {{ $tc('sw-order.detail.textHeadlineNew') }}
@@ -32,6 +37,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -40,10 +46,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_abort %}
         <sw-button
             v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
@@ -55,6 +64,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_edit %}
         <sw-button
             v-if="!feature.isActive('FEATURE_NEXT_7530') && !isEditing"
@@ -72,6 +82,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_actions_save %}
         <sw-button-process
             v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
@@ -91,8 +102,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_content_leave_page_modal %}
         <sw-order-leave-page-modal
             v-if="feature.isActive('FEATURE_NEXT_7530') && isDisplayingLeavePageWarning"
@@ -103,6 +116,7 @@
 
         <sw-card-view>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_tabs %}
             <sw-tabs
                 v-if="showTabs"
@@ -110,6 +124,7 @@
                 position-identifier="sw-order-detail"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_general %}
                 <sw-tabs-item
                     v-if="!feature.isActive('FEATURE_NEXT_7530')"
@@ -129,6 +144,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_details %}
                 <sw-tabs-item
                     v-if="feature.isActive('FEATURE_NEXT_7530')"
@@ -140,6 +156,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
                     v-if="feature.isActive('FEATURE_NEXT_7530')"
@@ -151,10 +168,12 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_content_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton />

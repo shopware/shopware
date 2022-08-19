@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_product_listing_config %}
 <div class="sw-cms-el-config-product-listing">
 
@@ -34,11 +35,13 @@
         >
             <template v-if="active === 'content'">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_layout_select %}
                 <sw-select-field
                     v-model="element.config.boxLayout.value"
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_layout_select_options %}
                     <option value="standard">
                         {{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}
@@ -53,6 +56,7 @@
                 </sw-select-field>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_info %}
                 <sw-alert variant="info">
                     {{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}
@@ -61,6 +65,7 @@
             </template>
 
             <template v-if="active === 'sorting'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_show_sorting %}
                 <sw-switch-field
                     v-model="element.config.showSorting.value"
@@ -68,6 +73,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
                 <sw-switch-field
                     v-model="element.config.useCustomSorting.value"
@@ -77,6 +83,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_default_sorting %}
                 <sw-entity-single-select
                     v-if="showSortingGrid"
@@ -91,6 +98,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_available_sortings %}
                 <sw-entity-multi-select
                     v-if="showSortingGrid"
@@ -119,6 +127,7 @@
                                 v-bind="{ item, index }"
                                 @item-select="addItem"
                             >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_entity_multi_select_base_results_list_result_label %}
                                 <slot
                                     name="result-label-property"
@@ -140,6 +149,7 @@
                 </sw-entity-multi-select>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_sorting_grid %}
                 <sw-cms-el-config-product-listing-config-sorting-grid
                     v-if="showSortingGrid"
@@ -150,17 +160,20 @@
             </template>
 
             <template v-if="active === 'filter'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_filter_info %}
                 <sw-alert variant="info">
                     {{ $tc('sw-cms.elements.productListing.config.filter.infoText') }}
                 </sw-alert>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_filter_by_wrapper %}
                 <sw-container
                     columns="1fr 1fr"
                     gap="0px 30px"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
                     <sw-switch-field
                         v-model="filterByManufacturer"
@@ -168,6 +181,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_rating %}
                     <sw-switch-field
                         v-model="filterByRating"
@@ -175,6 +189,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_price %}
                     <sw-switch-field
                         v-model="filterByPrice"
@@ -182,6 +197,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
                     <sw-switch-field
                         v-model="filterByFreeShipping"
@@ -191,14 +207,18 @@
                 </sw-container>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_filter_properties_wrapper %}
                 <div>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_spacer %}
                     <hr class="spacer">
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
                     <sw-switch-field
                         v-model="filterByProperties"
@@ -207,6 +227,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_info_text %}
                     <div
                         class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
@@ -215,6 +236,7 @@
                     {% endblock %}
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_property_search %}
                     <sw-simple-search-field
                         v-model="filterPropertiesTerm"
@@ -225,6 +247,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_property_grid %}
                     <div
                         v-if="showPropertySelection"
@@ -242,6 +265,7 @@
                         >
 
                             <template #column-status="{ item, column }">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
                                 <sw-switch-field
                                     :disabled="column.disabled"
@@ -252,6 +276,7 @@
                             </template>
 
                             <template #pagination>
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_pagination %}
                                 <sw-pagination
                                     v-if="!disabled"
@@ -268,6 +293,7 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_empty_state %}
                     <sw-empty-state
                         v-else

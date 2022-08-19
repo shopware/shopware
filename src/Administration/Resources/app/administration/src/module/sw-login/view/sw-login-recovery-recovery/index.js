@@ -2,6 +2,7 @@ import template from './sw-login-recovery-recovery.html.twig';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-login-recovery-recovery', {
     template,
 

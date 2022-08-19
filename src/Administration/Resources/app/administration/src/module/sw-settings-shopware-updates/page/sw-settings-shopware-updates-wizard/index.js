@@ -3,6 +3,7 @@ import './sw-settings-shopware-updates-wizard.scss';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-wizard', {
     template,
 

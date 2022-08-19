@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sidebar_media_item %}
 <sw-sidebar-item
     ref="sidebarItem"
@@ -8,8 +9,10 @@
     v-on="additionalEventListeners"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sidebar_media_item_content %}
     <div class="sw-sidebar-media-item__content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_search_field %}
         <sw-simple-search-field
             v-model="term"
@@ -17,6 +20,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_folder_navigation %}
         <sw-media-breadcrumbs
             v-if="!term.length"
@@ -25,7 +29,9 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_media_item_list %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_media_item_list_folder_item %}
         <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <sw-media-folder-item
@@ -42,6 +48,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_media_item_list_media_item %}
         <sw-media-media-item
             v-for="mediaItem in mediaItems"
@@ -55,6 +62,7 @@
             @media-item-delete="handleMediaGridItemDelete"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sidebar_media_item_context_items %}
             <slot
                 name="context-menu-items"
@@ -64,6 +72,7 @@
         </sw-media-media-item>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_load_more_button %}
         <sw-button
             v-if="showMore"
@@ -78,6 +87,7 @@
         {% endblock %}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sidebar_media_item_loader %}
         <sw-loader v-if="isLoading" />
         {% endblock %}

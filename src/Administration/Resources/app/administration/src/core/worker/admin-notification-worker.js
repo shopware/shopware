@@ -1,6 +1,7 @@
 const { Service } = Shopware;
 const READ_NOTIFICATION = 'notification.lastReadAt';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AdminNotificationWorker {
     constructor() {
         this._notificationService = Service('notificationsService');

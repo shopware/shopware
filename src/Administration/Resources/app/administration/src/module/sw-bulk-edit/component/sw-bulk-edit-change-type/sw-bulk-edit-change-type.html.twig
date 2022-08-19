@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_change_type %}
 <div class="sw-bulk-edit-change-type">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_change_type_select_field %}
     <sw-single-select
         v-model="currentValue"
@@ -9,6 +11,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_change_type_value_field %}
     <slot
         name="value-field"

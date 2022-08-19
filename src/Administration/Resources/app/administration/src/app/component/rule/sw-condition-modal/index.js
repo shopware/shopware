@@ -4,6 +4,7 @@ import './sw-condition-modal.scss';
 const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-modal', {
     template,
 

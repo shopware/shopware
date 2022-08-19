@@ -3,6 +3,7 @@ import './sw-cms-block-gallery-buybox.scss';
 
 const { Component, State } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-block-gallery-buybox', {
     template,
 

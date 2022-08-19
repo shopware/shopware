@@ -1,18 +1,24 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block %}
 <div
     class="sw-cms-block"
     :class="customBlockClass"
     :style="blockStyles"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_content %}
     <div
         class="sw-cms-block__content"
         :style="blockPadding"
     >
-        <slot>{% block sw_cms_block_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_block_slot_default %}{% endblock %}
+        </slot>
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_overlay %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div

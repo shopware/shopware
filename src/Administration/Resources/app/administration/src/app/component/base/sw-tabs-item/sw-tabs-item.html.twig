@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_side_navigation_item %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
@@ -7,6 +8,7 @@
     v-bind="$attrs"
     @click="clickEvent"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot %}
     <slot></slot>
     {% endblock %}
@@ -21,6 +23,7 @@
     :to="route"
     @click.native="clickEvent"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_tabs_item_slot_native %}
     <slot></slot>
     <sw-icon

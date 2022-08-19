@@ -24,6 +24,7 @@ const { Component } = Shopware;
  *     </sw-wizard-page>
  * </sw-wizard>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-wizard', {
     template,
 

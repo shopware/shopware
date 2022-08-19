@@ -33,6 +33,7 @@ const { Component } = Shopware;
  *
  * </sw-inherit-wrapper>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inherit-wrapper', {
     template,
 

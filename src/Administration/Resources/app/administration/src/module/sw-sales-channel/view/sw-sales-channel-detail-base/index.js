@@ -9,6 +9,7 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-detail-base', {
     template,
 

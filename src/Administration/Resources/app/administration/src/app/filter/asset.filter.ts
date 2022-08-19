@@ -13,4 +13,5 @@ Shopware.Filter.register('asset', (value: string) => {
     return `${assetsPath}${value}`;
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export {};

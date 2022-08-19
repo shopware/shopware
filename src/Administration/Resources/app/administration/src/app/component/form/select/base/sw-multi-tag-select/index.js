@@ -15,6 +15,7 @@ const { get } = Shopware.Utils;
  *     :value="['lorem', 'ipsum', 'dolor', 'sit', 'amet']"
  * ></sw-multi-tag-select>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-multi-tag-select', {
     template,
 

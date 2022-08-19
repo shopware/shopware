@@ -10,6 +10,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-rating-stars v-model='actualStars' :maxStars='5' :iconSize='16' :displayFractions='4'></sw-rating-stars>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-rating-stars', {
     template,
 

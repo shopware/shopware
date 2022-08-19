@@ -5,6 +5,7 @@ const { Component, Mixin, Data: { Criteria }, Context } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shipping-price-matrices', {
     template,
 

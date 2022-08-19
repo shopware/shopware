@@ -5,6 +5,7 @@
  * @method createShortcutService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class LocaleHelperService {
     _localeRepository;
 

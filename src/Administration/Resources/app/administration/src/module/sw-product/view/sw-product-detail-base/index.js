@@ -6,6 +6,7 @@ const { Component, Context, Utils, Mixin } = Shopware;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-detail-base', {
     template,
 

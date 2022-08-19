@@ -1,12 +1,15 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_page_form %}
 <div
     v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
     class="sw-cms-page-form"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_page_form_content %}
     <template v-for="section in page.sections">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_page_form_section %}
         <div
             :key="section.id"
@@ -14,9 +17,11 @@
         >
             <div class="sw-cms-page-form__section-actions">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_name_wrapper %}
                 <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_section_name_icon %}
                     <sw-icon
                         name="regular-layout"
@@ -25,6 +30,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form__section_name %}
                     <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
                         {{ getSectionName(section) }}
@@ -34,6 +40,7 @@
                 {% endblock %}
             </div>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_page_form_section_empty_state_block %}
             <sw-card
                 v-if="section.blocks.length === 0"
@@ -41,6 +48,7 @@
                 class="sw-cms-page-form__block-card is--empty"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_empty_state_block_text %}
                 <p class="sw-cms-page-form__empty-state-text">
                     {{ $tc('sw-cms.section.sectionEmptyState') }}
@@ -54,6 +62,7 @@
                 v-else
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_type_label_wrapper %}
                 <div
                     v-if="displaySectionType(block)"
@@ -61,9 +70,11 @@
                     class="sw-cms-page-form__section-type"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_section_type_label %}
                     <div class="sw-cms-page-form__section-type-label">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_section_type_label_icon %}
                         <sw-icon
                             v-if="block.sectionPosition !== 'main'"
@@ -80,6 +91,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_section_type %}
                         <span class="sw-cms-page-form__section-type-name">
                             {{ getSectionPosition(block) }}
@@ -92,6 +104,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_card %}
                 <sw-card
                     :key="block.id"
@@ -100,6 +113,7 @@
                     :title="$tc(getBlockTitle(block))"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_card_content %}
                     <div
                         v-for="(element, blockIndex) in block.slots"
@@ -107,6 +121,7 @@
                         class="sw-cms-page-form__element-config"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_element_config %}
                         <component
                             :is="cmsElements[element.type].configComponent"

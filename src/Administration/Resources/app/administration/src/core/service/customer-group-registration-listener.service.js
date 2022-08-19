@@ -12,6 +12,7 @@ const { Criteria } = Shopware.Data;
  * @method addCustomerGroupRegistrationListener
  * @param loginService
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addCustomerGroupRegistrationListener(loginService) {
     let applicationRoot = null;
 

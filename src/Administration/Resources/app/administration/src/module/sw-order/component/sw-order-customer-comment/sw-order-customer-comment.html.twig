@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_customer_comment %}
 <sw-card
     class="sw-order-customer-comment"
@@ -5,6 +6,7 @@
     :title="$tc('sw-order.detailCustomerComment.title')"
     :is-loading="isLoading"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_customer_comment_content %}
     <sw-text-preview
         :text="customerComment"

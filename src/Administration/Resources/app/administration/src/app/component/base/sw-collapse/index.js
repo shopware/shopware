@@ -13,6 +13,7 @@ const { Component } = Shopware;
  *     <div #content>Content slot</div>
  * </sw-collapse>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-collapse', {
     template,
 

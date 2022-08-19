@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_snippet_set_list %}
 <sw-page class="sw-settings-snippet-set-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_set_list_search_bar %}
     <template slot="search-bar">
         <sw-search-bar
@@ -11,10 +13,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_set_list_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_set_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_set_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -28,8 +33,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_set_list_card %}
     <sw-card-view slot="content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_set_list_card_title %}
         <sw-card position-identifier="sw-settings-snippet-set-list-title">
             <h3>{{ $tc('sw-settings-snippet.setList.title') }}</h3>
@@ -37,17 +44,21 @@
         </sw-card>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_set_list_card_list %}
         <sw-card
             position-identifier="sw-settings-snippet-set-list-card-list"
             :is-loading="isLoading"
             :title="$tc('sw-settings-snippet.setList.cardTitle')"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_set_list_card_list_container %}
             <sw-container columns="1fr">
                 <sw-card-section divider="bottom">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_container_header %}
                     <div class="sw-settings-snippet-set-list__actions">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_container_header_btn_export %}
                         <sw-button
                             v-if="false"
@@ -59,6 +70,7 @@
                         </sw-button>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_container_header_btn_edit_set %}
                         <sw-button
                             v-tooltip="getNoPermissionsTooltip('snippet.editor')"
@@ -72,12 +84,14 @@
                         </sw-button>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
                         <sw-button-group
                             v-tooltip="getNoPermissionsTooltip('snippet.creator', false)"
                             class="sw-settings-snippet-set-list__action-split"
                             split-button
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
                             <sw-button
                                 class="sw-settings-snippet-set-list__action-add"
@@ -90,12 +104,14 @@
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
                             <sw-context-button
                                 headline="hi"
                                 :disabled="!acl.can('snippet.creator')"
                             >
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_btn_copy %}
                                 <sw-button
                                     slot="button"
@@ -105,6 +121,7 @@
                                     :disabled="!acl.can('snippet.creator')"
                                     square
                                 >
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_settings_snippet_set_list_card_btn_copy_icon %}
                                     <sw-icon
                                         name="regular-chevron-down-xs"
@@ -114,16 +131,19 @@
                                 </sw-button>
                                 {% endblock %}
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_copy_context_menu %}
                                 <sw-context-menu-item variant="headline">
                                     {{ $tc('sw-settings-snippet.setList.splitButtonDuplicateContent') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_copy_context_divider %}
                                 <sw-context-menu-divider />
                                 {% endblock %}
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_copy_context_menu_items %}
                                 <sw-context-menu-item
                                     v-for="set in snippetSets"
@@ -143,6 +163,7 @@
             </sw-container>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_snippet_set_list_card_list_grid %}
             <sw-grid
                 ref="snippetSetList"
@@ -159,11 +180,13 @@
                 @sw-grid-select-all="onSelectionChanged"
                 @sort-column="onSortColumn"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_set_list_card_list_grid_template %}
                 <template
                     slot="columns"
                     slot-scope="{ item }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_grid_column_name %}
                     <sw-grid-column
                         flex="minmax(200px, 1fr)"
@@ -175,12 +198,14 @@
                         sortable
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_grid_column_name_link %}
                         <router-link :to="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
                             {{ item.name }}
                         </router-link>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_grid_column_name_editor %}
                         <sw-field
                             slot="inline-edit"
@@ -193,6 +218,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_grid_column_changed %}
                     <sw-grid-column
                         flex="1fr"
@@ -201,6 +227,7 @@
                         :label="$tc('sw-settings-snippet.setList.columnChangedAt')"
                         data-index="createdAt"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                         <div v-if="item.updatedAt">
                             {{ item.updatedAt | date }}
@@ -212,6 +239,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_grid_column_base_file %}
                     <sw-grid-column
                         flex="minmax(200px, 1fr)"
@@ -223,6 +251,7 @@
                     >
                         {{ item.baseFile }}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                         <sw-field
                             slot="inline-edit"
@@ -241,13 +270,16 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_grid_column_base_action %}
                     <sw-grid-column
                         flex="100px"
                         align="center"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
                         <sw-context-button>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
                             <sw-context-menu-item
                                 class="sw-setting-snippet-set-list__edit-action"
@@ -257,6 +289,7 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
                             <sw-context-menu-item
                                 v-tooltip.left="getNoPermissionsTooltip('snippet.editor')"
@@ -267,6 +300,7 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
                             <sw-context-menu-item
                                 v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')"
@@ -282,6 +316,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_columns_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -289,14 +324,17 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-snippet-set-list__confirm-delete-text">
                             {{ $tc('sw-settings-snippet.setList.textDeleteConfirm', 0, { name: item.name }) }}
                         </p>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_delete_modal_footer %}
                         <template slot="modal-footer">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_delete_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -306,6 +344,7 @@
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_delete_modal_confirm %}
                             <sw-button
                                 variant="danger"
@@ -320,6 +359,7 @@
                     </sw-modal>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_columns_clone_modal %}
                     <sw-modal
                         v-if="showCloneModal === item.id"
@@ -327,14 +367,17 @@
                         variant="small"
                         @modal-close="closeCloneModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_clone_modal_confirm_delete_text %}
                         <p class="sw-settings-snippet-set-list__confirm-delete-text">
                             {{ $tc('sw-settings-snippet.setList.textCloneConfirm', 0, { name: item.name }) }}
                         </p>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_set_list_clone_modal_footer %}
                         <template slot="modal-footer">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_clone_modal_cancel %}
                             <sw-button
                                 size="small"
@@ -344,6 +387,7 @@
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_set_list_clone_modal_confirm %}
                             <sw-button
                                 variant="primary"
@@ -360,8 +404,10 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_set_list_card_list_grid_pagination %}
                 <template slot="pagination">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_set_list_card_list_grid_pagination_bar %}
                     <sw-pagination
                         :offset="offset"

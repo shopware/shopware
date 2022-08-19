@@ -5,6 +5,7 @@ import './sw-settings-rule-detail-assignments.scss';
 const { Component, Mixin, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-rule-detail-assignments', {
     // eslint-disable-next-line max-len
     template,

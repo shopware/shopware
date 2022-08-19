@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_removal_modal %}
 <sw-modal
     class="sw-extension-removal-modal"
@@ -5,8 +6,10 @@
     variant="small"
     @modal-close="emitClose"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_removal_modal_content %}
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_installed_extension_card_removal_content_modal_body %}
         <p>
             {{ $tc('sw-extension-store.component.sw-extension-removal-modal.description') }}
@@ -19,7 +22,9 @@
     </template>
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_removal_modal_footer %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_removal_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -30,6 +35,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_removal_modal_footer_deactivate %}
         <sw-button
             variant="danger"

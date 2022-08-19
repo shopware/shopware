@@ -7,6 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-event-action-deprecated-modal', {
     template,
 

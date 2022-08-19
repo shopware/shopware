@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_captcha_select_v2 %}
 <sw-container class="sw-settings-captcha-select-v2">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_captcha_select_v2_multi_select %}
     <sw-multi-select
         v-model="activeCaptchaSelect"
@@ -9,12 +11,14 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_captcha_select_v2_google_recaptcha_v2 %}
     <sw-container
         v-if="currentValue.googleReCaptchaV2.isActive"
         class="sw-settings-captcha-select-v2__google-recaptcha-v2"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_description %}
         <p class="sw-settings-captcha-select-v2__description sw-settings-captcha-select-v2__google-recaptcha-v2-description">
             {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2CheckboxDescription') }}
@@ -25,6 +29,7 @@
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_site_key %}
         <sw-text-field
             v-model="currentValue.googleReCaptchaV2.config.siteKey"
@@ -33,6 +38,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_secret_key %}
         <sw-text-field
             v-model="currentValue.googleReCaptchaV2.config.secretKey"
@@ -41,6 +47,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_invisible %}
         <sw-switch-field
             v-model="currentValue.googleReCaptchaV2.config.invisible"
@@ -53,18 +60,21 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_captcha_select_v2_google_recaptcha_v3 %}
     <sw-container
         v-if="currentValue.googleReCaptchaV3.isActive"
         class="sw-settings-captcha-select-v2__google-recaptcha-v3"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_description %}
         <p class="sw-settings-captcha-select-v2__description sw-settings-captcha-select-v2__google-recaptcha-v3-description">
             {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3Description') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_site_key %}
 
         <sw-text-field
@@ -74,6 +84,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_secret_key %}
         <sw-text-field
             v-model="currentValue.googleReCaptchaV3.config.secretKey"
@@ -82,6 +93,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_threshold_score %}
         <sw-number-field
             v-model="currentValue.googleReCaptchaV3.config.thresholdScore"

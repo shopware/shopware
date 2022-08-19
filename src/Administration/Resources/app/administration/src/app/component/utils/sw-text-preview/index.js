@@ -15,6 +15,7 @@ const { Component } = Shopware;
 const lineExpr = /(?:\r\n|\r|\n)/g;
 const lineBreak = '<br />';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-preview', {
     template,
 

@@ -3,6 +3,7 @@ import './sw-settings-search-live-search-keyword.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-search-live-search-keyword', {
     template,
 

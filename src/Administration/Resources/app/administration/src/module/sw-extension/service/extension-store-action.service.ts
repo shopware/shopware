@@ -85,6 +85,7 @@ interface Extension {
 /**
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionStoreActionService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, 'extension', 'application/json');
@@ -236,6 +237,7 @@ export default class ExtensionStoreActionService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {
     ExtensionStoreActionService,
     ExtensionVariantType,

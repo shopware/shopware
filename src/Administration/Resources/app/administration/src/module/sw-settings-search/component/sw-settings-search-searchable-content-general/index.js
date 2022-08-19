@@ -2,6 +2,7 @@ import template from './sw-settings-search-searchable-content-general.html.twig'
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-search-searchable-content-general', {
     template,
 

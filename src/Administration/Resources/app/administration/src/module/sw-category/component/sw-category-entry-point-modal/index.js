@@ -3,6 +3,7 @@ import './sw-category-entry-point-modal.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-entry-point-modal', {
     template,
 

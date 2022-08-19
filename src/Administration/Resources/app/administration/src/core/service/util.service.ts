@@ -33,6 +33,7 @@ import typesUtils, { isUndefined } from './utils/types.utils';
 import fileReaderUtils from './utils/file-reader.utils';
 import sortUtils from './utils/sort.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
     deepCopyObject: deepCopyObject,
     hasOwnProperty: hasOwnProperty,
@@ -47,11 +48,13 @@ export const object = {
     pick: pick,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const debug = {
     warn: warn,
     error: error,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const format = {
     currency: currency,
     date: date,
@@ -61,12 +64,14 @@ export const format = {
     toISODate: toISODate,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const dom = {
     getScrollbarHeight: domUtils.getScrollbarHeight,
     getScrollbarWidth: domUtils.getScrollbarWidth,
     copyToClipboard: domUtils.copyToClipboard,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
@@ -79,6 +84,7 @@ export const string = {
     isValidIp: stringUtils.isValidIp,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const types = {
     isObject: typesUtils.isObject,
     isPlainObject: typesUtils.isPlainObject,
@@ -94,6 +100,7 @@ export const types = {
     isUndefined: isUndefined,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const fileReader = {
     readAsArrayBuffer: fileReaderUtils.readFileAsArrayBuffer,
     readAsDataURL: fileReaderUtils.readFileAsDataURL,
@@ -102,10 +109,12 @@ export const fileReader = {
     getNameAndExtensionFromUrl: fileReaderUtils.getNameAndExtensionFromUrl,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const sort = {
     afterSort: sortUtils.afterSort,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const array = {
     flattenDeep: flattenDeep,
     remove: remove,
@@ -115,6 +124,7 @@ export const array = {
     intersectionBy: intersectionBy,
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
     throttle,

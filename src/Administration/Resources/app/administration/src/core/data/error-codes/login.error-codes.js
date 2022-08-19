@@ -22,6 +22,7 @@ const codes = {
  * @param {String} prefix
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function getErrorCode(code, prefix = 'sw-login.index.') {
     return {
         message: codes[code] ? `${prefix}${codes[code]}` : '',

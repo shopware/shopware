@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_field %}
 <div class="sw-media-field">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_field_label %}
     <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
     <label
@@ -12,11 +14,13 @@
     </label>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_field_input %}
     <div
         class="sw-media-field__input-container"
         :class="mediaFieldClasses"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_field_preview %}
         <sw-media-media-item
             v-if="mediaEntity"
@@ -32,6 +36,7 @@
         ></div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_field_toggle_button %}
         <sw-button
             class="sw-media-field__toggle-button"
@@ -39,10 +44,12 @@
             :disabled="disabled"
             @click="onTogglePicker"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_field_media_icon %}
             <sw-icon name="regular-image" />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_field_media_popover %}
             <sw-popover
                 v-if="showPicker"
@@ -50,8 +57,10 @@
                 popover-class="sw-media-field__expanded-content"
                 class="sw-media-field__popover"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_field_action_bar %}
                 <div class="sw-media-field__actions_bar">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_field_action_bar_button_toggle %}
                     <sw-button
                         class="sw-media-field__action-button"
@@ -66,6 +75,7 @@
                     </sw-button>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_field_action_bar_button_unlink %}
                     <sw-button
                         v-if="mediaId"
@@ -83,6 +93,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_field_upload_component %}
                 <sw-upload-listener
                     :upload-tag="uploadTag"
@@ -103,6 +114,7 @@
                     v-else
                     class="sw-media-field__media-selection"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_field_search_field %}
                     <sw-simple-search-field
                         v-model="searchTerm"
@@ -110,6 +122,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_field_media_list %}
                     <sw-loader
                         v-if="isLoadingSuggestions"
@@ -125,6 +138,7 @@
                             :key="suggestion.id"
                             class="sw-media-field__suggestion-list-entry"
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_field_suggestion_preview %}
                             <sw-media-media-item
                                 class="sw-media-field__media-list-item"
@@ -146,6 +160,7 @@
     {% endblock %}
 
     {# @major-deprecated tag:v6.5.0 - block will be removed #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_field_media_picker %}{% endblock %}
 </div>
 {% endblock %}

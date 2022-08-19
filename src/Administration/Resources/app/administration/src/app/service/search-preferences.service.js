@@ -5,6 +5,7 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 * @constructor
 * @param {Object} Object.userConfigRepository
 */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function SearchPreferencesService({ userConfigRepository: _userConfigRepository }) {
     return {
         getDefaultSearchPreferences,

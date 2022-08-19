@@ -4,6 +4,7 @@ const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-delivery-time-detail', {
     template,
 

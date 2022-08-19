@@ -3,6 +3,7 @@ import template from './sw-order-state-history-modal.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-history-modal', {
     template,
 

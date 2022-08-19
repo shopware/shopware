@@ -1,5 +1,6 @@
 import ApiService from '../api.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export class InvalidActionButtonParameterError extends Error {
     constructor(message) {
         super(message);
@@ -7,6 +8,7 @@ export class InvalidActionButtonParameterError extends Error {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppActionButtonService extends ApiService {
     /**
      * @param {AxiosInstance} httpClient

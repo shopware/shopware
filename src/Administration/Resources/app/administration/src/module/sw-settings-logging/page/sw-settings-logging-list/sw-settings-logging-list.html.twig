@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
 <sw-page class="sw-settings-logging-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_search_bar %}
     <template slot="search-bar">
         <sw-search-bar
@@ -12,10 +14,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_logging_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -29,12 +34,15 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_smart_bar_actions %}
     <template slot="smart-bar-actions"></template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_content %}
     <template slot="content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_list_content_listing %}
         <sw-entity-listing
             :data-source="logs"
@@ -55,6 +63,7 @@
                 slot="column-createdAt"
                 slot-scope="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_created_at %}
                 {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
                 {% endblock %}
@@ -64,6 +73,7 @@
                 slot="column-level"
                 slot-scope="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_level %}
                 {{ logLevelToString(item.level) }} ({{ item.level }})
                 {% endblock %}
@@ -73,6 +83,7 @@
                 slot="column-context"
                 slot-scope="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_context %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a @click="showInfoModal(item)">{{ item.context }}</a>
@@ -80,6 +91,7 @@
             </template>
 
             <template slot="pagination">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_content_listing_pagination %}
                 <sw-pagination
                     :page="page"
@@ -95,8 +107,10 @@
                 slot="actions"
                 slot-scope="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_content_listing_actions %}
                 <sw-context-menu-item @click="showInfoModal(item)">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_logging_list_content_listing_action_show_label %}
                     {{ $tc('sw-settings-logging.list.actionShowInfo') }}
                     {% endblock %}
@@ -107,6 +121,7 @@
         </sw-entity-listing>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_list_content_info_modal %}
         <component
             :is="modalNameFromLogEntry"
@@ -118,9 +133,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_sidebar %}
     <template #sidebar>
         <sw-sidebar class="sw-settings-logging-list__sidebar">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_logging_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="default-arrow-360-left"

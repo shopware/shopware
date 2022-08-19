@@ -3,6 +3,7 @@ import './sw-newsletter-recipient-list.scss';
 
 const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-newsletter-recipient-list', {
     template,
 

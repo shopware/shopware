@@ -4,6 +4,7 @@ import './sw-order-select-document-type-modal.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-select-document-type-modal', {
     template,
 

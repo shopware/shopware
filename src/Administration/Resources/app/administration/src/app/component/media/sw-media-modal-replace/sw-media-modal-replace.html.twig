@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_modal_replace %}
 <sw-modal
     class="sw-media-modal-replace"
@@ -26,8 +27,10 @@
         {{ $tc('global.sw-media-modal-replace.warningFileExtension', 0, { extension: newFileExtension }) }}
     </sw-alert>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_replace_modal_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_replace_cancel_button %}
         <sw-button
             size="small"
@@ -37,6 +40,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_replace_replace_button %}
         <sw-button
             class="sw-media-replace__replace-media-action"

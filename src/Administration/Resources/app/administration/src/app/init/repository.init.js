@@ -2,6 +2,7 @@ const RepositoryFactory = Shopware.Classes._private.RepositoryFactory;
 const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
 const ErrorResolverError = Shopware.Data.ErrorResolver;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;
     const factoryContainer = this.getContainer('factory');

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_modal %}
 <sw-modal
     class="sw-order-create-initial-modal"
@@ -7,6 +8,7 @@
     @modal-close="onCloseModal"
 >
     <template #default>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_tabs %}
         <sw-tabs
             class="sw-order-create-initial-modal__tabs"
@@ -14,6 +16,7 @@
             position-identifier="sw-order-create-initial-modal"
         >
             <template #default="{ active }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_customer %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-customer"
@@ -24,6 +27,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_products %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-product"
@@ -35,6 +39,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_custom_item %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-custom-item"
@@ -46,6 +51,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_options %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-options"
@@ -57,6 +63,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_credit %}
                 <sw-tabs-item
                     class="sw-order-create-initial-modal__tab-credit"
@@ -68,18 +75,22 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_extension %}{% endblock %}
             </template>
 
             <template #content="{ active }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_create_modal_tabs_content %}
                 <div class="sw-order-create-initial-modal__content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_customer %}
                     <sw-order-customer-grid
                         v-show="active === 'customer'"
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_products %}
                     <sw-order-product-grid
                         v-show="active === 'products'"
@@ -90,6 +101,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_custom_item %}
                     <sw-order-custom-item
                         v-if="active === 'custom-item'"
@@ -100,6 +112,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_options %}
                     <sw-order-create-options
                         v-if="active === 'options'"
@@ -111,6 +124,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_create_modal_tabs_content_credit %}
                     <sw-order-credit-item
                         v-if="active === 'credit'"
@@ -128,6 +142,7 @@
     </template>
 
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_cancel %}
         <sw-button
             size="small"
@@ -137,6 +152,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_modal_footer_modal_footer_preview_order %}
         <sw-button
             size="small"

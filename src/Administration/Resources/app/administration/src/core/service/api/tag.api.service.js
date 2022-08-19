@@ -3,6 +3,7 @@ import ApiService from '../api.service';
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class TagApiService extends ApiService {
     constructor(httpClient, loginService) {
         super(httpClient, loginService, null, 'application/json');

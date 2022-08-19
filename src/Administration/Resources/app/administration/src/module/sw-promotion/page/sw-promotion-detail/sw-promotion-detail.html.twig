@@ -1,13 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_detail %}
 <sw-page class="sw-promotion-detail">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_header %}
     <template slot="smart-bar-header">
         <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -18,6 +22,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_actions_save %}
         <sw-button-process
             v-model="isSaveSuccessful"
@@ -34,6 +39,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -45,9 +51,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_content %}
     <template #content>
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate'))"
@@ -55,11 +63,13 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_content_tabs %}
             <sw-tabs
                 class="sw-promotion-detail-page__tabs"
                 position-identifier="sw-promotion-detail-page"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_detail_content_tabs_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
@@ -71,6 +81,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_detail_content_tabs_restrictions %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
@@ -81,6 +92,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_detail_content_tabs_rebate %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
@@ -94,9 +106,11 @@
             {% endblock %}
 
             {# @deprecated tag:v6.5.0 - The block will be removed use block `sw_promotion_detail_content_view` instead #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_content_view %}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_content_view %}
             <template v-if="isLoading">
                 <sw-skeleton />

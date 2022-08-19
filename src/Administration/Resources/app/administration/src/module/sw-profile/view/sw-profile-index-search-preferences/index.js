@@ -3,6 +3,7 @@ import './sw-profile-index-search-preferences.scss';
 
 const { Component, Module, State, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-profile-index-search-preferences', {
     template,
 

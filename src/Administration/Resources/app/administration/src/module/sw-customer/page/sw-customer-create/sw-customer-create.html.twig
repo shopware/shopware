@@ -1,12 +1,14 @@
 {%  block sw_customer_create %}
 <sw-page class="sw-customer-create">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
         <h2>{{ customer | salutation($tc('sw-customer.general.newCustomer')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -16,6 +18,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_actions %}
     <template #smart-bar-actions>
         <sw-button-process
@@ -33,9 +36,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_content %}
     <template #content>
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_create_base_form %}
             <sw-card
                 :title="$tc('sw-customer.detailBase.labelAccountCard')"
@@ -49,6 +54,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_create_adress_form %}
             <sw-card
                 :title="$tc('sw-customer.detailBase.labelAddressesCard')"

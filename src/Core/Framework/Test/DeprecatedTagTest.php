@@ -36,6 +36,8 @@ class DeprecatedTagTest extends TestCase
         'deprecation.plugin.js',
         // waiting for symfony 6
         'Framework/Csrf/SessionProvider.php',
+        // some eslint rules check for @deprecated and therefore produce false positives
+        'administration/eslint-rules',
     ];
 
     private string $rootDir;

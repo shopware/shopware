@@ -12,6 +12,7 @@ const { Component } = Shopware;
  *     Text
  * </sw-label>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-label', {
     template,
 

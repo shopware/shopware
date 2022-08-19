@@ -2,6 +2,7 @@ import template from './sw-shopware-updates-requirements.html.twig';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-requirements', {
     template,
 

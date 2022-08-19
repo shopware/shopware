@@ -5,6 +5,7 @@ const { Component, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-properties', {
     template,
 

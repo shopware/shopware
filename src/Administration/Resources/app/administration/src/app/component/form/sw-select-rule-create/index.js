@@ -16,6 +16,7 @@ const { Criteria } = Shopware.Data;
  *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-rule-create', {
     template,
 

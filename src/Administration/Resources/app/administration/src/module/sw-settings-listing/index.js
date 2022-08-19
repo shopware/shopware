@@ -9,6 +9,7 @@ import './component/sw-settings-listing-visibility-detail';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-listing', {
     type: 'core',
     name: 'settings-listing',

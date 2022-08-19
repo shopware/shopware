@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_rule_select_v2 %}
 <div class="sw-promotion-v2-rule-select">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_rule_select_v2_selection %}
     <sw-entity-many-to-many-select
         v-bind="$attrs"
@@ -16,6 +18,7 @@
 
         <template #before-item-list>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_rule_select_v2_selection_before_list %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <li
@@ -39,6 +42,7 @@
                 v-bind="{ item, index }"
                 @item-select="addItem"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_many_to_many_select_base_results_list_result_label %}
                 <slot
                     name="result-label-property"
@@ -59,6 +63,7 @@
     </sw-entity-many-to-many-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_rule_select_v2_create_modal %}
     <sw-rule-modal
         v-if="showRuleModal"

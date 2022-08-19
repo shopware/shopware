@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_order_condition_form %}
 <sw-card
     class="promotion-order-condition-form"
@@ -9,6 +10,7 @@
         {{ $tc('sw-promotion.detail.main.preconditions.order.text') }}
     </p>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_order_condition_form_rules_field %}
     <sw-promotion-rule-select
         v-if="promotion"

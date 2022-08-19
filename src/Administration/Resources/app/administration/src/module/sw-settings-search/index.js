@@ -15,6 +15,7 @@ import './acl';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-search', {
     type: 'core',
     name: 'settings-product-search-config',

@@ -3,6 +3,7 @@ import './sw-property-option-list.scss';
 
 const { Component, State } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-property-option-list', {
     template,
 

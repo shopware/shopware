@@ -4,6 +4,7 @@ import './sw-order-create-address-modal.scss';
 const { Component, Mixin, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-address-modal', {
     template,
 

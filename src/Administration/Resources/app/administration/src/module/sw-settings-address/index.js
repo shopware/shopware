@@ -2,6 +2,7 @@ import './page/sw-settings-address';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-address', {
     type: 'core',
     name: 'settings-address',

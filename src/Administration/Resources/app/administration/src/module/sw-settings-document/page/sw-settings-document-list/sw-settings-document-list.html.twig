@@ -1,7 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_list %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_document_index %}
 <sw-page class="sw-settings-document-list">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_list_search_bar %}
     <template slot="search-bar">
         <sw-search-bar
@@ -12,10 +15,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_list_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_document_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -24,6 +30,7 @@
             /> {{ $tc('sw-settings-document.list.textHeadline') }}
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_document_list_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
@@ -37,8 +44,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_list_smart_bar_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_list_smart_bar_actions_add %}
         <sw-button
             v-tooltip.bottom="{
@@ -63,13 +72,16 @@
         />
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_document_list_content %}
     <sw-card-view slot="content">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_document_list_content_card %}
         <sw-card
             :is-loading="isLoading"
             position-identifier="sw-settings-document-list-content"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_document_list_grid %}
             <sw-grid
                 slot="grid"
@@ -82,8 +94,10 @@
                     slot="columns"
                     slot-scope="{ item }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_list_grid_columns %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_document_list_columns_name %}
                     <sw-grid-column
                         class="sw-document-list__column-name"
@@ -91,11 +105,13 @@
                         :label="$tc('sw-settings-document.list.columnName')"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_list_columns_name_link %}
                         <router-link
                             :title="$tc('sw-settings-document.list.contextMenuEdit')"
                             :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_list_columns_name_link_inner %}
                             {{ item.name }}
                             {% endblock %}
@@ -104,6 +120,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_document_list_columns_type %}
                     <sw-grid-column
                         v-if="item.documentType.translated"
@@ -115,11 +132,13 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_document_list_columns_assignment %}
                     <sw-grid-column
                         flex="minmax(100px, 1fr)"
                         :label="$tc('sw-settings-document.list.columnAssignment')"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_list_columns_assignment_label %}
                         <div
                             v-if="item.global"
@@ -149,6 +168,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_document_list_columns_actions %}
                     <sw-grid-column
                         flex="minmax(70px, 70px)"
@@ -157,6 +177,7 @@
                     >
                         <sw-context-button>
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_list_columns_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-document-list__edit-action"
@@ -167,6 +188,7 @@
                             </sw-context-menu-item>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_list_columns_actions_delete %}
                             <sw-context-menu-item
                                 variant="danger"
@@ -181,6 +203,7 @@
                     </sw-grid-column>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_document_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
@@ -188,14 +211,17 @@
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_list_delete_modal_confirm_text %}
                         <p>
                             {{ $tc('sw-settings-document.list.textDeleteConfirm', 0, { name: item.name }) }}
                         </p>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_document_list_delete_modal_footer %}
                         <template slot="modal-footer">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_list_delete_modal_actions_cancel %}
                             <sw-button
                                 size="small"
@@ -205,6 +231,7 @@
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_document_list_delete_modal_actions_delete %}
                             <sw-button
                                 variant="danger"
@@ -221,6 +248,7 @@
                     {% endblock %}
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_document_list_grid_pagination %}
                 <sw-pagination
                     slot="pagination"

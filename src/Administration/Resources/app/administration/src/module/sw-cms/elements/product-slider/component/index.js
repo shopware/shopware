@@ -3,6 +3,7 @@ import './sw-cms-el-product-slider.scss';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-el-product-slider', {
     template,
 

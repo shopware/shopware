@@ -4,6 +4,7 @@ const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
 

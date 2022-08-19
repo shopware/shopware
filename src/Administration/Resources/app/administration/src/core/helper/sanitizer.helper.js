@@ -16,6 +16,7 @@ const middlewareNames = [
     'afterSanitizeShadowDOM',
 ];
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class Sanitizer {
     // eslint-disable-next-line inclusive-language/use-inclusive-words
     /**

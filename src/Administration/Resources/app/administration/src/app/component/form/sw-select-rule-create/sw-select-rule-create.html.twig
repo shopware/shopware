@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_rule_create %}
 <div class="sw-select-rule-create">
     <sw-entity-multi-select
@@ -10,6 +11,7 @@
     >
 
         <template #before-item-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_before %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
@@ -22,6 +24,7 @@
         </template>
 
         <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_multi_select_result_list_item %}
             <slot
                 name="result-item"
@@ -35,6 +38,7 @@
                     v-bind="{ item, index }"
                     @item-select="addItem"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_select_rule_create_select_multi_select_result_item_label %}
                     <slot
                         name="result-label-property"
@@ -57,6 +61,7 @@
 
     </sw-entity-multi-select>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_rule_create_select %}
     <sw-entity-single-select
         v-else
@@ -70,6 +75,7 @@
         @change="onSelectRule"
     >
         <template #before-item-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_single_select_before %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
@@ -81,6 +87,7 @@
             {% endblock %}
         </template>
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_rule_create_select_entity_select_result_list_item %}
             <slot
                 name="result-item"
@@ -94,6 +101,7 @@
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_select_rule_create_select_entity_select_result_item_label %}
                     <slot
                         name="result-label-property"
@@ -116,11 +124,13 @@
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_rule_create_rule_modal %}
     <slot
         name="rule-modal"
         v-bind="{ showRuleModal, onSaveRule, onCloseRuleModal }"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_rule_create_rule_modal_inner%}
         <sw-rule-modal
             v-if="showRuleModal"

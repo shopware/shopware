@@ -3,6 +3,7 @@ import template from './sw-mail-template-list.html.twig';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-mail-template-list', {
     template,
 

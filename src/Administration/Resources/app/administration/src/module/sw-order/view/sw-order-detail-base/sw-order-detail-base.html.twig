@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_base %}
 <div
     v-if="order && !isLoading"
     class="sw-order-detail-base"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_leave_page_modal %}
     <sw-order-leave-page-modal
         v-if="isDisplayingLeavePageWarning"
@@ -12,6 +14,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base__missing_products_alert %}
     <sw-alert
         v-if="missingProductLineItems.length > 0"
@@ -33,6 +36,7 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base__converted_products_alert %}
     <sw-alert
         v-if="convertedProductLineItems.length > 0"
@@ -54,6 +58,7 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base__user_card %}
     <sw-order-user-card
         :key="isEditing"
@@ -66,6 +71,7 @@
         @error="$emit('error',$event)"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block  sw_order_detail_base_overview_status_change %}
         <sw-container
             v-if="!isEditing"
@@ -74,6 +80,7 @@
             gap="0 15px"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_status_change_transaction %}
             <sw-order-state-select
                 v-if="!isLoading && transaction"
@@ -92,6 +99,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_status_change_delivery %}
             <sw-order-state-select
                 v-if="!isLoading && delivery"
@@ -110,6 +118,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_status_change_order %}
             <sw-order-state-select
                 v-if="!isLoading"
@@ -134,6 +143,7 @@
     </sw-order-user-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_customer_comment_card %}
     <sw-order-customer-comment
         v-if="order.customerComment"
@@ -143,6 +153,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_line_items_card %}
     <sw-card
         class="sw-order-detail-base__line-item-grid-card"
@@ -151,6 +162,7 @@
         :is-loading="isLoading"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_line_items_card_rows %}
         <sw-container
             slot="grid"
@@ -158,6 +170,7 @@
             type="row"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_line_items_grid %}
             <sw-order-line-items-grid
                 ref="sw-order-line-item-grid"
@@ -172,6 +185,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_line_items_summary %}
             <sw-card-section
                 divider="top"
@@ -184,6 +198,7 @@
                     columns="1fr 440px"
                 >
                     <div>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_switch_promotions %}
                         <sw-switch-field
                             v-if="isEditing"
@@ -192,6 +207,7 @@
                             :label="$tc('sw-order.promotionModal.labelTitle')"
                         />
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_voucher_field %}
                         <sw-order-promotion-tag-field
                             v-if="isEditing"
@@ -212,12 +228,15 @@
                         grid="265px 1fr"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_entries %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_amount %}
                         <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
                         <dd>{{ order.positionPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</dd>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_shipping_cost %}
                         <template v-if="delivery">
                             <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
@@ -251,6 +270,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
@@ -258,6 +278,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_taxes %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <template v-for="(calculatedTax, index) in sortedCalculatedTaxes">
@@ -271,9 +292,11 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_slot %}
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_amount_total %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
@@ -285,6 +308,7 @@
                         </template>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
@@ -304,6 +328,7 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_status_card %}
     <sw-order-state-history-card
         v-if="!isEditing"
@@ -316,6 +341,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_delivery_metadata %}
     <sw-order-delivery-metadata
         v-if="delivery"
@@ -327,6 +353,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_document_grid %}
     <sw-order-document-card
         v-if="!isEditing"
@@ -337,6 +364,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_custom_fields %}
     <sw-card
         v-if="customFieldSets.length > 0"

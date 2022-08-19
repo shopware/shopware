@@ -12,6 +12,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-inheritance-warning :name="'This product'"></sw-inheritance-warning>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inheritance-warning', {
     template,
     props: {

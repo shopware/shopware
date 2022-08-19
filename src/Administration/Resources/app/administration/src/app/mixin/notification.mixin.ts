@@ -1,5 +1,6 @@
 const { Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type NotificationType = 'info' | 'warning' | 'error' | 'success';
 
 interface notification {

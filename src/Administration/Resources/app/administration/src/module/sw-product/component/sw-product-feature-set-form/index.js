@@ -4,6 +4,7 @@ import './sw-product-feature-set-form.scss';
 const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-feature-set-form', {
     template,
 

@@ -5,6 +5,7 @@ import type ApplicationBootstrapper from '../application';
  * View Adapter Boilerplate class which provides a blueprint for view adapters (like for React, VueJS, ...)
  * @class
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default abstract class ViewAdapter {
     public Application: ApplicationBootstrapper;
 

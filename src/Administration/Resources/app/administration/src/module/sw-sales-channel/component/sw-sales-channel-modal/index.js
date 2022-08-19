@@ -4,6 +4,7 @@ import './sw-sales-channel-modal.scss';
 const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-modal', {
     template,
 

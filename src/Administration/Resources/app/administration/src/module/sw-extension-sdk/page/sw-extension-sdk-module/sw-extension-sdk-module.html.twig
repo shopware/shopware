@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_sdk_module %}
 <sw-page :show-search-bar="showSearchBar">
     <template #smart-bar-header>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_header %}
         <template v-if="!isLoading">
             <h2>{{ module.heading }}</h2>
@@ -9,7 +11,9 @@
     </template>
 
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_iframe_renderer %}
         <sw-iframe-renderer
             v-if="!isLoading"
@@ -19,10 +23,12 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_loader %}
         <sw-loader v-else-if="!timedOut" />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_error_state %}
         <sw-my-apps-error-page v-if="timedOut" />
         {% endblock %}

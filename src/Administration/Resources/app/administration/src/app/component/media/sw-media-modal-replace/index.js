@@ -12,6 +12,7 @@ const { Component, Mixin } = Shopware;
  * <sw-media-modal-replace itemToReplace="item">
  * </sw-media-modal-replace>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-modal-replace', {
     template,
 

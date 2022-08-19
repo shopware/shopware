@@ -3,6 +3,7 @@ import './sw-import-export-activity-result-modal.scss';
 
 const { format } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-import-export-activity-result-modal', {
     template,
 

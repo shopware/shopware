@@ -21,6 +21,7 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  *     label="My image-upload"
  * ></sw-media-upload-v2>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-upload-v2', {
     template,
 

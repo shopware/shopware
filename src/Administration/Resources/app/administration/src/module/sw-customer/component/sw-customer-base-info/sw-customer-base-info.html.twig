@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_base_info %}
 <sw-container
     class="sw-customer-base-info"
     columns="repeat(auto-fit, minmax(250px, 1fr))"
     gap="0px 15px"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_left %}
     <sw-loader v-if="isLoading" />
 
@@ -12,20 +15,24 @@
         v-else
         class="sw-customer-base-info-columns"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_group %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_content %}
             <dd v-if="!customerEditMode">
                 {{ customer.group.translated.name }}
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -39,14 +46,17 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_default_payment %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelDefaultPayment') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_content %}
             <dd
                 v-if="!customerEditMode"
@@ -56,6 +66,7 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -71,14 +82,17 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_active %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelActive') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_content %}
             <dd
                 v-if="!customerEditMode"
@@ -88,6 +102,7 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
@@ -101,14 +116,17 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_language %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelLanguage') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_content %}
             <dd
                 v-if="!customerEditMode"
@@ -118,6 +136,7 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
@@ -133,6 +152,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
@@ -140,6 +160,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
@@ -149,8 +170,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_info_metadata_right %}
     <div class="sw-customer-base-info-columns">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_number %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -162,8 +185,10 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_bound_sales_channel %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_sales_channel_label %}
             <dt class="sw-customer-base-info__label sw-bound-sales-channel__label">
                 {{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}
@@ -171,6 +196,7 @@
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_bound_saleschannel_content %}
             <dd class="sw-customer-base__label-bound-sales-channel">
                 <template v-if="customer.boundSalesChannelId">
@@ -184,6 +210,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_last_login %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -200,6 +227,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_turnover %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -212,6 +240,7 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_orders %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
@@ -221,14 +250,17 @@
         </sw-description-list>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_birthday %}
         <sw-description-list>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelBirthday') }}
             </dt>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_metadata_birthday_content %}
             <dd
                 v-if="!customerEditMode"
@@ -243,6 +275,7 @@
             </dd>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker

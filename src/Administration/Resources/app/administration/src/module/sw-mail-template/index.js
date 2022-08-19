@@ -10,6 +10,7 @@ import './acl';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {
     type: 'core',
     name: 'mail-template',

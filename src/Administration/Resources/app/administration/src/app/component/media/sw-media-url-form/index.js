@@ -8,6 +8,7 @@ import template from './sw-media-url-form.html.twig';
  * <sw-media-url-form variant="inline">
  * </sw-media-url-form>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-media-url-form', {
     template,
 

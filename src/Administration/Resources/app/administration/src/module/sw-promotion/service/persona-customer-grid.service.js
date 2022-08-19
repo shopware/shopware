@@ -3,6 +3,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class PersonaCustomerGridService {
     constructor(component, repoCustomers, repoPromotionCustomers, context) {
         this.component = component;

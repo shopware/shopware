@@ -11,6 +11,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-detail', {
     template,
 

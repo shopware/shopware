@@ -5,6 +5,7 @@ const { Criteria } = Shopware.Data;
 const { format, array } = Utils;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-detail-general', {
     template,
 

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
@@ -6,6 +7,7 @@
     @click="onClick"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_label %}
     <div
         v-if="showLabel"
@@ -16,8 +18,10 @@
         </slot>
     </div>
     {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_box %}
     <div class="sw-text-editor__box">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_box_toolbar %}
         <sw-text-editor-toolbar
             v-if="hasSelection || !isInlineEdit"
@@ -37,6 +41,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_box_table_toolbar %}
         <sw-text-editor-table-toolbar
             v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
@@ -46,6 +51,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_box_content %}
         <sw-code-editor
             v-if="isCodeEdit"
@@ -83,6 +89,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_box_word_count %}
         <div
             v-if="!isInlineEdit && !isCodeEdit"

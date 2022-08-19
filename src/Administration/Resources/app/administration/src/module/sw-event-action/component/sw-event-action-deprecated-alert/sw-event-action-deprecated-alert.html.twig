@@ -1,4 +1,5 @@
-{% block sw_event_action_deprecated_alert  %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_event_action_deprecated_alert %}
 <div
     v-if="showAlert"
     class="sw-event-action-deprecated-alert"
@@ -8,10 +9,12 @@
         variant="warning"
         appearance="default"
     >
-        {% block sw_event_action_deprecated_alert_business_info  %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_event_action_deprecated_alert_business_info %}
         <span v-html="$tc('sw-event-action.deprecatedAlert.textBusinessEvent')"></span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_deprecated_alert_more_info_link  %}
         <a
             :href="$tc('sw-event-action.deprecatedAlert.linkFlowBuilder')"
@@ -27,7 +30,8 @@
         </a>
         {% endblock %}
 
-        {% block sw_event_action_deprecated_alert_close_button  %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_event_action_deprecated_alert_close_button %}
         <button
             v-if="!showAtTop"
             class="sw-event-action-deprecated-alert__close sw-alert__close"

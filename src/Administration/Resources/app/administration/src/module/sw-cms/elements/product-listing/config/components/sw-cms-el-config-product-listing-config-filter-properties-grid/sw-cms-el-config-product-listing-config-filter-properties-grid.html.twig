@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_config_product_listing_config_filter_properties_grid %}
 <div
     class="sw-cms-el-config-product-listing-config-filter-properties-grid"
     :class="componentClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_el_config_product_listing_config_filter_properties_grid_grid %}
     <sw-data-grid
         class="sw-cms-el-config-product-listing-config-filter-properties-grid__grid"
@@ -17,6 +19,7 @@
     >
 
         <template #column-status="{ item, column }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_config_product_listing_config_filter_properties_grid_column_status %}
             <sw-switch-field
                 class="sw-cms-el-config-product-listing-config-filter-properties-grid__switch"
@@ -28,6 +31,7 @@
         </template>
 
         <template #pagination>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_config_product_listing_config_filter_properties_grid_pagination %}
             <sw-pagination
                 v-if="!disabled"

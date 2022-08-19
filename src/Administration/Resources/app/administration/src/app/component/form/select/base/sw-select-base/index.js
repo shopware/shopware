@@ -9,6 +9,7 @@ const { Component } = Shopware;
  * @description Base component for creating new select components. Uses sw-field base components as basic structure.
  * @example-type code-only
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-base', {
     template,
     inheritAttrs: false,

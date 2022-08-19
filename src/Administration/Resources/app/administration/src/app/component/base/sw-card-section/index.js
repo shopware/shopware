@@ -20,6 +20,7 @@ const { Component } = Shopware;
  *     </sw-container>
  * </sw-card>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card-section', {
     template,
 

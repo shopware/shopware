@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_detail_discounts %}
 <div class="sw-promotion-detail-discounts">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_discounts_card_add %}
     <sw-card
         slot="content"
@@ -8,6 +10,7 @@
         :is-loading="isLoading"
     >
         <div>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_detail_discounts_actions_add %}
             <sw-button
                 v-tooltip="{
@@ -26,8 +29,10 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_detail_discounts_items %}
     <ul class="sw-promotion-detail-discounts__discount-list">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_detail_discounts_item_form %}
         <sw-promotion-discount-component
             v-for="discount in discounts"

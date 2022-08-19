@@ -3,6 +3,7 @@ import template from './sw-sales-channel-config.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-config', {
     template,
 

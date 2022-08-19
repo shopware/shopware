@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_translated_labels %}
 <div class="sw-custom-field-translated-labels">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_translated_labels_single %}
     <template v-if="localeCount == 1">
         <div
@@ -19,6 +21,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_translated_labels_translated %}
     <sw-tabs
         v-else
@@ -26,6 +29,7 @@
         position-identifier="sw-custom-field-translated-labels"
         :default-item="fallbackLocale"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_tabs %}
         <template slot-scope="{ active }">
             <sw-tabs-item
@@ -41,6 +45,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_content %}
         <template
             slot="content"
@@ -52,6 +57,7 @@
                 v-if="active === locale"
                 :key="locale"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_translated_labels_translated_content_field %}
                 <sw-field
                     v-for="(label, name) in propertyNames"

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_multi_tag_select %}
 <sw-select-base
     class="sw-multi-tag-select"
@@ -9,9 +10,12 @@
     @select-expanded="setDropDown(true)"
     @select-collapsed="setDropDown(false)"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_tag_select_base %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_tag_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_tag_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
@@ -24,9 +28,12 @@
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_tag_select_base_selection_list %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_tag_select_base_selection_list_label %}
             <template #label-property="{ item, index, labelProperty, valueProperty }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_multi_tag_select_base_selection_list_label_inner %}
                 <slot
                     name="selection-label-property"
@@ -44,6 +51,7 @@
     {% endblock %}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_multi_tag_select_validation %}
     <template #results-list>
         <div
@@ -57,6 +65,7 @@
                 :resize-width="true"
             >
                 <div class="sw-select-result-list__content">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_multi_tag_select_validation_valid %}
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
@@ -64,6 +73,7 @@
                         class="sw-multi-tag-select-valid"
                         @click="addItem"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_multi_tag_select_validation_valid_message %}
                         <slot name="message-add-data">
                             <span>{{ $tc('global.sw-multi-tag-select.addData') }}</span>
@@ -72,11 +82,13 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_multi_tag_select_validation_invalid %}
                     <div
                         v-else
                         class="sw-multi-tag-select-invalid"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_multi_tag_select_validation_invalid_message %}
                         <slot name="message-enter-valid-data">
                             <span>{{ $tc('global.sw-multi-tag-select.enterValidData') }}</span>

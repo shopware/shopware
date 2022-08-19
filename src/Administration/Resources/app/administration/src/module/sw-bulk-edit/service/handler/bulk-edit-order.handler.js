@@ -104,4 +104,5 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default BulkEditOrderHandler;

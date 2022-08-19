@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variant_info %}
 <span
     v-tooltip="{
@@ -9,6 +10,7 @@
 >
     <span class="sw-product-variant-info__text">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_info_product_name %}
         <span class="sw-product-variant-info__product-name">
             <sw-highlight-text
@@ -20,6 +22,7 @@
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variant_info_options %}
         <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <span
@@ -30,6 +33,7 @@
         >
             <template v-if="index === 0 && !ommitParenthesis">(</template>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_info_options_text %}
             <span>{{ variation.group }}</span>: {{ variation.option }}
             {% endblock %}

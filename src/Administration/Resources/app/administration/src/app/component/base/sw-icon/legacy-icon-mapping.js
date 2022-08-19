@@ -5,6 +5,7 @@
  *
  *  If an old icon does not have a matching new icon then it will have a null value.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     'icons-text-editor-undo': 'icons-regular-undo-xs',
     'icons-small-trending-up': 'icons-regular-chart-line-up-s',

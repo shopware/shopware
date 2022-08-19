@@ -21,6 +21,7 @@ const modalSizeMapping = {
 
 const IFRAME_KEY = 'app.action_button.iframe';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-app-actions', {
     template,
 

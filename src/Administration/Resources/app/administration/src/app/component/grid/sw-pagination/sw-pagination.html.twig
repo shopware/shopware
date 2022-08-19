@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_pagination %}
 <div
     v-if="shouldBeVisible"
     class="sw-pagination"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_prev %}
     <button
         :disabled="currentPage === 1"
@@ -16,14 +18,17 @@
     </button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_list %}
     <ul class="sw-pagination__list">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_pagination_page_list_item %}
         <li
             v-for="(pageNum, index) in displayedPages"
             :key="index"
             class="sw-pagination__list-item"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_pagination_page_list_item_button %}
             <button
                 v-if="typeof(pageNum) === 'number'"
@@ -35,6 +40,7 @@
             </button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_pagination_page_list_item_separator %}
             <span
                 v-else
@@ -48,6 +54,7 @@
     </ul>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_page_next %}
     <button
         :disabled="currentPage === maxPage"
@@ -61,6 +68,7 @@
     </button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_pagination_per_page_selection %}
     <div
         v-if="steps.length > 1"

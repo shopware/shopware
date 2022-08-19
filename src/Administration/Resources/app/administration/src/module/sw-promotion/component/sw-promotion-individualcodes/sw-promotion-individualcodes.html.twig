@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_individualcodes %}
 <div class="sw-promotion-individualcodes">
     <sw-container
@@ -5,6 +6,7 @@
         gap="0 10px"
         class="sw-promotion-individualcodes__top-bar"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_generate_pattern_field %}
         <sw-field
             v-model="promotion.individualCodePattern"
@@ -14,6 +16,7 @@
             :disabled="isEditingDisabled"
         />
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_generate_count_field %}
         <sw-number-field
             v-model="generateCount"
@@ -24,6 +27,7 @@
             :disabled="isEditingDisabled"
         />
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_generate_button %}
         <sw-button
             :key="isGeneratingCodes"
@@ -59,6 +63,7 @@
     </sw-container>
 
     <sw-container columns="1fr">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_empty_state %}
         <sw-empty-state
             v-if="gridItemsTotal <= 0"
@@ -66,6 +71,7 @@
             subline=" "
         />
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_grid %}
         <sw-data-grid
             v-if="gridItemsTotal > 0"
@@ -80,6 +86,7 @@
                 slot="actions"
                 slot-scope="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_individualcodes_grid_actions_open_customer %}
                 <sw-context-menu-item
                     class="sw-promotion-individualcodes__view-action"
@@ -89,6 +96,7 @@
                     {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonOpenCustomer') }}
                 </sw-context-menu-item>
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_individualcodes_grid_actions_delete_code %}
                 <sw-context-menu-item
                     class="sw-promotion-individualcodes__delete-action"
@@ -104,6 +112,7 @@
                 slot="column-isRedeemed"
                 slot-scope="{ item, compact }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_individualcodes_grid_redeemed_active %}
                 <sw-icon
                     v-if="item.isRedeemed"
@@ -112,6 +121,7 @@
                     class="is--active"
                 />
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_individualcodes_grid_redeemed_inactive %}
                 <sw-icon
                     v-else
@@ -133,6 +143,7 @@
             </template>
         </sw-data-grid>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_individualcodes_delete_selected_button %}
         <sw-button
             v-if="gridItemsTotal > 0"

@@ -7,6 +7,7 @@ const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-order', {
     template,
 

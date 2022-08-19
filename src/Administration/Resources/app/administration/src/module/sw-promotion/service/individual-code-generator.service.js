@@ -5,6 +5,7 @@ import Criteria from '../../../core/data/criteria.data';
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class IndividualCodeGenerator extends EventEmitter {
     /**
      * Code saver service, which generates codes and saves them using the provided repository
@@ -288,6 +289,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
  * @param {Array} existingCodes - List of existing codes that must not be generated again
  * @param {Number} promotionId - The promotion Id of the new code
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createCodes(pattern, count, existingCodes, promotionId) {
     let i = 0;
     const allNewCodes = [];

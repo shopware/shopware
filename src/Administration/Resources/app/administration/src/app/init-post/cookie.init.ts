@@ -3,6 +3,7 @@ import { CookieStorage } from 'cookie-storage';
 /**
  * @deprecated tag:v6.6.0 - Will be removed without replacement.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeCookies(): void {
     const loginService = Shopware.Service('loginService');
     const context = Shopware.State.get('context').api;

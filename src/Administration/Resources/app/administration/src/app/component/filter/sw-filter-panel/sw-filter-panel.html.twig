@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_filter_panel %}
 <div class="sw-filter-panel">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_filter_panel_item %}
     <div
         v-for="filter in listFilters"
@@ -9,6 +11,7 @@
     >
         <div v-if="false"></div>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_filter_panel_extension_point %}{% endblock %}
 
         <sw-boolean-filter
@@ -34,6 +37,7 @@
             @filter-update="updateFilter"
             @filter-reset="resetFilter"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_variant_label %}
             <template
                 v-if="filter.displayVariants"
@@ -45,6 +49,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_path_label %}
             <template
                 v-else-if="filter.displayPath"
@@ -62,6 +67,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_variant_result_item %}
             <template
                 v-if="filter.displayVariants"
@@ -71,6 +77,7 @@
                     is="sw-select-result"
                     v-bind="{ item, index }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_multi_select_filter_content_variant_result_label %}
                     <span class="sw-select-result__result-item-text">
                         <sw-product-variant-info :variations="item.variation">
@@ -82,6 +89,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_path_result_item %}
             <template
                 v-else-if="filter.displayPath"
@@ -91,6 +99,7 @@
                     is="sw-select-result"
                     v-bind="{ item, index }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_multi_select_filter_content_path_result_label %}
                     <span class="sw-select-result__result-item-text">
                         <sw-highlight-text

@@ -1,9 +1,11 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_customer_base_form %}
 <div class="sw-customer-base-form">
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 32px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_account_type_field %}
         <sw-single-select
             v-model="customer.accountType"
@@ -18,6 +20,7 @@
             columns="1fr 1fr"
             class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_form_first_salutation_field %}
             <sw-entity-single-select
                 v-model="customer.salutationId"
@@ -32,6 +35,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_base_form_title_field %}
             <sw-text-field
                 v-model="customer.title"
@@ -41,6 +45,7 @@
             {% endblock %}
         </sw-container>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_first_name_field %}
         <sw-text-field
             v-model="customer.firstName"
@@ -51,6 +56,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_last_name_field %}
         <sw-text-field
             v-model="customer.lastName"
@@ -61,6 +67,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_email_field %}
         <sw-email-field
             v-model="customer.email"
@@ -71,6 +78,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_password_field %}
         <sw-password-field
             v-model="customer.password"
@@ -83,6 +91,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_vat_id_field %}
         <sw-text-field
             v-if="isBusinessAccountType"
@@ -95,6 +104,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_birthday_field %}
         <sw-datepicker
             v-model="customer.birthday"
@@ -104,6 +114,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_customer_group_field %}
         <sw-entity-single-select
             v-model="customer.groupId"
@@ -117,6 +128,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_sales_channel_field %}
         <sw-entity-single-select
             class="sw-customer-base-form__sales-channel-select"
@@ -131,6 +143,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_payment_method_field %}
         <sw-entity-single-select
             v-model="customer.defaultPaymentMethodId"
@@ -145,6 +158,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_form_customer_number_field %}
         <sw-text-field
             v-model="customer.customerNumber"
@@ -156,6 +170,7 @@
         {% endblock %}
     </sw-container>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_base_form_tag_field %}
     <sw-entity-tag-select
         v-model="customer.tags"

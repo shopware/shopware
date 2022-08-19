@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_slot %}
 <div
     :id="slotElementId"
@@ -5,8 +6,10 @@
     :class="componentClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_component %}
     <component
         :is="elementConfig.component"
@@ -15,6 +18,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_preview_overlay %}
     <div
         v-if="!active"
@@ -22,13 +26,16 @@
     ></div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_overlay %}
     <div
         v-if="active"
         class="sw-cms-slot__overlay"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_overlay_content %}
         <div class="sw-cms-slot__actions">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_settings %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
@@ -44,6 +51,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_swap %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
@@ -62,6 +70,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_settings_modal %}
     <sw-modal
         v-if="showElementSettings"
@@ -70,6 +79,7 @@
         :title="$tc('sw-cms.detail.title.elementSettingsModal')"
         @modal-close="onCloseSettingsModal"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_settings_modal_component %}
         <component
             :is="elementConfig.configComponent"
@@ -77,8 +87,10 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_settings_modal_footer %}
         <template slot="modal-footer">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_settings_modal_action_confirm %}
             <sw-button
                 variant="primary"
@@ -92,14 +104,17 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_element_modal %}
     <sw-modal
         v-if="showElementSelection"
         :title="$tc('sw-cms.detail.title.elementChangeModal')"
         @modal-close="onCloseElementModal"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_element_modal_selection %}
         <div class="sw-cms-slot__element-selection">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_element_modal_selection_element %}
             <!-- eslint-disable vue/no-use-v-if-with-v-for vuejs-accessibility/click-events-have-key-events -->
             <div
@@ -110,6 +125,7 @@
                 @click="onSelectElement(element.name)"
             >
                 <div class="element-selection__element">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_slot_content_element_modal_selection_element_component %}
                     <component
                         :is="element.previewComponent"
@@ -117,6 +133,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
                     <div class="element-selection__overlay">
                         <sw-icon
@@ -127,6 +144,7 @@
                     {% endblock %}
                 </div>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_slot_content_element_modal_selection_element_label %}
                 <span class="element-selection__label">{{ $tc(element.label) }}</span>
                 {% endblock %}
@@ -135,9 +153,11 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_slot_content_element_modal_footer %}
         <template slot="modal-footer">
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_element_modal_action_abort %}
             <sw-button @click="onCloseElementModal">
                 {{ $tc('sw-cms.detail.label.buttonElementChangeAbort') }}

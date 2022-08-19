@@ -1,14 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_event_action_detail %}
 <sw-page class="sw-event-action-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_detail_smart_bar_header %}
     <template #smart-bar-header>
         <h2>{{ identifier }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_detail_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -19,6 +23,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_event_action_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -36,6 +41,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_event_action_detail_content %}
     <template #content>
         <sw-card-view>
@@ -45,10 +51,12 @@
             </template>
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_deprecated_alert %}
                 <sw-event-action-deprecated-alert show-at-top />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_content_base %}
                 <sw-card
                     class="sw-event-action-detail__base"
@@ -60,6 +68,7 @@
                         columns="75% 1fr"
                         gap="30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_event_action_detail_title_field %}
                         <sw-field
                             v-if="eventAction"
@@ -71,6 +80,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_event_action_detail_active_field %}
                         <sw-switch-field
                             v-if="eventAction"
@@ -83,7 +93,9 @@
                         {% endblock %}
                     </sw-container>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_event_action_detail_mail_template_field %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_event_action_detail_business_event_field %}
                     <sw-single-select
                         v-if="eventAction && businessEvents"
@@ -152,6 +164,7 @@
                     </sw-entity-single-select>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_event_action_detail_mail_template_field_detail_link %}
                     <div class="sw-event-action-detail__mail-template-detail">
                         <router-link
@@ -167,6 +180,7 @@
                     </div>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_event_action_detail_sales_channel_field %}
                     <sw-entity-multi-select
                         v-if="eventAction"
@@ -178,6 +192,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_event_action_detail_rules_field %}
                     <sw-select-rule-create
                         v-if="eventAction"
@@ -192,6 +207,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_recipients %}
                 <sw-event-action-detail-recipients
                     v-if="eventAction"
@@ -201,6 +217,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_event_action_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

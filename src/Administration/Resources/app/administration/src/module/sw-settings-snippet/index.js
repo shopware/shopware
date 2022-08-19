@@ -8,6 +8,7 @@ import './acl';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-snippet', {
     type: 'core',
     name: 'settings-snippet',

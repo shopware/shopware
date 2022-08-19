@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image_gallery %}
 <div
     class="sw-cms-el-image-gallery"
@@ -5,6 +6,7 @@
     :style="verticalAlignStyle"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_gallery_grid %}
     <div
         ref="galleryItemHolder"
@@ -13,6 +15,7 @@
 
         <template v-if="mediaUrls && mediaUrls.length">
             <div class="sw-cms-el-image-gallery__item-holder">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_selection %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <sw-media-list-selection-item-v2
@@ -30,6 +33,7 @@
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_gallery_empty %}
             <div class="sw-cms-el-image-gallery__item-holder">
                 <img
@@ -43,6 +47,7 @@
             {% endblock %}
         </template>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_gallery_nav_arrow %}
         <div
             v-if="element.config.sliderItems.value.length > galleryLimit"
@@ -57,6 +62,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_gallery_slider %}
     <sw-cms-el-image-slider
         :element="element"

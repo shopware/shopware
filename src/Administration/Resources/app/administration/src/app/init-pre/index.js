@@ -5,6 +5,7 @@
 import initApiServices from './api-services.init';
 import initState from './state.init';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     apiServices: initApiServices,
     state: initState,

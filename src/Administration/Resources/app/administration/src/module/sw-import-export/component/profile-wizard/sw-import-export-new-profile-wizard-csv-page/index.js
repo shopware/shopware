@@ -3,6 +3,7 @@ import './sw-import-export-new-profile-wizard-csv-page.scss';
 
 const { Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-import-export-new-profile-wizard-csv-page', {
     template,
 

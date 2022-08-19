@@ -1,9 +1,11 @@
 <div class="sw-users-permissions-role-view-general">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_role_view_general_card_view_basic_information %}
     <sw-card
         :title="$tc('sw-users-permissions.roles.detail.basicInformation')"
         position-identifier="sw-users-permissions-role-view-general"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
         <sw-field
             v-model="role.name"
@@ -15,6 +17,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_description %}
         <sw-field
             v-model="role.description"
@@ -27,6 +30,7 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_role_view_general_card_view_permissions %}
     <sw-users-permissions-permissions-grid
         :role="role"
@@ -34,6 +38,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
     <sw-users-permissions-additional-permissions
         :role="role"

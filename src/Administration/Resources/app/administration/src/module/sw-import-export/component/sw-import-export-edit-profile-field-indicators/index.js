@@ -4,6 +4,7 @@ import './sw-import-export-edit-profile-field-indicators.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-import-export-edit-profile-field-indicators', {
     template,
 

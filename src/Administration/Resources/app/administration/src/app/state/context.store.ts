@@ -235,5 +235,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ContextStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ContextState };

@@ -3,6 +3,7 @@ import './sw-media-index.scss';
 
 const { Component, Context } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-index', {
     template,
 

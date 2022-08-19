@@ -26,5 +26,8 @@ const SdkLocationStore: Module<SdkLocationState, VuexRootState> = {
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default SdkLocationStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { SdkLocationState };

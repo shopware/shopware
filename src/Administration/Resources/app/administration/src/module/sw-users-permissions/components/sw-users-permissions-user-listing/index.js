@@ -4,6 +4,7 @@ import './sw-users-permissions-user-listing.scss';
 const { Component, Data, Mixin, State, Feature } = Shopware;
 const { Criteria } = Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-users-permissions-user-listing', {
     template,
 

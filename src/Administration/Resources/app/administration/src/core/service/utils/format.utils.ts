@@ -4,6 +4,7 @@ import MD5 from 'md5-es';
 /**
  * @module core/service/utils/format
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     currency,
     date,
@@ -27,7 +28,13 @@ interface CurrencyOptions extends Intl.NumberFormatOptions {
  * @param {Object} additionalOptions
  * @returns {string} Formatted string
  */
-export function currency(val: number, sign: string, decimalPlaces: number, additionalOptions: CurrencyOptions = {}): string {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function currency(
+    val: number,
+    sign: string,
+    decimalPlaces: number,
+    additionalOptions: CurrencyOptions = {},
+): string {
     const decimalOpts = decimalPlaces !== undefined ? {
         minimumFractionDigits: decimalPlaces,
         maximumFractionDigits: decimalPlaces,
@@ -54,6 +61,7 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
  * @param {Object} options
  * @returns {string}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function date(val: string, options: Intl.DateTimeFormatOptions = {}): string {
     // should return an empty string when no date is given
     if (!val) {
@@ -93,7 +101,8 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
  * @param {Date} dateObj
  * @returns {Date}
  */
-export function dateWithUserTimezone(dateObj: Date = new Date()) : Date {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone as string) ?? 'UTC';
 
@@ -117,6 +126,7 @@ export function dateWithUserTimezone(dateObj: Date = new Date()) : Date {
  * @param {String} value
  * @return {String}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function md5(value: string): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     return MD5.hash(value) as string;
@@ -125,6 +135,7 @@ export function md5(value: string): string {
 /**
  * Formats a number of bytes to a string with a unit
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function fileSize(bytes: number, locale = 'de-DE'): string {
     const denominator = 1024;
     const units = ['B', 'KB', 'MB', 'GB'];
@@ -146,6 +157,7 @@ export function fileSize(bytes: number, locale = 'de-DE'): string {
     return `${result.toFixed(2).toLocaleString(locale)}${units[i]}`;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function toISODate(dateObj: Date, useTime = true): string {
     const isoDate = dateObj.toISOString();
 

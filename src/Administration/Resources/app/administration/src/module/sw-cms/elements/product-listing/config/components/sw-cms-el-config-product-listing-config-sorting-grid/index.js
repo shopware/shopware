@@ -1,6 +1,7 @@
 import template from './sw-cms-el-config-product-listing-config-sorting-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', {
     template,
 

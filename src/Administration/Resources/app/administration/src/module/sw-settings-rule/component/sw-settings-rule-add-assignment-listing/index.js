@@ -5,6 +5,7 @@ const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-rule-add-assignment-listing', {
     template,
 

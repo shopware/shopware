@@ -5,6 +5,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const createId = Shopware.Utils.createId;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-v2-individual-codes-behavior', {
     template,
 

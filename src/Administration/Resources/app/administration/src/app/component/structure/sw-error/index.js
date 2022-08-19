@@ -13,6 +13,7 @@ const { Component } = Shopware;
  * <sw-error :errorObject="{ message: 'Could not load the page' }">
  * </sw-error>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-error', {
     template,
 

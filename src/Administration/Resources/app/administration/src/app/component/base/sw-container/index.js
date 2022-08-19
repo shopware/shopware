@@ -15,6 +15,7 @@ const { warn } = Shopware.Utils.debug;
  *     <div>Right content</div>
  * </sw-container>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-container', {
     template,
 

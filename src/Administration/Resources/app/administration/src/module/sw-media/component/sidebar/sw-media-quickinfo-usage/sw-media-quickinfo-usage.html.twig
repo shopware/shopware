@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_quickinfo_usage %}
 <div class="sw-media-quickinfo-usage">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_usage_loader %}
     <sw-loader
         v-if="isLoading"
@@ -8,6 +10,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_usage_empty_state %}
     <sw-alert
         v-else-if="isNotUsed"
@@ -19,11 +22,13 @@
     </sw-alert>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_usage_list %}
     <ul
         v-else
         class="sw-media-quickinfo-usage__list"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_usage_item %}
         <router-link
             v-for="usage in getUsages"
@@ -39,6 +44,7 @@
                 }"
                 class="sw-media-quickinfo-usage__item"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_usage_item_icon %}
                 <div class="sw-media-quickinfo-usage__label">
                     <sw-icon
@@ -49,6 +55,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_usage_item_label %}
                 <div class="sw-media-quickinfo-usage__label">
                     {{ usage.name }}

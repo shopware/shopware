@@ -1,5 +1,6 @@
 let isInitialized = false;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function LanguageAutoFetchingService() {
     if (isInitialized) return;
     isInitialized = true;

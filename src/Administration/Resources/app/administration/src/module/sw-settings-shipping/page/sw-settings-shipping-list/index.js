@@ -3,6 +3,7 @@ import './sw-settings-shipping-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shipping-list', {
     template,
 

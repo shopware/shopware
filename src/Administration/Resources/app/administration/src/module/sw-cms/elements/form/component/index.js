@@ -5,6 +5,7 @@ import './sw-cms-el-form.scss';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-el-form', {
     template,
 

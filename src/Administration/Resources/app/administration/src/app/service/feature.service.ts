@@ -8,6 +8,7 @@ import type { default as FeatureType } from 'src/core/feature';
 /**
  * A service for Feature flags
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FeatureService {
     private Feature: typeof FeatureType;
 

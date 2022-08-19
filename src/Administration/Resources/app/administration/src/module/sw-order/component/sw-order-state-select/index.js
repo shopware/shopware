@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-select', {
     template,
     props: {

@@ -1,6 +1,7 @@
 /**
  * @deprecated tag:v6.5.0 - Will no longer return legacy icons.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default (() => {
     const iconKitContext = require.context('@shopware-ag/meteor-icon-kit/icons', true, /svg$/);
 

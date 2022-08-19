@@ -3,6 +3,7 @@ import template from './sw-settings-product-feature-sets-detail.html.twig';
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-product-feature-sets-detail', {
     template,
 

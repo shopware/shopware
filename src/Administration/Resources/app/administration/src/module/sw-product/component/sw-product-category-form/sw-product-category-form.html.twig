@@ -1,18 +1,22 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_category_form %}
 <div class="sw-product-category-form">
     <sw-container class="sw-product-category-form__description">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_title %}
         <span class="sw-product-category-form__visibility-title">
             {{ $tc('sw-product.visibility.labelVisibility') }}
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_body %}
         <p class="sw-product-category-form__visibility-body">
             {{ $tc('sw-product.visibility.bodyVisibility') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_visibility_field %}
         <sw-inherit-wrapper
             ref="productVisibilitiesInheritance"
@@ -40,11 +44,13 @@
         {% endblock %}
     </sw-container>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_visibility_field_link %}
     <sw-container
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         align="center"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_active_field %}
         <sw-inherit-wrapper
             v-model="product.active"
@@ -100,17 +106,20 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_category_field %}
     <sw-container
         rows="2em 4em 4em"
         class="sw-product-feature-set-form__description"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_categories_title %}
         <span class="sw-product-category-form__visibility-title">
             {{ $tc('sw-product.categoryForm.categoriesTitle') }}
         </span>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_category_form_categories_body %}
         <p class="sw-product-category-form__categories-body">
             {{ $tc('sw-product.categoryForm.descriptionCategories') }}
@@ -139,6 +148,7 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_tags_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
@@ -166,6 +176,7 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_category_form_search_keyword_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"

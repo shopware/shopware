@@ -12,6 +12,7 @@ const { Service, Module } = Shopware;
  * @memberOf module:app/service/search-ranking
  * @type {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const searchRankingPoint = Object.freeze({
     HIGH_SEARCH_RANKING: 500,
     LOW_SEARCH_RANKING: 80,
@@ -23,6 +24,7 @@ const searchTypeConstants = Object.freeze({
     MODULE: 'module',
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
  * @memberOf module:app/service/search-ranking
@@ -30,6 +32,7 @@ export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
  * @method createSearchRankingService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createSearchRankingService() {
     const loginService = Service('loginService');
 

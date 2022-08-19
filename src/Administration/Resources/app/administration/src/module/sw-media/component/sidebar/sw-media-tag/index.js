@@ -1,6 +1,7 @@
 import template from './sw-media-tag.html.twig';
 import './sw-media-tag.scss';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-media-tag', {
     template,
 

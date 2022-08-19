@@ -19,6 +19,7 @@ const { Component } = Shopware;
  *     <sw-color-badge color="red" rounded></sw-color-badge>
  * </div>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-color-badge', {
     template,
 

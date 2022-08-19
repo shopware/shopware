@@ -5,6 +5,7 @@ import './sw-settings-tag-detail-assignments.scss';
 const { Component, Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-tag-detail-assignments', {
     template,
     inheritAttrs: false,

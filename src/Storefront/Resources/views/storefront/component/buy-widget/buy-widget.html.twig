@@ -126,15 +126,16 @@
                         </div>
                     {% endblock %}
 
-                    {% set remoteClickOptions = {
-                        selector: "#review-tab-" ~ product.id,
-                        scrollToElement: true
-                    } %}
-
-                    {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
-
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
+
+                            {% set remoteClickOptions = {
+                                selector: "#review-tab-" ~ product.id,
+                                scrollToElement: true
+                            } %}
+
+                            {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {

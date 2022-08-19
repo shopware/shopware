@@ -38,6 +38,7 @@
   "dependencies": {
     "@babel/preset-typescript": "7.16.7",
     "@babel/runtime": "7.17.9",
+    "@lhci/cli": "0.9.0",
     "@shopware-ag/admin-extension-sdk": "2.3.0",
     "@shopware-ag/eslint-config-base": "1.0.0",
     "@shopware-ag/meteor-icon-kit": "4.2.0",

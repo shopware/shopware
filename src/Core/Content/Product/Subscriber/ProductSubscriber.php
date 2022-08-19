@@ -148,7 +148,9 @@ class ProductSubscriber implements EventSubscriberInterface
 
                 $product->assign($assigns);
             } else {
-                $this->salesChannelProductBuilder->build($product, $context);
+                Feature::callSilentIfInactive('v6.5.0.0', function () use ($product, $context): void {
+                    $this->salesChannelProductBuilder->build($product, $context);
+                });
             }
         }
 

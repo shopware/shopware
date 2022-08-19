@@ -6,12 +6,14 @@
         {% if feature('v6.5.0.0') %}
             {% set breadcrumbKeys = breadcrumbCategories|keys %}
         {% else %}
-            {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-            {% set breadcrumb = sw_breadcrumb(category) %}
-            {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-            {% set breadcrumbKeys = breadcrumb|keys %}
-            {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
-            {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
+            {% sw_silent_feature_call "v6.5.0.0" %}
+                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+                {% set breadcrumb = sw_breadcrumb(category) %}
+                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+                {% set breadcrumbKeys = breadcrumb|keys %}
+                {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+                {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
+            {% endsw_silent_feature_call %}
         {% endif %}
 
         {% if breadcrumbCategories|length > 0 %}

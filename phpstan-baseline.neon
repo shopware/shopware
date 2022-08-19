@@ -15436,11 +15436,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/Extension/ComparisonExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\FeatureFlagExtension\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/FeatureFlagExtension.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$class with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/Extension/InstanceOfExtension.php
@@ -39046,36 +39041,6 @@ parameters:
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:__construct\\(\\) has parameter \\$packages with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:compileStyles\\(\\) has parameter \\$resolveMappings with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:dumpVariables\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:formatVariables\\(\\) has parameter \\$variables with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:formatVariables\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:isDumpable\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:getCustom\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigField.php
@@ -39574,21 +39539,6 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Cart/Order/RedisCartPersisterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\FeatureTest\\:\\:\\$envVarsBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\FeatureTest\\:\\:\\$featureConfigBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/FeatureTest.php
-
-		-
-			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\FeatureTest\\:\\:\\$serverVarsBackup type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/unit/php/Core/Framework/FeatureTest.php
 
 		-
 			message: "#^Property Shopware\\\\Tests\\\\Unit\\\\Core\\\\Test\\\\FeatureFlagExtensionTest\\:\\:\\$envVarsBackup type has no value type specified in iterable type array\\.$#"

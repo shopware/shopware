@@ -13,10 +13,19 @@ use Shopware\Core\Test\Annotation\ActiveFeatures;
  */
 class FeatureTest extends TestCase
 {
+    /**
+     * @var array<mixed>
+     */
     private array $serverVarsBackup;
 
+    /**
+     * @var array<mixed>
+     */
     private array $envVarsBackup;
 
+    /**
+     * @var array<mixed>
+     */
     private array $featureConfigBackup;
 
     public function setUp(): void
@@ -132,5 +141,43 @@ class FeatureTest extends TestCase
         static::expectException(\RuntimeException::class);
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+    }
+
+    public function callSilentIfInactiveProvider(): \Generator
+    {
+        yield 'Execute a callable with inactivated feature flag in silent' => [
+            'v6.5.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
+                static::assertNull($errorMessage);
+            },
+        ];
+
+        yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
+            'v6.6.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
+                static::assertTrue(strpos($deprecatedMessage, $errorMessage) !== -1);
+            },
+        ];
+    }
+
+    /**
+     * @covers ::callInSilentIfInactive
+     *
+     * @ActiveFeatures("v6.4.0.0")
+     * @dataProvider callSilentIfInactiveProvider
+     */
+    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
+    {
+        $errorMessage = null;
+        set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
+            $errorMessage = $error;
+
+            return true;
+        });
+
+        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
+            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
+        });
+        $assertion($deprecatedMessage, $errorMessage);
+
+        restore_error_handler();
     }
 }

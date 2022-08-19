@@ -52,6 +52,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     /**
      * @internal
+     *
+     * @param Package[] $packages
      */
     public function __construct(
         FilesystemInterface $filesystem,
@@ -260,6 +262,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     /**
      * @deprecated tag:v6.5.0 - $context will be mandatory
+     *
+     * @param array<string, string> $resolveMappings
      */
     private function compileStyles(
         string $concatenatedStyles,
@@ -368,6 +372,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         return sprintf('$sw-features: (%s);', $featuresScss);
     }
 
+    /**
+     * @param array<string, string> $variables
+     *
+     * @return array<string>
+     */
     private function formatVariables(array $variables): array
     {
         return array_map(function ($value, $key) {
@@ -419,6 +428,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
     }
 
+    /**
+     * @param array{fields?: array{value: null|string|array<mixed>, scss?: bool, type: string}[]} $config
+     */
     private function dumpVariables(array $config, string $salesChannelId, Context $context): string
     {
         $variables = [];
@@ -427,7 +439,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if (\in_array($data['type'], ['media', 'textarea'], true)) {
+            if (\in_array($data['type'], ['media', 'textarea'], true) && \is_string($data['value'])) {
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
                 $variables[$key] = (int) ($data['value']);
@@ -440,12 +452,12 @@ class ThemeCompiler implements ThemeCompilerInterface
             $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
-        if (!Feature::isActive('v6.5.0.0')) {
+        Feature::callSilentIfInactive('v6.5.0.0', function () use (&$variables, $salesChannelId): void {
             /** @deprecated tag:v6.5.0 remove this event in 6.5.0 */
             $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
             $this->eventDispatcher->dispatch($themeVariablesEvent);
             $variables = $themeVariablesEvent->getVariables();
-        }
+        });
 
         /** @deprecated tag:v6.5.0 remove alias */
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEventNew(
@@ -467,6 +479,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $dump;
     }
 
+    /**
+     * @param array{value: string|array<mixed>|null, scss?: bool, type: string} $data
+     */
     private function isDumpable(array $data): bool
     {
         if (!isset($data['value'])) {

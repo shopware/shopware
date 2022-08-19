@@ -11,6 +11,11 @@ class Feature
     public const ALL_MAJOR = 'major';
 
     /**
+     * @var array<bool>
+     */
+    private static array $silent = [];
+
+    /**
      * @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>
      */
     private static array $registeredFeatures = [];
@@ -101,6 +106,22 @@ class Feature
         self::isActive($flagName) && $closure();
     }
 
+    public static function callSilentIfInactive(string $flagName, \Closure $closure): void
+    {
+        $before = isset(self::$silent[$flagName]);
+        self::$silent[$flagName] = true;
+
+        try {
+            if (!self::isActive($flagName)) {
+                $closure();
+            }
+        } finally {
+            if (!$before) {
+                unset(self::$silent[$flagName]);
+            }
+        }
+    }
+
     /**
      * @param object $object
      * @param mixed[] $arguments
@@ -177,11 +198,13 @@ class Feature
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 
-        if (\PHP_SAPI !== 'cli') {
-            ScriptTraces::addDeprecationNotice($message);
-        }
+        if (!isset(self::$silent[$majorFlag]) || !self::$silent[$majorFlag]) {
+            if (\PHP_SAPI !== 'cli') {
+                ScriptTraces::addDeprecationNotice($message);
+            }
 
-        trigger_deprecation('shopware/core', '', $message);
+            trigger_deprecation('shopware/core', '', $message);
+        }
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

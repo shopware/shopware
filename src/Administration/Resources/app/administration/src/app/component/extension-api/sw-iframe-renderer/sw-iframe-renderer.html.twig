@@ -1,5 +1,9 @@
 <div>
-    <template v-if="extensionIsApp">
+    <template v-if="componentName">
+        <component :is="componentName"/>
+    </template>
+
+    <template v-else-if="extensionIsApp">
         <iframe
             v-if="signedIframeSrc"
             ref="iframe"

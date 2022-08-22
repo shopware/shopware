@@ -15,6 +15,9 @@ function setUpFormLoader(formSelector) {
         getPluginInstancesFromElement: () => {
             return new Map();
         },
+        getPluginInstanceFromElement: () => {
+            return null;
+        },
         getPlugin: () => {
             return {
                 get: () => []

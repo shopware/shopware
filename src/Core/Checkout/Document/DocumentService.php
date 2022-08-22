@@ -391,6 +391,7 @@ class DocumentService
 
         $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent($criteria, $versionContext));
 
+        /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if (!$order) {

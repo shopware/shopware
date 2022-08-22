@@ -142,13 +142,14 @@ class InvoiceRendererTest extends TestCase
                 ]], $this->context);
 
                 $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
+                /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($operation->getOrderId());
-                static::assertNotNull($order);
 
                 $context = clone $this->context;
                 $context = $context->assign([
                     'languageIdChain' => array_unique(array_filter([$this->deLanguageId, $this->context->getLanguageId()])),
                 ]);
+                static::assertNotNull($order->getDeliveries());
                 $this->getContainer()->get('shipping_method.repository')->upsert([[
                     'id' => $order->getDeliveries()->first()->getShippingMethod()->getId(),
                     'name' => 'DE express',
@@ -209,8 +210,9 @@ class InvoiceRendererTest extends TestCase
             function (DocumentGenerateOperation $operation): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
+                /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
-                static::assertNotNull($order);
+                static::assertNotNull($order->getDeliveries());
                 $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
                 $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
@@ -221,6 +223,7 @@ class InvoiceRendererTest extends TestCase
                 $companyPhone = '123123123';
                 $vatIds = ['VAT-123123'];
 
+                static::assertNotNull($order->getOrderCustomer());
                 $this->getContainer()->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => $vatIds,

@@ -119,11 +119,13 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentType());
         static::assertSame($orderId, $document->getOrderId());
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteGenerator::DELIVERY_NOTE, $document->getDocumentType()->getTechnicalName());
@@ -424,11 +426,13 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentType());
         static::assertSame($orderId, $document->getOrderId());
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(InvoiceGenerator::INVOICE, $document->getDocumentType()->getTechnicalName());
@@ -461,11 +465,11 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
-        static::assertNotNull($document);
         static::assertSame($orderId, $document->getOrderId());
 
         $documentInvoiceConfiguration = new DocumentConfiguration();

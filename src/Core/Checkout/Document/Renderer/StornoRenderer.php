@@ -203,6 +203,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
 
+        /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if ($order === null) {

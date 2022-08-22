@@ -37,7 +37,10 @@ trait DocumentTrait
         return $this->getContainer()->get(CartService::class)->order($cart, $this->salesChannelContext, new RequestDataBag());
     }
 
-    private function createCustomer(): string
+    /**
+     * @param array<string, string> $options
+     */
+    private function createCustomer(array $options = []): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -71,6 +74,8 @@ trait DocumentTrait
                 ],
             ],
         ];
+
+        $customer = array_merge($customer, $options);
 
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 

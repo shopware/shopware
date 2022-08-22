@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Installer;
+use Symfony\Bundle\FrameworkBundle\DependencyInjection\FrameworkExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -15,6 +16,7 @@ class InstallerTest extends TestCase
     public function testBuild(): void
     {
         $container = new ContainerBuilder();
+        $container->registerExtension(new FrameworkExtension());
 
         $installer = new Installer();
         $installer->build($container);
@@ -32,6 +34,7 @@ class InstallerTest extends TestCase
                 'pt' => 'pt-PT',
                 'sv' => 'sv-SE',
                 'da' => 'da-DK',
+                'nb' => 'nb-NO',
             ],
             $container->getParameter('shopware.installer.supportedLanguages')
         );

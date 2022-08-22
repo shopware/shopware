@@ -3,7 +3,9 @@ import './sw-cms-block-config.scss';
 
 const { Component, Mixin } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-block-config', {
     template,
 

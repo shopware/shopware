@@ -6,6 +6,9 @@ const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria(1, 25);
 criteria.addAssociation('crossSellings.assignedProducts.product');
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'cross-selling',
     label: 'sw-cms.elements.crossSelling.label',

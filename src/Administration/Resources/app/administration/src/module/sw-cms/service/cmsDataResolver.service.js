@@ -88,6 +88,9 @@ function resolve(page) {
     });
 }
 
+/**
+ * @private since v6.5.0
+ */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
     const defaultConfig = slotConfig.defaultConfig || {};
@@ -95,6 +98,9 @@ function initSlotConfig(slot) {
     slot.config = merge(cloneDeep(defaultConfig), slot.translated.config || {});
 }
 
+/**
+ * @private since v6.5.0
+ */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
     const defaultData = slotConfig.defaultData || {};
@@ -102,6 +108,9 @@ function initSlotDefaultData(slot) {
     slot.data = merge(cloneDeep(defaultData), slot.data || {});
 }
 
+/**
+ * @private since v6.5.0
+ */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
     const searches = {};
@@ -132,6 +141,9 @@ function optimizeCriteriaObjects(slotEntityCollection) {
     };
 }
 
+/**
+ * @private since v6.5.0
+ */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
         return true;
@@ -187,6 +199,9 @@ function fetchByIdentifier(directReads) {
     });
 }
 
+/**
+ * @private since v6.5.0
+ */
 function fetchByCriteria(searches) {
     const results = {};
     const fetchPromises = [];
@@ -225,6 +240,9 @@ function fetchByCriteria(searches) {
     });
 }
 
+/**
+ * @private since v6.5.0
+ */
 function getRepository(entity) {
     if (repositories[entity]) {
         return repositories[entity];

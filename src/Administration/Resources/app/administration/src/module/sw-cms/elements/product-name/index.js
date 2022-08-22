@@ -1,6 +1,9 @@
 import './component';
 import './config';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-name',
     label: 'sw-cms.elements.productHeading.name.label',

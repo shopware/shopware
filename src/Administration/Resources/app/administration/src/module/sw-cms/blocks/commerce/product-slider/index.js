@@ -1,6 +1,9 @@
 import './component';
 import './preview';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'product-slider',
     label: 'sw-cms.blocks.commerce.productSlider.label',

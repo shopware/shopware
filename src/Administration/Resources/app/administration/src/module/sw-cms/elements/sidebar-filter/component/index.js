@@ -1,7 +1,9 @@
 import template from './sw-cms-el-sidebar-filter.html.twig';
 import './sw-cms-el-sidebar-filter.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Shopware.Component.register('sw-cms-el-sidebar-filter', {
     template,
 

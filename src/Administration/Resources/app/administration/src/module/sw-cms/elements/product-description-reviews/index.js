@@ -6,6 +6,9 @@ const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria(1, 25);
 criteria.addAssociation('properties');
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-description-reviews',
     label: 'sw-cms.elements.productDescriptionReviews.label',

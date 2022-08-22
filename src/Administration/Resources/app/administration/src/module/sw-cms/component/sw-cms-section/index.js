@@ -4,7 +4,9 @@ import './sw-cms-section.scss';
 const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-section', {
     template,
 

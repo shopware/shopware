@@ -4,7 +4,9 @@ import './sw-cms-el-image-gallery.scss';
 
 const { Component, Mixin, Filter } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-el-image-gallery', {
     template,
 

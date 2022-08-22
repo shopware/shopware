@@ -1,6 +1,9 @@
 import './component';
 import './preview';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text',
     label: 'sw-cms.blocks.text.text.label',

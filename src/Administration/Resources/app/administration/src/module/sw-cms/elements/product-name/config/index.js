@@ -1,5 +1,8 @@
 const { Component } = Shopware;
 
+/**
+ * @private since v6.5.0
+ */
 Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', {
     computed: {
         isProductPage() {

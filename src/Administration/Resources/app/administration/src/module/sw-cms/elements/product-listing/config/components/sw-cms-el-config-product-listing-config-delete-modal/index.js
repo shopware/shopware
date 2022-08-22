@@ -1,7 +1,9 @@
 import template from './sw-cms-el-config-product-listing-config-delete-modal.html.twig';
 import './sw-cms-el-config-product-listing-config-delete-modal.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-modal', {
     template,
 

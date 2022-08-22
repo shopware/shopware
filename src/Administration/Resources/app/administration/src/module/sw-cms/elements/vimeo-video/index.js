@@ -4,6 +4,9 @@ import './preview';
 
 const { Application } = Shopware;
 
+/**
+ * @private since v6.5.0
+ */
 Application.getContainer('service').cmsService.registerCmsElement({
     name: 'vimeo-video',
     label: 'sw-cms.elements.vimeoVideo.label',

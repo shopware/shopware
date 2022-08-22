@@ -2,6 +2,9 @@ import './component';
 import './config';
 import './preview';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'sidebar-filter',
     label: 'sw-cms.elements.sidebarFilter.label',

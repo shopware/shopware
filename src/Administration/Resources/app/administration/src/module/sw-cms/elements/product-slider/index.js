@@ -6,6 +6,9 @@ const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria(1, 25);
 criteria.addAssociation('cover');
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-slider',
     label: 'sw-cms.elements.productSlider.label',

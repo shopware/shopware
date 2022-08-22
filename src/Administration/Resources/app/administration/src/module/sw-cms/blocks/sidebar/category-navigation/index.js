@@ -1,9 +1,11 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
 
-Application.getContainer('service').cmsService.registerCmsBlock({
+/**
+ * @private since v6.5.0
+ */
+Shopware.Service('cmsService').registerCmsBlock({
     name: 'category-navigation',
     label: 'sw-cms.blocks.sidebar.categoryNavigation.label',
     category: 'sidebar',

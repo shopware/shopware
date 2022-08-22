@@ -5,7 +5,9 @@ import './sw-cms-layout-assignment-modal.scss';
 const { cloneDeep } = Shopware.Utils.object;
 const { EntityCollection, Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Shopware.Component.register('sw-cms-layout-assignment-modal', {
     template,
 

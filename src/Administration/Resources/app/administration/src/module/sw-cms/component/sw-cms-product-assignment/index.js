@@ -4,6 +4,9 @@ import './sw-cms-product-assignment.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private since v6.5.0
+ */
 Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card', {
     template,
     data() {

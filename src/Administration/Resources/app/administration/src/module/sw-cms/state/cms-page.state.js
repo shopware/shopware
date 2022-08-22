@@ -1,3 +1,6 @@
+/**
+ * @private since v6.5.0
+ */
 Shopware.State.registerModule('cmsPageState', {
     namespaced: true,
 

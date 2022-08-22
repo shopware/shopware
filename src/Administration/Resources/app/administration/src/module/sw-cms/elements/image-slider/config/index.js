@@ -5,7 +5,9 @@ const { Component, Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-el-config-image-slider', {
     template,
 

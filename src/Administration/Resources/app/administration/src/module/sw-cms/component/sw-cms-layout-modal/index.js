@@ -4,7 +4,9 @@ import './sw-cms-layout-modal.scss';
 const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private since v6.5.0
+ */
 Component.register('sw-cms-layout-modal', {
     template,
 

@@ -4,6 +4,9 @@ import './preview';
 import './config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 import './config/components/sw-cms-el-config-product-listing-config-filter-properties-grid';
 
+/**
+ * @private since v6.5.0
+ */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',
     label: 'sw-cms.elements.productListing.label',

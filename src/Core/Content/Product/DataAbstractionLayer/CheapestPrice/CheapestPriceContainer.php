@@ -22,6 +22,11 @@ class CheapestPriceContainer extends Struct
     protected ?array $default = null;
 
     /**
+     * @var list<string>|null
+     */
+    private ?array $ruleIds = null;
+
+    /**
      * @param array<mixed> $value
      */
     public function __construct(array $value)
@@ -182,19 +187,31 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function getRuleIds(): array
     {
-        $ruleIds = [];
+        if ($this->ruleIds === null) {
+            $ruleIds = [];
 
-        foreach ($this->value as $group) {
-            foreach ($group as $price) {
-                $ruleIds[] = $price['rule_id'] ?? null;
+            foreach ($this->value as $group) {
+                foreach ($group as $price) {
+                    /** @var string|null $ruleId */
+                    $ruleId = $price['rule_id'] ?? null;
+                    if ($ruleId === null) {
+                        continue;
+                    }
+
+                    $ruleIds[$price['rule_id']] = true;
+                }
             }
+
+            /** @var list<string> $ruleIds */
+            $ruleIds = array_keys($ruleIds);
+            $this->ruleIds = $ruleIds;
         }
 
-        return array_filter(array_unique($ruleIds));
+        return $this->ruleIds;
     }
 
     /**

@@ -3731,11 +3731,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Rule/CustomerTagRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
@@ -3759,11 +3754,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\OrderCountRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/OrderCountRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\OrderTotalAmountRuleTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/OrderTotalAmountRuleTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\OrderTotalAmountRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
@@ -4664,11 +4654,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Cart\\\\PaymentRefundProcessorTest\\:\\:getInvalidStatesForTransitions\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Cart/PaymentRefundProcessorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Controller\\\\PaymentControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/Controller/PaymentControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Controller\\\\PaymentControllerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -11371,11 +11356,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\OrderSerializerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\OrderSerializerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
@@ -11687,11 +11667,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\ImportExportTest\\:\\:createCategoryProfileMock\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\ImportExportTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
@@ -12421,11 +12396,6 @@ parameters:
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:getTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
@@ -12458,11 +12428,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$str2 of function strcmp expects string, string\\|false given\\.$#"
 			count: 2
-			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Api\\\\MailActionControllerTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/MailTemplate/Api/MailActionControllerTest.php
 
 		-
@@ -12546,17 +12511,7 @@ parameters:
 			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Repository\\\\MailHeaderFooterRepositoryTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Repository\\\\MailHeaderFooterRepositoryTest\\:\\:prepareHeaderFooterTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Repository\\\\MailHeaderFooterRepositoryTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
 
@@ -12601,11 +12556,6 @@ parameters:
 			path: src/Core/Content/Test/MailTemplate/Subscriber/MailSendSubscriberTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Api\\\\MediaFolderControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Api/MediaFolderControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Api/MediaFolderControllerTest.php
@@ -12614,16 +12564,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Api/MediaFolderControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Api\\\\MediaFolderControllerTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Api/MediaFolderControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Api\\\\MediaUploadControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Api/MediaUploadControllerTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -12643,11 +12583,6 @@ parameters:
 		-
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 5
-			path: src/Core/Content/Test/Media/Api/MediaUploadControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Api\\\\MediaUploadControllerTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Media/Api/MediaUploadControllerTest.php
 
 		-
@@ -12761,26 +12696,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\DeleteNotUsedMediaCommandTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/DeleteNotUsedMediaCommandTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 8
-			path: src/Core/Content/Test/Media/Commands/DeleteNotUsedMediaCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\DeleteNotUsedMediaCommandTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/DeleteNotUsedMediaCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateMediaTypesCommandTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateMediaTypesCommandTest\\:\\:getNewMediaEntities\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
@@ -12796,11 +12711,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateMediaTypesCommandTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateMediaTypesCommandTest.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
@@ -12808,11 +12718,6 @@ parameters:
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
 			count: 4
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateThumbnailsCommandTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
 
 		-
@@ -12832,11 +12737,6 @@ parameters:
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateThumbnailsCommandTest\\:\\:\\$initialMediaIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Commands\\\\GenerateThumbnailsCommandTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Commands/GenerateThumbnailsCommandTest.php
 
@@ -12871,34 +12771,9 @@ parameters:
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/MediaRepositoryDecoratorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DeleteNotUsedMediaServiceTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DeleteNotUsedMediaServiceTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DeleteNotUsedMediaServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileLoaderTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileLoaderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileLoaderTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameProviderTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$preferredFileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
@@ -12908,11 +12783,6 @@ parameters:
 		-
 			message: "#^Parameter \\#2 \\$fileExtension of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameProviderTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
 
 		-
@@ -12944,11 +12814,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileNameValidatorTest\\:\\:testValidateFileNameThrowsIfRestrictedCharacterIsPresent\\(\\) has parameter \\$input with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/File/FileNameValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileSaverTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileSaverTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$fileName of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
@@ -13006,27 +12871,12 @@ parameters:
 			path: src/Core/Content/Test/Media/File/FileSaverTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileSaverTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileSaverTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileUrlValidatorTest\\:\\:fileSourceProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/File/FileUrlValidatorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaEntityTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaEntityTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaEntityTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/MediaEntityTest.php
 
@@ -13056,18 +12906,8 @@ parameters:
 			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$folderId of method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaFolderService\\:\\:dissolve\\(\\) expects string, string\\|null given\\.$#"
 			count: 6
-			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\MediaFolderServiceTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Media/MediaFolderServiceTest.php
 
 		-
@@ -13081,18 +12921,8 @@ parameters:
 			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Message\\\\GenerateThumbnailsHandlerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\Filesystem\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 2
-			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Message\\\\GenerateThumbnailsHandlerTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
 			path: src/Core/Content/Test/Media/Message/GenerateThumbnailsHandlerTest.php
 
 		-
@@ -13111,11 +12941,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
 
 		-
-			message: "#^Method src\\\\Core\\\\Content\\\\Test\\\\Media\\\\Pathname\\\\PathnameStrategyTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function mb_strlen expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
@@ -13127,11 +12952,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$string of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringStartsNotWith\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
-
-		-
-			message: "#^Property src\\\\Core\\\\Content\\\\Test\\\\Media\\\\Pathname\\\\PathnameStrategyTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
 
@@ -13156,17 +12976,7 @@ parameters:
 			path: src/Core/Content/Test/Media/Subscriber/MediaLoadedSubscriberTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Thumbnail\\\\ThumbnailServiceTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Thumbnail\\\\ThumbnailServiceTest\\:\\:strictModeConditionsProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Thumbnail\\\\ThumbnailServiceTest\\:\\:\\$mediaFixtures type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Thumbnail/ThumbnailServiceTest.php
 
@@ -13824,11 +13634,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\ProductFeatureSet\\\\ProductFeatureSetEntityTest\\:\\:definitionMethodProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/ProductFeatureSet/ProductFeatureSetEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\ProductFeatureSet\\\\ProductFeatureSetPropertyTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/ProductFeatureSet/ProductFeatureSetPropertyTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\ProductFeatureSet\\\\ProductFeatureSetPropertyTest\\:\\:\\$featureSetFixtures type has no value type specified in iterable type array\\.$#"
@@ -25636,11 +25441,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/IntegrationControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:sendRequest\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
@@ -29356,11 +29156,6 @@ parameters:
 			path: src/Core/Framework/Test/RateLimiter/Policy/TimeBackoffLimiterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\RateLimiter\\\\RateLimiterTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\RateLimiter\\\\RateLimiterTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
@@ -31466,11 +31261,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1620374229UpdateCustomFieldNameInProductStreamTableTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625505190AddOrderTotalAmountToCustomerTableTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625505190AddOrderTotalAmountToCustomerTableTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625505190AddOrderTotalAmountToCustomerTableTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1625505190AddOrderTotalAmountToCustomerTableTest.php
@@ -31704,11 +31494,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\|null given\\.$#"
 			count: 4
 			path: src/Core/Migration/Test/Migration1643878976AddCaptureRefundStateMachinesTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:dataProviderPromotion\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -35241,11 +35026,6 @@ parameters:
 			path: src/Core/System/Test/SystemConfig/_fixtures/MemoizedSystemConfigLoaderTest/DecoratedMemoizedResetTestSystemConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
@@ -37306,11 +37086,6 @@ parameters:
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
@@ -37384,11 +37159,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:errorDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:createFixture\\(\\) has parameter \\$fixtureData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:createRequest\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"

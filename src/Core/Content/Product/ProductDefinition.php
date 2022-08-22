@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -61,6 +62,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
@@ -95,6 +97,9 @@ class ProductDefinition extends EntityDefinition
         return ProductEntity::class;
     }
 
+    /**
+     * @return array<string, bool|int|null>
+     */
     public function getDefaults(): array
     {
         return [
@@ -147,10 +152,11 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
             (new ListField('variation', 'variation', StringField::class))->setStrict(true)->addFlags(new Runtime(['options'])),
-
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new Inherited()),
-            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new Inherited(), new Deprecated('v6.4.15', 'v6.5.0')),
+            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new ApiAware(), new Inherited(), new Deprecated('v6.4.15', 'v6.5.0')),
+            (new BoolField('display_parent', 'displayParent'))->addFlags(new Inherited(), new Deprecated('v6.4.15', 'v6.5.0')),
+            (new VariantListingConfigField('variant_listing_config', 'variantListingConfig'))->addFlags(new Inherited()),
             (new JsonField('variant_restrictions', 'variantRestrictions')),
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),

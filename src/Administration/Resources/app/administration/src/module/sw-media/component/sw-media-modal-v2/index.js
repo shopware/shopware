@@ -7,6 +7,7 @@ const { Component, Context, Utils } = Shopware;
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-modal-v2', {
     template,
 

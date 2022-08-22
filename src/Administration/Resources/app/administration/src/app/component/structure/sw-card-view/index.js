@@ -19,6 +19,7 @@ const { Component } = Shopware;
  *    </sw-card>
  * </sw-card-view>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card-view', {
     template,
 });

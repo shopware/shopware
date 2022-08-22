@@ -7,12 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
+ */
 class SeoResolver extends AbstractSeoResolver
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -27,6 +27,9 @@ class SeoResolver extends AbstractSeoResolver
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return ResolvedSeoUrl
+     */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
         $seoPathInfo = ltrim($pathInfo, '/');
@@ -67,7 +70,7 @@ class SeoResolver extends AbstractSeoResolver
                 ->setParameter('id', $seoPath['id'] ?? '')
                 ->setParameter('pathInfo', '/' . ltrim($seoPath['pathInfo'], '/'));
 
-            $canonical = $query->execute()->fetch();
+            $canonical = $query->execute()->fetchAssociative();
             if ($canonical) {
                 $seoPath['canonicalPathInfo'] = '/' . ltrim($canonical['seoPathInfo'], '/');
             }

@@ -14,6 +14,7 @@ const updateElementVisibility = (element, binding) => {
     element.style.transform = (binding.value) ? 'translateX(0)' : 'translateX(100%)';
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-products-assignment-modal', {
     template,
 

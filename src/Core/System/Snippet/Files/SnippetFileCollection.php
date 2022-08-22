@@ -68,7 +68,7 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getIsoList(): array
     {

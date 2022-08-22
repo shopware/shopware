@@ -3,21 +3,35 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Elasticsearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
 class IndexCreator
 {
     private Client $client;
 
+    /**
+     * @var array<mixed>
+     */
     private array $config;
 
+    /**
+     * @var array<mixed>
+     */
     private array $mapping;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
+     *
+     * @param array<mixed> $config
+     * @param array<mixed> $mapping
      */
-    public function __construct(Client $client, array $config, array $mapping = [])
+    public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
     {
         $this->client = $client;
         $this->mapping = $mapping;
@@ -33,6 +47,7 @@ class IndexCreator
         }
 
         $this->config = $config;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
@@ -50,14 +65,22 @@ class IndexCreator
 
         $mapping = array_merge_recursive($mapping, $this->mapping);
 
+        $body = array_merge(
+            $this->config,
+            ['mappings' => $mapping]
+        );
+
+        $event = new ElasticsearchIndexConfigEvent($index, $body, $definition, $context);
+        $this->eventDispatcher->dispatch($event);
+
         $this->client->indices()->create([
             'index' => $index,
-            'body' => array_merge(
-                $this->config,
-                ['mappings' => $mapping]
-            ), ]);
+            'body' => $event->getConfig(),
+        ]);
 
         $this->createAliasIfNotExisting($index, $alias);
+
+        $this->eventDispatcher->dispatch(new ElasticsearchIndexCreatedEvent($index, $definition));
     }
 
     public function aliasExists(string $alias): bool
@@ -70,6 +93,11 @@ class IndexCreator
         return $this->client->indices()->exists(['index' => $index]);
     }
 
+    /**
+     * @param array<mixed> $mapping
+     *
+     * @return array<mixed>
+     */
     private function addFullText(array $mapping): array
     {
         $mapping['properties']['fullText'] = [

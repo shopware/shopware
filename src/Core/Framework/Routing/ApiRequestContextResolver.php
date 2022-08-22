@@ -88,6 +88,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $this->routeScopeRegistry;
     }
 
+    /**
+     * @return array{currencyId: string, languageId: string, systemFallbackLanguageId: string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool}
+     */
     private function getContextParameters(Request $request): array
     {
         $params = [
@@ -101,6 +104,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         ];
 
         $runtimeParams = $this->getRuntimeParameters($request);
+
+        /** @var array{currencyId: string, languageId: string, systemFallbackLanguageId: string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool} $params */
         $params = array_replace_recursive($params, $runtimeParams);
 
         return $params;
@@ -176,6 +181,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return new SystemSource();
     }
 
+    /**
+     * @param array{languageId: string, systemFallbackLanguageId: string} $params
+     *
+     * @return non-empty-array<string>
+     */
     private function getLanguageIdChain(array $params): array
     {
         $chain = [$params['languageId']];
@@ -186,7 +196,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $chain[] = $this->getParentLanguageId($chain[0]);
         $chain[] = $params['systemFallbackLanguageId'];
 
-        return $chain;
+        /** @var non-empty-array<string> $filtered */
+        $filtered = array_filter($chain);
+
+        return $filtered;
     }
 
     private function getParentLanguageId(?string $languageId): ?string

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
@@ -61,29 +61,6 @@ class OrderRoute extends AbstractOrderRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("order")
-     * @OA\Post(
-     *      path="/order",
-     *      summary="Fetch a list of orders",
-     *      description="List orders of a customer.",
-     *      operationId="readOrder",
-     *      tags={"Store API", "Order"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="checkPromotion",
-     *                  description="Check if the payment method of the order is still changeable.",
-     *                  type="boolean"
-     *              ),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="An array of orders and an indicator if the payment of the order can be changed.",
-     *          @OA\JsonContent(ref="#/components/schemas/OrderRouteResponse")
-     *     )
-     * )
      * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
@@ -108,7 +85,7 @@ class OrderRoute extends AbstractOrderRoute
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
         } elseif ($deepLinkFilter === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $orders = $this->orderRepository->search($criteria, $context->getContext());
@@ -194,8 +171,12 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkPromotion(PromotionEntity $promotion): bool
     {
+        if ($promotion->getCartRules() === null) {
+            return true;
+        }
+
         foreach ($promotion->getCartRules() as $cartRule) {
-            if ($this->checkCartRule($cartRule) === false) {
+            if (!$this->checkCartRule($cartRule)) {
                 return false;
             }
         }
@@ -239,13 +220,13 @@ class OrderRoute extends AbstractOrderRoute
 
         $orderCustomer = $order->getOrderCustomer();
         if ($orderCustomer === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
         // Throw exception when customer is not guest
         if (!$guest) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         // Verify email and zip code with this order

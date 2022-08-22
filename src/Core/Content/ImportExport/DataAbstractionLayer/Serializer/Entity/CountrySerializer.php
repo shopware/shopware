@@ -17,7 +17,7 @@ class CountrySerializer extends EntitySerializer implements ResetInterface
     private EntityRepositoryInterface $countryRepository;
 
     /**
-     * @var string[]|null[]
+     * @var array<string>|null[]
      */
     private array $cacheCountries = [];
 

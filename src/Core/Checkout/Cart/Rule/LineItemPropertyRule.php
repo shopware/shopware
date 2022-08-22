@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemPropertyRule extends Rule
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $identifiers;
 

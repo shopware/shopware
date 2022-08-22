@@ -2,6 +2,7 @@ import template from './sw-settings-cache-modal.twig';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-cache-modal', {
     template,
 

@@ -2,6 +2,7 @@ import parseJsonApi from 'src/core/service/jsonapi-parser.service';
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from './login.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type BasicHeaders = {
     Accept: string,
     Authorization: string,
@@ -146,4 +147,5 @@ class ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ApiService;

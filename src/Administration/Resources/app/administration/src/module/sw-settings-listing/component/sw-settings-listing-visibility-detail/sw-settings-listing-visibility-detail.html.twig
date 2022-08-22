@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_visibility_detail %}
 <sw-grid
     slot="grid"
@@ -5,16 +6,20 @@
     :items="items"
     :selectable="false"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_visibility_detail_columns %}
     <template #columns="{ item }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_sales_channel %}
         <sw-grid-column flex="minmax(100px, auto)">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_visibility_detail_columns_sales_channel_label %}
             <span>{{ item.name }}</span>
             {% endblock %}
         </sw-grid-column>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_all %}
         <sw-grid-column
             flex="0.5fr"
@@ -31,6 +36,7 @@
         </sw-grid-column>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_search_only %}
         <sw-grid-column
             flex="1fr"
@@ -47,6 +53,7 @@
         </sw-grid-column>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_visibility_detail_columns_link_only %}
         <sw-grid-column
             flex="1fr"
@@ -66,6 +73,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_listing_visibility_detail_pagination %}
     <template #pagination>
         <sw-pagination

@@ -40,6 +40,7 @@ const allEvents = [
     'onKeyDown',
 ];
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-datepicker', {
     template,
     inheritAttrs: false,

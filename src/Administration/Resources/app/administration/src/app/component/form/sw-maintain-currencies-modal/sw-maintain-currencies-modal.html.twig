@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_maintain_currencies_modal %}
 <sw-modal
     class="sw-maintain-currencies-modal"
@@ -5,6 +6,7 @@
     @modal-close="onCancel"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_maintain_currencies_modal_grid %}
     <sw-data-grid
         :data-source="currencyCollection"
@@ -14,12 +16,14 @@
         :show-actions="false"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_grid_column_name %}
         <template
             slot="column-name"
             slot-scope="{ item }"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_name_inherit_field %}
             <sw-inheritance-switch
                 v-if="!item.isSystemDefault"
@@ -30,14 +34,17 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_name_item_name %}
             <p>{{ item.translated.name || item.name }}</p>
             {% endblock %}
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_grid_column_price %}
         <template slot="column-label-price">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
             <div class="sw-maintain-currencies-modal__price-label-wrapper">
                 <div class="sw-maintain-currencies-modal__price-label">
@@ -63,6 +70,7 @@
             slot="column-price"
             slot-scope="{ item }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_price_field %}
             <sw-list-price-field
                 :price="prices"
@@ -83,9 +91,11 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_maintain_currencies_modal_footer %}
     <template slot="modal-footer">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_footer_button_cancel %}
         <sw-button
             size="small"
@@ -95,6 +105,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_footer_button_apply %}
         <sw-button
             variant="primary"

@@ -12,6 +12,7 @@ const { Criteria } = Shopware.Data;
  * @example-type code-only
  * @component-example
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-custom-field-set-renderer', {
     template,
 
@@ -335,12 +336,9 @@ Component.register('sw-custom-field-set-renderer', {
 
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
-            const customFieldsCriteria = new Criteria(1, null);
 
-            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
-
-            criteria
-                .addAssociation('customFields', customFieldsCriteria);
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },

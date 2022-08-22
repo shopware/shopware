@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_mailer_smtp %}
 <div class="sw-settings-mailer-smtp">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_host %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.host']"
@@ -10,6 +12,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_port %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.port']"
@@ -20,6 +23,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_username %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.username']"
@@ -29,6 +33,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.password']"
@@ -38,6 +43,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
         v-model="mailerSettings['core.mailerSettings.encryption']"
@@ -48,6 +54,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_sender_address %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.senderAddress']"
@@ -58,6 +65,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_delivery_address %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
@@ -69,6 +77,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_disable_delivery %}
     <sw-switch-field
         v-model="mailerSettings['core.mailerSettings.disableDelivery']"

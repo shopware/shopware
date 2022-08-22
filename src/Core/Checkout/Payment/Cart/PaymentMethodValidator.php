@@ -15,7 +15,7 @@ class PaymentMethodValidator implements CartValidatorInterface
         $paymentMethod = $context->getPaymentMethod();
         if (!$paymentMethod->getActive()) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'), 'inactive')
             );
         }
 
@@ -23,13 +23,13 @@ class PaymentMethodValidator implements CartValidatorInterface
 
         if ($ruleId && !\in_array($ruleId, $context->getRuleIds(), true)) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'), 'rule not matching')
             );
         }
 
         if (!\in_array($paymentMethod->getId(), $context->getSalesChannel()->getPaymentMethodIds() ?? [], true)) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'), 'not allowed')
             );
         }
     }

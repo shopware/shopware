@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-detail-layout', {
     template,
 

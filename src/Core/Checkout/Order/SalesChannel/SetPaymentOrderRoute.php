@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -85,37 +84,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/order/payment",
-     *      summary="Update the payment method of an order",
-     *      description="Changes the payment method of a specific order. You can use the /order route to find out if the payment method of an order can be changed - take a look at the `paymentChangeable`- array in the response.",
-     *      operationId="orderSetPayment",
-     *      tags={"Store API", "Order"},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(
-     *              required={
-     *                  "paymentMethodId",
-     *                  "orderId"
-     *              },
-     *              @OA\Property(
-     *                  property="paymentMethodId",
-     *                  description="The identifier of the paymentMethod to be set",
-     *                  type="string"
-     *              ),
-     *              @OA\Property(
-     *                  property="orderId",
-     *                  description="The identifier of the order.",
-     *                  type="string"
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Successfully updated the payment method of the order.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse

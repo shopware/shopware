@@ -2,6 +2,7 @@ import './page/sw-settings-sitemap';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-sitemap', {
     type: 'core',
     name: 'settings-sitemap',

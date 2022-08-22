@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_radio_field %}
 <sw-base-field
     class="sw-field--radio"
@@ -35,6 +36,7 @@
                 <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                 <label :for="`${identification}-${index}`">
                     <span>{{ option.name }}</span>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_radio_field_help_text %}
                     <sw-help-text
                         v-if="option.helpText"

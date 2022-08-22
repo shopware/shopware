@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -76,31 +75,7 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     /**
      * @Since("6.3.0.0")
-     * @OA\Post(
-     *      path="/country",
-     *      summary="Fetch countries",
-     *      description="Perform a filtered search for countries",
-     *      operationId="readCountry",
-     *      tags={"Store API", "System & Context"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Entity search result containing countries.",
-     *          @OA\JsonContent(
-     *              type="object",
-     *              allOf={
-     *                  @OA\Schema(ref="#/components/schemas/EntitySearchResult"),
-     *                  @OA\Schema(type="object",
-     *                      @OA\Property(
-     *                          type="array",
-     *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/Country")
-     *                      )
-     *                  )
-     *              }
-     *          )
-     *     )
-     * )
+     *
      * @Entity("country")
      * @Route("/store-api/country", name="store-api.country", methods={"GET", "POST"})
      */

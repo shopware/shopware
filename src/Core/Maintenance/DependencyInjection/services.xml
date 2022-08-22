@@ -8,6 +8,8 @@
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemInstallCommand">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
+
             <tag name="console.command"/>
         </service>
 
@@ -106,5 +108,7 @@
         <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
     </services>
 </container>

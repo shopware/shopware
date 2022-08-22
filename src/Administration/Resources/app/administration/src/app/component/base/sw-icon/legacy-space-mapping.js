@@ -1,5 +1,6 @@
 // @deprecated tag:v6.5.0 - File will be removed without replacement
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     'icons-custom-inherited-disabled': {
         'padding-top': '0px',

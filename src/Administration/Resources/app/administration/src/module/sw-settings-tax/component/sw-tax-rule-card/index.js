@@ -4,6 +4,7 @@ import './sw-tax-rule-card.scss';
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-tax-rule-card', {
     template,
 

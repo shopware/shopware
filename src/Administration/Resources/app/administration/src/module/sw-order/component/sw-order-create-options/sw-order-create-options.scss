@@ -3,13 +3,29 @@
 .sw-order-create-options {
     height: 594px;
 
+    &__headline {
+        margin-bottom: 5px;
+    }
+
     &__test-order.sw-field--switch {
         margin: 0;
         width: fit-content;
     }
 
     &__disable-auto-promotion.sw-field--switch {
-        margin: 0 0 24px;
+        margin: 0 0 25px;
+    }
+
+    .sw-container {
+        margin-bottom: 12px;
+    }
+
+    .sw-field {
+        margin-bottom: 28px;
+    }
+
+    .sw-single-select .sw-single-select__selection-text {
+        padding-right: 22px;
     }
 }
 

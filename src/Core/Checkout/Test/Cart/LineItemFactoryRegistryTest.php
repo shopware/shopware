@@ -4,12 +4,14 @@ namespace Shopware\Core\Checkout\Test\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -49,7 +51,11 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateProductWithPriceDefinition(): void
     {
-        static::expectException(InsufficientPermissionException::class);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::expectException(CartException::class);
+        } else {
+            static::expectException(InsufficientPermissionException::class);
+        }
 
         $this->service->create([
             'type' => 'product',
@@ -104,7 +110,11 @@ class LineItemFactoryRegistryTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add($lineItem);
 
-        static::expectException(LineItemNotStackableException::class);
+        if (Feature::isActive('v6.5.0.0')) {
+            $this->expectException(CartException::class);
+        } else {
+            $this->expectException(LineItemNotStackableException::class);
+        }
 
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
     }
@@ -133,7 +143,11 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateCustomWithoutPermission(): void
     {
-        static::expectException(InsufficientPermissionException::class);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::expectException(CartException::class);
+        } else {
+            static::expectException(InsufficientPermissionException::class);
+        }
         $this->service->create(['type' => 'custom', 'referencedId' => 'test'], $this->context);
     }
 

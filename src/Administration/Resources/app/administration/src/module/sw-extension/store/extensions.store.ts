@@ -148,5 +148,8 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default shopwareExtensionsStore;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ShopwareExtensionsState };

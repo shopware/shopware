@@ -100,6 +100,6 @@ describe('SDK Tests: Location', ()=> {
          * are also considered in automatic height
          */
         cy.get(`iframe[src*="location-id=location-index"]`)
-            .should('have.attr', 'height', '724px');
+            .should('have.attr', 'height', '700px');
     })
 })

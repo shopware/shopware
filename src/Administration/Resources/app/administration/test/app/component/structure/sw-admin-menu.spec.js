@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';
+import flushPromises from 'flush-promises';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
 /** fixtures */
@@ -12,7 +13,7 @@ import testApps from '../../service/_mocks/testApps.json';
 const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
-function createWrapper() {
+function createWrapper(options = {}) {
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -40,7 +41,7 @@ function createWrapper() {
                 notifyOnLoginListener: () => {}
             },
             userService: {
-                getUser: () => Promise.resolve({})
+                getUser: () => Promise.resolve({ data: { password: '' } })
             },
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
@@ -48,7 +49,8 @@ function createWrapper() {
             acl: { can: (privilege) => {
                 return privilege !== 'shouldReturnFalse';
             } }
-        }
+        },
+        ...options
     });
 }
 
@@ -334,5 +336,28 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         };
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(entry, catalogues.children)).toBeFalsy();
+    });
+
+    it('positioning of flyout should respect top app border', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = createWrapper({
+            attachTo: '#component',
+        });
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
+
+        target.trigger('mouseenter');
+        await flushPromises();
+
+        expect(wrapper.vm.flyoutStyle.top).toBe('80px');
     });
 });

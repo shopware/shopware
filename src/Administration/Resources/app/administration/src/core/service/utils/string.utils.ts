@@ -7,6 +7,7 @@ import kebabCase from 'lodash/kebabCase';
 import snakeCase from 'lodash/snakeCase';
 import upperFirst from 'lodash/upperFirst';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     capitalizeString,
     upperFirst,

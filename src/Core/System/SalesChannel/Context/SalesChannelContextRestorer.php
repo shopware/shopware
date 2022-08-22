@@ -11,13 +11,16 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextRestorer
 {
@@ -33,6 +36,8 @@ class SalesChannelContextRestorer
 
     private Connection $connection;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
@@ -42,7 +47,8 @@ class SalesChannelContextRestorer
         OrderConverter $orderConverter,
         EntityRepositoryInterface $orderRepository,
         Connection $connection,
-        CartRestorer $cartRestorer
+        CartRestorer $cartRestorer,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->factory = $factory;
         $this->cartRuleLoader = $cartRuleLoader;
@@ -50,6 +56,7 @@ class SalesChannelContextRestorer
         $this->orderRepository = $orderRepository;
         $this->connection = $connection;
         $this->cartRestorer = $cartRestorer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -63,6 +70,10 @@ class SalesChannelContextRestorer
         }
 
         if ($order->getOrderCustomer() === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('orderCustomer');
+            }
+
             throw new MissingOrderRelationException('orderCustomer');
         }
 
@@ -199,6 +210,8 @@ class SalesChannelContextRestorer
             ->addAssociation('billingAddress')
             ->addAssociation('transactions');
 
+        $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
+
         return $this->orderRepository->search($criteria, $context)
             ->get($orderId);
     }
@@ -210,6 +223,10 @@ class SalesChannelContextRestorer
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw OrderException::missingAssociation('transactions');
+            }
+
             throw new MissingOrderRelationException('transactions');
         }
 

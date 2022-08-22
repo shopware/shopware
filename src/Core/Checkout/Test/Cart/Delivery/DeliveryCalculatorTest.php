@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -52,15 +54,21 @@ class DeliveryCalculatorTest extends TestCase
      */
     private $deliveryCalculator;
 
-    /**
-     * @var DeliveryTime
-     */
-    private $deliveryTime;
+    private DeliveryTime $deliveryTime;
+
+    private DeliveryTimeEntity $deliveryTimeEntity;
 
     protected function setUp(): void
     {
         $this->deliveryCalculator = $this->getContainer()->get(DeliveryCalculator::class);
         $this->deliveryTime = (new DeliveryTime())->assign([
+            'min' => 1,
+            'max' => 3,
+            'unit' => 'day',
+            'name' => '1-3 days',
+        ]);
+        $this->deliveryTimeEntity = new DeliveryTimeEntity();
+        $this->deliveryTimeEntity->assign([
             'min' => 1,
             'max' => 3,
             'unit' => 'day',
@@ -81,43 +89,43 @@ class DeliveryCalculatorTest extends TestCase
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->createMock(Delivery::class);
-        $costs = new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
-
-        $newCosts = null;
-        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
-            $newCosts = $costsParameter;
-        });
-
         $positions = new DeliveryPositionCollection();
         $positions->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
-                $this->createMock(LineItem::class),
+                new LineItem('test', 'test'),
                 1,
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new DeliveryDate(new \DateTime(), new \DateTime())
             )
         );
-        $delivery->expects(static::once())->method('getPositions')->willReturn($positions);
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $delivery = new Delivery(
+            $positions,
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
 
         $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test', 'test'), new DeliveryCollection([$delivery]), $context);
 
+        $newCosts = $delivery->getShippingCosts();
         static::assertNotNull($newCosts);
         static::assertInstanceOf(CalculatedPrice::class, $newCosts);
-        static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
-        static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
-        static::assertSame($costs->getTaxRules()->count(), $newCosts->getTaxRules()->count());
-        static::assertSame($costs->getCalculatedTaxes()->count(), $newCosts->getCalculatedTaxes()->count());
-        static::assertNotSame($costs, $newCosts);
+        static::assertEquals(5, $newCosts->getUnitPrice());
+        static::assertEquals(5, $newCosts->getTotalPrice());
+        static::assertCount(0, $newCosts->getTaxRules());
+        static::assertCount(0, $newCosts->getCalculatedTaxes());
     }
 
     public function testCalculateWithoutShippingMethodPrices(): void
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setPrices(new ShippingMethodPriceCollection());
         $shippingMethod->setName(Uuid::randomHex());
 
@@ -127,8 +135,7 @@ class DeliveryCalculatorTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethodsExcept(['setError', 'getError'])
             ->getMock();
-        $costs = $this->createMock(CalculatedPrice::class);
-        $costs->expects(static::once())->method('getUnitPrice')->willReturn(0.0);
+        $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $delivery->expects(static::never())->method('setShippingCosts');
         $delivery->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -144,6 +151,9 @@ class DeliveryCalculatorTest extends TestCase
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $price = $lineItem->getPrice();
+        static::assertNotNull($price);
+
         $delivery->expects(static::once())->method('getPositions')->willReturn(
             new DeliveryPositionCollection(
                 [
@@ -151,8 +161,8 @@ class DeliveryCalculatorTest extends TestCase
                         Uuid::randomHex(),
                         $lineItem,
                         1,
-                        $lineItem->getPrice(),
-                        $this->createMock(DeliveryDate::class)
+                        $price,
+                        new DeliveryDate(new \DateTime(), new \DateTime())
                     ),
                 ]
             )
@@ -177,8 +187,7 @@ class DeliveryCalculatorTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethodsExcept(['hasExtension', 'addExtension', 'getExtension'])
             ->getMock();
-        $costs = $this->createMock(CalculatedPrice::class);
-        $costs->expects(static::once())->method('getUnitPrice')->willReturn(0.0);
+        $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
         $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
@@ -196,6 +205,9 @@ class DeliveryCalculatorTest extends TestCase
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $price = $lineItem->getPrice();
+        static::assertNotNull($price);
+
         $delivery->expects(static::exactly(2))->method('getPositions')->willReturn(
             new DeliveryPositionCollection(
                 [
@@ -203,8 +215,8 @@ class DeliveryCalculatorTest extends TestCase
                         Uuid::randomHex(),
                         $lineItem,
                         1,
-                        $lineItem->getPrice(),
-                        $this->createMock(DeliveryDate::class)
+                        $price,
+                        new DeliveryDate(new \DateTime(), new \DateTime())
                     ),
                 ]
             )
@@ -220,7 +232,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -238,8 +250,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
@@ -265,7 +276,9 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(12.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(12.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithNotMatchingPrice(): void
@@ -273,7 +286,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
@@ -311,7 +324,7 @@ class DeliveryCalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
-        static::assertSame(1, $cart->getErrors()->count());
+        static::assertCount(1, $cart->getErrors());
         static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
     }
 
@@ -321,7 +334,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -341,8 +354,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
@@ -373,7 +385,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingCalculationPricesSelectsLowestWithOneFreeShippingItem(): void
@@ -382,7 +396,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -406,8 +420,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
@@ -448,14 +461,16 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingCalculationPricesSetsShippingToZeroWhenOnlyFreeShippingItemsInCart(): void
     {
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -477,8 +492,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -518,7 +532,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(0.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(0.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultiplePricesCalculationLineItemCount(): void
@@ -526,7 +542,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -550,8 +566,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -575,7 +590,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(10.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationLineItemCount(): void
@@ -583,7 +600,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -604,8 +621,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -629,7 +645,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultiplePricesCalculationWeight(): void
@@ -637,7 +655,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14, 17, 25, 33, 52, 78] as $price) {
@@ -661,8 +679,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -685,7 +702,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(52.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(52.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationWeight(): void
@@ -693,7 +712,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -714,8 +733,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -738,7 +756,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultiplePricesCalculationPrice(): void
@@ -746,7 +766,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -770,8 +790,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -795,7 +814,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateExclusiveEndPrice(): void
@@ -803,7 +824,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -828,8 +849,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -853,7 +873,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(23.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(23.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateOpenEnd(): void
@@ -861,7 +883,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14] as $index => $price) {
@@ -888,8 +910,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -912,7 +933,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(14.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationPrice(): void
@@ -920,7 +943,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -941,8 +964,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -966,7 +988,9 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationRuleAndPrice(): void
@@ -975,7 +999,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
 
         foreach ([42, 23, 8, 10, 14] as $price) {
@@ -1011,8 +1035,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -1037,14 +1060,16 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(7.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(7.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithoutMatchingRule(): void
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $shippingMethod->setId(Uuid::randomHex());
         $prices = new ShippingMethodPriceCollection();
@@ -1086,7 +1111,9 @@ class DeliveryCalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
-        static::assertSame(0.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(0.0, $delivery->getShippingCosts()->getTotalPrice());
 
         static::assertCount(1, $cart->getErrors());
         static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
@@ -1098,7 +1125,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
         foreach ([42, 23, 8, 10, 14] as $index => $price) {
@@ -1128,8 +1155,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->method('getRuleIds')->willReturn([$ruleId]);
@@ -1155,13 +1181,15 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(14.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithDifferentCurrency(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -1212,13 +1240,15 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(20.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(20.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithNotExistendCurrencyShouldUseDefaultCurrency(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -1245,8 +1275,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->method('getCurrency')->willReturn($currency);
@@ -1273,13 +1302,15 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(12.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(12.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithCustomerGroupGross(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -1300,8 +1331,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
 
@@ -1330,13 +1360,15 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(10.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithCustomerGroupNet(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
@@ -1360,8 +1392,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
 
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1387,13 +1418,15 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(5.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(5.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithDifferentRulesUseMatchedRule(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $currency = new CurrencyEntity();
@@ -1429,8 +1462,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$priceWithoutRule, $priceWithRule]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$priceWithRule->getRuleId()]);
@@ -1456,13 +1488,15 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame((float) 20, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame((float) 20, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithDifferentRulesUseNullIfNoRuleMatches(): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $currency = new CurrencyEntity();
@@ -1498,8 +1532,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$priceWithoutRule, $priceWithRule]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1525,14 +1558,16 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame((float) 5, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame((float) 5, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateByHighestTaxRateFromCartLineItem(): void
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_HIGHEST);
 
@@ -1552,8 +1587,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1598,17 +1632,21 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
-        $shippingCosts = $deliveries->first()->getShippingCosts();
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        $shippingCosts = $delivery->getShippingCosts();
 
         static::assertCount(1, $shippingCosts->getTaxRules());
-        static::assertEquals(20, $shippingCosts->getTaxRules()->first()->getTaxRate());
+        $taxRule = $shippingCosts->getTaxRules()->first();
+        static::assertNotNull($taxRule);
+        static::assertEquals(20, $taxRule->getTaxRate());
     }
 
     public function testCalculateByFixedTaxRate(): void
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
 
@@ -1636,8 +1674,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1663,10 +1700,14 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
-        $shippingCosts = $deliveries->first()->getShippingCosts();
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        $shippingCosts = $delivery->getShippingCosts();
 
         static::assertCount(1, $shippingCosts->getTaxRules());
-        static::assertEquals(10, $shippingCosts->getTaxRules()->first()->getTaxRate());
+        $taxRule = $shippingCosts->getTaxRules()->first();
+        static::assertNotNull($taxRule);
+        static::assertEquals(10, $taxRule->getTaxRate());
     }
 
     /**
@@ -1675,7 +1716,11 @@ class DeliveryCalculatorTest extends TestCase
     public function testCalculateWithMixedFreeShipping(int $calculation, float $price, int $quantity): void
     {
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $deliveryTime = new DeliveryTimeEntity();
+        $deliveryTime->setUnit('test');
+        $deliveryTime->setMax(5);
+        $deliveryTime->setMin(1);
+        $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $currency = new CurrencyEntity();
@@ -1715,8 +1760,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price1, $price2]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1764,7 +1808,9 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame((float) 1, $deliveries->getShippingCosts()->first()->getTotalPrice());
+        $calculatedPrice = $deliveries->getShippingCosts()->first();
+        static::assertNotNull($calculatedPrice);
+        static::assertSame((float) 1, $calculatedPrice->getTotalPrice());
     }
 
     public function testCalculateFloatingNumberPrecision(): void
@@ -1790,8 +1836,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+        $baseContext = Context::createDefaultContext();
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
@@ -1817,9 +1862,14 @@ class DeliveryCalculatorTest extends TestCase
 
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(5.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(5.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
+    /**
+     * @return array<string, array<int>>
+     */
     public function mixedShippingProvider(): array
     {
         return [
@@ -1842,7 +1892,7 @@ class DeliveryCalculatorTest extends TestCase
             ->build($cart, $data, $context, new CartBehavior());
     }
 
-    private function createLineItem(DeliveryInformation $deliveryInformation, CalculatedPrice $calculatedPrice)
+    private function createLineItem(DeliveryInformation $deliveryInformation, CalculatedPrice $calculatedPrice): LineItem
     {
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation($deliveryInformation);

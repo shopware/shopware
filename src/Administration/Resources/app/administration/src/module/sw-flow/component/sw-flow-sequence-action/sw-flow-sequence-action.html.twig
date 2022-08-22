@@ -1,24 +1,30 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_sequence_action %}
 <div
     class="sw-flow-sequence-action"
     :class="actionClasses"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_action_card %}
     <div class="sw-flow-sequence-action__card">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_action_header %}
         <div class="sw-flow-sequence-action__header">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_title %}
             <h3 class="sw-flow-sequence-action__title">
                 {{ $tc('sw-flow.detail.sequence.actionTitle') }}
             </h3>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_context_menu %}
             <sw-context-button
                 class="sw-flow-sequence-action__context-button"
                 :class="actionClasses"
                 :disabled="disabled"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_sequence_action_remove_action_container %}
                 <sw-context-menu-item
                     variant="danger"
@@ -33,10 +39,13 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_sequence_action_content %}
         <div class="sw-flow-sequence-action__content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_actions %}
             <div class="sw-flow-sequence-action__actions">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_sequence_action_actions_empty %}
                 <div
                     v-if="sequenceData.length === 1 && !sequence.actionName"
@@ -52,16 +61,19 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_sequence_action_actions_list %}
                 <ul
                     v-else
                     class="sw-flow-sequence-action__action-list"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_action_actions_transition_group %}
                     <transition-group
                         name="list"
                         tag="div"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_action_actions_item %}
                         <li
                             v-for="item in sequenceData"
@@ -74,8 +86,10 @@
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_action_actions_item_header %}
                             <div class="sw-flow-sequence-action__action-header">
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_flow_sequence_action_actions_item_name %}
                                 <div class="sw-flow-sequence-action__action-name">
                                     <sw-icon
@@ -95,11 +109,13 @@
                                 </div>
                                 {% endblock %}
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_flow_sequence_action_actions_item_context_button %}
                                 <sw-context-button
                                     class="sw-flow-sequence-action__context-button"
                                     :disabled="disabled || item.disabled"
                                 >
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_flow_sequence_action_actions_item_button_edit %}
                                     <sw-context-menu-item
                                         v-if="isNotStopFlow(item)"
@@ -110,6 +126,7 @@
                                     </sw-context-menu-item>
                                     {% endblock %}
 
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_flow_sequence_action_actions_item_button_delete %}
                                     <sw-context-menu-item
                                         variant="danger"
@@ -120,6 +137,7 @@
                                     </sw-context-menu-item>
                                     {% endblock %}
 
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_flow_sequence_action_actions_item_button_move_up %}
                                     <sw-context-menu-item
                                         v-if="showMoveOption(item, 'up')"
@@ -130,6 +148,7 @@
                                     </sw-context-menu-item>
                                     {% endblock %}
 
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_flow_sequence_action_actions_item_button_move_down %}
                                     <sw-context-menu-item
                                         v-if="showMoveOption(item, 'down')"
@@ -144,6 +163,7 @@
                             </div>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_action_actions_item_description %}
                             <div
                                 class="sw-flow-sequence-action__action-description"
@@ -151,6 +171,11 @@
                             >
                             </div>
                             {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_flow_sequence_action_item_custom %}
+                            {% endblock %}
+
                         </li>
                         {% endblock %}
                     </transition-group>
@@ -160,11 +185,13 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_add_action %}
             <div
                 v-if="showAddAction && !disabled"
                 class="sw-flow-sequence-action__add-action"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_sequence_action_add_button %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
@@ -172,6 +199,7 @@
                     class="sw-flow-sequence-action__add-button"
                     @click="toggleAddButton"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_action_add_icon %}
                     <div class="sw-flow-sequence-action__add-icon">
                         {# @deprecated tag:v6.5.0 - Padding can be removed #}
@@ -188,6 +216,7 @@
                 </a>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_sequence_action_add_select %}
                 <div
                     v-else
@@ -199,6 +228,7 @@
                         name="regular-times-circle-s"
                         @click="toggleAddButton"
                     />
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_action_list %}
                     <sw-grouped-single-select
                         class="sw-flow-sequence-action__selection-action"
@@ -224,6 +254,7 @@
                                 :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
                                 @item-select="setValue"
                             >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_flow_sequence_action_select_results_list_result_label %}
                                 <sw-icon
                                     v-if="!item.iconRaw"
@@ -260,6 +291,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_action_modal %}
     <sw-flow-sequence-modal
         :sequence="currentSequence"

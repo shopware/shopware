@@ -81,8 +81,8 @@ All blocks of this template are available in the template which renders this tem
             {% block document_loop_child_include %}
                 {% set lineItem = child %}
                 {{ block('loop') }}
-                {% set position = position + 1 %}
             {% endblock %}
+            {% set position = position + 1 %}
         {% endfor %}
     {% endblock %}
 

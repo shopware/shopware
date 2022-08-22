@@ -165,6 +165,9 @@ class OrderGenerator implements DemodataGeneratorInterface
         return array_column($ids, 'id');
     }
 
+    /**
+     * @param array<string> $salesChannelIds
+     */
     private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
     {
         if (isset($this->contexts[$customerId])) {

@@ -19,6 +19,9 @@ trim_trailing_whitespace = false
 [*.json]
 indent_size = 2
 
+[src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*.json]
+indent_size = 4
+
 [*.yml]
 indent_size = 2
 

@@ -1,3 +1,4 @@
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
     const context = require.context('./', true, /\.\/[a-z0-9-]+\/index\.js$/);
 
@@ -14,6 +15,7 @@ export default () => {
     }, []);
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const login = () => {
     const context = require.context('./sw-login', true, /\.\/index\.js/);
 

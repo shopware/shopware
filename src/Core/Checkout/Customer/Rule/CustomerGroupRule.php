@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class CustomerGroupRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $customerGroupIds;
 
@@ -24,6 +24,8 @@ class CustomerGroupRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $customerGroupIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
     {

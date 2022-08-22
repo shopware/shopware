@@ -6,6 +6,7 @@ const { Criteria } = Shopware.Data;
 const cacheApiService = Shopware.Service('cacheApiService');
 const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-first-run-wizard-welcome', {
     template,
 
@@ -178,9 +179,10 @@ Component.register('sw-first-run-wizard-welcome', {
                         this.showConfirmLanguageSwitchModal = false;
                     });
             }).catch(() => {
+                /* eslint-disable max-len */
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage'),
+                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'),
                 });
             }).finally(() => {
                 this.confirmPassword = '';

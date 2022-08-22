@@ -4,6 +4,7 @@ import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import Criteria from './criteria.data';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class EntityFactory {
     /**
      * Creates a new entity for the provided entity name.

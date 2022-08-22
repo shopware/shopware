@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -60,25 +59,6 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Post(
-     *      path="/account/change-payment-method/{paymentMethodId}",
-     *      summary="Change the customer's default payment method",
-     *      description="Changes a customer's default (preselected) payment method.",
-     *      operationId="changePaymentMethod",
-     *      tags={"Store API", "Profile"},
-     *      @OA\Parameter(
-     *        name="paymentMethodId",
-     *        in="path",
-     *        description="Identifier of the desired default payment method",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful update.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route(path="/store-api/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

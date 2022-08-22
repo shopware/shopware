@@ -12,6 +12,7 @@ const { Criteria } = Shopware.Data;
  * @method createRuleAssignmentConfigService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createRuleAssignmentConfigService(ruleId, associationLimit) {
     const configuration = {
         product: {

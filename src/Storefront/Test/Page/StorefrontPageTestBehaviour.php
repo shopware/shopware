@@ -300,6 +300,10 @@ trait StorefrontPageTestBehaviour
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<string, string> $salesChannel
+     * @param array<string, string> $options
+     */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);

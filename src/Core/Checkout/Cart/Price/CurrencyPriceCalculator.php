@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price;
 
-use Shopware\Core\Checkout\Cart\Exception\MissingPriceDefinitionException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
@@ -31,7 +31,7 @@ class CurrencyPriceCalculator
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
 
         if (!$currency) {
-            throw new MissingPriceDefinitionException();
+            throw CartException::invalidPriceDefinition();
         }
 
         $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $currency->getGross() : $currency->getNet();

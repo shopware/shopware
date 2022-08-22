@@ -3,6 +3,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @module app/app-acl-service
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AppAclService {
     _privileges;
 

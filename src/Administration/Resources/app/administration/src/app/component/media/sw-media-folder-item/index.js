@@ -3,6 +3,7 @@ import './sw-media-folder-item.scss';
 
 const { Component, Application, Mixin, Context } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-folder-item', {
     template,
 

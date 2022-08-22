@@ -35,7 +35,7 @@ class Permissions extends XmlElement
 
     /**
      * @param array $permissions CRUD permissions as array indexed by resource
-     * @param string[] $additionalPrivileges additional non-CRUD privileges as flat list
+     * @param array<string> $additionalPrivileges additional non-CRUD privileges as flat list
      */
     public static function fromArray(array $permissions, array $additionalPrivileges = []): self
     {

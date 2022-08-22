@@ -4,6 +4,7 @@ import './sw-order-create-initial-modal.scss';
 const { Component, State, Service, Mixin } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-initial-modal', {
     template,
 
@@ -106,6 +107,9 @@ Component.register('sw-order-create-initial-modal', {
                 if (responses) {
                     this.$emit('order-preview');
                 }
+            } catch (error) {
+                this.createNotificationError({ message: error.message });
+                items = [];
             } finally {
                 this.isLoading = false;
             }

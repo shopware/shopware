@@ -1,0 +1,119 @@
+{% extends '@Installer/installer/base.html.twig' %}
+
+{% block base_content %}
+    <div class="card__title">
+        <h2>{{ "shopware.installer.requirements_header"|trans }}</h2>
+    </div>
+
+    <div class="card__body scrollable">
+        {% if requirementChecks.hasError %}
+            <div class="alert-hero error">
+                <div class="alert-hero-icon">
+                    <i class="icon-warning"></i>
+                </div>
+                <h3 class="alert-hero-title">{{ "shopware.installer.requirements_error_title"|trans }}</h3>
+                <div class="alert-hero-text">{{ "shopware.installer.requirements_error"|trans }}</div>
+            </div>
+        {% else %}
+            <div class="alert-hero success">
+                <div class="alert-hero-icon">
+                    <i class="icon-checkmark"></i>
+                </div>
+                <h3 class="alert-hero-title">{{ "shopware.installer.requirements_success_title"|trans }}</h3>
+                <div class="alert-hero-text">{{ "shopware.installer.requirements_success"|trans }}</div>
+            </div>
+        {% endif %}
+
+        <details id="pathChecks" {% if requirementChecks.hasPathError %}open{% endif %}>
+            <summary>
+                <h4 id="requirement-group-path"
+                    class="requirement-group {% if not requirementChecks.hasPathError %}success{% else %}error{% endif %}">
+                    <span class="requirement-group-title">{{ "shopware.installer.requirements_header_files"|trans }} <span class="status-indicator"></span></span>
+                    <i class="icon-chevron-down"></i>
+                </h4>
+            </summary>
+
+            <div>
+                <p class="requirement-info-text">
+                    {{ "shopware.installer.requirements_files_info"|trans }}
+                </p>
+
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>{{ "shopware.installer.requirements_table_files_col_check"|trans }}</th>
+                            <th>{{ "shopware.installer.requirements_table_files_col_status"|trans }}</th>
+                        </tr>
+                        {% for pathCheck in requirementChecks.getPathChecks %}
+                            <tr>
+                                <td>{{ pathCheck.name }}</td>
+                                <td>
+                                    <span class="status-indicator {% if pathCheck.status == 'success' %}success{% else %}error{% endif %}"></span>
+                                    {% if pathCheck.status == 'success' %}
+                                        {{ "shopware.installer.requirements_status_ready"|trans }}
+                                    {% else %}
+                                        {{ "shopware.installer.requirements_status_error"|trans }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        <details id="systemChecks" {% if requirementChecks.hasSystemError %}open{% endif %}>
+            <summary>
+                <h4 id="requirement-group-system"
+                    class="requirement-group {% if not requirementChecks.hasSystemError %}success{% else %}error{% endif %}">
+                    <span class="requirement-group-title">{{ "shopware.installer.requirements_header_system"|trans }} <span class="status-indicator"></span></span>
+                    <i class="icon-chevron-down"></i>
+                </h4>
+            </summary>
+
+            <div>
+                <p class="requirement-info-text">
+                    {{ "shopware.installer.requirements_php_info"|trans }}
+                </p>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>{{ "shopware.installer.requirements_system_col_check"|trans }}</th>
+                        <th>{{ "shopware.installer.requirements_system_col_status"|trans }}</th>
+                        <th>{{ "shopware.installer.requirements_system_col_required"|trans }}</th>
+                        <th>{{ "shopware.installer.requirements_system_col_found"|trans }}</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for systemCheck in requirementChecks.getSystemChecks %}
+                        <td>{{ systemCheck.name }}</td>
+                        <td><span class="status-indicator {{ systemCheck.status }}"></span>
+                            {% if systemCheck.status == 'success' %}
+                                {{ "shopware.installer.requirements_status_ready"|trans }}
+                            {% elseif systemCheck.status == 'error' %}
+                                {{ "shopware.installer.requirements_status_error"|trans }}
+                            {% else %}
+                                {{ "shopware.installer.requirements_status_warning"|trans }}
+                            {% endif %}
+                        </td>
+                        <td>{{ systemCheck.requiredValue }}</td>
+                        <td>{{ systemCheck.installedValue }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+
+    <div class="card__footer">
+        <form action="{{ url('installer.requirements') }}" method="post" class="flex-container">
+            <a href="{{ url('installer.language-selection') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
+            <button type="submit" class="btn btn-primary flex-item flex-right" {% if requirementChecks.hasError %}disabled="disabled"{% endif %}>
+                {{ "shopware.installer.forward"|trans }}
+            </button>
+        </form>
+    </div>
+{% endblock %}

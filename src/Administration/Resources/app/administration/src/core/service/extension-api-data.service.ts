@@ -59,6 +59,7 @@ function parsePath(path :string): ParsedPath | null {
     return null;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function publishData({ id, path, scope }: publishOptions): void {
     const registeredDataSet = publishedDataSets.find(s => s.id === id);
 
@@ -195,6 +196,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
     register({ id: id, data: get(scope, path) }).catch(() => {});
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getPublishedDataSets(): dataset[] {
     return publishedDataSets;
 }

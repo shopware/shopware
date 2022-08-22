@@ -1,5 +1,9 @@
 import Vue from 'vue';
+import VueI18n from 'vue-i18n'
 import { location } from '@shopware-ag/admin-extension-sdk';
+import '@shopware-ag/meteor-component-library/dist/style.css';
+
+Vue.use(VueI18n);
 
 // watch for height changes
 location.startAutoResizer();

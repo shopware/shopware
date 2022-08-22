@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_data_grid_inline_edit %}
 <div
     class="sw-data-grid-inline-edit"
     :class="classes"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_string %}
     <sw-field
         v-if="column.inlineEdit === 'string'"
@@ -13,6 +15,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_number %}
     <sw-field
         v-else-if="column.inlineEdit === 'number'"
@@ -23,6 +26,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_boolean %}
     <sw-field
         v-else-if="column.inlineEdit === 'boolean'"
@@ -32,6 +36,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_data_grid_inline_edit_type_unknown %}
     <span
         v-else

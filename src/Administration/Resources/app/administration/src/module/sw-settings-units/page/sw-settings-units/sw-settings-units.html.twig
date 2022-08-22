@@ -1,16 +1,21 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_units %}
 <sw-page class="sw-settings-units">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_search_bar %}
     <template slot="search-bar">
         <sw-search-bar />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_units_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_units_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -24,8 +29,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_smart_bar_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_units_actions_save %}
         <sw-button
             v-tooltip="tooltipCreate"
@@ -40,6 +47,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_language_switch %}
     <sw-language-switch
         slot="language-switch"
@@ -48,12 +56,14 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_units_content %}
     <sw-card-view slot="content">
         <sw-card
             position-identifier="sw-settings-units-content"
             :class="{ 'sw-settings-units-card-empty': isEmpty }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_units_content_empty_state %}
             <sw-empty-state
                 v-if="!isLoading && isEmpty"
@@ -64,6 +74,7 @@
             {% endblock %}
 
             <template #grid>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_units_content_grid %}
                 <sw-data-grid
                     v-show="isLoading || !isEmpty"
@@ -83,6 +94,7 @@
                         slot="actions"
                         slot-scope="{ item }"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_units_content_grid_column_menu_delete %}
                         <sw-context-menu-item
                             class="sw-settings-units__delete-action"

@@ -3,6 +3,7 @@ import './sw-settings-snippet-filter-switch.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-snippet-filter-switch', {
     template,
 

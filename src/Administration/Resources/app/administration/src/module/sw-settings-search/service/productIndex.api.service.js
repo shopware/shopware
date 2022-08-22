@@ -1,5 +1,6 @@
 const ApiService = Shopware.Classes.ApiService;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ProductIndexService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'product.indexer') {
         super(httpClient, loginService, apiEndpoint);

@@ -11,6 +11,7 @@ const { Component, State, Data: { Criteria } } = Shopware;
  * @component-example
  * <sw-snippet-field snippet="myPlugin.test.snippet" fieldType="text"></sw-switch-field>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-snippet-field', {
     template,
 

@@ -30,6 +30,7 @@ import initializeActionButtons from './action-button.init';
 import initializeActions from './actions.init';
 import initializeExtensionDataHandling from './extension-data-handling.init';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     coreMixin: initMixin,
     coreDirectives: initDirectives,

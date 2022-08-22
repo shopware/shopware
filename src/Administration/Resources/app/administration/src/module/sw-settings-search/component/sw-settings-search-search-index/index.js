@@ -6,6 +6,7 @@ const { Mixin, Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { format } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-search-search-index', {
     template,
 

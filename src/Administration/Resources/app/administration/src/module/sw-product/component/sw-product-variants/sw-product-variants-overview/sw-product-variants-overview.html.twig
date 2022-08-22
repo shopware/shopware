@@ -1,15 +1,19 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_variants_overview %}
 <div class="sw-product-variants-overview">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_overview_option_list_toolbar %}
     <div class="sw-configuration-option-list__toolbar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
             columns="1fr minmax(50px, max-content) minmax(100px, 180px) minmax(100px, 180px)"
             gap="0 10px"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
             <sw-simple-search-field
                 v-model="term"
@@ -19,9 +23,11 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_filter_list %}
             <div class="sw-product-variants-overview__filter-list-button">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
                 <sw-button @click="filterWindowOpen = !filterWindowOpen">
                     {{ $tc('sw-product.variations.generatedFilterList') }}
@@ -29,6 +35,7 @@
                 </sw-button>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_context_menu %}
                 <sw-context-menu v-show="filterWindowOpen">
                     <sw-container
@@ -36,6 +43,7 @@
                         gap="5px"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
                         <sw-tree
                             v-show="filterOptions.length"
@@ -61,14 +69,17 @@
                         </sw-tree>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
                             <sw-button @click="resetFilterOptions()">
                                 {{ $tc('sw-product.variations.overview.filterReset') }}
                             </sw-button>
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
                             <sw-button
                                 variant="primary"
@@ -86,6 +97,7 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
             <sw-button
                 v-tooltip="{
@@ -117,6 +129,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_overview_data_grid %}
     <sw-data-grid
         ref="variantGrid"
@@ -136,6 +149,7 @@
         @inline-edit-cancel="onInlineEditCancel"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_name %}
         <template
             slot="column-name"
@@ -162,6 +176,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
@@ -169,8 +184,10 @@
             slot-scope="{ item, compact, isInlineEdit }"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
             <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
                 <sw-inheritance-switch
                     :key="`switch-${currency.isoCode}`"
@@ -181,6 +198,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
                 <sw-price-field
                     :key="`price-field-${currency.isoCode}`"
@@ -196,8 +214,10 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_price_preview %}
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_preview_inherit %}
                 <sw-inheritance-switch
                     :key="`else-switch-${currency.isoCode}`"
@@ -207,6 +227,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
                 <sw-price-preview
                     :key="`else-price-field-${currency.isoCode}`"
@@ -222,11 +243,13 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_stock %}
         <template
             slot="column-stock"
             slot-scope="{ item, isInlineEdit, compact }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
             <sw-field
                 v-if="isInlineEdit"
@@ -236,6 +259,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_preview %}
             <span v-else>
                 {{ item.stock }}
@@ -244,11 +268,13 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_product_number %}
         <template
             slot="column-productNumber"
             slot-scope="{ item, isInlineEdit, compact }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
             <sw-field
                 v-if="isInlineEdit"
@@ -258,6 +284,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_product_number_preview %}
             <span
                 v-else
@@ -269,9 +296,12 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_media %}
         <template #column-media="{ item, isInlineEdit, compact }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_inherit %}
             <sw-inheritance-switch
                 :is-inherited="isMediaFieldInherited(item)"
@@ -282,6 +312,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_media_content %}
             <sw-product-variants-media-upload
                 :source="item"
@@ -295,6 +326,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_data_grid_column_active %}
         <template
             slot="column-active"
@@ -339,11 +371,13 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_actions %}
         <template
             slot="actions"
             slot-scope="{ item }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_actions_items %}
             <sw-context-menu-item
                 v-tooltip="{
@@ -373,6 +407,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_pagination %}
         <template slot="pagination">
             <sw-pagination
@@ -385,8 +420,10 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_bulk %}
         <template #bulk>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_bulk_edit %}
             <span
                 v-if="acl.can('product.editor')"
@@ -397,6 +434,7 @@
             </span>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_bulk_delete %}
             <span
                 v-if="acl.can('product.deleter')"
@@ -409,6 +447,7 @@
         </template>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_bulk_edit_modal %}
         <template #bulk-modals="{ selection }">
             <sw-bulk-edit-modal
@@ -419,6 +458,7 @@
                 @edit-items="onEditItems"
                 @modal-close="toggleBulkEditModal"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_bulk_edit_modal_column_name %}
                 <template #column-name="{ item }">
                     <template v-if="item.options">
@@ -443,6 +483,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
                 <template
                     v-for="currency in currencies"
@@ -464,6 +505,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_bulk_edit_modal_column_media %}
                 <template #column-media="{ item }">
                     <sw-inheritance-switch
@@ -481,6 +523,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_bulk_edit_modal_column_active %}
                 <template #column-active="{ item }">
                     <sw-icon
@@ -511,6 +554,7 @@
     </sw-data-grid>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variants_overview_data_grid_action_modals %}
     <sw-modal
         v-if="showDeleteModal"
@@ -530,6 +574,7 @@
         </p>
 
         <template #modal-footer>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
             <sw-button
                 class="sw-product-variants-overview__modal--cancel-button"

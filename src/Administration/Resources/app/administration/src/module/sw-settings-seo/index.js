@@ -6,6 +6,7 @@ import './page/sw-settings-seo';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-seo', {
     type: 'core',
     name: 'settings-seo',

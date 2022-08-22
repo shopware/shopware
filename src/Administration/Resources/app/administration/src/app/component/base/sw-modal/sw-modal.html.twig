@@ -1,8 +1,10 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_modal %}
 <transition
     name="sw-modal-fade"
     appear
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_modal_element %}
     <div
         class="sw-modal"
@@ -10,6 +12,7 @@
         @mousedown="closeModalOnClickOutside"
         @keyup.esc="closeModalOnEscapeKey"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_modal_dialog %}
         <div
             ref="dialog"
@@ -20,15 +23,18 @@
             aria-labelledby="modalTitleEl"
             tabindex="-1"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_header %}
             <header
                 v-if="showHeader"
                 class="sw-modal__header"
             >
                 <slot name="modal-header">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_slot_header %}
 
                     <div class="sw-modal__titles">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_modal_close %}
                         <h4
                             id="modalTitleEl"
@@ -46,6 +52,7 @@
                         </h5>
                     </div>
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_close_button %}
                     <button
                         v-if="closable"
@@ -54,6 +61,7 @@
                         :aria-label="$tc('global.sw-modal.labelClose')"
                         @click.prevent="closeModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_modal_close_icon %}
                         <sw-icon
                             name="regular-times-s"
@@ -67,27 +75,32 @@
             </header>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_body %}
             <slot name="body">
                 <div class="sw-modal__body">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_loader %}
                     <slot name="modal-loader">
                         <sw-loader v-if="isLoading" />
                     </slot>
                     {% endblock %}
                     <slot>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_modal_slot_default %}{% endblock %}
                     </slot>
                 </div>
             </slot>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_footer %}
             <footer
                 v-if="hasFooterSlot"
                 class="sw-modal__footer"
             >
                 <slot name="modal-footer">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_slot_footer %}{% endblock %}
                 </slot>
             </footer>

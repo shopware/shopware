@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_order %}
 <sw-page class="sw-bulk-edit-order">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_search_bar %}
     <template #search-bar>
 
@@ -8,6 +10,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_smart_bar_header %}
     <template #smart-bar-header>
 
@@ -16,9 +19,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_content_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_actions_save %}
         <sw-button-process
             class="sw-bulk-edit-order__save-action"
@@ -35,12 +40,14 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_order_content %}
     <template #content>
 
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_order_content_order_status_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__status"
@@ -48,6 +55,7 @@
                 :title="$tc('sw-bulk-edit.order.status.cardTitle')"
                 :is-loading="isLoading"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_order_content_order_status_section %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="statusFormFields"
@@ -58,6 +66,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_order_content_documents %}
             <sw-card
                 class="sw-bulk-edit-order-base__documents"
@@ -65,6 +74,7 @@
                 :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
                 :is-loading="isLoading"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_order_content_documents_warning %}
                 <sw-container
                     v-if="showBulkEditDocumentWarning"
@@ -80,6 +90,7 @@
                 </sw-container>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_order_content_documents_content %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="documentsFormFields"
@@ -91,6 +102,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_order_tags_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__tags"
@@ -98,6 +110,7 @@
                 :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
                 :is-loading="isLoading"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_order_tags %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="tagsFormFields"
@@ -108,6 +121,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_order_custom_field_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__custom_fields"
@@ -124,6 +138,7 @@
             {% endblock %}
         </sw-card-view>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_empty_state %}
         <sw-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
@@ -132,6 +147,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_save_modal %}
         <router-view
             :item-total="selectedIds.length"

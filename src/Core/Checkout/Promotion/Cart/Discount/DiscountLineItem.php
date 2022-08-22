@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Framework\Feature;
 
 class DiscountLineItem
 {
@@ -121,6 +123,10 @@ class DiscountLineItem
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::payloadKeyNotFound($key, (string) $this->getCode());
+            }
+
             throw new PayloadKeyNotFoundException($key, $this->getLabel());
         }
 

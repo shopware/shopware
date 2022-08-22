@@ -12,6 +12,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-base', {
     template,
     inheritAttrs: false,

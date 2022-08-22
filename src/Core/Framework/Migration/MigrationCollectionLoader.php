@@ -36,28 +36,21 @@ class MigrationCollectionLoader
         self::VERSION_SELECTION_SAFE,
     ];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @var array<string, MigrationSource>
      */
-    private $migrationSources;
+    private array $migrationSources = [];
 
-    /**
-     * @var MigrationRuntime
-     */
-    private $migrationRuntime;
+    private MigrationRuntime $migrationRuntime;
 
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private ?LoggerInterface $logger;
 
     /**
      * @internal
+     *
+     * @param iterable<MigrationSource> $migrationSources
      */
     public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [], ?LoggerInterface $logger = null)
     {
@@ -142,7 +135,7 @@ class MigrationCollectionLoader
      * @throws InvalidMigrationClassException
      * @throws UnknownMigrationSourceException
      *
-     * @return MigrationCollection[]
+     * @return array<string, MigrationCollection>
      */
     public function collectAll(): array
     {

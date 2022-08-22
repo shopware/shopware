@@ -203,7 +203,7 @@ abstract class EntityDefinition
             return $this->fieldVisibility;
         }
 
-        /** @var string[] $internalProperties */
+        /** @var array<string> $internalProperties */
         $internalProperties = $this->getFields()
             ->fmap(function (Field $field): ?string {
                 if ($field->is(ApiAware::class)) {
@@ -291,6 +291,9 @@ abstract class EntityDefinition
         return $this->primaryKeys = $fields;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getDefaults(): array
     {
         return [];

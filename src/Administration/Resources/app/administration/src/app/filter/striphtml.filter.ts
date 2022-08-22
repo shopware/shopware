@@ -8,4 +8,5 @@ Filter.register('striphtml', (value: string): string => {
     return value.replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, '');
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {};

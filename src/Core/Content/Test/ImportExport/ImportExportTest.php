@@ -107,7 +107,7 @@ class ImportExportTest extends AbstractImportExportTest
         /** @var EntityRepositoryInterface $fileRepository */
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
         /** @var ImportExportFileEntity|null $file */
-        $file = $fileRepository->search(new Criteria([$this->getLogEntity($progress->getLogId())->getFileId()]), Context::createDefaultContext())->first();
+        $file = $fileRepository->search(new Criteria(array_filter([$this->getLogEntity($progress->getLogId())->getFileId()])), Context::createDefaultContext())->first();
 
         static::assertNotNull($file);
         static::assertSame($filesystem->getSize($this->getLogEntity($progress->getLogId())->getFile()->getPath()), $file->getSize());

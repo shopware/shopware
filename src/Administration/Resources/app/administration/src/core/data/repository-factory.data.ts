@@ -5,6 +5,7 @@ import type ChangesetGenerator from './changeset-generator.data';
 import type EntityFactory from './entity-factory.data';
 import type ErrorResolver from './error-resolver.data';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class RepositoryFactory {
     private hydrator: EntityHydrator;
 

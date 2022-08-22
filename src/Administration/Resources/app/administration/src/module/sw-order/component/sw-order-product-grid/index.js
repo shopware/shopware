@@ -4,6 +4,7 @@ import './sw-order-product-grid.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-product-grid', {
     template,
 
@@ -83,7 +84,7 @@ Component.register('sw-order-product-grid', {
                     property: 'amount',
                     label: this.$tc('sw-order.itemModal.productGrid.columnAmount'),
                     allowResize: false,
-                    width: '60px',
+                    width: '154px',
                     sortable: false,
                     primary: true,
                 },
@@ -168,6 +169,15 @@ Component.register('sw-order-product-grid', {
             this.$emit('selection-change', Object.values(selection));
         },
 
+        onSelectItem(_, item, selected) {
+            if (!selected) {
+                this.$set(item, 'amount', null);
+                return;
+            }
+
+            this.$set(item, 'amount', 0);
+        },
+
         onSearch(value) {
             if (value.length === 0) {
                 value = undefined;
@@ -192,6 +202,10 @@ Component.register('sw-order-product-grid', {
         },
 
         changeProductAmount(product) {
+            if (this.$refs.orderProductGrid?.selection) {
+                this.$set(this.$refs.orderProductGrid.selection, product.id, product);
+            }
+
             this.updateModifiedProducts(product);
             this.updateSelection(product);
         },

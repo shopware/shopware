@@ -5,6 +5,7 @@ const { debounce, get } = Shopware.Utils;
 const { deepCopyObject } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-entity-many-to-many-select', {
     template,
     inheritAttrs: false,

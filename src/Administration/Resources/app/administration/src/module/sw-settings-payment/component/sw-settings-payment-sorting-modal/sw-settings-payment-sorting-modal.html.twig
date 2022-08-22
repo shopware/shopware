@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_payment_sorting_modal %}
 <sw-modal
     class="sw-settings-payment-sorting-modal"
@@ -5,15 +6,18 @@
     @modal-close="closeModal"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_sorting_modal_content %}
     <template #body>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_sorting_modal_content_subtitle %}
         <div class="sw-modal__body sw-settings-payment-sorting-modal__subtitle">
             {{ $tc('sw-settings-payment.sorting-modal.subTitle') }}
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_sorting_modal_content_list %}
         <div class="sw-modal__body">
             <sw-sortable-list
@@ -21,18 +25,21 @@
                 :items="sortedPaymentMethods"
                 @itemsSorted="onSort"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_payment_sorting_modal_content_payment_method %}
                 <template #item="{ item: paymentMethod }">
                     <div
                         class="sw-settings-payment-sorting-modal__payment-method-list-item"
                         :class="!paymentMethod.active ? 'is--disabled' : ''"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_sorting_modal_content_payment_method_action %}
                         <sw-icon
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
                             name="default-action-drag-horizontal"
                         />
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_sorting_modal_content_payment_method_icon %}
                         <img
                             v-if="isShopwareDefaultPaymentMethod(paymentMethod)"
@@ -46,6 +53,7 @@
                             :source="paymentMethod.media ? paymentMethod.media : null"
                         />
                         {% endblock %}
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_sorting_modal_content_payment_method_name %}
                         <div class="sw-settings-payment-sorting-modal__payment-method-list-item__name">
                             {{ paymentMethod.translated.name }}
@@ -61,9 +69,11 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_sorting_modal_footer %}
     <template #modal-footer>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_sorting_modal_footer_cancel_button %}
         <sw-button
             class="sw-settings-payment-sorting-modal__cancel-button"
@@ -73,6 +83,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_sorting_modal_footer_save_button %}
         <sw-button-process
             class="sw-settings-payment-sorting-modal__save-button"

@@ -5,6 +5,7 @@ const { Component } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-seo-url', {
     template,
 

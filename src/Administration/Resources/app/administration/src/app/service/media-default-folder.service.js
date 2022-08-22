@@ -1,5 +1,6 @@
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createMediaDefaultFolderService() {
     const cache = {};
     const repository = Shopware.Service('repositoryFactory').create('media_default_folder');

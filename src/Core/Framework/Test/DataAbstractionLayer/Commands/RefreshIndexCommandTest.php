@@ -108,7 +108,7 @@ class RefreshIndexCommandTest extends TestCase
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        /** @var string[] $categories */
+        /** @var array<string> $categories */
         $categories = $this->getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext())->getIds();
 

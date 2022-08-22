@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Asset;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Installer\Installer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -44,6 +45,9 @@ class AssetInstallCommand extends Command
             $io->writeln(sprintf('Copying files for app: %s', $app['name']));
             $this->assetService->copyAssetsFromApp($app['name'], $app['path']);
         }
+
+        $io->writeln('Copying files for bundle: Installer');
+        $this->assetService->copyAssets(new Installer());
 
         $io->writeln('Copying files for bundle: Recovery');
         $this->assetService->copyRecoveryAssets();

@@ -25,6 +25,9 @@ class ChildCountUpdater
         $this->connection = $connection;
     }
 
+    /**
+     * @param array<string> $parentIds
+     */
     public function update(string $entity, array $parentIds, Context $context): void
     {
         $definition = $this->registry->getByEntityName($entity);
@@ -38,6 +41,9 @@ class ChildCountUpdater
         });
     }
 
+    /**
+     * @param array<string> $parentIds
+     */
     private function trySingleUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
     {
         $entity = $definition->getEntityName();
@@ -71,6 +77,6 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        $this->connection->executeUpdate($sql, $params, ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->connection->executeStatement($sql, $params, ['ids' => Connection::PARAM_STR_ARRAY]);
     }
 }

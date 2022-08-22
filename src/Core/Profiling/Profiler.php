@@ -21,17 +21,17 @@ class Profiler
     /**
      * Tags will be added to each trace
      *
-     * @var string[]
+     * @var array<string>
      */
     private static array $tags = [];
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private static array $openTraces = [];
 
     /**
-     * @param string[] $activeProfilers
+     * @param array<string> $activeProfilers
      */
     public function __construct(\Traversable $profilers, array $activeProfilers)
     {

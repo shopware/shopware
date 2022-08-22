@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_import_export_edit_profile_modal %}
 <sw-modal
     v-if="logEntity"
@@ -6,19 +7,23 @@
     @modal-close="$emit('log-close')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_description %}
     <sw-description-list
         class="sw-import-export-activity-detail-modal__description-list"
         grid="1fr 1fr"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_name %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelFilename') }}</dt>
         <dd>{{ logEntity.file.originalName }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_type %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelType') }}</dt>
         <dd>{{ typeText }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_records %}
         <template v-if="logEntity.activity === 'import'">
             <dt>{{ $tc('sw-import-export.activity.detail.labelImportRecords') }}</dt>
@@ -28,6 +33,7 @@
         </template>
         <dd>{{ logEntity.records }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_invalid_records %}
         <template v-if="logEntity.invalidRecordsLog">
             <dt>
@@ -37,18 +43,22 @@
             <dd>{{ logEntity.invalidRecordsLog.records }}</dd>
         </template>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_size %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelSize') }}</dt>
         <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_user %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelUser') }}</dt>
         <dd>{{ logEntity.username }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_date %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelDate') }}</dt>
         <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_description_state %}
         <dt>{{ $tc('sw-import-export.activity.detail.labelState') }}</dt>
         <dd>
@@ -72,13 +82,16 @@
     </sw-description-list>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_download %}
 
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_invalid_records %}
     <template v-if="logEntity.invalidRecordsLog">
         <sw-button-group>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_modal_invalid_records_context_button_download %}
             <sw-button
                 variant="ghost"
@@ -90,6 +103,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_edit_profile_modal_invalid_records_context_button %}
             <sw-context-button>
                 <template #button>
@@ -105,6 +119,7 @@
                         />
                     </sw-button>
                 </template>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_import_export_edit_profile_modal_invalid_records_download %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
@@ -130,6 +145,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_modal_footer %}
     <template #modal-footer>
         <sw-button

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_product_select %}
 <span class="sw-order-product-select">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_select_blank_item %}
     <sw-text-field
         v-if="isShownItemLabelInput"
@@ -9,6 +11,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_select_existing_product %}
     <!-- eslint-disable vue/valid-v-else-if -->
     <sw-entity-single-select
@@ -27,6 +30,7 @@
                 name="selection-label-property"
                 v-bind="{ item }"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_select_results_variant_info %}
                 <sw-product-variant-info :variations="item.variation">
                     {{ item.translated.name || item.name }}
@@ -44,6 +48,7 @@
                     is="sw-select-result"
                     v-bind="{ item, index }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_product_select_results_list_result_label %}
                     <sw-product-variant-info :variations="item.variation">
                         {{ item.translated.name || item.name }}
@@ -55,6 +60,7 @@
     </sw-entity-single-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_show_product %}
     <template v-else>
         <span class="sw-order-product-select__label">

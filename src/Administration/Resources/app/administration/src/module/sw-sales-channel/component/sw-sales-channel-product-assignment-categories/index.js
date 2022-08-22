@@ -4,6 +4,7 @@ import './sw-sales-channel-product-assignment-categories.scss';
 const { Component, Context, Mixin, Feature } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-product-assignment-categories', {
     template,
 

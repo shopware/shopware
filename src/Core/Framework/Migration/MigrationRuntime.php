@@ -3,22 +3,15 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
 class MigrationRuntime
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @internal
@@ -91,26 +84,40 @@ class MigrationRuntime
         }
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NULL')
             ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->fetchFirstColumn();
     }
 
+    /**
+     * @return list<class-string<MigrationStep>>
+     */
     public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
             ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->fetchFirstColumn();
+    }
+
+    public function getTotalMigrationCount(MigrationSource $source, ?int $until = null, ?int $limit = null): int
+    {
+        return (int) $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
+            ->select('COUNT(*)')
+            ->execute()
+            ->fetchOne();
     }
 
     protected function setDefaultStorageEngine(): void
     {
-        $this->connection->exec('SET default_storage_engine=InnoDB');
+        $this->connection->executeStatement('SET default_storage_engine=InnoDB');
     }
 
     private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder
@@ -152,7 +159,7 @@ class MigrationRuntime
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `migration`
                SET `message` = NULL,
                    `update_destructive` = NOW(6)
@@ -163,7 +170,7 @@ class MigrationRuntime
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `migration`
                SET `message` = NULL,
                    `update` = NOW(6)

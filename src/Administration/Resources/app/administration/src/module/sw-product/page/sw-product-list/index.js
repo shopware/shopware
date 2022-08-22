@@ -4,6 +4,7 @@ import './sw-product-list.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-list', {
     template,
 
@@ -116,8 +117,8 @@ Component.register('sw-product-list', {
             return !!this.productEntityVariantModal;
         },
 
-        listFilters() {
-            return this.filterFactory.create('product', {
+        listFilterOptions() {
+            return {
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),
@@ -176,7 +177,11 @@ Component.register('sw-product-list', {
                     toFieldLabel: null,
                     showTimeframe: true,
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('product', this.listFilterOptions);
         },
 
         productBulkEditColumns() {

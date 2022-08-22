@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_preview_v2 %}
 <div
     v-tooltip.bottom="{ message: mediaName, disabled: hideTooltip }"
@@ -5,8 +6,10 @@
     :class="mediaPreviewClasses"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_preview_v2_no_media %}
     <template v-if="!source">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_preview_v2_no_media_icon %}
         <sw-icon
             name="regular-image"
@@ -16,10 +19,13 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_preview_v2_file_types %}
     <template v-else>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_preview_v2_file_type_check %}
         <template v-if="mimeTypeGroup === 'image'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_image %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <img
@@ -50,6 +56,7 @@
         </template>
 
         <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_video %}
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <video
@@ -85,6 +92,7 @@
         </template>
 
         <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_audio %}
             <sw-icon
                 name="multicolor-file-thumbnail-mp3"
@@ -136,6 +144,7 @@
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_placeholder %}
             <sw-icon
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"

@@ -1,6 +1,8 @@
 <div class="sw-product-cross-selling-assignment">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_cross_selling_assignment_container %}
     <div class="sw-product-cross-selling-assignment__select-container">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_cross_selling_assignment_select %}
         <sw-entity-single-select
             :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
@@ -24,6 +26,7 @@
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_single_select_base_results_list_result_label %}
                         <span class="sw-select-result__result-item-text">
                             <sw-product-variant-info :variations="item.variation">
@@ -38,6 +41,7 @@
         </sw-entity-single-select>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_cross_selling_assignment_option_grid %}
         <sw-data-grid
             v-if="total"
@@ -60,6 +64,7 @@
             </template>
 
             <template #column-product.translated.name="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_data_grid_columns_render_value %}
                 <span>
                     <sw-product-variant-info :variations="item.product.variation">
@@ -69,6 +74,7 @@
                 {% endblock %}
             </template>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_cross_selling_assignment_option_grid_column_position %}
             <template #column-position="{ item }">
                 <sw-data-grid-column-position
@@ -81,6 +87,7 @@
             {% endblock %}
         </sw-data-grid>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_cross_selling_assignment_empty_state %}
         <sw-empty-state
             v-if="!total && !isLoadingGrid"

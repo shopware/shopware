@@ -3,6 +3,7 @@
  * @param {Object} context
  * @type factory
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createContext(context = {}) {
     const Defaults = Shopware.Defaults;
     const isDevMode = (process.env.NODE_ENV !== 'production');

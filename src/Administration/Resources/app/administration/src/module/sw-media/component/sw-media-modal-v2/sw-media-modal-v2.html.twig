@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_modal_v2 %}
 <sw-modal
     class="sw-media-modal-v2"
@@ -6,9 +7,11 @@
     @modal-close="onEmitModalClosed"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_v2_content %}
     <div class="sw-media-modal-v2__content">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_v2_tabs %}
         <sw-tabs
             position-identifier="sw-media-modal"
@@ -18,7 +21,9 @@
         >
             <template #default="{ active }">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_v2_tab_items %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_v2_tab_item_library %}
                 <sw-tabs-item
                     :name="tabNameLibrary"
@@ -29,6 +34,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_v2_tab_item_upload %}
                 <sw-tabs-item
                     :name="tabNameUpload"
@@ -43,18 +49,22 @@
 
             <template #content="{ active }">
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_v2_tab_content %}
                 <div class="sw-media-modal-v2__tab-content">
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_v2_tab_content_library %}
                     <template v-if="active === tabNameLibrary">
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_v2_navigation_and_search %}
                         <div
                             class="sw-media-modal-v2__breadcrumbs-and-search"
                             :class="{'sw-media-modal-v2__breadcrumbs-and-search--compact': compact}"
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_v2_folder_breadcrumbs %}
                             <sw-media-breadcrumbs
                                 v-model="folderId"
@@ -62,12 +72,14 @@
                             />
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_v2_search_field %}
                             <sw-simple-search-field v-model="term" />
                             {% endblock %}
                         </div>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_v2_media_library %}
                         <sw-media-library
                             ref="mediaLibrary"
@@ -83,12 +95,14 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_v2_tab_content_upload %}
                     <template
                         v-if="active === tabNameUpload"
                         class="sw-media-modal-v2__uploads-content"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_v2_upload_component %}
                         <sw-upload-listener
                             :upload-tag="uploadTag"
@@ -108,6 +122,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_v2_uploaded_items %}
                         <sw-media-grid
                             :presentation="compact ? 'list-preview' : 'medium-preview'"
@@ -137,6 +152,7 @@
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_v2_media_sidebar %}
         <sw-media-sidebar
             :items="selection"
@@ -150,14 +166,17 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_v2_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_v2_button_cancel %}
         <sw-button @click="onEmitModalClosed">
             {{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_modal_v2_button_confirm_selection %}
         <sw-button
             variant="primary"

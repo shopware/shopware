@@ -55,7 +55,7 @@ class DocumentRouteTest extends TestCase
     /**
      * @dataProvider documentDownloadRouteDataProvider
      */
-    public function testDownload(bool $isGuest, ?bool $withValidDeepLinkCode = null, \Closure $assertionCallback): void
+    public function testDownload(bool $isGuest, ?bool $withValidDeepLinkCode, \Closure $assertionCallback): void
     {
         $token = $this->getLoggedInContextToken($isGuest ? $this->guestId : $this->customerId, $this->ids->get('sales-channel'));
 

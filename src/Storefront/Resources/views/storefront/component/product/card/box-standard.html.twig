@@ -4,6 +4,7 @@
         {% set id = product.id %}
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
+        {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
         <div class="card product-box box-{{ layout }}">
             {% block component_product_box_content %}
@@ -27,7 +28,7 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                            <a href="{{ seoUrl('frontend.detail.page', { 'productId': id }) }}"
                                title="{{ name }}"
                                class="product-image-link is-{{ displayMode }}">
                                 {% if cover.url %}
@@ -92,16 +93,18 @@
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
                                     <div class="product-variant-characteristics-text">
-                                        {% for variation in product.variation %}
-                                            {{ variation.group }}:
-                                            <span class="product-variant-characteristics-option">
-                                                {{ variation.option }}
-                                            </span>
+                                        {% if not displayParent %}
+                                            {% for variation in product.variation %}
+                                                {{ variation.group }}:
+                                                <span class="product-variant-characteristics-option">
+                                                    {{ variation.option }}
+                                                </span>
 
-                                            {% if product.variation|last != variation %}
-                                                {{ " | " }}
-                                            {% endif %}
-                                        {% endfor %}
+                                                {% if product.variation|last != variation %}
+                                                    {{ " | " }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endblock %}

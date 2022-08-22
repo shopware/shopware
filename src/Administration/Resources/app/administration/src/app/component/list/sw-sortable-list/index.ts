@@ -38,6 +38,7 @@ interface DragConfig {
  *          </template>
  * </sw-sortable-list>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sortable-list', {
     template,
 

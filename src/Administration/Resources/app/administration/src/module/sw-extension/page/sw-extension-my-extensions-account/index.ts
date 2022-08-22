@@ -9,6 +9,7 @@ const { State, Mixin } = Shopware;
 /**
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-extension-my-extensions-account', {
     template,
 

@@ -4,6 +4,7 @@ import './sw-customer-list.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-list', {
     template,
 
@@ -107,8 +108,8 @@ Component.register('sw-customer-list', {
             return criteria;
         },
 
-        listFilters() {
-            return this.filterFactory.create('customer', {
+        listFilterOptions() {
+            return {
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',
@@ -171,7 +172,11 @@ Component.register('sw-customer-list', {
                     label: this.$tc('sw-customer.filter.tags.label'),
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
-            });
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('customer', this.listFilterOptions);
         },
     },
 

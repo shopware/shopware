@@ -5,9 +5,6 @@ namespace Shopware\Recovery\Test;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
-use Shopware\Recovery\Install\Console\Application as InstallApplication;
-use Shopware\Recovery\Install\ContainerProvider;
-use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Update\Console\Application as UpdateApplication;
 use Slim\App;
 use Slim\Http\Environment;
@@ -56,90 +53,6 @@ class MigrationTest extends TestCase
         static::assertNotEmpty($sources[1]->getSourceDirectories());
 
         static::assertSame('core.V6_4', $sources[2]->getName());
-    }
-
-    public function testInstallContainerMigrationSourcesNew(): void
-    {
-        $config = require __DIR__ . '/../Install/config/production.php';
-        $container = new \Slim\Container();
-        $container->register(new ContainerProvider($config));
-
-        /** @var MigrationSource[] $sources */
-        $sources = $container->get('migration.sources');
-
-        static::assertCount(3, $sources);
-        static::assertSame('core', $sources[0]->getName());
-        static::assertEmpty($sources[0]->getSourceDirectories());
-
-        static::assertSame('core.V6_3', $sources[1]->getName());
-        static::assertNotEmpty($sources[1]->getSourceDirectories());
-
-        static::assertSame('core.V6_4', $sources[2]->getName());
-    }
-
-    public function testMigrationsDuringInstall(): void
-    {
-        $this->dropDatabase();
-        $_SESSION = [
-            'id' => 'test',
-            'parameters' => [
-                'c_database_user' => $this->config['dbuser'],
-                'c_database_password' => $this->config['dbpassword'],
-                'c_database_host' => $this->config['dbhost'],
-                'c_database_port' => $this->config['dbport'],
-                'c_database_schema' => $this->config['dbname'],
-            ],
-        ];
-
-        /** @var App $app */
-        $app = require __DIR__ . '/../Install/src/app.php';
-        $app->callMiddlewareStack($this->requestFactory('GET', '/'), new Response());
-        $this->changeMigrationSource($app);
-
-        $response = $app($this->requestFactory('POST', '/database-configuration/'), new Response());
-        static::assertSame(302, $response->getStatusCode());
-
-        do {
-            $response = $app($this->requestFactory('GET', '/database-import/importDatabase'), new Response());
-            $content = (string) $response->getBody();
-            static::assertSame(200, $response->getStatusCode());
-        } while (mb_strpos($content, '"valid":true,') !== false);
-
-        $this->assertTestMigrationsWereExecuted($app);
-    }
-
-    public function testMigrationsDuringCLIInstall(): void
-    {
-        $this->dropDatabase();
-        $this->createDatabase();
-        $app = new InstallApplication('production');
-        $command = $app->get('install');
-
-        $connectionInfo = (new DatabaseConnectionInformation())->assign([
-            'hostname' => $this->config['dbhost'],
-            'port' => $this->config['dbport'],
-            'username' => $this->config['dbuser'],
-            'password' => $this->config['dbpassword'],
-            'databaseName' => $this->config['dbname'],
-        ]);
-
-        $this->changeMigrationSource($app);
-
-        \Closure::bind(function () use ($command, $app, $connectionInfo): void {
-            $command->container = $app->getContainer();
-
-            $command->IOHelper = new IOHelper(
-                new ArrayInput([]),
-                new NullOutput(),
-                new QuestionHelper()
-            );
-
-            $command->initDatabaseConnection($connectionInfo, $app->getContainer());
-
-            $command->runMigrations();
-        }, $command, $command)->call($command);
-
-        $this->assertTestMigrationsWereExecuted($app);
     }
 
     public function testMigrationDuringUpdate(): void
@@ -222,7 +135,7 @@ class MigrationTest extends TestCase
             [__DIR__ . '/_migrations' => 'Shopware\\Recovery\\Test\\_migrations']
         );
 
-        if ($app instanceof App | $app instanceof InstallApplication) {
+        if ($app instanceof App) {
             $app->getContainer()['migration.source'] = $source;
 
             return;

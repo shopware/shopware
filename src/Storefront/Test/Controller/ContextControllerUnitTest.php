@@ -97,8 +97,9 @@ class ContextControllerUnitTest extends TestCase
             $changeLangMock
         );
 
-        $customerMock = $this->createMock(CustomerEntity::class);
-        $customerMock->expects(static::exactly(1))->method('getId')->willReturn(Uuid::randomHex());
+        $customerMock = new CustomerEntity();
+        $customerMock->setUniqueIdentifier(Uuid::randomHex());
+        $customerMock->setId($customerMock->getUniqueIdentifier());
 
         $contextMock = $this->createMock(SalesChannelContext::class);
         $contextMock->expects(static::exactly(3))->method('getCustomer')->willReturn($customerMock);

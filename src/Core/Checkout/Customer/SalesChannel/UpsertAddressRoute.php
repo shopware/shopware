@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -88,39 +87,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     /**
      * @Since("6.3.2.0")
-     * @OA\Post(
-     *      path="/account/address",
-     *      summary="Create a new address for a customer",
-     *      description="Creates a new address for a customer.",
-     *      operationId="createCustomerAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CustomerAddress")),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/CustomerAddress")
-     *     )
-     * )
-     * @OA\Patch(
-     *      path="/account/address/{addressId}",
-     *      summary="Modify an address of a customer",
-     *      description="Modifies an existing address of a customer.",
-     *      operationId="updateCustomerAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CustomerAddress")),
-     *      @OA\Parameter(
-     *        name="addressId",
-     *        in="path",
-     *        description="Address ID",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/CustomerAddress")
-     *     )
-     * )
      * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId"=null, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */

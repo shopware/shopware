@@ -6,6 +6,7 @@ const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-address-form', {
     template,
 
@@ -120,6 +121,10 @@ Component.register('sw-customer-address-form', {
         },
 
         isBusinessAccountType() {
+            if (!this.customer?.accountType) {
+                return true;
+            }
+
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },

@@ -13,6 +13,6 @@ class SwagTestTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 30;
+        return 3600;
     }
 }

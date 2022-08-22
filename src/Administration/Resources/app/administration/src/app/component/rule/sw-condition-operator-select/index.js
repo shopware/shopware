@@ -3,6 +3,7 @@ import './sw-condition-operator-select.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-operator-select', {
     template: template,
 

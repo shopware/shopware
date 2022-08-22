@@ -8,12 +8,12 @@ namespace Shopware\Core\Content\ImportExport\Service;
 class SupportedFeaturesService
 {
     /**
-     * @var array|string[]
+     * @var array<string>
      */
     private $entities;
 
     /**
-     * @var array|string[]
+     * @var array<string>
      */
     private $fileTypes;
 

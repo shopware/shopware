@@ -1,14 +1,18 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_payment_detail %}
 <sw-page class="sw-settings-payment-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_detail_header %}
     <template slot="smart-bar-header">
         <h2>{{ placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_detail_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -19,6 +23,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_payment_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -36,6 +41,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_detail_language_switch %}
     <sw-language-switch
         slot="language-switch"
@@ -45,6 +51,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_payment_detail_content %}
     <sw-card-view slot="content">
         <template v-if="isLoading">
@@ -53,12 +60,14 @@
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.textHeadline'))"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_detail_content_card %}
             <sw-card
                 position-identifier="sw-settings-payment-detail-content"
@@ -66,6 +75,7 @@
                 :is-loading="isLoading"
             >
                 <template v-if="!isLoading">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_payment_detail_content_field_plugin %}
                     <sw-plugin-box
                         v-if="!!paymentMethod.pluginId"
@@ -77,6 +87,7 @@
                         columns="3fr 1fr"
                         gap="0px 30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_content_field_name %}
                         <sw-field
                             v-model="paymentMethod.name"
@@ -89,6 +100,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_content_field_position %}
                         <sw-field
                             v-model="paymentMethod.position"
@@ -105,6 +117,7 @@
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_base_content_field_description %}
                         <sw-textarea-field
                             v-model="paymentMethod.description"
@@ -116,6 +129,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_base_content_media_upload %}
                         <sw-upload-listener
                             :upload-tag="uploadTag"
@@ -142,6 +156,7 @@
                         columns="repeat(auto-fit, minmax(250px, 2fr))"
                         gap="0px 30px"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_content_field_active %}
                         <sw-field
                             v-model="paymentMethod.active"
@@ -152,6 +167,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_detail_content_field_after_order_enabled %}
                         <sw-field
                             v-model="paymentMethod.afterOrderEnabled"
@@ -166,6 +182,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_detail_top_rule %}
             <sw-card
                 class="sw-settings-payment-detail__condition_container"
@@ -173,6 +190,7 @@
                 :title="$tc('sw-settings-payment.detail.topRule')"
                 :is-loading="isLoading"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_payment_detail_top_rule_select %}
                 <sw-select-rule-create
                     v-if="!isLoading"
@@ -189,6 +207,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_payment_detail_custom_field_sets %}
             <sw-card
                 v-if="showCustomFields"

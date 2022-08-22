@@ -10,6 +10,7 @@ const utils = Shopware.Utils;
  * @method conditionService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function conditionService() {
     const allowedProperties = [
         'id',

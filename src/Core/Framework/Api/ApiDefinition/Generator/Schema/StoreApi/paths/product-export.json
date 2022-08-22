@@ -1,0 +1,45 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/product-export/{accessKey}/{fileName}": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Export product export",
+                "operationId": "readProductExport",
+                "parameters": [
+                    {
+                        "name": "accessKey",
+                        "in": "path",
+                        "description": "Access Key",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fileName",
+                        "in": "path",
+                        "description": "File Name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

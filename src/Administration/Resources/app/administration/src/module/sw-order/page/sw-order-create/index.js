@@ -5,6 +5,7 @@ import swOrderState from '../../state/order.store';
 const { Context, Component, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create', {
     template,
 

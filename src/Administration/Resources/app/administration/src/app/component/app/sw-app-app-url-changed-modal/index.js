@@ -3,6 +3,7 @@ import './sw-app-app-url-changed-modal.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-app-app-url-changed-modal', {
     template,
 

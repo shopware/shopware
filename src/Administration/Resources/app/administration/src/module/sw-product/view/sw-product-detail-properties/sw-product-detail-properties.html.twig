@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_detail_properties %}
 <div class="sw-product-detail-properties">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_properties_loading_card %}
     <sw-card
         v-if="isLoading"
@@ -8,12 +10,14 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_properties_assignment_card %}
     <sw-card
         v-else-if="product.properties && product.properties.length > 0"
         position-identifier="sw-product-detail-properties-assignment"
         :title="$tc('sw-product.specifications.cardTitleProperties')"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_properties_assignment_card_assignment %}
         <sw-property-assignment
             v-if="propertiesAvailable && product.properties"
@@ -22,6 +26,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_properties_assignment_card_empty %}
         <sw-empty-state
             v-else
@@ -32,15 +37,19 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_properties_empty_card %}
     <sw-card
         v-else
         class="sw-product-detail-properties__empty-state-card"
         position-identifier="sw-product-detail-properties-empty-state"
         :title="$tc('sw-product.properties.cardTitleProperties')"
-    >        {% block sw_product_detail_properties_empty_state %}
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_properties_empty_state %}
         <div class="sw-product-detail-properties__empty-state">
             <template v-if="propertiesAvailable">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_properties_empty_state_image %}
                 <img
                     :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
@@ -48,13 +57,17 @@
                 >
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_properties_empty_state_text %}
                 <template v-if="isChild">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_properties_empty_state_text_child %}
                     <template v-if="isInherited">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_properties_empty_state_text_inherited %}
                         <p>{{ $tc('sw-product.properties.propertiesInherited') }}</p>
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_properties_empty_state_text_link %}
                         <router-link
                             v-if="isInherited"
@@ -70,6 +83,7 @@
                         {% endblock %}
                     </template>
                     <template v-else>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_product_detail_properties_empty_state_text_not_inherited %}
                         <p>{{ $tc('sw-product.properties.propertiesNotInherited') }}</p>
                         {% endblock %}
@@ -77,6 +91,7 @@
                     {% endblock %}
                 </template>
                 <div v-else>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_properties_empty_state_text_empty %}
                     <p>{{ $tc('sw-product.properties.propertiesNotExisting') }}</p>
                     {% endblock %}
@@ -84,6 +99,7 @@
                 {% endblock %}
             </template>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_properties_empty_state__inherit_switch %}
             <template v-if="isChild">
                 <div
@@ -108,6 +124,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_properties_assginment %}
             <sw-property-assignment
                 v-if="propertiesAvailable && product.properties"
@@ -116,6 +133,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_properties_empty %}
             <sw-empty-state
                 v-else

@@ -3,6 +3,7 @@ import type { Module } from 'vuex';
 import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/channel';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface Extension {
     name: string,
     baseUrl: string,
@@ -13,6 +14,7 @@ export interface Extension {
     active?: boolean,
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ExtensionsState {
     [key: string]: Extension;
 }
@@ -94,4 +96,5 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
     },
 };
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ExtensionsStore;

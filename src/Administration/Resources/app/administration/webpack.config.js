@@ -241,7 +241,24 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         rules: [
             {
                 test: /\.(html|twig)$/,
-                loader: 'html-loader',
+                use: [
+                    {
+                      loader: 'string-replace-loader',
+                      options: {
+                          multiple: [
+                              {
+                                  search: /<!--[\s\S]*?-->/gm,
+                                  replace: '',
+                              },
+                              {
+                                  search: /\{#[\s\S]*?#\}/gm,
+                                  replace: '',
+                              }
+                          ],
+                      }
+                    },
+                    'raw-loader',
+                ],
             },
             {
                 test: /\.(js|ts|tsx?|vue)$/,

@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_product_grid %}
 <sw-card
     class="sw-order-product-grid"
     position-identifier="sw-order-product-grid"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_product_grid_container %}
     <template #toolbar>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_product_grid_search_input %}
         <sw-card-filter
             @sw-card-filter-term-change="onSearch"
@@ -14,8 +17,10 @@
 
     <template #grid>
         <div class="sw-order-product-grid__container">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_product_grid_product_list %}
             <sw-entity-listing
+                ref="orderProductGrid"
                 show-selection
                 class="sw-order-product-grid-product-list"
                 :allow-delete="false"
@@ -24,19 +29,23 @@
                 :repository="productRepository"
                 :is-loading="isLoading"
                 @selection-change="onSelectionChange"
+                @select-item="onSelectItem"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_grid_product_grid_column_amount %}
                 <template #column-amount="{ item }">
                     <sw-number-field
                         v-model="item.amount"
                         size="small"
                         class="sw-order-product-grid__amount"
+                        :placeholder="$tc('sw-order.itemModal.productGrid.textValue')"
                         :min="0"
                         @change="changeProductAmount(item)"
                     />
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_grid_product_grid_column_name %}
                 <template #column-name="{ item }">
                     <sw-product-variant-info :variations="item.variation">
@@ -45,6 +54,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_grid_product_grid_column_price %}
                 <template #column-price="{ item }">
                     {{ getProductPrice(item) | currency(currency.shortName) }}
@@ -52,6 +62,7 @@
                 {% endblock %}
 
                 <template #pagination>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_product_grid_product_grid_listing_pagination %}
                     <sw-pagination
                         v-bind="{ page, limit, total }"
@@ -62,14 +73,17 @@
                     {% endblock %}
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_product_grid_product_grid_actions %}
                 <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
                     <sw-context-menu-item
                         target="_blank"
                         rel="noopener"
                         :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_product_grid_product_grid_actions_show_label %}
                         {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
                         {% endblock %}
@@ -80,6 +94,7 @@
             </sw-entity-listing>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_empty_state %}
             <sw-empty-state
                 v-if="!total && !isLoading"

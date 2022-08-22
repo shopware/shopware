@@ -4,6 +4,7 @@ import './sw-product-add-properties-modal.scss';
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-add-properties-modal', {
     template,
 

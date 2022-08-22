@@ -1,4 +1,5 @@
 {# @deprecated tag:v6.5.0 - will be removed and has been replaced by sw-category-entry-modal-card #}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_sales_channel_card %}
 <sw-card
     class="sw-category-sales-channel-card"
@@ -8,6 +9,7 @@
 >
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_navigation_headline %}
     <p
         v-if="navigationSalesChannels.length"
@@ -18,6 +20,7 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_navigation_list %}
     <div
         v-if="navigationSalesChannels.length"
@@ -25,6 +28,7 @@
     >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_navigation_list_link %}
         <router-link
             v-for="salesChannel in navigationSalesChannels"
@@ -40,6 +44,7 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_serviceSales_headline %}
     <p
         v-if="serviceSalesChannels.length"
@@ -50,6 +55,7 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_serviceSales_list %}
     <div
         v-if="serviceSalesChannels.length"
@@ -57,6 +63,7 @@
     >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_serviceSales_list_link %}
         <router-link
             v-for="salesChannel in serviceSalesChannels"
@@ -72,6 +79,7 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_footerSales_headline %}
     <p
         v-if="footerSalesChannels.length"
@@ -82,6 +90,7 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point_footerSales_list %}
     <div
         v-if="footerSalesChannels.length"
@@ -89,6 +98,7 @@
     >
 
         {# @deprecated tag:v6.5.0 - will be removed without replacement #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_footerSales_list_link %}
         <router-link
             v-for="salesChannel in footerSalesChannels"

@@ -3,6 +3,7 @@ import './sw-settings-search-example-modal.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-search-example-modal', {
     template,
 

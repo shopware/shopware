@@ -55,7 +55,7 @@
         "aws/aws-sdk-php": "^3.198.5",
         "cocur/slugify": "4.0.0",
         "composer-runtime-api": "^2.0",
-        "composer/composer": "^2.1.9",
+        "composer/composer": "^2.2.17",
         "composer/semver": "^3.2",
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "~2.13.8",
@@ -88,7 +88,7 @@
         "superbalist/flysystem-google-storage": "~7.2.2",
         "symfony/asset": "~5.4.0",
         "symfony/cache": "~5.4.0",
-        "symfony/cache-contracts": "2.2.0",
+        "symfony/cache-contracts": "v2.5.2",
         "symfony/config": "~5.4.0",
         "symfony/console": "~5.4.1",
         "symfony/debug-bundle": "~5.4.0",
@@ -165,6 +165,5 @@
             "*": "dist"
         },
         "sort-packages": true
-    },
-    "version": "6.4.14.0"
+    }
 }

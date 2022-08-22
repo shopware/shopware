@@ -1,0 +1,21 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/container_cache": {
+            "delete": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Clear container caches",
+                "description": "The container cache is immediately cleared synchronously.",
+                "operationId": "clearContainerCache",
+                "responses": {
+                    "204": {
+                        "description": "Returns a no content response indicating that the container cache is cleared."
+                    }
+                }
+            }
+        }
+    }
+}

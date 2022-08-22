@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -98,7 +98,7 @@ class CheckoutRegisterPageLoader
         }
 
         if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
         $customer = $context->getCustomer();
 

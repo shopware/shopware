@@ -1,6 +1,7 @@
 import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-media-display-options', {
     template,
 

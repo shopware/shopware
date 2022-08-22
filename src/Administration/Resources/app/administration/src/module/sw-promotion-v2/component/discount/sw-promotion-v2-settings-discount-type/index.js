@@ -4,6 +4,7 @@ import './sw-promotion-v2-settings-discount-type.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-v2-settings-discount-type', {
     template,
 

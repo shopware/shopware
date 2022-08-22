@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_shopware_updates_requirements %}
 <sw-card
     position-identifier="sw-shopware-updates-requirements"
@@ -13,6 +14,7 @@
             :data-source="requirements"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_result %}
             <template
                 slot="column-result"
@@ -36,6 +38,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_message %}
             <template
                 slot="column-message"

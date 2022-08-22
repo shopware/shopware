@@ -10,6 +10,7 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
  * @returns {{getMainMenu: getMainMenu, addItem: FlatTree.add, removeItem: FlatTree.remove}}
  * @constructor
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createMenuService(moduleFactory) {
     const flatTree = new FlatTree((first, second) => first.position - second.position);
 

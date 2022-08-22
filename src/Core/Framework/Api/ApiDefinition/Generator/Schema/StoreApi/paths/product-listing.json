@@ -1,0 +1,61 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/product-listing/{categoryId}": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch a product listing by category",
+                "description": "Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
+                "operationId": "readProductListing",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "Identifier of a category.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingFlags"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a product listing containing all products and additional fields to display a listing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListingResult"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

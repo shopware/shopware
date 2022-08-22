@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -26,7 +28,7 @@ class LineItem extends Struct
     public const CONTAINER_LINE_ITEM = 'container';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $payload = [];
 
@@ -137,6 +139,10 @@ class LineItem extends Struct
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidQuantity($quantity);
+            }
+
             throw new InvalidQuantityException($quantity);
         }
         $this->referencedId = $referencedId;
@@ -205,10 +211,18 @@ class LineItem extends Struct
     public function setQuantity(int $quantity): self
     {
         if ($quantity < 1) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidQuantity($quantity);
+            }
+
             throw new InvalidQuantityException($quantity);
         }
 
         if (!$this->isStackable()) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotStackable($this->id);
+            }
+
             throw new LineItemNotStackableException($this->id);
         }
 
@@ -237,11 +251,17 @@ class LineItem extends Struct
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
@@ -262,19 +282,27 @@ class LineItem extends Struct
     public function removePayloadValue(string $key): void
     {
         if (!$this->hasPayloadValue($key)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::payloadKeyNotFound($key, $this->getId());
+            }
+
             throw new PayloadKeyNotFoundException($key, $this->getId());
         }
         unset($this->payload[$key]);
     }
 
     /**
-     * @param array|bool|float|int|string|null $value
+     * @param mixed|null $value
      *
      * @throws InvalidPayloadException
      */
     public function setPayloadValue(string $key, $value): self
     {
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidPayload($key, $this->getId());
+            }
+
             throw new InvalidPayloadException($key, $this->getId());
         }
 
@@ -284,21 +312,32 @@ class LineItem extends Struct
     }
 
     /**
+     * @param array<string, mixed> $payload
+     *
      * @throws InvalidPayloadException
      */
     public function setPayload(array $payload): self
     {
         foreach ($payload as $key => $value) {
-            if (!\is_string($key)) {
-                throw new InvalidPayloadException((string) $key, $this->getId());
+            if (\is_string($key)) {
+                $this->setPayloadValue($key, $value);
+
+                continue;
             }
 
-            $this->setPayloadValue($key, $value);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidPayload((string) $key, $this->getId());
+            }
+
+            throw new InvalidPayloadException((string) $key, $this->getId());
         }
 
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function replacePayload(array $payload): self
     {
         $this->payload = array_replace_recursive($this->payload, $payload);
@@ -545,15 +584,25 @@ class LineItem extends Struct
     {
         $childQuantity = $child->getQuantity();
         $parentQuantity = $this->getQuantity();
-        if ($childQuantity % $parentQuantity !== 0) {
-            if ($childQuantity !== 1) {
-                throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
+        if ($childQuantity % $parentQuantity === 0) {
+            return;
+        }
+
+        if ($childQuantity !== 1) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
             }
 
-            // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
-            if ($this->isStackable()) {
-                throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
+            throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
+        }
+
+        // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
+        if ($this->isStackable()) {
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
             }
+
+            throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
         }
     }
 }

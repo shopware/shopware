@@ -28,6 +28,7 @@ function rejectRepositoryCreation(entityName: string): unknown {
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeExtensionDataLoader(): void {
     Shopware.ExtensionAPI.handle('repositorySearch', (
         {

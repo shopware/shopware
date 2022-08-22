@@ -11,6 +11,7 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-media-field v-model="manufacturer.mediaId"></sw-media-field>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-field', {
     template,
 

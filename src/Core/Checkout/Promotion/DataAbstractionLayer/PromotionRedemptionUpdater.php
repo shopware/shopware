@@ -37,6 +37,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
@@ -135,6 +138,11 @@ SQL;
         }
     }
 
+    /**
+     * @param array<mixed> $promotions
+     *
+     * @return array<mixed>
+     */
     private function groupByPromotion(array $promotions): array
     {
         $grouped = [];
@@ -147,6 +155,11 @@ SQL;
         return $grouped;
     }
 
+    /**
+     * @param array<string> $promotionIds
+     *
+     * @return array<string>
+     */
     private function getAllCustomerCounts(array $promotionIds): array
     {
         $allCustomerCounts = [];
@@ -164,7 +177,7 @@ SQL;
             }
 
             $customerCount = json_decode($row['orders_per_customer_count'], true);
-            if ($customerCount === false) {
+            if (!$customerCount) {
                 $allCustomerCounts[Uuid::fromBytesToHex($row['id'])] = [];
 
                 continue;

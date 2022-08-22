@@ -731,6 +731,33 @@
                                     }
                                 }
                             }
+                        },
+                        "fastly": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "instance_tag": {
+                                    "type": "string",
+                                    "default": ""
+                                },
+                                "api_key": {
+                                    "type": "string",
+                                    "title": "Fastly API key"
+                                },
+                                "service_id": {
+                                    "type": "string",
+                                    "title": "Fastly service ID"
+                                },
+                                "soft_purge": {
+                                    "type": "string",
+                                    "enum": ["1", "0"],
+                                    "default": "0"
+                                }
+                            }
                         }
                     },
                     "title": "Reverse proxy configuration"
@@ -744,6 +771,14 @@
                             "items": {
                                 "type": "string"
                             }
+                        },
+                        "stale_while_revalidate": {
+                            "type": ["integer", "null"],
+                            "default": null
+                        },
+                        "stale_if_error": {
+                            "type": ["integer", "null"],
+                            "default": null
                         }
                     },
                     "title": "Http cache configuration"

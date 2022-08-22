@@ -39,6 +39,9 @@ class InheritanceUpdater
         $this->registry = $registry;
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(string $entity, array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
@@ -69,6 +72,9 @@ class InheritanceUpdater
         }
     }
 
+    /**
+     * @param array<string> $ids
+     */
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
         $bytes = array_map(function ($id) {
@@ -123,12 +129,12 @@ class InheritanceUpdater
 
             $sql = str_replace(
                 array_keys($parameters),
-                array_values($parameters),
+                $parameters,
                 $sql
             );
 
             RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
                     ['ids' => Connection::PARAM_STR_ARRAY]
@@ -137,6 +143,9 @@ class InheritanceUpdater
         }
     }
 
+    /**
+     * @param array<string> $ids
+     */
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
         $bytes = array_map(function ($id) {
@@ -172,12 +181,12 @@ class InheritanceUpdater
 
             $sql = str_replace(
                 array_keys($parameters),
-                array_values($parameters),
+                $parameters,
                 $sql
             );
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
                     ['ids' => Connection::PARAM_STR_ARRAY]
@@ -204,7 +213,7 @@ class InheritanceUpdater
             );
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-                $this->connection->executeUpdate(
+                $this->connection->executeStatement(
                     $sql,
                     $params,
                     ['ids' => Connection::PARAM_STR_ARRAY]

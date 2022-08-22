@@ -750,6 +750,8 @@ class CustomEntityTest extends TestCase
         static::assertEquals(1, $body['total']);
         static::assertEquals('update', $body['data'][0]['title']);
         static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
+        static::assertArrayHasKey('inheritedProducts', $body['data'][0]);
+        static::assertNull($body['data'][0]['inheritedProducts']);
 
         // detail
         $client->request(
@@ -766,6 +768,8 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('data', $body);
         static::assertEquals('update', $body['data']['title']);
         static::assertEquals($ids->get('blog-1'), $body['data']['id']);
+        static::assertArrayHasKey('inheritedProducts', $body['data']);
+        static::assertNull($body['data']['inheritedProducts']);
 
         // search
         $client->request(
@@ -786,6 +790,8 @@ class CustomEntityTest extends TestCase
         static::assertEquals(1, $body['total']);
         static::assertEquals('update', $body['data'][0]['title']);
         static::assertEquals($ids->get('blog-1'), $body['data'][0]['id']);
+        static::assertArrayHasKey('inheritedProducts', $body['data'][0]);
+        static::assertNull($body['data'][0]['inheritedProducts']);
 
         // search-ids
         $client->request(

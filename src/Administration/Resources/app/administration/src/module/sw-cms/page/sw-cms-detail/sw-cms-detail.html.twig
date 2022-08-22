@@ -1,16 +1,20 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_detail %}
 <sw-page
     class="sw-cms-detail"
     :show-search-bar="false"
     :show-smart-bar="false"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_detail_content %}
     <div
         slot="content"
         class="sw-cms-detail__content"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_detail_toolbar %}
         <sw-cms-toolbar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_toolbar_language_switch %}
             <sw-language-switch
                 slot="language-switch"
@@ -22,11 +26,13 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_toolbar_title %}
             <div
                 slot="title"
                 class="sw-cms-detail__page-info"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_back_button %}
                 <router-link
                     :to="{ name: 'sw.cms.index' }"
@@ -36,12 +42,14 @@
                 </router-link>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_page_name %}
                 <h2 class="sw-cms-detail__page-name">
                     {{ placeholder(page, 'name') }}
                 </h2>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_page_type %}
                 <div
                     v-if="page.type"
@@ -53,12 +61,14 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_toolbar_device_actions %}
             <div
                 v-if="pageHasSections"
                 slot="tools"
                 class="sw-cms-detail__device-actions"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_device_actions_mobile %}
                 <sw-icon
                     name="regular-mobile"
@@ -67,6 +77,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_device_actions_tablet_landscape %}
                 <sw-icon
                     name="regular-tablet"
@@ -75,6 +86,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_device_actions_desktop %}
                 <sw-icon
                     name="regular-desktop"
@@ -83,6 +95,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_device_actions_form %}
                 <sw-icon
                     name="regular-bars-square"
@@ -93,12 +106,14 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_toolbar_actions %}
             <div
                 slot="actions"
                 class="sw-cms-detail__actions"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_actions_save %}
                 <sw-button-process
                     v-tooltip.bottom="tooltipSave"
@@ -118,15 +133,18 @@
         </sw-cms-toolbar>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_detail_stage_container %}
         <div class="sw-cms-detail__stage-container">
             <sw-overlay v-if="page.locked" />
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_stage_form_view %}
             <div
                 v-if="currentDeviceView === 'form'"
                 class="sw-cms-detail__page-form"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_page_notification %}
                 <div
                     v-if="page.locked"
@@ -148,13 +166,16 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_stage_wrapper %}
             <div
                 v-else
                 class="sw-cms-detail__stage"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_notification %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_notification_errors %}
                 <div
                     v-if="hasPageErrors"
@@ -175,6 +196,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_notification_warnings %}
                 <div
                     v-if="validationWarnings.length > 0"
@@ -195,6 +217,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_toolbar_notification_infos %}
                 <div
                     v-if="page.locked"
@@ -210,12 +233,14 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage_empty_stage %}
                 <div
                     v-if="!isLoading && !pageHasSections"
                     class="sw-cms-detail__empty-stage"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage_empty_stade_content %}
                     <div class="sw-cms-detail__empty-stage-content">
                         <h2 class="sw-cms-detail__empty-stage-headline">
@@ -235,6 +260,7 @@
                 </div>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage %}
                 <div
                     v-else
@@ -243,6 +269,7 @@
                     :class="cmsStageClasses"
                 >
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage_add_first_section %}
                     <sw-cms-stage-add-section
                         :key="0"
@@ -251,10 +278,12 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage_content %}
                     <template v-if="!isLoading">
                         <template v-for="(section, index) in page.sections">
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_detail_stage_content_section %}
                             <sw-cms-section
                                 :key="section.id"
@@ -271,6 +300,7 @@
                     </template>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_detail_stage_add_last_section %}
                     <sw-cms-stage-add-section
                         :key="page.sections.length + 1"
@@ -283,7 +313,9 @@
             </div>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_sidebar %}
+            {# @deprecated tag:v6.5.0 - Event listener will for 'block-navigator-sort' will be removed #}
             <sw-cms-sidebar
                 ref="cmsSidebar"
                 :page="page"
@@ -302,6 +334,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_layout_assignment_modal %}
             {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
             <sw-cms-layout-assignment-modal
@@ -312,6 +345,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_missing_element_modal %}
             <sw-cms-missing-element-modal
                 v-if="showMissingElementModal"
@@ -321,6 +355,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_loader %}
             <sw-loader v-if="isLoading" />
             {% endblock %}

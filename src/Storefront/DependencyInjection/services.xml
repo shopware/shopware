@@ -178,16 +178,27 @@
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler"/>
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
-            <argument>%kernel.debug%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument>%kernel.debug%</argument>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -293,10 +304,9 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"
-                 decorates="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
-
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader.inner"/>
+        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader"/>
+            <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"
@@ -437,7 +447,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader">
@@ -505,6 +515,8 @@
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%storefront.reverse_proxy.enabled%</argument>
+            <argument>%storefront.http_cache.stale_while_revalidate%</argument>
+            <argument>%storefront.http_cache.stale_if_error%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -546,6 +558,7 @@
             <argument>%storefront.reverse_proxy.fastly.soft_purge%</argument>
             <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
             <argument>%storefront.reverse_proxy.fastly.tag_prefix%</argument>
+            <argument>%storefront.reverse_proxy.fastly.instance_tag%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">

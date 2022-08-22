@@ -1,0 +1,27 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderRouteResponse": {
+                "type": "object",
+                "properties": {
+                    "orders": {
+                        "type": "object",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Order"
+                        }
+                    },
+                    "paymentChangeable": {
+                        "type": "object",
+                        "description": "The key-value pairs contain the uuid of the order as key and a boolean as value, indicating that the payment method can still be changed.",
+                        "additionalProperties": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

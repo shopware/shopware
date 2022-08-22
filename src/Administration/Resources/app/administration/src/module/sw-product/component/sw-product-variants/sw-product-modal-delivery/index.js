@@ -3,6 +3,7 @@ import './sw-product-modal-delivery.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-modal-delivery', {
     template,
 
@@ -53,7 +54,8 @@ Component.register('sw-product-modal-delivery', {
         handleExpandedListing(product) {
             if (product && product.listingMode !== 'single') {
                 // remove main_variant_id from configuratorGroupConfig
-                product.mainVariantId = null;
+                product.variantListingConfig.mainVariantId = null;
+                product.variantListingConfig.displayParent = null;
             }
 
             delete product.listingMode;

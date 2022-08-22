@@ -3,6 +3,7 @@ import './sw-sales-channel-modal-detail.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-modal-detail', {
     template,
 

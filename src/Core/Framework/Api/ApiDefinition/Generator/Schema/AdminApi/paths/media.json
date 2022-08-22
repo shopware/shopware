@@ -1,0 +1,82 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/media\/{mediaId}\/upload": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Upload a file to a media entity",
+                "description": "Adds a new file to a media entity. If the entity has an existing file, it will be replaced.\n\nThe are two methods of providing a file to this route:\n * Use a typical file upload and provide the file in the request\n * Fetch the file from an url. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.\nTo use file upload via url, the content type has to be `application\/json` and the parameter `url` has to be provided.",
+                "operationId": "upload",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "description": "Identifier of the media entity.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "fileName",
+                        "in": "query",
+                        "description": "Name of the uploaded file. If not provided the media identifier will be used as name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "extension",
+                        "in": "query",
+                        "description": "Extension of the uploaded file. For example `png`",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application\/octet-stream": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        },
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "url"
+                                ],
+                                "properties": {
+                                    "url": {
+                                        "description": "The url of the media file that will be downloaded.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Media file uploaded successful",
+                        "headers": {
+                            "Location": {
+                                "description": "Contains the url to the uploaded media for a redirect.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

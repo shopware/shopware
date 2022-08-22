@@ -97,7 +97,11 @@ class AclController extends AbstractController
             $defaults = $param->getDefaults();
 
             if (isset($defaults['_controller'])) {
-                [$controllerService, $controllerMethod] = explode('::', $defaults['_controller']);
+                $controllerInfo = explode('::', $defaults['_controller']);
+
+                $controllerService = $controllerInfo[0];
+                $controllerMethod = $controllerInfo[1] ?? '__invoke';
+
                 if ($this->container->has($controllerService)) {
                     $className = \get_class($this->container->get($controllerService));
                     \assert(\is_string($className));

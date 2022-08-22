@@ -151,6 +151,9 @@ class ExtensionLoader
         return $id[0];
     }
 
+    /**
+     * @param array<string> $languageIds
+     */
     public function getLocalesCodesFromLanguageIds(array $languageIds): array
     {
         $codes = array_values($this->languageLocaleProvider->getLocalesForLanguageIds($languageIds));

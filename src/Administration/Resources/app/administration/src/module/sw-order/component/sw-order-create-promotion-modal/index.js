@@ -5,6 +5,7 @@ import './sw-order-create-promotion-modal.scss';
 const { Component, State, Utils, Service } = Shopware;
 const { format } = Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-promotion-modal', {
     template,
 

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_saveable_field %}
 <sw-container
     v-if="isEditing"
@@ -5,16 +6,20 @@
     gap="0px 10px"
     class="sw-order-saveable-field"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_input %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block  sw_order_saveable_field_input_field%}
-                <sw-field ref="edit-field"
-                    :type="type"
-                    :value="value"
-                    :placeholder="placeholder">
-                </sw-field>
-            {% endblock %}
+    <sw-field ref="edit-field"
+        :type="type"
+        :value="value"
+        :placeholder="placeholder">
+    </sw-field>
     {% endblock %}
+    {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_actions %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_cancel_button %}
     <sw-button
         size="x-small"
@@ -47,6 +52,7 @@
     v-else
     @click="onClick"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_content %}
     <slot></slot>
     {% endblock %}

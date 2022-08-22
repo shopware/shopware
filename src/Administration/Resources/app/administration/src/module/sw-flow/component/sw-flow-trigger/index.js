@@ -7,6 +7,7 @@ const utils = Shopware.Utils;
 const { capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-trigger', {
     template,
 

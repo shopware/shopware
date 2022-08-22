@@ -1,16 +1,22 @@
 import Vue from 'vue';
 import { notification, context, data, window } from '@shopware-ag/admin-extension-sdk';
+import { SwButton, SwTextField, SwTextarea } from '@shopware-ag/meteor-component-library';
 
 const { repository, Classes: { Criteria } } = data;
 
 export default Vue.extend({
+    components: {
+        'sw-button': SwButton,
+        'sw-text-field': SwTextField,
+        'sw-text-area': SwTextarea,
+    },
     template: `
-        <div>
+        <div style="padding: 20px;">
             <h1>Hello from the new Menu Page</h1>
 
             <div>
                 <h3>Context - Get current language</h3>
-                <button @click="getLanguage">Get current language</button>
+                <sw-button @click="getLanguage">Get current language</sw-button>
 
                 <p>
                     system-language-ID: {{ systemLanguageId }}
@@ -21,7 +27,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get current environment</h3>
-                <button @click="getEnvironment">Get current environment</button>
+                <sw-button @click="getEnvironment">Get current environment</sw-button>
 
                 <p>
                     Environment: {{ environment }}
@@ -30,7 +36,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get current locale</h3>
-                <button @click="getLocale">Get current locale</button>
+                <sw-button @click="getLocale">Get current locale</sw-button>
 
                 <p>
                     Locale: {{ locale }}
@@ -41,7 +47,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get current currency</h3>
-                <button @click="getCurrency">Get current currency</button>
+                <sw-button @click="getCurrency">Get current currency</sw-button>
 
                 <p>
                     System Currency Id: {{ systemCurrencyId }}
@@ -52,7 +58,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get current Shopware version</h3>
-                <button @click="getShopwareVersion">Get current Shopware version</button>
+                <sw-button @click="getShopwareVersion">Get current Shopware version</sw-button>
 
                 <p>
                     Shopware version: {{ shopwareVersion }}
@@ -61,7 +67,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get app information</h3>
-                <button @click="getAppInformation">Get app information</button>
+                <sw-button @click="getAppInformation">Get app information</sw-button>
 
                 <p>
                     App name: {{ appName }}
@@ -74,7 +80,7 @@ export default Vue.extend({
 
             <div>
                 <h3>Context - Get module information</h3>
-                <button @click="getModuleInformation">Get module information</button>
+                <sw-button @click="getModuleInformation">Get module information</sw-button>
 
                 <p v-for="moduleInformation in moduleInformations">
                     Id: {{ moduleInformation.id }}
@@ -89,28 +95,28 @@ export default Vue.extend({
 
             <div>
                 <h3>Window - Router Push</h3>
-                <button @click="pushRoute">Push route</button>
+                <sw-button @click="pushRoute">Push route</sw-button>
                 <br>
-                <textarea cols="30" rows="10" v-model="routeInformation"></textarea>
+                <sw-text-area label="Push route information" cols="30" rows="10" v-model="routeInformation"></sw-text-area>
             </div>
 
             <div>
                 <h3>Notification - Dispatch a notification</h3>
 
-                <button @click="dispatchNotification">Dispatch a notification</button>
+                <sw-button @click="dispatchNotification">Dispatch a notification</sw-button>
             </div>
 
             <div>
                 <h3>Notification - Reload page</h3>
 
-                <button @click="reloadPage">Reload page</button>
+                <sw-button @click="reloadPage">Reload page</sw-button>
             </div>
 
             <div id="dbquery">
                 <div class="test">Test</div>
-                <button @click="getApilanguage" id="getlanguage">DB Query</button>
-                <input v-if="apiLanguageEntity" type="text" name="apilanguage" id="apiLanguage" v-model="apiLanguageEntity.name">
-                <button @click="saveApilangugage" id="saveusername">Save name</button>
+                <sw-button @click="getApilanguage" id="getlanguage">DB Query</sw-button>
+                <sw-text-field v-if="apiLanguageEntity" name="apilanguage" id="apiLanguage" v-model="apiLanguageEntity.name" />
+                <sw-button @click="saveApilangugage" id="saveusername">Save name</sw-button>
             </div>
         </div>
     `,

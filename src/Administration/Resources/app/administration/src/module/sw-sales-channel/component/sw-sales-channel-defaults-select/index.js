@@ -1,7 +1,9 @@
+import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-defaults-select', {
     template,
 
@@ -67,6 +69,12 @@ Component.register('sw-sales-channel-defaults-select', {
             type: String,
             required: false,
             default: '',
+        },
+
+        shouldShowActiveState: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -201,6 +209,10 @@ Component.register('sw-sales-channel-defaults-select', {
 
         isDisabledItem(item) {
             return item.active === false;
+        },
+
+        getActiveIconColor(item) {
+            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
         },
     },
 });

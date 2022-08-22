@@ -1,15 +1,20 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail %}
 <sw-page class="sw-sales-channel-detail">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_header_headline %}
         <h2>{{ placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline')) }}</h2>
         {% endblock %}
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_actions %}
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -27,6 +32,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_language_switch %}
     <sw-language-switch
         slot="language-switch"
@@ -36,15 +42,18 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_content %}
     <sw-card-view slot="content">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_content_language_info %}
         <sw-language-info
             :entity-description="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_content_tabs %}
         <sw-tabs
             class="sw-sales-channel-detail-__tabs"
@@ -59,6 +68,7 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_content_tab_products %}
             <sw-tabs-item
                 v-if="isHeadless || isStoreFront"
@@ -70,6 +80,7 @@
             {% endblock %}
 
             <template>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
             </template>
 
@@ -95,6 +106,7 @@
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_content_view %}
         <template v-if="isLoading">
             <sw-skeleton />
@@ -126,6 +138,7 @@
     {% endblock %}
 
     <template slot="sidebar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_sidebar %}
         {% endblock %}
     </template>

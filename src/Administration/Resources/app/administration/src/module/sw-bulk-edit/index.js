@@ -24,6 +24,7 @@ import './init/services.init';
 
 const { Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-bulk-edit', {
     type: 'core',
     name: 'bulk-edit',

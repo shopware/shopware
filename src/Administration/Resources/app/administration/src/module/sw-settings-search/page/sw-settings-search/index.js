@@ -3,6 +3,7 @@ import template from './sw-settings-search.html.twig';
 const { Component, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-search', {
     template,
 

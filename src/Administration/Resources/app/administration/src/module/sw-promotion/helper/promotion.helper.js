@@ -3,6 +3,7 @@ import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const DiscountTypes = {
     PERCENTAGE: 'percentage',
     ABSOLUTE: 'absolute',
@@ -13,6 +14,7 @@ export const DiscountTypes = {
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const DiscountScopes = {
     CART: 'cart',
     DELIVERY: 'delivery',
@@ -23,6 +25,7 @@ export const DiscountScopes = {
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const PromotionPermissions = {
     isEditingAllowed,
 };

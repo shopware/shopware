@@ -2,6 +2,7 @@ import template from './sw-cms-el-config-text.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-el-config-text', {
     template,
 

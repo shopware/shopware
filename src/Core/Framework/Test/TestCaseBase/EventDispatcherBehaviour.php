@@ -6,6 +6,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 trait EventDispatcherBehaviour
 {
+    /**
+     * @var array<array{'dispatcher': EventDispatcherInterface, 'name': string, 'callback': callable}>
+     */
     private array $registered = [];
 
     public function addEventListener(EventDispatcherInterface $dispatcher, string $eventName, callable $callback): void

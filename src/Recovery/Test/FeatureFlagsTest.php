@@ -33,10 +33,6 @@ class FeatureFlagsTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
         /* @var \Slim\App $app */
-        $this->installApp = require __DIR__ . '/../Install/src/app.php';
-        $this->prepareTestApp($this->installApp, '/recovery/install/index.php');
-
-        /* @var \Slim\App $app */
         $this->updateApp = require __DIR__ . '/../Update/src/app.php';
         $this->prepareTestApp($this->updateApp, '/recovery/update/index.php');
 
@@ -46,18 +42,6 @@ class FeatureFlagsTest extends TestCase
             \define('UPDATE_ASSET_PATH', __DIR__ . '/_update-assets');
             \define('UPDATE_META_FILE', null);
         }
-    }
-
-    /**
-     * @dataProvider featureFlagProvider
-     */
-    public function testInstallApp(array $env, bool $inEnvFile, int $expectedStatusCode): void
-    {
-        $this->prepareEnv($this->installApp, $env, $inEnvFile);
-
-        $response = $this->installApp->run();
-
-        static::assertSame($expectedStatusCode, $response->getStatusCode());
     }
 
     /**
@@ -89,11 +73,6 @@ class FeatureFlagsTest extends TestCase
         $updateContainer = $this->updateApp->getContainer();
         static::assertSame((bool) $active, $updateContainer->get('feature.isActive')($featureName));
         static::assertSame(Feature::isActive($featureName), $updateContainer->get('feature.isActive')($featureName));
-
-        // test install container
-        $installContainer = $this->installApp->getContainer();
-        static::assertSame((bool) $active, $installContainer->get('feature.isActive')($featureName));
-        static::assertSame(Feature::isActive($featureName), $installContainer->get('feature.isActive')($featureName));
     }
 
     public function containerFeatureActiveDataProvider(): \Generator

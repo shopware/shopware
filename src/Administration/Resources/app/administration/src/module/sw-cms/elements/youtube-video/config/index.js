@@ -3,6 +3,7 @@ import './sw-cms-el-config-youtube-video.scss';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-cms-el-config-youtube-video', {
     template,
 

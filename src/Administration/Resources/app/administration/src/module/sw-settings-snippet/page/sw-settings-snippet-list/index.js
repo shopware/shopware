@@ -4,6 +4,7 @@ import './sw-settings-snippet-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-snippet-list', {
     template,
 

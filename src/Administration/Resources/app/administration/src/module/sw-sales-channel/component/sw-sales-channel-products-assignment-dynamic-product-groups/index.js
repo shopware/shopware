@@ -4,6 +4,7 @@ import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
 const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
     template,
 

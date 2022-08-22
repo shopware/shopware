@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -173,7 +174,6 @@ class ShippingStreetRuleTest extends TestCase
     {
         $streetName = 'kyln123';
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $location = $this->createMock(ShippingLocation::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setStreet($shippingStreet);
@@ -182,7 +182,7 @@ class ShippingStreetRuleTest extends TestCase
             $customerAddress = null;
         }
 
-        $location->method('getAddress')->willReturn($customerAddress);
+        $location = new ShippingLocation(new CountryEntity(), null, $customerAddress);
         $salesChannelContext->method('getShippingLocation')->willReturn($location);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $this->rule->assign(['streetName' => $streetName, 'operator' => $operator]);
@@ -220,8 +220,7 @@ class ShippingStreetRuleTest extends TestCase
         try {
             $rule = new ShippingStreetRule();
             $salesChannelContext = $this->createMock(SalesChannelContext::class);
-            $location = $this->createMock(ShippingLocation::class);
-            $location->method('getAddress')->willReturn(new CustomerAddressEntity());
+            $location = new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity());
             $salesChannelContext->method('getShippingLocation')->willReturn($location);
             $rule->match(new CheckoutRuleScope($salesChannelContext));
             static::fail('Exception was not thrown');

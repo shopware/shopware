@@ -5,6 +5,7 @@
 /**
  * A service for RecentlySearch feature
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class RecentlySearchService {
     /**
      * Get user's stack of recently searched items

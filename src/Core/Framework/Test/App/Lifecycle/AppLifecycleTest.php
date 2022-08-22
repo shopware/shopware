@@ -1635,8 +1635,8 @@ class AppLifecycleTest extends TestCase
         static::assertIsString($firstBlockJson);
         static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json', $firstBlockJson);
         static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html'),
-            $firstCmsBlock->getTemplate()
+            $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html')),
+            $this->stripWhitespace($firstCmsBlock->getTemplate())
         );
         static::assertEquals(
             file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/styles.css'),

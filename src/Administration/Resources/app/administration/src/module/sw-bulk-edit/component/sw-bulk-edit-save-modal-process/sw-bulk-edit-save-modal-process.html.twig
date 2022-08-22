@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_save_modal_process %}
 <div class="sw-bulk-edit-save-modal-process">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_process_icon %}
     <sw-label
         class="sw-bulk-edit-save-modal__icon"
@@ -15,6 +17,7 @@
     </sw-label>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_process_generate_document %}
     <ul
         v-if="selectedDocumentTypes.length > 0"
@@ -43,6 +46,7 @@
     </ul>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_process_content %}
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $tc('sw-bulk-edit.modal.process.description') }}

@@ -94,6 +94,7 @@ function getNameAndExtensionFromUrl(urlObject: URL): {extension: string | undefi
     return splitFileNameAndExtension(ref);
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     readFileAsArrayBuffer,
     readFileAsDataURL,

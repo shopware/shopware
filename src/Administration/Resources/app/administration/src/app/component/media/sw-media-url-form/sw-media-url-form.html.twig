@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_url_form %}
 <sw-modal
     v-if="variant === 'modal'"
@@ -7,6 +8,7 @@
     v-on="$listeners"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_url_form_input %}
     <sw-text-field
         v-model="url"
@@ -27,8 +29,10 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_url_form_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_url_form_cancel_button %}
         <sw-button
             size="small"
@@ -38,6 +42,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_url_form_submit_button %}
         <sw-button
             class="sw-media-url-form__submit-button"
@@ -55,6 +60,7 @@
 </sw-modal>
 
 <div v-else-if="variant === 'inline'">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_url_form_input_inline %}
     <sw-text-field
         v-model="url"

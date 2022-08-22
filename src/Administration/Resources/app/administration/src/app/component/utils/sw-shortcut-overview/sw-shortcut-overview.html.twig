@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_shortcut_overview %}
 <div class="sw-shortcut-overview">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_shortcut_overview_modal %}
     <sw-modal
         v-if="showShortcutOverviewModal"
@@ -9,6 +11,7 @@
         @modal-close="onCloseShortcutOverviewModal"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_shortcut_overview_modal_section_adding_items %}
         <h3>{{ $tc(`sw-shortcut-overview.sectionAddingItems`) }}</h3>
         <sw-shortcut-overview-item
@@ -20,6 +23,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_shortcut_overview_modal_section_navigation %}
         <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
         <sw-shortcut-overview-item
@@ -31,6 +35,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_shortcut_overview_modal_section_special_shortcuts %}
         <h3>{{ $tc(`sw-shortcut-overview.sectionSpecialShortcuts`) }}</h3>
         <sw-shortcut-overview-item

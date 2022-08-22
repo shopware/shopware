@@ -3,6 +3,7 @@ const { Entity } = Shopware;
 /**
  * @module core/service/validation
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getEntityMapping,
 };

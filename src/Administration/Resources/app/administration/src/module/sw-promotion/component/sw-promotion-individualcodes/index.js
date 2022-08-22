@@ -19,6 +19,7 @@ const Criteria = Shopware.Data.Criteria;
  * The following properties are required:
  *      - promotion: Promotion Entity
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-individualcodes', {
 
     template,

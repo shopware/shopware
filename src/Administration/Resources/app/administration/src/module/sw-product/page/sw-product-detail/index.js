@@ -9,6 +9,7 @@ const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-detail', {
     template,
 
@@ -543,6 +544,7 @@ Component.register('sw-product-detail', {
 
             this.product.metaTitle = '';
             this.product.additionalText = '';
+            this.product.variantListingConfig = {};
 
             return Promise.all([
                 this.loadCurrencies(),

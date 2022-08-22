@@ -23,6 +23,7 @@ const { warn } = Shopware.Utils.debug;
  *     <sw-icon name="default-regular-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-icon', {
     template,
 

@@ -14,6 +14,7 @@ const { Component } = Shopware;
  *   Ask google
  * </sw-external-link>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-external-link', {
     template,
 

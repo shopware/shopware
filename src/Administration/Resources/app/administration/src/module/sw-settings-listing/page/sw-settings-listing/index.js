@@ -4,6 +4,7 @@ import './sw-settings-listing.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-listing', {
     template,
 

@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class SalesChannelRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $salesChannelIds;
 
@@ -18,6 +18,8 @@ class SalesChannelRule extends Rule
 
     /**
      * @internal
+     *
+     * @param array<string>|null $salesChannelIds
      */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
     {

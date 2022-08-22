@@ -4,6 +4,7 @@ import template from './sw-meteor-single-select.html.twig';
 const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-meteor-single-select', {
     template,
 

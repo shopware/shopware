@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_properties %}
 <sw-inherit-wrapper
     v-if="properties"
@@ -8,6 +9,7 @@
     :inherited-value="parentProduct.properties"
 >
     <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_properties_card %}
         <sw-card
             class="sw-product-properties__card"
@@ -19,11 +21,13 @@
             :is-loading="isLoading"
         >
             <template #title>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_card_title %}
                 <div
                     class="sw-card__title"
                     :class="{ 'is--inherited': isInherited }"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch
                         v-if="isInheritField && showInheritanceSwitcher"
@@ -35,6 +39,7 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_card_title_text %}
                     {{ $tc('sw-product.properties.cardTitle') }}
                     {% endblock %}
@@ -46,8 +51,10 @@
                 v-if="properties.length > 0 || searchTerm"
                 #grid
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_properties_filled_state %}
                 <sw-container rows="auto auto">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_header %}
                     <sw-card-section
                         secondary
@@ -57,6 +64,7 @@
                             columns="1fr auto"
                             gap="0 15px"
                         >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
                                 v-model="searchTerm"
@@ -68,6 +76,7 @@
                             />
                             {% endblock %}
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_header_button %}
                             <sw-button
                                 v-tooltip="{
@@ -88,6 +97,7 @@
                     </sw-card-section>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_body_filled_state %}
                     <sw-entity-listing
                         v-if="properties.length > 0"
@@ -109,6 +119,7 @@
                         :allow-delete="acl.can('product.deleter')"
                     >
                         <template #column-values="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_body_filled_state_column_values %}
                             <div
                                 v-for="option in item.options"
@@ -127,6 +138,7 @@
                         </template>
 
                         <template #delete-modal-delete-item="{ item }">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_body_filled_state_delete_modal_delete_item %}
                             <sw-button
                                 variant="danger"
@@ -139,6 +151,7 @@
                         </template>
 
                         <template #bulk-modal-delete-items>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_body_filled_state_bulk_modal_delete_items %}
                             <sw-button
                                 variant="danger"
@@ -152,6 +165,7 @@
                     </sw-entity-listing>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_body_empty_state %}
                     <sw-empty-state
                         v-if="properties.length <= 0"
@@ -160,6 +174,7 @@
                         :title="$tc('sw-product.properties.titleEmptyStateList')"
                     >
                         <template #icon>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_body_empty_state_image %}
                             <img
                                 :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
@@ -170,6 +185,7 @@
                     </sw-empty-state>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_body_loading_state %}
                     <sw-loader
                         v-if="isPropertiesLoading"
@@ -179,6 +195,7 @@
                 {% endblock %}
             </template>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_properties_empty_state %}
             <sw-empty-state
                 v-if="properties.length <= 0 && !searchTerm"
@@ -187,6 +204,7 @@
                 :title="$tc('sw-product.properties.titleEmptyState')"
             >
                 <template #icon>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_empty_state_image %}
                     <img
                         :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
@@ -196,6 +214,7 @@
                 </template>
 
                 <template #actions>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_empty_state_button %}
                     <sw-button
                         v-tooltip="{
@@ -216,6 +235,7 @@
         </sw-card>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_properties_add_properties_modal %}
         <sw-product-add-properties-modal
             v-if="showAddPropertiesModal"

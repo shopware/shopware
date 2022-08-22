@@ -14,6 +14,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEqual from 'lodash/isEqual';
 import isNumber from 'lodash/isNumber';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     isObject,
     isPlainObject,
@@ -33,6 +34,7 @@ export default {
 /**
  * Checks if a value is undefined
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function isUndefined(value: unknown): boolean {
     return typeof value === 'undefined';
 }

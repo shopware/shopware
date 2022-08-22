@@ -1,5 +1,6 @@
 import SyncApiService from './sync.api.service';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class PromotionSyncApiService extends SyncApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sync') {
         super(httpClient, loginService, apiEndpoint);

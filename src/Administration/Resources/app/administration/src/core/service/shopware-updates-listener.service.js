@@ -11,6 +11,7 @@ const { Application } = Shopware;
  * @param loginService
  * @param serviceContainer
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addShopwareUpdatesListener(loginService, serviceContainer) {
     /** @var {String} localStorage token */
     let applicationRoot = null;

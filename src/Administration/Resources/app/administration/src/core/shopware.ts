@@ -123,6 +123,7 @@ class ShopwareClass {
             extend: AsyncComponentFactory.extend,
             override: AsyncComponentFactory.override,
             build: AsyncComponentFactory.build,
+            wrapComponentConfig: AsyncComponentFactory.wrapComponentConfig,
             getTemplate: AsyncComponentFactory.getComponentTemplate,
             getComponentRegistry: AsyncComponentFactory.getComponentRegistry,
             getComponentHelper: AsyncComponentFactory.getComponentHelper,
@@ -282,5 +283,8 @@ const ShopwareInstance = new ShopwareClass();
 
 window.Shopware = ShopwareInstance;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ShopwareInstance;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { ShopwareClass };

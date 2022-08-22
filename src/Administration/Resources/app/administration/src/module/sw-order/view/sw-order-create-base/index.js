@@ -5,6 +5,7 @@ const { Criteria } = Data;
 const { get, format, array } = Utils;
 const { mapGetters } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-create-base', {
     template,
 

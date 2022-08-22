@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Processor\DiscountCartProcessor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\AbsoluteItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\CalculatedItem;
@@ -66,19 +67,29 @@ class DiscountProcessorTest extends TestCase
         static::assertTrue($new->has(self::DISCOUNT_ID));
 
         $item = $new->get(self::DISCOUNT_ID);
-        static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
-        static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
-        static::assertEquals($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());
+        static::assertInstanceOf(LineItem::class, $item);
+        $price = $item->getPrice();
 
-        foreach ($expected->getCalculatedTaxes() as $tax) {
-            $actual = $item->getPrice()->getCalculatedTaxes()->get((string) $tax->getTaxRate());
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertEquals($expected->getUnitPrice(), $price->getUnitPrice());
+        static::assertEquals($expected->getTotalPrice(), $price->getTotalPrice());
+
+        $taxes = $expected->getCalculatedTaxes();
+        static::assertInstanceOf(CalculatedTaxCollection::class, $taxes);
+
+        static::assertEquals($taxes->getAmount(), $price->getCalculatedTaxes()->getAmount());
+
+        foreach ($taxes as $tax) {
+            $actual = $price->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
 
-        foreach ($item->getPrice()->getCalculatedTaxes() as $tax) {
-            $actual = $expected->getCalculatedTaxes()->get((string) $tax->getTaxRate());
+        static::assertInstanceOf(LineItem::class, $item);
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        foreach ($price->getCalculatedTaxes() as $tax) {
+            $actual = $taxes->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());

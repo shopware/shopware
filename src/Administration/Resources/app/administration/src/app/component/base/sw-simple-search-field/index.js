@@ -19,6 +19,7 @@ const { Component, Feature, Utils } = Shopware;
  *  />
  */
 if (Feature.isActive('FEATURE_NEXT_16271')) {
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
     Component.register('sw-simple-search-field', {
         template: templateFeatureNext16271,
         inheritAttrs: false,
@@ -85,6 +86,7 @@ if (Feature.isActive('FEATURE_NEXT_16271')) {
         },
     });
 } else {
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
     Component.register('sw-simple-search-field', {
         template,
         inheritAttrs: false,

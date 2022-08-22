@@ -2,6 +2,7 @@ import template from './sw-country-state-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-country-state-detail', {
     template,
 

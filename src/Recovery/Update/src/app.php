@@ -120,11 +120,9 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
         file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
     }
 
-    if (is_dir(SW_PATH . '/recovery/install')) {
-        /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
-        $systemLocker = $container->get('system.locker');
-        $systemLocker();
-    }
+    /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
+    $systemLocker = $container->get('system.locker');
+    $systemLocker();
 
     if (UPDATE_IS_MANUAL) {
         return $this->renderer->render($response, 'done_manual.php', []);

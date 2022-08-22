@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_tag_detail_modal %}
 <sw-modal
     class="sw-settings-tag-detail-modal"
@@ -7,6 +8,7 @@
     variant="full"
     @modal-close="$emit('close')"
 >
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_detail_modal_tabs %}
     <sw-tabs
         position-identifier="sw-settings-tag-detail-modal"
@@ -15,6 +17,7 @@
         @new-item-active="active => initialTab = active.name"
     >
         <template #default="{ active }">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_modal_tabs_general %}
             <sw-tabs-item
                 :title="$tc('sw-settings-tag.detail.generalTab')"
@@ -25,6 +28,7 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_tag_detail_modal_tabs_assignments %}
             <sw-tabs-item
                 :title="$tc('sw-settings-tag.detail.assignmentsTab')"
@@ -38,6 +42,7 @@
 
         <template #content="{ active }">
             <template v-if="active === 'general'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tag_detail_modal_tabs_general_tab %}
                 <p class="sw-settings-tag-detail-modal__tag-name">
                     <sw-text-field
@@ -55,6 +60,7 @@
             </template>
 
             <template v-if="active === 'assignments'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tag_detail_modal_tabs_assignments_tab %}
                 <sw-settings-tag-detail-assignments
                     :tag="tag"
@@ -72,8 +78,10 @@
     </sw-tabs>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tag_detail_modal_footer %}
     <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tag_detail_modal_cancel %}
         <sw-button
             size="small"
@@ -83,6 +91,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tag_detail_modal_confirm %}
         <sw-button
             variant="primary"

@@ -30,7 +30,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem,
                 $lineItem->getQuantity(),
                 $lineItem->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -50,7 +50,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem1,
                 $lineItem1->getQuantity(),
                 $lineItem1->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -60,7 +60,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem2,
                 $lineItem2->getQuantity(),
                 $lineItem2->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -80,7 +80,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem1,
                 $lineItem1->getQuantity(),
                 $lineItem1->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -90,7 +90,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem2,
                 $lineItem2->getQuantity(),
                 $lineItem2->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -110,7 +110,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem1,
                 $lineItem1->getQuantity(),
                 $lineItem1->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -120,7 +120,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem2,
                 $lineItem2->getQuantity(),
                 $lineItem2->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -147,7 +147,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem1,
                 $lineItem1->getQuantity(),
                 $lineItem1->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 
@@ -157,7 +157,7 @@ class DeliveryPositionCollectionTest extends TestCase
                 $lineItem2,
                 $lineItem2->getQuantity(),
                 $lineItem2->getPrice(),
-                $this->createMock(DeliveryDate::class)
+                new DeliveryDate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2020-01-01')),
             )
         );
 

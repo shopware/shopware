@@ -2,6 +2,7 @@ import template from './sw-profile-index-general.html.twig';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-profile-index-general', {
     template,
 

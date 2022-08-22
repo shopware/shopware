@@ -90,10 +90,11 @@ class DocumentServiceTest extends TestCase
             ]
         );
 
-        $this->salesChannelContext->setRuleIds([
-            $shippingMethod->getAvailabilityRuleId(),
-            $paymentMethod->getAvailabilityRuleId(),
-        ]);
+        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $paymentRuleId;
+        }
+        $this->salesChannelContext->setRuleIds($ruleIds);
     }
 
     public function testCreateDeliveryNotePdf(): void

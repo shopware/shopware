@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\MissingPriceDefinitionException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -96,20 +96,20 @@ class CartFacadeHelper implements ResetInterface
         $price = $this->resolveIsoCodes($price);
 
         if (!\array_key_exists(Defaults::CURRENCY, $price)) {
-            throw new MissingPriceDefinitionException('Price contains no definition for default currency id');
+            throw CartException::invalidPriceDefinition();
         }
 
         foreach ($price as $id => $value) {
             if (!Uuid::isValid($id)) {
-                throw new MissingPriceDefinitionException(sprintf('Defined currency id %s is not valid', $id));
+                throw CartException::invalidPriceDefinition();
             }
 
             if (!\array_key_exists('gross', $value)) {
-                throw new MissingPriceDefinitionException(sprintf('Price for iso %s does not include a gross price', $id));
+                throw CartException::invalidPriceDefinition();
             }
 
             if (!\array_key_exists('net', $value)) {
-                throw new MissingPriceDefinitionException(sprintf('Price for iso %s does not include a net price', $id));
+                throw CartException::invalidPriceDefinition();
             }
         }
 

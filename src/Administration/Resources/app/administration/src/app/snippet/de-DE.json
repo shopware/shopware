@@ -483,8 +483,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:",
-      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
+      "labelDefaultFolder": "Medien-Standardspeicherort für",
+      "placeholderDefaultFolder": "Entität auswählen ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -997,6 +997,20 @@
       "description": "Nur die hier ausgewählten Elemente werden als Suchergebnisse angezeigt. Für detailierte Anpassungen der Suche <span id='sw-search-preferences-modal-link'>öffne die Sucheinstellungen &#8594;</span>",
       "columnActive": "Aktiv",
       "columnModuleName": "Modulname"
+    },
+    "sw-help-center": {
+      "title": "Support",
+      "documentation": {
+        "headline": "Brauchst Du Hilfe?",
+        "linkText": "Dokumentation ansehen",
+        "linkUrl": "https://docs.shopware.com/de/shopware-6-de"
+      },
+      "support": {
+        "headline": "Wir sind für dich da!",
+        "paragraph": "Du hast in unserer Dokumentation nichts Hilfreiches gefunden? Dann wende Dich an den Shopware-Support und wir kümmern uns um Dein Problem.",
+        "linkText": "Supportanfrage erstellen",
+        "linkUrl": "https://account.shopware.com/shops/support"
+      }
     }
   },
   "sw-text-editor-toolbar": {

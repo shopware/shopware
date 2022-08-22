@@ -28,7 +28,7 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var string[] $templates */
+        /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
@@ -44,7 +44,7 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var string[] $templates */
+        /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {

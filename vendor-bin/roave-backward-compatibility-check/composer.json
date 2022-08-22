@@ -27,7 +27,8 @@
     },
     "require": {
         "cweagans/composer-patches": "^1.7",
-        "doctrine/annotations": "^1.13"
+        "doctrine/annotations": "^1.13",
+        "phpdocumentor/type-resolver": "1.x-dev#370845d924dfd2610c67c502efeb0963c0556038"
     },
     "extra": {
         "patches": {

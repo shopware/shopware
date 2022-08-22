@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 class LineItemRule extends Rule
 {
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $identifiers;
 
@@ -49,7 +49,7 @@ class LineItemRule extends Rule
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getIdentifiers(): ?array
     {

@@ -209,7 +209,7 @@ describe('Flow builder: Test acl privilege', () => {
             true
         );
 
-        cy.contains('.sw-modal__body', 'Are you sure you want to delete this item?');
+        cy.contains('.sw-modal__body', 'If you delete this flow, no more actions will be performed for the trigger. Are you sure you want to delete this flow?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

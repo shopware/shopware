@@ -4,6 +4,7 @@ import './sw-product-variants-price-field.scss';
 const { Component, Application } = Shopware;
 const utils = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-variants-price-field', {
     template,
 

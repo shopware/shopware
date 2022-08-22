@@ -112,7 +112,7 @@ abstract class Plugin extends Bundle
     final public function removeMigrations(): void
     {
         // namespace should not start with `shopware`
-        if (mb_stripos($this->getMigrationNamespace(), 'shopware') === 0) {
+        if (str_starts_with(mb_strtolower($this->getMigrationNamespace()), 'shopware') && !str_starts_with(mb_strtolower($this->getMigrationNamespace()), 'shopware\commercial')) {
             throw new \RuntimeException('Deleting Shopware migrations is not allowed');
         }
 

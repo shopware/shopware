@@ -14,6 +14,7 @@ Object.entries(componentHelper).forEach(([name, value]) => {
     Shopware.Component.registerComponentHelper(name, value);
 });
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeComponentHelper() {
     return Shopware.Component.getComponentHelper();
 }

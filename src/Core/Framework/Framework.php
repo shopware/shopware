@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableExtensionsCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
@@ -40,6 +41,9 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * @internal
+ */
 class Framework extends Bundle
 {
     public function getContainerExtension(): Extension
@@ -53,7 +57,7 @@ class Framework extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');
-        $environment = $container->getParameter('kernel.environment');
+        $environment = (string) $container->getParameter('kernel.environment');
 
         $this->buildConfig($container, $environment);
 
@@ -115,6 +119,8 @@ class Framework extends Bundle
             $container->addCompilerPass(new AnnotationReaderCompilerPass());
         }
 
+        $container->addCompilerPass(new DemodataCompilerPass());
+
         parent::build($container);
     }
 
@@ -141,6 +147,9 @@ class Framework extends Bundle
         );
     }
 
+    /**
+     * @return string[]
+     */
     protected function getCoreMigrationPaths(): array
     {
         return [
@@ -148,7 +157,7 @@ class Framework extends Bundle
         ];
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $cacheDir = $container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {

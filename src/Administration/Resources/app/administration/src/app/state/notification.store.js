@@ -5,6 +5,7 @@ const { debug } = Shopware.Utils;
 const utils = Shopware.Utils;
 const NOTIFICATION_LOAD_LIMIT = 50;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
     if (Application.getApplicationRoot().$store) {
         Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
@@ -59,6 +60,7 @@ function _getStorageKey() {
     return `notifications#${userId}`;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getNotificationsForUser() {
     const storageKey = _getStorageKey();
     if (!storageKey) {
@@ -109,8 +111,10 @@ function _saveNotifications(notifications) {
     localStorage.setItem(storageKey, JSON.stringify(storageNotifications));
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
+
     state: {
         notifications: {},
         growlNotifications: {},

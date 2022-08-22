@@ -3,6 +3,7 @@ import './sw-flow-sequence-selector.scss';
 
 const { Component, State } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-sequence-selector', {
     template,
 

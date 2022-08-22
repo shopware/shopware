@@ -3,6 +3,7 @@ import './sw-app-action-button.scss';
 
 const { Component, State, Context } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-app-action-button', {
     template,
 

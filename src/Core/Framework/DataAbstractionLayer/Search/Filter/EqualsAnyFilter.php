@@ -13,7 +13,7 @@ class EqualsAnyFilter extends SingleFieldFilter
     protected $field;
 
     /**
-     * @var string[]|float[]|int[]
+     * @var array<string>|float[]|int[]
      */
     protected $value = [];
 

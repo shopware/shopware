@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details %}
 <div class="sw-order-create-details">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_promotion_modal %}
     TODO: NEXT-16672 - Add promotion modal that shows auto promotion list here
     {#        <sw-order-create-promotion-modal />#}
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_payment %}
     <sw-card
         class="sw-order-create-details__payment"
@@ -16,6 +19,7 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_payment_method %}
             <sw-entity-single-select
                 v-model="context.paymentMethodId"
@@ -29,6 +33,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_currency %}
             <sw-entity-single-select
                 v-model="context.currencyId"
@@ -44,6 +49,7 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_shipping %}
     <sw-card
         class="sw-order-create-details__shipping"
@@ -55,6 +61,7 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_shipping_method %}
             <sw-entity-single-select
                 v-model="context.shippingMethodId"
@@ -70,6 +77,7 @@
     </sw-card>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_order %}
     <sw-card
         class="sw-order-create-details__order"
@@ -81,6 +89,7 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_email %}
             <sw-text-field
                 v-model="email"
@@ -91,6 +100,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_phone_number %}
             <sw-text-field
                 v-model="phoneNumber"
@@ -101,6 +111,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details__order_sales_channel %}
             <sw-entity-single-select
                 v-model="salesChannelId"
@@ -111,6 +122,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_language %}
             <sw-entity-single-select
                 v-model="context.languageId"
@@ -124,6 +136,7 @@
         {% endblock %}
         </sw-container>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_voucher_field %}
         <sw-order-promotion-tag-field
             v-model="promotionCodeTags"
@@ -136,6 +149,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_switch_disable_auto_promotion %}
         <sw-switch-field
             class="sw-order-create-details__disable-auto-promotion"

@@ -3,6 +3,7 @@ import './sw-list-price-field.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-list-price-field', {
     template,
 

@@ -2,33 +2,11 @@
 
 namespace Shopware\Storefront\Page\Product\Configurator;
 
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination as CoreFoundCombination;
 
-class FoundCombination extends Struct
+/**
+ * @deprecated tag:v6.5.0 - Class will be removed, use \Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination instead
+ */
+class FoundCombination extends CoreFoundCombination
 {
-    /**
-     * @var string
-     */
-    protected $variantId;
-
-    /**
-     * @var string[]
-     */
-    protected $options;
-
-    public function __construct(string $variantId, array $options)
-    {
-        $this->variantId = $variantId;
-        $this->options = $options;
-    }
-
-    public function getVariantId(): string
-    {
-        return $this->variantId;
-    }
-
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
 }

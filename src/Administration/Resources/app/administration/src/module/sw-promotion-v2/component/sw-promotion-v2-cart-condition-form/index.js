@@ -4,6 +4,7 @@ import template from './sw-promotion-v2-cart-condition-form.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-promotion-v2-cart-condition-form', {
     template,
 

@@ -18,6 +18,7 @@ const utils = Shopware.Utils;
  *     icon="regular-exclamation-triangle"
  * ></sw-radio-panel>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-radio-panel', {
     template,
 

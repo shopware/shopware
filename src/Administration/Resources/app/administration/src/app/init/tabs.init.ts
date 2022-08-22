@@ -2,12 +2,15 @@
 import type { Route, RouteConfig, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
         // if current route does not exist check if they exists after adding the route
         const router = Shopware.Application.view?.router;
+
+        /* istanbul ignore next */
         if (router && router.currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
 
@@ -15,10 +18,16 @@ export default function initializeTabs(): void {
         }
     });
 
+    /* istanbul ignore next */
     void Shopware.Application.viewInitialized.then(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const router = Shopware.Application.view!.router!;
 
+        if (router && router.currentRoute.matched.length <= 0) {
+            createRouteForTabItem(router.currentRoute, router, () => undefined);
+        }
+
+        /* istanbul ignore next */
         router.beforeEach((to, from, next) => {
             if (to.matched.length > 0) {
                 next();
@@ -32,6 +41,7 @@ export default function initializeTabs(): void {
     });
 }
 
+/* istanbul ignore next */
 function createRouteForTabItem(to: Route, router: Router, next: () => void): void {
     /**
      * Create new route for the url if it matches a tab extension
@@ -84,6 +94,7 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): voi
     router.addRoutes(router.options.routes);
 }
 
+/* istanbul ignore next */
 function getDynamicPath(childPath: string, router: Router): string {
     /**
      * Replace childPath static values with dynamic values
@@ -98,6 +109,7 @@ function getDynamicPath(childPath: string, router: Router): string {
     }, childPath);
 }
 
+/* istanbul ignore next */
 // eslint-disable-next-line max-len
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-non-null-assertion */
 function getParentRoute(
@@ -114,6 +126,7 @@ function getParentRoute(
     return deepestMatchingRoute;
 }
 
+/* istanbul ignore next */
 function findDeepestMatchingRoute(
     routes: RouteConfig[],
     conditionCheck: (route: RouteConfig) => boolean,

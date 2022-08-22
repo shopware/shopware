@@ -13,6 +13,7 @@ const { cloneDeep } = utils.object;
  * @status ready
  * @example-type code-only
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-bar', {
     template,
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\CartDeletedEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -44,18 +43,6 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
 
     /**
      * @Since("6.3.0.0")
-     * @OA\Delete(
-     *      path="/checkout/cart",
-     *      summary="Delete a cart",
-     *      description="This route deletes the cart of the customer.",
-     *      operationId="deleteCart",
-     *      tags={"Store API", "Cart"},
-     *      @OA\Response(
-     *          response="204",
-     *          description="Successfully deleted the cart",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
      * @Route("/store-api/checkout/cart", name="store-api.checkout.cart.delete", methods={"DELETE"})
      */
     public function delete(SalesChannelContext $context): NoContentResponse

@@ -3,6 +3,7 @@ import './sw-card-filter.scss';
 
 const { Component, Feature } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card-filter', {
     template,
 

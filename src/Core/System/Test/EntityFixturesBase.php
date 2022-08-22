@@ -47,6 +47,9 @@ trait EntityFixturesBase
         return $container->get(DefinitionInstanceRegistry::class)->getRepository($fixtureName);
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $fixtureData
+     */
     public function createFixture(string $fixtureName, array $fixtureData, EntityRepositoryInterface $repository): Entity
     {
         self::ensureATransactionIsActive();

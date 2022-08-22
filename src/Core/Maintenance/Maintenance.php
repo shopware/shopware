@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Maintenance;
 
+use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * @internal
+ */
 class Maintenance extends Bundle
 {
     /**

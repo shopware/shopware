@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_index %}
 <sw-page class="sw-media-index">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_list_search_bar %}
     <template slot="search-bar">
         <sw-search-bar
@@ -11,12 +13,15 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_smart_bar %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_bread_crumb_navigation %}
     <template slot="smart-bar-back">
         <div class="sw-media-index__navigation">
 
             <template v-if="parentFolder">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_icon %}
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
                     <sw-icon
@@ -28,23 +33,26 @@
                 </router-link>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_parent%}
-                                <router-link class="sw-media-index__navigation-label"
-                                             :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
-                                    {{ parentFolder.name }}
-                                </router-link>
-                            {% endblock %}
+                <router-link class="sw-media-index__navigation-label"
+                             :to="{ name: 'sw.media.index', params: { folderId: parentFolder.id } }">
+                    {{ parentFolder.name }}
+                </router-link>
+                {% endblock %}
             </template>
         </div>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_smart_bar_header %}
     <template
         v-if="currentFolder"
         slot="smart-bar-header"
     >
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_smart_bar_heading %}
             {{ currentFolder.name }}
             {% endblock %}
@@ -53,6 +61,7 @@
     {% endblock %}
 
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_index_smart_bar_media_upload %}
         <sw-media-upload-v2
             v-tooltip="{
@@ -70,15 +79,18 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_language_switch %}
     <template slot="language-switch">
         <sw-language-switch @on-change="reloadList" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_page_content %}
     <template slot="content">
         <div class="sw-media-index__page-content">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_listing_grid %}
             <sw-upload-listener
                 :upload-tag="uploadTag"
@@ -99,6 +111,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_sidebar %}
             <sw-media-sidebar
                 :items="selectedItems"
@@ -113,6 +126,7 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_list_grid_loader %}
             <sw-loader v-if="isLoading" />
             {% endblock %}

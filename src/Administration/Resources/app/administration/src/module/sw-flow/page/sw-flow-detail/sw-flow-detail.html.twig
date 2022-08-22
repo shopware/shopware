@@ -1,13 +1,17 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_flow_detail %}
 <sw-page class="sw-flow-detail">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_header %}
     <template #smart-bar-header>
         <h2>{{ placeholder(flow, 'name', $tc('sw-flow.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_detail_smart_bar_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip="{
@@ -30,8 +34,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_content %}
     <template #content>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_leave_page_modal %}
         <sw-flow-leave-page-modal
             v-if="showLeavePageWarningModal"
@@ -41,8 +47,10 @@
         {% endblock %}
 
         <sw-card-view>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_tabs_header %}
             <sw-tabs position-identifier="sw-flow-detail">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_general %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-general"
@@ -52,6 +60,7 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_builder %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-flow"
@@ -61,10 +70,12 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_tabs_content %}
             <template v-if="isLoading">
                 <sw-skeleton />
@@ -78,6 +89,9 @@
             />
             {% endblock %}
         </sw-card-view>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_flow_detail_modal_extension %}{% endblock %}
     </template>
     {% endblock %}
 </sw-page>

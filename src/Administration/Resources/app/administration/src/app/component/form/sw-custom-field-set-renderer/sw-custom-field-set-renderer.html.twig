@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_set_renderer %}
 <div class="sw-custom-field-set-renderer">
     <template v-if="customFieldSetSelectionAvailable">
@@ -65,6 +66,7 @@
     </template>
 
     <template v-if="visibleCustomFieldSets.length > 0">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_card %}
         <sw-tabs
             v-if="variant === 'tabs'"
@@ -75,6 +77,7 @@
             :position-identifier="'sw-custom-field-set-renderer'"
             @new-item-active="(tab) => loadCustomFieldSet(tab.name)"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_tabs %}
             <template #default="{ active }">
                 <template v-for="set in visibleCustomFieldSets">
@@ -91,6 +94,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_set_renderer_card_tabs_content %}
             <template
                 slot="content"
@@ -102,6 +106,7 @@
                         :key="set.id"
                         :class="'sw-custom-field-set-renderer-tab-content__' + set.name"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_card_form_renderer %}
                         <sw-skeleton
                             v-if="!set.customFields || !set.customFields.length"
@@ -142,6 +147,7 @@
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_set_renderer_media %}
         <template v-else-if="variant === 'media-collapse'">
             <!-- eslint-disable vue/no-use-v-if-with-v-for -->
@@ -154,6 +160,7 @@
             >
                 <template slot="content">
                     <template v-for="customField in set.customFields">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                         <sw-form-field-renderer
                             :key="customField.name"
@@ -164,6 +171,7 @@
                         />
                         {% endblock %}
                     </template>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_custom_field_set_renderer_media_button_save %}
                     <sw-button-process
                         :is-loading="isLoading"

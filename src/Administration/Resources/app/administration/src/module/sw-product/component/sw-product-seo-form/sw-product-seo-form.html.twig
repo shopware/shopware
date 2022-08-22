@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_seo_form %}
 <div class="sw-product-seo-form">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_meta_title %}
     <sw-inherit-wrapper
         v-model="product.metaTitle"
@@ -21,6 +23,7 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_meta_description %}
     <sw-inherit-wrapper
         v-model="product.metaDescription"
@@ -42,6 +45,7 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_keywords %}
     <sw-inherit-wrapper
         v-model="product.keywords"
@@ -63,9 +67,11 @@
     </sw-inherit-wrapper>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_seo_form_canonical_url %}
     <template v-if="!hasParent && hasVariants">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_seo_form_canonical_url_switch %}
         <sw-switch-field
             v-model="canonicalProductSwitchEnabled"
@@ -73,6 +79,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_seo_form_canonical_url_select %}
         <sw-single-select
             ref="canonicalProductSelect"
@@ -88,6 +95,7 @@
         >
 
             <template #selection-label-property="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_seo_form_canonical_url_select_selection %}
                 <sw-product-variant-info
                     :variations="item.variation"
@@ -99,6 +107,7 @@
             </template>
 
             <template #result-label-property="{ item }">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_seo_form_canonical_url_select_result %}
                 <sw-product-variant-info
                     :variations="item.variation"

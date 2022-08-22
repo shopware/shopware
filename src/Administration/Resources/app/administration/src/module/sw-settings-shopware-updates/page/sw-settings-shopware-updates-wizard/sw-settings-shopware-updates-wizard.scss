@@ -3,6 +3,25 @@
         height: initial;
         min-height: 42px;
     }
+
+    .sw-changelog {
+        .sw-alert__icon {
+            left: 25px;
+            top: 27px;
+        }
+
+        .sw-alert__title {
+            margin-left: 26px;
+        }
+
+        h3 {
+            margin-bottom: 0;
+        }
+
+        .sw-button.sw-button--ghost {
+            margin-top: 20px;
+        }
+    }
 }
 
 .sw-shopware-updates-progressbar {

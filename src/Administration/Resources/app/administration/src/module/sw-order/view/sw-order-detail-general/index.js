@@ -5,6 +5,7 @@ const { Criteria } = Shopware.Data;
 const { format, array } = Utils;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-detail-general', {
     template,
 
@@ -154,11 +155,11 @@ Component.register('sw-order-detail-general', {
         },
 
         customFieldSetCriteria() {
-            const customFieldsCriteria = new Criteria(1, 100);
-            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
-
             const criteria = new Criteria(1, 100);
-            criteria.addAssociation('customFields', customFieldsCriteria);
+
+            criteria.addAssociation('customFields');
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
 
             return criteria;

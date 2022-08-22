@@ -4,6 +4,7 @@ import './sw-search-preferences-modal.scss';
 
 const { Component, Mixin, Module } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-preferences-modal', {
     template,
 

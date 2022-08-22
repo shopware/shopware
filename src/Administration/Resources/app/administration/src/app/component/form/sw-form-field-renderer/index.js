@@ -65,6 +65,7 @@ const { types } = Shopware.Utils;
  *     }">
  * </sw-form-field-renderer>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-form-field-renderer', {
     template,
     inheritAttrs: false,

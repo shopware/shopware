@@ -10,6 +10,14 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 class DatabaseConnectionFactory
 {
+    /**
+     * non-static implementation of createConnection(), can be mocked in tests
+     */
+    public function getConnection(DatabaseConnectionInformation $connectionInformation, bool $withoutDatabase = false): Connection
+    {
+        return self::createConnection($connectionInformation, $withoutDatabase);
+    }
+
     public static function createConnection(DatabaseConnectionInformation $connectionInformation, bool $withoutDatabase = false): Connection
     {
         $connection = DriverManager::getConnection($connectionInformation->toDBALParameters($withoutDatabase), new Configuration());

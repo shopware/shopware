@@ -11,6 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-loader />
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-loader', {
     template,
 

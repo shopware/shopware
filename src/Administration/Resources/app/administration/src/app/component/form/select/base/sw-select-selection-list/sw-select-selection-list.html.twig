@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_selection_list %}
 <ul class="sw-select-selection-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_selection_list_item %}
     <template v-if="!hideLabels">
         <li
@@ -10,6 +12,7 @@
             :data-id="selection[valueProperty]"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_selection_list_item_inner %}
             <slot
                 name="selected-option"
@@ -20,6 +23,7 @@
                     :size="size"
                     @dismiss="onClickDismiss(selection)"
                 >
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_select_selection_list_item_text %}
                     <span class="sw-select-selection-list__item">
                         <slot
@@ -37,6 +41,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_selection_list_load_more %}
     <li
         v-if="invisibleCount > 0 && !hideLabels"
@@ -46,6 +51,7 @@
             name="invisible-count"
             v-bind="{ invisibleCount, onClickInvisibleCount }"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_select_selection_list_load_more_item_button %}
             <sw-button
                 class="sw-select-selection-list__load-more-button"
@@ -58,6 +64,7 @@
     </li>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_selection_list_input %}
     <li>
         <slot

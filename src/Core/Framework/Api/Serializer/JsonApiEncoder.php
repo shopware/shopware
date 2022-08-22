@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 class JsonApiEncoder
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $caseCache = [];
 

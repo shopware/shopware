@@ -4,6 +4,7 @@ import './sw-import-export-new-profile-wizard-general-page.scss';
 
 const { Component } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-import-export-new-profile-wizard-general-page', {
     template,
 

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class IdsCollection
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $ids = [];
 

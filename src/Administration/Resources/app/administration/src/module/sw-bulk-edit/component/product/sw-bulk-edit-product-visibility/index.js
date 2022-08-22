@@ -3,6 +3,7 @@ import template from './sw-bulk-edit-product-visibility.html.twig';
 const { Component, Context } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-product-visibility', {
     template,
 

@@ -118,6 +118,7 @@ function cancelConsumeMessages() {
     isRunning = false;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     onMessage,
     runTasks,

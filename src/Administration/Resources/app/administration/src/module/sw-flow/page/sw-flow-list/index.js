@@ -2,6 +2,7 @@ import template from './sw-flow-list.html.twig';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-flow-list', {
     template,
 
@@ -17,6 +18,7 @@ Component.register('sw-flow-list', {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             total: 0,
+            isDeleting: false,
             isLoading: false,
             flows: null,
             currentFlow: {},
@@ -121,6 +123,7 @@ Component.register('sw-flow-list', {
 
         onDeleteFlow(item) {
             this.currentFlow = item;
+            this.isDeleting = true;
         },
 
         onCloseDeleteModal() {
@@ -135,6 +138,7 @@ Component.register('sw-flow-list', {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-flow.flowNotification.messageDeleteSuccess'),
                     });
+                    this.isDeleting = false;
                     this.getList();
                 })
                 .catch(() => {
@@ -155,6 +159,15 @@ Component.register('sw-flow-list', {
 
         selectionChange(selection) {
             this.selectedItems = Object.values(selection);
+        },
+
+        deleteWarningMessage() {
+            return `${this.$tc('sw-flow.list.warningDeleteText')} ${this.$tc('sw-flow.list.confirmText')}`;
+        },
+
+        bulkDeleteWarningMessage(selectionCount) {
+            return `${this.$tc('sw-flow.list.warningDeleteText')}
+            ${this.$tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount })}`;
         },
     },
 });

@@ -28,6 +28,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testCreateThemeConfig(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/ThemeConfig');
 
         $theme = $this->getBundle('TestTheme', $basePath, true);
@@ -77,6 +78,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasSingleScssEntryPoint(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePlugin');
         $bundle = $this->getBundle('SimplePlugin', $basePath);
 
@@ -91,6 +93,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPoint(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePluginWithoutCompilation');
 
         $bundle = $this->getBundle('SimplePluginWithoutCompilation', $basePath);
@@ -101,6 +104,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPointButDifferentScssFiles(): void
     {
+        /** @var string $basePath */
         $basePath = realpath(__DIR__ . '/../fixtures/SimpleWithoutStyleEntryPoint');
 
         $bundle = $this->getBundle('SimpleWithoutStyleEntryPoint', $basePath);
@@ -111,11 +115,11 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $this->assertFileCollection([], $config->getStyleFiles());
     }
 
-    private function getBundle(string $name, string $basePath, bool $isTheme = false)
+    private function getBundle(string $name, string $basePath, bool $isTheme = false): Bundle
     {
         if ($isTheme) {
             return new class($name, $basePath) extends Bundle implements ThemeInterface {
-                public function __construct($name, $basePath)
+                public function __construct(string $name, string $basePath)
                 {
                     $this->name = $name;
                     $this->path = $basePath;
@@ -124,7 +128,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         return new class($name, $basePath) extends Bundle {
-            public function __construct($name, $basePath)
+            public function __construct(string $name, string $basePath)
             {
                 $this->name = $name;
                 $this->path = $basePath;

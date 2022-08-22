@@ -4,6 +4,7 @@ import '../sw-order-state-change-modal';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-state-history-card', {
     template,
 

@@ -1,0 +1,69 @@
+# requires /.gitlab/base.yml
+
+# performance stage - This files contains all jobs belonging to the performance stage.
+
+Lighthouse (Administration):
+    extends: .base
+    stage: unit
+    needs: []
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    variables:
+      APP_ENV: prod
+      DD_API_KEY: "$DATADOG_API_KEY"
+    rules:
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
+        # always execute in merge train. PHP could in theory affect the admin jest tests
+        - !reference [ .rules, long-running ]
+        - changes:
+            - 'src/Administration/Resources/app/administration/**/*'
+    script:
+      - APP_ENV=prod bin/console framework:demodata
+      - APP_ENV=prod bin/console dal:refresh:index
+      - cd $ADMIN_PATH
+      - node createlighthouserc.js
+      - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
+      - node lighthouse-tests.js
+      - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        when: always
+        paths:
+            - build/artifacts
+
+Lighthouse Server (Storefront):
+    extends: .base
+    stage: unit
+    needs: []
+    allow_failure: true
+    timeout: 1h
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    variables:
+        APP_ENV: prod
+        DD_API_KEY: "$DATADOG_API_KEY"
+        ALLOW_FAILURE: 'true'
+    rules:
+        - !reference [ .rules, skip ]
+        # only run on protected refs like trunk and the version branches, if it's not a merge request
+        - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
+          allow_failure: true
+    script:
+        - APP_ENV=prod bin/console framework:demodata
+        - APP_ENV=prod bin/console dal:refresh:index
+        - cd $STOREFRONT_PATH
+        - node createlighthouserc.js
+        - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedInMobile.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedIn.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedInMobile.json
+        - node lighthouse-tests.js
+        - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        when: always
+        paths:
+            - build/artifacts

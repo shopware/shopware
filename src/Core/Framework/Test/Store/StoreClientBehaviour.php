@@ -61,7 +61,13 @@ trait StoreClientBehaviour
         /** @var AdminApiSource $source */
         $source = $context->getSource();
 
-        return $this->getUserRepository()->search(new Criteria([$source->getUserId()]), $context)
+        $userId = $source->getUserId();
+
+        if ($userId === null) {
+            throw new \RuntimeException('No user id found in context');
+        }
+
+        return $this->getUserRepository()->search(new Criteria([$userId]), $context)
             ->first()->getStoreToken();
     }
 

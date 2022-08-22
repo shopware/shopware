@@ -359,7 +359,7 @@ class SalesChannelEntity extends Entity
     protected $mainCategories;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected $paymentMethodIds;
 
@@ -981,7 +981,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getPaymentMethodIds(): ?array
     {
@@ -989,7 +989,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param string[] $paymentMethodIds
+     * @param array<string> $paymentMethodIds
      */
     public function setPaymentMethodIds(array $paymentMethodIds): void
     {

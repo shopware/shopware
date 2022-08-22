@@ -5,6 +5,7 @@ const { Component, Mixin, Context, Utils, Data } = Shopware;
 const { dom, format } = Utils;
 const { Criteria } = Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-quickinfo', {
     template,
 

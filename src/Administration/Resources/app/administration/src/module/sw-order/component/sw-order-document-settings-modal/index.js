@@ -4,6 +4,7 @@ import './sw-order-document-settings-modal.scss';
 const { Component, Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-order-document-settings-modal', {
     template,
 

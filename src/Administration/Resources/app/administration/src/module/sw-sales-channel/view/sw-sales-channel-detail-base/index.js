@@ -9,6 +9,7 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-detail-base', {
     template,
 
@@ -133,8 +134,6 @@ Component.register('sw-sales-channel-detail-base', {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 25);
 
-            // sort by name, because that is easier for
-            // maintenance in the administration
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;

@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_promotion_rule_select %}
 <div class="sw-promotion-rule-select">
-    {% block a  %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block a %}
     <sw-entity-many-to-many-select
         ref="ruleSelect"
         class="sw-promotion-rule-select"
@@ -22,6 +24,7 @@
     </sw-entity-many-to-many-select>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block b %}
     <sw-rule-modal
         v-if="showRuleModal"
@@ -29,6 +32,6 @@
         @save="onSaveRule"
         @modal-close="showRuleModal = false"
     />
-</div>{% endblock%}
-    </div>
+    {% endblock %}
+</div>
 {% endblock %}

@@ -15,6 +15,7 @@ function mergeEmptyAndExistingLineItems(emptyLineItems, lineItems) {
     return [...emptyLineItems, ...lineItems];
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
 

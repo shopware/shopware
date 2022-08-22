@@ -12,6 +12,7 @@ const { Component } = Shopware;
  *     <sw-sidebar-item title="Refresh" icon="regular-undo"></sw-sidebar-item>
  * </sw-sidebar>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar', {
     template,
 

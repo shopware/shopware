@@ -139,8 +139,8 @@ class ScriptRuleTest extends TestCase
         $expectedTrueScope = $this->getCheckoutScope($ruleId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->method('getGroupId')->willReturn(Uuid::randomHex());
+        $customer = new CustomerEntity();
+        $customer->setGroupId(Uuid::randomHex());
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $expectedFalseScope = new CheckoutRuleScope($salesChannelContext);
 
@@ -251,9 +251,9 @@ class ScriptRuleTest extends TestCase
         ], $this->context);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
-        $customer->method('getGroupId')->willReturn($groupId);
+        $customer->setGroupId($groupId);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         return new CheckoutRuleScope($salesChannelContext);

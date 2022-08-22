@@ -27,11 +27,13 @@ import type { ShopwareExtensionsState } from './module/sw-extension/store/extens
 import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
+import type { SdkLocationState } from './app/state/sdk-location.store';
 
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer
 // Export for modules and plugins to extend the service definitions
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface SubContainer<ContainerName extends string> {
     $decorator(name: string | Decorator, func?: Decorator): this;
     $register(Obj: Bottle.IRegisterableObject): this;
@@ -179,6 +181,7 @@ declare global {
         shopwareExtensions: ShopwareExtensionsState,
         extensionEntryRoutes: $TSFixMe,
         shopwareApps: ShopwareAppsState,
+        sdkLocation: SdkLocationState,
     }
 
     /**

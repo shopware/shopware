@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\Document;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
@@ -69,7 +70,7 @@ class DocumentPageLoader
         );
 
         if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
-            throw new CustomerNotLoggedInException();
+            throw CartException::customerNotLoggedIn();
         }
 
         if ($request->get('documentId', false) === false) {

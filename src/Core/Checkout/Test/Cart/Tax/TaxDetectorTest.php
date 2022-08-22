@@ -26,8 +26,8 @@ class TaxDetectorTest extends TestCase
     public function testUseGrossPrices(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $customerGroup = $this->createMock(CustomerGroupEntity::class);
-        $customerGroup->expects(static::once())->method('getDisplayGross')->willReturn(true);
+        $customerGroup = new CustomerGroupEntity();
+        $customerGroup->setDisplayGross(true);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
         $detector = $this->getContainer()->get(TaxDetector::class);
@@ -37,8 +37,8 @@ class TaxDetectorTest extends TestCase
     public function testDoNotUseGrossPrices(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $customerGroup = $this->createMock(CustomerGroupEntity::class);
-        $customerGroup->expects(static::once())->method('getDisplayGross')->willReturn(false);
+        $customerGroup = new CustomerGroupEntity();
+        $customerGroup->setDisplayGross(false);
         $context->expects(static::once())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
         $detector = $this->getContainer()->get(TaxDetector::class);
@@ -90,9 +90,9 @@ class TaxDetectorTest extends TestCase
         $countryRepository->update([$data], Context::createDefaultContext());
         $country = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->expects(static::once())->method('getCompany')->willReturn('ABC Company');
-        $customer->expects(static::once())->method('getVatIds')->willReturn(['DE123123123']);
+        $customer = new CustomerEntity();
+        $customer->setCompany('ABC Company');
+        $customer->setVatIds(['DE123123123']);
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
@@ -165,9 +165,9 @@ class TaxDetectorTest extends TestCase
         $countryRepository->update([$data], Context::createDefaultContext());
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->expects(static::once())->method('getCompany')->willReturn('ABC Company');
-        $customer->expects(static::once())->method('getVatIds')->willReturn(['VN123123']);
+        $customer = new CustomerEntity();
+        $customer->setCompany('ABC Company');
+        $customer->setVatIds(['VN123123']);
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($deCountry)
@@ -238,9 +238,9 @@ class TaxDetectorTest extends TestCase
         $countryRepository->update([$data], Context::createDefaultContext());
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->expects(static::once())->method('getCompany')->willReturn('ABC Company');
-        $customer->expects(static::once())->method('getVatIds')->willReturn(['VN123123']);
+        $customer = new CustomerEntity();
+        $customer->setCompany('ABC Company');
+        $customer->setVatIds(['VN123123']);
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($deCountry)

@@ -60,7 +60,7 @@
                         <div class="checkout-aside-item-title">
                             {% set label = lineItem.label|trans|sw_sanitize %}
                             {% set label = label !== '' ? label : lineItem.label %}
-                            {{ label|u.truncate(60) }}
+                            {{ label|u.truncate(60)|raw }}
                         </div>
                     {% endblock %}
 

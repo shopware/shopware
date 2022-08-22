@@ -1,9 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_integration_list %}
 <sw-page class="sw-integration-list">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_integration_list_smart_bar_header %}
     <template slot="smart-bar-header">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_smart_bar_header_title %}
         <h2>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_integration_list_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
@@ -18,6 +22,7 @@
     {% endblock %}
 
     <template slot="smart-bar-actions">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_smart_bar_actions %}
         <sw-button
             v-tooltip.bottom="{
@@ -35,12 +40,14 @@
         {% endblock %}
     </template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_integration_list_content %}
     <sw-card-view
         slot="content"
         class="sw-integration-list__content"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_introduction %}
         <sw-card
             :hero="true"
@@ -53,13 +60,16 @@
         </sw-card>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_integration_list_overview %}
         <sw-card
             :is-loading="isLoading"
             class="sw-integration-list__overview"
             position-identifier="sw-integration-list-overview"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_integration_list_overview_inner %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_integration_list_detail_modal %}
             <sw-modal
                 v-if="currentIntegration"
@@ -69,8 +79,10 @@
                 :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
                 @modal-close="onCloseDetailModal"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_field_label %}
                 <sw-container
                     columns="2fr 1fr"
@@ -82,6 +94,7 @@
                         :disabled="!acl.can('integration.editor')"
                     />
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
                     <sw-switch-field
                         v-model="currentIntegration.admin"
@@ -93,6 +106,7 @@
                 </sw-container>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_acl_roles %}
                 <sw-entity-multi-select
                     v-model="currentIntegration.aclRoles"
@@ -108,6 +122,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_field_accesskey %}
                 <sw-field
                     v-model="currentIntegration.accessKey"
@@ -118,6 +133,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                 <sw-field
                     v-if="showSecretAccessKey"
@@ -140,6 +156,7 @@
                     {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
                 </sw-button>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_field_helpText %}
                 <div
                     v-if="!showSecretAccessKey"
@@ -150,6 +167,7 @@
                 {% endblock %}
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_helptext %}
                 <sw-alert
                     v-if="showSecretAccessKey"
@@ -160,8 +178,10 @@
                 </sw-alert>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_detail_modal_inner_footer %}
                 <template slot="modal-footer">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_footer_cancel %}
                     <sw-button
                         size="small"
@@ -172,6 +192,7 @@
                     </sw-button>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_footer_apply %}
                     <sw-button
                         size="small"
@@ -189,6 +210,7 @@
             </sw-modal>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_integration_list_grid %}
             <sw-entity-listing
                 :items="integrations"
@@ -203,6 +225,7 @@
                 :is-loading="isLoading"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_grid_inner_slot_columns_label %}
                 <template #column-label="{ item }">
                     <span class="sw-integration-list__app-icon">
@@ -217,6 +240,7 @@
                 </template>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
                 <template #column-writeAccess="{ item }">
                     <sw-label
@@ -245,6 +269,7 @@
                 {% endblock %}
 
                 <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
                     <sw-context-menu-item
                         class="sw_integration_list__edit-action"
@@ -255,6 +280,7 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
                     <sw-context-menu-item
                         class="sw_integration_list__delete-action"
@@ -268,12 +294,14 @@
                 </template>
 
                 <template #action-modals="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_grid_inner_slot_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
                         :title="$tc('sw-integration.detail.deleteModalTitle')"
                         @modal-close="onCloseDeleteModal"
                     >
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
                         <p>
                             {{ $tc('sw-integration.detail.confirmDelete') }}
@@ -281,6 +309,7 @@
                         </p>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
                         <template slot="modal-footer">
                             <sw-button
@@ -305,6 +334,7 @@
             </sw-entity-listing>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_list_empty_state %}
             <sw-empty-state
                 v-if="!integrations"

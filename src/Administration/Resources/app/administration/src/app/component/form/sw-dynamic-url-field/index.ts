@@ -12,6 +12,7 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 /**
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-dynamic-url-field', {
     template,
 

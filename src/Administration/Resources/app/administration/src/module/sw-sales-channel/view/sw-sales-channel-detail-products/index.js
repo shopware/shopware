@@ -4,6 +4,7 @@ import './sw-sales-channel-detail-products.scss';
 const { Component, Mixin, Context, Feature } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-detail-products', {
     template,
 

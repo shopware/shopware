@@ -1,0 +1,185 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "/customer/wishlist/add/{productId}": {
+            "post": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "Add a product to a wishlist",
+                "description": "Adds a product to a customers wishlist.\n\n    **Important constraints**\n\n    * Anonymous (not logged-in) customers can not have wishlists.\n    * The wishlist feature has to be activated.",
+                "operationId": "addProductOnWishlist",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Identifier of the product to be added.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/customer/wishlist": {
+            "post": {
+                "tags": [
+                    "Wishlist",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a wishlist",
+                "description": "Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.\n\n    **Important constraints**\n\n    * Anonymous (not logged-in) customers can not have wishlists.\n    * The wishlist feature has to be activated.",
+                "operationId": "readCustomerWishlist",
+                "parameters": [],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WishlistLoadRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/customer/wishlist/merge": {
+            "post": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "Create a wishlist for a customer",
+                "description": "Create a new wishlist for a logged in customer or extend the existing wishlist given a set of products.\n\n    **Important constraints**\n\n    * Anonymous (not logged-in) customers can not have wishlists.\n    * A customer can only have a single wishlist.\n    * The wishlist feature has to be activated.",
+                "operationId": "mergeProductOnWishlist",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "productIds": {
+                                        "description": "List product id",
+                                        "type": "array",
+                                        "items": {
+                                            "description": "product id",
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/customer/wishlist/delete/{productId}": {
+            "delete": {
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "Remove a product from a wishlist",
+                "description": "Removes a product from a customer's wishlist.\n\n    **Important constraints**\n\n    * Anonymous (not logged-in) customers can not have wishlists.\n    * The wishlist feature has to be activated.",
+                "operationId": "deleteProductOnWishlist",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The identifier of the product to be removed from the wishlist.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a success response indicating a successful removal.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The removal of the product failed. Probably because the product could not be found on the wishlist.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_detail_base %}
 <sw-card
     v-if="propertyGroup"
@@ -6,6 +7,7 @@
     :is-loading="isLoading"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_name %}
     <sw-field
         v-model="propertyGroup.name"
@@ -18,6 +20,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_description %}
     <sw-field
         v-model="propertyGroup.description"
@@ -28,11 +31,13 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_filter_visible_container %}
     <sw-container
         columns="repeat(2, 1fr)"
         gap="0px 30px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_filterable %}
         <sw-switch-field
             v-model="propertyGroup.filterable"
@@ -43,6 +48,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_visible_on_detail %}
         <sw-switch-field
             v-model="propertyGroup.visibleOnProductDetailPage"
@@ -55,11 +61,13 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_sorting_display_container %}
     <sw-container
         columns="repeat(3, 1fr)"
         gap="0px 30px"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_display_type %}
         <sw-field
             v-model="propertyGroup.displayType"
@@ -80,6 +88,7 @@
         </sw-field>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_sorting_type %}
         <sw-field
             v-model="propertyGroup.sortingType"
@@ -100,6 +109,7 @@
         </sw-field>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_position %}
         <sw-number-field
             v-model="propertyGroup.position"

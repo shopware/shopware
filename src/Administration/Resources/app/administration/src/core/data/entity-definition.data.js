@@ -1,14 +1,17 @@
 const scalarTypes = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
 const jsonTypes = ['json_list', 'json_object'];
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getScalarTypes() {
     return scalarTypes;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function getJsonTypes() {
     return jsonTypes;
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class EntityDefinition {
     constructor({ entity, properties }) {
         this.entity = entity;

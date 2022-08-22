@@ -3,6 +3,7 @@ import './sw-my-apps-page.scss';
 
 const { Component, State, Context } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-my-apps-page', {
     template,
 

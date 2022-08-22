@@ -2,25 +2,24 @@
   # install node $NODE_VERSION
   install-node:
       script:
-        - apk add curl bash wget coreutils || true
-        - apt-update && apt-get install -y curl bash || true
-        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-        - export NVM_DIR="$HOME/.nvm"
-        - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
         - export NODE_VERSION="${NODE_VERSION:-16}"
-        - nvm install $NODE_VERSION
-        - rm /usr/bin/npm
-        - rm /usr/bin/node
-        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/node /usr/bin/node
-        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
+        - export NVM_DIR=/opt/nvm
+        # found no way to automatically load shell initialization scripts in gitlab
+        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm install $NODE_VERSION'
+        - rm -f /usr/bin/{npm,node,npx}
+        - VERSION_DIRS=($NVM_DIR/versions/node/v$NODE_VERSION*)
+        - ln -s "${VERSION_DIRS[-1]}/bin/node" /usr/bin/node
+        - ln -s "${VERSION_DIRS[-1]}/bin/npm" /usr/bin/npm
+        - ln -s "${VERSION_DIRS[-1]}/bin/npm" /usr/bin/npx
+        - bash -c '\. "$NVM_DIR/nvm.sh" && nvm use $NODE_VERSION'
         - npm config set --global user 0
         - npm config set --global unsafe-perm true
+        - node --version
   handle-failed-merge-train:
       after_script:
         - >
           if [[ $CI_JOB_STATUS == 'failed' && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" && "$ALLOW_FAILURE" != "true" && -n "$CI_MERGE_REQUEST_IID" ]]; then
             apk add jq || true
-            apt-update && apt-get install -y jq || true
             LABEL="${CI_JOB_STAGE}::all";
             COMMENT="The job $CI_JOB_URL failed in the merge train. We've added the label '$LABEL' to make sure it's not caused by your MR";
             MR_API_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}";

@@ -20,6 +20,7 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
  *    Sample text
  * </sw-alert>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-alert', {
     template,
 

@@ -18,6 +18,7 @@ const { Component } = Shopware;
  *     <sw-circle-icon size="50" variant="info" iconName="regular-times-hexagon">
  * </div>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-circle-icon', {
     template,
 

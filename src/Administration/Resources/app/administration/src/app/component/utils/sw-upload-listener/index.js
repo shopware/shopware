@@ -38,6 +38,7 @@ function isIllegalUrlException(error) {
  * @component-example
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-upload-listener', {
     render() {
         return document.createComment('');

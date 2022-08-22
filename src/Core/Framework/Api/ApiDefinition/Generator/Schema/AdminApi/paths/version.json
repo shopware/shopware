@@ -1,0 +1,34 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_info\/version": {
+            "get": {
+                "tags": [
+                    "System Info & Healthcheck"
+                ],
+                "summary": "Get the Shopware version",
+                "description": "Get the version of the Shopware instance",
+                "operationId": "infoShopwareVersion",
+                "responses": {
+                    "200": {
+                        "description": "Returns the version of the Shopware instance.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "version": {
+                                            "description": "The Shopware version.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

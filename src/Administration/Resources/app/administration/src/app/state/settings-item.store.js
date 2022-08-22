@@ -1,5 +1,6 @@
 const { hasOwnProperty } = Shopware.Utils.object;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
     state: {

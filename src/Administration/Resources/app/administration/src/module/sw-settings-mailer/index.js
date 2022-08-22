@@ -1,6 +1,7 @@
 import './component/sw-settings-mailer-smtp';
 import './page/sw-settings-mailer';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-mailer', {
     type: 'core',
     name: 'settings-mailer',

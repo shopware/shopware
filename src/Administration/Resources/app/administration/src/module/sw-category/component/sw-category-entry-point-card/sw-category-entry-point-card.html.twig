@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_entry_point_card %}
 <sw-card
     class="sw-category-entry-point-card"
@@ -5,6 +6,7 @@
     :title="$tc('sw-category.base.entry-point-card.cardTitle')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_selection %}
     <sw-single-select
         v-model="selectedEntryPoint"
@@ -19,18 +21,21 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_headline %}
     <p v-if="hasExistingNavigation">
         {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
     </p>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_navigation_list %}
     <div
         v-if="hasExistingNavigation"
         class="sw-category-entry-point-card__navigation-list"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_entry_point_navigation_list_link %}
         <router-link
             v-for="salesChannel in initialNavigationSalesChannels"
@@ -45,6 +50,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_sales_channel_selection %}
     <sw-category-sales-channel-multi-select
         v-if="associatedCollection"
@@ -58,6 +64,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_button_configure_home %}
     <sw-button
         class="sw-category-entry-point-card__button-configure-home"
@@ -70,6 +77,7 @@
     </sw-button>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_configure_home_modal %}
     <sw-category-entry-point-modal
         v-if="configureHomeModalVisible"

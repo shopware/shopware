@@ -1,21 +1,26 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_product_feature_set_detail %}
 <sw-page class="sw-settings-product-feature-sets-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_header %}
     <template slot="smart-bar-header">
         <h2>{{ placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_actions %}
     <template slot="smart-bar-actions">
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_detail_actions_save %}
         <sw-button-process
             v-model="isSaveSuccessful"
@@ -34,6 +39,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_product_feature_set_detail_content %}
     <sw-card-view slot="content">
         <template v-if="isLoading">
@@ -42,18 +48,21 @@
         </template>
 
         <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_set_detail_content_language_info %}
             <sw-language-info
                 :entity-description="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.textHeadline'))"
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_set_detail_content_card %}
             <sw-card
                 :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
                 position-identifier="sw-settings-product-feature-sets-detail"
             >
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_detail_content_field_name %}
                 <sw-field
                     v-model="productFeatureSet.name"
@@ -68,6 +77,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_product_feature_set_detail_content_field_description %}
                 <sw-field
                     v-model="productFeatureSet.description"
@@ -83,6 +93,7 @@
             </sw-card>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_set_detail_content_values_card %}
             <sw-settings-product-feature-sets-values-card
                 v-if="productFeatureSet.id"

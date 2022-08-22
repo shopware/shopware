@@ -24,6 +24,7 @@ const { dom } = Shopware.Utils;
  *       </sw-context-menu-item>
  * </sw-media-media-item>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-media-item', {
     template,
     inheritAttrs: false,

@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_quickinfo_multiple %}
 <div class="sw-media-quickinfo-multiple">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_multiple_quickactions %}
     <sw-media-collapse
         v-if="editable"
@@ -7,9 +9,11 @@
         :expand-on-loading="true"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_quickactions_content %}
         <template slot="content">
             <ul class="sw-media-sidebar__quickactions-list">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_move %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
@@ -27,6 +31,7 @@
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_multiple_quickactions_delete %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
@@ -45,6 +50,7 @@
                 </li>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
@@ -68,12 +74,14 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_multiple_file_names %}
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$tc('sw-media.sidebar.sections.selectedFiles')"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_multiple_file_names_content %}
         <template slot="content">
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
@@ -93,6 +101,7 @@
     </sw-media-collapse>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_modal_delete %}
     <sw-media-modal-delete
         v-if="showModalDelete"
@@ -102,6 +111,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_folder_dissolve_modal %}
     <sw-media-modal-folder-dissolve
         v-if="!hasMedia && showFolderDissolve"
@@ -111,6 +121,7 @@
     />
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_sidebar_folder_move_modal %}
     <sw-media-modal-move
         v-if="showModalMove"

@@ -65,7 +65,7 @@ abstract class EntityIndexer
     /**
      * Returns a list of known indexers
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getOptions(): array
     {

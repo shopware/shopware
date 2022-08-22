@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_modal_variant_generation %}
 <sw-modal
     :title="$tc('sw-product.variations.configuratorModal.title')"
@@ -5,15 +6,19 @@
     @modal-close="$emit('modal-close')"
 >
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_sidebar %}
     <div class="sw-product-modal-variant-generation__sidebar">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_tabs %}
         <sw-tabs
             is-vertical
             position-identifier="sw-product-modal-variant-generation"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
             <sw-tabs-item
                 class="sw-variant-modal__option-selection"
@@ -24,6 +29,7 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
             <sw-tabs-item
                 v-show="variantsNumber"
@@ -35,6 +41,7 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
             <sw-tabs-item
                 v-show="variantsNumber"
@@ -50,19 +57,23 @@
         </sw-tabs>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
         <p v-if="activeTab == 'options'">
             {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
         <p v-else-if="activeTab == 'restrictions'">
             {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
         </p>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
         <p v-else-if="activeTab == 'prices'">
             {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
@@ -73,8 +84,10 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_main %}
     <div class="sw-product-modal-variant-generation__main">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_selection %}
         <sw-product-variants-configurator-selection
             v-show="activeTab == 'options'"
@@ -87,6 +100,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_prices %}
         <sw-product-variants-configurator-prices
             v-if="activeTab == 'prices'"
@@ -95,6 +109,7 @@
         />
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_main_configurator_restrictions %}
         <sw-product-variants-configurator-restrictions
             v-if="activeTab == 'restrictions'"
@@ -105,6 +120,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_notification_modal %}
     <sw-modal
         v-if="notificationModal"
@@ -118,8 +134,10 @@
         <p>{{ $tc('sw-product.variations.generationNotificationCountAdding', notificationInfos.numberOfCreation) }}</p>
         <p>{{ $tc('sw-product.variations.generationNotificationCountDeletion', notificationInfos.numberOfDeletions) }}</p>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_notification_modal_footer %}
         <template slot="modal-footer">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_notification_modal_footer_cancel %}
             <sw-button
                 size="small"
@@ -129,6 +147,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_notification_modal_footer_continue %}
             <sw-button
                 variant="primary"
@@ -143,15 +162,19 @@
     </sw-modal>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_modal_loader %}
     <template slot="modal-loader">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_modal_loader_transition %}
         <transition name="generate-variant-progress-bar-transition">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_modal_variant_generation_modal_loader_progress_bar_wrapper %}
             <div
                 v-if="isLoading"
                 class="generate-variant-progress-bar__wrapper"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_modal_variant_generation_modal_loader_progress_bar %}
                 <sw-progress-bar
                     class="generate-variant-progress-bar"
@@ -159,6 +182,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_modal_variant_generation_modal_loader_progress_bar_description %}
                 <span class="generate-variant-progress-bar__description">
                     {{ actualProgress }} {{ $tc('sw-product.variations.progressTypeOf') }} {{ maxProgress }} {{ $tc('sw-product.variations.progressTypeVariation') }} {{ progressMessage }}
@@ -171,8 +195,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_modal_variant_generation_footer %}
     <template slot="modal-footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <sw-button
             size="small"
@@ -181,6 +207,7 @@
             {{ $tc('sw-product.variations.cancelVariationsButton') }}
         </sw-button>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_modal_variant_generation_footer_generate %}
         <sw-button
             class="sw-product-variant-generation__generate-action"

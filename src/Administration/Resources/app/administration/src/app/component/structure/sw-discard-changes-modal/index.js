@@ -13,6 +13,7 @@ const { Component } = Shopware;
  *  <sw-discard-changes-modal v-if="showDiscardChangesModal" @keep-editing="keepEditing" @discard-changes="discardChanges">
  *  </sw-discard-changes-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-discard-changes-modal', {
     template,
 

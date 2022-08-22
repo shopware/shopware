@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_price_form %}
 <div class="sw-product-price-form">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_price_form_fields %}
     <sw-container
         columns="1fr 2fr"
@@ -7,6 +9,7 @@
         class="sw-product-price-form__prices"
     >
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_tax_field %}
         <sw-inherit-wrapper
             ref="taxIdInheritation"
@@ -45,9 +48,11 @@
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-list-price-field" component #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_purchase_price_field %}
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_price_field %}
         <sw-inherit-wrapper
             v-if="!isLoading"
@@ -77,12 +82,14 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_price_form_link %}
     <sw-container
         columns="1fr"
         justify="end"
         class="sw-product-price-form__links"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_advanced_prices_link %}
         <router-link
             v-if="!product._isNew"
@@ -96,6 +103,7 @@
         </router-link>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_maintain_currencies_link %}
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
@@ -112,6 +120,7 @@
     </sw-container>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_price_form_maintain_currencies_modal %}
     <sw-maintain-currencies-modal
         v-if="displayMaintainCurrencies"

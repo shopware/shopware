@@ -9,6 +9,7 @@ import type { Extension } from '../../../state/extensions.store';
  * @component-example
  * <sw-iframe-renderer src="https://www.my-source.com" locationId="my-special-location" />
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 
@@ -53,6 +54,10 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     computed: {
+        componentName(): string|undefined {
+            return Shopware.State.get('sdkLocation').locations[this.locationId];
+        },
+
         extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
 
@@ -89,7 +94,7 @@ Shopware.Component.register('sw-iframe-renderer', {
         extension: {
             immediate: true,
             handler(extension) {
-                if (!extension) {
+                if (!extension || !this.extensionIsApp) {
                     return;
                 }
 

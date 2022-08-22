@@ -3,6 +3,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Component, Mixin } = Shopware;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-create', {
     template,
 

@@ -255,4 +255,5 @@ class MediaApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export { MediaApiService as default, UploadEvents };

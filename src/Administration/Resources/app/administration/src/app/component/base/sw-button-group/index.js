@@ -14,6 +14,7 @@ const { Component } = Shopware;
  *     <sw-button>Button 3</sw-button>
  * </sw-button-group>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-button-group', {
     template,
 

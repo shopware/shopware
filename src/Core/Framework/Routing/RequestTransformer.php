@@ -11,6 +11,9 @@ class RequestTransformer implements RequestTransformerInterface
         return $request;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function extractInheritableAttributes(Request $sourceRequest): array
     {
         return [];

@@ -26,6 +26,7 @@ const { Component } = Shopware;
  *   </sw-step-item>
  * </sw-step-display>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-step-display', {
     template,
 

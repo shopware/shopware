@@ -1,3 +1,4 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_el_config_text %}
 <sw-tabs
     position-identifier="sw-cms-element-config-text"
@@ -6,6 +7,7 @@
 >
 
     <template slot-scope="{ active }">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -15,6 +17,7 @@
             {{ $tc('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
         {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_tab_options %}
         <sw-tabs-item
             :title="$tc('sw-cms.elements.general.config.tab.settings')"
@@ -30,6 +33,7 @@
         slot="content"
         slot-scope="{ active }"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_content %}
         <sw-container
             v-if="active === 'content'"
@@ -59,11 +63,13 @@
         </sw-container>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_text_config_settings %}
         <sw-container
             v-if="active === 'settings'"
             class="sw-cms-el-config-text__tab-settings"
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_text_config_settings_vertical_align %}
             <sw-select-field
                 v-model="element.config.verticalAlign.value"

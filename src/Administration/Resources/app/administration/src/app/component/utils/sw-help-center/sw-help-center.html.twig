@@ -1,0 +1,60 @@
+<sw-context-button
+    class="sw-help-center"
+    menu-horizontal-align="left"
+    :menu-width="360"
+    :auto-close="false"
+    :additional-context-menu-classes="{'sw-help-center__context-menu': true}"
+    :auto-close-outside-click="true"
+    :z-index="1000"
+>
+    <template #button>
+        <sw-icon
+            name="regular-question-circle"
+            size="20px"
+        />
+    </template>
+
+    <template #default>
+        {# @internal - Do NOT use this block - it will be removed without replacement #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_help_center_content %}
+        <div class="sw-help-center__header">
+            <h3 class="sw-help-center__title">
+                {{ $tc('global.sw-help-center.title') }}
+            </h3>
+        </div>
+
+        <div class="sw-help-center__item sw-help-center__documentation-item">
+            <div class="sw-help-center__item sw-help-center__documentation-item-icon-container">
+                <sw-icon
+                    name="regular-file-text"
+                    color="#189eff"
+                    size="20px"
+                />
+            </div>
+
+            <div>
+                <h4>{{ $tc('global.sw-help-center.documentation.headline') }}</h4>
+
+                <sw-external-link :href="$tc('global.sw-help-center.documentation.linkUrl')">
+                    {{ $tc('global.sw-help-center.documentation.linkText') }}
+                </sw-external-link>
+            </div>
+        </div>
+
+        <div class="sw-help-center__item">
+            <h4>{{ $tc('global.sw-help-center.support.headline') }}</h4>
+
+            <p>{{ $tc('global.sw-help-center.support.paragraph') }}</p>
+
+            {# @internal - Do NOT use this block - it will be removed without replacement #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_help_center_support_request_item_link %}
+            <sw-external-link :href="$tc('global.sw-help-center.support.linkUrl')">
+                {{ $tc('global.sw-help-center.support.linkText') }}
+            </sw-external-link>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+</sw-context-button>

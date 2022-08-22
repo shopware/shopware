@@ -1,10 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_folder_content %}
 <div class="sw-media-folder-content">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_folder_content_folder_listing %}
     <ul
         v-if="subFolders.length > 0 || parentFolder !== null"
         class="sw-media-folder-content__folder-listing"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_content_list_item %}
 
         <li
@@ -15,6 +18,7 @@
                 class="sw-media-folder-content__button sw-media-folder-content__parent-folder"
                 @click="emitInput(parentFolder)"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_icon %}
                 <sw-icon
                     class="sw-media-folder-content__folder-icon"
@@ -36,9 +40,12 @@
             @click="emitInput(folder)"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_content_button_folder %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_content_button_folder_button %}
             <button class="sw-media-folder-content__button sw-media-folder-content__folder-button">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_button_icon %}
                 <sw-icon
                     class="sw-media-folder-content__folder-icon"
@@ -50,6 +57,7 @@
                 {{ folder.name }}
             </button>
             {% endblock %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_folder_content_switch_button %}
             <sw-icon
                 v-if="getChildCount(folder) > 0"

@@ -4,6 +4,7 @@ import './sw-system-config.scss';
 const { Component, Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-system-config', {
 
     template,

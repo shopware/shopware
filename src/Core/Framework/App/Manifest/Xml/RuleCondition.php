@@ -21,7 +21,7 @@ class RuleCondition extends XmlElement
     protected string $identifier;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected array $name = [];
 
@@ -74,7 +74,7 @@ class RuleCondition extends XmlElement
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getName(): array
     {

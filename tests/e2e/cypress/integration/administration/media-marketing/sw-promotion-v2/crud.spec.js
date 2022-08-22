@@ -15,7 +15,7 @@ describe('Promotion v2: Test crud operations', () => {
         });
     });
 
-    it('@base @marketing: create, update and read promotion', () => {
+    it('@base @marketing: create, update and read promotion', { tags: ['quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'

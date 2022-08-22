@@ -20,6 +20,7 @@ interface UserInfoResponse {
 /**
  * Gateway for the API end point "store"
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class StoreApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'store') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
@@ -149,4 +150,5 @@ export default class StoreApiService extends ApiService {
     }
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { StoreApiService, UserInfo };

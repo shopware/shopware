@@ -16,6 +16,7 @@ const { warn } = Shopware.Utils.debug;
  *     :entityDescription="Produkt 1">
  * </sw-language-info>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-language-info', {
     template,
 

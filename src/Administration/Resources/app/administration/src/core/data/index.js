@@ -10,6 +10,7 @@ import ErrorResolver from './error-resolver.data';
 import ErrorStore from './error-store.data';
 import FilterFactory from './filter-factory.data';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     ChangesetGenerator,
     Criteria,

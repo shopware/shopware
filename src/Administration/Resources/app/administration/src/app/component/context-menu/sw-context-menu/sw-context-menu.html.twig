@@ -1,8 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_context_menu %}
 <div class="sw-context-menu">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_menu_content %}
     <div class="sw-context-menu__content">
-        <slot>{% block sw_context_menu_slot_default %}{% endblock %}</slot>
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_context_menu_slot_default %}{% endblock %}
+        </slot>
     </div>
     {% endblock %}
 </div>

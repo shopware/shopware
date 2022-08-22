@@ -10,6 +10,7 @@ const { Component, Mixin } = Shopware;
  * <sw-media-modal-folder-dissolve :itemsToDissolve="[items]">
  * </sw-media-modal-folder-dissolve>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-modal-folder-dissolve', {
     template,
 

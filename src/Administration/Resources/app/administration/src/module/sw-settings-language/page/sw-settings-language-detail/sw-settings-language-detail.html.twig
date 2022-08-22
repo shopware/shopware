@@ -1,6 +1,8 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_language_detail %}
 <sw-page class="sw-settings-language-detail">
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_header %}
     <template #smart-bar-header>
         <h2
@@ -18,8 +20,10 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_actions %}
     <template #smart-bar-actions>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_abort %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
@@ -29,6 +33,7 @@
         </sw-button>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_save %}
         <sw-button-process
             v-model="isSaveSuccessful"
@@ -45,6 +50,7 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -54,12 +60,14 @@
     </template>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_content %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_content_language_info %}
                 <sw-language-info
                     :entity-description="language.name"
@@ -67,6 +75,7 @@
                 />
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_content_card %}
                 <sw-card
                     :title="$tc('sw-settings-language.detail.titleCard')"
@@ -77,6 +86,7 @@
                         gap="0px 30px"
                     >
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_name %}
                         <sw-field
                             v-model="language.name"
@@ -89,6 +99,7 @@
                         />
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_parentId %}
                         <sw-entity-single-select
                             id="inherit"
@@ -129,6 +140,7 @@
                         </sw-entity-single-select>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_iso_code %}
                         <sw-entity-single-select
                             id="iso-codes"
@@ -169,6 +181,7 @@
                         </sw-entity-single-select>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
@@ -198,6 +211,7 @@
                         </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_language_detail_content_alert_change_parent %}
                     <sw-alert
                         v-if="showAlertForChangeParentLanguage"
@@ -211,6 +225,7 @@
                 </sw-card>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_language_detail_custom_field_sets %}
                 <sw-card
                     v-if="showCustomFields"

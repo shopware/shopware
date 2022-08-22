@@ -1,5 +1,7 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_upload_v2 %}
 <div class="sw-media-upload-v2">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_compact %}
     <div
         v-if="variant == 'compact'"
@@ -8,6 +10,7 @@
         <sw-button-group
             split-button
         >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_compact_button_file_upload %}
             <sw-button
                 class="sw-media-upload-v2__button-compact-upload"
@@ -19,6 +22,7 @@
             </sw-button>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_compact_button_context_menu %}
             <sw-context-button
                 v-if="uploadUrlFeatureEnabled"
@@ -39,6 +43,7 @@
                     </sw-button>
                 </template>
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_compact_button_context_menu_actions %}
                 <sw-context-menu-item
                     class="sw-media-upload-v2__button-url-upload"
@@ -51,6 +56,7 @@
             {% endblock %}
         </sw-button-group>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_compact_url_form %}
         <sw-media-url-form
             v-if="isUrlUpload"
@@ -62,13 +68,16 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_regular %}
     <div
         v-if="variant == 'regular' || variant == 'small'"
         class="sw-media-upload-v2__content"
     >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_regular_header %}
         <div class="sw-media-upload-v2__header">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_regular_header_label %}
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label
@@ -79,6 +88,7 @@
             </label>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_regular_header_helptext %}
             <sw-help-text
                 v-if="helpText"
@@ -87,12 +97,14 @@
             />
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_regular_header_switch %}
             <sw-context-button
                 v-if="!source && uploadUrlFeatureEnabled"
                 class="sw-media-upload-v2__switch-mode"
                 :disabled="disabled"
             >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_header_switch_file_upload %}
                 <sw-context-menu-item
                     v-if="!isFileUpload"
@@ -104,6 +116,7 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_header_switch_url_upload %}
                 <sw-context-menu-item
                     v-if="!isUrlUpload"
@@ -118,6 +131,7 @@
         </div>
         {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_upload_v2_regular_drop_zone %}
         <div
             ref="dropzone"
@@ -126,8 +140,10 @@
             :class="isDragActiveClass"
         >
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_preview %}
             <template v-if="showPreview && variant === 'regular'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_file %}
                 <sw-media-preview-v2
                     v-if="(source || preview)"
@@ -135,6 +151,7 @@
                     :source="source || preview"
                 />
                 {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_fallback %}
                 <div
                     v-else
@@ -149,6 +166,7 @@
             </template>
 
             <template v-if="!showPreview && variant === 'regular'">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
                     <sw-icon name="regular-cloud-upload" />
@@ -158,6 +176,7 @@
             </template>
             {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_upload_v2_actions %}
             <div
                 class="sw-media-upload-v2__actions"
@@ -181,6 +200,7 @@
                 </div>
 
                 <template v-else>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_upload_v2_regular_actions_url %}
                     <sw-media-url-form
                         v-if="isUrlUpload"
@@ -190,8 +210,10 @@
                     />
                     {% endblock %}
 
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_upload_v2_regular_actions_add %}
                     <template v-if="isFileUpload">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_upload_v2_regular_media_sidebar_button %}
                         <sw-button
                             v-if="hasOpenMediaButtonListener"
@@ -214,6 +236,7 @@
                         </sw-button>
                         {% endblock %}
 
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_upload_v2_regular_upload_button %}
                         <sw-button
                             class="sw-media-upload-v2__button upload"
@@ -237,6 +260,7 @@
     </div>
     {% endblock %}
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_upload_v2_file_input %}
     <form
         ref="fileForm"

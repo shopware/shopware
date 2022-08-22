@@ -32,6 +32,7 @@ class InstallerTest extends TestCase
                 'pt' => 'pt-PT',
                 'sv' => 'sv-SE',
                 'da' => 'da-DK',
+                'nb' => 'nb-NO',
             ],
             $container->getParameter('shopware.installer.supportedLanguages')
         );

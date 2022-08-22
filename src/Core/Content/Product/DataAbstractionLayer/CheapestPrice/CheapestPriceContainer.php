@@ -21,6 +21,9 @@ class CheapestPriceContainer extends Struct
      */
     protected ?array $default = null;
 
+    /**
+     * @var list<string>|null
+     */
     private ?array $ruleIds = null;
 
     /**
@@ -184,7 +187,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function getRuleIds(): array
     {
@@ -193,7 +196,9 @@ class CheapestPriceContainer extends Struct
 
             foreach ($this->value as $group) {
                 foreach ($group as $price) {
-                    if (($price['rule_id'] ?? null) === null) {
+                    /** @var string|null $ruleId */
+                    $ruleId = $price['rule_id'] ?? null;
+                    if ($ruleId === null) {
                         continue;
                     }
 
@@ -201,7 +206,9 @@ class CheapestPriceContainer extends Struct
                 }
             }
 
-            $this->ruleIds = array_keys($ruleIds);
+            /** @var list<string> $ruleIds */
+            $ruleIds = array_keys($ruleIds);
+            $this->ruleIds = $ruleIds;
         }
 
         return $this->ruleIds;

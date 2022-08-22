@@ -21,6 +21,7 @@ Please create a second pull request at https://github.com/shopware/docs
 
 ### 5. Checklist
 
+- [ ] I have rebased my changes to remove merge conflicts
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/workflow/2020-08-03-implement-New-Changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes

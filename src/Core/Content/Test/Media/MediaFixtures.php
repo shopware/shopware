@@ -15,7 +15,7 @@ trait MediaFixtures
     use EntityFixturesBase;
 
     /**
-     * @var array
+     * @var array<string, array<string, mixed>>
      */
     public $mediaFixtures;
 

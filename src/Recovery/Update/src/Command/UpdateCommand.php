@@ -3,6 +3,7 @@
 namespace Shopware\Recovery\Update\Command;
 
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Steps\ErrorResult;
 use Shopware\Recovery\Common\Steps\MigrationStep;
@@ -195,8 +196,9 @@ class UpdateCommand extends Command
 
         $requiredVersion = '6.0.0 ea1.1';
         if (!$lastGeneratedVersion || version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
-            $jwtCertificateService = $this->container->get('jwt_certificate.writer');
-            $jwtCertificateService->generate();
+            $jwtGenerator = new JwtCertificateGenerator();
+            $jwtDir = SW_PATH . '/config/jwt';
+            $jwtGenerator->generate($jwtDir . '/private.pem', $jwtDir . '/public.pem');
             file_put_contents($lastGeneratedVersionFile, $this->container->get('shopware.version'));
         }
     }

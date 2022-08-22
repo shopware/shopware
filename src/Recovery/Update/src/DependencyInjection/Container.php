@@ -9,11 +9,9 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
-use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\MigrationSourceCollector;
-use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Recovery\Update\Cleanup;
@@ -217,13 +215,6 @@ class Container extends BaseContainer
                     ->withHeader('Content-Type', 'application/json')
                     ->write(json_encode($data));
             };
-        };
-
-        $container['jwt_certificate.writer'] = static function () {
-            return new JwtCertificateService(
-                SW_PATH . '/config/jwt/',
-                new JwtCertificateGenerator()
-            );
         };
 
         $container['system.config'] = static function ($c) {

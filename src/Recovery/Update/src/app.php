@@ -2,6 +2,7 @@
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
@@ -115,8 +116,9 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
 
     $requiredVersion = '6.0.0 ea1.1';
     if (!$lastGeneratedVersion || version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
-        $jwtCertificateService = $container->get('jwt_certificate.writer');
-        $jwtCertificateService->generate();
+        $jwtGenerator = new JwtCertificateGenerator();
+        $jwtDir = SW_PATH . '/config/jwt';
+        $jwtGenerator->generate($jwtDir . '/private.pem', $jwtDir . '/public.pem');
         file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
     }
 

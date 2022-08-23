@@ -12,11 +12,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -112,6 +114,31 @@ class LoginRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testItUpdatesCustomerLanguageIdOnValidLogin(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $customerId = $this->createCustomer($password, $email, null, true, $this->getDeDeLanguageId());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => $password,
+                ],
+            );
+
+        static::assertEquals(
+            Defaults::LANGUAGE_SYSTEM,
+            $this->customerRepository->search(
+                new Criteria([$customerId]),
+                Context::createDefaultContext()
+            )->first()->getLanguageId()
+        );
     }
 
     public function testValidLoginWithOneInactive(): void
@@ -302,7 +329,7 @@ class LoginRouteTest extends TestCase
         );
     }
 
-    private function createCustomer(string $password, ?string $email = null, ?string $boundSalesChannelId = null, bool $active = true): string
+    private function createCustomer(string $password, ?string $email = null, ?string $boundSalesChannelId = null, bool $active = true, ?string $languageId = null): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -356,6 +383,10 @@ class LoginRouteTest extends TestCase
             'boundSalesChannelId' => $boundSalesChannelId,
             'active' => $active,
         ];
+
+        if(null !== $languageId) {
+            $customer['languageId'] = $languageId;
+        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 

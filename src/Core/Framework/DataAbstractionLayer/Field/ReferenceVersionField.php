@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
@@ -43,19 +42,20 @@ class ReferenceVersionField extends FkField
         $this->storageName = $storageName;
     }
 
-    public function compile(DefinitionInstanceRegistry $registry): void
-    {
-        parent::compile($registry);
-    }
-
     public function getVersionReferenceDefinition(): EntityDefinition
     {
+        if ($this->versionReferenceDefinition === null) {
+            $this->compileLazy();
+        }
+
         return $this->versionReferenceDefinition;
     }
 
     public function getVersionReferenceClass(): string
     {
-        $this->compileLazy();
+        if ($this->versionReferenceClass === null) {
+            $this->compileLazy();
+        }
 
         return $this->versionReferenceClass;
     }
@@ -67,10 +67,10 @@ class ReferenceVersionField extends FkField
 
     protected function compileLazy(): void
     {
-        if ($this->versionReferenceDefinition === null) {
-            $this->versionReferenceDefinition = $this->registry->getByClassOrEntityName($this->versionReferenceClass);
-        }
+        parent::compileLazy();
 
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
+        $this->versionReferenceDefinition = $this->registry->getByClassOrEntityName($this->versionReferenceClass);
         $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
     }
 }

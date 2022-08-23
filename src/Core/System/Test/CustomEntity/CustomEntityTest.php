@@ -75,6 +75,9 @@ class CustomEntityTest extends TestCase
 
     private const CATEGORY_TYPE = 'custom-entity-unit-test';
 
+    /**
+     * @var array<string, mixed>
+     */
     private static array $defaults = [
         'position' => 1,
         'rating' => 2.2,
@@ -543,6 +546,9 @@ class CustomEntityTest extends TestCase
         static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
     }
 
+    /**
+     * @param list<string> $columns
+     */
     private static function assertColumns(Schema $schema, string $table, array $columns): void
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
@@ -669,7 +675,7 @@ class CustomEntityTest extends TestCase
 
     private function testRepository(IdsCollection $ids, ContainerInterface $container): void
     {
-        $blogs = self::blog('blog-2', $ids, []);
+        $blogs = self::blog('blog-2', $ids);
 
         /** @var EntityRepository|null $repository */
         $repository = $container->get('custom_entity_blog.repository');
@@ -895,9 +901,12 @@ class CustomEntityTest extends TestCase
         static::assertArrayNotHasKey('price', $response['blogs']['elements'][0]['topSellerCascade']);
     }
 
-    private static function blog(string $key, IdsCollection $ids, array $data = []): array
+    /**
+     * @return array<string, mixed>
+     */
+    private static function blog(string $key, IdsCollection $ids): array
     {
-        return \array_merge([
+        return [
             'id' => $ids->get($key),
             'position' => 1,
             'rating' => 2.2,
@@ -926,7 +935,7 @@ class CustomEntityTest extends TestCase
                 (new ProductBuilder($ids, $key . '.products-1'))->price(100)->build(),
                 (new ProductBuilder($ids, $key . '.products-2'))->price(100)->build(),
             ],
-        ], $data);
+        ];
     }
 
     private function transactional(\Closure $closure): void
@@ -1004,15 +1013,15 @@ class CustomEntityTest extends TestCase
 
                 (new DAL\ManyToManyAssociationField('products', 'product', 'custom_entity_blog_products', 'custom_entity_blog_id', 'product_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
 
-                new DAL\OneToOneAssociationField('linkProductRestrict', 'link_product_restrict_id', 'product', 'id'),
+                new DAL\OneToOneAssociationField('linkProductRestrict', 'link_product_restrict_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_restrict_version_id'))->addFlags(new Required()),
                 new FkField('link_product_restrict_id', 'linkProductRestrictId', 'product', 'id'),
 
-                new DAL\OneToOneAssociationField('linkProductCascade', 'link_product_cascade_id', 'product', 'id'),
+                new DAL\OneToOneAssociationField('linkProductCascade', 'link_product_cascade_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_cascade_version_id'))->addFlags(new Required()),
                 new DAL\FkField('link_product_cascade_id', 'linkProductCascadeId', 'product', 'id'),
 
-                new DAL\OneToOneAssociationField('linkProductSetNull', 'link_product_set_null_id', 'product', 'id'),
+                new DAL\OneToOneAssociationField('linkProductSetNull', 'link_product_set_null_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_set_null_version_id'))->addFlags(new Required()),
                 new DAL\FkField('link_product_set_null_id', 'linkProductSetNullId', 'product', 'id'),
 
@@ -1065,9 +1074,7 @@ class CustomEntityTest extends TestCase
                 ->getByEntityName($entity);
 
             foreach ($properties as $field) {
-                if ($field instanceof DAL\ReferenceVersionField) {
-                    $field->compile($container->get(DefinitionInstanceRegistry::class));
-                }
+                $field->compile($container->get(DefinitionInstanceRegistry::class));
 
                 $name = $field->getPropertyName();
                 $message = sprintf('Assertion for field "%s" in entity "%s" failed', $name, $entity);
@@ -1096,7 +1103,7 @@ class CustomEntityTest extends TestCase
                     static::assertSame($field->getReferenceField(), $actual->getReferenceField(), $message);
                     static::assertSame($field->getLocalField(), $actual->getLocalField(), $message);
                     static::assertSame($field->getAutoload(), $actual->getAutoload(), $message);
-                    static::assertSame($field->getReferenceClass(), $actual->getReferenceEntity(), $message);
+                    static::assertSame($field->getReferenceEntity(), $actual->getReferenceEntity(), $message);
                 }
 
                 if ($field instanceof ManyToManyAssociationField) {
@@ -1106,7 +1113,7 @@ class CustomEntityTest extends TestCase
                     static::assertSame($field->getAutoload(), $actual->getAutoload(), $message);
                     static::assertSame($field->getMappingLocalColumn(), $actual->getMappingLocalColumn(), $message);
                     static::assertSame($field->getMappingReferenceColumn(), $actual->getMappingReferenceColumn(), $message);
-                    static::assertSame($field->getReferenceClass(), $actual->getReferenceEntity(), $message);
+                    static::assertSame($field->getReferenceEntity(), $actual->getReferenceEntity(), $message);
                 }
 
                 if ($field instanceof ManyToOneAssociationField) {
@@ -1114,7 +1121,7 @@ class CustomEntityTest extends TestCase
                     static::assertSame($field->getReferenceField(), $actual->getReferenceField(), $message);
                     static::assertSame($field->getStorageName(), $actual->getStorageName(), $message);
                     static::assertSame($field->getAutoload(), $actual->getAutoload(), $message);
-                    static::assertSame($field->getReferenceClass(), $actual->getReferenceEntity(), $message);
+                    static::assertSame($field->getReferenceEntity(), $actual->getReferenceEntity(), $message);
                 }
             }
         }

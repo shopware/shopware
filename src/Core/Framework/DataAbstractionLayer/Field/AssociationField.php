@@ -26,10 +26,14 @@ abstract class AssociationField extends Field
 
     protected ?string $referenceEntity = null;
 
-    protected DefinitionInstanceRegistry $registry;
+    protected ?DefinitionInstanceRegistry $registry = null;
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
+        if ($this->registry !== null) {
+            return;
+        }
+
         $this->registry = $registry;
 
         parent::compile($registry);
@@ -37,7 +41,9 @@ abstract class AssociationField extends Field
 
     public function getReferenceDefinition(): EntityDefinition
     {
-        $this->compileLazy();
+        if ($this->referenceDefinition === null) {
+            $this->compileLazy();
+        }
 
         return $this->referenceDefinition;
     }
@@ -49,7 +55,9 @@ abstract class AssociationField extends Field
 
     public function getReferenceClass(): string
     {
-        $this->compileLazy();
+        if (!\is_subclass_of($this->referenceClass, EntityDefinition::class)) {
+            $this->compileLazy();
+        }
 
         return $this->referenceClass;
     }
@@ -61,21 +69,19 @@ abstract class AssociationField extends Field
 
     public function getReferenceEntity(): ?string
     {
-        $this->compileLazy();
+        if ($this->referenceEntity === null) {
+            $this->compileLazy();
+        }
 
         return $this->referenceEntity;
     }
 
     protected function compileLazy(): void
     {
-        if ($this->referenceDefinition === null) {
-            $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
-        }
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
 
-        if ($this->referenceEntity === null) {
-            $this->referenceEntity = $this->referenceDefinition->getEntityName();
-        }
-
+        $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
         $this->referenceClass = $this->referenceDefinition->getClass();
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 }

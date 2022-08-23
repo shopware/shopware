@@ -105,5 +105,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('readOnlyField', $properties);
         static::assertArrayHasKey('readOnly', $properties['readOnlyField']);
         static::assertTrue($properties['readOnlyField']['readOnly']);
+        static::assertArrayHasKey('runtimeField', $properties);
+        static::assertEquals('Runtime field, cannot be used as part of the criteria.', $properties['runtimeField']['description']);
     }
 }

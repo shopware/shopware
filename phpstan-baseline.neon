@@ -15516,11 +15516,6 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 
 		-
-			message: "#^PHPDoc tag @var for variable \\$relationshipData has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiPathBuilder\\:\\:getDefaultListingParameter\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiPathBuilder.php
@@ -25012,11 +25007,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Api/ApiDefinition/Generator/OpenApi3Test.php
 
@@ -34109,26 +34099,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Test/CustomEntity/Api/CustomEntityApiControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:assertColumns\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:blog\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:blog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:\\$defaults type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Language\\\\LanguageRuleTest\\:\\:createCondition\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"

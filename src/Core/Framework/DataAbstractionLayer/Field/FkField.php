@@ -30,7 +30,7 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    protected DefinitionInstanceRegistry $registry;
+    protected ?DefinitionInstanceRegistry $registry = null;
 
     private ?string $referenceEntity = null;
 
@@ -44,6 +44,10 @@ class FkField extends Field implements StorageAware
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
+        if ($this->registry !== null) {
+            return;
+        }
+
         $this->registry = $registry;
 
         parent::compile($registry);
@@ -56,7 +60,9 @@ class FkField extends Field implements StorageAware
 
     public function getReferenceDefinition(): EntityDefinition
     {
-        $this->compileLazy();
+        if ($this->referenceDefinition === null) {
+            $this->compileLazy();
+        }
 
         return $this->referenceDefinition;
     }
@@ -73,7 +79,9 @@ class FkField extends Field implements StorageAware
 
     public function getReferenceEntity(): ?string
     {
-        $this->compileLazy();
+        if ($this->referenceEntity === null) {
+            $this->compileLazy();
+        }
 
         return $this->referenceEntity;
     }
@@ -85,12 +93,9 @@ class FkField extends Field implements StorageAware
 
     protected function compileLazy(): void
     {
-        if ($this->referenceDefinition === null) {
-            $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
-        }
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
 
-        if ($this->referenceEntity === null) {
-            $this->referenceEntity = $this->referenceDefinition->getEntityName();
-        }
+        $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 }

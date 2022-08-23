@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -417,9 +418,20 @@ class OpenApiDefinitionSchemaBuilder
             $property->pattern = '^[0-9a-f]{32}$';
         }
 
+        $description = [];
         $flag = $field->getFlag(Since::class);
         if ($flag instanceof Since) {
-            $property->description = 'Added since version: ' . $flag->getSince();
+            $description[] = \sprintf('Added since version: %s.', $flag->getSince());
+        }
+
+        $flag = $field->getFlag(Runtime::class);
+        if ($flag instanceof Runtime) {
+            $description[] = 'Runtime field, cannot be used as part of the criteria.';
+        }
+
+        $description = \implode(' ', $description);
+        if ($description !== '') {
+            $property->description = $description;
         }
 
         return $property;
@@ -498,7 +510,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function getRelationShipEntity(Property $relationship): string
     {
-        /** @var array $relationshipData */
+        /** @var array<mixed> $relationshipData */
         $relationshipData = $relationship->properties['data'];
         $type = $relationshipData['type'];
         $entity = '';

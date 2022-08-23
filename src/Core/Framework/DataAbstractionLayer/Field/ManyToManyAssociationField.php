@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 
@@ -57,21 +56,20 @@ class ManyToManyAssociationField extends AssociationField
         $this->referenceField = $referenceField;
     }
 
-    public function compile(DefinitionInstanceRegistry $registry): void
-    {
-        parent::compile($registry);
-    }
-
     public function getToManyReferenceDefinition(): EntityDefinition
     {
-        $this->compileLazy();
+        if ($this->toManyDefinition === null) {
+            $this->compileLazy();
+        }
 
         return $this->toManyDefinition;
     }
 
     public function getMappingDefinition(): EntityDefinition
     {
-        $this->compileLazy();
+        if ($this->mappingDefinition === null) {
+            $this->compileLazy();
+        }
 
         return $this->mappingDefinition;
     }
@@ -105,14 +103,10 @@ class ManyToManyAssociationField extends AssociationField
     {
         parent::compileLazy();
 
-        if ($this->mappingDefinition === null) {
-            $this->mappingDefinition = $this->getReferenceDefinition();
-        }
+        $this->mappingDefinition = $this->getReferenceDefinition();
 
-        if ($this->toManyDefinition === null) {
-            $this->toManyDefinition = $this->registry->getByClassOrEntityName($this->toManyDefinitionClass);
-        }
-
+        \assert($this->registry !== null, 'registry could not be null, because the `compile` method must be called first');
+        $this->toManyDefinition = $this->registry->getByClassOrEntityName($this->toManyDefinitionClass);
         $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
     }
 }

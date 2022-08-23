@@ -1,6 +1,6 @@
 ---
 title: Fix unstable sort order in `ImportExport::export()` which might lead to duplicate or missing entries
-issue: -
+issue: NEXT-22950
 author: Tobias Bachert
 author_email: tobias.bachert@horn-gmbh.com
 ---

@@ -297,6 +297,7 @@ class ImportExport
             // default sorting
             $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         }
+        $criteria->addSorting(new FieldSorting('id'));
 
         $criteria->setOffset($offset);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

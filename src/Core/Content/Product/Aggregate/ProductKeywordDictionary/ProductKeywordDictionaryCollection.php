@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                add(ProductKeywordDictionaryEntity $entity)
- * @method void                                set(string $key, ProductKeywordDictionaryEntity $entity)
- * @method ProductKeywordDictionaryEntity[]    getIterator()
- * @method ProductKeywordDictionaryEntity[]    getElements()
- * @method ProductKeywordDictionaryEntity|null get(string $key)
- * @method ProductKeywordDictionaryEntity|null first()
- * @method ProductKeywordDictionaryEntity|null last()
+ * @extends EntityCollection<ProductKeywordDictionaryEntity>
  */
 class ProductKeywordDictionaryCollection extends EntityCollection
 {

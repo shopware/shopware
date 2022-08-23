@@ -4,8 +4,14 @@ namespace Shopware\Docs\Inspection;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @extends Collection<ModuleTagCollection>
+ */
 class CharacteristicsCollection extends Collection
 {
+    /**
+     * @return list<ModuleTagCollection>
+     */
     public function filterTagName(string $tagName): array
     {
         return $this->fmap(static function (ModuleTagCollection $collection) use ($tagName) {

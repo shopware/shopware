@@ -66,6 +66,9 @@ abstract class EntityDefinition
         $this->className = static::class;
     }
 
+    /**
+     * @return class-string<EntityDefinition>
+     */
     final public function getClass(): string
     {
         return static::class;
@@ -217,7 +220,10 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return class-string<EntityCollection>
+     * Phpstan will complain that we should specify the generic type if we hint that class strings
+     * of EntityColllection should be returned.
+     *
+     * @return class-string
      */
     public function getCollectionClass(): string
     {

@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Struct\Collection;
 
+/**
+ * @extends Collection<ThemeSalesChannel>
+ */
 class ThemeSalesChannelCollection extends Collection
 {
     /**

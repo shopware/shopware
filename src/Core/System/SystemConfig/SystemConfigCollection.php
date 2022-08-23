@@ -5,13 +5,7 @@ namespace Shopware\Core\System\SystemConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(SystemConfigEntity $entity)
- * @method void                    set(string $key, SystemConfigEntity $entity)
- * @method SystemConfigEntity[]    getIterator()
- * @method SystemConfigEntity[]    getElements()
- * @method SystemConfigEntity|null get(string $key)
- * @method SystemConfigEntity|null first()
- * @method SystemConfigEntity|null last()
+ * @extends EntityCollection<SystemConfigEntity>
  */
 class SystemConfigCollection extends EntityCollection
 {

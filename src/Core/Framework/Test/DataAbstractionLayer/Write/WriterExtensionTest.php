@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -25,15 +26,9 @@ class WriterExtensionTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection|object
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var object
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
@@ -100,7 +95,7 @@ class WriterExtensionTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var EntityCollection $productExtensions */
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
         $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
             return $a->get('name') <=> $b->get('name');
@@ -134,7 +129,7 @@ class WriterExtensionTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var EntityCollection $productExtensions */
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
         $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
             return $a->get('name') <=> $b->get('name');

@@ -5,16 +5,13 @@ namespace Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(DeliveryTimeTranslationEntity $entity)
- * @method void                               set(string $key, DeliveryTimeTranslationEntity $entity)
- * @method DeliveryTimeTranslationEntity[]    getIterator()
- * @method DeliveryTimeTranslationEntity[]    getElements()
- * @method DeliveryTimeTranslationEntity|null get(string $key)
- * @method DeliveryTimeTranslationEntity|null first()
- * @method DeliveryTimeTranslationEntity|null last()
+ * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
 class DeliveryTimeTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getDeliveryTimeIds(): array
     {
         return $this->fmap(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) {
@@ -29,6 +26,9 @@ class DeliveryTimeTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (DeliveryTimeTranslationEntity $deliveryTimeTranslation) {

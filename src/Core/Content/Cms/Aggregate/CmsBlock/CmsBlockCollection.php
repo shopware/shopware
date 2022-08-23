@@ -6,13 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                add(CmsBlockEntity $entity)
- * @method void                set(string $key, CmsBlockEntity $entity)
- * @method CmsBlockEntity[]    getIterator()
- * @method CmsBlockEntity[]    getElements()
- * @method CmsBlockEntity|null get(string $key)
- * @method CmsBlockEntity|null first()
- * @method CmsBlockEntity|null last()
+ * @extends EntityCollection<CmsBlockEntity>
  */
 class CmsBlockCollection extends EntityCollection
 {

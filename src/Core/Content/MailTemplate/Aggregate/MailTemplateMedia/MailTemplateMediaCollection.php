@@ -6,16 +6,13 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                         add(MailTemplateMediaEntity $entity)
- * @method void                         set(string $key, MailTemplateMediaEntity $entity)
- * @method MailTemplateMediaEntity[]    getIterator()
- * @method MailTemplateMediaEntity[]    getElements()
- * @method MailTemplateMediaEntity|null get(string $key)
- * @method MailTemplateMediaEntity|null first()
- * @method MailTemplateMediaEntity|null last()
+ * @extends EntityCollection<MailTemplateMediaEntity>
  */
 class MailTemplateMediaCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getMailTemplateIds(): array
     {
         return $this->fmap(function (MailTemplateMediaEntity $mailTemplateAttachment) {
@@ -30,6 +27,9 @@ class MailTemplateMediaCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
         return $this->fmap(function (MailTemplateMediaEntity $mailTemplateMedia) {

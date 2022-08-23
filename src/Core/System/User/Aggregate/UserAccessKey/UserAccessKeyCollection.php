@@ -5,13 +5,7 @@ namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                     add(UserAccessKeyEntity $entity)
- * @method void                     set(string $key, UserAccessKeyEntity $entity)
- * @method UserAccessKeyEntity[]    getIterator()
- * @method UserAccessKeyEntity[]    getElements()
- * @method UserAccessKeyEntity|null get(string $key)
- * @method UserAccessKeyEntity|null first()
- * @method UserAccessKeyEntity|null last()
+ * @extends EntityCollection<UserAccessKeyEntity>
  */
 class UserAccessKeyCollection extends EntityCollection
 {

@@ -5,6 +5,9 @@ namespace Shopware\Docs\Inspection;
 use Shopware\Core\Framework\Struct\Collection;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * @extends Collection<ModuleTag>
+ */
 class ModuleTagCollection extends Collection
 {
     /**

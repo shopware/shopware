@@ -5,13 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void             add(NestedEvent $entity)
- * @method void             set(string $key, NestedEvent $entity)
- * @method NestedEvent[]    getIterator()
- * @method NestedEvent[]    getElements()
- * @method NestedEvent|null get(string $key)
- * @method NestedEvent|null first()
- * @method NestedEvent|null last()
+ * @extends Collection<NestedEvent>
  */
 class NestedEventCollection extends Collection
 {

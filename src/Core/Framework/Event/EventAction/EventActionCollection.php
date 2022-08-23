@@ -8,13 +8,7 @@ use Shopware\Core\Framework\Feature;
 /**
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0
  *
- * @method void                   add(EventActionEntity $entity)
- * @method void                   set(string $key, EventActionEntity $entity)
- * @method EventActionEntity[]    getIterator()
- * @method EventActionEntity[]    getElements()
- * @method EventActionEntity|null get(string $key)
- * @method EventActionEntity|null first()
- * @method EventActionEntity|null last()
+ * @extends EntityCollection<EventActionEntity>
  */
 class EventActionCollection extends EntityCollection
 {

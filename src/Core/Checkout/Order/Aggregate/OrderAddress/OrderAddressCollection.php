@@ -7,16 +7,13 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 
 /**
- * @method void                    add(OrderAddressEntity $entity)
- * @method void                    set(string $key, OrderAddressEntity $entity)
- * @method OrderAddressEntity[]    getIterator()
- * @method OrderAddressEntity[]    getElements()
- * @method OrderAddressEntity|null get(string $key)
- * @method OrderAddressEntity|null first()
- * @method OrderAddressEntity|null last()
+ * @extends EntityCollection<OrderAddressEntity>
  */
 class OrderAddressCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getCountryIds(): array
     {
         return $this->fmap(function (OrderAddressEntity $orderAddress) {
@@ -31,6 +28,9 @@ class OrderAddressCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getCountryStateIds(): array
     {
         return $this->fmap(function (OrderAddressEntity $orderAddress) {
@@ -45,6 +45,9 @@ class OrderAddressCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getVatIds(): array
     {
         return $this->fmap(function (OrderAddressEntity $orderAddress) {

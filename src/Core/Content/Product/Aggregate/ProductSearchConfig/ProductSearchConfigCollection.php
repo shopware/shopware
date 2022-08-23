@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                           add(ProductSearchConfigEntity $entity)
- * @method void                           set(string $key, ProductSearchConfigEntity $entity)
- * @method ProductSearchConfigEntity[]    getIterator()
- * @method ProductSearchConfigEntity[]    getElements()
- * @method ProductSearchConfigEntity|null get(string $key)
- * @method ProductSearchConfigEntity|null first()
- * @method ProductSearchConfigEntity|null last()
+ * @extends EntityCollection<ProductSearchConfigEntity>
  */
 class ProductSearchConfigCollection extends EntityCollection
 {

@@ -7,11 +7,11 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
@@ -173,11 +173,14 @@ class SeoUrlUpdater
         return $result;
     }
 
-    private function fetchSalesChannels(): EntityCollection
+    private function fetchSalesChannels(): SalesChannelCollection
     {
         $context = Context::createDefaultContext();
 
-        return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+        /** @var SalesChannelCollection $entities */
+        $entities = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+
+        return $entities;
     }
 
     private function fetchLanguageChains(array $languages): array

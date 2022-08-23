@@ -7,13 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 /**
  * @internal
  *
- * @method void                   add(AppCmsBlockEntity $entity)
- * @method void                   set(string $key, AppCmsBlockEntity $entity)
- * @method \Generator<CmsBlock>   getIterator()
- * @method array<CmsBlock>        getElements()
- * @method AppCmsBlockEntity|null get(string $key)
- * @method AppCmsBlockEntity|null first()
- * @method AppCmsBlockEntity|null last()
+ * @extends EntityCollection<AppCmsBlockEntity>
  */
 class AppCmsBlockCollection extends EntityCollection
 {

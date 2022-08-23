@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 
 class DeliveryTimeEntity extends Entity
 {
@@ -45,7 +46,7 @@ class DeliveryTimeEntity extends Entity
     protected $shippingMethods;
 
     /**
-     * @var EntityCollection
+     * @var DeliveryTimeTranslationCollection|null
      */
     protected $translations;
 
@@ -104,11 +105,17 @@ class DeliveryTimeEntity extends Entity
         $this->shippingMethods = $shippingMethods;
     }
 
+    /**
+     * @return DeliveryTimeTranslationCollection|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param DeliveryTimeTranslationCollection $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;

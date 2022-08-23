@@ -149,7 +149,7 @@ class ApiController extends AbstractController
 
         foreach ($results as &$result) {
             $definition = $this->definitionRegistry->getByEntityName($result['entity']);
-            /** @var EntityCollection $entityCollection */
+            /** @var EntityCollection<Entity> $entityCollection */
             $entityCollection = $result['entities'];
             $entities = [];
             foreach ($entityCollection->getElements() as $key => $entity) {

@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                add(ProductStreamTranslationEntity $entity)
- * @method void                                set(string $key, ProductStreamTranslationEntity $entity)
- * @method ProductStreamTranslationEntity[]    getIterator()
- * @method ProductStreamTranslationEntity[]    getElements()
- * @method ProductStreamTranslationEntity|null get(string $key)
- * @method ProductStreamTranslationEntity|null first()
- * @method ProductStreamTranslationEntity|null last()
+ * @extends EntityCollection<ProductStreamTranslationEntity>
  */
 class ProductStreamTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductStreamIds(): array
     {
         return $this->fmap(function (ProductStreamTranslationEntity $productStreamTranslation) {
@@ -29,6 +26,9 @@ class ProductStreamTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (ProductStreamTranslationEntity $productStreamTranslation) {

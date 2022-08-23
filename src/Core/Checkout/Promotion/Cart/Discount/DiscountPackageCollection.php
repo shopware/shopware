@@ -8,10 +8,7 @@ use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method DiscountPackage[]    getIterator()
- * @method DiscountPackage[]    getElements()
- * @method DiscountPackage|null first()
- * @method DiscountPackage|null last()
+ * @extends Collection<DiscountPackage>
  */
 class DiscountPackageCollection extends Collection
 {

@@ -44,7 +44,7 @@ class ThemeFileResolver
                         $addSourceFile
                         && (
                             $scriptFiles->count() === 0
-                            || !$this->isInclude($scriptFiles->first()->getFilepath()) /* @phpstan-ignore-line */
+                            || !$this->isInclude($scriptFiles->first()->getFilepath())
                         )
                         && $configuration->getStorefrontEntryFilepath()
                     ) {
@@ -59,7 +59,7 @@ class ThemeFileResolver
                     if (
                         $addSourceFile
                         && $scriptFiles->count() > 0
-                        && $this->isInclude($scriptFiles->first()->getFilepath()) /* @phpstan-ignore-line */
+                        && $this->isInclude($scriptFiles->first()->getFilepath())
                         && $configuration->getStorefrontEntryFilepath()
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));

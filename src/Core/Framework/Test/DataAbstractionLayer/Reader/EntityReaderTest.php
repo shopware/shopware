@@ -126,7 +126,7 @@ class EntityReaderTest extends TestCase
 
         static::assertInstanceOf(PartialEntity::class, $entity->get('categories')->first());
 
-        /** @var EntityCollection $collection */
+        /** @var EntityCollection<PartialEntity> $collection */
         $collection = $entity->get('categories');
         $collection->sortByIdArray([$ids->get('c1'), $ids->get('c2')]);
 

@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\ProductExport;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                     add(ProductExportEntity $entity)
- * @method void                     set(string $key, ProductExportEntity $entity)
- * @method ProductExportEntity[]    getIterator()
- * @method ProductExportEntity[]    getElements()
- * @method ProductExportEntity|null get(string $key)
- * @method ProductExportEntity|null first()
- * @method ProductExportEntity|null last()
+ * @extends EntityCollection<ProductExportEntity>
  */
 class ProductExportCollection extends EntityCollection
 {

@@ -5,13 +5,7 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                               add(StorefrontPluginConfiguration $entity)
- * @method void                               set(string $key, StorefrontPluginConfiguration $entity)
- * @method StorefrontPluginConfiguration[]    getIterator()
- * @method StorefrontPluginConfiguration[]    getElements()
- * @method StorefrontPluginConfiguration|null get(string $key)
- * @method StorefrontPluginConfiguration|null first()
- * @method StorefrontPluginConfiguration|null last()
+ * @extends Collection<StorefrontPluginConfiguration>
  */
 class StorefrontPluginConfigurationCollection extends Collection
 {

@@ -5,13 +5,7 @@ namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                   add(DeadMessageEntity $entity)
- * @method void                   set(string $key, DeadMessageEntity $entity)
- * @method DeadMessageEntity[]    getIterator()
- * @method DeadMessageEntity[]    getElements()
- * @method DeadMessageEntity|null get(string $key)
- * @method DeadMessageEntity|null first()
- * @method DeadMessageEntity|null last()
+ * @extends EntityCollection<DeadMessageEntity>
  */
 class DeadMessageCollection extends EntityCollection
 {

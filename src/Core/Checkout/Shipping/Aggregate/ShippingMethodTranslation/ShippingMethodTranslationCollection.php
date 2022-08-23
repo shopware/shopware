@@ -5,16 +5,13 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                 add(ShippingMethodTranslationEntity $entity)
- * @method void                                 set(string $key, ShippingMethodTranslationEntity $entity)
- * @method ShippingMethodTranslationEntity[]    getIterator()
- * @method ShippingMethodTranslationEntity[]    getElements()
- * @method ShippingMethodTranslationEntity|null get(string $key)
- * @method ShippingMethodTranslationEntity|null first()
- * @method ShippingMethodTranslationEntity|null last()
+ * @extends EntityCollection<ShippingMethodTranslationEntity>
  */
 class ShippingMethodTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getShippingMethodIds(): array
     {
         return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {
@@ -29,6 +26,9 @@ class ShippingMethodTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (ShippingMethodTranslationEntity $shippingMethodTranslation) {

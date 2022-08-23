@@ -5,13 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void             add(ThemeEntity $entity)
- * @method void             set(string $key, ThemeEntity $entity)
- * @method ThemeEntity[]    getIterator()
- * @method ThemeEntity[]    getElements()
- * @method ThemeEntity|null get(string $key)
- * @method ThemeEntity|null first()
- * @method ThemeEntity|null last()
+ * @extends EntityCollection<ThemeEntity>
  */
 class ThemeCollection extends EntityCollection
 {

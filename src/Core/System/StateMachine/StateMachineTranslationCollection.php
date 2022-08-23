@@ -5,16 +5,13 @@ namespace Shopware\Core\System\StateMachine;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(StateMachineTranslationEntity $entity)
- * @method void                               set(string $key, StateMachineTranslationEntity $entity)
- * @method StateMachineTranslationEntity[]    getIterator()
- * @method StateMachineTranslationEntity[]    getElements()
- * @method StateMachineTranslationEntity|null get(string $key)
- * @method StateMachineTranslationEntity|null first()
- * @method StateMachineTranslationEntity|null last()
+ * @extends EntityCollection<StateMachineTranslationEntity>
  */
 class StateMachineTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (StateMachineTranslationEntity $stateMachineTranslation) {

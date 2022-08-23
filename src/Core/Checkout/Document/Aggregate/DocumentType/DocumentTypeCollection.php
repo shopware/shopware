@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentType;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(DocumentTypeEntity $entity)
- * @method void                    set(string $key, DocumentTypeEntity $entity)
- * @method DocumentTypeEntity[]    getIterator()
- * @method DocumentTypeEntity[]    getElements()
- * @method DocumentTypeEntity|null get(string $key)
- * @method DocumentTypeEntity|null first()
- * @method DocumentTypeEntity|null last()
+ * @extends EntityCollection<DocumentTypeEntity>
  */
 class DocumentTypeCollection extends EntityCollection
 {

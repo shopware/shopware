@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -123,9 +124,11 @@ class SalesChannelRepositoryTest extends TestCase
 
         $salesChannel = $this->salesChannelRepository->search($criteria1, $context)->get($salesChannelId);
 
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
         static::assertEquals($name, $salesChannel->getName());
         static::assertEquals($accessKey, $salesChannel->getAccessKey());
 
+        static::assertInstanceOf(SalesChannelTypeEntity::class, $salesChannel->getType());
         static::assertEquals($cover, $salesChannel->getType()->getCoverUrl());
         static::assertEquals($icon, $salesChannel->getType()->getIconName());
         static::assertEquals($screenshots, $salesChannel->getType()->getScreenshotUrls());

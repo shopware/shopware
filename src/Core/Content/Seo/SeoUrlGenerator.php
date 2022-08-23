@@ -87,6 +87,8 @@ class SeoUrlGenerator
 
     /**
      * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     *
+     * @param EntityCollection<Entity> $entities
      */
     private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {

@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\MailTemplate;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(MailTemplateEntity $entity)
- * @method void                    set(string $key, MailTemplateEntity $entity)
- * @method MailTemplateEntity[]    getIterator()
- * @method MailTemplateEntity[]    getElements()
- * @method MailTemplateEntity|null get(string $key)
- * @method MailTemplateEntity|null first()
- * @method MailTemplateEntity|null last()
+ * @extends EntityCollection<MailTemplateEntity>
  */
 class MailTemplateCollection extends EntityCollection
 {

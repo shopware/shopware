@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use function array_filter;
 
@@ -74,11 +75,15 @@ class EntityReader implements EntityReaderInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         $criteria->resetSorting();
         $criteria->resetQueries();
 
+        /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $definition->getCollectionClass();
 
         $fields = $this->buildCriteriaFields($criteria, $definition);
@@ -99,6 +104,11 @@ class EntityReader implements EntityReaderInterface
         return $this->parser;
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     *
+     * @return EntityCollection<Entity>
+     */
     private function _read(
         Criteria $criteria,
         EntityDefinition $definition,
@@ -305,6 +315,9 @@ class EntityReader implements EntityReaderInterface
         return $query->execute()->fetchAll();
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadManyToMany(
         Criteria $criteria,
         ManyToManyAssociationField $association,
@@ -376,13 +389,19 @@ class EntityReader implements EntityReaderInterface
         );
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function collectManyToManyIds(EntityCollection $collection, AssociationField $association): array
     {
         $ids = [];
         $property = $association->getPropertyName();
+        /** @var Entity $struct */
         foreach ($collection as $struct) {
+            /** @var ArrayStruct<string, mixed> $ext */
+            $ext = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
             /** @var array<string> $tmp */
-            $tmp = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE)->get($property);
+            $tmp = $ext->get($property);
             foreach ($tmp as $id) {
                 $ids[] = $id;
             }
@@ -391,6 +410,9 @@ class EntityReader implements EntityReaderInterface
         return $ids;
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadOneToMany(
         Criteria $criteria,
         EntityDefinition $definition,
@@ -421,6 +443,9 @@ class EntityReader implements EntityReaderInterface
         $this->loadOneToManyWithPagination($definition, $association, $context, $collection, $fieldCriteria, $partial);
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadOneToManyWithoutPagination(
         EntityDefinition $definition,
         OneToManyAssociationField $association,
@@ -458,6 +483,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
         $referenceClass = $association->getReferenceDefinition();
+        /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
         if ($partial !== []) {
@@ -517,6 +543,9 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadOneToManyWithPagination(
         EntityDefinition $definition,
         OneToManyAssociationField $association,
@@ -572,6 +601,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->resetPostFilters();
 
         $referenceClass = $association->getReferenceDefinition();
+        /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
         $data = $this->_read(
@@ -623,6 +653,9 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadManyToManyOverExtension(
         Criteria $criteria,
         ManyToManyAssociationField $association,
@@ -636,6 +669,7 @@ class EntityReader implements EntityReaderInterface
         $criteria->setIds($ids);
 
         $referenceClass = $association->getToManyReferenceDefinition();
+        /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
         $data = $this->_read(
@@ -667,6 +701,9 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadManyToManyWithCriteria(
         Criteria $fieldCriteria,
         ManyToManyAssociationField $association,
@@ -779,6 +816,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->setIds($ids);
 
         $referenceClass = $association->getToManyReferenceDefinition();
+        /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
         $data = $this->_read(
             $fieldCriteria,
@@ -821,6 +859,9 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,
         OneToManyAssociationField $association,
@@ -1055,6 +1096,9 @@ class EntityReader implements EntityReaderInterface
         return $fields;
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     */
     private function loadToOne(
         AssociationField $association,
         Context $context,
@@ -1134,6 +1178,11 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param EntityCollection<Entity> $collection
+     *
+     * @return EntityCollection<Entity>
+     */
     private function fetchAssociations(
         Criteria $criteria,
         EntityDefinition $definition,

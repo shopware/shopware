@@ -8,11 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * @codeCoverageIgnore
  * Pseudo immutable collection
  *
- * @method PluginCategoryStruct[]    getIterator()
- * @method PluginCategoryStruct[]    getElements()
- * @method PluginCategoryStruct|null get(string $key)
- * @method PluginCategoryStruct|null first()
- * @method PluginCategoryStruct|null last()
+ * @extends Collection<PluginCategoryStruct>
  */
 final class PluginCategoryCollection extends Collection
 {

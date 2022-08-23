@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                        add(OrderTransactionEntity $entity)
- * @method void                        set(string $key, OrderTransactionEntity $entity)
- * @method OrderTransactionEntity[]    getIterator()
- * @method OrderTransactionEntity[]    getElements()
- * @method OrderTransactionEntity|null get(string $key)
- * @method OrderTransactionEntity|null first()
- * @method OrderTransactionEntity|null last()
+ * @extends EntityCollection<OrderTransactionEntity>
  */
 class OrderTransactionCollection extends EntityCollection
 {
@@ -29,6 +23,9 @@ class OrderTransactionCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getOrderIds(): array
     {
         return $this->fmap(function (OrderTransactionEntity $orderTransaction) {
@@ -43,6 +40,9 @@ class OrderTransactionCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (OrderTransactionEntity $orderTransaction) {

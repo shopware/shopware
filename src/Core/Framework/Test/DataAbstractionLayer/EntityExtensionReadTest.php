@@ -294,7 +294,7 @@ class EntityExtensionReadTest extends TestCase
 
         static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var EntityCollection $productExtensions */
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);

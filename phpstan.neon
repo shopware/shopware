@@ -77,8 +77,9 @@ parameters:
 
         # Method gets always an EntityCollection
         -
-            message: '#Default value of the parameter \#1 \$elements \(array\) of method Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult::createNew\(\) is incompatible with type Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection\.#'
+            message: '#^Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable given\.$#'
             path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
+
         # @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_12455)
         -
             message: '#Method Shopware\\Storefront\\Framework\\Captcha\\AbstractCaptcha::isValid\(\) invoked with 2 parameters, 1 required\.#'
@@ -288,3 +289,8 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
         tags:
             - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.methodTypeSpecifyingExtension

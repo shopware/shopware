@@ -5,13 +5,7 @@ namespace Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(CurrencyCountryRoundingEntity $entity)
- * @method void                               set(string $key, CurrencyCountryRoundingEntity $entity)
- * @method CurrencyCountryRoundingEntity[]    getIterator()
- * @method CurrencyCountryRoundingEntity[]    getElements()
- * @method CurrencyCountryRoundingEntity|null get(string $key)
- * @method CurrencyCountryRoundingEntity|null first()
- * @method CurrencyCountryRoundingEntity|null last()
+ * @extends EntityCollection<CurrencyCountryRoundingEntity>
  */
 class CurrencyCountryRoundingCollection extends EntityCollection
 {

@@ -6,16 +6,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                             add(OrderDeliveryPositionEntity $entity)
- * @method void                             set(string $key, OrderDeliveryPositionEntity $entity)
- * @method OrderDeliveryPositionEntity[]    getIterator()
- * @method OrderDeliveryPositionEntity[]    getElements()
- * @method OrderDeliveryPositionEntity|null get(string $key)
- * @method OrderDeliveryPositionEntity|null first()
- * @method OrderDeliveryPositionEntity|null last()
+ * @extends EntityCollection<OrderDeliveryPositionEntity>
  */
 class OrderDeliveryPositionCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getOrderDeliveryIds(): array
     {
         return $this->fmap(function (OrderDeliveryPositionEntity $orderDeliveryPosition) {
@@ -30,6 +27,9 @@ class OrderDeliveryPositionCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getOrderLineItemIds(): array
     {
         return $this->fmap(function (OrderDeliveryPositionEntity $orderDeliveryPosition) {

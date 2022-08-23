@@ -10,10 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * to have the same line item objects multiple times in the list,
  * without bundling them together using a single line item id/key.
  *
- * @method LineItem[]    getIterator()
- * @method LineItem[]    getElements()
- * @method LineItem|null first()
- * @method LineItem|null last()
+ * @extends Collection<LineItem>
  */
 class LineItemFlatCollection extends Collection
 {

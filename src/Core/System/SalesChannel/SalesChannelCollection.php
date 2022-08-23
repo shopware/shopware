@@ -8,16 +8,13 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeCollection;
 
 /**
- * @method void                    add(SalesChannelEntity $entity)
- * @method void                    set(string $key, SalesChannelEntity $entity)
- * @method SalesChannelEntity[]    getIterator()
- * @method SalesChannelEntity[]    getElements()
- * @method SalesChannelEntity|null get(string $key)
- * @method SalesChannelEntity|null first()
- * @method SalesChannelEntity|null last()
+ * @extends EntityCollection<SalesChannelEntity>
  */
 class SalesChannelCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {
@@ -32,6 +29,9 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getCurrencyIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {
@@ -46,6 +46,9 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {
@@ -60,6 +63,9 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getShippingMethodIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {
@@ -74,6 +80,9 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getCountryIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {
@@ -88,6 +97,9 @@ class SalesChannelCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getTypeIds(): array
     {
         return $this->fmap(function (SalesChannelEntity $salesChannel) {

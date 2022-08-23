@@ -3,6 +3,7 @@
 namespace Shopware\Core\Profiling\Entity;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -23,6 +24,9 @@ class EntityReaderProfiler implements EntityReaderInterface
         $this->decorated = $decorated;
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         return $this->decorated->read($definition, $criteria, $context);

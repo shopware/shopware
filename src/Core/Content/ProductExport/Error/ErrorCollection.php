@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Error;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method Error[]    getIterator()
- * @method Error[]    getElements()
- * @method Error|null get(string $key)
- * @method Error|null first()
- * @method Error|null last()
+ * @extends Collection<Error>
  */
 class ErrorCollection extends Collection
 {

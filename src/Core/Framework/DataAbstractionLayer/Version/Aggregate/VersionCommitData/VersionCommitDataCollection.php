@@ -6,13 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
- * @method void                         add(VersionCommitDataEntity $entity)
- * @method void                         set(string $key, VersionCommitDataEntity $entity)
- * @method VersionCommitDataEntity[]    getIterator()
- * @method VersionCommitDataEntity[]    getElements()
- * @method VersionCommitDataEntity|null get(string $key)
- * @method VersionCommitDataEntity|null first()
- * @method VersionCommitDataEntity|null last()
+ * @extends EntityCollection<VersionCommitDataEntity>
  */
 class VersionCommitDataCollection extends EntityCollection
 {

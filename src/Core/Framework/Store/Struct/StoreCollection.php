@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
+ * @extends Collection<StoreStruct>
  */
 abstract class StoreCollection extends Collection
 {

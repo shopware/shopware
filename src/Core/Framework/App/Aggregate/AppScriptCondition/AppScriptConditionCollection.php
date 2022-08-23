@@ -5,13 +5,7 @@ namespace Shopware\Core\Framework\App\Aggregate\AppScriptCondition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                          add(AppScriptConditionEntity $entity)
- * @method void                          set(string $key, AppScriptConditionEntity $entity)
- * @method AppScriptConditionEntity[]    getIterator()
- * @method AppScriptConditionEntity[]    getElements()
- * @method AppScriptConditionEntity|null get(string $key)
- * @method AppScriptConditionEntity|null first()
- * @method AppScriptConditionEntity|null last()
+ * @extends EntityCollection<AppScriptConditionEntity>
  */
 class AppScriptConditionCollection extends EntityCollection
 {

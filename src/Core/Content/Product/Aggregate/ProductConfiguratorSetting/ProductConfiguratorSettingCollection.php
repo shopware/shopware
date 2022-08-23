@@ -8,16 +8,13 @@ use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                  add(ProductConfiguratorSettingEntity $entity)
- * @method void                                  set(string $key, ProductConfiguratorSettingEntity $entity)
- * @method ProductConfiguratorSettingEntity[]    getIterator()
- * @method ProductConfiguratorSettingEntity[]    getElements()
- * @method ProductConfiguratorSettingEntity|null get(string $key)
- * @method ProductConfiguratorSettingEntity|null first()
- * @method ProductConfiguratorSettingEntity|null last()
+ * @extends EntityCollection<ProductConfiguratorSettingEntity>
  */
 class ProductConfiguratorSettingCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {
@@ -32,6 +29,9 @@ class ProductConfiguratorSettingCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getOptionIds(): array
     {
         return $this->fmap(function (ProductConfiguratorSettingEntity $productConfigurator) {

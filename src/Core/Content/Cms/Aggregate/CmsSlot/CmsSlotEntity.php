@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -49,7 +50,7 @@ class CmsSlotEntity extends Entity
     protected $fieldConfig;
 
     /**
-     * @var EntityCollection|null
+     * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
     protected $translations;
 
@@ -119,11 +120,17 @@ class CmsSlotEntity extends Entity
         $this->fieldConfig = null;
     }
 
+    /**
+     * @return EntityCollection<CmsSlotTranslationEntity>|null
+     */
     public function getTranslations(): ?EntityCollection
     {
         return $this->translations;
     }
 
+    /**
+     * @param EntityCollection<CmsSlotTranslationEntity> $translations
+     */
     public function setTranslations(EntityCollection $translations): void
     {
         $this->translations = $translations;

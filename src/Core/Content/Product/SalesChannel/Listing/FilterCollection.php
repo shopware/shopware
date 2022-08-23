@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method Filter[]    getIterator()
- * @method Filter[]    getElements()
- * @method Filter|null get(string $key)
- * @method Filter|null first()
- * @method Filter|null last()
+ * @extends Collection<Filter>
  */
 class FilterCollection extends Collection
 {

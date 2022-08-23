@@ -7,13 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @method void                      add(ShippingMethodEntity $entity)
- * @method void                      set(string $key, ShippingMethodEntity $entity)
- * @method ShippingMethodEntity[]    getIterator()
- * @method ShippingMethodEntity[]    getElements()
- * @method ShippingMethodEntity|null get(string $key)
- * @method ShippingMethodEntity|null first()
- * @method ShippingMethodEntity|null last()
+ * @extends EntityCollection<ShippingMethodEntity>
  */
 class ShippingMethodCollection extends EntityCollection
 {
@@ -26,6 +20,9 @@ class ShippingMethodCollection extends EntityCollection
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPriceIds(): array
     {
         $ids = [[]];

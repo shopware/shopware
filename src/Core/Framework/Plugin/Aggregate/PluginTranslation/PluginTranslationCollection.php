@@ -5,13 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                         add(PluginTranslationEntity $entity)
- * @method void                         set(string $key, PluginTranslationEntity $entity)
- * @method PluginTranslationEntity[]    getIterator()
- * @method PluginTranslationEntity[]    getElements()
- * @method PluginTranslationEntity|null get(string $key)
- * @method PluginTranslationEntity|null first()
- * @method PluginTranslationEntity|null last()
+ * @extends EntityCollection<PluginTranslationEntity>
  */
 class PluginTranslationCollection extends EntityCollection
 {

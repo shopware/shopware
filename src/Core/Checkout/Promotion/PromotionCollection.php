@@ -5,13 +5,7 @@ namespace Shopware\Core\Checkout\Promotion;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                 add(PromotionEntity $entity)
- * @method void                 set(string $key, PromotionEntity $entity)
- * @method PromotionEntity[]    getIterator()
- * @method PromotionEntity[]    getElements()
- * @method PromotionEntity|null get(string $key)
- * @method PromotionEntity|null first()
- * @method PromotionEntity|null last()
+ * @extends EntityCollection<PromotionEntity>
  */
 class PromotionCollection extends EntityCollection
 {

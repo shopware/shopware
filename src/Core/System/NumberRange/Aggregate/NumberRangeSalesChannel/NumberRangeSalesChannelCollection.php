@@ -5,13 +5,7 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(NumberRangeSalesChannelEntity $entity)
- * @method void                               set(string $key, NumberRangeSalesChannelEntity $entity)
- * @method NumberRangeSalesChannelEntity[]    getIterator()
- * @method NumberRangeSalesChannelEntity[]    getElements()
- * @method NumberRangeSalesChannelEntity|null get(string $key)
- * @method NumberRangeSalesChannelEntity|null first()
- * @method NumberRangeSalesChannelEntity|null last()
+ * @extends EntityCollection<NumberRangeSalesChannelEntity>
  */
 class NumberRangeSalesChannelCollection extends EntityCollection
 {

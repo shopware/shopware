@@ -6,11 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method Price[]    getIterator()
- * @method Price[]    getElements()
- * @method Price|null get(string $currencyId)
- * @method Price|null first()
- * @method Price|null last()
+ * @extends Collection<Price>
  */
 class PriceCollection extends Collection
 {

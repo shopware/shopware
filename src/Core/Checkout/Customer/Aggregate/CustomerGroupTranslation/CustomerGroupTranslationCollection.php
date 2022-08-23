@@ -5,16 +5,13 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                add(CustomerGroupTranslationEntity $entity)
- * @method void                                set(string $key, CustomerGroupTranslationEntity $entity)
- * @method CustomerGroupTranslationEntity[]    getIterator()
- * @method CustomerGroupTranslationEntity[]    getElements()
- * @method CustomerGroupTranslationEntity|null get(string $key)
- * @method CustomerGroupTranslationEntity|null first()
- * @method CustomerGroupTranslationEntity|null last()
+ * @extends EntityCollection<CustomerGroupTranslationEntity>
  */
 class CustomerGroupTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getCustomerGroupIds(): array
     {
         return $this->fmap(function (CustomerGroupTranslationEntity $customerGroupTranslation) {
@@ -29,6 +26,9 @@ class CustomerGroupTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (CustomerGroupTranslationEntity $customerGroupTranslation) {

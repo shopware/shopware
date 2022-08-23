@@ -6,13 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void       add(Field $entity)
- * @method void       set(string $key, Field $entity)
- * @method Field[]    getIterator()
- * @method Field[]    getElements()
- * @method Field|null get(string $key)
- * @method Field|null first()
- * @method Field|null last()
+ * @extends Collection<Field>
  */
 class FieldCollection extends Collection
 {

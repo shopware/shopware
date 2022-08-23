@@ -12,10 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method LineItem[]    getIterator()
- * @method LineItem[]    getElements()
- * @method LineItem|null first()
- * @method LineItem|null last()
+ * @extends Collection<LineItem>
  */
 class LineItemCollection extends Collection
 {

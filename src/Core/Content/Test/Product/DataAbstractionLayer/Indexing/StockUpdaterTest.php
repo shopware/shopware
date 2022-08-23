@@ -9,10 +9,10 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -365,8 +365,8 @@ class StockUpdaterTest extends TestCase
 
         $this->lineItemRepository->update($update, $context);
 
-        /** @var EntityCollection $products */
-        $products = $this->productRepository->search(new Criteria([$id, $id2]), $context);
+        /** @var ProductCollection $products */
+        $products = $this->productRepository->search(new Criteria([$id, $id2]), $context)->getEntities();
 
         $product = $products->get($id);
         static::assertTrue($product->getAvailable());

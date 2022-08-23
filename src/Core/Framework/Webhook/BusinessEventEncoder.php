@@ -16,15 +16,9 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 
 class BusinessEventEncoder
 {
-    /**
-     * @var JsonEntityEncoder
-     */
-    private $entityEncoder;
+    private JsonEntityEncoder $entityEncoder;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
     /**
      * @internal
@@ -41,7 +35,7 @@ class BusinessEventEncoder
     }
 
     /**
-     * @param object|array $object
+     * @param object|array<mixed> $object
      */
     private function encodeType(array $dataTypes, $object): array
     {
@@ -108,7 +102,7 @@ class BusinessEventEncoder
     }
 
     /**
-     * @param Entity|EntityCollection $property
+     * @param Entity|EntityCollection<Entity> $property
      */
     private function encodeEntity(array $dataType, $property): array
     {

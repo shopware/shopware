@@ -5,16 +5,13 @@ namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                add(PaymentMethodTranslationEntity $entity)
- * @method void                                set(string $key, PaymentMethodTranslationEntity $entity)
- * @method PaymentMethodTranslationEntity[]    getIterator()
- * @method PaymentMethodTranslationEntity[]    getElements()
- * @method PaymentMethodTranslationEntity|null get(string $key)
- * @method PaymentMethodTranslationEntity|null first()
- * @method PaymentMethodTranslationEntity|null last()
+ * @extends EntityCollection<PaymentMethodTranslationEntity>
  */
 class PaymentMethodTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getPaymentMethodIds(): array
     {
         return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
@@ -29,6 +26,9 @@ class PaymentMethodTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {

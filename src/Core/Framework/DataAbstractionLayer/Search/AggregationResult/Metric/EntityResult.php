@@ -12,16 +12,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 class EntityResult extends AggregationResult
 {
     /**
-     * @var EntityCollection
+     * @var EntityCollection<Entity>
      */
     protected $entities;
 
+    /**
+     * @param EntityCollection<Entity> $entities
+     */
     public function __construct(string $name, EntityCollection $entities)
     {
         parent::__construct($name);
         $this->entities = $entities;
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     public function getEntities(): EntityCollection
     {
         return $this->entities;

@@ -7,20 +7,11 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @codeCoverageIgnore
  *
- * @method void                 add(ExtensionStruct $entity)
- * @method void                 set(string $key, ExtensionStruct $entity)
- * @method ExtensionStruct[]    getIterator()
- * @method ExtensionStruct[]    getElements()
- * @method ExtensionStruct|null get(string $key)
- * @method ExtensionStruct|null first()
- * @method ExtensionStruct|null last()
+ * @extends Collection<ExtensionStruct>
  */
 class ExtensionCollection extends Collection
 {
-    /**
-     * @var int
-     */
-    private $total = 0;
+    private int $total = 0;
 
     public function getTotal(): int
     {

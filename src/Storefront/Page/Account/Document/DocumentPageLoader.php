@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -87,6 +88,7 @@ class DocumentPageLoader
         $criteria->addAssociation('documentMediaFile');
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search($criteria, $salesChannelContext->getContext())->get($documentId);
 
         if (!$document) {

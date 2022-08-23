@@ -5,13 +5,7 @@ namespace Shopware\Core\System\Country\Aggregate\CountryTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                          add(CountryTranslationEntity $entity)
- * @method void                          set(string $key, CountryTranslationEntity $entity)
- * @method CountryTranslationEntity[]    getIterator()
- * @method CountryTranslationEntity[]    getElements()
- * @method CountryTranslationEntity|null get(string $key)
- * @method CountryTranslationEntity|null first()
- * @method CountryTranslationEntity|null last()
+ * @extends EntityCollection<CountryTranslationEntity>
  */
 class CountryTranslationCollection extends EntityCollection
 {

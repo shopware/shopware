@@ -140,7 +140,10 @@ trait StorefrontPageTestBehaviour
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 
-        return $searchResult->first();
+        /** @var ProductEntity $product */
+        $product = $searchResult->first();
+
+        return $product;
     }
 
     protected function createSalesChannelContextWithNavigation(): SalesChannelContext
@@ -297,12 +300,16 @@ trait StorefrontPageTestBehaviour
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $result = $repo->search(new Criteria([$customerId]), Context::createDefaultContext());
+        /** @var CustomerEntity $customer */
+        $customer = $result->first();
+
+        return $customer;
     }
 
     /**
-     * @param array<string, string> $salesChannel
-     * @param array<string, string> $options
+     * @param array<string, mixed> $salesChannel
+     * @param array<string, mixed> $options
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {

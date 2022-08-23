@@ -5,12 +5,9 @@ namespace Shopware\Core\Installer\Requirements\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method RequirementCheck[]    getIterator()
- * @method RequirementCheck[]    getElements()
- * @method RequirementCheck|null first()
- * @method RequirementCheck|null last()
- *
  * @internal
+ *
+ * @extends Collection<RequirementCheck>
  */
 class RequirementsCheckCollection extends Collection
 {

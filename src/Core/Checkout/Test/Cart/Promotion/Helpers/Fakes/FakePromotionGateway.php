@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,8 +24,11 @@ class FakePromotionGateway implements PromotionGatewayInterface
         $this->promotions = $promotions;
     }
 
+    /**
+     * @return PromotionCollection
+     */
     public function get(Criteria $criteria, SalesChannelContext $context): EntityCollection
     {
-        return new EntityCollection($this->promotions);
+        return new PromotionCollection($this->promotions);
     }
 }

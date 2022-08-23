@@ -5,11 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method UpdateBy[]    getIterator()
- * @method UpdateBy[]    getElements()
- * @method UpdateBy|null get(string $key)
- * @method UpdateBy|null first()
- * @method UpdateBy|null last()
+ * @extends Collection<UpdateBy>
  */
 class UpdateByCollection extends Collection
 {

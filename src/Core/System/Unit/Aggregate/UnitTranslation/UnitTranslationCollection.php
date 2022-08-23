@@ -5,13 +5,7 @@ namespace Shopware\Core\System\Unit\Aggregate\UnitTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                       add(UnitTranslationEntity $entity)
- * @method void                       set(string $key, UnitTranslationEntity $entity)
- * @method UnitTranslationEntity[]    getIterator()
- * @method UnitTranslationEntity[]    getElements()
- * @method UnitTranslationEntity|null get(string $key)
- * @method UnitTranslationEntity|null first()
- * @method UnitTranslationEntity|null last()
+ * @extends EntityCollection<UnitTranslationEntity>
  */
 class UnitTranslationCollection extends EntityCollection
 {

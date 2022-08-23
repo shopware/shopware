@@ -7,10 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  *
- * @method ChangelogFile[]    getIterator()
- * @method ChangelogFile[]    getElements()
- * @method ChangelogFile|null first()
- * @method ChangelogFile|null last()
+ * @extends Collection<ChangelogFile>
  */
 class ChangelogFileCollection extends Collection
 {

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
+use Shopware\Core\System\User\UserCollection;
 
 trait StoreClientBehaviour
 {
@@ -67,8 +68,14 @@ trait StoreClientBehaviour
             throw new \RuntimeException('No user id found in context');
         }
 
-        return $this->getUserRepository()->search(new Criteria([$userId]), $context)
-            ->first()->getStoreToken();
+        /** @var UserCollection $user */
+        $user = $this->getUserRepository()->search(new Criteria([$userId]), $context)->getEntities();
+
+        if ($user->count() === 0) {
+            throw new \RuntimeException('No user found with id ' . $userId);
+        }
+
+        return $user->first()->getStoreToken();
     }
 
     protected function getFrwUserTokenFromContext(Context $context): ?string

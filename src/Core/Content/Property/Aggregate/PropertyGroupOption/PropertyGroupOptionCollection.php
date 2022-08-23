@@ -7,16 +7,13 @@ use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                           add(PropertyGroupOptionEntity $entity)
- * @method void                           set(string $key, PropertyGroupOptionEntity $entity)
- * @method PropertyGroupOptionEntity[]    getIterator()
- * @method PropertyGroupOptionEntity[]    getElements()
- * @method PropertyGroupOptionEntity|null get(string $key)
- * @method PropertyGroupOptionEntity|null first()
- * @method PropertyGroupOptionEntity|null last()
+ * @extends EntityCollection<PropertyGroupOptionEntity>
  */
 class PropertyGroupOptionCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getPropertyGroupIds(): array
     {
         return $this->fmap(function (PropertyGroupOptionEntity $propertyGroupOption) {
@@ -31,6 +28,9 @@ class PropertyGroupOptionCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getMediaIds(): array
     {
         return $this->fmap(function (PropertyGroupOptionEntity $propertyGroupOption) {

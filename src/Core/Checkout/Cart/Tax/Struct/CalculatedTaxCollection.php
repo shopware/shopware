@@ -8,11 +8,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method CalculatedTax[]    getIterator()
- * @method CalculatedTax[]    getElements()
- * @method CalculatedTax|null get(string $key)
- * @method CalculatedTax|null first()
- * @method CalculatedTax|null last()
+ * @extends Collection<CalculatedTax>
  */
 class CalculatedTaxCollection extends Collection
 {

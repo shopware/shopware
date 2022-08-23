@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
+ * @extends Collection<CartPositionStruct>
  */
 class CartPositionCollection extends Collection
 {

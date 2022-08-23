@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Seo\MainCategory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(MainCategoryEntity $entity)
- * @method void                    set(string $key, MainCategoryEntity $entity)
- * @method MainCategoryEntity[]    getIterator()
- * @method MainCategoryEntity[]    getElements()
- * @method MainCategoryEntity|null get(string $key)
- * @method MainCategoryEntity|null first()
- * @method MainCategoryEntity|null last()
+ * @extends EntityCollection<MainCategoryEntity>
  */
 class MainCategoryCollection extends EntityCollection
 {

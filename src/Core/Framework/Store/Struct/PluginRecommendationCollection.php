@@ -8,11 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
  * @codeCoverageIgnore
  * Pseudo immutable collection
  *
- * @method StorePluginStruct[]    getIterator()
- * @method StorePluginStruct[]    getElements()
- * @method StorePluginStruct|null get(string $key)
- * @method StorePluginStruct|null first()
- * @method StorePluginStruct|null last()
+ * @extends Collection<StorePluginStruct>
  */
 final class PluginRecommendationCollection extends Collection
 {

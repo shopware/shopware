@@ -5,13 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedPro
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                                           add(ProductCrossSellingAssignedProductsEntity $entity)
- * @method void                                           set(string $key, ProductCrossSellingAssignedProductsEntity $entity)
- * @method ProductCrossSellingAssignedProductsEntity[]    getIterator()
- * @method ProductCrossSellingAssignedProductsEntity[]    getElements()
- * @method ProductCrossSellingAssignedProductsEntity|null get(string $key)
- * @method ProductCrossSellingAssignedProductsEntity|null first()
- * @method ProductCrossSellingAssignedProductsEntity|null last()
+ * @extends EntityCollection<ProductCrossSellingAssignedProductsEntity>
  */
 class ProductCrossSellingAssignedProductsCollection extends EntityCollection
 {
@@ -25,6 +19,9 @@ class ProductCrossSellingAssignedProductsCollection extends EntityCollection
         return 'product_cross_selling_assigned_products_collection';
     }
 
+    /**
+     * @return list<string>
+     */
     public function getProductIds(): array
     {
         return $this->fmap(function (ProductCrossSellingAssignedProductsEntity $entity) {

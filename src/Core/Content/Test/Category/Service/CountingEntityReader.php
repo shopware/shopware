@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\Service;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -28,6 +29,9 @@ class CountingEntityReader implements EntityReaderInterface
         $this->inner = $inner;
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
         static::$count[$definition->getEntityName()] = static::$count[$definition->getEntityName()] ?? 0 + 1;

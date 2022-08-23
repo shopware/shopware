@@ -5,16 +5,13 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                               add(MailTemplateTranslationEntity $entity)
- * @method void                               set(string $key, MailTemplateTranslationEntity $entity)
- * @method MailTemplateTranslationEntity[]    getIterator()
- * @method MailTemplateTranslationEntity[]    getElements()
- * @method MailTemplateTranslationEntity|null get(string $key)
- * @method MailTemplateTranslationEntity|null first()
- * @method MailTemplateTranslationEntity|null last()
+ * @extends EntityCollection<MailTemplateTranslationEntity>
  */
 class MailTemplateTranslationCollection extends EntityCollection
 {
+    /**
+     * @return list<string>
+     */
     public function getMailTemplateIds(): array
     {
         return $this->fmap(function (MailTemplateTranslationEntity $mailTemplateTranslation) {
@@ -29,6 +26,9 @@ class MailTemplateTranslationCollection extends EntityCollection
         });
     }
 
+    /**
+     * @return list<string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(function (MailTemplateTranslationEntity $mailTemplateTranslation) {

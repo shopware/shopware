@@ -2,8 +2,6 @@ import './component';
 import './config';
 import './preview';
 
-const utils = Shopware.Utils;
-
 /**
  * @private since v6.5.0
  */
@@ -70,6 +68,7 @@ Shopware.Service('cmsService').registerCmsElement({
             return;
         }
 
+        let entityCount = 0;
         Object.keys(elem.config).forEach((configKey) => {
             const entity = elem.config[configKey].entity;
 
@@ -77,17 +76,20 @@ Shopware.Service('cmsService').registerCmsElement({
                 return;
             }
 
-            const entityKey = `${entity.name}-${utils.createId()}`;
-            if (!data[`entity-${entityKey}`]) {
+            const entityKey = `entity-${entity.name}-${entityCount}`;
+
+            if (!data[entityKey]) {
                 return;
             }
+
+            entityCount += 1;
 
             elem.data[configKey] = [];
             elem.config[configKey].value.forEach((sliderItem) => {
                 elem.data[configKey].push({
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId),
+                    media: data[entityKey].get(sliderItem.mediaId),
                 });
             });
         });

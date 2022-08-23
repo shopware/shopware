@@ -39,10 +39,6 @@ describe('module/sw-cms/elements/image-gallery/index.js', () => {
         element.config = element.defaultConfig;
         element.data = {};
 
-        let i = 0;
-        // eslint-disable-next-line no-plusplus
-        Shopware.Utils.createId = () => i++;
-
         cmsService.registerCmsElement(element);
 
         const mediaEntites1 = [{
@@ -98,10 +94,6 @@ describe('module/sw-cms/elements/image-gallery/index.js', () => {
         // to add the defaultConfig properties to the config root level
         element.config = element.defaultConfig;
         element.data = {};
-
-        let i = 0;
-        // eslint-disable-next-line no-plusplus
-        Shopware.Utils.createId = () => i++;
 
         cmsService.registerCmsElement(element);
 

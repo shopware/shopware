@@ -1,6 +1,5 @@
 const { Application, Entity } = Shopware;
 const Criteria = Shopware.Data.Criteria;
-const utils = Shopware.Utils;
 
 Application.addServiceProvider('cmsService', () => {
     return {
@@ -29,6 +28,7 @@ function registerCmsElement(config) {
         config.collect = function collect(elem) {
             const criteriaList = {};
 
+            let entityCount = 0;
             Object.keys(elem.config).forEach((configKey) => {
                 if (['mapped', 'default'].includes(elem.config[configKey].source)) {
                     return;
@@ -37,12 +37,14 @@ function registerCmsElement(config) {
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
-                    const entityKey = `${entity.name}-${utils.createId()}`;
+                    const entityKey = `entity-${entity.name}-${entityCount}`;
+                    entityCount += 1;
+
                     const entityData = getEntityData(elem, configKey);
 
                     entityData.searchCriteria.setIds(entityData.value);
 
-                    criteriaList[`entity-${entityKey}`] = entityData;
+                    criteriaList[entityKey] = entityData;
                 }
             });
 
@@ -56,6 +58,7 @@ function registerCmsElement(config) {
                 return;
             }
 
+            let entityCount = 0;
             Object.keys(elem.config).forEach((configKey) => {
                 const entity = elem.config[configKey].entity;
 
@@ -63,19 +66,21 @@ function registerCmsElement(config) {
                     return;
                 }
 
-                const entityKey = `${entity.name}-${utils.createId()}`;
-                if (!data[`entity-${entityKey}`]) {
+                const entityKey = `entity-${entity.name}-${entityCount}`;
+                if (!data[entityKey]) {
                     return;
                 }
+
+                entityCount += 1;
 
                 if (Array.isArray(elem.config[configKey].value)) {
                     elem.data[configKey] = [];
 
                     elem.config[configKey].value.forEach((value) => {
-                        elem.data[configKey].push(data[`entity-${entityKey}`].get(value));
+                        elem.data[configKey].push(data[entityKey].get(value));
                     });
                 } else {
-                    elem.data[configKey] = data[`entity-${entityKey}`].get(elem.config[configKey].value);
+                    elem.data[configKey] = data[entityKey].get(elem.config[configKey].value);
                 }
             });
         };
@@ -250,6 +255,7 @@ function getCollectFunction() {
 
         const criteriaList = {};
 
+        let entityCount = 0;
         Object.keys(elem.config).forEach((configKey) => {
             if (['mapped', 'default'].includes(elem.config[configKey].source)) {
                 return;
@@ -258,7 +264,9 @@ function getCollectFunction() {
             const entity = elem.config[configKey].entity;
 
             if (entity && elem.config[configKey].value) {
-                const entityKey = `${entity.name}-${utils.createId()}`;
+                const entityKey = `${entity.name}-${entityCount}`;
+                entityCount += 1;
+
                 const entityData = {
                     value: [elem.config[configKey].value],
                     key: configKey,

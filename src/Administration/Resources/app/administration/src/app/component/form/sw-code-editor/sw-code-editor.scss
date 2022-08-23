@@ -18,6 +18,7 @@ $sw-text-editor-color-label: $color-darkgray-200;
 
     .sw-code-editor__editor {
         border: 1px solid $sw-text-editor-color-border;
+        border-radius: $border-radius-default;
         height: 260px;
     }
 
@@ -44,5 +45,19 @@ $sw-text-editor-color-label: $color-darkgray-200;
 
     &__sanitize-text {
         margin-top: calc(6 / 16 * 1rem);
+    }
+
+    &.has--error {
+        .sw-code-editor__label {
+            color: $color-crimson-500;
+        }
+
+        .sw-code-editor__editor {
+            border: 1px solid $color-crimson-500;
+        }
+
+        .ace_content {
+            background-color: $color-crimson-50;
+        }
     }
 }

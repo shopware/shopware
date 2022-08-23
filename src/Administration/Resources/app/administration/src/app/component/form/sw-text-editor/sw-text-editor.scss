@@ -87,6 +87,8 @@
 
         .sw-text-editor__word_count {
             border-top: 1px solid $color-gray-300;
+            border-bottom-left-radius: $border-radius-default;
+            border-bottom-right-radius: $border-radius-default;
             padding: 5px 10px 5px 5px;
         }
     }
@@ -94,6 +96,21 @@
     &.is--empty {
         .sw-text-editor__content-editor {
             min-height: 100px;
+        }
+    }
+
+    &.has--error {
+        .sw-text-editor__content-editor {
+            background: $color-crimson-50;
+        }
+
+        .sw-text-editor__label {
+            color: $color-crimson-500;
+        }
+
+        .sw-text-editor__box {
+            border: 1px solid $color-crimson-500;
+            border-radius: $border-radius-default;
         }
     }
 

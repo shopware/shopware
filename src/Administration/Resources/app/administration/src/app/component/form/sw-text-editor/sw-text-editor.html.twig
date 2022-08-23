@@ -107,5 +107,10 @@
         {% endblock %}
     </div>
     {% endblock %}
+
+    <sw-field-error
+        v-if="error"
+        :error="error"
+    />
 </div>
 {% endblock %}

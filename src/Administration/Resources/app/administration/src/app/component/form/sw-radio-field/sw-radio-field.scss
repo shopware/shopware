@@ -96,12 +96,18 @@ $sw-field--radio-color-border: $color-gray-300;
     }
 
     &.has--error {
-        .sw-field__radio-state {
-            border-color: $color-crimson-500;
-        }
-
         input[type="radio"]:checked ~ .sw-field__radio-state {
             border: 5px solid $color-crimson-500;
+        }
+
+        input[type="radio"]:checked ~ .sw-field__label {
+            color: $color-crimson-500;
+        }
+    }
+
+    .sw-field__radio-option-label {
+        &.error--selection {
+            color: $color-crimson-500;
         }
     }
 

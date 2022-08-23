@@ -260,6 +260,12 @@ Component.register('sw-text-editor', {
                 ];
             },
         },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -296,6 +302,7 @@ Component.register('sw-text-editor', {
                 'is--boxed': !this.isInlineEdit,
                 'is--empty': this.isEmpty,
                 'has--vertical-align': !!this.verticalAlign,
+                'has--error': !!this.error,
             };
         },
 

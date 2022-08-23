@@ -30671,16 +30671,6 @@ parameters:
 			path: src/Core/Maintenance/SalesChannel/Service/SalesChannelCreator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Command\\\\SystemSetupCommand\\:\\:createEnvFile\\(\\) has parameter \\$configuration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Maintenance/System/Command/SystemSetupCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Command\\\\SystemSetupCommand\\:\\:getDsn\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Maintenance/System/Command/SystemSetupCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Service\\\\ShopConfigurator\\:\\:changeDefaultLanguageData\\(\\) has parameter \\$currentLocaleData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Maintenance/System/Service/ShopConfigurator.php

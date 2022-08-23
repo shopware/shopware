@@ -26,6 +26,12 @@
         <service id="Shopware\Core\Maintenance\System\Command\SystemSetupCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument type="service" id="Symfony\Component\Dotenv\Command\DotenvDumpCommand"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Symfony\Component\Dotenv\Command\DotenvDumpCommand">
+            <argument>%kernel.project_dir%</argument>
             <tag name="console.command"/>
         </service>
 

@@ -44,7 +44,6 @@ export interface FullState extends State {
     getters: Store<VuexRootState>['getters'],
     commit: Store<VuexRootState>['commit'],
     dispatch: Store<VuexRootState>['dispatch'],
-    // eslint-disable-next-line max-len
     watch: Store<VuexRootState>['watch'],
     subscribe: Store<VuexRootState>['subscribe'],
     subscribeAction: Store<VuexRootState>['subscribeAction'],

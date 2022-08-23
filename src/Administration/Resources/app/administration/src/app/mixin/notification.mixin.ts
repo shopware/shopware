@@ -20,8 +20,6 @@ Mixin.register('notification', {
         createNotificationSuccess(config: notification): void {
             const notification = Object.assign({
                 variant: 'success',
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.success'),
             }, config);
 
@@ -31,8 +29,6 @@ Mixin.register('notification', {
         createNotificationInfo(config: notification): void {
             const notification = Object.assign({
                 variant: 'info',
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.info'),
             }, config);
 
@@ -42,8 +38,6 @@ Mixin.register('notification', {
         createNotificationWarning(config: notification): void {
             const notification = Object.assign({
                 variant: 'warning',
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.warning'),
             }, config);
 
@@ -53,8 +47,6 @@ Mixin.register('notification', {
         createNotificationError(config: notification): void {
             const notification = Object.assign({
                 variant: 'error',
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.error'),
             }, config);
 

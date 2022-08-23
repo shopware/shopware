@@ -206,8 +206,8 @@ describe('Flow builder: Add remove tag testing', () => {
 
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 1);
-            cy.contains('.sw-order-detail-base__general-info__order-tags', 'USA Customer');
+            cy.get(`${page.elements.tabs.general.summaryTagSelect} .sw-select-selection-list__item-holder`).should('have.length', 1);
+            cy.contains(page.elements.tabs.general.summaryTagSelect , 'USA Customer');
 
             cy.get('.smart-bar__back-btn').click();
             cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -219,9 +219,9 @@ describe('Flow builder: Add remove tag testing', () => {
             );
 
             cy.get('.sw-loader').should('not.exist');
-            cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 2);
-            cy.contains('.sw-order-detail-base__general-info__order-tags', 'New Customer');
-            cy.contains('.sw-order-detail-base__general-info__order-tags', 'Not USA Customer');
+            cy.get(`${page.elements.tabs.general.summaryTagSelect} .sw-select-selection-list__item-holder`).should('have.length', 2);
+            cy.contains(page.elements.tabs.general.summaryTagSelect, 'New Customer');
+            cy.contains(page.elements.tabs.general.summaryTagSelect, 'Not USA Customer');
         });
     });
 });

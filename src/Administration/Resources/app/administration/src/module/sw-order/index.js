@@ -47,6 +47,7 @@ import './component/sw-order-promotion-field';
 import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
+import './component/sw-order-create-general-info';
 import './component/sw-order-select-document-type-modal';
 import './component/sw-order-general-info';
 import './component/sw-order-send-document-modal';
@@ -60,6 +61,7 @@ import './component/sw-order-custom-item';
 import './component/sw-order-credit-item';
 import './component/sw-order-create-options';
 import './component/sw-order-add-items-modal';
+import './component/sw-order-customer-address-select';
 
 import defaultSearchConfiguration from './default-search-configuration';
 

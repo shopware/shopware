@@ -27,9 +27,13 @@ import type ShopwareDiscountCampaignService from './app/service/discount-campaig
 import type AppModulesService from './core/service/api/app-modules.service';
 import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
 import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
+import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type { SdkLocationState } from './app/state/sdk-location.store';
+import type StoreContextService from './core/service/api/store-context.api.service';
+import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
+import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -112,6 +116,9 @@ declare global {
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
         storeService: StoreApiService,
+        contextStoreService: StoreContextService,
+        checkoutStoreService: CheckoutStoreService,
+        orderStateMachineService: OrderStateMachineApiService,
         repositoryFactory: RepositoryFactory,
         snippetService: $TSFixMe,
         recentlySearchService: $TSFixMe,
@@ -170,6 +177,7 @@ declare global {
         tabs: TabsState,
         extensionComponentSections: ExtensionComponentSectionsState,
         paymentOverviewCardState: PaymentOverviewCardState,
+        swOrder: SwOrderState,
         session: {
             currentUser: $TSFixMe,
             userPending: boolean,

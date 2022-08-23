@@ -3,6 +3,8 @@ import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals
 import type Repository from 'src/core/data/repository.data';
 import template from './sw-order-add-items-modal.html.twig';
 import './sw-order-add-items-modal.scss';
+import type { Cart, LineItem } from '../../order.types';
+import { LineItemType, PriceType } from '../../order.types';
 
 const { Component, Utils, Mixin } = Shopware;
 
@@ -20,26 +22,16 @@ interface ProductEntity extends Entity {
     ],
 }
 interface CustomItem {
-    label?: string,
+    label: string,
     price?: number,
-    quantity?: number,
+    quantity: number,
     tax?: {
         taxRate?: number,
     },
 }
 interface CreditItem {
-    label?: string,
+    label: string,
     price?: number,
-}
-interface LineItemTypes {
-    PRODUCT: string,
-    CREDIT: string,
-    CUSTOM: string,
-    PROMOTION: string,
-}
-interface LineItemPriceTypes {
-    ABSOLUTE: string,
-    QUANTITY: string,
 }
 
 /**
@@ -61,7 +53,7 @@ Component.register('sw-order-add-items-modal', {
             required: true,
         },
         cart: {
-            type: Object as PropType<{ token: string|null }>,
+            type: Object as PropType<Cart>,
             required: true,
         },
         salesChannelId: {
@@ -74,13 +66,18 @@ Component.register('sw-order-add-items-modal', {
         products: Array<ProductEntity>,
         customItem: CustomItem,
         credit: CreditItem,
-        items: Array<ProductEntity|CustomItem|CreditItem>,
+        items: Array<LineItem>,
         isLoading: boolean,
         } {
         return {
             products: [],
-            customItem: {},
-            credit: {},
+            customItem: {
+                label: '',
+                quantity: 1,
+            },
+            credit: {
+                label: '',
+            },
             items: [],
             isLoading: false,
         };
@@ -89,14 +86,6 @@ Component.register('sw-order-add-items-modal', {
     computed: {
         orderLineItemRepository(): Repository {
             return this.repositoryFactory.create('order_line_item');
-        },
-
-        lineItemTypes(): LineItemTypes {
-            return this.cartStoreService.getLineItemTypes();
-        },
-
-        lineItemPriceTypes(): LineItemPriceTypes {
-            return this.cartStoreService.getLineItemPriceTypes();
         },
 
         taxStatus(): string {
@@ -136,7 +125,7 @@ Component.register('sw-order-add-items-modal', {
             }
 
             try {
-                await this.cartStoreService.addMultipleLineItems(this.salesChannelId, this.cart.token, this.items);
+                await this.cartStoreService.addMultipleLineItems(this.salesChannelId, this.cart.token ?? '', this.items);
                 this.isLoading = false;
                 this.$emit('modal-save');
             } catch ({ message }) {
@@ -147,48 +136,52 @@ Component.register('sw-order-add-items-modal', {
             }
         },
 
-        addProduct(product: ProductEntity): Record<string, unknown> {
+        addProduct(product: ProductEntity): LineItem {
             const item = this.createNewOrderLineItem();
 
             return {
                 ...item,
-                type: this.lineItemTypes.PRODUCT,
+                type: LineItemType.PRODUCT,
                 label: product.name,
                 identifier: product.id,
                 quantity: product.amount,
+                // @ts-expect-error
                 price: {
                     taxRules: [
                         {
                             taxRate: product.tax.taxRate,
+                            percentage: null,
                         },
                     ],
                 },
                 priceDefinition: {
-                    type: this.lineItemPriceTypes.QUANTITY,
+                    quantity: product.amount,
+                    type: PriceType.QUANTITY,
                     price: this.taxStatus === 'gross'
                         ? product.price[0].gross
                         : product.price[0].net,
                     taxRules: [
                         {
                             taxRate: product.tax.taxRate,
+                            percentage: null,
                         },
                     ],
                 },
             };
         },
 
-        addCustomItem(customItem: CustomItem): Record<string, unknown> {
+        addCustomItem(customItem: CustomItem): LineItem {
             const item = this.createNewOrderLineItem();
 
             return {
                 ...item,
-                type: this.lineItemTypes.CUSTOM,
+                type: LineItemType.CUSTOM,
                 label: customItem.label,
                 description: 'Custom line item',
                 quantity: customItem.quantity,
                 priceDefinition: {
-                    type: this.lineItemPriceTypes.QUANTITY,
-                    price: customItem.price,
+                    type: PriceType.QUANTITY,
+                    price: customItem.price ?? 0.0,
                     quantity: customItem.quantity,
                     taxRules: [
                         {
@@ -200,29 +193,30 @@ Component.register('sw-order-add-items-modal', {
             };
         },
 
-        addCredit(credit: CreditItem): Record<string, unknown> {
+        addCredit(credit: CreditItem): LineItem {
             const item = this.createNewOrderLineItem();
 
             return {
                 ...item,
-                type: this.lineItemTypes.CREDIT,
+                type: LineItemType.CREDIT,
                 label: credit.label,
                 description: 'Credit line item',
                 priceDefinition: {
-                    type: this.lineItemPriceTypes.ABSOLUTE,
-                    price: credit.price,
+                    type: PriceType.ABSOLUTE,
+                    price: credit.price ?? 0.0,
                     quantity: 1,
+                    taxRules: [],
                 },
             };
         },
 
-        createNewOrderLineItem(): { versionId: string|null } {
+        createNewOrderLineItem(): LineItem {
             const item = this.orderLineItemRepository.create();
 
             return {
                 ...item,
-                versionId: Shopware.Context.api.liveVersionId,
-            };
+                versionId: Shopware.Context.api.liveVersionId ?? '',
+            } as LineItem;
         },
 
         isValidItem(item: CustomItem|CreditItem) {

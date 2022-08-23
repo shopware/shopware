@@ -126,21 +126,23 @@ $select-result-customer-item-gutter: 10px;
 
     .sw-order-create-summary__data {
         grid-area: summary;
-        font-size: 15px;
+        padding-right: 38px;
         display: grid;
+        grid-template-columns: 1fr 1fr;
 
         dt,
         dd {
             padding: 0;
-            line-height: 49px;
+            line-height: 40px;
             border-bottom: 1px solid $color-gray-300;
             color: $color-darkgray-200;
+            font-size: $font-size-small;
             font-weight: normal;
             text-align: right;
         }
 
         dd {
-            padding-right: 60px;
+            padding-right: 40px;
 
             .sw-order-saveable-field {
                 transform: translateY(-50%);

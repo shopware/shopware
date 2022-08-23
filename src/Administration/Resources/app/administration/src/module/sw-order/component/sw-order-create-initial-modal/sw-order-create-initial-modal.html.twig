@@ -119,6 +119,7 @@
                         :disabled="!customer"
                         :promotion-codes="promotionCodes"
                         :disabled-auto-promotions="disabledAutoPromotions"
+                        :context="context"
                         @promotions-change="updatePromotion"
                         @auto-promotions-toggle="updateAutoPromotionsToggle"
                     />

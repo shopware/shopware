@@ -304,6 +304,8 @@
     "currency.isSystemDefault",
     "currency.customFields",
     "currency.taxFreeFrom",
+    "currency.itemRounding",
+    "currency.totalRounding",
     "currency.createdAt",
     "currency.updatedAt",
     "currency.translated",

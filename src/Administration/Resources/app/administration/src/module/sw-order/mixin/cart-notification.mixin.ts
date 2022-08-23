@@ -1,24 +1,27 @@
-const { Mixin, Component } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+import type { CartError } from '../order.types';
+
+const { State, Mixin } = Shopware;
 /**
  * Mixin to handle notification when receiving cart response.
  */
-
 Mixin.register('cart-notification', {
     computed: {
-        ...mapGetters('swOrder', ['cartErrors']),
+        cartErrors(): CartError[] {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            return State.getters['swOrder/cartErrors'] as CartError[];
+        },
     },
 
     watch: {
         cartErrors: {
-            handler(newValue) {
+            handler(newValue: CartError[]) {
                 this.handleNotification(newValue);
             },
         },
     },
 
     methods: {
-        handleNotification(info) {
+        handleNotification(info: CartError[]) {
             if (!info || info.length === 0) {
                 return;
             }
@@ -26,6 +29,7 @@ Mixin.register('cart-notification', {
             Object.values(info).forEach((value) => {
                 switch (value.level) {
                     case 0: {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationSuccess({
                             message: value.message,
                         });
@@ -33,6 +37,7 @@ Mixin.register('cart-notification', {
                     }
 
                     case 10: {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationWarning({
                             message: value.message,
                         });
@@ -40,6 +45,7 @@ Mixin.register('cart-notification', {
                     }
 
                     default: {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                         this.createNotificationError({
                             message: value.message,
                         });

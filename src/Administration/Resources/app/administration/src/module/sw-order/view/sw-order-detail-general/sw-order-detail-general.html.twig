@@ -89,11 +89,7 @@
                         </dd>
                     </template>
 
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                    <template
-                        v-for="(delivery, index) in deliveryDiscounts"
-                        v-if="deliveryDiscounts"
-                    >
+                    <template v-for="(delivery, index) in deliveryDiscounts">
                         <dt :key="`delivery-discount-dt-${index}`">
                             {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
                         </dt>

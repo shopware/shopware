@@ -32,7 +32,9 @@ function createWrapper() {
                 create: () => ({
                     get: () => Promise.resolve(
                         {
-                            name: 'Cash on Delivery'
+                            translated: {
+                                distinguishableName: 'Cash on Delivery',
+                            },
                         }
                     )
                 })
@@ -61,7 +63,7 @@ function createWrapper() {
     });
 }
 
-describe('src/module/sw-order/page/sw-order-detail', () => {
+describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -72,12 +74,12 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             namespaced: true,
             state() {
                 return {
-                    customer: {},
                     defaultSalesChannel: null,
                     cart: {
                         token: 'CART-TOKEN',
                         lineItems: [{}]
                     },
+                    customer: {},
                     promotionCodes: []
                 };
             },

@@ -1,4 +1,6 @@
+import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
+import type { LoginService } from '../login.service';
 
 /**
  * Gateway for the API end point "order/state-machine"
@@ -6,26 +8,26 @@ import ApiService from '../api.service';
  * @extends ApiService
  */
 class OrderStateMachineApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'order') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'order') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'orderStateMachineService';
     }
 
-    transitionOrderState(orderId, actionName, mediaIds = {}, additionalParams = {}, additionalHeaders = {}) {
+    transitionOrderState(orderId: string, actionName: string, mediaIds = {}, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/state/${actionName}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
             .post(route, mediaIds, {
-                additionalParams,
+                ...additionalParams,
                 headers,
             });
     }
 
     transitionOrderTransactionState(
-        orderTransactionId,
-        actionName,
+        orderTransactionId: string,
+        actionName: string,
         mediaIds = {},
         additionalParams = {},
         additionalHeaders = {},
@@ -36,14 +38,14 @@ class OrderStateMachineApiService extends ApiService {
 
         return this.httpClient
             .post(route, mediaIds, {
-                additionalParams,
+                ...additionalParams,
                 headers,
             });
     }
 
     transitionOrderDeliveryState(
-        orderDeliveryStateId,
-        actionName,
+        orderDeliveryStateId: string,
+        actionName: string,
         mediaIds = {},
         additionalParams = {},
         additionalHeaders = {},
@@ -54,7 +56,7 @@ class OrderStateMachineApiService extends ApiService {
 
         return this.httpClient
             .post(route, mediaIds, {
-                additionalParams,
+                ...additionalParams,
                 headers,
             });
     }

@@ -26,7 +26,18 @@ class ReferenceVersionField extends FkField
 
     public function __construct(string $definition, ?string $storageName = null)
     {
-        parent::__construct('', '', VersionDefinition::class);
+        $entity = $definition;
+        if (\is_subclass_of($definition, EntityDefinition::class)) {
+            $entity = (new $definition())->getEntityName();
+        }
+
+        $storageName = $storageName ?? ($entity . '_version_id');
+
+        $propertyName = explode('_', $storageName);
+        $propertyName = array_map('ucfirst', $propertyName);
+        $propertyName = lcfirst(implode('', $propertyName));
+
+        parent::__construct($storageName, $propertyName, VersionDefinition::class);
 
         $this->versionReferenceClass = $definition;
         $this->storageName = $storageName;
@@ -34,31 +45,7 @@ class ReferenceVersionField extends FkField
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
-        if ($this->versionReferenceDefinition !== null) {
-            return;
-        }
-
         parent::compile($registry);
-
-        $this->versionReferenceDefinition = $registry->getByClassOrEntityName($this->versionReferenceClass);
-        $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
-
-        $entity = $this->versionReferenceDefinition->getEntityName();
-        $storageName = $this->storageName ?? ($entity . '_version_id');
-
-        $propertyName = explode('_', $storageName);
-        $propertyName = array_map('ucfirst', $propertyName);
-        $propertyName = lcfirst(implode('', $propertyName));
-
-        $this->storageName = $storageName;
-        $this->propertyName = $propertyName;
-    }
-
-    public function getStorageName(): string
-    {
-        \assert($this->storageName !== null, 'storageName could not be null, because the `compile` method must be called first');
-
-        return $this->storageName;
     }
 
     public function getVersionReferenceDefinition(): EntityDefinition
@@ -68,11 +55,22 @@ class ReferenceVersionField extends FkField
 
     public function getVersionReferenceClass(): string
     {
+        $this->compileLazy();
+
         return $this->versionReferenceClass;
     }
 
     protected function getSerializerClass(): string
     {
         return ReferenceVersionFieldSerializer::class;
+    }
+
+    protected function compileLazy(): void
+    {
+        if ($this->versionReferenceDefinition === null) {
+            $this->versionReferenceDefinition = $this->registry->getByClassOrEntityName($this->versionReferenceClass);
+        }
+
+        $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
     }
 }

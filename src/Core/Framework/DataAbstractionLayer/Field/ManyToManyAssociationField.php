@@ -59,24 +59,20 @@ class ManyToManyAssociationField extends AssociationField
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
-        if ($this->mappingDefinition !== null) {
-            return;
-        }
-
         parent::compile($registry);
-
-        $this->toManyDefinition = $registry->getByClassOrEntityName($this->toManyDefinitionClass);
-        $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
-        $this->mappingDefinition = $this->referenceDefinition;
     }
 
     public function getToManyReferenceDefinition(): EntityDefinition
     {
+        $this->compileLazy();
+
         return $this->toManyDefinition;
     }
 
     public function getMappingDefinition(): EntityDefinition
     {
+        $this->compileLazy();
+
         return $this->mappingDefinition;
     }
 
@@ -103,5 +99,20 @@ class ManyToManyAssociationField extends AssociationField
     protected function getResolverClass(): ?string
     {
         return ManyToManyAssociationFieldResolver::class;
+    }
+
+    protected function compileLazy(): void
+    {
+        parent::compileLazy();
+
+        if ($this->mappingDefinition === null) {
+            $this->mappingDefinition = $this->getReferenceDefinition();
+        }
+
+        if ($this->toManyDefinition === null) {
+            $this->toManyDefinition = $this->registry->getByClassOrEntityName($this->toManyDefinitionClass);
+        }
+
+        $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
     }
 }

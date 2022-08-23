@@ -30,6 +30,8 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
+    protected DefinitionInstanceRegistry $registry;
+
     private ?string $referenceEntity = null;
 
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
@@ -42,14 +44,9 @@ class FkField extends Field implements StorageAware
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
-        if ($this->referenceDefinition !== null) {
-            return;
-        }
+        $this->registry = $registry;
 
         parent::compile($registry);
-
-        $this->referenceDefinition = $registry->getByClassOrEntityName($this->referenceClass);
-        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 
     public function getStorageName(): string
@@ -59,6 +56,8 @@ class FkField extends Field implements StorageAware
 
     public function getReferenceDefinition(): EntityDefinition
     {
+        $this->compileLazy();
+
         return $this->referenceDefinition;
     }
 
@@ -74,11 +73,24 @@ class FkField extends Field implements StorageAware
 
     public function getReferenceEntity(): ?string
     {
+        $this->compileLazy();
+
         return $this->referenceEntity;
     }
 
     protected function getSerializerClass(): string
     {
         return FkFieldSerializer::class;
+    }
+
+    protected function compileLazy(): void
+    {
+        if ($this->referenceDefinition === null) {
+            $this->referenceDefinition = $this->registry->getByClassOrEntityName($this->referenceClass);
+        }
+
+        if ($this->referenceEntity === null) {
+            $this->referenceEntity = $this->referenceDefinition->getEntityName();
+        }
     }
 }

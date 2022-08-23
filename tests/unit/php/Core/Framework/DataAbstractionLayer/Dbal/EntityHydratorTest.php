@@ -30,10 +30,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Singl
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestRootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestSubDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDependencyDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationMappingDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -65,10 +62,6 @@ class EntityHydratorTest extends TestCase
                 SingleEntityDependencyTestDependencyDefinition::class,
                 SingleEntityDependencyTestDependencySubDefinition::class,
                 ToManyAssociationDefinition::class,
-                ToManyAssociationDependencyDefinition::class,
-                ToManyAssociationMappingDefinition::class,
-                LanguageDefinition::class,
-                ProductDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)

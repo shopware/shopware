@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\NewsletterEvents;
@@ -17,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.5.0 will be removed as it was not thrown
  */
-class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAware
+class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UPDATE_EVENT;
 
@@ -113,5 +114,15 @@ class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAwar
         );
 
         return $this->salesChannelId;
+    }
+
+    public function getNewsletterRecipientId(): string
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
+        return $this->newsletterRecipient->getId();
     }
 }

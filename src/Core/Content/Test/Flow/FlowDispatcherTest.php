@@ -6,10 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
-use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
@@ -25,17 +24,13 @@ class FlowDispatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ?EntityRepositoryInterface $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
-    private ?EntityRepositoryInterface $customerRepository;
-
-    private ?EventDispatcherInterface $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     private FlowActionTestSubscriber $flowActionTestSubscriber;
 
     private TestDataCollection $ids;
-
-    private ?AbstractFlowLoader $flowLoader;
 
     protected function setUp(): void
     {
@@ -43,13 +38,9 @@ class FlowDispatcherTest extends TestCase
 
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-
         $this->dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $this->dispatcher->addSubscriber($this->flowActionTestSubscriber);
-
-        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
 
         $this->ids = new TestDataCollection();
     }
@@ -79,7 +70,8 @@ class FlowDispatcherTest extends TestCase
 
         $dispatcher = new FlowDispatcher(
             $eventDispatcherMock,
-            $this->getContainer()->get(LoggerInterface::class)
+            $this->getContainer()->get(LoggerInterface::class),
+            $this->getContainer()->get(FlowFactory::class)
         );
 
         $dispatcher->setContainer($this->getContainer()->get('service_container'));
@@ -89,6 +81,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testSingleEventActionIsDispatchedTrueCase(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId')]);
         $event = new TestFlowBusinessEvent($context);
@@ -103,6 +97,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testEventSkipTrigger(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId')]);
         $event = new TestFlowBusinessEvent($context);
@@ -123,6 +119,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testSingleEventActionIsDispatchedFalseCase(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         //rule id not matched
         $context->setRuleIds([$this->ids->create('ruleId2')]);
@@ -137,6 +135,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testEventActionWithConfig(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId')]);
         $event = new TestFlowBusinessEvent($context);
@@ -174,6 +174,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testSequencePriority(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
         $event = new TestFlowBusinessEvent($context);
@@ -240,6 +242,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testFlowPriority(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
         $event = new TestFlowBusinessEvent($context);
@@ -312,6 +316,8 @@ class FlowDispatcherTest extends TestCase
 
     public function testStopFlowAction(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $context = Context::createDefaultContext();
         $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
         $event = new TestFlowBusinessEvent($context);
@@ -382,6 +388,10 @@ class FlowDispatcherTest extends TestCase
         static::assertEquals($this->ids->get('tag_id'), array_key_first($this->flowActionTestSubscriber->lastActionConfig['tagIds']));
     }
 
+    /**
+     * @param array<int, mixed> $additionSequence
+     * @param array<int, mixed> $additionFlow
+     */
     private function createFlow(bool $isActive, array $additionSequence = [], array $additionFlow = []): void
     {
         $sequenceId = Uuid::randomHex();

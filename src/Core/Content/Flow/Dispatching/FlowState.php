@@ -16,13 +16,19 @@ class FlowState
 
     public bool $stop = false;
 
-    public FlowEventAware $event;
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    public ?FlowEventAware $event;
 
     public Sequence $currentSequence;
 
     public bool $delayed = false;
 
-    public function __construct(FlowEventAware $event)
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    public function __construct(?FlowEventAware $event = null)
     {
         $this->event = $event;
     }

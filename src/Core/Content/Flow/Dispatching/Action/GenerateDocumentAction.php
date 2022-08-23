@@ -14,10 +14,13 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
@@ -66,30 +69,67 @@ class GenerateDocumentAction extends FlowAction
         return 'action.generate.document';
     }
 
+    /**
+     *  @deprecated tag:v6.5.0 Will be removed
+     */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return [];
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return [
             self::getName() => 'handle',
         ];
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function requirements(): array
     {
         return [OrderAware::class, DelayAware::class];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
+     */
     public function handle(FlowEvent $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $baseEvent = $event->getEvent();
-
-        $eventConfig = $event->getConfig();
-
         if (!$baseEvent instanceof OrderAware || !$baseEvent instanceof SalesChannelAware) {
             return;
         }
 
+        $this->generate($baseEvent->getContext(), $event->getConfig(), $baseEvent->getOrderId(), $baseEvent->getSalesChannelId());
+    }
+
+    public function handleFlow(StorableFlow $flow): void
+    {
+        if (!$flow->hasStore(OrderAware::ORDER_ID) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
+            return;
+        }
+
+        $this->generate($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID), $flow->getStore(MailAware::SALES_CHANNEL_ID));
+    }
+
+    /**
+     * @param array<string, mixed> $eventConfig
+     */
+    private function generate(Context $context, array $eventConfig, string $orderId, string $salesChannelId): void
+    {
         if (\array_key_exists('documentType', $eventConfig)) {
-            $this->generateDocument($eventConfig, $baseEvent);
+            $this->generateDocument($eventConfig, $context, $orderId, $salesChannelId);
 
             return;
         }
@@ -103,7 +143,7 @@ class GenerateDocumentAction extends FlowAction
         // Invoice document should be created first
         foreach ($documentsConfig as $index => $config) {
             if ($config['documentType'] === InvoiceGenerator::INVOICE) {
-                $this->generateDocument($config, $baseEvent);
+                $this->generateDocument($config, $context, $orderId, $salesChannelId);
                 unset($documentsConfig[$index]);
 
                 break;
@@ -111,14 +151,14 @@ class GenerateDocumentAction extends FlowAction
         }
 
         foreach ($documentsConfig as $config) {
-            $this->generateDocument($config, $baseEvent);
+            $this->generateDocument($config, $context, $orderId, $salesChannelId);
         }
     }
 
     /**
-     * @param OrderAware&SalesChannelAware $baseEvent
+     * @param array<string, mixed> $eventConfig
      */
-    private function generateDocument(array $eventConfig, $baseEvent): void
+    private function generateDocument(array $eventConfig, Context $context, string $orderId, string $salesChannelId): void
     {
         $documentType = $eventConfig['documentType'];
         $documentRangerType = $eventConfig['documentRangerType'];
@@ -132,9 +172,9 @@ class GenerateDocumentAction extends FlowAction
             $config = $eventConfig['config'] ?? [];
             $static = $eventConfig['static'] ?? false;
 
-            $operation = new DocumentGenerateOperation($baseEvent->getOrderId(), $fileType, $config, null, $static);
+            $operation = new DocumentGenerateOperation($orderId, $fileType, $config, null, $static);
 
-            $result = $this->documentGenerator->generate($documentType, [$baseEvent->getOrderId() => $operation], $baseEvent->getContext());
+            $result = $this->documentGenerator->generate($documentType, [$orderId => $operation], $context);
 
             if (!empty($result->getErrors())) {
                 foreach ($result->getErrors() as $error) {
@@ -147,8 +187,8 @@ class GenerateDocumentAction extends FlowAction
 
         $documentNumber = $this->valueGenerator->getValue(
             $documentRangerType,
-            $baseEvent->getContext(),
-            $baseEvent->getSalesChannelId()
+            $context,
+            $salesChannelId
         );
 
         $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -159,7 +199,7 @@ class GenerateDocumentAction extends FlowAction
             $documentType,
             $documentNumber,
             $now,
-            $baseEvent->getOrderId()
+            $orderId
         );
 
         $eventConfig['custom'] = $customConfig;
@@ -167,16 +207,19 @@ class GenerateDocumentAction extends FlowAction
         $documentConfig = DocumentConfigurationFactory::createConfiguration($eventConfig);
 
         $this->documentService->create(
-            $baseEvent->getOrderId(),
+            $orderId,
             $documentType,
             $eventConfig['fileType'] ?? FileTypes::PDF,
             $documentConfig,
-            $baseEvent->getContext(),
+            $context,
             $customConfig['referencedInvoiceId'] ?? null,
             $eventConfig['static'] ?? false
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getEventCustomConfig(string $documentType, string $documentNumber, string $now, string $orderId): array
     {
         switch ($documentType) {
@@ -196,6 +239,11 @@ class GenerateDocumentAction extends FlowAction
         }
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     *
+     * @return array<string, mixed>
+     */
     private function getConfigWithReferenceDoc(string $documentType, string $documentNumber, string $orderId): array
     {
         $referencedInvoiceDocument = $this->connection->fetchAssociative(

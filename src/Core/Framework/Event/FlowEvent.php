@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -11,10 +12,16 @@ class FlowEvent extends Event
 {
     private FlowState $state;
 
-    private array $config;
+    /**
+     * @var array<string, mixed>
+     */
+    private $config;
 
     private string $actionName;
 
+    /**
+     * @param array<string, mixed>|null $config
+     */
     public function __construct(string $actionName, FlowState $state, ?array $config = [])
     {
         $this->actionName = $actionName;
@@ -24,9 +31,16 @@ class FlowEvent extends Event
 
     public function getEvent(): FlowEventAware
     {
+        if (!$this->state->event) {
+            throw FlowException::methodNotCompatible('getEvent()', self::class);
+        }
+
         return $this->state->event;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
@@ -44,11 +58,19 @@ class FlowEvent extends Event
 
     public function getName(): string
     {
+        if (!$this->state->event) {
+            throw FlowException::methodNotCompatible('getName()', self::class);
+        }
+
         return $this->state->event->getName();
     }
 
     public function getContext(): Context
     {
+        if (!$this->state->event) {
+            throw FlowException::methodNotCompatible('getContext()', self::class);
+        }
+
         return $this->state->event->getContext();
     }
 

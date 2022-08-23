@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -53,6 +55,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
@@ -75,6 +78,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
@@ -104,6 +108,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
@@ -128,6 +133,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $currentCustomerToken = $response['contextToken'];
@@ -177,6 +183,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $currentCustomerToken = $response['contextToken'];
@@ -220,7 +227,9 @@ class LogoutRouteTest extends TestCase
         $request = new RequestDataBag(['email' => $email, 'password' => $password]);
         $loginResponse = $this->getContainer()->get(LoginRoute::class)->login($request, $salesChannelContext);
 
-        $customer = new CustomerEntity();
+        $customerId = $this->createCustomer();
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria(), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(false);
         $salesChannelContext->assign([
             'token' => $loginResponse->getToken(),
@@ -251,7 +260,9 @@ class LogoutRouteTest extends TestCase
             ->get(LoginRoute::class)
             ->login($request, $context);
 
-        $customer = new CustomerEntity();
+        $customerId = $this->createCustomer();
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria(), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(true);
         $context->assign([
             'token' => $login->getToken(),
@@ -290,6 +301,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $this->browser
@@ -302,6 +314,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);

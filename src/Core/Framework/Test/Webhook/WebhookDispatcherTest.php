@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -27,8 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
@@ -69,7 +69,10 @@ class WebhookDispatcherTest extends TestCase
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->bus = $this->createMock(MessageBusInterface::class);
-        $this->guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
+
+        /** @var GuzzleHistoryCollector $guzzleHistory */
+        $guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $this->guzzleHistory = $guzzleHistory;
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
@@ -350,13 +353,12 @@ class WebhookDispatcherTest extends TestCase
         ], Context::createDefaultContext());
 
         if (Feature::isActive('FEATURE_NEXT_17858')) {
-            $event = new FlowEvent(
-                SendMailAction::getName(),
-                new FlowState(new CustomerBeforeLoginEvent(
-                    $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                    'test@example.com'
-                ))
-            );
+            $factory = $this->getContainer()->get(FlowFactory::class);
+            $event = $factory->create(new CustomerBeforeLoginEvent(
+                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+                'test@example.com'
+            ));
+            $event->setFlowState(new FlowState());
         } else {
             $event = new BusinessEvent(
                 MailSendSubscriber::ACTION_NAME,
@@ -558,9 +560,14 @@ class WebhookDispatcherTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-            (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
+            $customer,
             'testToken'
         );
 
@@ -610,9 +617,14 @@ class WebhookDispatcherTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-            (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
+            $customer,
             'testToken'
         );
 
@@ -677,9 +689,14 @@ class WebhookDispatcherTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-            (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
+            $customer,
             'testToken'
         );
 
@@ -705,8 +722,8 @@ class WebhookDispatcherTest extends TestCase
         static::assertJson($body);
 
         $data = json_decode($body, true);
-        static::assertEquals('first', $data['data']['payload']['customer']['firstName']);
-        static::assertEquals('last', $data['data']['payload']['customer']['lastName']);
+        static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
+        static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
@@ -779,9 +796,14 @@ class WebhookDispatcherTest extends TestCase
             'value' => Uuid::randomHex(),
         ]);
 
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-            (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
+            $customer,
             'testToken'
         );
 
@@ -1145,7 +1167,7 @@ class WebhookDispatcherTest extends TestCase
             false
         );
 
-        $this->bus->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects(static::never())
             ->method('dispatch');
 
         $webhookDispatcher->dispatch($event);
@@ -1338,7 +1360,8 @@ class WebhookDispatcherTest extends TestCase
 
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
 
-        $this->bus->expects(static::once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(static::once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -1364,7 +1387,7 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->bus,
+            $bus,
             false
         );
         $webhookDispatcher->dispatch($event);
@@ -1415,7 +1438,7 @@ class WebhookDispatcherTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $this->bus->expects(static::never())
+        $this->createMock(MessageBusInterface::class)->expects(static::never())
             ->method('dispatch');
 
         $webhookDispatcher = new WebhookDispatcher(
@@ -1470,8 +1493,8 @@ class WebhookDispatcherTest extends TestCase
 
         $webhookEventId = Uuid::randomHex();
         $shopwareVersion = Kernel::SHOPWARE_FALLBACK_VERSION;
-
-        $this->bus->expects(static::once())
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(static::once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
                 $actualPayload = $message->getPayload();
@@ -1497,7 +1520,7 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer(),
             $this->getContainer()->get(HookableEventFactory::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->bus,
+            $bus,
             false
         );
         $webhookDispatcher->dispatch($event);
@@ -1529,6 +1552,38 @@ class WebhookDispatcherTest extends TestCase
             ]),
             []
         );
+    }
+
+    private function createCustomer(string $id): void
+    {
+        $addressId = Uuid::randomHex();
+        $this->getContainer()->get('customer.repository')->create([
+            [
+                'id' => $id,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => 'test@gmail.com',
+                'password' => '123123',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'salutationId' => $this->getValidSalutationId(),
+                'customerNumber' => '12345',
+                'vatIds' => ['DE123456789'],
+                'company' => 'Test',
+            ],
+        ], Context::createDefaultContext());
     }
 }
 

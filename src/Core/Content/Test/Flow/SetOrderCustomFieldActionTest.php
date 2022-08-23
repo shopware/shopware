@@ -44,6 +44,9 @@ class SetOrderCustomFieldActionTest extends TestCase
     }
 
     /**
+     * @param array<int, mixed>|null $existedData
+     * @param array<int, mixed>|null $updateData
+     * @param array<int, mixed>|null $expectData
      * @dataProvider createDataProvider
      */
     public function testCreateCustomFieldForOrder(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
@@ -90,6 +93,9 @@ class SetOrderCustomFieldActionTest extends TestCase
         static::assertEquals($order->getCustomFields(), $expect);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function createDataProvider(): array
     {
         return [

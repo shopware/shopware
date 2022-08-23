@@ -16,6 +16,7 @@ use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -123,6 +124,8 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     public function testAcceptWithFlowBuilder(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
         $this->createFlow(CustomerGroupRegistrationAccepted::EVENT_NAME);
@@ -136,6 +139,8 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     public function testDeclineWithFlowBuilder(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
         $this->createFlow(CustomerGroupRegistrationDeclined::EVENT_NAME);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware
+class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {
     use JsonSerializableTrait;
 
@@ -81,5 +82,10 @@ class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, Mai
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
+    }
+
+    public function getNewsletterRecipientId(): string
+    {
+        return $this->newsletterRecipient->getId();
     }
 }

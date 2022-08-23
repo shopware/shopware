@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -21,6 +22,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
@@ -57,6 +59,7 @@ class SendMailActionTest extends TestCase
      * @dataProvider sendMailProvider
      *
      * @param array<string>|null $documentTypeIds
+     * @param array<string, mixed> $recipients
      */
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
@@ -135,10 +138,12 @@ class SendMailActionTest extends TestCase
 
         $newDocument = $documents->get($documentIdNewer);
         static::assertNotNull($newDocument);
+        static::assertInstanceOf(DocumentEntity::class, $newDocument);
         static::assertFalse($newDocument->getSent());
         $newDocumentOrderVersionId = $newDocument->getOrderVersionId();
 
         $oldDocument = $documents->get($documentIdOlder);
+        static::assertInstanceOf(DocumentEntity::class, $oldDocument);
         static::assertNotNull($oldDocument);
         static::assertFalse($oldDocument->getSent());
         $oldDocumentOrderVersionId = $oldDocument->getOrderVersionId();
@@ -147,7 +152,16 @@ class SendMailActionTest extends TestCase
         static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
         static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
 
-        $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -177,10 +191,12 @@ class SendMailActionTest extends TestCase
 
             $newDocument = $documents->get($documentIdNewer);
             static::assertNotNull($newDocument);
+            static::assertInstanceOf(DocumentEntity::class, $newDocument);
             static::assertTrue($newDocument->getSent());
 
             $oldDocument = $documents->get($documentIdOlder);
             static::assertNotNull($oldDocument);
+            static::assertInstanceOf(DocumentEntity::class, $oldDocument);
             static::assertFalse($oldDocument->getSent());
 
             // version does not changed
@@ -189,6 +205,9 @@ class SendMailActionTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, mixed>
+     */
     public function sendMailProvider(): iterable
     {
         yield 'Test send mail default' => [['type' => 'customer']];
@@ -268,7 +287,16 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -342,7 +370,16 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         if ($hasEmail) {
             static::assertIsArray($mailService->data);
@@ -387,7 +424,14 @@ class SendMailActionTest extends TestCase
             ],
         ]);
 
-        $event = new CheckoutOrderPlacedEvent($context, new OrderEntity(), Defaults::SALES_CHANNEL);
+        $customerId = $this->createCustomer($context);
+        $orderId = $this->createOrder($customerId, $context);
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('orderCustomer');
+
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
+        static::assertInstanceOf(OrderEntity::class, $order);
+        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -412,12 +456,24 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsNotObject($mailFilterEvent);
         static::assertEquals(0, $mailService->calls);
     }
 
+    /**
+     * @return iterable<string, array<int, bool>>
+     */
     public function sendMailContactFormProvider(): iterable
     {
         yield 'Test send mail has data valid' => [true, true, true];
@@ -474,7 +530,17 @@ class SendMailActionTest extends TestCase
 
         static::expectException(MailEventConfigurationException::class);
         static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -536,7 +602,16 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
@@ -620,7 +695,16 @@ class SendMailActionTest extends TestCase
 
         $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
 
-        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         static::assertIsObject($mailFilterEvent);
         static::assertEmpty($translator->getSnippetSetId());
@@ -815,12 +899,19 @@ class TestEmailService extends EMailService
 {
     public float $calls = 0;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     public ?array $data = null;
 
     public function __construct()
     {
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $templateData
+     */
     public function send(array $data, Context $context, array $templateData = []): ?\Symfony\Component\Mime\Email
     {
         $this->data = $data;

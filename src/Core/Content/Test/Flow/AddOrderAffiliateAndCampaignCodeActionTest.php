@@ -44,6 +44,10 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $existedData
+     * @param array<string, mixed> $updateData
+     * @param array<string, mixed> $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testAddAffiliateAndCampaignCodeForOrder(array $existedData, array $updateData, array $expectData): void
@@ -78,6 +82,9 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
         static::assertEquals($order->getCampaignCode(), $expectData['campaignCode']);
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function createDataProvider(): array
     {
         return [

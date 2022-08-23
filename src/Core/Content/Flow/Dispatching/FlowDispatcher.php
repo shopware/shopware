@@ -28,10 +28,13 @@ class FlowDispatcher implements EventDispatcherInterface
 
     private LoggerInterface $logger;
 
-    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger)
+    private FlowFactory $flowFactory;
+
+    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger, FlowFactory $flowFactory)
     {
         $this->dispatcher = $dispatcher;
         $this->logger = $logger;
+        $this->flowFactory = $flowFactory;
     }
 
     public function setContainer(ContainerInterface $container): void
@@ -77,7 +80,14 @@ class FlowDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        $this->callFlowExecutor($event);
+        $storableFlow = $this->flowFactory->create($event);
+
+        /** @deprecated tag:v6.5.0 Will be removed */
+        if (!Feature::isActive('v6.5.0.0')) {
+            $storableFlow->setOriginalEvent($event);
+        }
+
+        $this->callFlowExecutor($storableFlow);
 
         return $event;
     }
@@ -117,7 +127,7 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
+     * @param string $eventName
      * @param callable $listener
      */
     public function getListenerPriority($eventName, $listener): ?int
@@ -130,7 +140,7 @@ class FlowDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
-    private function callFlowExecutor(FlowEventAware $event): void
+    private function callFlowExecutor(StorableFlow $event): void
     {
         $flows = $this->getFlows($event->getName());
 
@@ -171,6 +181,9 @@ class FlowDispatcher implements EventDispatcherInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getFlows(string $eventName): array
     {
         /** @var AbstractFlowLoader|null $flowLoader */

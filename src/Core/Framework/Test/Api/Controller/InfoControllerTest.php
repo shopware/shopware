@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -233,6 +234,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
+                    ContextTokenAware::class,
+                    lcfirst((new \ReflectionClass(ContextTokenAware::class))->getShortName()),
                     SalesChannelAware::class,
                     lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     MailAware::class,

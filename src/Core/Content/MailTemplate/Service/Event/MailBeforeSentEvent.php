@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Logger;
+use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
@@ -13,12 +15,12 @@ use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAware
+class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAware, DataAware, MessageAware
 {
     public const EVENT_NAME = 'mail.after.create.message';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $data;
 
@@ -32,6 +34,9 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
      */
     private $context;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data, Email $message, Context $context)
     {
         $this->data = $data;
@@ -66,6 +71,9 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
         return $this->context;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogData(): array
     {
         $data = $this->data;

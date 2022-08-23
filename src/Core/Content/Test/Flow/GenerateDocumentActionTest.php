@@ -35,6 +35,7 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
@@ -134,7 +135,16 @@ class GenerateDocumentActionTest extends TestCase
             $this->createInvoiceDocument($order->getId(), $config, $context, $multipleDoc);
         }
 
-        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         $referenceDoctype = $documentType === StornoGenerator::STORNO || $documentType === CreditNoteGenerator::CREDIT_NOTE;
         if ($referenceDoctype && !$autoGenInvoiceDoc && empty($multipleDoc)) {
@@ -175,7 +185,16 @@ class GenerateDocumentActionTest extends TestCase
 
         $this->logger->pushHandler($handler);
 
-        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         if (Feature::isActive('v6.5.0.0')) {
             static::assertNotEmpty($handler->getRecords());
@@ -237,7 +256,17 @@ class GenerateDocumentActionTest extends TestCase
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
-        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
+
         static::assertNotEmpty($this->getDocumentId($order->getId()));
         $property->setValue(
             $registry,
@@ -245,6 +274,9 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array<int, string|bool>>
+     */
     public function genDocumentProvider(): iterable
     {
         yield 'Generate invoice' => ['invoice', 'document_invoice'];
@@ -254,12 +286,18 @@ class GenerateDocumentActionTest extends TestCase
         yield 'Generate credit with invoice existed' => ['credit_note', 'document_credit_note', true];
     }
 
+    /**
+     * @return iterable<string, array<int, string>>
+     */
     public function genErrorDocumentProvider(): iterable
     {
         yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function createInvoiceDocument(string $orderId, array $config, Context $context, bool $multipleDoc): void
     {
         if ($multipleDoc) {
@@ -284,6 +322,9 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function getDocumentId(string $orderId): array
     {
         return $this->connection->fetchFirstColumn(

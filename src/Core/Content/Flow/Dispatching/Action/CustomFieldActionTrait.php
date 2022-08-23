@@ -6,6 +6,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 trait CustomFieldActionTrait
 {
+    /**
+     * @param array<string, mixed> $customFields
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>|null
+     */
     public function getCustomFieldForUpdating(?array $customFields, array $config): ?array
     {
         $customFieldId = $config['customFieldId'];
@@ -83,16 +89,14 @@ trait CustomFieldActionTrait
 
     private function getCustomFieldNameFromId(string $customFieldId, string $entity): ?string
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select('name');
-        $query->from('custom_field');
-        $query->innerJoin('custom_field', 'custom_field_set_relation', 'custom_field_set_relation', 'custom_field.set_id = custom_field_set_relation.set_id');
-        $query->where('custom_field_set_relation.entity_name = :entity');
-        $query->where('custom_field.id = :id');
-        $query->setParameter('entity', $entity);
-        $query->setParameter('id', Uuid::fromHexToBytes($customFieldId));
-        $name = $query->execute()->fetchColumn();
+        $name = $this->connection->fetchOne(
+            'SELECT name FROM custom_field INNER JOIN custom_field_set_relation ON  custom_field.set_id = custom_field_set_relation.set_id WHERE custom_field_set_relation.entity_name = :entity AND custom_field.id = :id',
+            [
+                'entity' => $entity,
+                'id' => Uuid::fromHexToBytes($customFieldId),
+            ]
+        );
 
-        return $name === false ? null : $name;
+        return $name ?: null;
     }
 }

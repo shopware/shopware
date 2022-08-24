@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
 
 const nodeContainsLeadingBlockComment = (node) => {
-    if (!node.leadingComments) {
+    const leadingComment = node?.parent?.comments?.find(c => c.range[1] === (node.range[0] - 1));
+    if (!leadingComment) {
         return false;
     }
-
-    const leadingComment = node.leadingComments[node.leadingComments.length - 1];
 
     return leadingComment.type === 'Block' && (leadingComment.value.includes('@private') || leadingComment.value.includes('@deprecated tag:'));
 };

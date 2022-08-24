@@ -106,6 +106,7 @@ Component.register('sw-cms-list', {
              */
             if (!this.feature.isActive('v6.5.0.0')) {
                 criteria.addAssociation('products');
+                criteria.getAssociation('products').setLimit(25);
             }
 
             if (this.term !== null) {

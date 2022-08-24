@@ -201,7 +201,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
         ]);
     });
 
-    it('should set value zero when checked in checkbox', async () => {
+    it('should have default value as 1 for the line items once it is clicked', async () => {
         setProductData(products);
 
         const wrapper = createWrapper();
@@ -215,7 +215,7 @@ describe('src/module/sw-order/view/sw-order-product-grid', () => {
         await productSelection.wrappers[1].setChecked();
         await productSelection.wrappers[1].trigger('change');
 
-        expect(amountFields.wrappers[1].element.value).toEqual('0');
+        expect(amountFields.wrappers[1].element.value).toEqual('1');
 
         await productSelection.wrappers[1].setChecked(false);
         await productSelection.wrappers[1].trigger('change');

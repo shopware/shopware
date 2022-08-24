@@ -28,32 +28,40 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            <a href="{{ seoUrl('frontend.detail.page', { 'productId': id }) }}"
-                               title="{{ name }}"
-                               class="product-image-link is-{{ displayMode }}">
-                                {% if cover.url %}
-                                    {% set attributes = {
-                                        'class': 'product-image is-'~displayMode,
-                                        'alt': (cover.translated.alt ?: name),
-                                        'title': (cover.translated.title ?: name)
-                                    } %}
+                            {% block component_product_box_image_link %}
+                                <a href="{{ seoUrl('frontend.detail.page', { 'productId': id }) }}"
+                                   title="{{ name }}"
+                                   class="product-image-link is-{{ displayMode }}">
+                                    {% block component_product_box_image_link_inner %}
+                                        {% if cover.url %}
+                                            {% set attributes = {
+                                                'class': 'product-image is-'~displayMode,
+                                                'alt': (cover.translated.alt ?: name),
+                                                'title': (cover.translated.title ?: name)
+                                            } %}
 
-                                    {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                    {% endif %}
+                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                            {% endif %}
 
-                                    {% sw_thumbnails 'product-image-thumbnails' with {
-                                        media: cover,
-                                        sizes: sizes
-                                    } %}
-                                {% else %}
-                                    <div class="product-image-placeholder">
-                                        {% sw_icon 'placeholder' style {
-                                            'size': 'fluid'
-                                        } %}
-                                    </div>
-                                {% endif %}
-                            </a>
+                                            {% block component_product_box_image_thumbnail %}
+                                                {% sw_thumbnails 'product-image-thumbnails' with {
+                                                    media: cover,
+                                                    sizes: sizes
+                                                } %}
+                                            {% endblock %}
+                                        {% else %}
+                                            {% block component_product_box_image_placeholder %}
+                                                <div class="product-image-placeholder">
+                                                    {% sw_icon 'placeholder' style {
+                                                        'size': 'fluid'
+                                                    } %}
+                                                </div>
+                                            {% endblock %}
+                                        {% endif %}
+                                    {% endblock %}
+                                </a>
+                            {% endblock %}
 
                             {% if config('core.cart.wishlistEnabled') %}
                                 {% block component_product_box_wishlist_action %}
@@ -63,7 +71,6 @@
                                     } %}
                                 {% endblock %}
                             {% endif %}
-
                         </div>
                     {% endblock %}
 

@@ -33,6 +33,9 @@ describe('src/app/component/media/sw-media-field', () => {
                         }
                     })
                 }
+            },
+            propsData: {
+                fileAccept: '*/*',
             }
         });
     }
@@ -53,5 +56,11 @@ describe('src/app/component/media/sw-media-field', () => {
             field: 'mediaFolder.defaultFolder.entity',
             value: 'product'
         });
+    });
+
+    it('should contain a property props fileAccept', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.$props.fileAccept).toBe('*/*');
     });
 });

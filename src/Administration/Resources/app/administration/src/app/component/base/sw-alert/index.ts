@@ -80,7 +80,7 @@ Component.register('sw-alert', {
             const iconConfig: { [type: string]: string } = {
                 info: 'regular-info-circle',
                 warning: 'regular-exclamation-triangle',
-                error: 'regular-times-hexagon',
+                error: 'regular-exclamation-circle',
                 success: 'regular-check-circle',
             };
 

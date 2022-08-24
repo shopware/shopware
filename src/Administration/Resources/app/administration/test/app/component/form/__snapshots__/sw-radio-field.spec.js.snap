@@ -30,6 +30,7 @@ exports[`components/form/sw-radio-field should renders correctly with children s
       </div>
        
       <label
+        class="sw-field__radio-option-label"
         for="sw-field--currentValue-0"
       >
         <span>
@@ -69,6 +70,7 @@ exports[`components/form/sw-radio-field should renders correctly with children s
       </div>
        
       <label
+        class="sw-field__radio-option-label"
         for="sw-field--currentValue-1"
       >
         <span>
@@ -100,6 +102,7 @@ exports[`components/form/sw-radio-field should renders correctly with children s
       </div>
        
       <label
+        class="sw-field__radio-option-label"
         for="sw-field--currentValue-2"
       >
         <span>

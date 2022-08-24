@@ -111,6 +111,12 @@ Component.register('sw-code-editor', {
             required: false,
             default: null,
         },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -131,6 +137,12 @@ Component.register('sw-code-editor', {
                     readOnly: this.disabled,
                 },
                 ...this.editorConfig,
+            };
+        },
+
+        classes() {
+            return {
+                'has--error': !!this.error,
             };
         },
     },

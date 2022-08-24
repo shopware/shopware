@@ -22,7 +22,8 @@ function createWrapper(additionalOptions = {}) {
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-icon': Shopware.Component.build('sw-icon'),
             'icons-regular-lock': true,
-            'icons-regular-lock-open': true
+            'icons-regular-lock-open': true,
+            'icons-solid-exclamation-circle': true,
         },
         provide: {
             validationService: {}

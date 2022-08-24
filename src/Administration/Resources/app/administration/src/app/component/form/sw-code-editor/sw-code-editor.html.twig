@@ -1,6 +1,9 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_code_editor %}
-<div class="sw-code-editor">
+<div
+    class="sw-code-editor"
+    :class="classes"
+>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_label %}
@@ -66,5 +69,10 @@
 
     </div>
     {% endblock %}
+
+    <sw-field-error
+        v-if="error"
+        :error="error"
+    />
 </div>
 {% endblock %}

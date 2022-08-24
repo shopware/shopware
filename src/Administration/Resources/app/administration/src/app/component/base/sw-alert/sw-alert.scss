@@ -158,6 +158,14 @@ $sw-alert-size-close: 40px;
                 }
             }
         }
+
+        .sw-alert__title {
+            color: $color-crimson-900;
+        }
+
+        .sw-alert__message {
+            color: $color-crimson-900;
+        }
     }
 
     &--success {
@@ -186,6 +194,14 @@ $sw-alert-size-close: 40px;
                 }
             }
         }
+
+        .sw-alert__title {
+            color: $color-emerald-900;
+        }
+
+        .sw-alert__message {
+            color: $color-emerald-900;
+        }
     }
 
     &--info {
@@ -213,6 +229,14 @@ $sw-alert-size-close: 40px;
                     background-color: $color-shopware-brand-100;
                 }
             }
+        }
+
+        .sw-alert__title {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-alert__message {
+            color: $color-shopware-brand-500;
         }
     }
 

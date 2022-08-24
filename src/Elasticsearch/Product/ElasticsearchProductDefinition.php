@@ -314,6 +314,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'tags' => array_map(fn (string $tagId) => ['id' => $tagId, '_count' => 1], $tagIds),
                 'tagIds' => $tagIds,
                 'parentId' => $item['parentId'],
+                'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
                 'fullText' => $this->stripText(implode(' ', [$item['name'], $item['description'], $item['productNumber']])),
                 'fullTextBoosted' => $this->stripText(implode(' ', [$item['name'], $item['description'], $item['productNumber']])),

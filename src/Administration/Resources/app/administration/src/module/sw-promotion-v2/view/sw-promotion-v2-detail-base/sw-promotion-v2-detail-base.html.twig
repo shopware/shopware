@@ -23,6 +23,7 @@
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
+                required
                 :error="promotionNameError"
                 :placeholder="placeholder(promotion, 'name', $tc('sw-promotion.detail.main.general.placeholderName'))"
             />

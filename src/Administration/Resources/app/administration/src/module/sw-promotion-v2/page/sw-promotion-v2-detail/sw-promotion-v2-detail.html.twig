@@ -81,6 +81,7 @@
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
                     :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
+                    :has-error="swPromotionV2DetailBaseError"
                     :disabled="!promotionId"
                 >
                     {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}

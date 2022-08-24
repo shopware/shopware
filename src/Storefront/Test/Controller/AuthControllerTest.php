@@ -55,7 +55,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-class AuthControllerAuthTest extends TestCase
+class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;

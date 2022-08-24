@@ -6,6 +6,11 @@ use ONGR\ElasticsearchDSL\Sort\FieldSort;
 
 class CountSort extends FieldSort
 {
+    /**
+     * @param string $field
+     * @param string|null $order
+     * @param array<mixed> $params
+     */
     public function __construct($field, $order = null, $params = [])
     {
         $path = explode('.', $field);

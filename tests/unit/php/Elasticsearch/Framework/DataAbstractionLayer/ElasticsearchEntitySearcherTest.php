@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Framework\DataAbstractionLayer;
+namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
@@ -9,22 +9,19 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher
  */
 class ElasticsearchEntitySearcherTest extends TestCase
 {
-    use ElasticsearchTestTestBehaviour;
-    use IntegrationTestBehaviour;
-
     public function testWithCriteriaLimitOfZero(): void
     {
         $criteria = new Criteria();
@@ -35,13 +32,18 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects(static::never())
             ->method('search');
 
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper
+            ->method('allowSearch')
+            ->willReturn(true);
+
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(ElasticsearchHelper::class),
-            $this->getContainer()->get(CriteriaParser::class),
-            $this->getContainer()->get(AbstractElasticsearchSearchHydrator::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->createMock(EntitySearcherInterface::class),
+            $helper,
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
         );
 
         $context = Context::createDefaultContext();
@@ -49,7 +51,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $result = $searcher->search(
-            $this->getContainer()->get(ProductDefinition::class),
+            new ProductDefinition(),
             $criteria,
             $context
         );
@@ -74,34 +76,22 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
-            $this->getContainer()->get('Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner'),
+            $this->createMock(EntitySearcherInterface::class),
             $helper,
-            $this->getContainer()->get(CriteriaParser::class),
-            $this->getContainer()->get(AbstractElasticsearchSearchHydrator::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
         );
 
         $context = Context::createDefaultContext();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        try {
-            $result = $searcher->search(
-                $this->getContainer()->get(ProductDefinition::class),
-                $criteria,
-                $context
-            );
+        $result = $searcher->search(
+            new ProductDefinition(),
+            $criteria,
+            $context
+        );
 
-            static::assertEquals(0, $result->getTotal());
-        } catch (NoNodesAvailableException $e) {
-        }
-    }
-
-    protected function getDiContainer(): ContainerInterface
-    {
-        return $this->getContainer();
-    }
-
-    protected function runWorker(): void
-    {
+        static::assertEquals(0, $result->getTotal());
     }
 }

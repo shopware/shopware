@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Product;
+namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -15,7 +14,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -58,7 +56,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Exten
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -77,6 +74,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
+use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
@@ -96,7 +94,6 @@ class ElasticsearchProductTest extends TestCase
     use KernelTestBehaviour;
     use FilesystemBehaviour;
     use CacheTestBehaviour;
-    use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use QueueTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
@@ -2349,12 +2346,11 @@ class ElasticsearchProductTest extends TestCase
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(EntityMapper::class),
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(CashRounding::class),
-            $this->getContainer()->get(PriceFieldSerializer::class),
             [
                 'test_custom_date_field' => 'datetime',
             ],
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(AbstractProductSearchQueryBuilder::class)
         );
 
         $mapping = $definition->getMapping($this->context);
@@ -2373,12 +2369,11 @@ class ElasticsearchProductTest extends TestCase
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(EntityMapper::class),
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(CashRounding::class),
-            $this->getContainer()->get(PriceFieldSerializer::class),
             [
                 'test_custom_date_field' => 'datetime',
             ],
             $eventDispatcher,
+            $this->getContainer()->get(AbstractProductSearchQueryBuilder::class)
         );
 
         $context = $this->context;

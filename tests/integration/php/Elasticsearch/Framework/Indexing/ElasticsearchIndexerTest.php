@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Framework\Indexing;
+namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;

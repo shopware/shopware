@@ -132,7 +132,7 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @covers ::triggerDeprecationOrThrow
+     * @covers \Shopware\Core\Framework\Feature
      *
      * @ActiveFeatures("v6.5.0.0")
      */
@@ -159,7 +159,7 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @covers ::callInSilentIfInactive
+     * @covers \Shopware\Core\Framework\Feature
      *
      * @ActiveFeatures("v6.4.0.0")
      * @dataProvider callSilentIfInactiveProvider

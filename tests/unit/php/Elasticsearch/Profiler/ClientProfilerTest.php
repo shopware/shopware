@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Profiler;
+namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
 use Elasticsearch\ClientBuilder;
 use GuzzleHttp\Ring\Future\FutureArray;
@@ -41,12 +41,15 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame($expectedUrl, $requests[0]['url']);
-        static::assertSame($request, $requests[0]['request']);
+        static::assertEquals($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
     }
 
+    /**
+     * @return iterable<array<int, array<int, string>|string>>
+     */
     public function providerQueries(): iterable
     {
         yield 'index string' => [

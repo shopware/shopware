@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test;
+namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -8,6 +8,8 @@ use Shopware\Elasticsearch\Framework\ClientFactory;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Elasticsearch\Framework\ClientFactory
  */
 class ClientFactoryTest extends TestCase
 {

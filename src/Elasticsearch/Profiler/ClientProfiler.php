@@ -6,8 +6,14 @@ use Elasticsearch\Client;
 use Elasticsearch\Connections\ConnectionInterface;
 use Elasticsearch\Namespaces\AbstractNamespace;
 
+/**
+ * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
+ */
 class ClientProfiler extends Client
 {
+    /**
+     * @var RequestInfo[]
+     */
     private array $requests = [];
 
     public function __construct(Client $client)
@@ -19,7 +25,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @return array
+     * @param array<mixed> $request
+     *
+     * @return array<mixed>
      */
     public function search(array $request = [])
     {
@@ -44,11 +52,17 @@ class ClientProfiler extends Client
         $this->requests = [];
     }
 
+    /**
+     * @return RequestInfo[]
+     */
     public function getCalledRequests(): array
     {
         return $this->requests;
     }
 
+    /**
+     * @param array{index?: string, body?: array<mixed>} $request
+     */
     private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string
     {
         $path = $connection->getPath();

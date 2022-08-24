@@ -421,7 +421,6 @@
         "psr-4": {
             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
             "Shopware\\Administration\\Test\\": "src/Administration/Test",
-            "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
             "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
             "Shopware\\Docs\\Test\\": "src/Docs/Test",
             "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",

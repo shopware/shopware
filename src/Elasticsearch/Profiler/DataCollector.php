@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
 
+/**
+ * @phpstan-import-type RequestInfo from ClientProfiler
+ */
 class DataCollector extends BaseDataCollector
 {
     private ClientProfiler $client;
@@ -48,7 +51,7 @@ class DataCollector extends BaseDataCollector
     {
         $time = 0;
 
-        foreach ($this->data['requests'] as $calledRequest) {
+        foreach ($this->data['requests'] ?? [] as $calledRequest) {
             $time += $calledRequest['time'];
         }
 
@@ -60,16 +63,25 @@ class DataCollector extends BaseDataCollector
         return \count($this->data['requests']);
     }
 
+    /**
+     * @return RequestInfo[]
+     */
     public function getRequests(): array
     {
-        return $this->data['requests'];
+        return $this->data['requests'] ?? [];
     }
 
+    /**
+     * @return array{cluster_name: string, status: string, number_of_nodes: int}
+     */
     public function getClusterInfo(): array
     {
         return $this->data['clusterInfo'];
     }
 
+    /**
+     * @return array{index: string, status: string, pri: int, rep: int, 'docs.count': int}[]
+     */
     public function getIndices(): array
     {
         return $this->data['indices'];

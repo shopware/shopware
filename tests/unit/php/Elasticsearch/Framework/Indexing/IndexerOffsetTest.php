@@ -1,30 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test;
+namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
+use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexerOffset
  */
-class IndexOffsetTest extends TestCase
+class IndexerOffsetTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testItConvertsDefinitionsToSerilizeableNamesAndCanDoAnDefinitionRoudTrip(): void
     {
         $languageOne = new LanguageEntity();
@@ -39,18 +37,21 @@ class IndexOffsetTest extends TestCase
         ]);
 
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), new CashRounding(), $this->createMock(PriceFieldSerializer::class), [], new EventDispatcher()),
+            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), [], new EventDispatcher(), $this->createMock(AbstractProductSearchQueryBuilder::class)),
             new MockElasticsearchDefinition(new EntityMapper()),
         ];
 
+        $timestamp = (new \DateTime())->getTimestamp();
         $offset = new IndexerOffset(
             $languageCollection,
             $definitions,
-            (new \DateTime())->getTimestamp()
+            $timestamp
         );
 
         static::assertEquals(ProductDefinition::ENTITY_NAME, $offset->getDefinition());
         static::assertTrue($offset->hasNextDefinition());
+        static::assertSame($timestamp, $offset->getTimestamp());
+        static::assertNull($offset->getLastId());
 
         $offset->setNextDefinition();
 
@@ -67,6 +68,9 @@ class IndexOffsetTest extends TestCase
             ],
             $offset->getDefinitions()
         );
+
+        $offset->setLastId([]);
+        static::assertEquals([], $offset->getLastId());
     }
 
     public function testItConvertsLanguagesToSerilizeableIdsAndCanDoAnLanguageRoudTrip(): void

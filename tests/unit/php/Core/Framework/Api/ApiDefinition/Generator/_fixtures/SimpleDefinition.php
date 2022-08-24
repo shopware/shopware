@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -46,6 +47,7 @@ class SimpleDefinition extends EntityDefinition
 
                 (new StringField('required_field', 'requiredField'))->addFlags(new ApiAware(), new Required()),
                 (new StringField('read_only_field', 'readOnlyField'))->addFlags(new ApiAware(), new WriteProtected()),
+                (new StringField('runtime_field', 'runtimeField'))->addFlags(new ApiAware(), new Runtime()),
             ]
         );
     }

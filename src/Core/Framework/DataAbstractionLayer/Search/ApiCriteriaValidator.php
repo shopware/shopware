@@ -6,18 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 
 /**
  * @final tag:v6.5.0
  */
 class ApiCriteriaValidator
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     /**
      * @internal
@@ -48,6 +47,13 @@ class ApiCriteriaValidator
 
                 if (!$flag->isSourceAllowed(\get_class($context->getSource()))) {
                     throw new ApiProtectionException($accessor);
+                }
+
+                /** @var Runtime|null $runtime */
+                $runtime = $field->getFlag(Runtime::class);
+
+                if ($runtime !== null) {
+                    throw new RuntimeFieldInCriteriaException($accessor);
                 }
             }
         }

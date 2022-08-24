@@ -256,8 +256,11 @@
         <!-- Twig -->
         <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
+            <argument type="service" id="Shopware\Storefront\Theme\SalesChannelThemeLoader"/>
 
             <tag name="kernel.event_subscriber" />
+            <tag name="kernel.reset" method="reset"/>
+
             <!-- Make sure it runs after default `BundleHierarchyBuilder` -->
             <tag name="shopware.twig.hierarchy_builder" priority="500"/>
         </service>
@@ -286,6 +289,12 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\SalesChannelThemeLoader" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
     </services>

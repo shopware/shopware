@@ -17,6 +17,11 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 class Profiling extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -2;
+    }
+
     /**
      * {@inheritdoc}
      */

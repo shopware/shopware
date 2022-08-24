@@ -46,6 +46,11 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 class Framework extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
+
     public function getContainerExtension(): Extension
     {
         return new FrameworkExtension();

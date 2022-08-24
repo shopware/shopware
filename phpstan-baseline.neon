@@ -1636,11 +1636,6 @@ parameters:
 			path: src/Core/Checkout/Document/Struct/DocumentGenerateOperation.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Twig\\\\DocumentTemplateRenderer\\:\\:render\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Twig/DocumentTemplateRenderer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\:\\:getVatIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerEntity.php
@@ -12991,11 +12986,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Cart/ProductCartProcessorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartTest\\:\\:getContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductCartTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\Cart\\\\ProductCartTest\\:\\:testPriceInCart\\(\\) has parameter \\$contextOptions with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Cart/ProductCartTest.php
@@ -15449,21 +15439,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/StringTemplateRenderer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateFinder\\:\\:defineCache\\(\\) has parameter \\$queue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateFinder\\:\\:getNamespaceHierarchy\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateFinder\\:\\:\\$namespaceHierarchy type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
@@ -24881,26 +24856,6 @@ parameters:
 			path: src/Core/Framework/Test/Adapter/Twig/Extension/PhpSyntaxExtensionTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilderTest\\:\\:sortingProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilderTest\\:\\:testSortingOfTemplates\\(\\) has parameter \\$apps with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilderTest\\:\\:testSortingOfTemplates\\(\\) has parameter \\$expectedSorting with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\BundleHierarchyBuilderTest\\:\\:testSortingOfTemplates\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
@@ -28229,11 +28184,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 8
 			path: src/Core/Framework/Test/Increment/Controller/IncrementApiControllerTest.php
-
-		-
-			message: "#^Method class@anonymous/src/Core/Framework/Test/Increment/IncrementerGatewayCompilerPassTest\\.php\\:75\\:\\:list\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Increment/IncrementerGatewayCompilerPassTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) with Shopware\\\\Core\\\\Framework\\\\Increment\\\\AbstractIncrementer will always evaluate to false\\.$#"
@@ -38226,26 +38176,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\TestInheritanceBuilder\\:\\:build\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\TestInheritanceBuilder\\:\\:build\\(\\) has parameter \\$themes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\TestInheritanceBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeHierarchyBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeHierarchyBuilderTest\\:\\:assertThemes\\(\\) has parameter \\$expectation with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeHierarchyBuilderTest.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 4
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
@@ -39194,21 +39124,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilderInterface\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilderInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeNamespaceHierarchyBuilder\\:\\:detectedThemes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeNamespaceHierarchyBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeNamespaceHierarchyBuilder\\:\\:\\$themes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeNamespaceHierarchyBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\BasicOrderProductTest\\:\\:getContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/integration/php/Core/BasicOrderProductTest.php
 
 		-
 			message: "#^Method Shopware\\\\Tests\\\\Unit\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\RedisCartPersisterTest\\:\\:dataProviderInvalidData\\(\\) return type has no value type specified in iterable type iterable\\.$#"

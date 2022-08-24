@@ -19,30 +19,15 @@ use Twig\Error\SyntaxError;
 
 class DocumentTemplateRenderer
 {
-    /**
-     * @var TemplateFinder
-     */
-    private $templateFinder;
+    private TemplateFinder $templateFinder;
 
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
+    private Translator $translator;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
+    private AbstractSalesChannelContextFactory $contextFactory;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
@@ -62,6 +47,8 @@ class DocumentTemplateRenderer
     }
 
     /**
+     * @param array<string, mixed> $parameters
+     *
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -74,8 +61,6 @@ class DocumentTemplateRenderer
         ?string $languageId = null,
         ?string $locale = null
     ): string {
-        $view = $this->resolveView($view);
-
         // If parameters for specific language setting provided, inject to translator
         if ($context !== null && $salesChannelId !== null && $languageId !== null && $locale !== null) {
             $this->translator->injectSettings(
@@ -98,6 +83,9 @@ class DocumentTemplateRenderer
         $parameters['extensions'] = $documentTemplateRendererParameterEvent->getExtensions();
 
         $parameters['counter'] = new Counter();
+
+        $view = $this->resolveView($view);
+
         $rendered = $this->twig->render($view, $parameters);
 
         // If injected translator reject it
@@ -113,6 +101,8 @@ class DocumentTemplateRenderer
      */
     private function resolveView(string $view): string
     {
+        $this->templateFinder->reset();
+
         return $this->templateFinder->find($view);
     }
 }

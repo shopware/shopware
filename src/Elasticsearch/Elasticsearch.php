@@ -25,6 +25,11 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 class Elasticsearch extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

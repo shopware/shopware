@@ -15,6 +15,11 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
  */
 class System extends Bundle
 {
+    public function getTemplatePriority(): int
+    {
+        return -1;
+    }
+
     /**
      * {@inheritdoc}
      */

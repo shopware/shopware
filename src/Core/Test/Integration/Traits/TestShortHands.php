@@ -32,6 +32,9 @@ trait TestShortHands
 {
     use KernelTestBehaviour;
 
+    /**
+     * @param array<string, mixed> $options
+     */
     protected function getContext(?string $token = null, array $options = []): SalesChannelContext
     {
         $token = $token ?? Uuid::randomHex();

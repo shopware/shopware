@@ -8,12 +8,14 @@ use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\OutputStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
  * @internal should be used over the CLI only
@@ -26,11 +28,14 @@ class SystemSetupCommand extends Command
 
     private JwtCertificateGenerator $jwtCertificateGenerator;
 
-    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator)
+    private DotenvDumpCommand $dumpEnvCommand;
+
+    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator, DotenvDumpCommand $dumpEnvCommand)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
         $this->jwtCertificateGenerator = $jwtCertificateGenerator;
+        $this->dumpEnvCommand = $dumpEnvCommand;
     }
 
     protected function configure(): void
@@ -56,11 +61,13 @@ class SystemSetupCommand extends Command
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
             ->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'))
             ->addOption('cdn-strategy', null, InputOption::VALUE_OPTIONAL, 'CDN Strategy', $this->getDefault('SHOPWARE_CDN_STRATEGY_DEFAULT', 'id'))
-            ->addOption('mailer-url', null, InputOption::VALUE_OPTIONAL, 'Mailer URL', $this->getDefault('MAILER_URL', 'native://default'));
+            ->addOption('mailer-url', null, InputOption::VALUE_OPTIONAL, 'Mailer URL', $this->getDefault('MAILER_URL', 'native://default'))
+            ->addOption('dump-env', null, InputOption::VALUE_NONE, 'Dump the generated .env file in a optimized .env.local.php file, to skip parsing of the .env file on each request');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var array<string, string> $env */
         $env = [
             'APP_ENV' => $input->getOption('app-env'),
             'APP_URL' => trim($input->getOption('app-url')), /* @phpstan-ignore-line */
@@ -169,6 +176,9 @@ class SystemSetupCommand extends Command
         return 0;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getDsn(InputInterface $input, SymfonyStyle $io): array
     {
         $env = [];
@@ -234,6 +244,9 @@ class SystemSetupCommand extends Command
         return $env;
     }
 
+    /**
+     * @param array<string, string> $configuration
+     */
     private function createEnvFile(InputInterface $input, SymfonyStyle $output, array $configuration): void
     {
         $output->note('Preparing .env');
@@ -256,6 +269,13 @@ class SystemSetupCommand extends Command
         $output->note('Writing into ' . $envFile);
 
         file_put_contents($envFile, $envVars);
+
+        if (!$input->getOption('dump-env')) {
+            return;
+        }
+
+        $dumpInput = new ArrayInput(['env' => $input->getOption('app-env')], $this->dumpEnvCommand->getDefinition());
+        $this->dumpEnvCommand->run($dumpInput, $output);
     }
 
     private function generateJwt(InputInterface $input, OutputStyle $io): int

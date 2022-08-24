@@ -48,7 +48,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -606,7 +605,8 @@ class AuthControllerAuthTest extends TestCase
             $this->getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            $this->getContainer()->get(SalesChannelContextService::class)
         );
         $controller->setContainer($this->getContainer());
         $controller->setTwig($this->getContainer()->get('twig'));
@@ -614,6 +614,10 @@ class AuthControllerAuthTest extends TestCase
         return $controller;
     }
 
+    /**
+     * @param array<string, mixed> $params
+     * @param array<string, string> $salesChannelContextOptions
+     */
     private function createRequest(string $route, array $params = [], array $salesChannelContextOptions = []): Request
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
@@ -637,6 +641,9 @@ class AuthControllerAuthTest extends TestCase
         return $request;
     }
 
+    /**
+     * @return array{customer: CustomerEntity, hash: string, hashId: string}
+     */
     private function createRecovery(bool $expired = false): array
     {
         $customer = $this->createCustomer();

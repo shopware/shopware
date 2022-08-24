@@ -3471,11 +3471,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\EmailRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/EmailRuleTest.php
@@ -3492,11 +3487,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\OrderTotalAmountRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/OrderTotalAmountRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\OrderTotalAmountRuleTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/OrderTotalAmountRuleTest.php
 
@@ -4454,11 +4444,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Cart\\\\PaymentRefundProcessorTest\\:\\:getInvalidStatesForTransitions\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/Cart/PaymentRefundProcessorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Controller\\\\PaymentControllerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/Controller/PaymentControllerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\Handler\\\\PaymentHandlerRegistryTest\\:\\:appPaymentMethodUrlProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
@@ -11051,11 +11036,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\OrderSerializerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\OrderSerializerTest\\:\\:getProductData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializerTest.php
@@ -11267,11 +11247,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\ImportExportTest\\:\\:createCategoryProfileMock\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\ImportExportTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/ImportExportTest.php
 
@@ -28896,41 +28871,6 @@ parameters:
 			path: src/Core/Framework/Test/RateLimiter/Policy/TimeBackoffLimiterTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\RateLimiter\\\\RateLimiterTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\RateLimiter\\\\RateLimiterTest\\:\\:mockResetLimiter\\(\\) has parameter \\$factories with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/RateLimiter/RateLimiterTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverAppTest\\:\\:getProductData\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:addRoleToIntegration\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
@@ -30956,11 +30896,6 @@ parameters:
 			path: src/Core/Migration/Test/Migration1620374229UpdateCustomFieldNameInProductStreamTableTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1625505190AddOrderTotalAmountToCustomerTableTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1625505190AddOrderTotalAmountToCustomerTableTest.php
-
-		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1625583619MoveDataFromEventActionToFlowTest.php
@@ -31192,11 +31127,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:dataProviderPromotion\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\Migration1648031611AddOrderLineItemPromotionIdTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1648031611AddOrderLineItemPromotionIdTest.php
 
@@ -34701,11 +34631,6 @@ parameters:
 			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
-
-		-
 			message: "#^Unsafe access to private constant Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Api\\\\UserRecoveryControllerTest\\:\\:VALID_EMAIL through static\\:\\:\\.$#"
 			count: 2
 			path: src/Core/System/Test/User/Api/UserRecoveryControllerTest.php
@@ -36056,31 +35981,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/Annotation/HttpCache.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheResponseSubscriber\\:\\:getSystemStates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheResponseSubscriber\\:\\:hasInvalidationState\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheResponseSubscriber\\:\\:switchState\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheResponseSubscriber\\:\\:switchState\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheResponseSubscriber\\:\\:updateSystemState\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheStateValidator\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheStateValidator.php
@@ -36676,11 +36576,6 @@ parameters:
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AccountOrderControllerTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
-
-		-
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Storefront/Test/Controller/AccountOrderControllerTest.php
@@ -36704,21 +36599,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$actualJson of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertJsonStringEqualsJsonString\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/Api/CaptchaControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:createRecovery\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:createRequest\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\AuthControllerAuthTest\\:\\:createRequest\\(\\) has parameter \\$salesChannelContextOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/AuthControllerAuthTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CartLineItemControllerTest\\:\\:createRequest\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
@@ -36749,21 +36629,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CheckoutControllerTest\\:\\:errorDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Controller/CheckoutControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:createRequest\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:getOrderData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Controller\\\\ControllerRateLimiterTest\\:\\:mockResetLimiter\\(\\) has parameter \\$factories with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Controller/ControllerRateLimiterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Controller\\\\CookieControllerTest\\:\\:\\$cookieController is never read, only written\\.$#"

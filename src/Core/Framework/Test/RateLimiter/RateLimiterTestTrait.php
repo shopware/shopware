@@ -13,6 +13,9 @@ trait RateLimiterTestTrait
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @param array<string, int> $factories
+     */
     private function mockResetLimiter(array $factories, TestCase $phpUnit): RateLimiter
     {
         $rateLimiter = new RateLimiter();

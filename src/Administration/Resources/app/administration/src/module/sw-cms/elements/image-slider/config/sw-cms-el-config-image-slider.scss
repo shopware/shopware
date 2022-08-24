@@ -35,4 +35,10 @@
             }
         }
     }
+
+    &__setting-auto-slide {
+        &.sw-field--switch .sw-field__label label {
+            margin-right: 0;
+        }
+    }
 }

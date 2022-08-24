@@ -642,7 +642,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         buildDisabledPaymentAlert(snippet, collection, property = 'name') {
-            const route = { name: 'sw.settings.payment.index' };
+            const route = { name: 'sw.settings.payment.overview' };
             const routeData = this.$router.resolve(route);
 
             const data = {

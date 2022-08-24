@@ -11,7 +11,7 @@
         </fields>
     </entity>
 
-    <entity name="custom_entity_blog_comment">
+    <entity name="ce_blog_comment">
         <fields>
             <string name="title" required="true" translatable="true" store-api-aware="true" />
             <text name="content" allow-html="true" translatable="true" store-api-aware="true" />

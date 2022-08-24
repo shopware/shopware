@@ -32201,21 +32201,6 @@ parameters:
 			path: src/Core/System/CustomEntity/Schema/CustomEntityPersister.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\CustomEntitySchemaUpdater\\:\\:addColumns\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/CustomEntitySchemaUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\CustomEntitySchemaUpdater\\:\\:addInheritanceColumn\\(\\) has parameter \\$field with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/CustomEntitySchemaUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\CustomEntitySchemaUpdater\\:\\:defineTable\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/CustomEntitySchemaUpdater.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicEntityDefinition\\:\\:create\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
@@ -32224,22 +32209,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomEntity/Schema/DynamicEntityDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicFieldFactory\\:\\:create\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicFieldFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicFieldFactory\\:\\:defineField\\(\\) has parameter \\$field with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicFieldFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicFieldFactory\\:\\:getOnDeleteFlag\\(\\) has parameter \\$field with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/CustomEntity/Schema/DynamicFieldFactory.php
-
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Schema\\\\DynamicMappingEntityDefinition\\:\\:\\$fieldDefinitions type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -34229,26 +34198,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Test/CustomEntity/Api/CustomEntityApiControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:assertColumns\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:blog\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:blog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\CustomEntity\\\\CustomEntityTest\\:\\:\\$defaults type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/CustomEntity/CustomEntityTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Language\\\\LanguageRuleTest\\:\\:createCondition\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"

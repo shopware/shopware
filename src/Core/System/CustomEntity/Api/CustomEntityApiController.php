@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal, should only be used over the provided API
+ *
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class CustomEntityApiController extends ApiController
@@ -27,6 +29,25 @@ class CustomEntityApiController extends ApiController
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $entity = 'custom-entity-' . $entityName;
+
+        try {
+            return parent::detail($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
+     *     "/api/ce-{entityName}/{path}",
+     *     name="api.ce_entity.detail",
+     *     requirements={"path"="[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$"},
+     *     methods={"GET"}
+     * )
+     */
+    public function detailShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
 
         try {
             return parent::detail($request, $context, $responseFactory, $entity, $path);
@@ -56,6 +77,25 @@ class CustomEntityApiController extends ApiController
 
     /**
      * @Route(
+     *     "/api/search-ids/ce-{entityName}{path}",
+     *     name="api.ce_entity.search-ids",
+     *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
+     *     methods={"POST"}
+     * )
+     */
+    public function searchIdsShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
+
+        try {
+            return parent::searchIds($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
      *     "/api/search/custom-entity-{entityName}{path}",
      *     name="api.custom_entity_entity.search",
      *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
@@ -65,6 +105,25 @@ class CustomEntityApiController extends ApiController
     public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $entity = 'custom-entity-' . $entityName;
+
+        try {
+            return parent::search($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
+     *     "/api/search/ce-{entityName}{path}",
+     *     name="api.ce_entity.search",
+     *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
+     *     methods={"POST"}
+     * )
+     */
+    public function searchShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
 
         try {
             return parent::search($request, $context, $responseFactory, $entity, $path);
@@ -94,6 +153,25 @@ class CustomEntityApiController extends ApiController
 
     /**
      * @Route(
+     *     "/api/ce-{entityName}{path}",
+     *     name="api.ce_entity.list",
+     *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
+     *     methods={"GET"}
+     * )
+     */
+    public function listShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
+
+        try {
+            return parent::list($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
      *      "/api/custom-entity-{entityName}{path}",
      *     name="api.custom_entity_entity.create",
      *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
@@ -103,6 +181,25 @@ class CustomEntityApiController extends ApiController
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $entity = 'custom-entity-' . $entityName;
+
+        try {
+            return parent::create($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
+     *      "/api/ce-{entityName}{path}",
+     *     name="api.ce_entity.create",
+     *     requirements={"path"="(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$"},
+     *     methods={"POST"}
+     * )
+     */
+    public function createShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
 
         try {
             return parent::create($request, $context, $responseFactory, $entity, $path);
@@ -132,6 +229,25 @@ class CustomEntityApiController extends ApiController
 
     /**
      * @Route(
+     *     "/api/ce-{entityName}/{path}",
+     *     name="api.ce_entity.update",
+     *     requirements={"path"="[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$"},
+     *     methods={"PATCH"}
+     * )
+     */
+    public function updateShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
+
+        try {
+            return parent::update($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
      *     "/api/custom-entity-{entityName}/{path}",
      *     name="api.custom_entity_entity.delete",
      *     requirements={"path"="[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$"},
@@ -141,6 +257,25 @@ class CustomEntityApiController extends ApiController
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $entity = 'custom-entity-' . $entityName;
+
+        try {
+            return parent::delete($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
+    }
+
+    /**
+     * @Route(
+     *     "/api/ce-{entityName}/{path}",
+     *     name="api.ce_entity.delete",
+     *     requirements={"path"="[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$"},
+     *     methods={"DELETE"}
+     * )
+     */
+    public function deleteShorthand(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
+    {
+        $entity = 'ce-' . $entityName;
 
         try {
             return parent::delete($request, $context, $responseFactory, $entity, $path);

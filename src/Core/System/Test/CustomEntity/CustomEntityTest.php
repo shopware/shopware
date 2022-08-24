@@ -75,6 +75,9 @@ class CustomEntityTest extends TestCase
 
     private const CATEGORY_TYPE = 'custom-entity-unit-test';
 
+    /**
+     * @var array<string, mixed>
+     */
     private static array $defaults = [
         'position' => 1,
         'rating' => 2.2,
@@ -172,7 +175,7 @@ class CustomEntityTest extends TestCase
         $schema = $this->getSchema();
 
         self::assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
-        self::assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at']);
+        self::assertColumns($schema, 'ce_blog_comment', ['id', 'created_at', 'updated_at']);
         self::assertColumns($schema, 'custom_entity_to_remove', ['id', 'created_at', 'updated_at']);
 
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/update.xml');
@@ -187,9 +190,9 @@ class CustomEntityTest extends TestCase
         $schema = $this->getSchema();
 
         self::assertColumns($schema, 'custom_entity_blog', ['id', 'created_at', 'updated_at', 'rating', 'payload', 'email']);
-        self::assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at', 'email']);
+        self::assertColumns($schema, 'ce_blog_comment', ['id', 'created_at', 'updated_at', 'email']);
 
-        static::assertFalse($schema->getTable('product')->hasColumn('custom_entity_blog_comment_products_reverse_id'));
+        static::assertFalse($schema->getTable('product')->hasColumn('ce_blog_comment_products_reverse_id'));
         static::assertFalse($schema->getTable('product')->hasColumn('custom_entity_to_remove_products_reverse_id'));
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
@@ -230,8 +233,8 @@ class CustomEntityTest extends TestCase
 
         self::assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_restrict_id', 'top_seller_restrict_version_id', 'top_seller_cascade_id', 'top_seller_cascade_version_id', 'top_seller_set_null_id', 'top_seller_set_null_version_id', 'link_product_restrict_id', 'link_product_restrict_version_id', 'link_product_cascade_id', 'link_product_cascade_version_id', 'link_product_set_null_id', 'link_product_set_null_version_id', 'inherited_top_seller_id', 'inherited_top_seller_version_id', 'created_at', 'updated_at', 'position', 'rating', 'payload', 'email']);
         self::assertColumns($schema, 'custom_entity_blog_translation', ['custom_entity_blog_id', 'language_id', 'created_at', 'updated_at', 'title', 'content', 'display']);
-        self::assertColumns($schema, 'custom_entity_blog_comment', ['id', 'recommendation_id', 'recommendation_version_id', 'created_at', 'updated_at', 'email']);
-        self::assertColumns($schema, 'custom_entity_blog_comment_translation', ['custom_entity_blog_comment_id', 'language_id', 'created_at', 'updated_at', 'title', 'content']);
+        self::assertColumns($schema, 'ce_blog_comment', ['id', 'recommendation_id', 'recommendation_version_id', 'created_at', 'updated_at', 'email']);
+        self::assertColumns($schema, 'ce_blog_comment_translation', ['ce_blog_comment_id', 'language_id', 'created_at', 'updated_at', 'title', 'content']);
         self::assertColumns($schema, 'custom_entity_blog_products', ['custom_entity_blog_id', 'product_id', 'product_version_id']);
         self::assertColumns($schema, 'product', ['customEntityBlogInheritedProducts', 'customEntityBlogInheritedTopSeller']);
         self::assertColumns($schema, 'category', ['custom_entity_blog_links_restrict_id', 'custom_entity_blog_links_set_null_id']);
@@ -253,10 +256,10 @@ class CustomEntityTest extends TestCase
         $cascade = $event->getPrimaryKeys('custom_entity_blog_products');
         static::assertCount(2, $cascade);
 
-        $cascade = $event->getPrimaryKeys('custom_entity_blog_comment');
+        $cascade = $event->getPrimaryKeys('ce_blog_comment');
         static::assertCount(2, $cascade);
 
-        $cascade = $event->getPrimaryKeys('custom_entity_blog_comment_translation');
+        $cascade = $event->getPrimaryKeys('ce_blog_comment_translation');
         static::assertCount(2, $cascade);
 
         $cascade = $event->getPrimaryKeys('custom_entity_blog_translation');
@@ -543,6 +546,9 @@ class CustomEntityTest extends TestCase
         static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
     }
 
+    /**
+     * @param list<string> $columns
+     */
     private static function assertColumns(Schema $schema, string $table, array $columns): void
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
@@ -584,7 +590,7 @@ class CustomEntityTest extends TestCase
                         new OneToManyField(['name' => 'links_restrict', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'restrict']),
                         new OneToManyField(['name' => 'links_set_null', 'storeApiAware' => true, 'reference' => 'category', 'onDelete' => 'set-null']),
 
-                        new OneToManyField(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'custom_entity_blog_comment', 'onDelete' => 'cascade', 'reverseRequired' => true]),
+                        new OneToManyField(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'ce_blog_comment', 'onDelete' => 'cascade', 'reverseRequired' => true]),
 
                         new ManyToManyField(['name' => 'inherited_products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => true]),
                         new ManyToOneField(['name' => 'inherited_top_seller', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
@@ -592,7 +598,7 @@ class CustomEntityTest extends TestCase
                     ],
                 ]),
                 new Entity([
-                    'name' => 'custom_entity_blog_comment',
+                    'name' => 'ce_blog_comment',
                     'fields' => [
                         new StringField(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
                         new TextField(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
@@ -609,7 +615,7 @@ class CustomEntityTest extends TestCase
     private function testPersist(): void
     {
         $storage = $this->getContainer()->get(Connection::class)
-            ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name');
+            ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name DESC');
 
         static::assertCount(2, $storage);
 
@@ -632,7 +638,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'link_product_set_null', 'type' => 'one-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => false, 'inherited' => false, 'onDelete' => 'set-null'],
             ['name' => 'links_restrict', 'type' => 'one-to-many', 'reference' => 'category', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict', 'reverseRequired' => false],
             ['name' => 'links_set_null', 'type' => 'one-to-many', 'reference' => 'category', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'set-null', 'reverseRequired' => false],
-            ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'custom_entity_blog_comment', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'reverseRequired' => true],
+            ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'ce_blog_comment', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'reverseRequired' => true],
             ['name' => 'inherited_products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'cascade'],
             ['name' => 'inherited_top_seller', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'set-null'],
             ['name' => 'inherited_link_product', 'type' => 'one-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => true, 'onDelete' => 'set-null'],
@@ -647,7 +653,7 @@ class CustomEntityTest extends TestCase
             ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false],
             ['name' => 'recommendation', 'type' => 'many-to-one', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'inherited' => false, 'onDelete' => 'set-null'],
         ];
-        static::assertEquals('custom_entity_blog_comment', $storage[1]['name']);
+        static::assertEquals('ce_blog_comment', $storage[1]['name']);
         static::assertEquals($fields, json_decode($storage[1]['fields'], true));
 
         static::assertNotNull($storage[0]['created_at']);
@@ -669,7 +675,7 @@ class CustomEntityTest extends TestCase
 
     private function testRepository(IdsCollection $ids, ContainerInterface $container): void
     {
-        $blogs = self::blog('blog-2', $ids, []);
+        $blogs = self::blog('blog-2', $ids);
 
         /** @var EntityRepository|null $repository */
         $repository = $container->get('custom_entity_blog.repository');
@@ -835,7 +841,7 @@ class CustomEntityTest extends TestCase
             'ids' => [$ids->get('blog-3')],
             'includes' => [
                 'custom_entity_blog' => ['id', 'title', 'rating', 'content', 'email', 'comments', 'linkProductCascade', 'topSellerCascade', 'translated'],
-                'custom_entity_blog_comment' => ['title', 'content', 'email'],
+                'ce_blog_comment' => ['title', 'content', 'email'],
                 'product' => ['name', 'productNumber', 'price'],
                 'dal_entity_search_result' => ['elements'],
             ],
@@ -881,8 +887,8 @@ class CustomEntityTest extends TestCase
                             'apiAlias' => 'product',
                         ],
                         'comments' => [
-                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
-                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
+                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'ce_blog_comment'],
+                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'ce_blog_comment'],
                         ],
                         'apiAlias' => 'custom_entity_blog',
                     ],
@@ -895,9 +901,12 @@ class CustomEntityTest extends TestCase
         static::assertArrayNotHasKey('price', $response['blogs']['elements'][0]['topSellerCascade']);
     }
 
-    private static function blog(string $key, IdsCollection $ids, array $data = []): array
+    /**
+     * @return array<string, mixed>
+     */
+    private static function blog(string $key, IdsCollection $ids): array
     {
-        return \array_merge([
+        return [
             'id' => $ids->get($key),
             'position' => 1,
             'rating' => 2.2,
@@ -926,7 +935,7 @@ class CustomEntityTest extends TestCase
                 (new ProductBuilder($ids, $key . '.products-1'))->price(100)->build(),
                 (new ProductBuilder($ids, $key . '.products-2'))->price(100)->build(),
             ],
-        ], $data);
+        ];
     }
 
     private function transactional(\Closure $closure): void
@@ -1032,7 +1041,7 @@ class CustomEntityTest extends TestCase
 
                 (new DAL\OneToManyAssociationField('linksSetNull', 'category', 'custom_entity_blog_links_set_null_id', 'id'))->addFlags(new DAL\Flag\SetNullOnDelete()),
 
-                (new DAL\OneToManyAssociationField('comments', 'custom_entity_blog_comment', 'custom_entity_blog_comments_id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
+                (new DAL\OneToManyAssociationField('comments', 'ce_blog_comment', 'custom_entity_blog_comments_id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
 
                 (new ManyToManyAssociationField('inheritedProducts', 'product', 'custom_entity_blog_inherited_products', 'custom_entity_blog_id', 'product_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete(), new DAL\Flag\ReverseInherited('customEntityBlogInheritedProducts')),
 
@@ -1139,10 +1148,10 @@ class CustomEntityTest extends TestCase
             'custom_entity_blog:create',
             'custom_entity_blog:update',
             'custom_entity_blog:delete',
-            'custom_entity_blog_comment:read',
-            'custom_entity_blog_comment:create',
-            'custom_entity_blog_comment:update',
-            'custom_entity_blog_comment:delete',
+            'ce_blog_comment:read',
+            'ce_blog_comment:create',
+            'ce_blog_comment:update',
+            'ce_blog_comment:delete',
         ];
 
         static::assertInstanceOf(AclRoleEntity::class, $app->getAclRole());

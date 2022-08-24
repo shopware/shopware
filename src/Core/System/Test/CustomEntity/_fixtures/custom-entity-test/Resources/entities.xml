@@ -43,8 +43,8 @@
             <!-- set custom_entity_blog_links_id to null, when the custom_entity_blog record deleted -->
             <one-to-many name="links_set_null" reference="category" store-api-aware="true" on-delete="set-null" />
 
-            <!-- delete all custom_entity_blog_comment records, when the linked custom_entity_blog record deleted -->
-            <one-to-many name="comments" reference="custom_entity_blog_comment" store-api-aware="true" on-delete="cascade" reverse-required="true" />
+            <!-- delete all ce_blog_comment records, when the linked custom_entity_blog record deleted -->
+            <one-to-many name="comments" reference="ce_blog_comment" store-api-aware="true" on-delete="cascade" reverse-required="true" />
 
             <many-to-many name="inherited_products" reference="product" store-api-aware="true" inherited="true"/>
             <many-to-one name="inherited_top_seller" reference="product" store-api-aware="true" required="false" inherited="true" on-delete="set-null"/>
@@ -53,10 +53,10 @@
         </fields>
     </entity>
 
-    <entity name="custom_entity_blog_comment">
+    <entity name="ce_blog_comment">
         <fields>
             <string name="title" required="true" translatable="true" store-api-aware="true" />
-            <!-- <fk name="custom_entity_blog_comments_id" required="true"   <<< defined over the one-to-many association -->
+            <!-- <fk name="ce_blog_comments_id" required="true"   <<< defined over the one-to-many association -->
             <text name="content" allow-html="true" translatable="true" store-api-aware="true" />
             <email name="email"  store-api-aware="false" />
             <many-to-one name="recommendation" reference="product" store-api-aware="true" required="false" on-delete="set-null" />

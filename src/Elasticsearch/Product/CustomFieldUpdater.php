@@ -56,13 +56,10 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 continue;
             }
 
+            /** @var array<mixed> $esType */
             $esType = self::getTypeFromCustomFieldType($writeResult->getProperty('type'));
 
-            if ($esType === null) {
-                continue;
-            }
-
-            $newCreatedFields[$writeResult->getProperty('name')] = $esType;
+            $newCreatedFields[(string) $writeResult->getProperty('name')] = $esType;
         }
 
         if (\count($newCreatedFields) === 0) {
@@ -72,6 +69,11 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $this->createNewFieldsInIndices($newCreatedFields);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Return type will be changed to not nullable - reason:return-type-change
+     *
+     * @return array<mixed>|null
+     */
     public static function getTypeFromCustomFieldType(string $type): ?array
     {
         switch ($type) {
@@ -115,6 +117,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, array<mixed>> $newCreatedFields
+     */
     private function createNewFieldsInIndices(array $newCreatedFields): void
     {
         $indices = $this->indexDetector->getAllUsedIndices();

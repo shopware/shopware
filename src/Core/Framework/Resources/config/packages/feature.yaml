@@ -261,3 +261,8 @@ shopware:
         major: true
         description: "Change admin criteria defaults"
         # issue: NEXT_21547
+      - name: FEATURE_NEXT_22900
+        default: false
+        major: true
+        description: "Admin search configuration is used in Elasticsearch"
+        # issue: NEXT-22900

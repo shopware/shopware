@@ -6,23 +6,14 @@ use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
@@ -30,9 +21,12 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
 
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
-    private const PRODUCT_NAME_FIELDS = ['product_translation.translation.name', 'product_translation.translation.fallback_1.name', 'product_translation.translation.fallback_2.name'];
-    private const PRODUCT_DESCRIPTION_FIELDS = ['product_translation.translation.description', 'product_translation.translation.fallback_1.description', 'product_translation.translation.fallback_2.description'];
-    private const PRODUCT_CUSTOM_FIELDS = ['product_translation.translation.custom_fields', 'product_translation.translation.fallback_1.custom_fields', 'product_translation.translation.fallback_2.custom_fields'];
+    private const SEARCH_FIELD = [
+        'fields' => [
+            'search' => ['type' => 'text'],
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
 
     protected ProductDefinition $definition;
 
@@ -45,14 +39,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private Connection $connection;
 
-    private CashRounding $rounding;
-
-    private PriceFieldSerializer $priceFieldSerializer;
-
     /**
      * @var array<string, string>|null
      */
     private ?array $customFieldsTypes = null;
+
+    private AbstractProductSearchQueryBuilder $searchQueryBuilder;
 
     /**
      * @internal
@@ -63,18 +55,16 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ProductDefinition $definition,
         EntityMapper $mapper,
         Connection $connection,
-        CashRounding $rounding,
-        PriceFieldSerializer $priceFieldSerializer,
         array $customMapping,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AbstractProductSearchQueryBuilder $searchQueryBuilder
     ) {
         parent::__construct($mapper);
         $this->definition = $definition;
         $this->connection = $connection;
-        $this->rounding = $rounding;
-        $this->priceFieldSerializer = $priceFieldSerializer;
         $this->customMapping = $customMapping;
         $this->eventDispatcher = $eventDispatcher;
+        $this->searchQueryBuilder = $searchQueryBuilder;
     }
 
     public function getEntityDefinition(): EntityDefinition
@@ -83,7 +73,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @return array<mixed>
+     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
      */
     public function getMapping(Context $context): array
     {
@@ -102,22 +92,34 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
+                'categories' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => EntityMapper::KEYWORD_FIELD,
+                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
+                    ],
+                ],
                 'childCount' => EntityMapper::INT_FIELD,
                 'autoIncrement' => EntityMapper::INT_FIELD,
-                'description' => EntityMapper::KEYWORD_FIELD,
+                'manufacturerNumber' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'description' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'metaTitle' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
+                'metaDescription' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'displayGroup' => EntityMapper::KEYWORD_FIELD,
-                'ean' => EntityMapper::KEYWORD_FIELD,
+                'ean' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'height' => EntityMapper::FLOAT_FIELD,
                 'length' => EntityMapper::FLOAT_FIELD,
                 'manufacturer' => [
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'markAsTopseller' => EntityMapper::BOOLEAN_FIELD,
-                'name' => EntityMapper::KEYWORD_FIELD,
+                'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
@@ -126,7 +128,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
-                'productNumber' => EntityMapper::KEYWORD_FIELD,
+                'productNumber' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [
@@ -151,6 +153,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                         '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
@@ -166,6 +169,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'weight' => EntityMapper::FLOAT_FIELD,
                 'width' => EntityMapper::FLOAT_FIELD,
                 'customFields' => $this->getCustomFieldsMapping($context),
+                'customSearchKeywords' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
             ],
             'dynamic_templates' => [
                 [
@@ -191,17 +195,25 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Use `fetch()` instead
+     *
      * @param array<mixed> $documents
      *
      * @return array<mixed>
      */
     public function extendDocuments(array $documents, Context $context): array
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Use `fetch()` instead');
+
         return $documents;
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
+        if (Feature::isActive('FEATURE_NEXT_22900')) {
+            return $this->searchQueryBuilder->buildQuery($criteria, $context);
+        }
+
         $query = parent::buildTermQuery($context, $criteria);
 
         $query->add(
@@ -231,22 +243,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             }
         }
 
-        $groups = $this->fetchPropertyGroups(\array_keys($groupIds));
-
-        $currencies = $context->getExtension('currencies');
-
-        if (!$currencies instanceof EntityCollection) {
-            throw new \RuntimeException('Currencies are required for indexing process');
-        }
-
-        $tmpField = new PriceField('purchasePrices', 'purchasePrices');
+        $groups = $this->fetchPropertyGroups(\array_keys($groupIds), $context);
 
         $documents = [];
 
         foreach ($data as $id => $item) {
-            $visibilities = array_filter(explode('|', $item['visibilities'] ?? ''));
+            $visibilities = array_unique(array_filter(explode('|', $item['visibilities'] ?? '')));
 
-            $visibilities = array_map(function (string $text) {
+            $visibilities = array_map(static function (string $text) {
                 [$visibility, $salesChannelId] = explode(',', $text);
 
                 return [
@@ -256,34 +260,31 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ];
             }, $visibilities);
 
-            $prices = [];
-            $purchase = [];
+            $optionIds = json_decode($item['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $propertyIds = json_decode($item['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
-            $purchasePrices = $this->priceFieldSerializer->decode($tmpField, $item['purchasePrices']);
-            $price = $this->priceFieldSerializer->decode($tmpField, $item['price']);
-
-            foreach ($currencies as $currency) {
-                $key = 'c_' . $currency->getId();
-
-                $prices[$key] = $this->getCurrencyPrice($id, $price, $currency);
-                $purchase[$key] = $this->getCurrencyPurchasePrice($purchasePrices, $currency);
-            }
-
-            $optionIds = json_decode($item['optionIds'] ?? '[]', true);
-            $propertyIds = json_decode($item['propertyIds'] ?? '[]', true);
-            $tagIds = json_decode($item['tagIds'] ?? '[]', true);
-            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true);
+            $translations = $this->filterToOne(json_decode($item['translation'], true, 512, \JSON_THROW_ON_ERROR));
+            $parentTranslations = $this->filterToOne(json_decode($item['translation_parent'], true, 512, \JSON_THROW_ON_ERROR));
+            $manufacturer = $this->filterToOne(json_decode($item['manufacturer_translation'], true, 512, \JSON_THROW_ON_ERROR));
+            $tags = $this->filterToOne(json_decode($item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
+            $categories = $this->filterToMany(json_decode($item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
             $document = [
                 'id' => $id,
-                'name' => $this->stripText($item['name'] ?? ''),
+                'name' => $this->stripText($this->takeItem('name', $context, $translations, $parentTranslations) ?? ''),
+                'description' => $this->stripText($this->takeItem('description', $context, $translations, $parentTranslations) ?? ''),
+                'metaTitle' => $this->stripText($this->takeItem('metaTitle', $context, $translations, $parentTranslations) ?? ''),
+                'metaDescription' => $this->stripText($this->takeItem('metaDescription', $context, $translations, $parentTranslations) ?? ''),
+                'customSearchKeywords' => json_decode($this->takeItem('customSearchKeywords', $context, $translations, $parentTranslations) ?? '[]', true, 512, \JSON_THROW_ON_ERROR),
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
                 'available' => (bool) $item['available'],
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'markAsTopseller' => (bool) $item['markAsTopseller'],
-                'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : [], $context),
+                'customFields' => $this->formatCustomFields($this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [], $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
@@ -291,37 +292,43 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
                 'stock' => (int) $item['stock'],
-                'description' => $this->stripText((string) $item['description']),
                 'weight' => (float) $item['weight'],
                 'width' => (float) $item['width'],
                 'length' => (float) $item['length'],
                 'height' => (float) $item['height'],
-                'price' => $prices,
-                'purchasePrices' => $purchase,
                 'manufacturerId' => $item['productManufacturerId'],
+                'manufacturerNumber' => $item['manufacturerNumber'],
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
+                    'name' => $this->takeItem('name', $context, $manufacturer) ?? '',
                     '_count' => 1,
                 ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'optionIds' => $optionIds,
-                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $groups[$optionId], '_count' => 1], $optionIds),
+                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId]['name'], 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds),
+                'categories' => array_map(function ($category) use ($context) {
+                    return [
+                        'id' => $category[Defaults::LANGUAGE_SYSTEM]['id'],
+                        'name' => $this->takeItem('name', $context, $category) ?? '',
+                    ];
+                }, $categories),
                 'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo),
-                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'groupId' => $groups[$propertyId], '_count' => 1], $propertyIds),
+                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
-                'tags' => array_map(fn (string $tagId) => ['id' => $tagId, '_count' => 1], $tagIds),
+                'tags' => array_map(fn (string $tagId) => ['id' => $tagId, 'name' => $tags[$tagId]['name'], '_count' => 1], $tagIds),
                 'tagIds' => $tagIds,
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
-                'fullText' => $this->stripText(implode(' ', [$item['name'], $item['description'], $item['productNumber']])),
-                'fullTextBoosted' => $this->stripText(implode(' ', [$item['name'], $item['description'], $item['productNumber']])),
             ];
 
+            $document['fullText'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
+            $document['fullTextBoosted'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
+
             if ($item['cheapest_price_accessor']) {
-                $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true);
+                $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
 
                 foreach ($cheapestPriceAccessor as $rule => $cheapestPriceCurrencies) {
                     foreach ($cheapestPriceCurrencies as $currency => $taxes) {
@@ -351,147 +358,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @param array<string> $fields
-     */
-    private function buildCoalesce(array $fields, Context $context): string
-    {
-        $fields = array_splice($fields, 0, \count($context->getLanguageIdChain()));
-
-        $coalesce = 'COALESCE(';
-
-        foreach ($fields as $field) {
-            foreach (['product_translation_main', 'product_translation_parent'] as $join) {
-                $coalesce .= sprintf('%s.`%s`', $join, $field) . ',';
-            }
-        }
-
-        return substr($coalesce, 0, -1) . ')';
-    }
-
-    private function getTranslationQuery(Context $context): QueryBuilder
-    {
-        $query = new QueryBuilder($this->connection);
-
-        $productAlias = 'p';
-        $query->from('product ', $productAlias);
-        $parentIdSelector = 'SELECT DISTINCT `p`.parent_id FROM `product` p WHERE p.id IN(:ids)';
-        $query->select(EntityDefinitionQueryHelper::escape($productAlias) . '.id AS product_id');
-        $query->where(EntityDefinitionQueryHelper::escape($productAlias) . '.id IN (:ids) OR '
-            . EntityDefinitionQueryHelper::escape($productAlias) . '.id IN(' . $parentIdSelector . ')');
-
-        $chain = $context->getLanguageIdChain();
-
-        $firstAlias = 'product_translation.translation';
-
-        foreach ($chain as $i => $language) {
-            $languageQuery = new QueryBuilder($this->connection);
-
-            $alias = 'pt';
-            $outerAlias = 'product_translation.translation.fallback_' . $i;
-            $languageParam = 'languageId' . $i;
-            if ($i === 0) {
-                $outerAlias = $firstAlias;
-                $languageParam = 'languageId';
-            }
-
-            $languageQuery->from('product_translation ' . EntityDefinitionQueryHelper::escape($alias));
-            $languageQuery->andWhere(EntityDefinitionQueryHelper::escape($alias) . '.language_id = :' . $languageParam);
-            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.product_id');
-            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.name');
-            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.description');
-            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.custom_fields');
-
-            $query->addSelect(
-                EntityDefinitionQueryHelper::escape($outerAlias) . '.name AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.name'),
-                EntityDefinitionQueryHelper::escape($outerAlias) . '.description AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.description'),
-                EntityDefinitionQueryHelper::escape($outerAlias) . '.custom_fields AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.custom_fields'),
-            );
-
-            $query->leftJoin(
-                $productAlias,
-                '(' . $languageQuery->getSQL() . ')',
-                EntityDefinitionQueryHelper::escape($outerAlias),
-                EntityDefinitionQueryHelper::escape($productAlias) . '.id = '
-                . EntityDefinitionQueryHelper::escape($outerAlias) . '.product_id'
-            );
-            $query->setParameter($languageParam, Uuid::fromHexToBytes($language));
-        }
-
-        return $query;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getCurrencyPrice(string $id, ?PriceCollection $prices, CurrencyEntity $currency): array
-    {
-        if ($prices === null) {
-            return [];
-        }
-
-        $origin = $prices->getCurrencyPrice($currency->getId());
-
-        if (!$origin) {
-            throw new \RuntimeException(sprintf('Missing default price for product %s', $id));
-        }
-
-        return $this->getPrice($origin, $currency);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getCurrencyPurchasePrice(?PriceCollection $prices, CurrencyEntity $currency): array
-    {
-        if ($prices === null) {
-            return [];
-        }
-
-        if ($prices->count() === 0) {
-            return [];
-        }
-
-        $origin = $prices->getCurrencyPrice($currency->getId());
-
-        if (!$origin) {
-            return [];
-        }
-
-        return $this->getPrice(clone $origin, $currency);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getPrice(Price $origin, CurrencyEntity $currency): array
-    {
-        $price = clone $origin;
-
-        // fallback price returned?
-        if ($price->getCurrencyId() !== $currency->getId()) {
-            $price->setGross($price->getGross() * $currency->getFactor());
-            $price->setNet($price->getNet() * $currency->getFactor());
-        }
-
-        $config = $currency->getItemRounding();
-
-        $price->setGross(
-            $this->rounding->cashRound($price->getGross(), $config)
-        );
-
-        if ($config->roundForNet()) {
-            $price->setNet(
-                $this->rounding->cashRound($price->getNet(), $config)
-            );
-        }
-
-        return json_decode(JsonFieldSerializer::encodeJson($price), true);
-    }
-
-    /**
      * @param array<string> $ids
      *
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     private function fetchProducts(array $ids, Context $context): array
     {
@@ -500,9 +369,71 @@ SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
     p.available AS available,
-    :nameTranslated: AS name,
-    :descriptionTranslated: AS description,
-    :customFieldsTranslated: AS customFields,
+    CONCAT(
+		'[',
+			GROUP_CONCAT(
+			    JSON_OBJECT(
+			        'languageId', lower(hex(product_main.language_id)),
+			        'name', product_main.name,
+			        'description', product_main.description,
+			        'metaTitle', product_main.meta_title,
+			        'metaDescription', product_main.meta_description,
+			        'customSearchKeywords', product_main.custom_search_keywords,
+			        'customFields', product_main.custom_fields
+                )
+            ),
+		']'
+    ) as translation,
+    CONCAT(
+		'[',
+			GROUP_CONCAT(
+			    JSON_OBJECT(
+			        'languageId', lower(hex(product_parent.language_id)),
+			        'name', product_parent.name,
+			        'description', product_parent.description,
+			        'metaTitle', product_parent.meta_title,
+			        'metaDescription', product_parent.meta_description,
+			        'customSearchKeywords', product_parent.custom_search_keywords,
+			        'customFields', product_parent.custom_fields
+                )
+            ),
+		']'
+    ) as translation_parent,
+    CONCAT(
+		'[',
+			GROUP_CONCAT(
+			    JSON_OBJECT(
+			        'languageId', lower(hex(product_manufacturer_translation.language_id)),
+			        'name', product_manufacturer_translation.name
+                )
+            ),
+		']'
+    ) as manufacturer_translation,
+
+    CONCAT(
+        '[',
+        GROUP_CONCAT(
+			    JSON_OBJECT(
+			        'id', lower(hex(tag.id)),
+			        'name', tag.name
+                )
+            ),
+        ']'
+    ) as tags,
+
+    CONCAT(
+        '[',
+        GROUP_CONCAT(
+			    JSON_OBJECT(
+			        'id', lower(hex(category_translation.category_id)),
+			        'languageId', lower(hex(category_translation.language_id)),
+			        'name', category_translation.name
+                )
+            ),
+        ']'
+    ) as categories,
+
+    IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
     p.product_number as productNumber,
@@ -525,8 +456,6 @@ SELECT
     IFNULL(p.stock, pp.stock) AS stock,
     IFNULL(p.ean, pp.ean) AS ean,
     IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
-    p.purchase_prices as purchasePrices,
-    p.price as price,
     p.auto_increment as autoIncrement,
     GROUP_CONCAT(CONCAT(product_visibility.visibility, ',', LOWER(HEX(product_visibility.sales_channel_id))) SEPARATOR '|') AS visibilities,
     p.display_group as displayGroup,
@@ -536,37 +465,33 @@ SELECT
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
-    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = :liveVersionId)
+    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id)
+    LEFT JOIN product_translation product_main ON (product_main.product_id = p.id AND product_main.product_version_id = p.version_id AND product_main.language_id IN(:languageIds))
+    LEFT JOIN product_translation product_parent ON (product_parent.product_id = p.parent_id AND product_parent.product_version_id = p.version_id AND product_parent.language_id IN(:languageIds))
 
-    LEFT JOIN (
-        :productTranslationQuery:
-    ) product_translation_main ON (product_translation_main.product_id = p.id)
+    LEFT JOIN product_manufacturer_translation on (product_manufacturer_translation.product_manufacturer_id = IFNULL(p.product_manufacturer_id, pp.product_manufacturer_id) AND product_manufacturer_translation.product_manufacturer_version_id = p.version_id AND product_manufacturer_translation.language_id IN(:languageIds))
 
-    LEFT JOIN (
-        :productTranslationQuery:
-    ) product_translation_parent ON (product_translation_parent.product_id = p.parent_id)
+    LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
+    LEFT JOIN tag ON (tag.id = product_tag.tag_id)
+
+    LEFT JOIN product_category ON (product_category.product_id = p.categories AND product_category.product_version_id = p.version_id)
+    LEFT JOIN category_translation ON (category_translation.category_id = product_category.category_id AND category_translation.category_version_id = product_category.category_version_id AND category_translation.language_id IN(:languageIds))
 
 WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
 
 GROUP BY p.id
 SQL;
-        $translationQuery = $this->getTranslationQuery($context);
 
-        $replacements = [
-            ':productTranslationQuery:' => $translationQuery->getSQL(),
-            ':nameTranslated:' => $this->buildCoalesce(self::PRODUCT_NAME_FIELDS, $context),
-            ':descriptionTranslated:' => $this->buildCoalesce(self::PRODUCT_DESCRIPTION_FIELDS, $context),
-            ':customFieldsTranslated:' => $this->buildCoalesce(self::PRODUCT_CUSTOM_FIELDS, $context),
-        ];
-
-        $data = $this->connection->fetchAll(
-            str_replace(array_keys($replacements), $replacements, $sql),
-            array_merge([
+        $data = $this->connection->fetchAllAssociative(
+            $sql,
+            [
                 'ids' => $ids,
+                'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
-            ], $translationQuery->getParameters()),
+            ],
             [
                 'ids' => Connection::PARAM_STR_ARRAY,
+                'languageIds' => Connection::PARAM_STR_ARRAY,
             ]
         );
 
@@ -586,11 +511,8 @@ SQL;
         ];
 
         foreach ($fieldMapping as $name => $type) {
+            /** @var array<mixed> $esType */
             $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
-
-            if ($esType === null) {
-                continue;
-            }
 
             $mapping['properties'][$name] = $esType;
         }
@@ -629,13 +551,53 @@ SQL;
     /**
      * @param array<string> $propertyIds
      *
-     * @return array<int|string, mixed>
+     * @return array<string, array{id: string, name: string, property_group_id: string, translations: string}>
      */
-    private function fetchPropertyGroups(array $propertyIds = []): array
+    private function fetchPropertyGroups(array $propertyIds, Context $context): array
     {
-        $sql = 'SELECT LOWER(HEX(id)), LOWER(HEX(property_group_id)) FROM property_group_option WHERE id in (?)';
+        $sql = <<<'SQL'
+SELECT
+       LOWER(HEX(id)) as id,
+       LOWER(HEX(property_group_id)) as property_group_id,
+       CONCAT(
+               '[',
+               GROUP_CONCAT(
+                       JSON_OBJECT(
+                               'languageId', lower(hex(property_group_option_translation.language_id)),
+                               'name', property_group_option_translation.name
+                           )
+                   ),
+               ']'
+           ) as translations
+FROM property_group_option
+         LEFT JOIN property_group_option_translation
+                   ON (property_group_option_translation.property_group_option_id = property_group_option.id AND
+                       property_group_option_translation.language_id IN (:languageIds))
 
-        return $this->connection->fetchAllKeyValue($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
+WHERE property_group_option.id in (:ids)
+GROUP BY property_group_option.id
+SQL;
+
+        /** @var array<string, array{id: string, property_group_id: string, translations: string}> $options */
+        $options = $this->connection->fetchAllAssociativeIndexed(
+            $sql,
+            [
+                'ids' => Uuid::fromHexToBytesList($propertyIds),
+                'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+                'languageIds' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
+
+        foreach ($options as $optionId => $option) {
+            $translation = $this->filterToOne(json_decode($option['translations'], true));
+
+            $options[(string) $optionId]['name'] = (string) $this->takeItem('name', $context, $translation);
+        }
+
+        return $options;
     }
 
     /**
@@ -672,5 +634,68 @@ WHERE custom_field_set_relation.entity_name = "product"
         $this->customFieldsTypes = $event->getMappings();
 
         return $this->customFieldsTypes;
+    }
+
+    /**
+     * @param array<mixed> $items
+     *
+     * @return mixed|null
+     */
+    private function takeItem(string $key, Context $context, ...$items)
+    {
+        foreach ($context->getLanguageIdChain() as $languageId) {
+            foreach ($items as $item) {
+                if (isset($item[$languageId][$key])) {
+                    return $item[$languageId][$key];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<mixed>[] $items
+     *
+     * @return array<int|string, mixed>
+     */
+    private function filterToOne(array $items, string $key = 'languageId'): array
+    {
+        $filtered = [];
+
+        foreach ($items as $item) {
+            // Empty row
+            if ($item[$key] === null) {
+                continue;
+            }
+
+            $filtered[$item[$key]] = $item;
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param array<mixed> $items
+     *
+     * @return array<mixed>
+     */
+    private function filterToMany(array $items): array
+    {
+        $filtered = [];
+
+        foreach ($items as $item) {
+            if ($item['id'] === null) {
+                continue;
+            }
+
+            if (!isset($filtered[$item['id']])) {
+                $filtered[$item['id']] = [];
+            }
+
+            $filtered[$item['id']][$item['languageId']] = $item;
+        }
+
+        return $filtered;
     }
 }

@@ -11,7 +11,7 @@ use Danger\Rule\DisallowRepeatedCommits;
 use Danger\Struct\Gitlab\File as GitlabFile;
 
 return (new Config())
-    ->useThreadOnFails()
+    ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DisallowRepeatedCommits)
     ->useRule(function (Context $context) {
         $files = $context->platform->pullRequest->getFiles();
@@ -266,6 +266,44 @@ return (new Config())
                 'Please use [Nowdoc](https://www.php.net/manual/de/language.types.string.php#language.types.string.syntax.nowdoc)' .
                 ' for SQL (&lt;&lt;&lt;\'SQL\') instead of Heredoc (&lt;&lt;&lt;SQL)<br/>' .
                 print_r($errorFiles, true)
+            );
+        }
+    })
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $changedTemplates = $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Resources/views/*.twig')
+            ->getElements();
+
+        if (count($changedTemplates) > 0) {
+            $patched = [];
+            foreach ($changedTemplates as $file) {
+                preg_match_all('/\- .*? (\{% block (.*?) %\})+/', $file->patch, $removedBlocks);
+                preg_match_all('/\+ .*? (\{% block (.*?) %\})+/', $file->patch, $addedBlocks);
+                if (!isset($removedBlocks[2]) || !is_array($removedBlocks[2])) {
+                    $removedBlocks[2] = [];
+                }
+                if (!isset($addedBlocks[2]) || !is_array($addedBlocks[2])) {
+                    $addedBlocks[2] = [];
+                }
+
+                $remaining = array_diff_assoc($removedBlocks[2], $addedBlocks[2]);
+
+                if (count($remaining) > 0) {
+                    $patched[] = print_r($remaining, true) . '<br/>';
+                }
+            }
+
+            if (count($patched) === 0) {
+                return;
+            }
+
+            $context->warning(
+                'You probably moved or deleted a twig block. This is likely a hard break. Please check your template' .
+                ' changes and make sure that deleted blocks are already deprecated. <br/>' .
+                'If you are sure everything is fine with your changes, you can resolve this warning.<br/>' .
+                'Moved or deleted block: <br/>' .
+                print_r($patched, true)
             );
         }
     })

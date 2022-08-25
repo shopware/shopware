@@ -2356,21 +2356,6 @@ parameters:
 			path: src/Core/Checkout/Shipping/Validator/ShippingMethodValidator.php
 
 		-
-			message: "#^Cannot call method getChildren\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 18
-			path: src/Core/Checkout/Test/Cart/CalculatorTest.php
-
-		-
-			message: "#^Cannot call method getPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null\\.$#"
-			count: 31
-			path: src/Core/Checkout/Test/Cart/CalculatorTest.php
-
-		-
-			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
-			count: 31
-			path: src/Core/Checkout/Test/Cart/CalculatorTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$variable_representation of function unserialize expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/CartPersisterTest.php

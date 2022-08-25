@@ -19,20 +19,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Calculator
 {
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $quantityPriceCalculator;
+    private QuantityPriceCalculator $quantityPriceCalculator;
 
-    /**
-     * @var PercentagePriceCalculator
-     */
-    private $percentagePriceCalculator;
+    private PercentagePriceCalculator $percentagePriceCalculator;
 
-    /**
-     * @var AbsolutePriceCalculator
-     */
-    private $absolutePriceCalculator;
+    private AbsolutePriceCalculator $absolutePriceCalculator;
 
     /**
      * @internal

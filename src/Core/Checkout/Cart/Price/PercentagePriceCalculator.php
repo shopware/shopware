@@ -11,20 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PercentagePriceCalculator
 {
-    /**
-     * @var CashRounding
-     */
-    private $rounding;
+    private CashRounding $rounding;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $priceCalculator;
+    private QuantityPriceCalculator $priceCalculator;
 
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
+    private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
 
     /**
      * @internal

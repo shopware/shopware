@@ -37,4 +37,8 @@ abstract class AbstractReverseProxyGateway
 
         $this->ban(['/']);
     }
+
+    public function flush(): void
+    {
+    }
 }

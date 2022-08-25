@@ -34950,16 +34950,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\ReverseProxyCache\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\ReverseProxyCache\\:\\:\\$states type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Captcha/AbstractCaptcha.php

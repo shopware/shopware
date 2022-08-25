@@ -23,11 +23,15 @@ class ReverseProxyCache implements StoreInterface
      */
     private AbstractCacheTracer $tracer;
 
+    /**
+     * @var string[]
+     */
     private array $states;
 
     /**
      * @internal
      *
+     * @param string[] $states
      * @param AbstractCacheTracer<TCachedContent> $tracer
      */
     public function __construct(AbstractReverseProxyGateway $gateway, AbstractCacheTracer $tracer, array $states)
@@ -35,6 +39,11 @@ class ReverseProxyCache implements StoreInterface
         $this->gateway = $gateway;
         $this->tracer = $tracer;
         $this->states = $states;
+    }
+
+    public function __destruct()
+    {
+        $this->gateway->flush();
     }
 
     public function __invoke(InvalidateCacheEvent $event): void

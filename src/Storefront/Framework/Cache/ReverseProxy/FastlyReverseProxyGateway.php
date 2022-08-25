@@ -53,9 +53,19 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->instanceTag = $instanceTag;
     }
 
-    public function __destruct()
+    public function flush(): void
     {
-        $this->flushTags();
+        foreach (array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
+            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
+                'headers' => [
+                    'Fastly-Key' => $this->apiKey,
+                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
+                    'fastly-soft-purge' => $this->softPurge,
+                ],
+            ]);
+        }
+
+        $this->tagBuffer = [];
     }
 
     public function getDecorated(): AbstractReverseProxyGateway
@@ -91,7 +101,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         }
 
         if (\count($this->tagBuffer) >= self::MAX_TAG_INVALIDATION) {
-            $this->flushTags();
+            $this->flush();
         }
     }
 
@@ -152,20 +162,5 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         return array_map(static function (string $tag) use ($prefix) {
             return $prefix . $tag;
         }, $tags);
-    }
-
-    private function flushTags(): void
-    {
-        foreach (array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
-            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
-                'headers' => [
-                    'Fastly-Key' => $this->apiKey,
-                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
-                    'fastly-soft-purge' => $this->softPurge,
-                ],
-            ]);
-        }
-
-        $this->tagBuffer = [];
     }
 }

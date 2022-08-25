@@ -64,13 +64,13 @@ describe('Product: Deliverability', () => {
             cy.get('input.product-detail-quantity-input').should('have.value', '50').clear().type('1000000000{downArrow}');
 
             cy.get('.btn-buy').click();
-            cy.get('.js-offcanvas-cart-change-quantity').should('have.value', '200000');
+            cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '200000');
             cy.contains(`${lineItemTotalPriceSelector}`, '€9,996,000.00*');
 
-            cy.get('.js-offcanvas-cart-change-quantity').clear().type('1{upArrow}{enter}');
+            cy.get('.js-offcanvas-cart-change-quantity-number').clear().type('1{upArrow}').blur();
             cy.wait('@offcanvasCart').its('response.statusCode').should('equal', 200);
 
-            cy.get('.js-offcanvas-cart-change-quantity').should('have.value', '50')
+            cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '50')
             cy.contains(`${lineItemTotalPriceSelector}`, '€2,499.00*');
         });
     });

@@ -54,7 +54,7 @@
                                             <input
                                                 type="number"
                                                 name="quantity"
-                                                class="form-control quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}"
+                                                class="form-control quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
                                                 min="{{ quantityInformation.minPurchase }}"
                                                 max="{{ maxQuantity }}"
                                                 step="{{ quantityInformation.purchaseSteps }}"

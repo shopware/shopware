@@ -33490,31 +33490,6 @@ parameters:
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\Tax\\\\Aggregate\\\\TaxRuleType\\\\TaxRuleTypeEntity\\|null\\.$#"
-			count: 34
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextTest\\:\\:createCustomer\\(\\) has parameter \\$countryState with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$taxData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\SalesChannelContextTest\\:\\:getValidCountryIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/Entity/SalesChannelDefinitionTest.php

@@ -13,6 +13,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -39,6 +40,8 @@ class ShopConfigurationController extends InstallerController
      */
     private array $supportedCurrencies;
 
+    private TranslatorInterface $translator;
+
     /**
      * @param array<string, string> $supportedLanguages
      * @param list<string> $supportedCurrencies
@@ -48,6 +51,7 @@ class ShopConfigurationController extends InstallerController
         EnvConfigWriter $envConfigWriter,
         ShopConfigurationService $shopConfigurationService,
         AdminConfigurationService $adminConfigurationService,
+        TranslatorInterface $translator,
         array $supportedLanguages,
         array $supportedCurrencies
     ) {
@@ -57,6 +61,7 @@ class ShopConfigurationController extends InstallerController
         $this->adminConfigurationService = $adminConfigurationService;
         $this->supportedLanguages = $supportedLanguages;
         $this->supportedCurrencies = $supportedCurrencies;
+        $this->translator = $translator;
     }
 
     /**
@@ -159,8 +164,18 @@ class ShopConfigurationController extends InstallerController
             return [
                 'iso3' => $country['iso3'],
                 'default' => $country['iso'] === $localeIsoCode,
+                'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower($country['iso3'])),
             ];
         }, $countries);
+
+        usort(/**
+         * sorting country by translated
+         *
+         * @param array<string, string> $first
+         * @param array<string, string> $second
+         */ $countryIsos, function (array $first, array $second) {
+            return strcmp($first['translated'], $second['translated']);
+        });
 
         return $countryIsos;
     }

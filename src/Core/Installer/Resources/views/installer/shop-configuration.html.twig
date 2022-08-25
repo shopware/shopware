@@ -79,7 +79,7 @@
                         <select name="config_shop_country" id="config_shop_country">
                             {% for country in countryIsos %}
                                 <option value="{{ country.iso3 }}" {% if country.default %}selected{% endif %}>
-                                    {{ ("shopware.installer.select_country_" ~ (country.iso3|lower)) |trans }}
+                                    {{ country.translated }}
                                 </option>
                             {% endfor %}
                         </select>

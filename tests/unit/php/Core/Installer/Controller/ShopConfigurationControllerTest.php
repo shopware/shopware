@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 /**
@@ -61,6 +62,11 @@ class ShopConfigurationControllerTest extends TestCase
 
     private ShopConfigurationController $controller;
 
+    /**
+     * @var TranslatorInterface&MockObject
+     */
+    private TranslatorInterface $translator;
+
     public function setUp(): void
     {
         $this->twig = $this->createMock(Environment::class);
@@ -73,12 +79,14 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter = $this->createMock(EnvConfigWriter::class);
         $this->shopConfigService = $this->createMock(ShopConfigurationService::class);
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
+        $this->translator = $this->createMock(TranslatorInterface::class);
 
         $this->controller = new ShopConfigurationController(
             $connectionFactory,
             $this->envConfigWriter,
             $this->shopConfigService,
             $this->adminConfigService,
+            $this->translator,
             ['de' => 'de-DE', 'en' => 'en-GB'],
             ['EUR', 'USD']
         );
@@ -102,12 +110,19 @@ class ShopConfigurationControllerTest extends TestCase
                 ['iso3' => 'GBR', 'iso' => 'GB'],
             ]);
 
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
+
         $this->twig->expects(static::once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
                 array_merge($this->getDefaultViewParams(), [
                     'error' => null,
-                    'countryIsos' => [['iso3' => 'DEU', 'default' => true], ['iso3' => 'GBR', 'default' => false]],
+                    'countryIsos' => [
+                        ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
+                        ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                    ],
                     'currencyIsos' => ['EUR', 'USD'],
                     'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
                     'parameters' => ['config_shop_language' => 'de-DE'],
@@ -193,6 +208,10 @@ class ShopConfigurationControllerTest extends TestCase
         ];
         $this->adminConfigService->expects(static::once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
+
         $this->router->expects(static::once())->method('generate')
             ->with('installer.finish', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/finish');
@@ -232,12 +251,19 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
+
         $this->twig->expects(static::once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
                 array_merge($this->getDefaultViewParams(), [
                     'error' => 'Test Exception',
-                    'countryIsos' => [['iso3' => 'DEU', 'default' => true], ['iso3' => 'GBR', 'default' => false]],
+                    'countryIsos' => [
+                        ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
+                        ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                    ],
                     'currencyIsos' => ['EUR', 'USD'],
                     'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
                     'parameters' => ['config_shop_language' => 'de-DE'],
@@ -247,5 +273,68 @@ class ShopConfigurationControllerTest extends TestCase
 
         $response = $this->controller->shopConfiguration($request);
         static::assertSame('config', $response->getContent());
+    }
+
+    public function testGetConfigurationCountryIsosSortedByAlphabetical(): void
+    {
+        $request = new Request();
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(DatabaseConnectionInformation::class, new DatabaseConnectionInformation());
+        $session->set(BlueGreenDeploymentService::ENV_NAME, true);
+        $request->setMethod('POST');
+        $request->setSession($session);
+        $request->attributes->set('_locale', 'de');
+
+        $this->setEnvVars([
+            'HTTPS' => 'on',
+            'HTTP_HOST' => 'localhost',
+            'SCRIPT_NAME' => '/shop/index.php',
+        ]);
+
+        // in non-alphabetical order
+        $countries = [
+            ['iso3' => 'GBR', 'iso' => 'GB'],
+            ['iso3' => 'BGR', 'iso' => 'BG'],
+            ['iso3' => 'EST', 'iso' => 'EE'],
+            ['iso3' => 'HRV', 'iso' => 'HR'],
+            ['iso3' => 'DEU', 'iso' => 'DE'],
+        ];
+
+        $translations = [
+            'shopware.installer.select_country_gbr' => 'Great Britain',
+            'shopware.installer.select_country_bgr' => 'Bulgaria',
+            'shopware.installer.select_country_est' => 'Estonia',
+            'shopware.installer.select_country_hrv' => 'Croatia',
+            'shopware.installer.select_country_deu' => 'Germany',
+        ];
+
+        $this->connection->expects(static::once())
+            ->method('fetchAllAssociative')
+            ->willReturn($countries);
+
+        $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
+
+        $this->translator->method('trans')->willReturnCallback(function (string $key) use ($translations): string {
+            return $translations[$key];
+        });
+
+        $this->twig->expects(static::once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
+            static::assertEquals('@Installer/installer/shop-configuration.html.twig', $view);
+            static::assertArrayHasKey('countryIsos', $parameters);
+
+            $countryIsos = $parameters['countryIsos'];
+
+            static::assertSame([
+                'Bulgaria',
+                'Croatia',
+                'Estonia',
+                'Germany',
+                'Great Britain',
+            ], array_column($countryIsos, 'translated'));
+
+            return '';
+        });
+
+        $this->controller->shopConfiguration($request);
     }
 }

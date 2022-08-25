@@ -11,10 +11,10 @@ Therefore, purely through the definition of a custom entity, certain business lo
 * Definition
     * An app can include a `config/custom_entity.xml` file.
         * Multiple custom entities can be defined in the XML file.
-    * Each custom entity, is registered with the prefix `custom_`.
-        * App developers can then define that they would like to have `swag_blog` as an entity
+    * Each custom entity, is registered with the prefix `custom_entity_` or the `ce_` shorthand.
+        * App developers can then define that they would like to have `custom_entity_swag_blog` as an entity
         * To prevent naming collisions, app developers should always add their developer prefix to the entity name 
-        * We then create the `custom_swag_blog` table
+        * We then create the `custom_entity_swag_blog` table
 * Tables / Properties / Columns:
     * A proper MySQL table is created for each custom entity.
     * For each custom entity field we create a real MySQL table column.
@@ -44,8 +44,9 @@ Therefore, purely through the definition of a custom entity, certain business lo
 
 ### Api availability
 For routing, we have to trick a bit, because currently for each entity in the system the routes defined exactly. This is not possible because the API route loader is triggered before the custom entities are registered. Therefore...
-* We always register `/api/custom-{entity}` as an API route and point to a custom controller that derives from ApiController.
-* A request `/api/custom-swag-blog`, then runs into our controller, and we get for the parameter `entity` the value `swag-blog`. We then pass this value to the parent method and prefetch it
+* We always register `/api/custom-entity-{entity}` as an API route and point to a custom controller that derives from ApiController.
+* A request `/api/custom-entity-swag-blog`, then runs into our controller, and we get for the parameter `entity` the value `swag-blog`. We then pass this value to the parent method and prefetch it
+* If the entity was defined with the `ce_` shorthand the API endpoints also use that shorthand, which means the route would be `/api/ce-{entity}`.
 
 ### Store api integration
 * On the schema of the entity, the developer can define if this is `store_api_aware`.

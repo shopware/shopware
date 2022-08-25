@@ -15,10 +15,14 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal
+ *
+ * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
  */
 class CustomEntitySchemaUpdater
 {
     public const TABLE_PREFIX = 'custom_entity_';
+
+    public const SHORTHAND_TABLE_PREFIX = 'ce_';
 
     private const COMMENT = 'custom-entity-element';
 
@@ -42,10 +46,11 @@ class CustomEntitySchemaUpdater
             $this->cleanup($schema);
 
             foreach ($tables as $table) {
+                /** @var list<CustomEntityField> $fields */
                 $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
-                if (!\str_starts_with($table['name'], self::TABLE_PREFIX)) {
-                    throw new \RuntimeException(\sprintf('Table "%s" has to be prefixed with "%s"', $table['name'], self::TABLE_PREFIX));
+                if (!\str_starts_with($table['name'], self::TABLE_PREFIX) && !\str_starts_with($table['name'], self::SHORTHAND_TABLE_PREFIX)) {
+                    throw new \RuntimeException(\sprintf('Table "%s" has to be prefixed with "%s" or "%s"', $table['name'], self::TABLE_PREFIX, self::SHORTHAND_TABLE_PREFIX));
                 }
 
                 $this->defineTable($schema, $table['name'], $fields);
@@ -87,6 +92,9 @@ class CustomEntitySchemaUpdater
         }
     }
 
+    /**
+     * @param list<CustomEntityField> $fields
+     */
     private function defineTable(Schema $schema, string $name, array $fields): void
     {
         $table = $this->createTable($schema, $name);
@@ -130,6 +138,9 @@ class CustomEntitySchemaUpdater
         $this->addColumns($schema, $translation, $translated);
     }
 
+    /**
+     * @param list<CustomEntityField> $fields
+     */
     private function addColumns(Schema $schema, Table $table, array $fields): void
     {
         $name = $table->getName();
@@ -294,6 +305,9 @@ class CustomEntitySchemaUpdater
         }
     }
 
+    /**
+     * @param CustomEntityField $field
+     */
     private function addInheritanceColumn(Schema $schema, string $entity, array $field): void
     {
         $reference = $this->createTable($schema, $field['reference']);

@@ -34,7 +34,7 @@ class CustomEntityXmlSchemaValidator
         $reference = $field->getReference();
 
         // reference on custom entity table
-        if (\str_starts_with($reference, 'custom_entity_')) {
+        if (\str_starts_with($reference, 'custom_entity_') || \str_starts_with($reference, 'ce_')) {
             return;
         }
 

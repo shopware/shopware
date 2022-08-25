@@ -46,9 +46,14 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal
+ *
+ * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
 class DynamicFieldFactory
 {
+    /**
+     * @param list<CustomEntityField> $fields
+     */
     public static function create(ContainerInterface $container, string $entityName, array $fields): FieldCollection
     {
         $translated = [];
@@ -125,6 +130,9 @@ class DynamicFieldFactory
         );
     }
 
+    /**
+     * @param CustomEntityField $field
+     */
     private static function defineField(array $field, FieldCollection $collection, string $entityName, ContainerInterface $container): void
     {
         $registry = $container->get(DefinitionInstanceRegistry::class);
@@ -135,7 +143,7 @@ class DynamicFieldFactory
         $name = $field['name'];
         $required = ($field['required'] ?? false) ? new Required() : null;
         $inherited = $field['inherited'] ?? false;
-        $apiAware = $field['storeApiAware'] ? new ApiAware() : null;
+        $apiAware = ($field['storeApiAware'] ?? false) ? new ApiAware() : null;
 
         $flags = \array_filter([$required, $apiAware]);
 
@@ -243,8 +251,7 @@ class DynamicFieldFactory
                 $association->addFlags(new CascadeDelete());
 
                 // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
-                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
-                self::addFlag($association, $extension);
+                self::addFlag($association, self::getExtension($reference));
 
                 // check for product inheritance use case
                 if ($reference->isInheritanceAware() && $inherited) {
@@ -291,8 +298,7 @@ class DynamicFieldFactory
                 $association->addFlags(self::getOnDeleteFlag($field));
 
                 // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
-                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
-                self::addFlag($association, $extension);
+                self::addFlag($association, self::getExtension($reference));
 
                 // check for product inheritance use case
                 if ($reference->isInheritanceAware() && $inherited) {
@@ -339,8 +345,7 @@ class DynamicFieldFactory
                 $association->addFlags(self::getOnDeleteFlag($field));
 
                 // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
-                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
-                self::addFlag($association, $extension);
+                self::addFlag($association, self::getExtension($reference));
 
                 // check for product inheritance use case
                 if ($reference->isInheritanceAware() && $inherited) {
@@ -380,7 +385,7 @@ class DynamicFieldFactory
                 self::addFlag($fk, $apiAware);
 
                 // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
-                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
+                $extension = self::getExtension($reference);
                 self::addFlag($fk, $extension);
 
                 // add required flag, should be set to true for aggregated entities (blog 1:N comments)
@@ -426,6 +431,9 @@ class DynamicFieldFactory
         return $name . '_id';
     }
 
+    /**
+     * @param CustomEntityField $field
+     */
     private static function getOnDeleteFlag(array $field): Flag
     {
         switch ($field['onDelete']) {
@@ -438,5 +446,14 @@ class DynamicFieldFactory
             default:
                 throw new \RuntimeException(\sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));
         }
+    }
+
+    private static function getExtension(EntityDefinition $reference): ?DalExtension
+    {
+        if (str_starts_with($reference->getEntityName(), 'custom_entity_') || str_starts_with($reference->getEntityName(), 'ce_')) {
+            return null;
+        }
+
+        return new DalExtension();
     }
 }

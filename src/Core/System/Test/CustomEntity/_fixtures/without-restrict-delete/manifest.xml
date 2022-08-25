@@ -19,6 +19,6 @@
         <read>product</read>
 <!--    permissions for own entities are automatically set    -->
 <!--        <read>custom_entity_blog</read>-->
-<!--        <read>custom_entity_blog_comment</read>-->
+<!--        <read>ce_blog_comment</read>-->
     </permissions>
 </manifest>

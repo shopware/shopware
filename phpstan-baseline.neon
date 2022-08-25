@@ -3121,16 +3121,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Rule/LineItemReleaseDateRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\LineItemStockRuleTest\\:\\:getCartRuleScopeTestData\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/LineItemStockRuleTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\LineItemStockRuleTest\\:\\:getMatchingRuleTestData\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Rule/LineItemStockRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\LineItemTagRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Rule/LineItemTagRuleTest.php

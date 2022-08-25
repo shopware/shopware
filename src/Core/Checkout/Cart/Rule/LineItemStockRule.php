@@ -41,14 +41,8 @@ class LineItemStockRule extends Rule
             return $this->matchStock($scope->getLineItem());
         }
 
-        if (!$scope instanceof CartRuleScope) {
-            return false;
-        }
-
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
-            if ($this->matchStock($lineItem)) {
-                return true;
-            }
+        if ($scope instanceof CartRuleScope) {
+            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->getFlat());
         }
 
         return false;
@@ -89,5 +83,19 @@ class LineItemStockRule extends Rule
         }
 
         return RuleComparison::numeric($deliveryInformation->getStock(), $this->stock, $this->operator);
+    }
+
+    /**
+     * @param LineItem[] $lineItems
+     */
+    private function matchStockFromCollection(array $lineItems): bool
+    {
+        foreach ($lineItems as $lineItem) {
+            if ($this->matchStock($lineItem)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

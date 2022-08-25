@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price\Struct;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection
  */
 class PriceCollectionTest extends TestCase
 {

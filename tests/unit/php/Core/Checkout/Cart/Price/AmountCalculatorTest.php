@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
@@ -16,21 +16,17 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\AmountCalculator
  */
 class AmountCalculatorTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     /**
      * @dataProvider calculateAmountWithGrossPricesProvider
      */
@@ -102,6 +98,9 @@ class AmountCalculatorTest extends TestCase
         static::assertSame($expected->getNetPrice(), $cartPrice->getNetPrice());
     }
 
+    /**
+     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     */
     public function calculateAmountForNetDeliveriesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
@@ -151,6 +150,9 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     */
     public function calculateAmountWithNetPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
@@ -277,6 +279,9 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     */
     public function calculateAmountWithGrossPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
@@ -416,7 +421,10 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
-    public function cashRoundingProvider()
+    /**
+     * @return array<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
+     */
+    public function cashRoundingProvider(): array
     {
         return [
             'Item and total rounding with different decimals' => [
@@ -462,13 +470,17 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCashRounding(CashRoundingConfig $item, CashRoundingConfig $total, PriceCollection $prices, CartPrice $expected): void
     {
-        $calculator = $this->getContainer()->get(AmountCalculator::class);
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getItemRounding')->willReturn($item);
+        $context->method('getTotalRounding')->willReturn($total);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $context->setItemRounding($item);
-        $context->setTotalRounding($total);
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
 
         $amount = $calculator->calculate($prices, new PriceCollection(), $context);
 

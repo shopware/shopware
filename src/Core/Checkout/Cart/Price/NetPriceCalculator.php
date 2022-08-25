@@ -13,15 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
 class NetPriceCalculator
 {
-    /**
-     * @var TaxCalculator
-     */
-    private $taxCalculator;
+    private TaxCalculator $taxCalculator;
 
-    /**
-     * @var CashRounding
-     */
-    private $priceRounding;
+    private CashRounding $priceRounding;
 
     /**
      * @internal

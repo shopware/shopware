@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -21,6 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator
  */
 class QuantityPriceCalculatorTest extends TestCase
 {
@@ -99,6 +101,9 @@ class QuantityPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $lineItemPrice);
     }
 
+    /**
+     * @return list<array{0: CalculatedPrice, 1: QuantityPriceDefinition}>
+     */
     public function netPrices(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
@@ -111,6 +116,9 @@ class QuantityPriceCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: CalculatedPrice, 1: QuantityPriceDefinition}>
+     */
     public function netDeliveryPrices(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
@@ -123,6 +131,9 @@ class QuantityPriceCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
+     */
     public function priceCalculationWithGrossPricesProvider(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);

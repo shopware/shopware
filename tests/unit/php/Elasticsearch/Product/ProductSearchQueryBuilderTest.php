@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -137,6 +139,59 @@ class ProductSearchQueryBuilderTest extends TestCase
         ];
 
         static::assertSame($expectedQueries, $nameQueries);
+    }
+
+    public function testNestedQueries(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['and_logic' => '1', 'field' => 'categories.name', 'tokenize' => 1, 'ranking' => 500],
+            ]);
+
+        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter
+            ->method('filter')
+            ->willReturnArgument(0);
+
+        $builder = new ProductSearchQueryBuilder(
+            $connection,
+            new Tokenizer(2),
+            $tokenFilter
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo bla');
+        $queries = $builder->buildQuery($criteria, Context::createDefaultContext());
+
+        $boolQuery = array_values($queries->getQueries(BoolQuery::MUST))[0];
+
+        $esQueries = array_values($boolQuery->getQueries(BoolQuery::SHOULD));
+
+        static::assertNotEmpty($esQueries);
+
+        $first = $esQueries[0];
+
+        static::assertInstanceOf(NestedQuery::class, $first);
+
+        static::assertSame('categories', $first->getPath());
+
+        $query = $first->getQuery();
+
+        static::assertInstanceOf(MatchQuery::class, $query);
+
+        static::assertSame(
+            [
+                'match' => [
+                    'categories.name.search' => [
+                        'query' => 'foo',
+                        'boost' => 2500,
+                    ],
+                ],
+            ],
+            $query->toArray()
+        );
     }
 
     public function testOrSearch(): void

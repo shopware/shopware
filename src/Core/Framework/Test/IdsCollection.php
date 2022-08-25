@@ -13,10 +13,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class IdsCollection
 {
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     protected $ids = [];
 
+    /**
+     * @param array<string, string> $ids
+     */
     public function __construct(array $ids = [])
     {
         $this->ids = $ids;
@@ -50,6 +53,11 @@ class IdsCollection
         return $this->create($key);
     }
 
+    /**
+     * @param array<string> $keys
+     *
+     * @return array{id: string}[]
+     */
     public function getIdArray(array $keys, bool $bytes = false): array
     {
         $list = $this->getList($keys);
@@ -68,11 +76,21 @@ class IdsCollection
         return Uuid::fromHexToBytes($this->get($key));
     }
 
+    /**
+     * @param array<string> $keys
+     *
+     * @return array<string>
+     */
     public function getByteList(array $keys): array
     {
         return Uuid::fromHexToBytesList($this->getList($keys));
     }
 
+    /**
+     * @param array<string> $keys
+     *
+     * @return array<string, string>
+     */
     public function getList(array $keys): array
     {
         $ordered = [];
@@ -83,11 +101,17 @@ class IdsCollection
         return $ordered;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function all(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function prefixed(string $prefix): array
     {
         $ids = [];
@@ -119,6 +143,25 @@ class IdsCollection
         }
 
         return null;
+    }
+
+    /**
+     * @param array<string> $ids
+     */
+    public function getKeys(array $ids): string
+    {
+        $keys = [];
+
+        foreach ($ids as $id) {
+            $key = $this->getKey($id);
+            if ($key) {
+                $keys[] = $key;
+            } else {
+                throw new \RuntimeException('Key not found for id ' . $id);
+            }
+        }
+
+        return implode(', ', $keys);
     }
 
     /**

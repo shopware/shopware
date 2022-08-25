@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +20,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
+    private const NOT_SUPPORTED_FIELDS = [
+        'manufacturer.customFields',
+        'categories.customFields',
+    ];
+
     private Connection $connection;
 
     /**
@@ -53,40 +59,42 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         foreach ($tokens as $token) {
             $tokenBool = new BoolQuery();
+            $bool->add($tokenBool, $isAndSearch ? BoolQuery::MUST : BoolQuery::SHOULD);
 
             foreach ($searchConfig as $item) {
                 $ranking = $item['ranking'];
-                $searchField = $item['field'] . '.search';
-                $ngramField = $item['field'] . '.ngram';
 
-                $tokenBool->add(
-                    new MatchQuery($searchField, $token, ['boost' => 5 * $ranking]),
-                    BoolQuery::SHOULD
-                );
+                if (!str_contains($item['field'], 'customFields')) {
+                    $searchField = $item['field'] . '.search';
+                    $ngramField = $item['field'] . '.ngram';
+                } else {
+                    $searchField = $item['field'];
+                    $ngramField = $item['field'];
+                }
 
-                $tokenBool->add(
-                    new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $ranking, 'slop' => 5]),
-                    BoolQuery::SHOULD
-                );
+                $queries = [];
 
-                $tokenBool->add(
-                    new WildcardQuery($searchField, '*' . $token . '*'),
-                    BoolQuery::SHOULD
-                );
+                $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $ranking]);
+                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $ranking, 'slop' => 5]);
+                $queries[] = new WildcardQuery($searchField, '*' . $token . '*');
 
                 if ($item['tokenize']) {
-                    $tokenBool->add(
-                        new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $ranking]),
-                        BoolQuery::SHOULD
-                    );
-                    $tokenBool->add(
-                        new MatchQuery($ngramField, $token),
-                        BoolQuery::SHOULD
-                    );
+                    $queries[] = new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $ranking]);
+                    $queries[] = new MatchQuery($ngramField, $token);
+                }
+
+                if (str_contains($item['field'], '.') && !str_contains($item['field'], 'customFields')) {
+                    $nested = strtok($item['field'], '.');
+
+                    foreach ($queries as $query) {
+                        $tokenBool->add(new NestedQuery($nested, $query), BoolQuery::SHOULD);
+                    }
+                } else {
+                    foreach ($queries as $query) {
+                        $tokenBool->add($query, BoolQuery::SHOULD);
+                    }
                 }
             }
-
-            $bool->add($tokenBool, $isAndSearch ? BoolQuery::MUST : BoolQuery::SHOULD);
         }
 
         return $bool;
@@ -112,18 +120,24 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         }
 
         /** @var array<SearchConfig> $config */
-        $config = $this->connection->fetchAllAssociative('SELECT
+        $config = $this->connection->fetchAllAssociative(
+            'SELECT
 product_search_config.and_logic,
 product_search_config_field.field,
 product_search_config_field.tokenize,
 product_search_config_field.ranking
 
-
 FROM product_search_config
 INNER JOIN product_search_config_field ON(product_search_config_field.product_search_config_id = product_search_config.id)
-WHERE product_search_config.language_id = ? AND product_search_config_field.searchable = 1 AND product_search_config_field.field = "name"', [
-            Uuid::fromHexToBytes($context->getLanguageId()),
-        ]);
+WHERE product_search_config.language_id = :languageId AND product_search_config_field.searchable = 1 AND product_search_config_field.field NOT IN(:fields)',
+            [
+                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
+                'fields' => self::NOT_SUPPORTED_FIELDS,
+            ],
+            [
+                'fields' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
 
         $this->config[$context->getLanguageId()] = $config;
 

@@ -142,7 +142,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'id' => [
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
-                        ], 'groupId' => [
+                        ],
+                        'name' => self::SEARCHABLE_MAPPING,
+                        'groupId' => [
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                         ],
@@ -159,6 +161,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                         ],
+                        'name' => self::SEARCHABLE_MAPPING,
                         'groupId' => [
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',

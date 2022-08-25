@@ -124,6 +124,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                         'groupId' => EntityMapper::KEYWORD_FIELD,
                         '_count' => EntityMapper::INT_FIELD,
                     ],
@@ -133,6 +134,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'name' => EntityMapper::KEYWORD_FIELD + self::SEARCH_FIELD,
                         'groupId' => EntityMapper::KEYWORD_FIELD,
                         '_count' => EntityMapper::INT_FIELD,
                     ],
@@ -277,7 +279,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'description' => $this->stripText($this->takeItem('description', $context, $translations, $parentTranslations) ?? ''),
                 'metaTitle' => $this->stripText($this->takeItem('metaTitle', $context, $translations, $parentTranslations) ?? ''),
                 'metaDescription' => $this->stripText($this->takeItem('metaDescription', $context, $translations, $parentTranslations) ?? ''),
-                'customSearchKeywords' => json_decode($this->takeItem('customSearchKeywords', $context, $translations, $parentTranslations) ?? '[]', true, 512, \JSON_THROW_ON_ERROR),
+                'customSearchKeywords' => $this->takeItem('customSearchKeywords', $context, $translations, $parentTranslations) ?? '[]',
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
                 'available' => (bool) $item['available'],
@@ -306,18 +308,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'optionIds' => $optionIds,
-                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId]['name'], 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds),
-                'categories' => array_map(function ($category) use ($context) {
+                'options' => array_values(array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId]['name'], 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds)),
+                'categories' => array_values(array_map(function ($category) use ($context) {
                     return [
                         'id' => $category[Defaults::LANGUAGE_SYSTEM]['id'],
                         'name' => $this->takeItem('name', $context, $category) ?? '',
                     ];
-                }, $categories),
-                'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo),
-                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds),
+                }, $categories)),
+                'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
+                'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
-                'tags' => array_map(fn (string $tagId) => ['id' => $tagId, 'name' => $tags[$tagId]['name'], '_count' => 1], $tagIds),
+                'tags' => array_values(array_map(fn (string $tagId) => ['id' => $tagId, 'name' => $tags[$tagId]['name'], '_count' => 1], $tagIds)),
                 'tagIds' => $tagIds,
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],

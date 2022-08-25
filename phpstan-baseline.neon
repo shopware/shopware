@@ -26956,31 +26956,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/AntiJoinSearchTest.php
 
 		-
-			message: "#^Cannot call method getCount\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\Bucket\\|null\\.$#"
-			count: 36
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^Cannot call method getResult\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\Bucket\\|null\\.$#"
-			count: 58
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\EntityAggregatorTest\\:\\:dateHistogramProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\EntityAggregatorTest\\:\\:getProduct\\(\\) has parameter \\$categoryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\EntityAggregatorTest\\:\\:getProduct\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntityAggregatorTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$array of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) expects array\\|ArrayAccess, array\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/EntitySearcherTest.php

@@ -213,7 +213,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         if (Feature::isActive('FEATURE_NEXT_22900')) {
-            return $this->searchQueryBuilder->buildQuery($criteria, $context);
+            return $this->searchQueryBuilder->build($criteria, $context);
         }
 
         $query = parent::buildTermQuery($context, $criteria);
@@ -273,6 +273,15 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $tags = $this->filterToOne(json_decode($item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
             $categories = $this->filterToMany(json_decode($item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
+            $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
+
+            // MariaDB servers gives the result as string and not directly decoded
+            // @codeCoverageIgnoreStart
+            if (\is_string($customFields)) {
+                $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
+            }
+            // @codeCoverageIgnoreEnd
+
             $document = [
                 'id' => $id,
                 'name' => $this->stripText($this->takeItem('name', $context, $translations, $parentTranslations) ?? ''),
@@ -286,7 +295,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'markAsTopseller' => (bool) $item['markAsTopseller'],
-                'customFields' => $this->formatCustomFields($this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [], $context),
+                'customFields' => $this->formatCustomFields($customFields, $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
@@ -326,8 +335,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'childCount' => (int) $item['childCount'],
             ];
 
-            $document['fullText'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
-            $document['fullTextBoosted'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
+            if (!Feature::isActive('FEATURE_NEXT_22900')) {
+                $document['fullText'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
+                $document['fullTextBoosted'] = $this->stripText(implode(' ', [$document['name'], $document['description'], $document['productNumber']]));
+            }
 
             if ($item['cheapest_price_accessor']) {
                 $cheapestPriceAccessor = json_decode($item['cheapest_price_accessor'], true, 512, \JSON_THROW_ON_ERROR);
@@ -372,52 +383,52 @@ SELECT
     IFNULL(p.active, pp.active) AS active,
     p.available AS available,
     CONCAT(
-		'[',
-			GROUP_CONCAT(
-			    JSON_OBJECT(
-			        'languageId', lower(hex(product_main.language_id)),
-			        'name', product_main.name,
-			        'description', product_main.description,
-			        'metaTitle', product_main.meta_title,
-			        'metaDescription', product_main.meta_description,
-			        'customSearchKeywords', product_main.custom_search_keywords,
-			        'customFields', product_main.custom_fields
+        '[',
+            GROUP_CONCAT(
+                JSON_OBJECT(
+                    'languageId', lower(hex(product_main.language_id)),
+                    'name', product_main.name,
+                    'description', product_main.description,
+                    'metaTitle', product_main.meta_title,
+                    'metaDescription', product_main.meta_description,
+                    'customSearchKeywords', product_main.custom_search_keywords,
+                    'customFields', product_main.custom_fields
                 )
             ),
-		']'
+        ']'
     ) as translation,
     CONCAT(
-		'[',
-			GROUP_CONCAT(
-			    JSON_OBJECT(
-			        'languageId', lower(hex(product_parent.language_id)),
-			        'name', product_parent.name,
-			        'description', product_parent.description,
-			        'metaTitle', product_parent.meta_title,
-			        'metaDescription', product_parent.meta_description,
-			        'customSearchKeywords', product_parent.custom_search_keywords,
-			        'customFields', product_parent.custom_fields
+        '[',
+            GROUP_CONCAT(
+                JSON_OBJECT(
+                    'languageId', lower(hex(product_parent.language_id)),
+                    'name', product_parent.name,
+                    'description', product_parent.description,
+                    'metaTitle', product_parent.meta_title,
+                    'metaDescription', product_parent.meta_description,
+                    'customSearchKeywords', product_parent.custom_search_keywords,
+                    'customFields', product_parent.custom_fields
                 )
             ),
-		']'
+        ']'
     ) as translation_parent,
     CONCAT(
-		'[',
-			GROUP_CONCAT(
-			    JSON_OBJECT(
-			        'languageId', lower(hex(product_manufacturer_translation.language_id)),
-			        'name', product_manufacturer_translation.name
+        '[',
+            GROUP_CONCAT(
+                JSON_OBJECT(
+                    'languageId', lower(hex(product_manufacturer_translation.language_id)),
+                    'name', product_manufacturer_translation.name
                 )
             ),
-		']'
+        ']'
     ) as manufacturer_translation,
 
     CONCAT(
         '[',
         GROUP_CONCAT(
-			    JSON_OBJECT(
-			        'id', lower(hex(tag.id)),
-			        'name', tag.name
+                JSON_OBJECT(
+                    'id', lower(hex(tag.id)),
+                    'name', tag.name
                 )
             ),
         ']'
@@ -426,10 +437,10 @@ SELECT
     CONCAT(
         '[',
         GROUP_CONCAT(
-			    JSON_OBJECT(
-			        'id', lower(hex(category_translation.category_id)),
-			        'languageId', lower(hex(category_translation.language_id)),
-			        'name', category_translation.name
+                JSON_OBJECT(
+                    'id', lower(hex(category_translation.category_id)),
+                    'languageId', lower(hex(category_translation.language_id)),
+                    'name', category_translation.name
                 )
             ),
         ']'

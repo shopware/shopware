@@ -19,8 +19,14 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
     private string $namespacePrefix;
 
+    /**
+     * @var array<mixed>|null
+     */
     private ?array $savedFeatureConfig = null;
 
+    /**
+     * @var array<mixed>|null
+     */
     private ?array $savedServerVars = null;
 
     private bool $testMode;
@@ -47,11 +53,15 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
         $reflectedMethod = new \ReflectionMethod($class, $method);
 
-        $features = $this->annotationReader->getMethodAnnotation($reflectedMethod, ActiveFeatures::class) ?? [];
+        /** @var ActiveFeatures[] $features */
+        $features = array_filter([
+            $this->annotationReader->getMethodAnnotation($reflectedMethod, ActiveFeatures::class) ?? [],
+            $this->annotationReader->getClassAnnotation($reflectedMethod->getDeclaringClass(), ActiveFeatures::class) ?? [],
+        ]);
 
         $this->savedFeatureConfig = null;
 
-        if (!$features && !str_starts_with($class, $this->namespacePrefix)) {
+        if ($features === [] && !str_starts_with($class, $this->namespacePrefix)) {
             return;
         }
 
@@ -67,8 +77,10 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
         }
 
         if ($features) {
-            foreach ($features->features as $feature) {
-                $_SERVER[Feature::normalizeName($feature)] = true;
+            foreach ($features as $annotation) {
+                foreach ($annotation->features as $feature) {
+                    $_SERVER[Feature::normalizeName($feature)] = true;
+                }
             }
         }
     }

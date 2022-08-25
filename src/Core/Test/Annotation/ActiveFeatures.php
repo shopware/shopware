@@ -6,7 +6,7 @@ namespace Shopware\Core\Test\Annotation;
  * @internal
  * @Annotation
  *
- * @Target({"METHOD"})
+ * @Target({"METHOD", "CLASS"})
  */
 final class ActiveFeatures
 {

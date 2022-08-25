@@ -435,7 +435,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $boolQuery = new BoolQuery();
         $boolQuery->add(new MatchQuery('name', 'test'));
         $searchQueryBuilder
-            ->method('buildQuery')
+            ->method('build')
             ->willReturn($boolQuery);
 
         $definition = new ElasticsearchProductDefinition(

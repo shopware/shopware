@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Annotation\ActiveFeatures;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -86,11 +85,12 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $this->clearElasticsearch();
         $this->registerCustomFieldsMapping();
+        $this->indexElasticSearch();
 
         $ids = new TestDataCollection();
         $this->createData($ids);
 
-        $this->indexElasticSearch();
+        $this->refreshIndex();
 
         static::assertTrue(true);
 
@@ -112,7 +112,10 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertCount(3, $result->getIds());
+        /** @var string[] $resultIds */
+        $resultIds = $result->getIds();
+
+        static::assertCount(3, $resultIds, 'But got ' . $ids->getKeys($resultIds));
 
         static::assertSame(
             [
@@ -120,7 +123,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 $ids->get('product-2'),
                 $ids->get('product-3'),
             ],
-            $result->getIds()
+            $resultIds
         );
     }
 
@@ -319,8 +322,6 @@ class ProductSearchQueryBuilderTest extends TestCase
                 );
             }
         }
-
-        $this->getContainer()->get(AbstractProductSearchQueryBuilder::class)->reset();
     }
 
     /**
@@ -340,8 +341,6 @@ class ProductSearchQueryBuilderTest extends TestCase
                 [$value, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
             );
         }
-
-        $this->getContainer()->get(AbstractProductSearchQueryBuilder::class)->reset();
     }
 
     private function createData(TestDataCollection $ids): void

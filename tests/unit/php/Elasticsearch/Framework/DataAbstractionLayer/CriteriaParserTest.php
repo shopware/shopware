@@ -3,21 +3,22 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -436,21 +437,16 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @return \PHPUnit\Framework\MockObject\MockObject&ProductDefinition&ProductDefinition&\PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject&ProductDefinition
      */
     public function getDefinition(): ProductDefinition
     {
-        $definition = $this->createMock(ProductDefinition::class);
-        $definition
-            ->method('getEntityName')
-            ->willReturn('product');
+        $instanceRegistry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
 
-        $definition
-            ->method('getFields')
-            ->willReturn(new CompiledFieldCollection($this->createMock(DefinitionInstanceRegistry::class), [
-                'price' => new PriceField('price', 'price'),
-            ]));
-
-        return $definition;
+        return $instanceRegistry->getByEntityName('product');
     }
 }

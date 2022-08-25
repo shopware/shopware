@@ -57,7 +57,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setTerm('foo bla');
-        $queries = $builder->buildQuery($criteria, Context::createDefaultContext());
+        $queries = $builder->build($criteria, Context::createDefaultContext());
 
         static::assertEmpty($queries->getQueries(BoolQuery::SHOULD));
 
@@ -163,7 +163,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setTerm('foo bla');
-        $queries = $builder->buildQuery($criteria, Context::createDefaultContext());
+        $queries = $builder->build($criteria, Context::createDefaultContext());
 
         $boolQuery = array_values($queries->getQueries(BoolQuery::MUST))[0];
 
@@ -217,61 +217,9 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setTerm('foo bla');
-        $queries = $builder->buildQuery($criteria, Context::createDefaultContext());
+        $queries = $builder->build($criteria, Context::createDefaultContext());
 
         static::assertNotEmpty($queries->getQueries(BoolQuery::SHOULD));
         static::assertEmpty($queries->getQueries(BoolQuery::MUST));
-    }
-
-    public function testConfigGetsCached(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects(static::once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['and_logic' => '0', 'field' => 'name', 'tokenize' => 1, 'ranking' => 500],
-            ]);
-
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
-        $tokenFilter
-            ->method('filter')
-            ->willReturnArgument(0);
-
-        $builder = new ProductSearchQueryBuilder(
-            $connection,
-            new Tokenizer(2),
-            $tokenFilter
-        );
-
-        $builder->buildQuery(new Criteria(), Context::createDefaultContext());
-        $builder->buildQuery(new Criteria(), Context::createDefaultContext());
-    }
-
-    public function testConfigGetsCachedClear(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects(static::exactly(2))
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['and_logic' => '0', 'field' => 'name', 'tokenize' => 1, 'ranking' => 500],
-            ]);
-
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
-        $tokenFilter
-            ->method('filter')
-            ->willReturnArgument(0);
-
-        $builder = new ProductSearchQueryBuilder(
-            $connection,
-            new Tokenizer(2),
-            $tokenFilter
-        );
-
-        $builder->buildQuery(new Criteria(), Context::createDefaultContext());
-        $builder->buildQuery(new Criteria(), Context::createDefaultContext());
-        $builder->reset();
-        $builder->buildQuery(new Criteria(), Context::createDefaultContext());
     }
 }

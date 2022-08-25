@@ -32871,16 +32871,6 @@ parameters:
 			path: src/Core/System/User/UserEntity.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Test\\\\FeatureFlagExtension\\:\\:\\$savedFeatureConfig type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Test/FeatureFlagExtension.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Test\\\\FeatureFlagExtension\\:\\:\\$savedServerVars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Test/FeatureFlagExtension.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Test\\\\FixtureLoader\\:\\:sync\\(\\) has parameter \\$content with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Test/FixtureLoader.php

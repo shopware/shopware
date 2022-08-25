@@ -27,11 +27,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
     private Connection $connection;
 
-    /**
-     * @var array<string, array<SearchConfig>>
-     */
-    private array $config = [];
-
     private AbstractTokenFilter $tokenFilter;
 
     private Tokenizer $tokenizer;
@@ -46,7 +41,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         $this->tokenizer = $tokenizer;
     }
 
-    public function buildQuery(Criteria $criteria, Context $context): BoolQuery
+    public function build(Criteria $criteria, Context $context): BoolQuery
     {
         $bool = new BoolQuery();
 
@@ -89,10 +84,12 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                     foreach ($queries as $query) {
                         $tokenBool->add(new NestedQuery($nested, $query), BoolQuery::SHOULD);
                     }
-                } else {
-                    foreach ($queries as $query) {
-                        $tokenBool->add($query, BoolQuery::SHOULD);
-                    }
+
+                    continue;
+                }
+
+                foreach ($queries as $query) {
+                    $tokenBool->add($query, BoolQuery::SHOULD);
                 }
             }
         }
@@ -105,20 +102,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         throw new DecorationPatternException(self::class);
     }
 
-    public function reset(): void
-    {
-        $this->config = [];
-    }
-
     /**
      * @return array<SearchConfig>
      */
     private function fetchConfig(Context $context): array
     {
-        if (isset($this->config[$context->getLanguageId()])) {
-            return $this->config[$context->getLanguageId()];
-        }
-
         /** @var array<SearchConfig> $config */
         $config = $this->connection->fetchAllAssociative(
             'SELECT
@@ -139,8 +127,6 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
             ]
         );
 
-        $this->config[$context->getLanguageId()] = $config;
-
-        return $this->config[$context->getLanguageId()];
+        return $config;
     }
 }

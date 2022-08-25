@@ -7,6 +7,7 @@ use Elasticsearch\Common\Exceptions\NoNodesAvailableException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
@@ -78,7 +79,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            $this->createMock(CriteriaParser::class),
+            new CriteriaParser(new EntityDefinitionQueryHelper()),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
         );

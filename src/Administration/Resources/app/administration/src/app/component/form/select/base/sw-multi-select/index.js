@@ -109,8 +109,8 @@ Component.register('sw-multi-select', {
                 return [];
             }
 
-            return this.options.filter((item) => {
-                return this.currentValue.includes(this.getKey(item, this.valueProperty));
+            return this.currentValue.map((value) => {
+                return this.options.find((optionValue) => this.getKey(optionValue, this.valueProperty) === value);
             }).slice(0, this.limit);
         },
 

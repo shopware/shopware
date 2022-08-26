@@ -72,7 +72,7 @@ PHP unit:
             alias: redis
         -   name: opensearchproject/opensearch:2.2.0
             alias: elasticsearch
-            command: [ "bin/opensearch", "-Ediscovery.type=single-node" "-Eplugins.security.disabled=true" ]
+            command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"

@@ -38,7 +38,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, create your mapping by own instead
+ */
 class EntityMapper
 {
     public const PRICE_FIELD = [
@@ -64,8 +68,13 @@ class EntityMapper
     public const FLOAT_FIELD = ['type' => 'double'];
     public const INT_FIELD = ['type' => 'long'];
 
+    /**
+     * @return array<mixed>|null
+     */
     public function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Will be removed, create your mapping by own instead');
+
         switch (true) {
             case $field instanceof TranslationsAssociationField:
                 return null;
@@ -150,8 +159,13 @@ class EntityMapper
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function mapFields(EntityDefinition $definition, Context $context): array
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Will be removed, create your mapping by own instead');
+
         $properties = [];
         $translated = [];
 
@@ -181,16 +195,29 @@ class EntityMapper
         return $properties;
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function createStringField(): array
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Will be removed, create your mapping by own instead');
+
         return self::KEYWORD_FIELD;
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function createLongTextField(): array
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Will be removed, create your mapping by own instead');
+
         return ['type' => 'text'];
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function createPriceField(Context $context): array
     {
         $currencies = $context->getExtension('currencies');

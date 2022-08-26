@@ -34205,26 +34205,6 @@ parameters:
 			path: src/Elasticsearch/DependencyInjection/ElasticsearchExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Exception\\\\ElasticsearchIndexingException\\:\\:__construct\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Exception/ElasticsearchIndexingException.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition\\:\\:fetch\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\AbstractElasticsearchDefinition\\:\\:getMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ClientFactory\\:\\:createClient\\(\\) has parameter \\$sslConfig with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ClientFactory.php
@@ -34385,31 +34365,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:createLongTextField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:createPriceField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:createStringField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:mapField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:mapFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/EntityMapper.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
@@ -34490,16 +34445,6 @@ parameters:
 			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:fetch\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:fetchProducts\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
@@ -34541,11 +34486,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:getCustomFieldsMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:getMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
 

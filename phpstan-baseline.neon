@@ -9526,51 +9526,6 @@ parameters:
 			path: src/Core/Content/Rule/RuleEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:buildViolation\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:getConditionType\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:getConditionValue\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:getConditionValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:getSavedConditions\\(\\) has parameter \\$commandQueue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:setScriptConstraints\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:validateConsistence\\(\\) has parameter \\$fieldValidations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:validateConsistence\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:validateUpdateCommands\\(\\) has parameter \\$commandQueue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
 			message: "#^Cannot call method getConfig\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/Api/SeoActionController.php

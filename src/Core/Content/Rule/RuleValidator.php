@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -120,16 +121,6 @@ class RuleValidator implements EventSubscriberInterface
 
         $type = $this->getConditionType($condition, $payload);
         if ($type === null) {
-            $violation = $this->buildViolation(
-                'Your condition is missing a type.',
-                [],
-                '/type',
-                'CONTENT__MISSING_RULE_TYPE_EXCEPTION'
-            );
-
-            $violationList->add($violation);
-            $writeException->add(new WriteConstraintViolationException($violationList, $command->getPath()));
-
             return;
         }
 
@@ -166,6 +157,9 @@ class RuleValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
         $type = $condition !== null ? $condition->getType() : null;
@@ -176,6 +170,11 @@ class RuleValidator implements EventSubscriberInterface
         return $type;
     }
 
+    /**
+     * @param array<mixed> $payload
+     *
+     * @return array<mixed>
+     */
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
         $value = $condition !== null ? $condition->getValue() : [];
@@ -186,6 +185,10 @@ class RuleValidator implements EventSubscriberInterface
         return $value ?? [];
     }
 
+    /**
+     * @param array<string, array<Constraint>> $fieldValidations
+     * @param array<mixed> $payload
+     */
     private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList): void
     {
         foreach ($fieldValidations as $fieldName => $validations) {
@@ -210,6 +213,9 @@ class RuleValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<UpdateCommand> $commandQueue
+     */
     private function validateUpdateCommands(
         array $commandQueue,
         WriteException $writeException,
@@ -225,6 +231,9 @@ class RuleValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<UpdateCommand> $commandQueue
+     */
     private function getSavedConditions(array $commandQueue, Context $context): RuleConditionCollection
     {
         $ids = array_map(function ($command) {
@@ -242,6 +251,9 @@ class RuleValidator implements EventSubscriberInterface
         return $entities;
     }
 
+    /**
+     * @param array<int|string> $parameters
+     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
@@ -260,6 +272,9 @@ class RuleValidator implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function setScriptConstraints(
         ScriptRule $ruleInstance,
         ?RuleConditionEntity $condition,

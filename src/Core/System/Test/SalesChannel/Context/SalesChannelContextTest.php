@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
@@ -57,6 +58,7 @@ class SalesChannelContextTest extends TestCase
         $shippingCountryId = Uuid::randomHex();
         $this->createCustomer($customerId, $shippingCountryId, Uuid::randomHex());
         $taxId = Uuid::randomHex();
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => $taxId,
             'taxRate' => 15,
@@ -85,6 +87,7 @@ class SalesChannelContextTest extends TestCase
         $billingCountryId = Uuid::randomHex();
         $shippingCountryId = Uuid::randomHex();
         $this->createCustomer($customerId, $shippingCountryId, $billingCountryId);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -125,6 +128,8 @@ class SalesChannelContextTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $countryState = ['id' => $countryStateId, 'countryId' => $shippingCountryId, 'shortCode' => Uuid::randomHex(), 'name' => Uuid::randomHex()];
         $this->createCustomer($customerId, $shippingCountryId, Uuid::randomHex(), $countryState);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -162,6 +167,8 @@ class SalesChannelContextTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $countryState = ['id' => $countryStateId, 'countryId' => $shippingCountryId, 'shortCode' => Uuid::randomHex(), 'name' => Uuid::randomHex()];
         $this->createCustomer($customerId, $shippingCountryId, Uuid::randomHex(), $countryState);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -203,6 +210,8 @@ class SalesChannelContextTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $countryState = ['id' => $countryStateId, 'countryId' => $shippingCountryId, 'shortCode' => Uuid::randomHex(), 'name' => Uuid::randomHex()];
         $this->createCustomer($customerId, $shippingCountryId, Uuid::randomHex(), $countryState);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -244,6 +253,10 @@ class SalesChannelContextTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $countryState = ['id' => $countryStateId, 'countryId' => $shippingCountryId, 'shortCode' => Uuid::randomHex(), 'name' => Uuid::randomHex()];
         $this->createCustomer($customerId, $shippingCountryId, Uuid::randomHex(), $countryState);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -300,6 +313,10 @@ class SalesChannelContextTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $countryState = ['id' => $countryStateId, 'countryId' => $shippingCountryId, 'shortCode' => Uuid::randomHex(), 'name' => Uuid::randomHex()];
         $this->createCustomer($customerId, Uuid::randomHex(), Uuid::randomHex(), $countryState);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -353,6 +370,7 @@ class SalesChannelContextTest extends TestCase
     {
         $shippingCountryId = $this->getValidCountryId();
         $taxId = Uuid::randomHex();
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => $taxId,
             'taxRate' => 15,
@@ -378,6 +396,7 @@ class SalesChannelContextTest extends TestCase
     {
         $countryIds = $this->getValidCountryIds(3);
         $shippingCountryId = $countryIds[0];
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -415,6 +434,8 @@ class SalesChannelContextTest extends TestCase
     {
         $shippingCountryId = $this->getValidCountryId();
         $countryStateId = $this->createCountryState($shippingCountryId);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -448,6 +469,7 @@ class SalesChannelContextTest extends TestCase
     public function testGetTaxRuleCollectionNoCustomerDefaultShippingLocationTypeZipCodeRangeDoesNotMatch(): void
     {
         $shippingCountryId = $this->getValidCountryId();
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -476,6 +498,7 @@ class SalesChannelContextTest extends TestCase
     public function testGetTaxRuleCollectionNoCustomerDefaultShippingLocationTypeZipCodeDoesNotMatch(): void
     {
         $shippingCountryId = $this->getValidCountryId();
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -504,6 +527,10 @@ class SalesChannelContextTest extends TestCase
     {
         $shippingCountryId = $this->getValidCountryId();
         $countryStateId = $this->createCountryState($shippingCountryId);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -558,6 +585,10 @@ class SalesChannelContextTest extends TestCase
         $countryIds = $this->getValidCountryIds(2);
         $shippingCountryId = $countryIds[0];
         $countryStateId = $this->createCountryState($shippingCountryId);
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(EntireCountryRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(IndividualStatesRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRangeRuleTypeFilter::TECHNICAL_NAME));
+        static::assertInstanceOf(TaxRuleTypeEntity::class, $this->taxRuleTypes->getByTechnicalName(ZipCodeRuleTypeFilter::TECHNICAL_NAME));
         $taxData = [
             'id' => Uuid::randomHex(),
             'taxRate' => 15,
@@ -681,6 +712,9 @@ class SalesChannelContextTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<string>
+     */
     protected function getValidCountryIds(int $limit): array
     {
         /** @var EntityRepositoryInterface $repository */
@@ -688,7 +722,10 @@ class SalesChannelContextTest extends TestCase
 
         $criteria = (new Criteria())->setLimit($limit)->addFilter(new EqualsFilter('taxFree', 0));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        /** @var list<string> $ids */
+        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids;
     }
 
     protected function createCountryState(string $countryId): string
@@ -705,6 +742,10 @@ class SalesChannelContextTest extends TestCase
         return $id;
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $taxData
+     * @param array<string, mixed> $options
+     */
     private function createSalesChannelContext(array $taxData = [], array $options = []): SalesChannelContext
     {
         if ($taxData) {
@@ -726,6 +767,9 @@ class SalesChannelContextTest extends TestCase
         return $collection;
     }
 
+    /**
+     * @param array<string, mixed>|null $countryState
+     */
     private function createCustomer(
         string $customerId,
         ?string $shippingCountryId = null,

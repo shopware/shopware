@@ -4,18 +4,12 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                    add(ProductPriceEntity $entity)
- * @method void                    set(string $key, ProductPriceEntity $entity)
- * @method ProductPriceEntity[]    getIterator()
- * @method ProductPriceEntity[]    getElements()
- * @method ProductPriceEntity|null get(string $key)
- * @method ProductPriceEntity|null first()
- * @method ProductPriceEntity|null last()
+ * @extends EntityCollection<ProductPriceEntity>
  */
-class ProductPriceCollection extends PriceRuleCollection
+class ProductPriceCollection extends EntityCollection
 {
     public function getApiAlias(): string
     {

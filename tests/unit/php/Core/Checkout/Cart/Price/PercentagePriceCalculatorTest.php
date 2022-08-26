@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -17,11 +17,12 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator
  */
 class PercentagePriceCalculatorTest extends TestCase
 {
@@ -37,7 +38,6 @@ class PercentagePriceCalculatorTest extends TestCase
             new QuantityPriceCalculator(
                 new GrossPriceCalculator($taxCalculator, $rounding),
                 new NetPriceCalculator($taxCalculator, $rounding),
-                new TaxDetector()
             ),
             new PercentageTaxRuleBuilder()
         );
@@ -69,12 +69,12 @@ class PercentagePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $priceDefinition = new QuantityPriceDefinition(10.40, new TaxRuleCollection([new TaxRule(21, 100)]), 1, 1, true);
+        $priceDefinition = new QuantityPriceDefinition(10.40, new TaxRuleCollection([new TaxRule(21, 100)]), 1);
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
         static::assertSame(10.40, $price->getTotalPrice());
         static::assertSame(1.80, $price->getCalculatedTaxes()->getAmount());
 
-        $priceDefinition = new QuantityPriceDefinition(104.00, new TaxRuleCollection([new TaxRule(21, 100)]), 1, 1, true);
+        $priceDefinition = new QuantityPriceDefinition(104.00, new TaxRuleCollection([new TaxRule(21, 100)]), 1);
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
         static::assertSame(104.00, $price->getTotalPrice());
         static::assertSame(18.05, $price->getCalculatedTaxes()->getAmount());
@@ -172,7 +172,6 @@ class PercentagePriceCalculatorTest extends TestCase
         return new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, $rounding),
             new NetPriceCalculator($taxCalculator, $rounding),
-            Generator::createGrossPriceDetector()
         );
     }
 }
@@ -182,20 +181,11 @@ class PercentagePriceCalculatorTest extends TestCase
  */
 class PercentageCalculation
 {
-    /**
-     * @var float
-     */
-    protected $percentageDiscount;
+    protected float $percentageDiscount;
 
-    /**
-     * @var CalculatedPrice
-     */
-    protected $expected;
+    protected CalculatedPrice $expected;
 
-    /**
-     * @var PriceCollection
-     */
-    protected $prices;
+    protected PriceCollection $prices;
 
     public function __construct(float $discount, CalculatedPrice $expected, PriceCollection $prices)
     {

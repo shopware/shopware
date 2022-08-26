@@ -9,8 +9,6 @@ return [
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
-        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // internal has been removed
-        '**/src/Core/Checkout/Payment/Exception/ValidatePreparedPaymentException.php', // internal has been removed
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         // temporary to make Bundles internal
         '**/src/Administration/Administration.php',
@@ -23,6 +21,7 @@ return [
         '**/src/Core/System/System.php',
         '**/src/Core/Content/Content.php',
         '**/src/Elasticsearch/Elasticsearch.php',
+        '**/src/Core/Content/Product/Aggregate/ProductPrice/ProductPriceCollection.php', // temporary to fix wrong inheritance
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

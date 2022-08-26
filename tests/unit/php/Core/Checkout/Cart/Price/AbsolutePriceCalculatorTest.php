@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
@@ -21,6 +21,8 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator
  */
 class AbsolutePriceCalculatorTest extends TestCase
 {
@@ -37,7 +39,6 @@ class AbsolutePriceCalculatorTest extends TestCase
             new QuantityPriceCalculator(
                 new GrossPriceCalculator($taxCalculator, $rounding),
                 new NetPriceCalculator($taxCalculator, $rounding),
-                Generator::createGrossPriceDetector()
             ),
             new PercentageTaxRuleBuilder()
         );
@@ -55,6 +56,9 @@ class AbsolutePriceCalculatorTest extends TestCase
         static::assertEquals($calculation->getExpected()->getQuantity(), $calculatedPrice->getQuantity());
     }
 
+    /**
+     * @return array<string, list<AbsoluteCalculation>>
+     */
     public function provider(): array
     {
         return [
@@ -122,7 +126,6 @@ class AbsolutePriceCalculatorTest extends TestCase
         return new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, $rounding),
             new NetPriceCalculator($taxCalculator, $rounding),
-            Generator::createGrossPriceDetector()
         );
     }
 }
@@ -132,20 +135,11 @@ class AbsolutePriceCalculatorTest extends TestCase
  */
 class AbsoluteCalculation
 {
-    /**
-     * @var float
-     */
-    protected $discount;
+    protected float $discount;
 
-    /**
-     * @var CalculatedPrice
-     */
-    protected $expected;
+    protected CalculatedPrice $expected;
 
-    /**
-     * @var PriceCollection
-     */
-    protected $prices;
+    protected PriceCollection $prices;
 
     public function __construct(float $discount, CalculatedPrice $expected, PriceCollection $prices)
     {

@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Price;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Price\NetPriceCalculator
  */
 class NetPriceCalculatorTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     /**
      * @dataProvider referencePriceCalculationProvider
      */
@@ -28,9 +28,8 @@ class NetPriceCalculatorTest extends TestCase
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection(), 1);
         $definition->setReferencePriceDefinition($reference);
 
-        $price = $this->getContainer()
-            ->get(NetPriceCalculator::class)
-            ->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
 
         static::assertEquals($expected, $price->getReferencePrice());
     }
@@ -68,9 +67,8 @@ class NetPriceCalculatorTest extends TestCase
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection(), 1);
         $definition->setRegulationPrice($reference);
 
-        $price = $this->getContainer()
-            ->get(GrossPriceCalculator::class)
-            ->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
 
         static::assertEquals($expected, $price->getRegulationPrice());
     }

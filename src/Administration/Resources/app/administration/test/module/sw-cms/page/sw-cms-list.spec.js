@@ -741,4 +741,13 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }
         });
     });
+
+    it('should limit the product association loading to 25', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = createWrapper();
+
+        const listCriteria = wrapper.vm.listCriteria;
+        expect(listCriteria.getAssociation('products').getLimit()).toBe(25);
+    });
 });

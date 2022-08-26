@@ -287,7 +287,8 @@
             "@stylelint:admin src/**/*.scss",
             "@stylelint:storefront src/**/*.scss"
         ],
-        "eslint:admin": "@npm:admin:bin eslint --config .eslintrc.js --ext .js,.vue,.html.twig",
+        "eslint:admin": "@npm:admin run lint",
+        "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
         "eslint": [
             "@eslint:admin",

@@ -34,6 +34,7 @@ Component.register('sw-order-line-items-grid', {
             selectedItems: {},
             searchTerm: '',
             nestedLineItemsModal: null,
+            showDeleteModal: false,
         };
     },
     computed: {
@@ -42,7 +43,7 @@ Component.register('sw-order-line-items-grid', {
         },
 
         orderLineItemRepository() {
-            return Service('repositoryFactory').create('order_line_item');
+            return this.repositoryFactory.create('order_line_item');
         },
 
         orderLineItems() {
@@ -243,9 +244,19 @@ Component.register('sw-order-line-items-grid', {
         },
 
         onDeleteItem(item) {
-            this.orderLineItemRepository.delete(item.id, this.context).then(() => {
+            this.showDeleteModal = item.id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete() {
+            this.orderLineItemRepository.delete(this.showDeleteModal, this.context).then(() => {
                 this.$emit('item-delete');
             });
+
+            this.showDeleteModal = false;
         },
 
         itemCreatedFromProduct(id) {

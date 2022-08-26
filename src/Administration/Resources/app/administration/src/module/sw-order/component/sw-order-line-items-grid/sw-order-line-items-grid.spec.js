@@ -1,6 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-line-items-grid';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-button';
 
 const mockItems = [
     {
@@ -116,6 +120,70 @@ const mockMultipleTaxesItem = {
         ]
     }
 };
+
+const deleteEndpoint = jest.fn(() => Promise.resolve());
+
+async function createAdvancedWrapper() {
+    return shallowMount(await Shopware.Component.build('sw-order-line-items-grid'), {
+        localVue: createLocalVue(),
+        propsData: {
+            order: {
+                price: {
+                    taxStatus: ''
+                },
+                currency: {
+                    shortName: 'EUR'
+                },
+                lineItems: [],
+                taxStatus: ''
+            },
+            context: {}
+        },
+        provide: {
+            repositoryFactory: {
+                create: () => (
+                    {
+                        delete: deleteEndpoint
+                    }
+                ),
+            },
+            shortcutService: { stopEventListener: () => {}, startEventListener: () => {} },
+            orderService: {},
+            acl: {
+                can: () => false
+            },
+            feature: {
+                isActive: () => true
+            }
+        },
+        stubs: {
+            'sw-container': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-group': true,
+            'sw-context-button': true,
+            'sw-context-menu-divider': true,
+            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+            'sw-card-filter': true,
+            'sw-checkbox-field': true,
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
+            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-data-grid-settings': true,
+            'sw-icon': true,
+            'sw-product-variant-info': true,
+            'sw-switch-field': true,
+            'router-link': true
+        },
+        mocks: {
+            $tc: (t, count, value) => {
+                if (t === 'sw-order.detailBase.taxDetail') {
+                    return `${value.taxRate}%: ${value.tax}`;
+                }
+
+                return t;
+            }
+        }
+    });
+}
 
 async function createWrapper({ privileges = [] }) {
     const localVue = createLocalVue();
@@ -467,5 +535,49 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
+    });
+
+    it('should open and close modal', async () => {
+        const wrapper = await createAdvancedWrapper();
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'gross'
+            }
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+
+        const deleteActions = wrapper.findAll('.sw_order_line_items_grid-item__delete-action');
+        await deleteActions.at(0).trigger('click');
+        expect(wrapper.vm.showDeleteModal).toEqual('1');
+
+        const closeAction = wrapper.find('.sw_order_line_items_grid-actions_modal__close-action');
+        await closeAction.trigger('click');
+
+        expect(wrapper.vm.showDeleteModal).toBeFalsy();
+    });
+
+    it('should open modal and delete entry', async () => {
+        const wrapper = await createAdvancedWrapper();
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'gross'
+            }
+        });
+
+        const deleteActions = wrapper.findAll('.sw_order_line_items_grid-item__delete-action');
+        await deleteActions.at(0).trigger('click');
+        expect(wrapper.vm.showDeleteModal).toEqual('1');
+
+        const confirmAction = wrapper.find('.sw_order_line_items_grid-actions_modal__confirm-action');
+        await confirmAction.trigger('click');
+
+        expect(deleteEndpoint).toBeCalledTimes(1);
+        expect(wrapper.vm.showDeleteModal).toBeFalsy();
     });
 });

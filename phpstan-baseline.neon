@@ -9351,36 +9351,6 @@ parameters:
 			path: src/Core/Content/Test/Category/Service/CountingEntitySearcher.php
 
 		-
-			message: "#^Access to an undefined property Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\NavigationLoaderTest\\:\\:\\$ids\\.$#"
-			count: 37
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^Cannot call method getTree\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\Tree\\\\Tree\\|null\\.$#"
-			count: 12
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\NavigationLoaderTest\\:\\:createSimpleTree\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\NavigationLoaderTest\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
-			message: "#^Variable \\$tree in PHPDoc tag @var does not match assigned variable \\$categories\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/NavigationLoaderTest.php
-
-		-
 			message: "#^Cannot call method getSlot\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null\\.$#"
 			count: 6
 			path: src/Core/Content/Test/Cms/Aggregate/CmsSlot/CmsSlotCollectionTest.php

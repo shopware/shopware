@@ -38,6 +38,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     protected EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @var array<string, string>
+     */
     private array $customMapping;
 
     private Connection $connection;
@@ -46,10 +49,15 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private PriceFieldSerializer $priceFieldSerializer;
 
+    /**
+     * @var array<string, string>|null
+     */
     private ?array $customFieldsTypes = null;
 
     /**
      * @internal
+     *
+     * @param array<string, string> $customMapping
      */
     public function __construct(
         ProductDefinition $definition,
@@ -74,6 +82,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $this->definition;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getMapping(Context $context): array
     {
         return [
@@ -179,6 +190,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ];
     }
 
+    /**
+     * @param array<mixed> $documents
+     *
+     * @return array<mixed>
+     */
     public function extendDocuments(array $documents, Context $context): array
     {
         return $documents;
@@ -196,6 +212,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $query;
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<mixed>
+     */
     public function fetch(array $ids, Context $context): array
     {
         $data = $this->fetchProducts($ids, $context);
@@ -328,6 +349,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $documents;
     }
 
+    /**
+     * @param array<string> $fields
+     */
     private function buildCoalesce(array $fields, Context $context): string
     {
         $fields = array_splice($fields, 0, \count($context->getLanguageIdChain()));
@@ -395,6 +419,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $query;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getCurrencyPrice(string $id, ?PriceCollection $prices, CurrencyEntity $currency): array
     {
         if ($prices === null) {
@@ -410,6 +437,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $this->getPrice($origin, $currency);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getCurrencyPurchasePrice(?PriceCollection $prices, CurrencyEntity $currency): array
     {
         if ($prices === null) {
@@ -429,6 +459,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $this->getPrice(clone $origin, $currency);
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getPrice(Price $origin, CurrencyEntity $currency): array
     {
         $price = clone $origin;
@@ -454,6 +487,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return json_decode(JsonFieldSerializer::encodeJson($price), true);
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string, mixed>
+     */
     private function fetchProducts(array $ids, Context $context): array
     {
         $sql = <<<'SQL'
@@ -507,7 +545,7 @@ FROM product p
         :productTranslationQuery:
     ) product_translation_parent ON (product_translation_parent.product_id = p.parent_id)
 
-WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL)
+WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
 
 GROUP BY p.id
 SQL;
@@ -534,6 +572,9 @@ SQL;
         return FetchModeHelper::groupUnique($data);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getCustomFieldsMapping(Context $context): array
     {
         $fieldMapping = $this->getCustomFieldTypes($context);
@@ -556,6 +597,11 @@ SQL;
         return $mapping;
     }
 
+    /**
+     * @param array<string, mixed> $customFields
+     *
+     * @return array<string, mixed>
+     */
     private function formatCustomFields(array $customFields, Context $context): array
     {
         $types = $this->getCustomFieldTypes($context);
@@ -581,6 +627,8 @@ SQL;
 
     /**
      * @param array<string> $propertyIds
+     *
+     * @return array<int|string, mixed>
      */
     private function fetchPropertyGroups(array $propertyIds = []): array
     {
@@ -589,6 +637,9 @@ SQL;
         return $this->connection->fetchAllKeyValue($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getCustomFieldTypes(Context $context): array
     {
         if ($this->customFieldsTypes !== null) {

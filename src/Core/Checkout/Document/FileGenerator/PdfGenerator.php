@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\FileGenerator;
 
+use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
@@ -71,10 +72,35 @@ class PdfGenerator implements FileGeneratorInterface
 
         $dompdf->render();
 
+        $this->injectPageCount($dompdf);
+
         if ($gcEnabledAtStart) {
             gc_enable();
         }
 
-        return $dompdf->output() ?? '';
+        return (string) $dompdf->output();
+    }
+
+    /**
+     * Replace a predefined placeholder with the total page count in the whole PDF document
+     */
+    private function injectPageCount(Dompdf $dompdf): void
+    {
+        /** @var CPDF $canvas */
+        $canvas = $dompdf->getCanvas();
+        $search = $this->insertNullByteBeforeEachCharacter('DOMPDF_PAGE_COUNT_PLACEHOLDER');
+        $replace = $this->insertNullByteBeforeEachCharacter((string) $canvas->get_page_count());
+        $pdf = $canvas->get_cpdf();
+
+        foreach ($pdf->objects as &$o) {
+            if ($o['t'] === 'contents') {
+                $o['c'] = str_replace($search, $replace, $o['c']);
+            }
+        }
+    }
+
+    private function insertNullByteBeforeEachCharacter(string $string): string
+    {
+        return "\u{0000}" . substr(chunk_split($string, 1, "\u{0000}"), 0, -1);
     }
 }

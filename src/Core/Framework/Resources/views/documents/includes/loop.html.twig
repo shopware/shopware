@@ -29,7 +29,9 @@ All blocks of this template are available in the template which renders this tem
             <div class="page_break"></div>
         {% endblock %}
 
-        {{ counter.incrementPage() }}
+        {% sw_silent_feature_call "v6.5.0.0" %}
+            {{ counter.incrementPage() }}
+        {% endsw_silent_feature_call %}
 
         {#  new page header #}
         {% block document_loop_page_logo %}
@@ -90,6 +92,31 @@ All blocks of this template are available in the template which renders this tem
 
     {# all line items rendered, now render shipping costs and close table #}
     {% if endReached %}
+        {# check if should render next page, only happend when shipping cost is also reached new page #}
+        {% set endPage = counter.counter is divisible by(itemsPerPage) %}
+        {% if endPage %}
+            {% block document_before_shipping_cost_table_close %}
+                {{ block('table_close') }}
+            {% endblock %}
+
+            {% block document_before_shipping_cost_page_break %}
+                <div class="page_break"></div>
+            {% endblock %}
+
+            {#  new page header #}
+            {% block document_shipping_cost_page_logo %}
+                {{ block('logo') }}
+            {% endblock %}
+
+            {% block document_shipping_cost_page_letter_header %}
+                {{ block('letter_header') }}
+            {% endblock %}
+
+            {% block document_loop_last_table_open %}
+                {{ block('table_open') }}
+            {% endblock %}
+        {% endif %}
+
         {% block document_loop_shipping_costs %}
             {{ block('shipping_costs') }}
         {% endblock %}

@@ -15,6 +15,9 @@ final class OrderDocumentCriteriaFactory
     {
     }
 
+    /**
+     * @param array<int, string> $ids
+     */
     public static function create(array $ids, string $deepLinkCode = ''): Criteria
     {
         $criteria = new Criteria($ids);
@@ -25,12 +28,14 @@ final class OrderDocumentCriteriaFactory
             'currency',
             'language.locale',
             'addresses.country',
+            'addresses.salutation',
             'addresses.countryState',
             'deliveries.positions',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
             'deliveries.shippingOrderAddress.countryState',
             'orderCustomer.customer',
+            'orderCustomer.salutation',
         ]);
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));

@@ -10,28 +10,29 @@ All blocks of this template are available in the template which renders this tem
 #}
 
 {% block position %}
-    {% set class = '' %}
-    {% if level > 0 %}
-        {% set class = " nested level-" ~ level %}
-    {% endif %}
+    {% if config.displayLineItems %}
+        {% set class = '' %}
+        {% if level > 0 %}
+            {% set class = " nested level-" ~ level %}
+        {% endif %}
 
-    <tr class="line-item{{ class }}{% if first %} first{% endif %}">
-        {% block document_line_item_table_rows %}
-            {% block document_line_item_table_row_position %}
-                {% if config.displayLineItemPosition %}
-                    <td>{{ prefix ~ position }}</td>
-                {% endif %}
-            {% endblock %}
+        <tr class="line-item{{ class }}{% if first %} first{% endif %}">
+            {% block document_line_item_table_rows %}
+                {% block document_line_item_table_row_position %}
+                    {% if config.displayLineItemPosition %}
+                        <td>{{ prefix ~ position }}</td>
+                    {% endif %}
+                {% endblock %}
 
-            {% block document_line_item_table_row_product_number %}
-                {% if lineItem.payload.productNumber %}
-                    <td>{{ lineItem.payload.productNumber }}</td>
-                {% else %}
-                    <td></td>
-                {% endif %}
-            {% endblock %}
+                {% block document_line_item_table_row_product_number %}
+                    {% if lineItem.payload.productNumber %}
+                        <td>{{ lineItem.payload.productNumber }}</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                {% endblock %}
 
-            {% block document_line_item_table_row_label %}
+                {% block document_line_item_table_row_label %}
                     <td class="line-item-breakable">
                         {% if level > 0 %}
                             {% for i in 1..level %}
@@ -57,7 +58,7 @@ All blocks of this template are available in the template which renders this tem
                             {% for feature in lineItem.payload.features %}
                                 {% if feature.type == 'referencePrice' %}
                                     {{ feature.value.purchaseUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }}
-                                    ({{ feature.value.price|currency(currencyIsoCode) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }})
+                                    ({{ feature.value.price|currency(currencyIsoCode, languageId) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize }} {{ feature.value.unitName|sw_sanitize }})
                                     {% if lineItem.payload.features|last != feature %}
                                         {{ " | " }}
                                     {% endif %}
@@ -65,25 +66,26 @@ All blocks of this template are available in the template which renders this tem
                             {% endfor %}
                         {% endif %}
                     </td>
-            {% endblock %}
+                {% endblock %}
 
-            {% block document_line_item_table_row_quantity %}
-                <td class="align-right">{{ lineItem.quantity }}</td>
-            {% endblock %}
+                {% block document_line_item_table_row_quantity %}
+                    <td class="align-right">{{ lineItem.quantity }}</td>
+                {% endblock %}
 
-            {% block document_line_item_table_prices %}
-                {% if config.displayPrices %}
-                    {% block document_line_item_table_row_tax_rate %}
-                        <td class="align-right">{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }}%{% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
-                    {% endblock %}
-                    {% block document_line_item_row_table_unit_price %}
-                        <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
-                    {% endblock %}
-                    {% block document_line_item_table_row_total_price %}
-                        <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
-                    {% endblock %}
-                {% endif %}
+                {% block document_line_item_table_prices %}
+                    {% if config.displayPrices %}
+                        {% block document_line_item_table_row_tax_rate %}
+                            <td class="align-right">{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }} % {% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                        {% endblock %}
+                        {% block document_line_item_row_table_unit_price %}
+                            <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode, languageId) }}</td>
+                        {% endblock %}
+                        {% block document_line_item_table_row_total_price %}
+                            <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode, languageId) }}</td>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
             {% endblock %}
-        {% endblock %}
-    </tr>
+        </tr>
+    {% endif %}
 {% endblock %}

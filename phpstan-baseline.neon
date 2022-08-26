@@ -1501,16 +1501,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentGenerator/InvoiceGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getConfiguration\\(\\) has parameter \\$specificConfiguration with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentService\\:\\:getOrderById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Event\\\\DocumentTemplateRendererParameterEvent\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
@@ -1551,11 +1541,6 @@ parameters:
 			path: src/Core/Checkout/Document/FileGenerator/FileGeneratorRegistry.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\CreditNoteRenderer\\:\\:getOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/CreditNoteRenderer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\DocumentRendererRegistry\\:\\:__construct\\(\\) has parameter \\$documentRenderers with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Renderer/DocumentRendererRegistry.php
@@ -1564,11 +1549,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\DocumentRendererRegistry\\:\\:render\\(\\) has parameter \\$operations with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Renderer/DocumentRendererRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\OrderDocumentCriteriaFactory\\:\\:create\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/OrderDocumentCriteriaFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RenderedDocument\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -1594,11 +1574,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RendererResult\\:\\:getSuccess\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\StornoRenderer\\:\\:getOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/StornoRenderer.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentConfigLoader\\:\\:\\$configs type has no value type specified in iterable type array\\.$#"
@@ -3746,96 +3721,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Validation/CustomerValidationFactoryTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDeepLinkCode\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:createDocuments\\(\\) has parameter \\$documentTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:getDocumentByDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:getDocumentIds\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentControllerTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:createDocuments\\(\\) has parameter \\$documentTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:getDocumentByDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:getDocumentIds\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentGeneratorControllerTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentGeneratorControllerTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDocumentType\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getFileType\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderId\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderVersionId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentServiceTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\CreditNoteGeneratorTest\\:\\:createCustomer\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
@@ -3861,116 +3746,6 @@ parameters:
 			path: src/Core/Checkout/Test/Document/DocumentType/CreditNoteGeneratorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\InvoiceServiceTest\\:\\:createDeliveryTimeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\DocumentType\\\\InvoiceServiceTest\\:\\:generateDemoCart\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/DocumentType/InvoiceServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:createDeliveryTimeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:generateCreditItems\\(\\) has parameter \\$creditPrices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:generateDemoCart\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:testRender\\(\\) has parameter \\$additionalConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:testRender\\(\\) has parameter \\$creditPrices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:testRender\\(\\) has parameter \\$possibleTaxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\CreditNoteRendererTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/CreditNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\DeliveryNoteRendererTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/DeliveryNoteRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\DeliveryNoteRendererTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/DeliveryNoteRendererTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDeliveries\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderCustomer\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\InvoiceRendererTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\InvoiceRendererTest\\:\\:generateDemoCart\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\InvoiceRendererTest\\:\\:testRender\\(\\) has parameter \\$possibleTaxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\InvoiceRendererTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/InvoiceRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\StornoRendererTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/StornoRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\StornoRendererTest\\:\\:generateDemoCart\\(\\) has parameter \\$taxes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/StornoRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\StornoRendererTest\\:\\:testRender\\(\\) has parameter \\$additionalConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/StornoRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Renderer\\\\StornoRendererTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Renderer/StornoRendererTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\SalesChannel\\\\DocumentRouteTest\\:\\:createOrder\\(\\) has parameter \\$additionalData with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Document/SalesChannel/DocumentRouteTest.php
@@ -3981,104 +3756,9 @@ parameters:
 			path: src/Core/Checkout/Test/Document/SalesChannel/DocumentRouteTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentConfigLoaderTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentConfigLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentConfigLoaderTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentConfigLoaderTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getConfig\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDocumentMediaFileId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getDocumentType\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getFileType\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderId\\(\\)\\.$#"
-			count: 4
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOrderVersionId\\(\\)\\.$#"
-			count: 6
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getReferencedDocumentId\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentGeneratorTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentGeneratorTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$media of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:getRelativeMediaUrl\\(\\) expects Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentMergerTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\DocumentMergerTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php
-
-		-
 			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\DocumentGenerator\\>\\:\\:getMock\\(\\) contains unresolvable type\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Document/Service/DocumentMergerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\PdfRendererTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/PdfRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\PdfRendererTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/PdfRendererTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\ReferenceInvoiceLoaderTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/ReferenceInvoiceLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Document\\\\Service\\\\ReferenceInvoiceLoaderTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Document/Service/ReferenceInvoiceLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionBuilder\\:\\:add\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
@@ -11754,16 +11434,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Repository\\\\MailHeaderFooterRepositoryTest\\:\\:prepareHeaderFooterTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/MailTemplate/Repository/MailHeaderFooterRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Service\\\\AttachmentLoaderTest\\:\\:createDocument\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Service/AttachmentLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Service\\\\AttachmentLoaderTest\\:\\:upsertBaseConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/MailTemplate/Service/AttachmentLoaderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberTest\\:\\:sendMailProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"

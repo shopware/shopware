@@ -264,10 +264,8 @@ class InvoiceServiceTest extends TestCase
         static::assertNotNull($country = $countries->first());
         $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
         $companyPhone = '123123123';
-        $vatIds = ['VAT-123123'];
 
         static::assertNotNull($order->getOrderCustomer());
-        $order->getOrderCustomer()->setVatIds($vatIds);
 
         $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
             new DocumentConfiguration(),
@@ -303,11 +301,169 @@ class InvoiceServiceTest extends TestCase
         static::assertStringContainsString($shippingAddress->getLastName(), $processedTemplate);
         static::assertStringContainsString($shippingAddress->getZipcode(), $processedTemplate);
         static::assertStringContainsString('Intra-community delivery (EU)', $processedTemplate);
-        static::assertStringContainsString($vatIds[0], $processedTemplate);
         static::assertStringContainsString($companyPhone, $processedTemplate);
     }
 
     /**
+     * @dataProvider invoiceGenerateVatIdProvider
+     */
+    public function testGenerateWithVatIdsOfCustomer(\Closure $vatIdClosure, \Closure $assertClosure): void
+    {
+        $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
+
+        $possibleTaxes = [7, 19, 22];
+        $cart = $this->generateDemoCart($possibleTaxes);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        $vatId = $vatIdClosure($order);
+
+        static::assertNotNull($deliveries = $order->getDeliveries());
+        static::assertNotNull($shippingAddress = $deliveries->getShippingAddress());
+        static::assertNotNull($countries = $shippingAddress->getCountries());
+        static::assertNotNull($country = $countries->first());
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+                'executiveDirector' => true,
+                'displayDivergentDeliveryAddress' => true,
+                'intraCommunityDelivery' => true,
+                'displayAdditionalNoteDelivery' => true,
+                'deliveryCountries' => [$country->getId()],
+            ]
+        );
+
+        $context = Context::createDefaultContext();
+
+        $processedTemplate = $invoiceService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        $assertClosure($processedTemplate, $vatId);
+    }
+
+    public function testGenerateWhenUncheckedDisplayLineItems(): void
+    {
+        $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
+
+        $possibleTaxes = [7, 19, 22];
+        $cart = $this->generateDemoCart($possibleTaxes);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        static::assertNotNull($order->getLineItems());
+        $lineItem = $order->getLineItems()->first();
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => false,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+                'executiveDirector' => true,
+                'displayDivergentDeliveryAddress' => true,
+                'intraCommunityDelivery' => true,
+                'displayAdditionalNoteDelivery' => true,
+            ]
+        );
+
+        $context = Context::createDefaultContext();
+
+        $processedTemplate = $invoiceService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        static::assertNotNull($lineItem);
+        static::assertNotNull($lineItem->getLabel());
+        static::assertNotNull($lineItem->getPayload());
+        static::assertNotNull($lineItem->getPayload()['productNumber']);
+
+        static::assertStringNotContainsString($lineItem->getLabel(), $processedTemplate);
+        static::assertStringNotContainsString($lineItem->getPayload()['productNumber'], $processedTemplate);
+    }
+
+    public function invoiceGenerateVatIdProvider(): \Generator
+    {
+        $vatId = 'VAT-123123';
+
+        yield 'Generate an invoice with the customer has no VAT' => [
+            function (OrderEntity $order) use ($vatId): string {
+                return $vatId;
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield 'Generate an invoice with the customer has to VAT with disabled company tax and a customer country is not part of the European Union' => [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                return $vatId;
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield 'Generate an invoice with the customer has to VAT with enabled company tax and a customer country is not part of the European Union' => [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->getCompanyTax()->setEnabled(true);
+
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->setId(Uuid::randomBytes());
+
+                return $vatId;
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield 'Generate an invoice with the customer has to VAT with company tax, and a customer country is part of the European Union' => [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->getCompanyTax()->setEnabled(true);
+
+                return $vatId;
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+    }
+
+    /**
+     * @param array<int, int> $taxes
+     *
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
@@ -454,6 +610,9 @@ class InvoiceServiceTest extends TestCase
         return $shippingMethodId;
     }
 
+    /**
+     * @return array<string, string|int>
+     */
     private function createDeliveryTimeData(): array
     {
         return [
@@ -517,7 +676,8 @@ class InvoiceServiceTest extends TestCase
             ->addAssociation('language.locale')
             ->addAssociation('transactions')
             ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('orderCustomer.customer');
+            ->addAssociation('orderCustomer.customer')
+            ->addAssociation('addresses.country');
 
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)

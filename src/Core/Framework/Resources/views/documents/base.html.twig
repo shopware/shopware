@@ -30,20 +30,23 @@ merge 16.11.2020
     {% set currencyIsoCode = order.currency.isoCode %}
 
     {% set locale = order.language.locale.code %}
+    {% set languageId = order.language.id %}
 
     {% set nestedLineItems = order.nestedLineItems %}
 
-    {% if config.itemsPerPage <= 0 %}
+    {% if config.itemsPerPage|intval === 0 or config.itemsPerPage <= 0 %}
         {% set itemsPerPage = 10 %}
     {% else %}
-        {% set itemsPerPage = config.itemsPerPage %}
+        {% set itemsPerPage = config.itemsPerPage|intval %}
     {% endif %}
 
-    {% set pages = (total / itemsPerPage)|round(0,'ceil') %}
-    {% if config.displayLineItems == false %}
-        {% set pages = 1 %}
-    {% endif %}
-
+    {# @deprecated tag:v6.5.0 - pages variable will be removed due to unused #}
+    {% sw_silent_feature_call "v6.5.0.0" %}
+        {% set pages = (total / itemsPerPage)|round(0,'ceil') %}
+        {% if config.displayLineItems == false %}
+            {% set pages = 1 %}
+        {% endif %}
+    {% endsw_silent_feature_call %}
     <!DOCTYPE html>
     <html>
     <head>
@@ -57,7 +60,7 @@ merge 16.11.2020
                 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap" rel="stylesheet">
             {% endblock %}
 
-            {% if config.custom.pageOrientation == 'landscape' %}
+            {% if config.pageOrientation == 'landscape' %}
                 {% sw_include '@Framework/documents/style_base_landscape.css.twig' %}
             {% else %}
                 {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}

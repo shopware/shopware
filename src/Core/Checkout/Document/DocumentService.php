@@ -368,12 +368,14 @@ class DocumentService
             ->addAssociation('currency')
             ->addAssociation('language.locale')
             ->addAssociation('addresses.country')
+            ->addAssociation('addresses.salutation')
             ->addAssociation('addresses.countryState')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState')
-            ->addAssociation('orderCustomer.customer');
+            ->addAssociation('orderCustomer.customer')
+            ->addAssociation('orderCustomer.salutation');
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
@@ -383,10 +385,13 @@ class DocumentService
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $versionContext = $context->createWithVersionId($versionId);
+        $versionContext = $context->createWithVersionId($versionId)->assign([
+            'languageIdChain' => array_unique(array_filter([$this->getOrderLanguageId($orderId), $context->getLanguageId()])),
+        ]);
 
         $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent($criteria, $versionContext));
 
+        /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if (!$order) {
@@ -422,6 +427,9 @@ class DocumentService
         }
     }
 
+    /**
+     * @param array<string, int|string>|null $specificConfiguration
+     */
     private function getConfiguration(
         Context $context,
         string $documentTypeId,
@@ -582,6 +590,14 @@ class DocumentService
         if ($result->getTotal() !== 0) {
             throw new DocumentNumberAlreadyExistsException($documentNumber);
         }
+    }
+
+    private function getOrderLanguageId(string $orderId): string
+    {
+        return (string) $this->connection->fetchOne(
+            'SELECT LOWER(HEX(language_id)) FROM `order` WHERE `id` = :orderId',
+            ['orderId' => Uuid::fromHexToBytes($orderId)],
+        );
     }
 
     private function getInvoiceOrderVersionId(string $orderId, string $invoiceNumber): string

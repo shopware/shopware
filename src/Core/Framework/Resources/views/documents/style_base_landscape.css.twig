@@ -65,7 +65,7 @@
         /* Sender info section (top right) */
         .sender-address-container {
             top: 0;
-            right: 30px;
+            right: 0;
             position: absolute;
         }
 
@@ -78,43 +78,75 @@
         .line-item-table {
             width: 100%;
             border-spacing: 0 2px;
+            border-collapse: collapse;
         }
 
+        tbody tr:first-child > td {
+            padding-top: 20px;
+        }
+
+        .line-item-table tbody tr > td {
+            padding-bottom: 5px;
+        }
+
+        tbody tr:first-child > .line-item-breakable .label-wrapper {
+            top: 20px;
+        }
+
+        .line-item-table-header {
+            vertical-align: top;
+        }
 
         .line-item-table-header > th, .line-item-table:last-child {
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
         }
 
-        .line-item-table-header > th.numbers{
+        .line-item-table-header > th.numbers {
             text-align: right;
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+
+        .line-item-table-header > th.incl-vat {
+            position: relative;
+            width: auto;
+        }
+
+        .line-item-table-header > th.incl-vat > span {
+            display: inline-block;
+            position: absolute;
+            font-size: 10px;
+            font-weight: normal;
+            margin-top: 12px;
+            right: 0;
         }
 
         .line-item, .sum-container, .payment-shipping-container, .document-comment-container {
             line-height: 16px;
         }
 
-        .line-item.first > td {
-            padding-top: 20px;
-        }
-
         .line-item-breakable {
             word-wrap: break-word;
+            vertical-align: top;
+        }
+
+        .line-item.nested > td {
+            position: relative;
+            overflow: hidden;
         }
 
         .line-item .label-wrapper {
             display: inline-block;
             position: absolute;
-            width: 6px;
-            height: 20px;
-            top: 0;
-            border-left:  2px solid rgba(0, 0, 0, 0.15);
+            top: 0.05%;
+            bottom: 0;
+            left: 0;
+            border-left: 2px solid rgba(0, 0, 0, 0.15);
         }
 
-        .wrapper-wrapper {
-            position: relative;
+        .line-item > td {
+            vertical-align: top;
         }
 
         .headline {
@@ -171,10 +203,9 @@
             padding-top: 25px;
         }
 
-        /* Page count */
         .page-count {
             width: 100%;
-            text-align: center;
+            float: left;
         }
 
         .pagenum:after {
@@ -186,7 +217,7 @@
             margin-top: 20px;
             text-align: right;
             float: right;
-            right: 30px;
+            right: 0;
         }
 
         .sum-table {
@@ -197,9 +228,8 @@
         footer {
             position: fixed;
             bottom: 50px;
-            margin-left: auto;
-            margin-right: auto;
             font-size: 8px;
+            padding-top: 25px;
         }
 
         footer:after {
@@ -207,8 +237,16 @@
         }
 
         footer > ul {
-            list-style-type: none;
+            width: 20%;
+            display: block;
             float: left;
+            list-style-type: none;
+            margin: 0;
+            height: 100px;
+        }
+
+        footer > ul:first-child {
+            padding: 0;
         }
     {% endblock %}
 </style>

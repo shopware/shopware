@@ -119,11 +119,13 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentType());
         static::assertSame($orderId, $document->getOrderId());
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteGenerator::DELIVERY_NOTE, $document->getDocumentType()->getTechnicalName());
@@ -424,11 +426,13 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentType());
         static::assertSame($orderId, $document->getOrderId());
         static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(InvoiceGenerator::INVOICE, $document->getDocumentType()->getTechnicalName());
@@ -461,11 +465,11 @@ class DocumentServiceTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
-        static::assertNotNull($document);
         static::assertSame($orderId, $document->getOrderId());
 
         $documentInvoiceConfiguration = new DocumentConfiguration();
@@ -544,8 +548,8 @@ class DocumentServiceTest extends TestCase
         $customerNo = (string) $orderCustomer->getCustomerNumber();
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for Invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
 
         $this->getContainer()->get('order_customer.repository')->update([[
             'id' => $orderCustomer->getId(),
@@ -562,9 +566,9 @@ class DocumentServiceTest extends TestCase
         );
 
         static::assertInstanceOf(GeneratedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 10000 for invoice 9999', $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 10000 for Invoice 9999', $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
@@ -591,6 +595,9 @@ class DocumentServiceTest extends TestCase
         return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<string, bool|int|string> $config
+     */
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);

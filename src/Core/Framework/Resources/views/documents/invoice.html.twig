@@ -16,7 +16,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% block document_headline %}
     <h1 class="headline">
         {% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}
-        ({{ counter.page }}/{{ pages }})
     </h1>
 {% endblock %}
 
@@ -34,23 +33,16 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% endif %}
 {% endblock %}
 
-{% block document_recipient %}
-    {{ parent() }}
-
-    {% if customer.vatIds %}
-        {{ customer.vatIds|first }}
-    {% endif %}
-{% endblock %}
-
+{# @deprecated tag:v6.5.0 - Will be removed #}
 {% block document_side_info %}
     <table>
         {% block document_side_info_contents %}
-            {{ block('document_side_info_date') }}
             {{ block('document_side_info_customer_number') }}
             {{ block('document_side_info_order_number') }}
             {{ block('document_side_info_order_date') }}
+            {{ block('document_side_info_date') }}
         {% endblock %}
-    </table><br/>
+    </table>
 {% endblock %}
 
 {% block document_payment_shipping_inner %}

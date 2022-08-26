@@ -60,6 +60,8 @@ class InvoiceRendererTest extends TestCase
 
     /**
      * @dataProvider invoiceDataProvider
+     *
+     * @param array<int|string, int> $possibleTaxes
      */
     public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
@@ -138,6 +140,20 @@ class InvoiceRendererTest extends TestCase
                     'id' => $operation->getOrderId(),
                     'languageId' => $this->deLanguageId,
                 ]], $this->context);
+
+                $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
+                /** @var OrderEntity $order */
+                $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($operation->getOrderId());
+
+                $context = clone $this->context;
+                $context = $context->assign([
+                    'languageIdChain' => array_unique(array_filter([$this->deLanguageId, $this->context->getLanguageId()])),
+                ]);
+                static::assertNotNull($order->getDeliveries());
+                $this->getContainer()->get('shipping_method.repository')->upsert([[
+                    'id' => $order->getDeliveries()->first()->getShippingMethod()->getId(),
+                    'name' => 'DE express',
+                ]], $context);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($order->getCurrency());
@@ -150,6 +166,7 @@ class InvoiceRendererTest extends TestCase
                     )) ?? '',
                     preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
+                static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
             },
         ];
 
@@ -193,8 +210,9 @@ class InvoiceRendererTest extends TestCase
             function (DocumentGenerateOperation $operation): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
+                /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
-                static::assertNotNull($order);
+                static::assertNotNull($order->getDeliveries());
                 $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
                 $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
@@ -204,10 +222,10 @@ class InvoiceRendererTest extends TestCase
                 ]], $this->context);
                 $companyPhone = '123123123';
                 $vatIds = ['VAT-123123'];
-                $order->getOrderCustomer()->setVatIds($vatIds);
 
-                $this->getContainer()->get('order_customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getId(),
+                static::assertNotNull($order->getOrderCustomer());
+                $this->getContainer()->get('customer.repository')->update([[
+                    'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => $vatIds,
                 ]], $this->context);
 
@@ -245,25 +263,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
                 static::assertStringContainsString('VAT-123123', $rendered);
                 static::assertStringContainsString('123123123', $rendered);
-            },
-        ];
-
-        yield 'render with multiple pages' => [
-            [7, 19],
-            function (DocumentGenerateOperation $operation): void {
-                $operation->assign([
-                    'config' => [
-                        'itemsPerPage' => 1,
-                    ],
-                ]);
-            },
-            function (RenderedDocument $rendered): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
-                $rendered = $rendered->getHtml();
-
-                static::assertStringContainsString('Invoice 1000        (1/2)', $rendered);
-                static::assertStringContainsString('Invoice 1000        (2/2)', $rendered);
             },
         ];
 
@@ -312,6 +311,9 @@ class InvoiceRendererTest extends TestCase
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
+    /**
+     * @param array<int|string, int> $taxes
+     */
     private function generateDemoCart(array $taxes): Cart
     {
         $cart = $this->cartService->createNew('a-b-c', 'A');

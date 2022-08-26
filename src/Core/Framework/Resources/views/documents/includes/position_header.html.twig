@@ -20,11 +20,11 @@ All blocks of this template are available in the template which renders this tem
                 {% endblock %}
 
                 {% block document_line_item_table_head_product_number %}
-                    <th>{{ 'document.lineItems.header.productNumber'|trans|sw_sanitize  }}</th>
+                    <th class="product-number">{{ 'document.lineItems.header.productNumber'|trans|sw_sanitize  }}</th>
                 {% endblock %}
 
                 {% block document_line_item_table_head_label %}
-                    <th>{{ 'document.lineItems.header.label'|trans|sw_sanitize }}</th>
+                    <th class="product-label">{{ 'document.lineItems.header.label'|trans|sw_sanitize }}</th>
                 {% endblock %}
 
                 {% block document_line_item_table_head_quantity %}
@@ -37,10 +37,16 @@ All blocks of this template are available in the template which renders this tem
                             <th class="numbers">{{ 'document.lineItems.header.tax'|trans|sw_sanitize }}</th>
                         {% endblock %}
                         {% block document_line_item_table_head_unit_price %}
-                            <th class="numbers">{{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize }}</th>
+                            <th class="numbers incl-vat">
+                                {{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize }}
+                                <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize }}</span>
+                            </th>
                         {% endblock %}
                         {% block document_line_item_table_head_total_price %}
-                            <th class="numbers">{{ 'document.lineItems.header.total'|trans|sw_sanitize }}</th>
+                            <th class="numbers incl-vat">
+                                {{ 'document.lineItems.header.total'|trans|sw_sanitize }}
+                                <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize }}</span>
+                            </th>
                         {% endblock %}
                     {% endif %}
                 {% endblock %}

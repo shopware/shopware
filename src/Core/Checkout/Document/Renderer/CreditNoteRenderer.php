@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
@@ -40,6 +41,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
     private ReferenceInvoiceLoader $referenceInvoiceLoader;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
@@ -50,7 +53,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         DocumentTemplateRenderer $documentTemplateRenderer,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         ReferenceInvoiceLoader $referenceInvoiceLoader,
-        string $rootDir
+        string $rootDir,
+        Connection $connection
     ) {
         $this->documentConfigLoader = $documentConfigLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -59,6 +63,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $this->orderRepository = $orderRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->referenceInvoiceLoader = $referenceInvoiceLoader;
+        $this->connection = $connection;
     }
 
     public function supports(): string
@@ -205,11 +210,16 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
     private function getOrder(string $orderId, string $versionId, Context $context, string $deepLinkCode = ''): OrderEntity
     {
+        ['language_id' => $languageId] = $this->getOrdersLanguageId([$orderId], $versionId, $this->connection)[0];
+
         // Get the correct order with versioning from reference invoice
-        $versionContext = $context->createWithVersionId($versionId);
+        $versionContext = $context->createWithVersionId($versionId)->assign([
+            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+        ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
 
+        /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if ($order === null) {
@@ -245,14 +255,25 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
         }
 
-        $price = new CartPrice(
-            -($totalPrice - $taxAmount),
-            -$totalPrice,
-            -$order->getPositionPrice(),
-            $taxes,
-            $creditItemsCalculatedPrice->getTaxRules(),
-            $order->getTaxStatus()
-        );
+        if ($order->getPrice()->hasNetPrices()) {
+            $price = new CartPrice(
+                -$totalPrice,
+                -($totalPrice + $taxAmount),
+                -$order->getPositionPrice(),
+                $taxes,
+                $creditItemsCalculatedPrice->getTaxRules(),
+                $order->getTaxStatus()
+            );
+        } else {
+            $price = new CartPrice(
+                -($totalPrice - $taxAmount),
+                -$totalPrice,
+                -$order->getPositionPrice(),
+                $taxes,
+                $creditItemsCalculatedPrice->getTaxRules(),
+                $order->getTaxStatus()
+            );
+        }
 
         $order->setLineItems($creditItems);
         $order->setPrice($price);

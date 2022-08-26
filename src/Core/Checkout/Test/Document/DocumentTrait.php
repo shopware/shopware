@@ -37,7 +37,10 @@ trait DocumentTrait
         return $this->getContainer()->get(CartService::class)->order($cart, $this->salesChannelContext, new RequestDataBag());
     }
 
-    private function createCustomer(): string
+    /**
+     * @param array<string, string> $options
+     */
+    private function createCustomer(array $options = []): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -71,6 +74,8 @@ trait DocumentTrait
                 ],
             ],
         ];
+
+        $customer = array_merge($customer, $options);
 
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
@@ -144,6 +149,9 @@ trait DocumentTrait
         return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
+    /**
+     * @param array<string, array<string, string>|string> $config
+     */
     private function createDocument(string $documentType, string $orderId, array $config, Context $context): DocumentIdCollection
     {
         $operations = [];
@@ -153,6 +161,9 @@ trait DocumentTrait
         return $this->getContainer()->get(DocumentGenerator::class)->generate($documentType, $operations, $context)->getSuccess();
     }
 
+    /**
+     * @param array<string|bool, string|bool|int> $config
+     */
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);

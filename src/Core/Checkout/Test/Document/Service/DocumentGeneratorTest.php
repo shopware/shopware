@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\File\FileLoader;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
@@ -101,6 +102,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
@@ -108,6 +110,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document);
         static::assertSame($this->orderId, $document->getOrderId());
 
+        static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
@@ -208,8 +211,8 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
         static::assertNotEmpty($stornoStruct->getContent());
-        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
 
         $this->getContainer()->get('order_customer.repository')->update([[
             'id' => $orderCustomer->getId(),
@@ -219,9 +222,9 @@ class DocumentGeneratorTest extends TestCase
         $stornoStruct = $this->documentGenerator->preview(StornoRenderer::TYPE, $operation, (string) $order->getDeepLinkCode(), $this->context);
 
         static::assertInstanceOf(RenderedDocument::class, $stornoStruct);
-        static::assertStringContainsString('Cancellation 1000 for invoice ' . $invoiceNumber, $stornoStruct->getHtml());
+        static::assertStringContainsString('Cancellation 1000 for Invoice ' . $invoiceNumber, $stornoStruct->getHtml());
         // Customer no does not change because it refers to the older version of order
-        static::assertStringContainsString('Customer no: ' . $customerNo, $stornoStruct->getHtml());
+        static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
     /**
@@ -267,6 +270,7 @@ class DocumentGeneratorTest extends TestCase
 
         $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
 
+        /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
 
         static::assertNotNull($document);
@@ -327,6 +331,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
@@ -340,6 +345,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($comment, $config->getDocumentComment());
         static::assertNotNull($config->getDocumentNumber());
 
+        static::assertNotNull($document->getDocumentType());
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
@@ -354,6 +360,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceStruct);
         static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
 
+        /** @var DocumentEntity $invoice */
         $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
 
         static::assertNotNull($invoice);
@@ -365,6 +372,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($stornoStruct);
         static::assertTrue(Uuid::isValid($stornoStruct->getId()));
 
+        /** @var DocumentEntity $storno */
         $storno = $this->documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
 
         static::assertNotNull($storno);
@@ -551,6 +559,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
@@ -562,6 +571,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertEquals($operation->getOrderVersionId(), $document->getOrderVersionId());
 
+        static::assertNotNull($document->getDocumentType());
         static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
     }
@@ -656,6 +666,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
+        /** @var DocumentEntity $document */
         $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
@@ -823,6 +834,7 @@ class DocumentGeneratorTest extends TestCase
             $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
             $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
             $mediaRepository = $this->getContainer()->get('media.repository');
+            /** @var MediaEntity $media */
             $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);
 
             static::assertNotNull($media);

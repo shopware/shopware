@@ -186,12 +186,6 @@ describe('Minimal install', () => {
         cy.takeSnapshot('FRW - PayPal', '.sw-modal.sw-first-run-wizard-modal');
         cy.get('.sw-button span').contains('Skip').click();
 
-        // @frw: Shopware Markets
-        cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Markets');
-        cy.get('.sw-button span').contains('Next').click();
-
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');

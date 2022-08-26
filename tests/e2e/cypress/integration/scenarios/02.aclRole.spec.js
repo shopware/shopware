@@ -77,8 +77,6 @@ describe('create role with different permissions', () => {
         cy.get('.sw-tabs__content').contains('Gedetailleerde bevoegdheden').click();
         cy.get(`${detailedPermission}__entry_acl_role > ${detailedPermission}__role_create`)
             .find('[type="checkbox"]').should('be.disabled')
-        cy.get(`${detailedPermission}__entry_bf_category_mapping > ${detailedPermission}__role_create`)
-            .find('[type="checkbox"]').should('be.enabled')
         cy.get(`${detailedPermission}__entry_cms_section > ${detailedPermission}__role_delete`)
             .find('[type="checkbox"]').should('be.disabled')
         cy.get(`${detailedPermission}__entry_plugin > ${detailedPermission}__role_create`)

@@ -116,6 +116,7 @@ Module.register('sw-first-run-wizard', {
                         },
                     },
                 },
+                /* @deprecated tag:v6.5.0 - Will be removed without replacement */
                 markets: {
                     component: 'sw-first-run-wizard-markets',
                     path: 'markets',

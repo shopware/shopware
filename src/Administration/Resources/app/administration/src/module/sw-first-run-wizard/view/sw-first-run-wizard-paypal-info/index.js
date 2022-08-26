@@ -49,7 +49,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },
                 {

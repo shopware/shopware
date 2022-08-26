@@ -27703,17 +27703,7 @@ parameters:
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\PluginServiceTest\\:\\:\\$iso has no type specified\\.$#"
 			count: 1
-			path: src/Core/Framework/Test/Plugin/PluginServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function preg_quote expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Requirement/ConflictingPackageTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function strtolower expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/Requirement/ConflictingPackageTest.php
+			path: src/Core/Framework/Test/Plugin/PluginServiceTest.ph
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\Util\\\\VersionSanitizerTest\\:\\:versionProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

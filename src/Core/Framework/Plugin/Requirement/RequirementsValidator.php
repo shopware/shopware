@@ -51,6 +51,13 @@ class RequirementsValidator
      */
     public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
     {
+        if ($plugin->getManagedByComposer()) {
+            // Composer does the requirements checking if the plugin is managed by composer
+            // no need to do it manually
+
+            return;
+        }
+
         $this->shopwareProjectComposer = $this->getComposer($this->projectDir);
         $exceptionStack = new RequirementExceptionStack();
 

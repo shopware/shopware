@@ -4,23 +4,34 @@ namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\TestBootstrapper;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator
  */
 class RequirementsValidatorTest extends TestCase
 {
-    use KernelTestBehaviour;
+    private string $projectDir;
+
+    public function setUp(): void
+    {
+        $this->projectDir = (new TestBootstrapper())->getProjectDir();
+    }
 
     public function testValidateRequirementsValid(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
-        $path = str_replace($projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -34,9 +45,8 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsSubpackageValid(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageTest';
-        $path = str_replace($projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -50,9 +60,8 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsSubpackageWithWildcardValid(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageWildcardTest';
-        $path = str_replace($projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -66,9 +75,8 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsDoNotMatch(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = str_replace($projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -91,9 +99,8 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsMissing(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = str_replace($projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -116,15 +123,31 @@ class RequirementsValidatorTest extends TestCase
         );
     }
 
+    public function testDoesNotValidateIfPluginIsManagedByComposer(): void
+    {
+        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
+        $path = str_replace($this->projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+        $plugin->setManagedByComposer(true);
+
+        $exception = null;
+
+        try {
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+        } catch (RequirementStackException $exception) {
+        }
+
+        static::assertNull($exception);
+    }
+
     public function testResolveActiveDependants(): void
     {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-
         $basePluginPath = __DIR__ . '/_fixture/SwagRequirementValidTest';
         $dependentPluginPath = __DIR__ . '/_fixture/SwagRequirementValidTestExtension';
 
-        $basePlugin = $this->createPlugin(str_replace($projectDir, '', $basePluginPath));
-        $dependentPlugin = $this->createPlugin(str_replace($projectDir, '', $dependentPluginPath));
+        $basePlugin = $this->createPlugin(str_replace($this->projectDir, '', $basePluginPath));
+        $dependentPlugin = $this->createPlugin(str_replace($this->projectDir, '', $dependentPluginPath));
 
         $basePlugin->setActive(true);
         $dependentPlugin->setActive(true);
@@ -146,11 +169,67 @@ class RequirementsValidatorTest extends TestCase
         static::assertEmpty($dependants);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testValidateConflictsValid(): void
+    {
+        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsValid';
+        $path = str_replace($this->projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+
+        try {
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+        } catch (\Exception $e) {
+            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        }
+    }
+
+    public function testValidateConflictsWildcardIncompatibility(): void
+    {
+        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsWildcardIncompatibility';
+        $path = str_replace($this->projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+
+        $this->expectException(RequirementStackException::class);
+        $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+    }
+
+    public function testValidateConflictsSpecificMessage(): void
+    {
+        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsSpecificMessage';
+        $path = str_replace($this->projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+
+        $regexTemplate = '#.*"%s" conflicts with plugin/package "%s == 6\.[0-9]+\.[0-9]+\.[0-9]+.*#im';
+
+        static::assertIsString($plugin->getComposerName());
+        $this->expectExceptionMessageMatches(sprintf(
+            $regexTemplate,
+            preg_quote($plugin->getComposerName(), '#'),
+            preg_quote('shopware/core', '#')
+        ));
+        $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+    }
+
     private function createValidator(): RequirementsValidator
     {
+        $pluginRepo = $this->createMock(EntityRepositoryInterface::class);
+        $pluginRepo->method('search')->willReturn(new EntitySearchResult(
+            'plugin',
+            0,
+            new PluginCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        ));
+
         return new RequirementsValidator(
-            $this->getContainer()->get('plugin.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir')
+            $pluginRepo,
+            $this->projectDir
         );
     }
 
@@ -160,6 +239,7 @@ class RequirementsValidatorTest extends TestCase
         $plugin->setPath($path);
         $plugin->setManagedByComposer(false);
         $plugin->setVersion('1.0.0');
+        $plugin->setComposerName('swag/' . (new CamelCaseToSnakeCaseNameConverter())->normalize(basename($path)));
 
         return $plugin;
     }

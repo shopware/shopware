@@ -52,7 +52,7 @@ class RuleConditionDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('type', 'type'),
+            (new StringField('type', 'type'))->addFlags(new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
             new FkField('script_id', 'scriptId', AppScriptConditionDefinition::class),
             new ParentFkField(self::class),

@@ -210,6 +210,10 @@ Component.register('sw-settings-search-searchable-content', {
             return !this.searchConfigFields || !this.searchConfigFields.length;
         },
 
+        isElasticsearchEnabled() {
+            return Shopware.Feature.isActive('FEATURE_NEXT_22900');
+        },
+
         getProductSearchFieldColumns() {
             return [{
                 property: 'field',

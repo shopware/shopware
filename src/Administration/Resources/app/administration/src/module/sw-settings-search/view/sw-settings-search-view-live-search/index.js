@@ -31,4 +31,10 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             default: false,
         },
     },
+
+    methods: {
+        isElasticsearchEnabled() {
+            return Shopware.Feature.isActive('FEATURE_NEXT_22900');
+        },
+    },
 });

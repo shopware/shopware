@@ -12051,51 +12051,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Cms/Type/ProductDetailCmsElementResolverTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:assertSorting\\(\\) has parameter \\$case with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:calculationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:providerAggregation\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:providerFilterPercentage\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:providerFilterPrice\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:providerSorting\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceTest\\:\\:testIndexing\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getKey\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
-
-		-
 			message: "#^Cannot call method getRatingAverage\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 16
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/Indexing/ProductRatingAverageIndexerTest.php
@@ -26556,51 +26511,6 @@ parameters:
 			path: src/Core/Framework/Test/Filesystem/Adapter/MemoryAdapterFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getByteList\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getByteList\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getIdArray\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getIdArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getList\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:getList\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\IdsCollection\\:\\:prefixed\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/IdsCollection.php
-
-		-
 			message: "#^Parameter \\#1 \\$bytes of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromBytesToHex\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Increment/Controller/IncrementApiControllerTest.php
@@ -33586,29 +33496,9 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ScriptIdQuery\\:\\:__construct\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ScriptIdQuery.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ScriptIdQuery\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ScriptIdQuery.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchDateHistogramAggregation\\:\\:getArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchOutdatedIndexDetector\\:\\:getAllIndices\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchOutdatedIndexDetector.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchOutdatedIndexDetector\\:\\:getAllUsedIndices\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchOutdatedIndexDetector.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:generateMessages\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -33632,6 +33522,11 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:updateIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
+
+		-
+			message: "#^Parameter \\#1 \\$items of class Shopware\\\\Elasticsearch\\\\Exception\\\\ElasticsearchIndexingException constructor expects array\\{reason\\: string\\}, array given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
 
@@ -33684,101 +33579,6 @@ parameters:
 			message: "#^Property Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\CustomFieldUpdater\\:\\:createNewFieldsInIndices\\(\\) has parameter \\$newCreatedFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/CustomFieldUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\CustomFieldUpdater\\:\\:getTypeFromCustomFieldType\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/CustomFieldUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\SearchKeywordReplacement\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Product/SearchKeywordReplacement.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\ClientProfiler\\:\\:assembleElasticsearchUrl\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/ClientProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\ClientProfiler\\:\\:getCalledRequests\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/ClientProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\ClientProfiler\\:\\:search\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/ClientProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\ClientProfiler\\:\\:search\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/ClientProfiler.php
-
-		-
-			message: "#^Property Shopware\\\\Elasticsearch\\\\Profiler\\\\ClientProfiler\\:\\:\\$requests type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/ClientProfiler.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\DataCollector\\:\\:getClusterInfo\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/DataCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\DataCollector\\:\\:getIndices\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/DataCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Profiler\\\\DataCollector\\:\\:getRequests\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Profiler/DataCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Sort\\\\CountSort\\:\\:__construct\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Sort/CountSort.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParserTest\\:\\:accessorContextProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/DataAbstractionLayer/CriteriaParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParserTest\\:\\:providerCheapestPrice\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/DataAbstractionLayer/CriteriaParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParserTest\\:\\:providerFilter\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/DataAbstractionLayer/CriteriaParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParserTest\\:\\:testCheapestPriceSorting\\(\\) has parameter \\$expectedQuery with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/DataAbstractionLayer/CriteriaParserTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParserTest\\:\\:testFilterParsing\\(\\) has parameter \\$expectedFilter with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/DataAbstractionLayer/CriteriaParserTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Framework/ElasticsearchOutdatedIndexDetectorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Test\\\\Profiler\\\\ClientProfilerTest\\:\\:providerQueries\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Elasticsearch/Test/Profiler/ClientProfilerTest.php
 
 		-
 			message: "#^Cannot call method setDefaultBillingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"

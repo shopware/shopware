@@ -9,7 +9,7 @@ class ElasticsearchIndexingException extends ShopwareHttpException
     public const CODE = 'ELASTICSEARCH_INDEXING';
 
     /**
-     * @param array{reason: string}[] $items
+     * @param array{reason: string} $items
      */
     public function __construct(array $items)
     {

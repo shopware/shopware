@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -436,10 +436,7 @@ class CriteriaParserTest extends TestCase
         ];
     }
 
-    /**
-     * @return MockObject&ProductDefinition
-     */
-    public function getDefinition(): ProductDefinition
+    public function getDefinition(): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class],

@@ -72,6 +72,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_rebuild_link %}
             <router-link
+                v-if="!isElasticsearchEnabled"
                 class="sw-settings-search__searchable-content-rebuild-link"
                 :to="{ name: 'sw.settings.search.index.liveSearch' }"
             >
@@ -119,6 +120,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_tab_title %}
             <sw-tabs-item
+                v-if="!isElasticsearchEnabled"
                 class="sw-settings-search__searchable-content-tab-title"
                 name="customfields"
                 @click="onChangeTab(tabNames.customTab)"
@@ -147,7 +149,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_tab_item %}
             <sw-settings-search-searchable-content-customfields
-                v-if="active === tabNames.customTab"
+                v-if="active === tabNames.customTab && !isElasticsearchEnabled"
                 :is-empty="isListEmpty"
                 :is-loading="isLoading"
                 :columns="getProductSearchFieldColumns"

@@ -17,6 +17,7 @@ class ElasticsearchIndexingExceptionTest extends TestCase
         $exception = new ElasticsearchIndexingException([
             'index' => 'shopware',
             'type' => 'product',
+            'reason' => 'illegal_argument_exception',
             'id' => '1',
             'error' => [
                 'type' => 'illegal_argument_exception',

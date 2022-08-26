@@ -27702,21 +27702,6 @@ parameters:
 			path: src/Core/Framework/Test/TestSessionStorage.php
 
 		-
-			message: "#^Cannot call method getFallbackCatalogue\\(\\) on Symfony\\\\Component\\\\Translation\\\\MessageCatalogueInterface\\|null\\.$#"
-			count: 16
-			path: src/Core/Framework/Test/Translation/TranslatorTest.php
-
-		-
-			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Translation/TranslatorTest.php
-
-		-
-			message: "#^Cannot call method getLocale\\(\\) on Symfony\\\\Component\\\\Translation\\\\MessageCatalogueInterface\\|null\\.$#"
-			count: 24
-			path: src/Core/Framework/Test/Translation/TranslatorTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$values of method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\LicenseCheck\\:\\:check\\(\\) expects array\\|int\\|string, null given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Update/Checkers/LicenseCheckTest.php

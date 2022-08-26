@@ -1,5 +1,5 @@
 {
-    "name": "swag/test-validate-conflicts-specific-message",
+    "name": "swag/swag_test_validate_conflicts_specific_message",
     "description": "Test conflict handling",
     "version": "v1.0.0",
     "type": "shopware-platform-plugin",

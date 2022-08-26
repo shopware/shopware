@@ -55,35 +55,30 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 4,
                 },
-                markets: {
-                    name: 'sw.first.run.wizard.index.markets',
-                    variant: 'large',
-                    navigationIndex: 5,
-                },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 6,
+                    navigationIndex: 5,
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 7,
+                    navigationIndex: 6,
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 7,
+                    navigationIndex: 6,
                 },
                 store: {
                     name: 'sw.first.run.wizard.index.store',
                     variant: 'large',
-                    navigationIndex: 8,
+                    navigationIndex: 7,
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 9,
+                    navigationIndex: 8,
                 },
             },
         };

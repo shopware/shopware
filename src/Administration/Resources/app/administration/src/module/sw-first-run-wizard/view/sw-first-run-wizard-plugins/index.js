@@ -70,7 +70,7 @@ Component.register('sw-first-run-wizard-plugins', {
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },
                 {

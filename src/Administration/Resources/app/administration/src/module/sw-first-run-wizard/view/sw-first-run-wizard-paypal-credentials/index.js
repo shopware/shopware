@@ -22,7 +22,7 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },
                 {
@@ -30,7 +30,7 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },
             ];

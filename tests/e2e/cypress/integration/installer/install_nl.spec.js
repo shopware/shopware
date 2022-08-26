@@ -158,20 +158,9 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'PayPal setup');
 
-        // the install can run into a race conditioning in the cache clear if it runs in parallel with the SwagMarkets install
         cy.wait('@installSwagPayPal').its('response.statusCode').should('equal', 204);
 
         cy.contains('.sw-button span', 'Skip').click();
-
-        // @frw: Shopware Markets
-        cy.intercept('PUT', '**/api/_action/extension/activate/plugin/SwagMarkets').as('activateSwagMarkets');
-
-        cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.get('.sw-step-display').should('be.visible');
-        cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Shopware Markets');
-
-        cy.wait('@activateSwagMarkets').its('response.statusCode').should('equal', 204);
-        cy.contains('.sw-button span', 'Next').click();
 
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');

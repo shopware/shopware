@@ -1,6 +1,10 @@
 import template from './sw-first-run-wizard-markets.html.twig';
 import './sw-first-run-wizard-markets.scss';
 
+/**
+ * @deprecated tag:v6.5.0 - Component will be removed without replacement
+ * @status deprecated
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-first-run-wizard-markets', {
     template,

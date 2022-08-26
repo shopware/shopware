@@ -13,8 +13,14 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
 abstract class AbstractElasticsearchDefinition
 {
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, create your mapping by own instead
+     */
     protected EntityMapper $mapper;
 
+    /**
+     * @deprecated tag:v6.5.0 - Default constructor will be removed - reason:class-hierarchy-chang
+     */
     public function __construct(EntityMapper $mapper)
     {
         $this->mapper = $mapper;
@@ -22,11 +28,19 @@ abstract class AbstractElasticsearchDefinition
 
     abstract public function getEntityDefinition(): EntityDefinition;
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<mixed>
+     */
     public function fetch(array $ids, Context $context): array
     {
         return [];
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getMapping(Context $context): array
     {
         $definition = $this->getEntityDefinition();

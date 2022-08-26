@@ -8,6 +8,9 @@ class ElasticsearchIndexingException extends ShopwareHttpException
 {
     public const CODE = 'ELASTICSEARCH_INDEXING';
 
+    /**
+     * @param array{reason: string}[] $items
+     */
     public function __construct(array $items)
     {
         $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'reason'));

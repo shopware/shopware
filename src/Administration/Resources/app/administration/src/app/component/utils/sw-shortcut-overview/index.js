@@ -35,11 +35,6 @@ Component.register('sw-shortcut-overview', {
                     },
                     {
                         id: utils.createId(),
-                        title: this.$tc('sw-shortcut-overview.functionAddShoppingExperienceLayout'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddShoppingExperienceLayout'),
-                    },
-                    {
-                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddCustomer'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddCustomer'),
                     },
@@ -57,11 +52,6 @@ Component.register('sw-shortcut-overview', {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddRule'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddRule'),
-                    },
-                    {
-                        id: utils.createId(),
-                        title: this.$tc('sw-shortcut-overview.functionAddSaleschannel'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddSaleschannel'),
                     },
                 ],
                 navigation: [

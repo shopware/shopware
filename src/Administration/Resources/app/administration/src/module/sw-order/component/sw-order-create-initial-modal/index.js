@@ -170,8 +170,9 @@ Component.register('sw-order-create-initial-modal', {
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
             item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
-            item.priceDefinition.taxRules[0].taxRate = customItem.tax.taxRate;
+            item.priceDefinition.taxRules[0].taxRate = customItem.tax?.taxRate || 0;
             item.priceDefinition.quantity = customItem.quantity;
+            item.quantity = customItem.quantity;
             item.label = customItem.label;
             item.priceDefinition.price = customItem.price;
 

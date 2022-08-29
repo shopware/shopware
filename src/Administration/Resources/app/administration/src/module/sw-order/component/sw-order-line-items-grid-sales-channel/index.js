@@ -304,9 +304,24 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 will be removed, use "toggleAddItemsModal" instead.
+         */
         openItemsModal() {
-            // TODO: This data will show add items modal handled by NEXT-16663
             this.showItemsModal = true;
+        },
+
+        toggleAddItemsModal() {
+            this.showItemsModal = !this.showItemsModal;
+        },
+
+        async addItemsFinished() {
+            this.toggleAddItemsModal();
+            await this.$nextTick();
+            State.dispatch('swOrder/getCart', {
+                salesChannelId: this.salesChannelId,
+                contextToken: this.cart.token,
+            });
         },
     },
 });

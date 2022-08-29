@@ -81,7 +81,7 @@
                 variant="ghost"
                 size="small"
                 :disabled="isAddNewItemButtonDisabled"
-                @click="openItemsModal"
+                @click="toggleAddItemsModal"
             >
                 {{ $tc('sw-order.createBase.buttonAddItems') }}
             </sw-button>
@@ -328,6 +328,15 @@
         {% endblock %}
     </sw-data-grid>
     {% endblock %}
+
+    <sw-order-add-items-modal
+        v-if="showItemsModal"
+        :currency="currency"
+        :cart="cart"
+        :sales-channel-id="salesChannelId"
+        @modal-close="toggleAddItemsModal"
+        @modal-save="addItemsFinished"
+    />
 
     {% endblock %}
 </sw-container>

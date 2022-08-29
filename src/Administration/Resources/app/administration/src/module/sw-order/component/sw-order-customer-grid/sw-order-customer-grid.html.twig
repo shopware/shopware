@@ -33,7 +33,10 @@
     </template>
 
     <template #grid>
-        <div class="sw-order-customer-grid__container">
+        <div
+            class="sw-order-customer-grid__container"
+            style="height: calc(100vh - (400px + 91px))"
+        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_customer_grid_content %}
             <sw-entity-listing

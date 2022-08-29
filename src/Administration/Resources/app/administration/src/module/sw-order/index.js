@@ -59,6 +59,7 @@ import './component/sw-order-product-grid';
 import './component/sw-order-custom-item';
 import './component/sw-order-credit-item';
 import './component/sw-order-create-options';
+import './component/sw-order-add-items-modal';
 
 import defaultSearchConfiguration from './default-search-configuration';
 

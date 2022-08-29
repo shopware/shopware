@@ -11831,41 +11831,6 @@ parameters:
 			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php
 
 		-
-			message: "#^Cannot access offset 'confirmed_at' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Cannot access offset 'hash' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Cannot access offset 'status' on array\\<string, mixed\\>\\|false\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRouteTest\\:\\:subscribeWithDomainAndLeadingSlashProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\SalesChannel\\\\NewsletterSubscribeRouteTest\\:\\:testSubscribeWithTrailingSlashUrl\\(\\) has parameter \\$domainUrlTest with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
-			message: "#^Variable \\$systemConfig might not be defined\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterSubscribeRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$sql of method Doctrine\\\\DBAL\\\\Connection\\:\\:exec\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Newsletter/ScheduledTask/NewsletterRecipientTaskHandlerTest.php

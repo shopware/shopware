@@ -109,7 +109,14 @@ Component.register('sw-settings-salutation-detail', {
             };
         },
 
-        ...mapPropertyErrors('salutation', ['displayName', 'letterName']),
+        ...mapPropertyErrors(
+            'salutation',
+            [
+                'displayName',
+                'letterName',
+                'salutationKey',
+            ],
+        ),
 
         showCustomFields() {
             return this.salutation && this.customFieldSets && this.customFieldSets.length > 0;
@@ -174,6 +181,8 @@ Component.register('sw-settings-salutation-detail', {
                     this.isLoading = false;
                 });
             }).catch(() => {
+                this.isLoading = false;
+
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),

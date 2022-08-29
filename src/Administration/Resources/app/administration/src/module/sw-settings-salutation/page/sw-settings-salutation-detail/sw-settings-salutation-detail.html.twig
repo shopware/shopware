@@ -93,7 +93,7 @@
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
                             :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
                             :help-text="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
-                            :error="invalidKeyError"
+                            :error="salutationSalutationKeyError"
                             validation="required"
                             required
                             :disabled="!acl.can('salutation.editor')"

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,20 +32,27 @@ class CustomerGroupRegistrationActionController
 
     private SalesChannelContextRestorer $restorer;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextRestorer $restorer
+        SalesChannelContextRestorer $restorer,
+        Connection $connection
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->restorer = $restorer;
+        $this->connection = $connection;
     }
 
     /**
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
+     *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
@@ -79,7 +89,6 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
@@ -96,6 +105,9 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
+     * @throws Exception
+     * @throws \Doctrine\DBAL\Driver\Exception
+     *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
@@ -131,7 +143,6 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
@@ -148,7 +159,35 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
+     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws \Exception
+     */
+    public function getContextByCustomerId(string $customerId): Context
+    {
+        $langId = $this->connection->createQueryBuilder()
+            ->select('LOWER(HEX(language_id))')
+            ->from('customer')
+            ->where('id = :id')
+            ->setParameter('id', Uuid::fromHexToBytes($customerId))
+            ->execute()
+            ->fetchOne();
+
+        if (!$langId) {
+            throw new \Exception('languageId not found for customer with the id: "' . $customerId . '"');
+        }
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [$langId],
+        ]);
+
+        return $context;
+    }
+
+    /**
      * @feature-deprecated tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
+     *
+     * @return array<string>
      */
     private function getRequestCustomerIds(Request $request): array
     {
@@ -175,34 +214,37 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @param array<string> $customerIds
+     *
+     * @throws \Doctrine\DBAL\Driver\Exception
+     *
+     * @return array<CustomerEntity>
      */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): array
     {
-        $criteria = new Criteria($customerIds);
+        $criteria = new Criteria();
         $criteria->addAssociation('requestedGroup');
         $criteria->addAssociation('salutation');
 
-        $result = $this->customerRepository->search($criteria, $context);
-
         $customers = [];
 
-        if ($result->getTotal()) {
-            /** @var CustomerEntity $customer */
-            foreach ($result->getElements() as $customer) {
-                if ($customer->getRequestedGroupId() === null) {
-                    if ($silentError === false) {
-                        throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
-                    }
+        foreach ($customerIds as $customerId) {
+            $criteria->setIds([$customerId]);
+            $customerContext = $this->getContextByCustomerId($customerId);
 
-                    continue;
+            /** @var CustomerEntity $customer */
+            $customer = $this->customerRepository->search($criteria, $customerContext)->first();
+
+            if ($customer->getRequestedGroupId() === null) {
+                if ($silentError === false) {
+                    throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
                 }
 
-                $customers[] = $customer;
+                continue;
             }
 
-            return $customers;
+            $customers[] = $customer;
         }
 
-        throw new \RuntimeException('Cannot find Customers');
+        return $customers;
     }
 }

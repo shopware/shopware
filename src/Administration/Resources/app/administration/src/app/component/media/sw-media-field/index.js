@@ -49,6 +49,12 @@ Component.register('sw-media-field', {
             },
             default: null,
         },
+
+        fileAccept: {
+            type: String,
+            required: false,
+            default: '*/*',
+        },
     },
 
     data() {

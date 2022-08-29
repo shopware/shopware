@@ -53,7 +53,7 @@
             {% block sw_media_field_media_popover %}
             <sw-popover
                 v-if="showPicker"
-                :z-index="1100"
+                :z-index="1000"
                 popover-class="sw-media-field__expanded-content"
                 class="sw-media-field__popover"
             >
@@ -103,6 +103,7 @@
                 <sw-media-upload-v2
                     v-if="showUploadField"
                     variant="regular"
+                    :file-accept="fileAccept"
                     :default-folder="defaultFolder"
                     :allow-multi-select="false"
                     :upload-tag="uploadTag"

@@ -9,9 +9,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
     <sw-single-select
-        v-model="shippingMethod.taxType"
+        v-model="taxType"
         class="sw-settings-shipping__tax-type-selection"
-        required
         show-clearable-button
         :disabled="disabled"
         :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"

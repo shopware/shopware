@@ -170,12 +170,7 @@ Component.register('sw-order-product-grid', {
         },
 
         onSelectItem(_, item, selected) {
-            if (!selected) {
-                this.$set(item, 'amount', null);
-                return;
-            }
-
-            this.$set(item, 'amount', 0);
+            this.$set(item, 'amount', selected ? 1 : null);
         },
 
         onSearch(value) {

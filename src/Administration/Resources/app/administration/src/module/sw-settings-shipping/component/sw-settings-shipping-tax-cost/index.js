@@ -60,6 +60,15 @@ Component.register('sw-settings-shipping-tax-cost', {
 
             return criteria;
         },
+
+        taxType: {
+            get() {
+                return this.shippingMethod.taxType || 'auto';
+            },
+            set(taxType) {
+                this.shippingMethod.taxType = taxType;
+            },
+        },
     },
 
     watch: {

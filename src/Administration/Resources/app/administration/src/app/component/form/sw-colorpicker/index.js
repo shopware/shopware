@@ -348,7 +348,7 @@ Component.register('sw-colorpicker', {
         }, 50),
 
         outsideClick(e) {
-            if (/^sw-colorpicker__preview/.test(e.target.classList[0])) {
+            if (/^sw-colorpicker__previewColor.active/.test(e.target._prevClass)) {
                 return;
             }
 

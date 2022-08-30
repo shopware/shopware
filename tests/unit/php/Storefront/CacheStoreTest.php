@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Framework\Cache;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Storefront\Framework\Cache\CacheStateValidator;
 use Shopware\Storefront\Framework\Cache\CacheStore;
-use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -26,18 +26,18 @@ class CacheStoreTest extends TestCase
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);
 
-        $cache->expects($this->once())->method('hasItem')->willReturn(false);
+        $cache->expects(static::once())->method('hasItem')->willReturn(false);
 
         $item = $this->createMock(ItemInterface::class);
 
-        $cache->expects($this->once())->method('getItem')->willReturn($item);
+        $cache->expects(static::once())->method('getItem')->willReturn($item);
 
-        $item->expects($this->once())->method('set')->with(true);
+        $item->expects(static::once())->method('set')->with(true);
 
         // expect that we set an expires date for the lock key to prevent endless locks
-        $item->expects($this->once())->method('expiresAfter')->with(3);
+        $item->expects(static::once())->method('expiresAfter')->with(3);
 
-        $cache->expects($this->once())->method('save')->with($item);
+        $cache->expects(static::once())->method('save')->with($item);
 
         $store = new CacheStore(
             $cache,

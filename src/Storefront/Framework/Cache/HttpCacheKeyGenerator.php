@@ -15,9 +15,14 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @var string[]
+     */
     private array $ignoredParameters;
 
     /**
+     * @param string[] $ignoredParameters
+     *
      * @internal
      */
     public function __construct(
@@ -46,18 +51,18 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
         $hash = $event->getHash();
 
         if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));
+            return 'http-cache-' . hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));
         }
 
         if ($request->cookies->has(CacheResponseSubscriber::CURRENCY_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CURRENCY_COOKIE));
+            return 'http-cache-' . hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CURRENCY_COOKIE));
         }
 
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {
-            return hash('sha256', $hash . '-' . $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+            return 'http-cache-' . hash('sha256', $hash . '-' . $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
         }
 
-        return $hash;
+        return 'http-cache-' . $hash;
     }
 
     private function getRequestUri(Request $request): string

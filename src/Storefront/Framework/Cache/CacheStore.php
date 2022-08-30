@@ -21,6 +21,9 @@ class CacheStore implements StoreInterface
 
     private TagAwareAdapterInterface $cache;
 
+    /**
+     * @var array<string, bool>
+     */
     private array $locks = [];
 
     private CacheStateValidator $stateValidator;
@@ -42,6 +45,7 @@ class CacheStore implements StoreInterface
      * @internal
      *
      * @param AbstractCacheTracer<StoreApiResponse> $tracer
+     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         TagAwareAdapterInterface $cache,

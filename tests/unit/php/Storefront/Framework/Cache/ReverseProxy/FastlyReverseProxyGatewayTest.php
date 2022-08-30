@@ -81,7 +81,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
         $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, $prefix);
         $gateway->invalidate($tags);
-        $gateway->__destruct();
+        $gateway->flush();
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
@@ -156,7 +156,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
         $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '', 'sw-1234');
         $gateway->banAll();
-        $gateway->__destruct();
+        $gateway->flush();
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);

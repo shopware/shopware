@@ -29571,21 +29571,6 @@ parameters:
 			path: src/Core/Maintenance/SalesChannel/Service/SalesChannelCreator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Service\\\\ShopConfigurator\\:\\:changeDefaultLanguageData\\(\\) has parameter \\$currentLocaleData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Maintenance/System/Service/ShopConfigurator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Service\\\\ShopConfigurator\\:\\:getCurrentSystemLocale\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Maintenance/System/Service/ShopConfigurator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Maintenance\\\\System\\\\Service\\\\ShopConfigurator\\:\\:getLocaleTranslations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Maintenance/System/Service/ShopConfigurator.php
-
-		-
 			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\Migration1610523548FixCustomerColumns\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1610523548FixCustomerColumns.php

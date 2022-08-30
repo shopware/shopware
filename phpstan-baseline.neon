@@ -30466,11 +30466,6 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1600349343AddDeliveryStateTransitions.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1600778848AddOrderMails\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1600778848AddOrderMails.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1602822727AddVatHandlingIntoCountryTable\\:\\:getCountryVatPattern\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1602822727AddVatHandlingIntoCountryTable.php
@@ -30481,29 +30476,9 @@ parameters:
 			path: src/Core/Migration/V6_3/Migration1602822727AddVatHandlingIntoCountryTable.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1604669773UpdateMailTemplate\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1604669773UpdateMailTemplate.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607500561UpdateSignUpMailTemplateTranslation\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_3/Migration1607500561UpdateSignUpMailTemplateTranslation.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_3\\\\Migration1607581276AddProductSearchConfigurationDefaults\\:\\:getConfigFieldDefaultData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_3/Migration1607581276AddProductSearchConfigurationDefaults.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1604585230UpdateOrderMailsForCashRounding\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1604585230UpdateOrderMailsForCashRounding.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1610621999UpdateDateOfDefaultMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1610621999UpdateDateOfDefaultMailTemplates.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1612442786ChangeVersionOfDocuments\\:\\:getOrders\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -30524,11 +30499,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1614765170UpdateAppModulesWithNavigationInformation\\:\\:updateModules\\(\\) has parameter \\$preparedModules with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1614765170UpdateAppModulesWithNavigationInformation.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1617864895UpdateMailTemplateForNestedLineItems\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1617864895UpdateMailTemplateForNestedLineItems.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1617935350ActiveCaptchasV2\\:\\:\\$captchaItems type has no value type specified in iterable type array\\.$#"
@@ -30561,11 +30531,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1624262862UpdateDefaultValueOnCaptchaV2.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1624967118updateMailTemplatesWithOptionalSalutation\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1624967118updateMailTemplatesWithOptionalSalutation.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625304609UpdateRolePrivileges\\:\\:getAllApps\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1625304609UpdateRolePrivileges.php
@@ -30579,11 +30544,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625304609UpdateRolePrivileges\\:\\:getAppPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1625304609UpdateRolePrivileges.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625554302UpdateMailTemplateForContactForm\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625554302UpdateMailTemplateForContactForm.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625583619MoveDataFromEventActionToFlow\\:\\:buildSequenceData\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -30626,26 +30586,6 @@ parameters:
 			path: src/Core/Migration/V6_4/Migration1625583619MoveDataFromEventActionToFlow.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1630485317UpdateContactFormMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1630485317UpdateContactFormMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1635147952ShowShippingCostsInCartAnMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1635147952ShowShippingCostsInCartAnMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1636014089UpdateOrderConfirmationMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1636014089UpdateOrderConfirmationMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1638514913RemovedUnusedVarsInMailTemplates\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1638514913RemovedUnusedVarsInMailTemplates.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1643724178ChangePromotionCodesProfile\\:\\:getMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1643724178ChangePromotionCodesProfile.php
@@ -30684,11 +30624,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1648803451FixInvalidMigrationOfBusinessEventToFlow\\:\\:\\$sequenceUpdate type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Migration/V6_4/Migration1648803451FixInvalidMigrationOfBusinessEventToFlow.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1652345915UpdateSubjectMailTemplate\\:\\:getTranslationIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1652345915UpdateSubjectMailTemplate.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueries\\(\\) has no return type specified\\.$#"

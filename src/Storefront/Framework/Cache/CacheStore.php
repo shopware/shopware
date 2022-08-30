@@ -195,6 +195,7 @@ class CacheStore implements StoreInterface
 
         $item = $this->cache->getItem($key);
         $item->set(true);
+        $item->expiresAfter(3);
 
         $this->cache->save($item);
         $this->locks[$key] = true;

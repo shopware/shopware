@@ -74,7 +74,8 @@ function createWrapper(routeParams = {}) {
                 }
             },
             appCmsService: {},
-            cmsDataResolverService: {}
+            cmsDataResolverService: {},
+            systemConfigApiService: {}
         },
     });
 }

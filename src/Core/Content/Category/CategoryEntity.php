@@ -46,7 +46,7 @@ class CategoryEntity extends Entity
     protected $name;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $breadcrumb;
 
@@ -121,6 +121,11 @@ class CategoryEntity extends Entity
     protected $cmsPageId;
 
     /**
+     * @var bool
+     */
+    protected $cmsPageIdSwitched = false;
+
+    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -136,7 +141,7 @@ class CategoryEntity extends Entity
     protected $productStream;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $slotConfig;
 
@@ -420,6 +425,16 @@ class CategoryEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    public function getCmsPageIdSwitched(): bool
+    {
+        return $this->cmsPageIdSwitched;
+    }
+
+    public function setCmsPageIdSwitched(bool $switched): void
+    {
+        $this->cmsPageIdSwitched = $switched;
+    }
+
     public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
@@ -440,11 +455,17 @@ class CategoryEntity extends Entity
         $this->productStreamId = $productStreamId;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<mixed> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -550,11 +571,17 @@ class CategoryEntity extends Entity
         $this->description = $description;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getBreadcrumb(): array
     {
         return array_values($this->getPlainBreadcrumb());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getPlainBreadcrumb(): array
     {
         $breadcrumb = $this->getTranslation('breadcrumb');
@@ -579,11 +606,17 @@ class CategoryEntity extends Entity
         return $filtered;
     }
 
+    /**
+     * @param array<mixed>|null $breadcrumb
+     */
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function jsonSerialize(): array
     {
         // Make sure that the sorted breadcrumb gets serialized

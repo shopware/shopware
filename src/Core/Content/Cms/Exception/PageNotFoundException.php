@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PageNotFoundException extends ShopwareHttpException
 {
+    public const ERROR_CODE = 'CONTENT__CMS_PAGE_NOT_FOUND';
+
     public function __construct(string $pageId)
     {
         parent::__construct(
@@ -22,6 +24,6 @@ class PageNotFoundException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'CONTENT__CMS_PAGE_NOT_FOUND';
+        return self::ERROR_CODE;
     }
 }

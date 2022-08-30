@@ -13,6 +13,7 @@ Component.register('sw-cms-sidebar', {
     template,
 
     inject: [
+        'acl',
         'cmsService',
         'repositoryFactory',
         'feature',
@@ -131,6 +132,22 @@ Component.register('sw-cms-sidebar', {
 
         hasPageConfigErrors() {
             return this.pageConfigErrors.length > 0;
+        },
+
+        showDefaultLayoutSelection() {
+            if (!this.acl.can('system_config.editor')) {
+                return false;
+            }
+
+            if (this.page.type === 'product_list') {
+                return true;
+            }
+
+            if (this.page.type === 'product_detail' && this.feature.isActive('v6.5.0.0')) {
+                return true;
+            }
+
+            return false;
         },
 
         ...mapPropertyErrors('page', ['name']),
@@ -517,6 +534,10 @@ Component.register('sw-cms-sidebar', {
 
         onOpenLayoutAssignment() {
             this.$emit('open-layout-assignment');
+        },
+
+        onOpenLayoutSetAsDefault() {
+            this.$emit('open-layout-set-as-default');
         },
 
         blockTypeExists(type) {

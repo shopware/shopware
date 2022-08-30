@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,12 +61,14 @@ class CachedProductDetailRouteTest extends TestCase
 
         $productId = Uuid::randomHex();
         $propertyId = Uuid::randomHex();
+        $cmsPageId = $this->createCmsPage('product_detail');
 
         $this->createProduct([
             'id' => $productId,
             'properties' => [
                 ['id' => $propertyId, 'name' => 'red', 'group' => ['name' => 'color']],
             ],
+            'cmsPageId' => $cmsPageId,
         ]);
 
         if ($isTestingWithVariant) {
@@ -186,15 +189,24 @@ class CachedProductDetailRouteTest extends TestCase
         ];
     }
 
-    private function createProduct($data = []): void
+    /**
+     * @param array<mixed> $data
+     */
+    private function createProduct(array $data = []): void
     {
+        $ids = new IdsCollection();
+
+        $tax = $this->context->getTaxRules()->first();
+
+        static::assertInstanceOf(TaxEntity::class, $tax);
+
         $product = array_merge(
             [
                 'name' => 'test',
                 'productNumber' => 'test',
                 'stock' => 10,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $this->context->getTaxRules()->first()->getId(), 'name' => 'test', 'taxRate' => 15],
+                'tax' => ['id' => $tax->getId(), 'name' => 'test', 'taxRate' => 15],
                 'visibilities' => [[
                     'salesChannelId' => $this->context->getSalesChannelId(),
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
@@ -204,5 +216,20 @@ class CachedProductDetailRouteTest extends TestCase
         );
 
         $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+    }
+
+    private function createCmsPage(string $type): string
+    {
+        $cmsPageId = Uuid::randomHex();
+
+        $cmsPage = [
+            'id' => $cmsPageId,
+            'name' => 'test page',
+            'type' => $type,
+        ];
+
+        $this->getContainer()->get('cms_page.repository')->create([$cmsPage], Context::createDefaultContext());
+
+        return $cmsPageId;
     }
 }

@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-layout-modal', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -51,6 +51,8 @@ Component.register('sw-cms-layout-modal', {
             term: null,
             total: null,
             pages: [],
+            defaultCategoryId: '',
+            defaultProductId: '',
         };
     },
 
@@ -123,7 +125,17 @@ Component.register('sw-cms-layout-modal', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
+            }
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -131,6 +143,8 @@ Component.register('sw-cms-layout-modal', {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;
+
+                /** @deprecated tag:v6.5.0 - Use this.pages directly */
                 return this.pages;
             }).catch(() => {
                 this.isLoading = false;
@@ -142,8 +156,8 @@ Component.register('sw-cms-layout-modal', {
             this.closeModal();
         },
 
-        selectInGrid(collum) {
-            const columnEntries = Object.entries(collum);
+        selectInGrid(column) {
+            const columnEntries = Object.entries(column);
             if (columnEntries.length === 0) {
                 [this.selected, this.selectedPageObject] = [null, null];
                 return;
@@ -199,6 +213,19 @@ Component.register('sw-cms-layout-modal', {
             this.selected = null;
             this.selectedPageObject = null;
             this.term = null;
+        },
+
+        getPageType(page) {
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
+            return isDefault ? `${defaultText} - ${this.pageTypes[page.type]}` : this.pageTypes[page.type];
+        },
+
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+            this.defaultProductId = response['core.cms.default_product_cms_page'];
         },
     },
 });

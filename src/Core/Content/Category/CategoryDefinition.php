@@ -64,6 +64,8 @@ class CategoryDefinition extends EntityDefinition
 
     public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
 
+    public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;

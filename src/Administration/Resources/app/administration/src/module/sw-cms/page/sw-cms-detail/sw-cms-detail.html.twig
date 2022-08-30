@@ -58,6 +58,14 @@
                     {{ cmsPageTypes[page.type] }}
                 </div>
                 {% endblock %}
+
+                <div
+                    v-if="isDefaultLayout"
+                    class="sw-cms-detail__page-defaults"
+                >
+                    {{ $tc('sw-cms.detail.label.defaultLayout') }}
+
+                </div>
             </div>
             {% endblock %}
 
@@ -331,6 +339,7 @@
                 @page-update="onPageUpdate"
                 @page-save="onPageSave"
                 @open-layout-assignment="onOpenLayoutAssignment"
+                @open-layout-set-as-default="onOpenLayoutSetAsDefault"
             />
             {% endblock %}
 
@@ -344,6 +353,16 @@
                 @confirm="onConfirmLayoutAssignment"
             />
             {% endblock %}
+
+            <sw-confirm-modal
+                v-if="showLayoutSetAsDefaultModal"
+                class="sw-cms-detail__confirm-set-as-default-modal"
+                :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
+                @confirm="onConfirmLayoutSetAsDefault"
+                @cancel="onCloseLayoutSetAsDefault"
+                @close="onCloseLayoutSetAsDefault"
+            />
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_detail_missing_element_modal %}

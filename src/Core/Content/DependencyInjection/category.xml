@@ -98,5 +98,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Subscriber\CategorySubscriber">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

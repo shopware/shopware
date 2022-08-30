@@ -26,6 +26,7 @@ Component.register('sw-cms-detail', {
         'cmsDataResolverService',
         'acl',
         'appCmsService',
+        'systemConfigApiService',
     ],
 
     mixins: [
@@ -107,7 +108,9 @@ Component.register('sw-cms-detail', {
                 },
             ],
             showLayoutAssignmentModal: false,
+            showLayoutSetAsDefaultModal: false,
             showMissingElementModal: false,
+            isDefaultLayout: false,
 
             /** @deprecated tag:v6.5.0 - will be removed without replacement */
             isSaveable: false,
@@ -353,6 +356,10 @@ Component.register('sw-cms-detail', {
                         this.loadPage(this.pageId);
                     }
                 });
+            }
+
+            if (this.acl.can('system_config.read')) {
+                this.getDefaultLayouts();
             }
 
             this.setPageContext();
@@ -1192,6 +1199,38 @@ Component.register('sw-cms-detail', {
         /** @deprecated tag:v6.5.0 method can be removed completely */
         onConfirmLayoutAssignment() {
             this.previousRoute = '';
+        },
+
+        onOpenLayoutSetAsDefault() {
+            this.showLayoutSetAsDefaultModal = true;
+        },
+
+        onCloseLayoutSetAsDefault() {
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async onConfirmLayoutSetAsDefault() {
+            let configKey = 'category_cms_page';
+            if (this.page.type === 'product_detail') {
+                configKey = 'product_cms_page';
+            }
+
+            await this.systemConfigApiService.saveValues({
+                [`core.cms.default_${configKey}`]: this.pageId,
+            });
+
+            this.isDefaultLayout = true;
+            this.showLayoutSetAsDefaultModal = false;
+        },
+
+        async getDefaultLayouts() {
+            const response = await this.systemConfigApiService.getValues('core.cms');
+            const productDetailId = response['core.cms.default_category_cms_page'];
+            const productListId = response['core.cms.default_product_cms_page'];
+
+            if ([productDetailId, productListId].includes(this.pageId)) {
+                this.isDefaultLayout = true;
+            }
         },
 
         onCloseMissingElementModal() {

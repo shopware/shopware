@@ -137,6 +137,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     private function enrich(SeoResolverData $data, SalesChannelContext $context): void
     {
         foreach ($data->getEntities() as $definition) {
+            $definition = (string) $definition;
+
             $ids = $data->getIds($definition);
             $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
             if (\count($routes) === 0) {
@@ -163,6 +165,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                     $entity->setSeoUrls(new SeoUrlCollection());
                 }
 
+                /** @phpstan-ignore-next-line - will complain that 'getSeoUrls' might be null, but we will set it if it is null */
                 $entity->getSeoUrls()->add($url);
             }
         }

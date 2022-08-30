@@ -7,7 +7,6 @@ import { createRouter, actionButtonData, actionResultData } from './_fixtures/ap
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';

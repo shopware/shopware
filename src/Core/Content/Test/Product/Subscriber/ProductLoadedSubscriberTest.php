@@ -14,7 +14,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -106,6 +108,10 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
@@ -132,10 +138,17 @@ class ProductLoadedSubscriberTest extends TestCase
         );
         $subscriber->loaded($productLoadedEvent);
 
-        $sortedProperties = $productEntity->getSortedProperties()->getElements();
+        $sortedPropertiesCollection = $productEntity->getSortedProperties();
+
+        static::assertInstanceOf(PropertyGroupCollection::class, $sortedPropertiesCollection);
+
+        $sortedProperties = $sortedPropertiesCollection->getElements();
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
-            $optionElements = $sortedProperties[$expectedGroupKey]->getOptions()->getElements();
+            $optionElementsCollection = $sortedProperties[$expectedGroupKey]->getOptions();
+
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElementsCollection);
+            $optionElements = $optionElementsCollection->getElements();
 
             static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
             static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
@@ -154,6 +167,10 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider propertyCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<mixed> $unexpected
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
@@ -204,6 +221,9 @@ class ProductLoadedSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function propertyCases(): array
     {
         $ids = new TestDataCollection();
@@ -355,8 +375,13 @@ class ProductLoadedSubscriberTest extends TestCase
      * @param non-empty-array<string> $languageChain
      *
      * @dataProvider variationCases
+     *
+     * @param array<mixed> $product
+     * @param array<mixed> $expected
+     * @param array<string> $languageChain
+     * @param array<string> $language
      */
-    public function testVariation(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
         $this->getContainer()
             ->get('language.repository')
@@ -396,6 +421,9 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertEquals($expected, $variation);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function variationCases(): array
     {
         $ids = new TestDataCollection();
@@ -1074,8 +1102,12 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @dataProvider optionCases
+     *
+     * @param array<mixed> $product
+     * @param array<string, string> $expected
+     * @param array<string, string> $language
      */
-    public function testOptionSorting(array $product, $expected, Criteria $criteria, array $language): void
+    public function testOptionSorting(array $product, array $expected, Criteria $criteria, array $language): void
     {
         $this->getContainer()
             ->get('language.repository')
@@ -1102,7 +1134,11 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $context)
             ->first();
 
+        /** @var PropertyGroupOptionCollection $options */
         $options = $productEntity->getOptions();
+
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
+
         $names = $options->map(function (PropertyGroupOptionEntity $option) {
             return [
                 'name' => $option->getName(),
@@ -1112,6 +1148,9 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertEquals($expected, array_values($names));
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function optionCases(): array
     {
         $ids = new TestDataCollection();
@@ -1217,8 +1256,8 @@ class ProductLoadedSubscriberTest extends TestCase
                     'symbol' => 'XXX',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 3,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
+                    'itemRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
+                    'totalRounding' => $this->objectToArray(new CashRoundingConfig(3, 0.01, true)),
                 ],
             ], Context::createDefaultContext());
 
@@ -1332,6 +1371,18 @@ class ProductLoadedSubscriberTest extends TestCase
                 static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
             }
         }
+    }
+
+    /**
+     * @throws \JsonException
+     *
+     * @return array<mixed>
+     */
+    private function objectToArray(object $obj): array
+    {
+        $jsonString = \json_encode($obj, \JSON_THROW_ON_ERROR);
+
+        return \json_decode($jsonString, true);
     }
 }
 

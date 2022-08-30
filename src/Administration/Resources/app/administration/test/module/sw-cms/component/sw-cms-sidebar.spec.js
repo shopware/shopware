@@ -83,7 +83,8 @@ function createWrapper() {
                             slots: []
                         }])
                     })
-                ]
+                ],
+                type: 'product_list'
             }
         },
         stubs: {
@@ -165,12 +166,16 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('disable all sidebar items', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
         await wrapper.setProps({
             disabled: true
@@ -185,6 +190,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('enable all sidebar items', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
@@ -223,6 +230,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
 
     it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         const blockDrag = {
@@ -254,6 +263,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         // Check initial state of modal and localStorage
@@ -283,6 +294,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should continue prompting a warning when entering the navigator, when "Do not remind me" option has not been checked once', () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         // Check initial state of modal and localStorage
@@ -311,6 +324,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should keep the id when duplicating blocks', () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         const block = getBlockData();
@@ -321,6 +336,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should keep the id when duplicating slots', () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         const block = getBlockData();
@@ -335,6 +352,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should fire event to open layout assignment modal', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
@@ -345,6 +364,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should show tooltip and disable layout type select when page type is product detail', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         await wrapper.setProps({
@@ -364,6 +385,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         await wrapper.setProps({
@@ -379,6 +402,16 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(layoutTypeSelect.attributes().disabled).toBeFalsy();
         expect(productPageOption.attributes().disabled).toBeTruthy();
+    });
+
+    it('should emit open-layout-set-as-default when clicking on set as default', async () => {
+        global.activeAclRoles = ['system_config.editor'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').trigger('click');
+
+        expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
     });
 
     it('should apply default data when dropping new elements', async () => {

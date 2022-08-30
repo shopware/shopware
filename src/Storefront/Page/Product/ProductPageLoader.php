@@ -13,6 +13,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -99,7 +100,12 @@ class ProductPageLoader
         $page->setConfiguratorSettings($result->getConfigurator() ?? new PropertyGroupCollection());
         $page->setNavigationId($product->getId());
 
-        $this->loadDefaultAdditions($product, $page, $request, $context);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $this->loadDefaultAdditions($product, $page, $request, $context);
+        } elseif ($cmsPage = $product->getCmsPage()) {
+            $page->setCmsPage($cmsPage);
+        }
+
         $this->loadOptions($page);
         $this->loadMetaData($page);
 
@@ -113,7 +119,12 @@ class ProductPageLoader
     private function loadOptions(ProductPage $page): void
     {
         $options = new PropertyGroupOptionCollection();
-        $optionIds = $page->getProduct()->getOptionIds() ?? [];
+
+        if (($optionIds = $page->getProduct()->getOptionIds()) === null) {
+            $page->setSelectedOptions($options);
+
+            return;
+        }
 
         foreach ($page->getConfiguratorSettings() as $group) {
             $groupOptions = $group->getOptions();
@@ -162,6 +173,9 @@ class ProductPageLoader
         $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
     }
 
+    /**
+     * @@deprecated tag:v6.5.0 - will be removed because cms page id will always be set
+     */
     private function loadDefaultAdditions(SalesChannelProductEntity $product, ProductPage $page, Request $request, SalesChannelContext $context): void
     {
         if ($cmsPage = $product->getCmsPage()) {

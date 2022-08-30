@@ -8,6 +8,9 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 
+const defaultCategoryId = 'default-category-id';
+const defaultProductId = 'default-product-id';
+
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-list'), {
         stubs: {
@@ -32,7 +35,9 @@ function createWrapper() {
                 template: '<div></div>'
             },
             'sw-cms-list-item': Shopware.Component.build('sw-cms-list-item'),
-            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
             'sw-popover': {
                 template: '<div><slot></slot></div>'
             },
@@ -55,6 +60,23 @@ function createWrapper() {
             'sw-skeleton': true,
             'sw-empty-state': true,
             'sw-sorting-select': true,
+            'sw-alert': true,
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal-stub">
+                        <slot></slot>
+
+                        <div class="modal-footer">
+                            <slot name="modal-footer"></slot>
+                        </div>
+                    </div>
+                `
+            },
+            'sw-confirm-modal': {
+                template: '<div></div>',
+                props: ['text']
+            }
+
         },
         mocks: {
             $route: { query: '' },
@@ -72,6 +94,19 @@ function createWrapper() {
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
                 }
+            },
+            systemConfigApiService: {
+                getValues: (query) => {
+                    if (query !== 'core.cms') {
+                        return null;
+                    }
+
+                    return {
+                        'core.cms.default_category_cms_page': defaultCategoryId,
+                        'core.cms.default_product_cms_page': defaultProductId
+                    };
+                },
+                saveValues: () => null
             }
         }
     });
@@ -106,15 +141,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
-            .trigger('click');
-
-        expect(wrapper.vm.showMediaModal).toBeFalsy();
+        expect(wrapper.vm.showMediaModal).toBe(false);
 
         await wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-preview')
             .trigger('click');
 
-        expect(wrapper.vm.showMediaModal).toBeTruthy();
+        expect(wrapper.vm.showMediaModal).toBe(true);
 
         const mediaModal = wrapper.find('.sw-media-modal-v2-mock');
         expect(mediaModal.classes()).toContain('sw-media-modal-v2-mock');
@@ -340,9 +372,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
-            .trigger('click');
-
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
         const contextMenuItemDuplicate = wrapper.find('.sw-cms-list-item__option-duplicate');
@@ -373,9 +402,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 }
             ]
         });
-
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
-            .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
@@ -408,9 +434,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
-            .trigger('click');
-
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
         const contextMenuItemDuplicate = wrapper.find('.sw-cms-list-item__option-duplicate');
@@ -441,9 +464,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 }
             ]
         });
-
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
-            .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
@@ -486,9 +506,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             pages
         });
 
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button').trigger('click');
-
-        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
+        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
 
         expect(contextMenuItemDelete.props().disabled).toBe(true);
     });
@@ -515,9 +533,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button').trigger('click');
-
-        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
+        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
 
         expect(contextMenuItemDelete.props().disabled).toBe(false);
     });
@@ -749,5 +765,265 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         const listCriteria = wrapper.vm.listCriteria;
         expect(listCriteria.getAssociation('products').getLimit()).toBe(25);
+    });
+
+    it('should indicate which layout is set as default', async () => {
+        global.activeAclRoles = ['system_config.read'];
+
+        const wrapper = createWrapper();
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: 'some-other-id',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                },
+                {
+                    id: defaultProductId,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2'
+                    }
+                },
+                {
+                    id: defaultCategoryId,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 3'
+                    }
+                }
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultProductId).toBe(defaultProductId);
+        expect(wrapper.vm.defaultCategoryId).toBe(defaultCategoryId);
+
+        const listItems = wrapper.findAll('.sw-cms-list-item');
+
+        expect(listItems.length).toBe(3);
+
+        expect(listItems.at(0).props('isDefault')).toBe(false);
+        expect(listItems.at(1).props('isDefault')).toBe(true);
+        expect(listItems.at(2).props('isDefault')).toBe(true);
+    });
+
+    it('should allow setting a default layout', async () => {
+        global.activeAclRoles = ['system_config.read'];
+
+        const someCategoryID = 'someCategoryID';
+        const someProductID = 'someOtherID';
+
+        const wrapper = createWrapper();
+
+        const saveValuesSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveValuesSpy;
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: someProductID,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    type: 'product_detail',
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                },
+                {
+                    id: someCategoryID,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                },
+                {
+                    id: defaultProductId,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2'
+                    }
+                },
+                {
+                    id: defaultCategoryId,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 3'
+                    }
+                }
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultProductId).toBe(defaultProductId);
+        expect(wrapper.vm.defaultCategoryId).toBe(defaultCategoryId);
+
+        const listItems = wrapper.findAll('.sw-cms-list-item');
+
+        expect(listItems.length).toBe(4);
+
+        expect(listItems.at(0).props('isDefault')).toBe(false);
+        expect(listItems.at(1).props('isDefault')).toBe(false);
+        expect(listItems.at(2).props('isDefault')).toBe(true);
+        expect(listItems.at(3).props('isDefault')).toBe(true);
+
+
+        const saveSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveSpy;
+
+        // Assign new default product layout
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+        wrapper.vm.onOpenLayoutSetAsDefault({ id: someProductID });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        wrapper.find('.sw-cms-list__confirm-set-as-default-modal').vm.$emit('confirm');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        expect(saveSpy).toHaveBeenCalledTimes(1);
+        expect(saveSpy).toHaveBeenCalledWith({ 'core.cms.default_category_cms_page': someProductID });
+
+        expect(listItems.length).toBe(4);
+
+        expect(listItems.at(0).props('isDefault')).toBe(true);
+        expect(listItems.at(1).props('isDefault')).toBe(false);
+        expect(listItems.at(2).props('isDefault')).toBe(true);
+        expect(listItems.at(3).props('isDefault')).toBe(false);
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        // Assign new default category layout
+        wrapper.vm.onOpenLayoutSetAsDefault({ id: someCategoryID, type: 'product_detail' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        wrapper.find('.sw-cms-list__confirm-set-as-default-modal').vm.$emit('confirm');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        expect(saveSpy).toHaveBeenCalledTimes(2);
+        expect(saveSpy).toHaveBeenLastCalledWith({ 'core.cms.default_product_cms_page': someCategoryID });
+
+        expect(listItems.length).toBe(4);
+
+        expect(listItems.at(0).props('isDefault')).toBe(true);
+        expect(listItems.at(1).props('isDefault')).toBe(true);
+        expect(listItems.at(2).props('isDefault')).toBe(false);
+        expect(listItems.at(3).props('isDefault')).toBe(false);
+    });
+
+
+    it('should reset after canceling setting a default layout', async () => {
+        global.activeAclRoles = ['system_config.read'];
+
+        const someOtherID = 'someOtherID';
+
+        const layoutSetAsDefaultConfig = { id: someOtherID, type: 'someOtherType' };
+
+        const wrapper = createWrapper();
+
+        const saveValuesSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveValuesSpy;
+
+        const testData = {
+            isLoading: false,
+            pages: [
+                {
+                    id: someOtherID,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                },
+                {
+                    id: defaultProductId,
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 2'
+                    }
+                }
+            ],
+        };
+
+        await wrapper.setData(testData);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultProductId).toBe(defaultProductId);
+
+        const listItems = wrapper.findAll('.sw-cms-list-item');
+
+        expect(listItems.length).toBe(2);
+
+        expect(listItems.at(0).props('isDefault')).toBe(false);
+        expect(listItems.at(1).props('isDefault')).toBe(true);
+
+        const saveSpy = jest.fn();
+        wrapper.vm.systemConfigApiService.saveValues = saveSpy;
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+
+        // test resetting with close
+        wrapper.vm.onOpenLayoutSetAsDefault(layoutSetAsDefaultConfig);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.newDefaultLayout).toStrictEqual(layoutSetAsDefaultConfig);
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        const confirmModal = wrapper.find('.sw-cms-list__confirm-set-as-default-modal');
+        expect(confirmModal.props('text')).toBe('sw-cms.components.setDefaultLayoutModal.infoText');
+
+        confirmModal.vm.$emit('close');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+        expect(wrapper.vm.newDefaultLayout).toBe(undefined);
+
+        // test resetting with cancel
+        wrapper.vm.onOpenLayoutSetAsDefault(layoutSetAsDefaultConfig);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.newDefaultLayout).toStrictEqual(layoutSetAsDefaultConfig);
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(true);
+
+        wrapper.find('.sw-cms-list__confirm-set-as-default-modal').vm.$emit('cancel');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
+        expect(wrapper.vm.nextDefaultProductListLayoutId).toBe(undefined);
+
+        expect(saveSpy).toHaveBeenCalledTimes(0);
+        expect(listItems.at(0).props('isDefault')).toBe(false);
+        expect(listItems.at(1).props('isDefault')).toBe(true);
     });
 });

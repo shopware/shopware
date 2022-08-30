@@ -7,6 +7,8 @@ const { Component, Filter } = Shopware;
 Component.register('sw-cms-list-item', {
     template,
 
+    inject: ['feature'],
+
     props: {
         page: {
             type: Object,
@@ -15,6 +17,12 @@ Component.register('sw-cms-list-item', {
         },
 
         active: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        isDefault: {
             type: Boolean,
             required: false,
             default: false,
@@ -29,7 +37,7 @@ Component.register('sw-cms-list-item', {
 
     computed: {
         previewMedia() {
-            if (this.page.previewMedia && this.page.previewMedia.id && this.page.previewMedia.url) {
+            if (this.page.previewMedia?.id && this.page.previewMedia?.url) {
                 return {
                     'background-image': `url(${this.page.previewMedia.url})`,
                     'background-size': 'cover',
@@ -42,9 +50,10 @@ Component.register('sw-cms-list-item', {
                 };
             }
 
-            if (this.defaultItemLayoutAssetBackground) {
+            const backgroundImage = this.defaultItemLayoutAssetBackground;
+            if (backgroundImage) {
                 return {
-                    'background-image': this.defaultItemLayoutAssetBackground,
+                    'background-image': backgroundImage,
                     'background-size': 'cover',
                 };
             }
@@ -75,7 +84,7 @@ Component.register('sw-cms-list-item', {
 
         statusClasses() {
             return {
-                'is--active': this.active,
+                'is--active': this.active || this.isDefault,
             };
         },
 

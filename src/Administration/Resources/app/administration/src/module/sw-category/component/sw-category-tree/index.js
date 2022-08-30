@@ -119,10 +119,16 @@ Component.register('sw-category-tree', {
             return this.repositoryFactory.create('product');
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
         defaultLayout() {
             return Shopware.State.get('swCategoryDetail').defaultLayout;
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
         defaultLayoutCriteria() {
             const criteria = new Criteria(1, 1);
             criteria
@@ -199,8 +205,6 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
-            this.loadDefaultLayout();
-
             if (this.category !== null) {
                 this.openInitialTree();
             }
@@ -472,7 +476,6 @@ Component.register('sw-category-tree', {
             newCategory.childCount = 0;
             newCategory.active = false;
             newCategory.visible = true;
-            newCategory.cmsPageId = this.defaultLayout;
 
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory).then(() => {
@@ -553,6 +556,9 @@ Component.register('sw-category-tree', {
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
         loadDefaultLayout() {
             return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
                 Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);

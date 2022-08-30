@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 class SeoResolverData
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $entityMap = [];
 
@@ -20,11 +20,17 @@ class SeoResolverData
         $this->entityMap[$entityName][$entity->getUniqueIdentifier()] = $entity;
     }
 
+    /**
+     * @return array<string|int>
+     */
     public function getEntities(): array
     {
         return array_keys($this->entityMap);
     }
 
+    /**
+     * @return array<string|int>
+     */
     public function getIds(string $entityName): array
     {
         return array_keys($this->entityMap[$entityName]);

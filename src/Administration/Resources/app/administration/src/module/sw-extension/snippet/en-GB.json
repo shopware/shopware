@@ -106,7 +106,7 @@
       "label": "Now available",
       "activationDescriptionTitleFirst": "Explore and buy extensions easily -",
       "activationDescriptionTitleSecond": "right from within your own Shopware shop.",
-      "activationDescriptionTitleDescription": "Activate the Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills.",
+      "activationDescriptionTitleDescription": "Activate the Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your shop seemlessly - without any programming skills.",
       "activate": "Activate"
     },
     "title": "Store",
@@ -188,7 +188,7 @@
           "labelButtonBack": "Back to details"
         },
         "alertCanNotBuy": {
-          "text": "You need to be logged in to the Store to do this"
+          "text": "You need to be logged in to the Shopware Store to do this"
         }
       },
       "sw-extension-adding-failed": {
@@ -230,7 +230,7 @@
         "sw-extension-review-creation-inputs": {
           "title": "Rate extension",
           "labelHeadline": "Headline",
-          "placeholderHeadline": "Enter a short headline...",
+          "placeholderHeadline": "Enter a brief headline...",
           "labelRating": "Rating",
           "labelText": "Review (optional)"
         },
@@ -241,46 +241,46 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
-        "purchasedLabel": "Purchased on ",
-        "installedLabel": "Installed on ",
+        "purchasedLabel": "Purchased on",
+        "installedLabel": "Installed on",
         "openExtensionLabel": "Open app",
-        "installExtensionLabel": "Install app",
+        "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
         "contextMenu": {
           "getHelpLabel": "Get help",
           "seeDetailsLabel": "See details",
-          "config": "Configuration",
+          "config": "Configure",
           "privacyAndSafetyLabel": "Data privacy & safety",
           "removeLabel": "Remove",
           "cancelAndRemoveLabel": "Cancel and remove",
           "uninstallLabel": "Uninstall",
           "updateLabel": "Update to {version}",
-          "rateLabel": "Rate",
+          "rateLabel": "Rate extension",
           "policyExtensions": "Privacy policy extensions",
-          "permissions": "Permissions",
+          "permissions": "Set permissions",
           "openExtension": "Open extension"
         }
       },
       "sw-extension-card-bought": {
-        "rentWillExpireAt": "Rent expires at {date}",
-        "rentExpiredAt": "Rent expired at {date}",
-        "testPhaseWillExpireAt": "Test phase expires at {date}",
-        "testPhaseExpiredAt": "Test phase expired at {date}"
+        "rentWillExpireAt": "Rent expires on {date}",
+        "rentExpiredAt": "Rent has expired on {date}",
+        "testPhaseWillExpireAt": "Test phase expires on {date}",
+        "testPhaseExpiredAt": "Test phase has expired on {date}"
       },
       "sw-extension-deactivation-modal": {
         "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
-        "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating the extension <b>will not</b> cancel the subscription and fees will continue to be collected!",
-        "descriptionCancel": "If you want to cancel the subscription, you can remove it via \"{removeLabel}\" in the context menu.",
-        "alertDeactivate": "Do you still want to deactivate the extension?",
+        "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating this extension <b>will not</b> cancel your subscription and fees will continue to be collected.",
+        "descriptionCancel": "If you want to cancel your subscription, you can remove it by clicking \"{removeLabel}\" in the context menu.",
+        "alertDeactivate": "Do you still want to deactivate this extension?",
         "deactivateLabel": "Deactivate"
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} permissions",
         "titleNewPermissions": "New {extensionLabel} permissions",
         "description": "{extensionLabel} will get access to the components below. Click the link next to the component to show the entity details.",
-        "descriptionNewPermissions": "{extensionLabel} requests changed permissions with this update. Make sure you agree to all changes before you continue with the update.",
-        "domainHint": "Some data will also be shared to with other domains. Click the link next to domains for more details.",
+        "descriptionNewPermissions": "{extensionLabel} requests permission changes with this update. Make sure you agree to all changes before continuing with the update.",
+        "domainHint": "Some data will also be shared with other domains. Click the link next to domains for more details.",
         "textEntities": "Show permissions",
         "domains": "Domains",
         "showDomains": "Show domains",
@@ -288,7 +288,7 @@
       },
       "sw-extension-domains-modal": {
         "modalTitle": "{extensionLabel} - Domains",
-        "description": "Some data will be shared / transferred to the domains listed below.",
+        "description": "Some data will be shared with / transferred to the domains listed below.",
         "listTitle": "Domain"
       },
       "sw-extension-privacy-policy-extensions-modal": {
@@ -303,7 +303,7 @@
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
-          "noActivePlugins": "No active extensions found.",
+          "noActivePlugins": "No active apps found.",
           "titleEmptyState": "No apps installed yet",
           "textEmptyState": "If you install apps, they will be listed here."
         },
@@ -337,7 +337,7 @@
       },
       "sw-extension-config": {
         "messageSaveSuccess": "Configuration saved.",
-        "imageDescription": "Icon of extension \"{extensionName}\"",
+        "imageDescription": "\"{extensionName}\" icon",
         "labelBy": "by"
       }
     }

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Installer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
-use Shopware\Core\Kernel;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -22,10 +21,8 @@ class InstallerKernelTest extends TestCase
 
         $kernel->boot();
 
-        static::assertSame(
-            Kernel::SHOPWARE_FALLBACK_VERSION,
-            $kernel->getContainer()->getParameter('kernel.shopware_version')
-        );
+        static::assertTrue($kernel->getContainer()->hasParameter('kernel.shopware_version'));
+
         // the default revision changes per commit, if it is set we expect that it is correct
         static::assertTrue($kernel->getContainer()->hasParameter('kernel.shopware_version_revision'));
 

@@ -21696,16 +21696,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginExtractor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginLifecycleService\\:\\:updatePluginData\\(\\) has parameter \\$pluginData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginLifecycleService.php
-
-		-
-			message: "#^Parameter \\#2 \\$dependants of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Requirement\\\\RequirementsValidator\\:\\:resolveActiveDependants\\(\\) expects array\\<Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginLifecycleService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php

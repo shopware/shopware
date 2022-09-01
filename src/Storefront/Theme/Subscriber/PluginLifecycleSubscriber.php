@@ -5,7 +5,9 @@ namespace Shopware\Storefront\Theme\Subscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
@@ -59,6 +61,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
                 PluginPostActivateEvent::class => 'pluginPostActivate',
                 PluginPreUpdateEvent::class => 'pluginUpdate',
                 PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+                PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
                 PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
                 PluginPostUninstallEvent::class => 'pluginPostUninstall',
             ];
@@ -69,6 +72,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+            PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
             PluginPostUninstallEvent::class => 'pluginPostUninstall',
         ];
@@ -88,26 +92,12 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     public function pluginPostActivate(PluginPostActivateEvent $event): void
     {
-        if ($this->skipCompile($event->getContext()->getContext())) {
-            return;
-        }
+        $this->doPostActivate($event);
+    }
 
-        // create instance of the plugin to create a configuration
-        // (the kernel boot is already finished and the activated plugin is missing)
-        $storefrontPluginConfig = $this->createConfigFromClassName(
-            $event->getPlugin()->getPath() ?: '',
-            $event->getPlugin()->getBaseClass()
-        );
-
-        // add plugin configuration to the list of all active plugin configurations
-        $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
-        $configurationCollection->add($storefrontPluginConfig);
-
-        $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
-            $storefrontPluginConfig,
-            $configurationCollection,
-            $event->getContext()->getContext()
-        );
+    public function pluginPostDeactivateFailed(PluginPostDeactivationFailedEvent $event): void
+    {
+        $this->doPostActivate($event);
     }
 
     public function pluginUpdate(PluginPreUpdateEvent $event): void
@@ -174,6 +164,34 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         }
 
         return $this->pluginConfigurationFactory->createFromBundle($plugin);
+    }
+
+    private function doPostActivate(PluginLifecycleEvent $event): void
+    {
+        if (!($event instanceof PluginPostActivateEvent) && !($event instanceof PluginPostDeactivationFailedEvent)) {
+            return;
+        }
+
+        if ($this->skipCompile($event->getContext()->getContext())) {
+            return;
+        }
+
+        // create instance of the plugin to create a configuration
+        // (the kernel boot is already finished and the activated plugin is missing)
+        $storefrontPluginConfig = $this->createConfigFromClassName(
+            $event->getPlugin()->getPath() ?: '',
+            $event->getPlugin()->getBaseClass()
+        );
+
+        // add plugin configuration to the list of all active plugin configurations
+        $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
+        $configurationCollection->add($storefrontPluginConfig);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
+            $storefrontPluginConfig,
+            $configurationCollection,
+            $event->getContext()->getContext()
+        );
     }
 
     private function skipCompile(Context $context): bool

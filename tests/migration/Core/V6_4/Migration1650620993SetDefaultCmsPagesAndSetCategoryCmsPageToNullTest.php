@@ -54,11 +54,40 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         }
     }
 
+    public function testItSetsTheDefaultInTheSystemConfigWhenPageIsNotLocked(): void
+    {
+        // delete default product list page
+        $this->connection->executeStatement(
+            'DELETE FROM cms_page WHERE type = :type AND locked = :locked;',
+            [
+                'type' => 'product_list',
+                'locked' => 1,
+            ]
+        );
+
+        // insert new page which is not locked
+        $this->insertProductListCmsPageDemoData();
+
+        $migration = new Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull();
+        $migration->update($this->connection);
+
+        $result = $this->connection->fetchAssociative(
+            'SELECT configuration_key, configuration_value
+                FROM `system_config`
+                WHERE configuration_key = :systemConfigKey',
+            ['systemConfigKey' => CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY]
+        );
+        static::assertNotFalse($result, 'A SQL select error occurred');
+
+        static::assertEquals(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $result['configuration_key']);
+        static::assertNotNull((\json_decode($result['configuration_value'], true, 512, \JSON_THROW_ON_ERROR))['_value']);
+    }
+
     public function testItSetsCategoryCmsPageToNullIfNecessary(): void
     {
         $migration = new Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull();
 
-        $categoryId = $this->insertDemoData('product_list');
+        $categoryId = $this->insertCategoryDemoData('product_list');
 
         // assert demo data were inserted and cmsPageId is not null
         static::assertNotNull($this->getCategoryIdWithDefaultCmsPage($categoryId));
@@ -71,7 +100,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         static::assertNull($this->getCategoryIdWithDefaultCmsPage($categoryId));
     }
 
-    private function insertDemoData(string $cmsPageType): string
+    private function insertCategoryDemoData(string $cmsPageType): string
     {
         $categoryId = Uuid::randomBytes();
 
@@ -89,13 +118,29 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
         return Uuid::fromBytesToHex($categoryId);
     }
 
+    private function insertProductListCmsPageDemoData(): string
+    {
+        $cmsPageId = Uuid::randomBytes();
+        $data = [
+            'id' => $cmsPageId,
+            'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'type' => 'product_list',
+            'locked' => 0,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+
+        $this->connection->insert('cms_page', $data);
+
+        return Uuid::fromBytesToHex($cmsPageId);
+    }
+
     private function getDefaultCmsPageIdFromType(string $cmsPageType): string
     {
         $cmsPageId = $this->connection->fetchOne(
             'SELECT id
             FROM  cms_page
-            WHERE type = :cmsPageType AND locked = 1
-            ORDER BY created_at ASC;',
+            WHERE type = :cmsPageType
+            ORDER BY locked DESC, created_at ASC;',
             ['cmsPageType' => $cmsPageType]
         );
 

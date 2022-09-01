@@ -175,7 +175,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
 
-        if ($data['status'] === self::STATUS_DIRECT) {
+        if (!$this->systemConfigService->getBool('core.newsletter.doubleOptIn')) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch($event);
 
@@ -262,8 +262,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     private function getOptionSelection(): array
     {
         return [
-            self::OPTION_DIRECT => self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
+            self::OPTION_DIRECT => $this->systemConfigService->getBool('core.newsletter.doubleOptIn') ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => $this->systemConfigService->getBool('core.newsletter.doubleOptIn') ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];

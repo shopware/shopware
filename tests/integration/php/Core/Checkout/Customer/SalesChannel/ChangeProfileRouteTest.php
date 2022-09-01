@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -73,6 +74,10 @@ class ChangeProfileRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        static::assertNotNull($systemConfig);
+        $systemConfig->set('core.newsletter.doubleOptIn', false);
     }
 
     public function testEmptyRequest(): void

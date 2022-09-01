@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -8,28 +8,41 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ * @covers \Shopware\Storefront\Controller\NewsletterController
  */
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
+    /**
+     * @var array<mixed>
+     */
     private array $customerData = [];
+
+    private SystemConfigService $systemConfig;
+
+    public function setUp(): void
+    {
+        $this->systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        static::assertNotNull($this->systemConfig);
+        $this->systemConfig->set('core.newsletter.doubleOptIn', false);
+    }
 
     public function testRegisterNewsletterForCustomerDirect(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14001', $this);
         $browser = $this->login();
         $data = [
             'option' => 'direct',
@@ -43,7 +56,9 @@ class NewsletterControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -54,14 +69,17 @@ class NewsletterControllerTest extends TestCase
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $status = $recipientEntry->getStatus();
 
-        static::assertEquals('direct', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        static::assertIsString($status);
+        static::assertEquals('direct', $status);
         $this->validateRecipientData($recipientEntry);
     }
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14001', $this);
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
+
         $browser = $this->login();
         $data = [
             'option' => 'subscribe',
@@ -74,8 +92,10 @@ class NewsletterControllerTest extends TestCase
         );
 
         $response = $browser->getResponse();
+        $content = $response->getContent();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertIsString($content);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -93,8 +113,10 @@ class NewsletterControllerTest extends TestCase
         );
 
         $response = $browser->getResponse();
+        $content = $response->getContent();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertIsString($content);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -103,8 +125,10 @@ class NewsletterControllerTest extends TestCase
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $status = $recipientEntry->getStatus();
 
-        static::assertEquals('optIn', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        static::assertIsString($status);
+        static::assertEquals('optIn', $status);
         $this->validateRecipientData($recipientEntry);
     }
 
@@ -122,12 +146,18 @@ class NewsletterControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        $content = $response->getContent();
+
+        static::assertIsString($content);
+        static::assertSame(200, $response->getStatusCode(), $content);
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($response->getContext()->getCustomer());
+        $context = $response->getContext();
+
+        static::assertNotNull($context);
+        static::assertNotNull($context->getCustomer());
 
         return $browser;
     }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
@@ -61,6 +62,8 @@ class NewsletterController extends StorefrontController
 
     private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
      */
@@ -70,7 +73,8 @@ class NewsletterController extends StorefrontController
         AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
         AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
         AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
-        NewsletterAccountPageletLoader $newsletterAccountPageletLoader
+        NewsletterAccountPageletLoader $newsletterAccountPageletLoader,
+        SystemConfigService $systemConfigService
     ) {
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         /* @deprecated tag:v6.5.0 - remove next line */
@@ -81,6 +85,7 @@ class NewsletterController extends StorefrontController
         /* @deprecated tag:v6.5.0 - remove next line */
         $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
         $this->newsletterAccountPageletLoader = $newsletterAccountPageletLoader;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -118,7 +123,7 @@ class NewsletterController extends StorefrontController
                 'newsletterAccountPagelet' => $pagelet,
             ]);
         }
-        $subscribed = $request->get('option', false) === 'direct';
+        $subscribed = $request->get('option', false) === 'subscribe' || $request->get('option', false) === 'direct';
 
         if (!$subscribed) {
             $dataBag->set('option', 'unsubscribe');
@@ -139,7 +144,11 @@ class NewsletterController extends StorefrontController
                 $this->setNewsletterFlag($customer, true, $context);
 
                 $success = true;
-                $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionConfirmationSuccess')];
+                if ($this->systemConfigService->getBool('core.newsletter.doubleOptIn')) {
+                    $messages[] = ['type' => 'info', 'text' => $this->trans('newsletter.subscriptionConfirmationNeeded')];
+                } else {
+                    $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionConfirmationSuccess')];
+                }
             } catch (\Exception $exception) {
                 $success = false;
                 $messages[] = ['type' => 'danger', 'text' => $this->trans('newsletter.subscriptionConfirmationFailed')];
@@ -183,8 +192,14 @@ class NewsletterController extends StorefrontController
         $dataBag->set('title', $customer->getTitle());
         $dataBag->set('firstName', $customer->getFirstName());
         $dataBag->set('lastName', $customer->getLastName());
-        $dataBag->set('zipCode', $customer->getDefaultShippingAddress()->getZipCode());
-        $dataBag->set('city', $customer->getDefaultShippingAddress()->getCity());
+        $dataBag->set(
+            'zipCode',
+            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getZipCode() : null)
+        );
+        $dataBag->set(
+            'city',
+            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getCity() : null)
+        );
         $dataBag->set(
             'street',
             ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getStreet() : null)

@@ -8,8 +8,10 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterfac
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -96,44 +98,15 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
      */
     public function handle($productExportPartialGeneration): void
     {
-        $criteria = new Criteria([$productExportPartialGeneration->getProductExportId()]);
-        $criteria
-            ->addAssociation('salesChannel')
-            ->addAssociation('salesChannelDomain.salesChannel')
-            ->addAssociation('salesChannelDomain.language.locale')
-            ->addAssociation('productStream.filters.queries')
-            ->setLimit(1);
+        $context = $this->getContext($productExportPartialGeneration);
+        $productExport = $this->fetchProductExport($productExportPartialGeneration, $context);
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
-            $productExportPartialGeneration->getSalesChannelId()
-        );
-
-        if ($salesChannelContext->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
-            throw new SalesChannelNotFoundException();
-        }
-
-        $productExports = $this->productExportRepository->search($criteria, $salesChannelContext->getContext());
-
-        if ($productExports->count() === 0) {
+        if (!$productExport) {
             return;
         }
 
-        $exportBehavior = new ExportBehavior(
-            false,
-            false,
-            true,
-            false,
-            false,
-            $productExportPartialGeneration->getOffset()
-        );
+        $exportResult = $this->runExport($productExport, $productExportPartialGeneration->getOffset(), $context);
 
-        /** @var ProductExportEntity $productExport */
-        $productExport = $productExports->first();
-        $exportResult = $this->productExportGenerator->generate(
-            $productExport,
-            $exportBehavior
-        );
         $filePath = $this->productExportFileHandler->getFilePath($productExport, true);
 
         if ($exportResult === null) {
@@ -161,6 +134,60 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         }
 
         $this->finalizeExport($productExport, $filePath);
+    }
+
+    private function getContext(ProductExportPartialGeneration $productExportPartialGeneration): Context
+    {
+        $context = $this->salesChannelContextFactory->create(
+            Uuid::randomHex(),
+            $productExportPartialGeneration->getSalesChannelId()
+        );
+
+        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+            throw new SalesChannelNotFoundException();
+        }
+
+        return $context->getContext();
+    }
+
+    private function fetchProductExport(
+        ProductExportPartialGeneration $productExportPartialGeneration,
+        Context $context
+    ): ?ProductExportEntity {
+        $criteria = new Criteria([$productExportPartialGeneration->getProductExportId()]);
+        $criteria
+            ->addAssociation('salesChannel')
+            ->addAssociation('salesChannelDomain.salesChannel')
+            ->addAssociation('salesChannelDomain.language.locale')
+            ->addAssociation('productStream.filters.queries')
+            ->setLimit(1);
+
+        return $this->productExportRepository
+            ->search($criteria, $context)
+            ->first();
+    }
+
+    private function runExport(
+        ProductExportEntity $productExport,
+        int $offset,
+        Context $context
+    ): ?ProductExportResult {
+        $this->productExportRepository->update([[
+            'id' => $productExport->getId(),
+            'isRunning' => true,
+        ]], $context);
+
+        return $this->productExportGenerator->generate(
+            $productExport,
+            new ExportBehavior(
+                false,
+                false,
+                true,
+                false,
+                false,
+                $offset
+            )
+        );
     }
 
     private function finalizeExport(ProductExportEntity $productExport, string $filePath): void
@@ -214,6 +241,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
                 [
                     'id' => $productExport->getId(),
                     'generatedAt' => new \DateTime(),
+                    'isRunning' => false,
                 ],
             ],
             $context->getContext()

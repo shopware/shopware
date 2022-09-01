@@ -8,7 +8,7 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 abstract class AbstractMessageHandler implements MessageSubscriberInterface
 {
     /**
-     * @throws MessageFailedException
+     * @param object $message
      */
     public function __invoke($message): void
     {
@@ -21,7 +21,13 @@ abstract class AbstractMessageHandler implements MessageSubscriberInterface
         }
     }
 
+    /**
+     * @param object $message
+     */
     abstract public function handle($message): void;
 
+    /**
+     * @return iterable<int|string>
+     */
     abstract public static function getHandledMessages(): iterable;
 }

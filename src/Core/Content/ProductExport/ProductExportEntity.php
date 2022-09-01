@@ -128,6 +128,11 @@ class ProductExportEntity extends Entity
      */
     protected $pausedSchedule;
 
+    /**
+     * @var bool
+     */
+    protected $isRunning;
+
     public function getProductStreamId(): string
     {
         return $this->productStreamId;
@@ -346,5 +351,15 @@ class ProductExportEntity extends Entity
     public function setPausedSchedule(?bool $pausedSchedule): void
     {
         $this->pausedSchedule = $pausedSchedule;
+    }
+
+    public function setIsRunning(bool $isRunning): void
+    {
+        $this->isRunning = $isRunning;
+    }
+
+    public function getIsRunning(): bool
+    {
+        return $this->isRunning;
     }
 }

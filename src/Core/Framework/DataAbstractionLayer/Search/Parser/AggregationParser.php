@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -213,6 +214,14 @@ class AggregationParser
                 return new SumAggregation($name, $field);
             case 'count':
                 return new CountAggregation($name, $field);
+            case 'range':
+                if (!isset($aggregation['ranges'])) {
+                    $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain "ranges".'), '/aggregations/' . $index . '/' . $type . '/field');
+
+                    return null;
+                }
+
+                return new RangeAggregation($name, (string) $field, $aggregation['ranges']);
             case 'entity':
                 if (!isset($aggregation['definition'])) {
                     $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain a "definition".'), '/aggregations/' . $index . '/' . $type . '/field');

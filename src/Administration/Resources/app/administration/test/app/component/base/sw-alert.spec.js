@@ -40,5 +40,30 @@ describe('components/base/sw-alert', () => {
 
         expect(wrapper.element).toMatchSnapshot();
     });
+
+    it.each([
+        ['info', 'default', true],
+        ['warning', 'default', true],
+        ['error', 'default', true],
+        ['success', 'default', true],
+        ['info', 'notification', true],
+        ['warning', 'notification', true],
+        ['error', 'notification', true],
+        ['success', 'notification', true],
+        ['info', 'system', false],
+        ['warning', 'system', false],
+        ['error', 'system', false],
+        ['success', 'system', false],
+    ])('applies variant class %s to %s is %s', (variant, appearance, applied) => {
+        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+            stubs: ['sw-icon'],
+            propsData: {
+                appearance: appearance,
+                variant: variant,
+            },
+        });
+
+        expect(wrapper.classes(`sw-alert--${variant}`)).toBe(applied);
+    });
 });
 

@@ -2,7 +2,7 @@
 
 exports[`components/base/sw-alert should render correctly 1`] = `
 <div
-  class="sw-alert sw-alert--info sw-alert--default sw-alert--icon"
+  class="sw-alert sw-alert--default sw-alert--info sw-alert--icon"
   role="alert"
 >
   <sw-icon-stub
@@ -40,7 +40,7 @@ exports[`components/base/sw-alert should render correctly 1`] = `
 
 exports[`components/base/sw-alert should use custom icon 1`] = `
 <div
-  class="sw-alert sw-alert--info sw-alert--default sw-alert--icon"
+  class="sw-alert sw-alert--default sw-alert--info sw-alert--icon"
   role="alert"
 >
   <sw-icon-stub

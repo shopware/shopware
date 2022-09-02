@@ -92,10 +92,12 @@ Component.register('sw-alert', {
         },
 
         alertClasses(): CssClasses {
+            const variantClass = `sw-alert--${this.variant}`;
+
             return [
-                `sw-alert--${this.variant}`,
                 `sw-alert--${this.appearance}`,
                 {
+                    [variantClass]: this.appearance !== 'system',
                     'sw-alert--icon': this.showIcon,
                     'sw-alert--no-icon': !this.showIcon,
                     'sw-alert--closable': this.closable,

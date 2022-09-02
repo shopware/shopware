@@ -1,5 +1,6 @@
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-detail-discounts.html.twig';
+import './sw-promotion-detail-discounts.scss';
 
 const { Component } = Shopware;
 

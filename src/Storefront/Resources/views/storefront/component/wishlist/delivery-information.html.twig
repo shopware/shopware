@@ -5,7 +5,15 @@
     {% endif %}
 
     <div class="product-wishlist-delivery-information">
-        {% if product.active and product.availableStock >= product.minPurchase and product.deliveryTime %}
+        {% if product.active and product.availableStock >= product.minPurchase and product.deliveryTime and product.releaseDate and product.releaseDate|date('U') > "now"|date('U') %}
+            {% block component_wishlist_delivery_information_pre_order %}
+                <link itemprop="availability" href="http://schema.org/InStock"/>
+                <p class="delivery-information delivery-preorder">
+                    <span class="delivery-status-indicator bg-warning"></span>
+                    {{ "wishlist.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
+                </p>
+            {% endblock %}
+        {% elseif product.active and product.availableStock >= product.minPurchase and product.deliveryTime %}
             {% block component_wishlist_delivery_information_available %}
                 <link itemprop="availability" href="http://schema.org/InStock"/>
                 <p class="delivery-information delivery-available">

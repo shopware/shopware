@@ -34026,16 +34026,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/CacheStateValidator.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheStore\\:\\:__construct\\(\\) has parameter \\$sessionOptions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheStore.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheStore\\:\\:\\$locks type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheStore.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheTracer\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheTracer.php
@@ -34104,16 +34094,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Event\\\\HttpCacheItemWrittenEvent\\:\\:getTags\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/Event/HttpCacheItemWrittenEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\HttpCacheKeyGenerator\\:\\:__construct\\(\\) has parameter \\$ignoredParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\HttpCacheKeyGenerator\\:\\:\\$ignoredParameters type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"

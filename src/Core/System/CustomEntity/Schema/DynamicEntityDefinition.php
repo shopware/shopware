@@ -20,7 +20,7 @@ class DynamicEntityDefinition extends EntityDefinition
     protected string $name;
 
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array<int, array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}>
      */
     protected array $fieldDefinitions;
 
@@ -32,7 +32,7 @@ class DynamicEntityDefinition extends EntityDefinition
     protected ContainerInterface $container;
 
     /**
-     * @param array<string, array<string, mixed>> $fields
+     * @param array<int, array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}> $fields
      * @param array<string, array<string, mixed>> $flags
      */
     public static function create(

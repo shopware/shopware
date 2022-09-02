@@ -1,0 +1,32 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Migration\V6_4;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
+{
+    public function getCreationTimestamp(): int
+    {
+        return 1662533751;
+    }
+
+    public function update(Connection $connection): void
+    {
+        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `category`'), 'Field');
+
+        if (!\in_array('custom_entity_type_id', $columns, true)) {
+            $connection->executeStatement(
+                'ALTER TABLE `category` ADD `custom_entity_type_id` BINARY(16) NULL AFTER `type`,
+                ADD CONSTRAINT `fk.category.custom_entity_type_id` FOREIGN KEY (`custom_entity_type_id`)
+                    REFERENCES `custom_entity` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;'
+            );
+        }
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+        // implement update destructive
+    }
+}

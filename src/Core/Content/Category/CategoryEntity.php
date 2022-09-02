@@ -228,6 +228,11 @@ class CategoryEntity extends Entity
      */
     protected $seoUrls;
 
+    /**
+     * @var ?string
+     */
+    protected $customEntityTypeId;
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -687,5 +692,15 @@ class CategoryEntity extends Entity
     public function setProductAssignmentType(string $productAssignmentType): void
     {
         $this->productAssignmentType = $productAssignmentType;
+    }
+
+    public function getCustomEntityTypeId(): ?string
+    {
+        return $this->customEntityTypeId;
+    }
+
+    public function setCustomEntityTypeId(?string $customEntityTypeId): void
+    {
+        $this->customEntityTypeId = $customEntityTypeId;
     }
 }

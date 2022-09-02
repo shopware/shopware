@@ -18,7 +18,20 @@ class CustomEntityEntity extends Entity
 
     protected ?string $appId;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $fields;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $flags;
+
+    /**
+     * @var array<string, array<mixed>>
+     */
+    protected array $flagsConfig;
 
     public function getName(): string
     {
@@ -50,13 +63,51 @@ class CustomEntityEntity extends Entity
         $this->appId = $appId;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @param array<mixed> $fields
+     */
     public function setFields(array $fields): void
     {
         $this->fields = $fields;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @param array<int, string> $flags
+     */
+    public function setFlags(array $flags): void
+    {
+        $this->flags = $flags;
+    }
+
+    /**
+     * @return array<string, array<mixed>>
+     */
+    public function getFlagsConfig(): array
+    {
+        return $this->flagsConfig;
+    }
+
+    /**
+     * @param array<string, array<mixed>> $flagsConfig
+     */
+    public function setFlagsConfig(array $flagsConfig): void
+    {
+        $this->flagsConfig = $flagsConfig;
     }
 }

@@ -206,8 +206,12 @@
         }
 
         /* Payment/shipping details*/
-        .payment-shipping-container, .document-comment-container {
+        .payment-shipping-container, .sum-container, .document-comment-container {
             padding-top: 25px;
+        }
+
+        .payment-shipping-container, .shipping-address-container, .sum-container {
+            page-break-inside: avoid;
         }
 
         .page-count {
@@ -221,7 +225,6 @@
 
         /* Subtotal/Total section */
         .sum-container {
-            margin-top: 20px;
             text-align: right;
             float: right;
             right: 0;
@@ -236,7 +239,8 @@
             position: fixed;
             bottom: 50px;
             font-size: 8px;
-            padding-top: 25px;
+            padding-top: 30px;
+            line-height: 9px;
         }
 
         footer:after {

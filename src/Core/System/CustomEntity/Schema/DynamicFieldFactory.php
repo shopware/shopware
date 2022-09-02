@@ -241,6 +241,7 @@ class DynamicFieldFactory
 
                 // register definition in container and definition registry
                 $container->set($definition->getEntityName(), $definition);
+                $container->set($definition->getEntityName() . '.repository', self::createRepository($container, $definition));
                 $registry->register($definition, $definition->getEntityName());
 
                 // define reverse side

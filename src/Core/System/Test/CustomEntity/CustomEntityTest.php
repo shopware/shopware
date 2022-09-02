@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field as DAL;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -677,9 +678,21 @@ class CustomEntityTest extends TestCase
     {
         $blogs = self::blog('blog-2', $ids);
 
-        /** @var EntityRepository|null $repository */
         $repository = $container->get('custom_entity_blog.repository');
         static::assertInstanceOf(EntityRepository::class, $repository);
+
+        $manyToManyRepo = $container->get('custom_entity_blog_inherited_products.repository');
+        static::assertInstanceOf(EntityRepository::class, $manyToManyRepo);
+
+        $exceptionWasThrown = false;
+
+        try {
+            $manyToManyRepo->search(new Criteria(), Context::createDefaultContext());
+        } catch (MappingEntityClassesException $exception) {
+            $exceptionWasThrown = true;
+        } finally {
+            static::assertTrue($exceptionWasThrown, 'Excepted exception to be thrown.');
+        }
 
         $repository->create([$blogs], Context::createDefaultContext());
 

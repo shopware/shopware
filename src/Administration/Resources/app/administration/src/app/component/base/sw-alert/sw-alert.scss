@@ -262,6 +262,13 @@ $sw-alert-size-close: 40px;
                 }
             }
         }
+
+        .sw-alert__icon,
+        .sw-alert__close,
+        .sw-alert__title,
+        .sw-alert__message {
+            color: $color-white;
+        }
     }
 
     ul {

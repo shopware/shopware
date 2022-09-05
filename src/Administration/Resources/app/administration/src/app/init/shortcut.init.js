@@ -33,12 +33,10 @@ function defaultShortcutMap() {
         // Add an entity
         { combination: 'AP', path: '/sw/product/create/base' },
         { combination: 'AC', path: '/sw/category/index' },
-        { combination: 'AE', path: '/sw/cms/create' },
-        { combination: 'AU', path: '/sw/customer/create/base' },
+        { combination: 'AU', path: '/sw/customer/create' },
         { combination: 'APR', path: '/sw/property/create' },
         { combination: 'AM', path: '/sw/manufacturer/create' },
         { combination: 'AR', path: '/sw/settings/rule/create' },
-        { combination: 'AS', path: '/sw/product/stream/create' },
 
         // Go to ...
         { combination: 'GH', path: '/sw/dashboard/index' },
@@ -51,7 +49,7 @@ function defaultShortcutMap() {
         { combination: 'GU', path: '/sw/customer/index' },
         { combination: 'GE', path: '/sw/cms/index' },
         { combination: 'GME', path: '/sw/media/index' },
-        { combination: 'GPO', path: '/sw/promotion/index' },
+        { combination: 'GPO', path: '/sw/promotion/v2/index' },
         { combination: 'GN', path: '/sw/newsletter/recipient/index' },
         { combination: 'GS', path: '/sw/settings/index' },
         { combination: 'GSN', path: '/sw/settings/snippet/index' },

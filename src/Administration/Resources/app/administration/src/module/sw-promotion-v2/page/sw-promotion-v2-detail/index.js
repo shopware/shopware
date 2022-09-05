@@ -228,11 +228,13 @@ Component.register('sw-promotion-v2-detail', {
 
             return this.promotionRepository.save(this.promotion)
                 .then(() => {
+                    this.loadEntityData();
                     return this.savePromotionSetGroups();
                 })
                 .then(() => {
                     Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
                     this.isSaveSuccessful = true;
+                    this.loadEntityData();
                 })
                 .catch(() => {
                     this.isLoading = false;
@@ -243,7 +245,6 @@ Component.register('sw-promotion-v2-detail', {
                     });
                 })
                 .finally(() => {
-                    this.loadEntityData();
                     this.cleanUpCodes(false, false);
                 });
         },

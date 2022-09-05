@@ -308,8 +308,10 @@ Component.register('sw-promotion-detail', {
                             });
                             throw error;
                         });
-                }).catch(() => {
+                }).catch((error) => {
                     this.isLoading = false;
+
+                    throw error;
                 });
             });
         },

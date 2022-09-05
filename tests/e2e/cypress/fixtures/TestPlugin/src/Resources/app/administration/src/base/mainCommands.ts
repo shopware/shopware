@@ -101,3 +101,10 @@ ui.menu.addMenuItem({
     parent: 'sw-extension',
     position: 10,
 })
+// For testing the third level menu entry
+ui.menu.addMenuItem({
+    label: 'Third level',
+    locationId: 'ui-main-module-add-main-module',
+    displaySearchBar: false,
+    parent: 'sw-manufacturer',
+})

@@ -96,7 +96,27 @@ Component.register('sw-admin-menu', {
         },
 
         adminModuleNavigation() {
-            return Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminModuleNavigationEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+
+            // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
+            return adminModuleNavigationEntries.filter((entry) => {
+                const levelOneParent = adminModuleNavigationEntries.find(e => entry.parent && e.id === entry.parent);
+                // eslint-disable-next-line max-len
+                const levelTwoParent = adminModuleNavigationEntries.find(e => levelOneParent?.parent && e.id === levelOneParent?.parent);
+                // eslint-disable-next-line max-len
+                const levelThreeParent = adminModuleNavigationEntries.find(e => levelTwoParent?.parent && e.id === levelTwoParent?.parent);
+
+                if (levelThreeParent) {
+                    Shopware.Utils.debug.error(new Error(
+                        `The navigation entry "${entry.id}" is nested on level 4 or higher.\
+The admin menu only supports up to three levels of nesting.`,
+                    ));
+
+                    return false;
+                }
+
+                return true;
+            });
         },
 
         appModuleNavigation() {
@@ -469,6 +489,7 @@ Component.register('sw-admin-menu', {
             this.possiblyActivate(entry, target, parentEntries);
         },
 
+        /* istanbul ignore next - is covered by E2E test */
         onSubMenuItemEnter(entry, event) {
             const target = event.target;
             const parent = target.closest('.is--entry-expanded');
@@ -483,7 +504,7 @@ Component.register('sw-admin-menu', {
                 [target],
             );
 
-            if (this.getChildren(entry).length) {
+            if (!this.getChildren(entry).length) {
                 this.flyoutEntries = [];
                 return;
             }

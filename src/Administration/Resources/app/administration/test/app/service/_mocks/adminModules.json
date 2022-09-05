@@ -30,6 +30,27 @@
         "label": "first child of second top level entry",
         "position": 10,
         "parent": "sw.second.top.level"
+      },
+      {
+        "id": "sw.third.level.first",
+        "path": "first-module-index",
+        "label": "first child of third top level entry",
+        "position": 10,
+        "parent": "sw.second.level.last"
+      },
+      {
+        "id": "sw.fourth.level.first",
+        "path": "first-module-index",
+        "label": "first child of fourth top level entry. Should not be rendered",
+        "position": 10,
+        "parent": "sw.third.level.first"
+      },
+      {
+        "id": "sw.fifth.level.first",
+        "path": "first-module-index",
+        "label": "first child of fifth top level entry. Should not be rendered",
+        "position": 10,
+        "parent": "sw.fourth.level.first"
       }
     ]
   },

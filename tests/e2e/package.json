@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@percy/cli": "^1.0.0",
-    "cypress": "9.5.4",
-    "cypress-grep": "^2.13.1",
+    "cypress": "10.7.0",
+    "cypress-grep": "^3.0.2",
     "mochawesome-merge": "^4.2.0",
     "mochawesome-report-generator": "^4.1.0"
   }

@@ -26,19 +26,19 @@ E2E:
     parallel:
         matrix:
             -   TEST_DIRECTORY:
-                    - "cypress/integration/administration/settings/**/*"
-                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
-                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
-                    - "cypress/integration/administration/sdk-plugin/**/*"
-                    - "cypress/integration/storefront/**/*"
+                    - "cypress/e2e/administration/settings/**/*"
+                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*"
+                    - "cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*,cypress/e2e/administration/order/**/*,cypress/e2e/administration/rule-product-stream/**/*"
+                    - "cypress/e2e/administration/sdk-plugin/**/*"
+                    - "cypress/e2e/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "major"]
             # firefox
             -   TEST_DIRECTORY:
-                    - "cypress/integration/administration/settings/**/*"
-                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
-                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
-                    - "cypress/integration/storefront/**/*"
+                    - "cypress/e2e/administration/settings/**/*"
+                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*"
+                    - "cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*,cypress/e2e/administration/order/**/*,cypress/e2e/administration/rule-product-stream/**/*"
+                    - "cypress/e2e/storefront/**/*"
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
     before_script:
@@ -98,8 +98,8 @@ E2E quarantined:
   parallel:
     matrix:
       - TEST_DIRECTORY:
-         - 'cypress/integration/administration/**/*'
-         - 'cypress/integration/storefront/**/*'
+         - 'cypress/e2e/administration/**/*'
+         - 'cypress/e2e/storefront/**/*'
         CYPRESS_grepTags: 'quarantined'
         BROWSER: 'chrome'
         ALLOW_FAILURE: 'true'
@@ -158,7 +158,7 @@ E2E install NL:
         - composer run e2e:cypress -- run
             --config retries=0
             --browser chrome
-            --spec "cypress/integration/installer/install_nl.spec.js"
+            --spec "cypress/e2e/installer/install_nl.cy.js"
             --headless
         - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
         - composer run e2e:prepare
@@ -168,7 +168,7 @@ E2E install NL:
           fi
         - composer run e2e:cypress -- run
             --browser chrome
-            --spec "cypress/integration/scenarios/**/*.spec.js"
+            --spec "cypress/e2e/scenarios/**/*.cy.js"
             --headless
     after_script:
         - !reference [ .scripts, handle-failed-merge-train, after_script ]

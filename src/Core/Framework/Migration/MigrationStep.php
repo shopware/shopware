@@ -52,7 +52,7 @@ abstract class MigrationStep
     /**
      * @internal this method is kept because we don't want hard breaks in old migrations
      *
-     * @deprecated tag:v6.4.0 use createTrigger instead
+     * @deprecated tag:v6.4.0 - reason:becomes-internal - use createTrigger instead
      */
     protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
@@ -99,6 +99,9 @@ abstract class MigrationStep
         $connection->executeUpdate($query, $params);
     }
 
+    /**
+     * @param array<string> $indexerToRun
+     */
     protected function registerIndexer(Connection $connection, string $name, array $indexerToRun = []): void
     {
         IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
@@ -114,31 +117,57 @@ abstract class MigrationStep
         return !empty($exists);
     }
 
+    /**
+     * @param array<string, array<string>> $privileges
+     *
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\DBAL\Exception
+     * @throws \JsonException
+     */
     protected function addAdditionalPrivileges(Connection $connection, array $privileges): void
     {
-        $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
-        foreach ($roles as $role) {
-            $currentPrivileges = json_decode($role['privileges'], true);
-            $newPrivileges = array_values($this->fixRolePrivileges($privileges, $currentPrivileges));
-            if ($currentPrivileges === $newPrivileges) {
-                continue;
+        $roles = $connection->iterateAssociative('SELECT * from `acl_role`');
+
+        try {
+            $connection->beginTransaction();
+
+            /** @var array<string, mixed> $role */
+            foreach ($roles as $role) {
+                $currentPrivileges = \json_decode($role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
+                $newPrivileges = $this->fixRolePrivileges($privileges, $currentPrivileges);
+
+                if ($currentPrivileges === $newPrivileges) {
+                    continue;
+                }
+
+                $role['privileges'] = \json_encode($newPrivileges);
+                $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
+
+                $connection->update('acl_role', $role, ['id' => $role['id']]);
             }
 
-            $role['privileges'] = json_encode($newPrivileges);
-            $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
+            $connection->commit();
+        } catch (\Exception $e) {
+            $connection->rollBack();
 
-            $connection->update('acl_role', $role, ['id' => $role['id']]);
+            throw $e;
         }
     }
 
+    /**
+     * @param array<string, array<string>> $privilegeChange
+     * @param array<string> $rolePrivileges
+     *
+     * @return array<string>
+     */
     private function fixRolePrivileges(array $privilegeChange, array $rolePrivileges): array
     {
         foreach ($privilegeChange as $existingPrivilege => $newPrivileges) {
             if (\in_array($existingPrivilege, $rolePrivileges, true)) {
-                $rolePrivileges = array_merge($rolePrivileges, $newPrivileges);
+                $rolePrivileges = \array_merge($rolePrivileges, $newPrivileges);
             }
         }
 
-        return $rolePrivileges;
+        return \array_values(\array_unique($rolePrivileges));
     }
 }

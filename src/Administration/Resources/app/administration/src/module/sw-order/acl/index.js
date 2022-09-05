@@ -108,4 +108,42 @@ Shopware.Service('privileges')
                 ],
             },
         },
+    })
+    .addPrivilegeMappingEntry({
+        category: 'permissions',
+        parent: 'orders',
+        key: 'order_refund',
+        roles: {
+            viewer: {
+                privileges: [
+                    'order_transaction_capture_refund:read',
+                ],
+                dependencies: [],
+            },
+            editor: {
+                privileges: [
+                    'order_transaction_capture_refund:update',
+                ],
+                dependencies: [
+                    'order_refund.viewer',
+                ],
+            },
+            creator: {
+                privileges: [
+                    'order_transaction_capture_refund:create',
+                ],
+                dependencies: [
+                    'order_refund.viewer',
+                    'order_refund.editor',
+                ],
+            },
+            deleter: {
+                privileges: [
+                    'order_transaction_capture_refund:delete',
+                ],
+                dependencies: [
+                    'order_refund.viewer',
+                ],
+            },
+        },
     });

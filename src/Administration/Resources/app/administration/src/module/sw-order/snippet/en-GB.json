@@ -595,6 +595,9 @@
     "permissions": {
       "order": {
         "label": "Orders"
+      },
+      "order_refund": {
+        "label": "Refunds"
       }
     },
     "additional_permissions": {

@@ -1631,16 +1631,6 @@ parameters:
 			path: src/Core/Checkout/Order/Aggregate/OrderTransaction/OrderTransactionCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Api\\\\OrderActionController\\:\\:getDocumentIds\\(\\) has parameter \\$documentTypes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Api/OrderActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Api\\\\OrderActionController\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Api/OrderActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getAmountNet\\(\\) should return float but returns float\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/OrderEntity.php
@@ -21499,36 +21489,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationSource\\:\\:\\$replacementPatterns type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/MigrationSource.php
-
-		-
-			message: "#^Method \"addBackwardTrigger\" of class \"Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\:\\:addAdditionalPrivileges\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\:\\:fixRolePrivileges\\(\\) has parameter \\$privilegeChange with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\:\\:fixRolePrivileges\\(\\) has parameter \\$rolePrivileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\:\\:fixRolePrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\:\\:registerIndexer\\(\\) has parameter \\$indexerToRun with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/MigrationStep.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Parameter\\\\AdditionalBundleParameters\\:\\:__construct\\(\\) has parameter \\$kernelParameters with no value type specified in iterable type array\\.$#"

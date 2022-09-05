@@ -8,7 +8,7 @@ const linkDataProvider = [{
     value: 'http://www.domain.de/test',
     type: 'link',
     prefix: '',
-    selector: '.sw-url-field',
+    selector: '.sw-text-field',
     label: 'sw-text-editor-toolbar.link.linkTo',
     placeholder: 'sw-text-editor-toolbar.link.placeholder',
 }, {
@@ -59,10 +59,6 @@ function createWrapper(startingValue) {
             'sw-text-field': {
                 props: ['value', 'label', 'placeholder'],
                 template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />'
-            },
-            'sw-url-field': {
-                props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-url-field" type="url" :value="value" @input="$emit(\'input\', $event.target.value)">'
             },
             'sw-entity-single-select': {
                 props: ['value', 'label', 'placeholder'],
@@ -166,7 +162,6 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-
         expect(props.criteria.filters).toStrictEqual(expect.objectContaining(
             [{
                 operator: 'OR',
@@ -222,10 +217,8 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.vm.linkCategory).toBe('link');
         expect(wrapper.vm.linkTarget).toBe('http://www.domain.de/test');
 
-
         wrapper.find('.sw-dynamic-url-field__link-menu-buttons-button-remove').vm.$emit('click');
         await wrapper.vm.$nextTick();
-
 
         expect(wrapper.vm.linkCategory).toBe('link');
         expect(wrapper.vm.linkTarget).toBe('');

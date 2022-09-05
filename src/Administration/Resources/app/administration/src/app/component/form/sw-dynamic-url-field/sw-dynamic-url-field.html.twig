@@ -37,7 +37,7 @@
         {% block sw_dynamic_url_field_content_type_inputs %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_dynamic_url_field_content_type_inputs_link %}
-        <sw-url-field
+        <sw-text-field
             v-if="linkCategory === 'link'"
             v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"

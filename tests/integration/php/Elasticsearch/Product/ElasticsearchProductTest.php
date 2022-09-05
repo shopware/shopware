@@ -2393,27 +2393,152 @@ class ElasticsearchProductTest extends TestCase
     public function providerCheapestPriceSorting(): iterable
     {
         yield 'Test sorting without rules' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => [
+                'v.4.1',
+                'p.1',
+                'v.4.2',
+                'v.2.2',
+                'v.2.1',
+                'v.3.1',
+                'v.3.2',
+                'p.5',
+                'v.6.1',
+                'v.6.2',
+                'v.7.1',
+                'v.7.2',
+                'v.8.1',
+                'v.8.2',
+                'v.10.2',
+                'v.9.1',
+                'v.10.1',
+                'v.9.2',
+                'v.11.1',
+                'v.11.2',
+                'v.12.1',
+                'v.12.2',
+                'v.13.1',
+                'v.13.2',
+            ],
             'rules' => [],
         ];
 
         yield 'Test sorting with rule a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => [
+                'v.4.1',
+                'p.1',
+                'v.4.2',
+                'v.2.2',
+                'v.2.1',
+                'v.3.1',
+                'v.3.2',
+                'p.5',
+                'v.6.1',
+                'v.6.2',
+                'v.7.2',
+                'v.10.2',
+                'v.7.1',
+                'v.10.1',
+                'v.8.1',
+                'v.9.1',
+                'v.9.2',
+                'v.8.2',
+                'v.11.1',
+                'v.11.2',
+                'v.12.2',
+                'v.12.1',
+                'v.13.2',
+                'v.13.1',
+            ],
             'rules' => ['rule-a'],
         ];
 
         yield 'Test sorting with rule b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => [
+                'v.4.1',
+                'p.1',
+                'v.4.2',
+                'v.2.2',
+                'v.2.1',
+                'v.3.1',
+                'v.3.2',
+                'p.5',
+                'v.6.1',
+                'v.6.2',
+                'v.7.1',
+                'v.7.2',
+                'v.8.1',
+                'v.8.2',
+                'v.10.2',
+                'v.9.1',
+                'v.10.1',
+                'v.9.2',
+                'v.12.1',
+                'v.11.1',
+                'v.11.2',
+                'v.12.2',
+                'v.13.1',
+                'v.13.2',
+            ],
             'rules' => ['rule-b'],
         ];
 
         yield 'Test sorting with rule a+b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => [
+                'v.4.1',
+                'p.1',
+                'v.4.2',
+                'v.2.2',
+                'v.2.1',
+                'v.3.1',
+                'v.3.2',
+                'p.5',
+                'v.6.1',
+                'v.6.2',
+                'v.7.2',
+                'v.10.2',
+                'v.7.1',
+                'v.10.1',
+                'v.8.1',
+                'v.9.1',
+                'v.9.2',
+                'v.8.2',
+                'v.11.1',
+                'v.11.2',
+                'v.12.2',
+                'v.12.1',
+                'v.13.2',
+                'v.13.1',
+            ],
             'rules' => ['rule-a', 'rule-b'],
         ];
 
         yield 'Test sorting with rule b+a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.2', 'v.12.1', 'v.13.1'],
+            'ids' => [
+                'v.4.1',
+                'p.1',
+                'v.4.2',
+                'v.2.2',
+                'v.2.1',
+                'v.3.1',
+                'v.3.2',
+                'p.5',
+                'v.6.1',
+                'v.6.2',
+                'v.7.2',
+                'v.10.2',
+                'v.7.1',
+                'v.10.1',
+                'v.8.1',
+                'v.9.1',
+                'v.9.2',
+                'v.8.2',
+                'v.11.1',
+                'v.11.2',
+                'v.12.2',
+                'v.13.2',
+                'v.12.1',
+                'v.13.1',
+            ],
             'rules' => ['rule-b', 'rule-a'],
         ];
     }
@@ -2988,30 +3113,41 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
+     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
-    public function testRangeAggregation(IdsCollection $data): void
+    public function rangeAggregationDataProvider(): iterable
     {
-        $rangesDefinition = [
-            [],
-            ['key' => 'all'],
-            ['key' => 'custom_key', 'from' => 0, 'to' => 200],
-            ['to' => 100],
-            ['from' => 100, 'to' => 160],
-            ['from' => 200, 'to' => 500],
-            ['to' => 500],
+        yield 'default ranges test cases' => [
+            'rangesDefinition' => [
+                [],
+                ['key' => 'all'],
+                ['key' => 'custom_key', 'from' => 0, 'to' => 200],
+                ['to' => 100],
+                ['from' => 100, 'to' => 160],
+                ['from' => 200, 'to' => 500],
+                ['to' => 500],
+            ],
+            'rangesExpectedResult' => [
+                '*-*' => 7,
+                'all' => 7,
+                'custom_key' => 3,
+                '*-100' => 1,
+                '100-160' => 2,
+                '200-500' => 4,
+                '*-500' => 7,
+            ],
         ];
+    }
 
-        $rangesExpectedResult = [
-            '*-*' => 7,
-            'all' => 7,
-            'custom_key' => 3,
-            '*-100' => 1,
-            '100-160' => 2,
-            '200-500' => 4,
-            '*-500' => 7,
-        ];
-
+    /**
+     * @depends testIndexing
+     * @dataProvider rangeAggregationDataProvider
+     *
+     * @param array<int, array<string, string|float>> $rangesDefinition
+     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     */
+    public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult, IdsCollection $data): void
+    {
         $aggregator = $this->createEntityAggregator();
         $criteria = new Criteria($data->prefixed('product-'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);

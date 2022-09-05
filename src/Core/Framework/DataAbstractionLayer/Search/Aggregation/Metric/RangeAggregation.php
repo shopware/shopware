@@ -12,10 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
  * Bound are computed as in the elasticsearch range aggregation :
  *    the "from" will be compared with greater than or equal
  *    the "to" will be compared with lower than
- *
- * @final tag:v6.5.0
  */
-class RangeAggregation extends Aggregation
+final class RangeAggregation extends Aggregation
 {
     /**
      * @var array<int, array<string, float|string|null>>
@@ -48,12 +46,6 @@ class RangeAggregation extends Aggregation
     /**
      * Add a new range in the aggregation.
      * If no key is provided, the key will be build using the $from and $to bounds ($this->buildRangeKey())
-     *
-     * @param ?float $from
-     * @param ?float $to
-     * @param ?string $key
-     *
-     * @return $this
      */
     public function addRange(?float $from = null, ?float $to = null, ?string $key = null): self
     {

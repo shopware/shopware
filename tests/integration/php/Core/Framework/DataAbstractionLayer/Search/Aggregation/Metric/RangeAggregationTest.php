@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -33,7 +33,10 @@ class RangeAggregationTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function buildRangeKeyDataProvider(): \Generator
+    /**
+     * @return iterable<string, mixed>
+     */
+    public function buildRangeKeyDataProvider(): iterable
     {
         yield 'empty from and empty to' => [null, null, '*-*'];
         yield 'empty from and to' => [null, 10, '*-10'];
@@ -52,7 +55,40 @@ class RangeAggregationTest extends TestCase
         static::assertEquals($expectedKey, $method->invoke($aggregation, $from, $to));
     }
 
-    public function testRangeAggregation(): void
+    /**
+     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
+     */
+    public function rangeAggregationDataProvider(): iterable
+    {
+        yield 'default ranges test cases' => [
+            'rangesDefinition' => [
+                [],
+                ['key' => 'all'],
+                ['key' => 'custom_key', 'from' => 0, 'to' => 15],
+                ['to' => 10],
+                ['from' => 11, 'to' => 20],
+                ['from' => 20],
+                ['from' => 10, 'to' => 10],
+            ],
+            'rangesExpectedResult' => [
+                '*-*' => 8,
+                'all' => 8,
+                'custom_key' => 2,
+                '*-10' => 1,
+                '11-20' => 2,
+                '20-*' => 4,
+                '10-10' => 0,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider rangeAggregationDataProvider
+     *
+     * @param array<int, array<string, string|float>> $rangesDefinition
+     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     */
+    public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult): void
     {
         $ids = new TestDataCollection();
 
@@ -68,26 +104,6 @@ class RangeAggregationTest extends TestCase
         ];
 
         $this->repository->create($data, $this->context);
-
-        $rangesDefinition = [
-            [],
-            ['key' => 'all'],
-            ['key' => 'custom_key', 'from' => 0, 'to' => 15],
-            ['to' => 10],
-            ['from' => 11, 'to' => 20],
-            ['from' => 20],
-            ['from' => 10, 'to' => 10],
-        ];
-
-        $rangesExpectedResult = [
-            '*-*' => 8,
-            'all' => 8,
-            'custom_key' => 2,
-            '*-10' => 1,
-            '11-20' => 2,
-            '20-*' => 4,
-            '10-10' => 0,
-        ];
 
         $criteria = new Criteria();
         $criteria->addAggregation(

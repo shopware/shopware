@@ -11,8 +11,6 @@ author_github: inem0o
 * Add range aggregation handling in AggregationParser
 * Add test on the aggregation range using database
 * Add test on the range aggregation in the AggregationParser
-___
-# Elasticsearch
 * Add range aggregation parsing in `CriteriaParser`
 * Add range aggregation hydration in `ElasticsearchEntityAggregatorHydrator`
 * Add `ElasticsearchRangeAggregation` to manage the conversion of DAL aggregation to elasticsearch

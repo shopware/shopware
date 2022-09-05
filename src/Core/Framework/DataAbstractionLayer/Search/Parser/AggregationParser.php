@@ -221,7 +221,7 @@ class AggregationParser
                     return null;
                 }
 
-                return new RangeAggregation($name, $field, $aggregation['ranges']);
+                return new RangeAggregation($name, (string) $field, $aggregation['ranges']);
             case 'entity':
                 if (!isset($aggregation['definition'])) {
                     $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain a "definition".'), '/aggregations/' . $index . '/' . $type . '/field');

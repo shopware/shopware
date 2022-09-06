@@ -50,6 +50,12 @@ Component.register('sw-settings-tax-rule-modal', {
 
             return criteria;
         },
+        countryCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
+        },
 
         ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate']),
     },

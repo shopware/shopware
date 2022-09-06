@@ -154,6 +154,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
         .sw-loader {
             background: none;
         }
+
+        .icon--regular-chevron-down-xxs {
+            // @deprecated tag:v6.5.0 - The !important attribute can be removed
+            padding: 7px !important;
+        }
     }
 
     .sw-tree-item__icon {

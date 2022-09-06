@@ -205,6 +205,11 @@
     .sw-data-grid__cell--property {
         .sw-data-grid__sort-indicator {
             margin-left: auto;
+
+            .sw-icon {
+                // @deprecated tag:v6.5.0 - The !important attribute can be removed
+                padding: 4px !important;
+            }
         }
 
         &.is--column-resizing {

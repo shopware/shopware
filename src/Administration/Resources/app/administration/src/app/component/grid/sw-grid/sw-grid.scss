@@ -119,6 +119,13 @@ $sw-grid-table-row-color-background: $color-white;
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .sw-grid_cell-sortable {
+            .icon--regular-chevron-down-xxs {
+                // @deprecated tag:v6.5.0 - The !important attribute can be removed
+                padding: 4px !important;
+            }
+        }
     }
 
     .sw-grid__body {

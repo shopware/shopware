@@ -1,4 +1,5 @@
-{% set treeItem = item %}
+{# @deprecated tag:v6.5.0 - Variable `item` will be removed. Use `treeItem` instead. #}
+
 {% if treeItem.parentId == context.salesChannel.navigationCategoryId %}
     {% set url = path('frontend.menu.offcanvas') %}
 {% else %}

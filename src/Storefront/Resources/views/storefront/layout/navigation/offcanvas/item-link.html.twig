@@ -1,4 +1,5 @@
-{% set treeItem = item %}
+{# @deprecated tag:v6.5.0 - Variable `item` will be removed. Use `treeItem` instead. #}
+
 {% set isActive = treeItem.category.id == activeId %}
 {% set hasChildren = treeItem.category.visibleChildCount > 0 %}
 {% set url = category_url(treeItem.category) %}

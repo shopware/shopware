@@ -191,7 +191,15 @@
             "displayModeStandard": "Standard",
             "displayModeCover": "Cover",
             "displayModeStretch": "Stretch",
-            "displayModeContain": "Contain"
+            "displayModeContain": "Contain",
+            "autoSlide": "Auto slide",
+            "autoplayTimeout": "Delay",
+            "speed": "Animation delay"
+          },
+          "helpText": {
+            "autoSlide": "The slide will be slided automatically.",
+            "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
+            "speed": "The millisecond duration of the sliding animation."
           },
           "tab": {
             "content": "Content",

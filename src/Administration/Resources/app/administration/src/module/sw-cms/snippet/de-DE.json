@@ -188,7 +188,15 @@
             "displayModeStandard": "Standard",
             "displayModeCover": "Füllen",
             "displayModeStretch": "Strecken",
-            "displayModeContain": "Beinhalten"
+            "displayModeContain": "Beinhalten",
+            "autoSlide": "Automatischer Wechsel",
+            "autoplayTimeout": "Verzögerung",
+            "speed": "Animationsverzögerung"
+          },
+          "helpText": {
+            "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",
+            "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
+            "speed": "Die Dauer der Wechselanimation in  Millisekunden."
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"

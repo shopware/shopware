@@ -1,5 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import { tns } from 'tiny-slider/src/tiny-slider.module';
+import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';

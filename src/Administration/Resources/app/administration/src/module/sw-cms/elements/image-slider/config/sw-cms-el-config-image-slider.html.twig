@@ -188,6 +188,45 @@
                     </div>
                     {% endblock %}
 
+                    <div class="sw-cms-el-config-image-slider__setting-slide">
+                        <sw-switch-field
+                            v-model="element.config.autoSlide.value"
+                            class="sw-cms-el-config-image-slider__setting-auto-slide"
+                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
+                            @change="onChangeAutoSlide"
+                        />
+                    </div>
+
+                    <div class="sw-cms-el-config-image-slider__setting-option">
+                        <div class="sw-cms-el-config-image-slider__setting-delay">
+                            <sw-number-field
+                                v-model="element.config.autoplayTimeout.value"
+                                class="sw-cms-el-config-image-slider__setting-delay-slide"
+                                number-type="int"
+                                :min="0"
+                                :max="9999999"
+                                :disabled="!showSlideConfig"
+                                :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                            />
+                        </div>
+                        <div class="sw-cms-el-config-image-slider__setting-speed">
+                            <sw-number-field
+                                v-model="element.config.speed.value"
+                                class="sw-cms-el-config-image-slider__setting-speed-slide"
+                                number-type="int"
+                                :min="0"
+                                :max="9999999"
+                                :disabled="!showSlideConfig"
+                                :label="$tc('sw-cms.elements.general.config.label.speed')"
+                                :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                                :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
+                            />
+                        </div>
+                    </div>
+
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">

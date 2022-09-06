@@ -23,6 +23,7 @@ Component.register('sw-cms-el-config-image-slider', {
             initialFolderId: null,
             entity: this.element,
             mediaItems: [],
+            showSlideConfig: false,
         };
     },
 
@@ -46,6 +47,14 @@ Component.register('sw-cms-el-config-image-slider', {
 
             return [];
         },
+
+        speedDefault() {
+            return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.speed.value;
+        },
+
+        autoplayTimeoutDefault() {
+            return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.autoplayTimeout.value;
+        },
     },
 
     created() {
@@ -55,6 +64,11 @@ Component.register('sw-cms-el-config-image-slider', {
     methods: {
         async createdComponent() {
             this.initElementConfig('image-slider');
+
+            if (this.element.config.autoSlide?.value) {
+                this.showSlideConfig = true;
+            }
+
             if (this.element.config.sliderItems.source !== 'default' && this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
                     return configElement.mediaId;
@@ -164,6 +178,15 @@ Component.register('sw-cms-el-config-image-slider', {
             this.element.config.minHeight.value = value === null ? '' : value;
 
             this.$emit('element-update', this.element);
+        },
+
+        onChangeAutoSlide(value) {
+            this.showSlideConfig = value;
+
+            if (!value) {
+                this.element.config.autoplayTimeout.value = this.autoplayTimeoutDefault;
+                this.element.config.speed.value = this.speedDefault;
+            }
         },
 
         onChangeDisplayMode(value) {

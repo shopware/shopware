@@ -82,6 +82,8 @@ use function array_column;
 use function array_combine;
 
 /**
+ * @ActiveFeatures(features={})
+ *
  * @internal
  * @group skip-paratest
  */
@@ -1508,7 +1510,6 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @ActiveFeatures(features={})
      * @depends testIndexing
      */
     public function testTermAlgorithm(IdsCollection $data): void

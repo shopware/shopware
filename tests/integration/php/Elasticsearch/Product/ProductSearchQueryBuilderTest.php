@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -418,5 +419,12 @@ class ProductSearchQueryBuilderTest extends TestCase
         $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, function (ElasticsearchProductCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
         });
+
+        $definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+
+        $class = new \ReflectionClass($definition);
+        $reflectionProperty = $class->getProperty('customFieldsTypes');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($definition, null);
     }
 }

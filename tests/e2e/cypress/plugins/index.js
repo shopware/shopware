@@ -91,6 +91,7 @@ module.exports = (on, config) => {
                     'test-target-branch': config.env['TARGET_BRANCH'],
                     'test-target-commit': config.env['TARGET_COMMIT'],
                     'test-commit-branch': config.env['COMMIT_BRANCH'],
+                    'test-pipeline-id': config.env['PIPELINE_ID'],
                     'test-is-quarantined': isQuarantined,
                 }
             })

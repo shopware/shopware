@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,6 +53,7 @@ class PluginListCommand extends Command
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $filter = $input->getOption('filter');
         if ($filter) {
             $criteria->addFilter(new MultiFilter(

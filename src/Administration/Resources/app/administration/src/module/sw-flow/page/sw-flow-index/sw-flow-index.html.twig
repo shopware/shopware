@@ -1,6 +1,4 @@
-{% block sw_flow_list_index %}
 <sw-page class="sw-flow-list-index">
-    {% block sw_flow_list_index_search_bar %}
     <template #search-bar>
         <sw-search-bar
             initial-search-type="flow"
@@ -9,41 +7,31 @@
             @search="onSearch"
         />
     </template>
-    {% endblock %}
 
-    {% block sw_flow_list_index_smart_bar_header %}
     <template #smart-bar-header>
-        {% block sw_flow_list_index_smart_bar_header_title %}
         <h2>
-            {% block sw_flow_list_index_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
                 name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-flow.list.textHeadline') }}
-            {% endblock %}
 
-            {% block sw_flow_list_index_smart_bar_header_amount %}
             <span
                 v-if="!isLoading"
                 class="sw-page__smart-bar-amount"
             >
                 ({{ total }})
             </span>
-            {% endblock %}
         </h2>
-        {% endblock %}
     </template>
-    {% endblock %}
 
-    {% block sw_flow_list_index_smart_bar_actions %}
     <template #smart-bar-actions>
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_smart_bar_actions_extension %}
         {% endblock %}
 
-        {% block sw_flow_list_index_smart_bar_actions_add %}
         <sw-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -58,21 +46,15 @@
         >
             {{ $tc('sw-flow.list.buttonAddFlow') }}
         </sw-button>
-        {% endblock %}
     </template>
-    {% endblock %}l
 
-    {% block sw_flow_list_index_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_flow_list_index_tabs_header %}
             <sw-tabs
                 class="sw-flow-list__tab"
                 position-identifier="sw-flow-listing"
                 :small="false"
             >
-
-                {% block sw_flow_index_tabs_header_my_flows %}
                 <sw-tabs-item
                     class="sw-flow-listing__tab-my-flows"
                     name="flows"
@@ -81,9 +63,7 @@
                 >
                     {{ $tc('sw-flow.general.tabMyFlows') }}
                 </sw-tabs-item>
-                {% endblock %}
 
-                {% block sw_flow_inddex_tabs_header_flow_templates %}
                 <sw-tabs-item
                     class="sw-flow-listing__tab-flow-templates"
                     name="templates"
@@ -92,12 +72,11 @@
                 >
                     {{ $tc('sw-flow.general.tabFlowTemplates') }}
                 </sw-tabs-item>
-                {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
 
                 <template #content="{ active }">
-                    {% block sw_flow_list_index_tabs_content %}
                     <template v-if="isLoading">
                         <sw-skeleton />
                         <sw-skeleton />
@@ -108,20 +87,14 @@
                         :is-loading="isLoading"
                         :search-term="term"
                     />
-                    {% endblock %}
                 </template>
             </sw-tabs>
-            {% endblock %}
         </sw-card-view>
 
-        {% block sw_flow_list_index_upload_modal %}
         <sw-flow-upload-modal
             v-if="showUploadModal"
             @modal-upload="onUploadFlowTemplateFile"
             @modal-close="onCloseUploadModal"
         />
-        {% endblock %}
     </template>
-    {% endblock %}
 </sw-page>
-{% endblock %}

@@ -1867,6 +1867,105 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(5.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
+    public function testCalculateAdminShippingCostZero(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $deliveryTime = new DeliveryTimeEntity();
+        $deliveryTime->setUnit('test');
+        $deliveryTime->setMax(5);
+        $deliveryTime->setMin(1);
+        $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+
+        $price1 = new ShippingMethodPriceEntity();
+        $price1->setUniqueIdentifier(Uuid::randomHex());
+        $price1->setQuantityStart(0);
+        $price1->setQuantityEnd(100);
+        $price1->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    10,
+                    10,
+                    false
+                ),
+            ],
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price1]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = Context::createDefaultContext();
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $lineItem1 = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem1->setDeliveryInformation(
+            new DeliveryInformation(
+                100,
+                100.0,
+                false,
+                null,
+                $this->deliveryTime,
+                10,
+                10,
+                1,
+            )
+        );
+        $lineItem1->setPrice(
+            new CalculatedPrice(42, 42,
+                new CalculatedTaxCollection([new CalculatedTax(42, 19, 42)]),
+                new TaxRuleCollection([new TaxRule(19)])
+            )
+        );
+        $lineItem1->setStackable(true);
+        $lineItem1->setQuantity(1);
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem1]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test2', 'test2'), $deliveries, $context);
+
+        /** @var CartPrice $calculatedPrice */
+        $calculatedPrice = $deliveries->getShippingCosts()->first();
+        /** @var CalculatedTax $taxes */
+        $taxes = $calculatedPrice->getCalculatedTaxes()->first();
+        static::assertNotNull($calculatedPrice);
+        static::assertSame(1.9, $taxes->getTax());
+
+        $cart = new Cart('test3', 'test3');
+        $cart->setBehavior(new CartBehavior([
+            DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true
+        ]));
+
+        /** @var Delivery $delivery */
+        $delivery = $deliveries->first();
+        $delivery->setShippingCosts(new CalculatedPrice(0, 0,
+            $delivery->getShippingCosts()->getCalculatedTaxes(),
+            $delivery->getShippingCosts()->getTaxRules()
+        ));
+        $this->deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
+        /** @var Delivery $delivery */
+        $delivery = $deliveries->first();
+
+        /** @var CartPrice $calculatedPrice */
+        $calculatedPrice = $deliveries->getShippingCosts()->first();
+        /** @var CalculatedTax $taxes */
+        $taxes = $calculatedPrice->getCalculatedTaxes()->first();
+
+        static::assertNotNull($calculatedPrice);
+        static::assertSame((float) 0, $taxes->getTax());
+    }
+
     /**
      * @return array<string, array<int>>
      */

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -63,6 +64,7 @@ class DeliveryCalculator
 
     private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
+        $behavior = $cart->getBehavior();
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $cart->hasExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS)) {
             $costs = $this->calculateShippingCosts(
@@ -84,7 +86,19 @@ class DeliveryCalculator
             return;
         }
 
-        if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
+        /*
+         * $adminShippingFree is set to true, when the shipping cost is set to 0 from the administration
+         */
+        $adminShippingFree = false;
+        if(
+            $behavior
+            && $behavior->hasPermission(DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION)
+            && $delivery->getShippingCosts()->getUnitPrice() === 0.0
+        ){
+            $adminShippingFree = true;
+        }
+
+        if ($adminShippingFree || $this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
                 new PriceCollection([new Price(Defaults::CURRENCY, 0, 0, false)]),

@@ -393,6 +393,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
             <argument>%shopware.cart.compress%</argument>
+            <argument>%shopware.cart.expire_days%</argument>
         </service>
 
         <service id="shopware.cart.redis" class="Redis">
@@ -404,6 +405,7 @@
             <argument type="service" id="shopware.cart.redis" on-invalid="null"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.cart.compress%</argument>
+            <argument>%shopware.cart.expire_days%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
             <tag name="console.command"/>
         </service>

@@ -31,17 +31,20 @@ class RedisCartPersister extends AbstractCartPersister
 
     private bool $compress;
 
+    private int $expireDays;
+
     /**
      * @internal
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct($redis, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress)
+    public function __construct($redis, EventDispatcherInterface $eventDispatcher, CartSerializationCleaner $cartSerializationCleaner, bool $compress, int $expireDays)
     {
         $this->redis = $redis;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartSerializationCleaner = $cartSerializationCleaner;
         $this->compress = $compress;
+        $this->expireDays = $expireDays;
     }
 
     public function getDecorated(): AbstractCartPersister
@@ -107,7 +110,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $content = $this->serializeCart($cart, $context);
 
-        $this->redis->set(self::PREFIX . $cart->getToken(), $content);
+        $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
     }
 
     public function delete(string $token, SalesChannelContext $context): void

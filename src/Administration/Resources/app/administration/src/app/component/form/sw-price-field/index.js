@@ -2,6 +2,7 @@ import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
 const { Component, Application } = Shopware;
+const { debounce } = Shopware.Utils;
 
 /**
  * @public
@@ -262,6 +263,30 @@ Component.register('sw-price-field', {
             this.$emit('price-lock-change', this.priceForCurrency.linked);
             this.$emit('change', this.priceForCurrency);
         },
+
+        onPriceGrossInputChange(value) {
+            if (this.priceForCurrency.linked) {
+                this.priceForCurrency.gross = value;
+
+                this.onPriceGrossChangeDebounce(value);
+            }
+        },
+
+        onPriceNetInputChange(value) {
+            if (this.priceForCurrency.linked) {
+                this.priceForCurrency.net = value;
+
+                this.onPriceNetChangeDebounce(value);
+            }
+        },
+
+        onPriceGrossChangeDebounce: debounce(function onPriceGrossChangeDebounce() {
+            this.onPriceGrossChange(this.priceForCurrency.gross);
+        }, 300),
+
+        onPriceNetChangeDebounce: debounce(function onPriceNetChangeDebounce() {
+            this.onPriceNetChange(this.priceForCurrency.net);
+        }, 300),
 
         onPriceGrossChange(value) {
             if (this.priceForCurrency.linked) {

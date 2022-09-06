@@ -313,6 +313,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     let wrapper;
     const consoleError = console.error;
 
+    beforeAll(() => {
+        Shopware.Application.getContainer('factory').apiService.register('calculate-price', {
+            calculatePrice: () => {
+                return new Promise((resolve) => {
+                    resolve({
+                        data: {
+                            calculatedTaxes: []
+                        },
+                    });
+                });
+            }
+        });
+    });
+
     beforeEach(() => {
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({

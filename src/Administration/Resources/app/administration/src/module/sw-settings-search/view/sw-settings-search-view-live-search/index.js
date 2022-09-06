@@ -4,6 +4,8 @@ import template from './sw-settings-search-view-live-search.html.twig';
 Shopware.Component.register('sw-settings-search-view-live-search', {
     template,
 
+    inject: ['feature'],
+
     props: {
         currentSalesChannelId: {
             type: String,
@@ -29,12 +31,6 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             type: Boolean,
             required: false,
             default: false,
-        },
-    },
-
-    methods: {
-        isElasticsearchEnabled() {
-            return Shopware.Feature.isActive('FEATURE_NEXT_22900');
         },
     },
 });

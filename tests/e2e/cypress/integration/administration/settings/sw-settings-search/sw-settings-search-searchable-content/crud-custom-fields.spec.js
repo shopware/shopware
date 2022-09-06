@@ -11,6 +11,7 @@ describe('Product Search: Test crud operations of custom field', () => {
     });
 
     it('@settings: Create a config field', () => {
+        cy.skipOnFeature('FEATURE_NEXT_22900')
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -71,6 +72,7 @@ describe('Product Search: Test crud operations of custom field', () => {
     });
 
     it('@settings: Update config field', () => {
+        cy.skipOnFeature('FEATURE_NEXT_22900')
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -144,6 +146,7 @@ describe('Product Search: Test crud operations of custom field', () => {
     });
 
     it('@settings: Delete config field', () => {
+        cy.skipOnFeature('FEATURE_NEXT_22900')
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

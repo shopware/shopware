@@ -11,6 +11,7 @@ Component.register('sw-settings-search-searchable-content', {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -208,10 +209,6 @@ Component.register('sw-settings-search-searchable-content', {
 
         isListEmpty() {
             return !this.searchConfigFields || !this.searchConfigFields.length;
-        },
-
-        isElasticsearchEnabled() {
-            return Shopware.Feature.isActive('FEATURE_NEXT_22900');
         },
 
         getProductSearchFieldColumns() {

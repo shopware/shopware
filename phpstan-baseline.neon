@@ -32922,36 +32922,6 @@ parameters:
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:generateMessages\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:generateMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:parseErrors\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:parseErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:updateIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Parameter \\#1 \\$items of class Shopware\\\\Elasticsearch\\\\Exception\\\\ElasticsearchIndexingException constructor expects array\\{reason\\: string\\}, array given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:__construct\\(\\) has parameter \\$definitions with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php

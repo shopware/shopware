@@ -25,6 +25,7 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguage
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -139,7 +140,8 @@ class ElasticsearchIndexerTest extends TestCase
             $container->get(\sprintf('%s.repository', CurrencyDefinition::ENTITY_NAME)),
             $container->get(\sprintf('%s.repository', LanguageDefinition::ENTITY_NAME)),
             $eventDispatcherMock,
-            $container->getParameter('elasticsearch.indexing_batch_size')
+            $container->getParameter('elasticsearch.indexing_batch_size'),
+            $this->createMock(MessageBusInterface::class)
         );
         $indexer->iterate(null);
     }

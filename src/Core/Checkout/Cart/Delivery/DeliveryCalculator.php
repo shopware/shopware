@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -90,11 +89,11 @@ class DeliveryCalculator
          * $adminShippingFree is set to true, when the shipping cost is set to 0 from the administration
          */
         $adminShippingFree = false;
-        if(
+        if (
             $behavior
             && $behavior->hasPermission(DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION)
             && $delivery->getShippingCosts()->getUnitPrice() === 0.0
-        ){
+        ) {
             $adminShippingFree = true;
         }
 

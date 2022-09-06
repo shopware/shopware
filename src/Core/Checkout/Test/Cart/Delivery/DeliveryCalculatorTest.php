@@ -1920,7 +1920,9 @@ class DeliveryCalculatorTest extends TestCase
             )
         );
         $lineItem1->setPrice(
-            new CalculatedPrice(42, 42,
+            new CalculatedPrice(
+                42,
+                42,
                 new CalculatedTaxCollection([new CalculatedTax(42, 19, 42)]),
                 new TaxRuleCollection([new TaxRule(19)])
             )
@@ -1944,12 +1946,14 @@ class DeliveryCalculatorTest extends TestCase
 
         $cart = new Cart('test3', 'test3');
         $cart->setBehavior(new CartBehavior([
-            DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true
+            DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         ]));
 
         /** @var Delivery $delivery */
         $delivery = $deliveries->first();
-        $delivery->setShippingCosts(new CalculatedPrice(0, 0,
+        $delivery->setShippingCosts(new CalculatedPrice(
+            0,
+            0,
             $delivery->getShippingCosts()->getCalculatedTaxes(),
             $delivery->getShippingCosts()->getTaxRules()
         ));

@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DeprecationTagTesterTest extends TestCase
 {
-    private $deprecationTagTester;
+    private DeprecationTagTester $deprecationTagTester;
 
     public function setUp(): void
     {
@@ -211,14 +211,5 @@ class DeprecationTagTesterTest extends TestCase
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation is already live.');
         $this->deprecationTagTester->validateDeprecationElements('<deprecated>tag:v6.3.0</deprecated>');
-    }
-
-    public function testItCapturesTheVersionFromTagElementsCorrectly(): void
-    {
-        $this->deprecationTagTester->validateTagElement('<tag name="shopware.deprecated" version="tag:v6.5.0"/>');
-
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('The version you used for deprecation is already live.');
-        $this->deprecationTagTester->validateTagElement('<tag name="shopware.deprecated" version="tag:v6.2.0"/>');
     }
 }

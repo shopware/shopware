@@ -60,7 +60,7 @@ class CurrencyDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new FloatField('factor', 'factor'))->addFlags(new ApiAware(), new Required()),
             (new StringField('symbol', 'symbol'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('iso_code', 'isoCode'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('iso_code', 'isoCode', 3))->addFlags(new ApiAware(), new Required()),
             (new TranslatedField('shortName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('position', 'position'))->addFlags(new ApiAware()),

@@ -58,7 +58,11 @@
         <div v-show="!isLoading">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_custom_field_set_detail_content_detail_base %}
-            <sw-custom-field-set-detail-base :set="set" />
+            <sw-custom-field-set-detail-base
+                :set="set"
+                :technical-name-error="technicalNameError"
+                @reset-errors="onResetErrors"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

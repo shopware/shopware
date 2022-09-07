@@ -34,6 +34,7 @@ Component.register('sw-settings-custom-field-set-detail', {
             setId: '',
             isLoading: true,
             isSaveSuccessful: false,
+            technicalNameError: null,
         };
     },
 
@@ -180,6 +181,10 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
+        },
+
+        onResetErrors() {
+            this.technicalNameError = null;
         },
     },
 });

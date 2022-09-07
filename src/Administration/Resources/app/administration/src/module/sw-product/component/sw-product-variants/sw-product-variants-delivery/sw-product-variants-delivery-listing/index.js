@@ -49,11 +49,11 @@ Component.register('sw-product-variants-delivery-listing', {
             return [
                 {
                     value: true,
-                    name: 'Main product',
+                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelModeDisplayParent'),
                 },
                 {
                     value: false,
-                    name: 'Single variant',
+                    name: this.$tc('sw-product.variations.deliveryModal.listingLabelMainVariant'),
                 },
             ];
         },

@@ -398,13 +398,14 @@
         "mediaExplanation": "Hier kannst Du alternative Medien für die Eigenschaftsauswahl im Shop hinterlegen. Diese Medien haben in der Storefront Vorrang gegenüber Medien, die der Eigenschaft zugewiesen sind.",
         "mediaOptions": "Ausprägungen",
         "listing": "Produktliste",
-        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelne Hauptvariante an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschaftsausprägungen - auf mehrere Einzelvarianten.",
-        "listingLabelModeSingle": "Einzelne Hauptvariante",
-        "listingLabelMainVariant": "Hauptvariante",
+        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelnes Produkt an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschaftsausprägungen - auf mehrere Einzelvarianten.",
+        "listingLabelModeSingle": "Einzelprodukt anzeigen",
+        "listingLabelModeDisplayParent": "Hauptprodukt",
+        "listingLabelMainVariant": "Variante",
         "listingExplanationModeSingle": "Wähle eine Variante, die in den Listen angezeigt und auf der Produktdetailseite vorausgewählt wird.",
         "listingExplanationModeMainProduct": "Wähle eine Variante, die auf der Produktdetailseite vorausgewählt wird.",
         "listingLabelModeExpanded": "Auffächern der Eigenschaften in Produktliste",
-        "listingPlaceholderSelectMainVariant": "Wähle eine Hauptvariante ...",
+        "listingPlaceholderSelectMainVariant": "Wähle eine Variante ...",
         "cancel": "Abbrechen",
         "save": "Speichern"
       }

@@ -187,8 +187,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-delivery-listing_entity-select').click();
         cy.contains('.sw-product-variant-info__specification', 'Green').click();
 
-        cy.contains('.sw-field__radio-option', 'Single variant').should('be.visible');
-        cy.contains('.sw-field__radio-option', 'Single variant').click();
+        cy.contains('.sw-field__radio-option', 'Variant').should('be.visible');
+        cy.contains('.sw-field__radio-option', 'Variant').click();
 
         cy.get('.sw-product-modal-delivery__save-button').click();
         cy.get('.sw-modal__body').should('not.exist');

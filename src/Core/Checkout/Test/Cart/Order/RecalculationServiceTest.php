@@ -708,9 +708,13 @@ class RecalculationServiceTest extends TestCase
 
         $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)
             ->get($orderId);
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getPrice());
 
         static::assertSame(224.07, $order->getPrice()->getNetPrice());
         static::assertSame(249.98, $order->getPrice()->getTotalPrice());
@@ -889,8 +893,10 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotNull($order);
+        static::assertNotNull($order->getAddresses());
         $orderAddressId = $order->getAddresses()->first()->getId();
 
         $firstName = 'Replace first name';
@@ -928,8 +934,10 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
+        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotNull($order);
+        static::assertNotNull($order->getAddresses());
         /** @var OrderAddressEntity $orderAddress */
         $orderAddress = $order->getAddresses()->first();
 
@@ -939,55 +947,6 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($street, $orderAddress->getStreet());
         static::assertSame($city, $orderAddress->getCity());
         static::assertSame($zipcode, $orderAddress->getZipcode());
-    }
-
-    public function testChangeShippingCostsHasValueIsZero(): void
-    {
-        // create order
-        $cart = $this->generateDemoCart();
-        $orderId = $this->persistCart($cart)['orderId'];
-
-        // create version of order
-        $versionId = $this->createVersionedOrder($orderId);
-        $versionContext = $this->context->createWithVersionId($versionId);
-
-        $critera = new Criteria();
-        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
-        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
-
-        static::assertEquals(1, $deliveries->count());
-        /** @var CalculatedPrice $shippingCosts */
-        $shippingCosts = $deliveries->first()->getShippingCosts();
-
-        static::assertSame(1, $shippingCosts->getQuantity());
-        static::assertSame(10.0, $shippingCosts->getUnitPrice());
-        static::assertSame(10.0, $shippingCosts->getTotalPrice());
-        static::assertEquals(2, $shippingCosts->getCalculatedTaxes()->count());
-
-        // change shipping costs
-        $newShippingCosts = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
-
-        $payload = [
-            'id' => $deliveries->first()->getId(),
-            'shippingCosts' => $newShippingCosts,
-        ];
-
-        $orderDeliveryRepository->upsert([$payload], $versionContext);
-
-        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
-
-        $critera = new Criteria();
-        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
-        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
-
-        /** @var CalculatedPrice $newShippingCosts */
-        $newShippingCosts = $deliveries->first()->getShippingCosts();
-
-        static::assertSame(1, $newShippingCosts->getQuantity());
-        static::assertSame(0.0, $newShippingCosts->getUnitPrice());
-        static::assertSame(0.0, $newShippingCosts->getTotalPrice());
-        static::assertEquals(2, $shippingCosts->getCalculatedTaxes()->count());
     }
 
     protected function getValidCountryIdWithTaxes(): string
@@ -1468,8 +1427,10 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
+        static::assertNotNull($order->getLineItems());
         static::assertEquals($oldTotal + $creditAmount, $order->getAmountTotal());
 
         $creditItem = $order->getLineItems()->filterByProperty('identifier', $identifier)->first();
@@ -1519,8 +1480,10 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
+        static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
         static::assertEquals($order->getOrderDateTime(), $orderDateTime);
 
@@ -1564,8 +1527,10 @@ class RecalculationServiceTest extends TestCase
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
+        /** @var OrderEntity $order */
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
+        static::assertNotNull($order->getLineItems());
         static::assertCount(3, $order->getLineItems());
         static::assertEquals($order->getOrderDateTime(), $orderDateTime);
 
@@ -1741,7 +1706,10 @@ class RecalculationServiceTest extends TestCase
         $criteria = new Criteria([$shippingMethodId]);
         $criteria->addAssociation('priceRules');
 
-        return $repository->search($criteria, $this->context)->get($shippingMethodId);
+        /** @var ShippingMethodEntity $shippingMethod */
+        $shippingMethod = $repository->search($criteria, $this->context)->get($shippingMethodId);
+
+        return $shippingMethod;
     }
 
     private function addSecondShippingMethodPriceRule(string $priceRuleId, string $shippingMethodId): ShippingMethodEntity
@@ -1822,7 +1790,10 @@ class RecalculationServiceTest extends TestCase
         $criteria->addAssociation('prices');
         $criteria->addAssociation('deliveryTime');
 
-        return $repository->search($criteria, $this->context)->get($shippingMethodId);
+        /** @var ShippingMethodEntity $shippingMethod */
+        $shippingMethod = $repository->search($criteria, $this->context)->get($shippingMethodId);
+
+        return $shippingMethod;
     }
 
     private function createTwoConditionsWithDifferentQuantities(string $priceRuleId, string $shippingMethodId, int $calculation): ShippingMethodEntity
@@ -1904,7 +1875,10 @@ class RecalculationServiceTest extends TestCase
         $criteria->addAssociation('priceRules');
         $criteria->addAssociation('deliveryTime');
 
-        return $repository->search($criteria, $this->context)->get($shippingMethodId);
+        /** @var ShippingMethodEntity $shippingMethod */
+        $shippingMethod = $repository->search($criteria, $this->context)->get($shippingMethodId);
+
+        return $shippingMethod;
     }
 
     private function createPaymentMethod(string $ruleId): string

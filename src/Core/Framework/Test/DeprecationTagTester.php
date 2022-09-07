@@ -91,18 +91,9 @@ class DeprecationTagTester
         $this->validateMatches($matches);
     }
 
-    public function validateTagElement(string $content): void
-    {
-        /*
-         * captures the version attribute from a tag element with name is set to deprecated
-         */
-        $tagPattern = '/\<tag name="shopware.deprecated".*version="(.*)".*\/?\>/';
-        $matches = [];
-        preg_match_all($tagPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL);
-
-        $this->validateMatches($matches);
-    }
-
+    /**
+     * @param array{1: string|null}[] $matches
+     */
     private function validateMatches(array $matches): void
     {
         if (empty($matches)) {

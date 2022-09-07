@@ -26455,60 +26455,11 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/DependencyInjection/fixtures/TestActionEventCompilerPass.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecatedTagTest\\:\\:exec\\(\\) is unused\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecatedTagTest\\:\\:exec\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecatedTagTest\\:\\:getHighestVersion\\(\\) has parameter \\$versions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
 
-		-
-			message: "#^Parameter \\#1 \\$content of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateAnnotations\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
 
-		-
-			message: "#^Parameter \\#1 \\$content of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateDeprecationElements\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
 
-		-
-			message: "#^Parameter \\#1 \\$content of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateTagElement\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function ltrim expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecatedTagTest\\:\\:\\$whiteList type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecatedTagTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateMatches\\(\\) has parameter \\$matches with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecationTagTester.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTesterTest\\:\\:\\$deprecationTagTester has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DeprecationTagTesterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Event\\\\ActionTestSubscriber\\:\\:\\$actions has no type specified\\.$#"

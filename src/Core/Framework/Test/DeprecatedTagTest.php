@@ -5,25 +5,21 @@ namespace Shopware\Core\Framework\Test;
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- * @group slow
  */
 class DeprecatedTagTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * white list file path segments for ignored paths
      *
-     * @var array
+     * @var array<string>
      */
-    private $whiteList = [
+    private array $whiteList = [
         'Test/',
         'node_modules/',
         'Common/vendor/',
@@ -62,6 +58,7 @@ class DeprecatedTagTest extends TestCase
             ->name('*.scss')
             ->name('*.html.twig')
             ->name('*.xsd')
+            ->exclude('node_modules')
             ->contains('@deprecated');
 
         foreach ($this->whiteList as $path) {
@@ -72,7 +69,7 @@ class DeprecatedTagTest extends TestCase
 
         foreach ($finder->getIterator() as $file) {
             $filePath = $file->getRealPath();
-            $content = file_get_contents($filePath);
+            $content = (string) file_get_contents($filePath);
 
             try {
                 $this->getDeprecationTagTester()->validateAnnotations($content);
@@ -92,6 +89,7 @@ class DeprecatedTagTest extends TestCase
         $finder->in($this->rootDir)
             ->files()
             ->name('*.xml')
+            ->exclude('node_modules')
             ->contains('<deprecated>');
 
         foreach ($this->whiteList as $path) {
@@ -102,10 +100,9 @@ class DeprecatedTagTest extends TestCase
 
         foreach ($finder->getIterator() as $file) {
             $filePath = $file->getRealPath();
-            $content = file_get_contents($filePath);
+            $content = (string) file_get_contents($filePath);
 
             try {
-                $this->getDeprecationTagTester()->validateTagElement($content);
                 $this->getDeprecationTagTester()->validateDeprecationElements($content);
             } catch (\Throwable $error) {
                 if (!$error instanceof NoDeprecationFoundException) {
@@ -119,7 +116,7 @@ class DeprecatedTagTest extends TestCase
 
     private function getPathForClass(string $className): string
     {
-        $path = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile($className)) . '/../');
+        $path = realpath(\dirname((string) KernelLifecycleManager::getClassLoader()->findFile($className)) . '/../');
 
         if ($path === false) {
             throw new \LogicException("could not locate filepath for class {$className}");
@@ -153,7 +150,7 @@ class DeprecatedTagTest extends TestCase
         } else {
             $shopwareVersion = InstalledVersions::getVersion('shopware/core');
         }
-        $shopwareVersion = ltrim($shopwareVersion, 'v ');
+        $shopwareVersion = ltrim((string) $shopwareVersion, 'v ');
 
         if (!preg_match('/^\d+\.\d+[.-].*$/', $shopwareVersion)) {
             // this will only check the syntax of the deprecated tags. The real test happens in the prod pipeline
@@ -183,20 +180,9 @@ class DeprecatedTagTest extends TestCase
         return $this->getHighestVersion($manifestVersions);
     }
 
-    private function exec(string $command): array
-    {
-        $result = [];
-        $exitCode = 0;
-
-        exec($command, $result, $exitCode);
-
-        if ($exitCode !== 0) {
-            throw new \Exception("Could not execute {$command} successfully. EXITING \n");
-        }
-
-        return $result;
-    }
-
+    /**
+     * @param array<string|null> $versions
+     */
     private function getHighestVersion(array $versions): string
     {
         $versions = array_filter($versions);

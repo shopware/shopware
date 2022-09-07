@@ -43,6 +43,11 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             $inheritance['@Plugins'][] = $bundle;
         }
 
+        /* Reverse the order here so our reversal after flattening doesn't
+         * collaterally invert our desired plugin order.
+         */
+        $inheritance['@Plugins'] = array_reverse($inheritance['@Plugins']);
+
         $flat = [];
         foreach ($inheritance as $namespace) {
             foreach ($namespace as $bundle) {

@@ -14,6 +14,8 @@ describe('Search settings: Search Index', () => {
     });
 
     it('@settings: rebuild search index', () => {
+        cy.skipOnFeature('FEATURE_NEXT_22900')
+
         cy.contains('Search index');
         cy.get('.sw-settings-search__search-index-latest-build').scrollIntoView();
         cy.get('.sw-settings-search__search-index-latest-build').should('be.visible');
@@ -28,6 +30,8 @@ describe('Search settings: Search Index', () => {
     });
 
     it('@settings: should show the warning popup when leaving before indexing process finish', () => {
+        cy.skipOnFeature('FEATURE_NEXT_22900')
+
         cy.contains('Search index');
         cy.get('.sw-settings-search__search-index-latest-build').scrollIntoView();
         cy.get('.sw-settings-search__search-index-latest-build').should('be.visible');

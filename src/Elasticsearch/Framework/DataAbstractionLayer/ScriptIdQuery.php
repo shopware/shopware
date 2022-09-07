@@ -11,6 +11,9 @@ class ScriptIdQuery implements BuilderInterface
 
     private string $id;
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function __construct(string $id, array $parameters = [])
     {
         $this->id = $id;
@@ -27,6 +30,8 @@ class ScriptIdQuery implements BuilderInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return array<mixed>
      */
     public function toArray()
     {

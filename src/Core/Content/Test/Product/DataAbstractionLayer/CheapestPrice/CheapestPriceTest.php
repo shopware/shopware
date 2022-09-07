@@ -90,7 +90,7 @@ class CheapestPriceTest extends TestCase
     v.13.2    190  | 210 | 200 | 210 | 200
      */
 
-    public function testIndexing(?IdsCollection $ids = null)
+    public function testIndexing(?IdsCollection $ids = null): IdsCollection
     {
         try {
             $ids = $ids ?? new IdsCollection();
@@ -100,8 +100,8 @@ class CheapestPriceTest extends TestCase
                 'symbol' => 'T',
                 'isoCode' => 'TTT',
                 'position' => 3,
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 'shortName' => 'TE',
                 'name' => 'Test',
             ];
@@ -384,6 +384,7 @@ class CheapestPriceTest extends TestCase
 
                 $assertions = $case['assertions'];
 
+                /** @var string[] $keys */
                 $keys = array_keys($assertions);
 
                 $criteria = new Criteria($ids->getList($keys));
@@ -470,6 +471,7 @@ class CheapestPriceTest extends TestCase
 
                 $assertions = $case['assertions'];
 
+                /** @var string[] $keys */
                 $keys = array_keys($assertions);
 
                 $criteria = new Criteria($ids->getList($keys));
@@ -653,7 +655,10 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    public function providerSorting()
+    /**
+     * @return iterable<string, array{ids: array<string>, rules: array<string>}>
+     */
+    public function providerSorting(): iterable
     {
         yield 'Test sorting without rules' => [
             'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.14.1', 'v.14.2', 'v.13.1', 'v.13.2'],
@@ -681,7 +686,10 @@ class CheapestPriceTest extends TestCase
         ];
     }
 
-    public function providerFilterPercentage()
+    /**
+     * @return iterable<string, array{from: int, rules?: array<string>, to: int, expected: array<string>}>
+     */
+    public function providerFilterPercentage(): iterable
     {
         yield 'Test 10% filter without rule' => ['from' => 9, 'to' => 10, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 20% filter with rule-a' => ['rules' => ['rule-a'], 'from' => 19, 'to' => 20, 'expected' => ['p.5', 'v.6.1']];
@@ -690,7 +698,10 @@ class CheapestPriceTest extends TestCase
         yield 'Test 30% filter with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 29, 'to' => 30, 'expected' => []];
     }
 
-    public function providerFilterPrice()
+    /**
+     * @return iterable<string, array{from: int, to: int, expected: array<string>, rules?: array<string>}>
+     */
+    public function providerFilterPrice(): iterable
     {
         yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
@@ -731,7 +742,10 @@ class CheapestPriceTest extends TestCase
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
-    private function calculationProvider(IdsCollection $ids)
+    /**
+     * @return iterable<string, array{rules: array<string>, currencyId: string, assertions: array<string, array{cheapest: int, price: int, prices: array<int>}>}>
+     */
+    private function calculationProvider(IdsCollection $ids): iterable
     {
         yield 'test without rule' => [
             'rules' => [],
@@ -1256,6 +1270,9 @@ class CheapestPriceTest extends TestCase
         ];
     }
 
+    /**
+     * @param array{ids: array<string>, rules: array<string>} $case
+     */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {
         $criteria = new Criteria(array_values($ids->all()));
@@ -1276,6 +1293,7 @@ class CheapestPriceTest extends TestCase
             $expected = array_reverse($expected);
         }
 
+        /** @var string[] $actual */
         $actual = array_values($result->getIds());
 
         $actualArray = [];
@@ -1286,7 +1304,10 @@ class CheapestPriceTest extends TestCase
         static::assertEquals($expected, $actualArray, $message);
     }
 
-    private function providerAggregation()
+    /**
+     * @return iterable<string, array{min: int, max: int, rules: array<string>}>
+     */
+    private function providerAggregation(): iterable
     {
         yield 'With no rules' => ['min' => 60, 'max' => 190, 'rules' => []];
         yield 'With rule a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a']];

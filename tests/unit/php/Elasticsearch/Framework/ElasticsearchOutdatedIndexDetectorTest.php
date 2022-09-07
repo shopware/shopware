@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test\Framework;
+namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
@@ -19,6 +19,8 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector
  */
 class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 {
@@ -71,7 +73,9 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $repository, $esHelper);
-        static::assertCount(2, $detector->get());
+        $arr = $detector->get();
+        static::assertNotNull($arr);
+        static::assertCount(2, $arr);
         static::assertCount(4, $detector->getAllUsedIndices());
     }
 

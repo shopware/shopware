@@ -21,6 +21,9 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
         $this->helper = $helper;
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if ($this->helper->allowIndexing()) {

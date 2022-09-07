@@ -11,6 +11,7 @@ Component.register('sw-settings-search-searchable-content', {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [

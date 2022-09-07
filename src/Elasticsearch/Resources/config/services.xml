@@ -156,12 +156,17 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer"/>
             <argument>%elasticsearch.product.custom_fields_mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
 
             <tag name="shopware.es.definition"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">

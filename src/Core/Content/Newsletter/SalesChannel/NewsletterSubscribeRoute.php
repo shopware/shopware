@@ -30,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -71,6 +72,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
     public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+
+    /**
+     * The regex to check if string contains an url
+     */
+    public const DOMAIN_NAME_REGEX = '/(http[s]?\:\/\/)?(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}/';
 
     /**
      * @var EntityRepositoryInterface
@@ -128,6 +134,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         }
 
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
+
         $this->validator->validate($dataBag->all(), $validator);
 
         /** @var SubscribeRequest $data */
@@ -184,6 +191,20 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
             ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
+
+        if (!empty($dataBag->get('firstName'))) {
+            $definition->add('firstName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
+        }
+
+        if (!empty($dataBag->get('lastName'))) {
+            $definition->add('lastName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
+        }
 
         if ($validateStorefrontUrl) {
             $definition

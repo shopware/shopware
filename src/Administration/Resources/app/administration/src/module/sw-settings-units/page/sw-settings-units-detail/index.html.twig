@@ -1,0 +1,46 @@
+<sw-page class="sw-settings-units">
+
+    <template slot="smart-bar-actions">
+
+        <sw-button-process
+            class="sw-settings-units__create-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            :disabled="!acl.can('scale_unit.editor')"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+
+    </template>
+
+    <sw-language-switch
+        slot="language-switch"
+        :disabled="unit === null || unit.isNew()"
+        @on-change="onChangeLanguage"
+    />
+
+    <sw-card-view slot="content">
+        <sw-card
+            v-if="!isLoading"
+            position-identifier="sw-settings-units-content"
+        >
+            <sw-text-field
+                v-model="unit.name"
+                :label="$tc('sw-settings-units.detail.fieldLabels.name')"
+                :error="unitNameError"
+                required
+            />
+
+            <sw-text-field
+                v-model="unit.shortCode"
+                :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
+                :error="unitShortCodeError"
+                required
+            />
+        </sw-card>
+
+        <sw-skeleton v-else />
+    </sw-card-view>
+</sw-page>

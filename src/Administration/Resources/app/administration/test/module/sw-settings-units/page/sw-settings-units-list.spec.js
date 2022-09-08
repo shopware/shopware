@@ -1,17 +1,13 @@
-/**
- * @deprecated tag:v6.5.0 - Will be removed
- */
-
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-units/page/sw-settings-units';
 import 'src/module/sw-settings-units/page/sw-settings-units-list';
+import flushPromises from 'flush-promises';
 
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-settings-units'), {
+    return shallowMount(Shopware.Component.build('sw-settings-units-list'), {
         localVue,
         mocks: {
             $route: {
@@ -19,12 +15,15 @@ function createWrapper(privileges = []) {
                     page: 1,
                     limit: 25
                 }
-            }
+            },
+            $tc() {
+                return 'trans';
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => {
+                    search() {
                         return Promise.resolve([
                             {
                                 id: '1a2b3c',
@@ -32,6 +31,13 @@ function createWrapper(privileges = []) {
                                 shortCode: 'g'
                             }
                         ]);
+                    },
+                    save(unit) {
+                        if (unit.id !== 'success') {
+                            return Promise.reject();
+                        }
+
+                        return Promise.resolve();
                     }
                 })
             },
@@ -99,6 +105,28 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should create meta info', () => {
+        const wrapper = createWrapper();
+        wrapper.vm.$options.$createTitle = () => 'meta';
+        const metaInfo = wrapper.vm.$options.metaInfo();
+
+        expect(typeof metaInfo).toBe('object');
+        expect(metaInfo.hasOwnProperty('title')).toBeTruthy();
+        expect(metaInfo.title).toBe('meta');
+    });
+
+    it('should push to new route on unit creation', () => {
+        const wrapper = createWrapper();
+        wrapper.vm.$router.push = jest.fn();
+
+        wrapper.vm.createNewUnit();
+
+        expect(wrapper.vm.$router.push).toBeCalledTimes(1);
+        expect(wrapper.vm.$router.push).toBeCalledWith({
+            name: 'sw.settings.units.create',
+        });
+    });
+
     it('should be able to create a new units', async () => {
         const wrapper = createWrapper([
             'scale_unit.creator'
@@ -159,5 +187,64 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');
 
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should save unit', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+
+        wrapper.vm.saveUnit({
+            id: 'success',
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.newUnit).toBe(null);
+        expect(wrapper.vm.createNotificationSuccess).toBeCalledTimes(1);
+    });
+
+    it('should display error on save unit fail', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.saveUnit({
+            id: 'fail',
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
+    });
+
+    it('should delete unit', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.unitRepository.delete = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        wrapper.vm.deleteUnit({
+            id: '12345',
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.unitRepository.delete).toBeCalledTimes(1);
+    });
+
+    it('should return unit columns', async () => {
+        const wrapper = createWrapper();
+
+        const columns = wrapper.vm.unitColumns();
+
+        expect(columns).toStrictEqual(
+            [
+                {
+                    property: 'name',
+                    label: 'sw-settings-units.grid.columnName',
+                    routerLink: 'sw.settings.units.detail',
+                },
+                {
+                    property: 'shortCode',
+                    label: 'sw-settings-units.grid.columnShortCode',
+                }
+            ]
+        );
     });
 });

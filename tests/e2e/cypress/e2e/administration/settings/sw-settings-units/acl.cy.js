@@ -17,8 +17,8 @@ describe('Unit: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/units/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -40,16 +40,16 @@ describe('Unit: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'scale_unit',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'scale_unit',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'scale_unit',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/units/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -59,7 +59,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/unit`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Go to unit module
@@ -70,13 +70,25 @@ describe('Unit: Test acl privileges', () => {
         cy.get('.sw-settings-units-grid').should('be.visible');
         cy.get('.sw-settings-units__create-action').click();
 
-        cy.get('.sw-data-grid__cell--name #sw-field--currentValue').type('Kilogramm');
-        cy.get('.sw-data-grid__cell--shortCode #sw-field--currentValue').type('kg');
+        // Wait for detail page skeleton to vanish
+        cy.get('#sw-field--unit-name').should('be.visible');
 
-        cy.get('.sw-data-grid__inline-edit-save').click();
+        cy.get('#sw-field--unit-name').type('Kilogramm');
+        cy.get('#sw-field--unit-shortCode').type('kg');
+
+        cy.get('.sw-settings-units__create-action').click();
 
         // Verify creation
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/unit`,
+            method: 'POST',
+        }).as('getUnits');
+
+        cy.get('.smart-bar__back-btn').click();
+        cy.wait('@getUnits');
+        cy.get('.sw-settings-units-grid').should('be.visible');
 
         cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Kilogramm')
             .should('be.visible');
@@ -88,12 +100,12 @@ describe('Unit: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'scale_unit',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'scale_unit',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/units/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -103,7 +115,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/unit/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Go to unit module
@@ -111,17 +123,31 @@ describe('Unit: Test acl privileges', () => {
         cy.get('#sw-settings-units').click();
 
         // Create unit
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/unit`,
+            method: 'POST',
+        }).as('loadUnit');
+
         cy.get('.sw-settings-units-grid').should('be.visible');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--name').dblclick();
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name .sw-data-grid__cell-value').click();
+        cy.wait('@loadUnit');
+        cy.get('#sw-field--unit-shortCode').should('be.visible');
 
-        cy.get('.sw-data-grid__cell--name #sw-field--currentValue').type('KG');
+        cy.get('#sw-field--unit-shortCode').clear().type('kg');
 
-        cy.get('.sw-data-grid__inline-edit-save').click();
+        cy.get('.sw-settings-units__create-action').click();
 
         // Verify creation
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/unit`,
+            method: 'POST',
+        }).as('getUnits');
 
-        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'KG')
+        cy.get('.smart-bar__back-btn').click();
+        cy.wait('@getUnits');
+
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--shortCode`, 'kg')
             .should('be.visible');
     });
 
@@ -131,12 +157,12 @@ describe('Unit: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'scale_unit',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'scale_unit',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/units/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -146,7 +172,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/unit/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Go to unit module
@@ -158,7 +184,7 @@ describe('Unit: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Verify creation

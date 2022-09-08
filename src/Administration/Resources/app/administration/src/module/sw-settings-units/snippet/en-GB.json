@@ -1,5 +1,11 @@
 {
   "sw-settings-units": {
+    "detail": {
+      "fieldLabels": {
+        "name": "Scale unit name",
+        "shortCode": "Short code"
+      }
+    },
     "general": {
       "mainMenuItemGeneral": "Scale units",
       "placeholderSearchBar": "Search scale units...",

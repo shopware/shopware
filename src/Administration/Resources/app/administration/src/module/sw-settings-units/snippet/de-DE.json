@@ -1,5 +1,11 @@
 {
   "sw-settings-units": {
+    "detail": {
+      "fieldLabels": {
+        "name": "Name der Maßeinheit",
+        "shortCode": "Kurzform"
+      }
+    },
     "general": {
       "mainMenuItemGeneral": "Maßeinheiten",
       "placeholderSearchBar": "Durchsuche alle Maßeinheiten ...",

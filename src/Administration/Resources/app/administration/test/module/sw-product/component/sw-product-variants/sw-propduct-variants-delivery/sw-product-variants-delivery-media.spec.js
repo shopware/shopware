@@ -8,7 +8,12 @@ function createWrapper() {
         localVue,
         propsData: {
             product: {
-                configuratorSettings: []
+                configuratorSettings: [],
+                variantListingConfig: {
+                    displayParent: null,
+                    configuratorGroupConfig: [],
+                    mainVariantId: null
+                }
             },
             selectedGroups: [{
                 name: 'textile',

@@ -44,12 +44,7 @@
         {
           "id": "15532b3fd3ea4c1dbef6e9e9816e0715"
         }
-      ],
-      "variantListingConfig": {
-        "displayParent": true,
-        "mainVariantId": null,
-        "configuratorGroupConfig": null
-      }
+      ]
     },
     {
       "parentId": "c26e748eb7b311eb85290242ac130003",
@@ -63,11 +58,6 @@
           "id": "98432def39fc4624b33213a56b8c944f"
         }
       ],
-      "variantListingConfig": {
-        "displayParent": true,
-        "mainVariantId": null,
-        "configuratorGroupConfig": null
-      },
       "price": [
         {
           "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",

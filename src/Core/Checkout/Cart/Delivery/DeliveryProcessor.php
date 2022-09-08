@@ -106,13 +106,6 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 $originalDeliveries = $original->getDeliveries();
 
                 $originalDelivery = $originalDeliveries->first();
-
-                if ($originalDelivery !== null && $originalDelivery->getShippingCosts()->getTotalPrice() === 0.0) {
-                    $toCalculate->setDeliveries($originalDeliveries);
-
-                    return;
-                }
-
                 if ($delivery !== null && $originalDelivery !== null) {
                     $originalDelivery->setShippingMethod($delivery->getShippingMethod());
 

@@ -30,21 +30,49 @@ ui.tabs('sw-custom-field-set-renderer').addTabItem({
     componentSectionId: 'ui-tabs-product-example-tab'
 })
 
-// context / subscribe on language changes
-context.subscribeLanguage(({ languageId, systemLanguageId }) => {
-    notification.dispatch({
-        title: 'Language changes',
-        message: `languageId: ${languageId} <br><br> systemLanguageId: ${systemLanguageId}`
-    })
-})
+ui.actionButton.add({
+    name: 'activateLanguageSubscription',
+    entity: 'product',
+    view: 'detail',
+    label: 'Activate language subscription',
+    callback: () => {
+        // context / subscribe on language changes
+        context.subscribeLanguage(({ languageId, systemLanguageId }) => {
+            notification.dispatch({
+                title: 'Language changes',
+                message: `languageId: ${languageId} <br><br> systemLanguageId: ${systemLanguageId}`
+            })
+        })
 
-// context / subscribe on locale changes
-context.subscribeLocale(({ fallbackLocale, locale }) => {
-    notification.dispatch({
-        title: 'Locale changes',
-        message: `locale: ${locale} <br><br> fallbackLocale: ${fallbackLocale}`
-    })
-})
+        notification.dispatch({
+            title: 'Subscriber activated',
+            message: 'The subscriber for language changes was activated',
+            variant: 'info',
+        })
+    },
+});
+
+ui.actionButton.add({
+    name: 'activateLocaleSubscription',
+    entity: 'product',
+    view: 'detail',
+    label: 'Activate locale subscription',
+    callback: () => {
+        // context / subscribe on locale changes
+        context.subscribeLocale(({ fallbackLocale, locale }) => {
+            notification.dispatch({
+                title: 'Locale changes',
+                message: `locale: ${locale} <br><br> fallbackLocale: ${fallbackLocale}`
+            })
+        })
+
+        notification.dispatch({
+            title: 'Subscriber activated',
+            message: 'The subscriber for locale changes was activated',
+            variant: 'info',
+        })
+    },
+});
 
 ui.settings.addSettingsItem({
     label: 'App Settings',

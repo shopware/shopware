@@ -1,4 +1,7 @@
 // / <reference types="Cypress" />
+import ProductPageObject from "../../../../support/pages/module/sw-product.page-object";
+
+const page = new ProductPageObject();
 
 const DEFAULT_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 const LOCALE = 'en-GB';
@@ -7,6 +10,9 @@ const FALLBACK_LOCALE = 'en-GB';
 describe('SDK Tests: Context', ()=> {
     beforeEach(() => {
         cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             })
@@ -68,15 +74,39 @@ describe('SDK Tests: Context', ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
-        cy.get('.sw-order')
+        cy.get('.sw-catalogue')
             .click();
 
-        cy.get('.navigation-list-item__sw-order-index')
+        cy.get('.sw-product')
             .click();
 
-        cy.contains('.smart-bar__header', 'Orders');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-skeleton').should('not.exist');
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-general')
+            .should('be.visible');
+        cy.get('.sw-loader')
+            .should('not.exist');
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('.sw-app-actions')
+            .click();
+
+        cy.get('.sw-context-menu__content')
+            .should('be.visible');
+
+        cy.contains('.sw-context-menu__content .sw-app-action-button', 'Activate language subscription')
+            .click();
+
+        cy.contains('.sw-alert__title', 'Subscriber activated');
+        cy.contains('.sw-alert__message', 'The subscriber for language changes was activated');
+
+        cy.get('.sw-alert__close').click();
+        cy.get('.sw-alert__title').should('not.exist');
 
         cy.get('.sw-language-switch input')
             .click();
@@ -152,6 +182,40 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: subscribe on locale changes', ()=> {
+        cy.get('.sw-catalogue')
+            .click();
+
+        cy.get('.sw-product')
+            .click();
+
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-general')
+            .should('be.visible');
+        cy.get('.sw-loader')
+            .should('not.exist');
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('.sw-app-actions')
+            .click();
+
+        cy.get('.sw-context-menu__content')
+            .should('be.visible');
+
+        cy.contains('.sw-context-menu__content .sw-app-action-button', 'Activate locale subscription')
+            .click();
+
+        cy.contains('.sw-alert__title', 'Subscriber activated');
+        cy.contains('.sw-alert__message', 'The subscriber for locale changes was activated');
+
+        cy.get('.sw-alert__close').click();
+        cy.get('.sw-alert__title').should('not.exist');
+
         cy.log('Change the locale of the current user');
 
         cy.get('.sw-admin-menu__user-name')

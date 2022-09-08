@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Exception\CouldNotRenameFileException;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
+use Shopware\Core\Content\Media\Exception\FileExtensionNotSupportedException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
@@ -94,7 +94,7 @@ class FileSaver
      * @throws EmptyMediaFilenameException
      * @throws IllegalFileNameException
      * @throws MediaNotFoundException
-     * @throws FileTypeNotSupportedException
+     * @throws FileExtensionNotSupportedException
      */
     public function persistFileToMedia(
         MediaFile $mediaFile,
@@ -381,20 +381,22 @@ class FileSaver
     }
 
     /**
-     * @throws FileTypeNotSupportedException
+     * @throws FileExtensionNotSupportedException
      */
     private function validateFileExtension(MediaFile $mediaFile, string $mediaId): void
     {
         $event = new MediaFileExtensionWhitelistEvent($this->allowedExtensions);
         $this->eventDispatcher->dispatch($event);
 
+        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
+
         foreach ($event->getWhitelist() as $extension) {
-            if (mb_strtolower($mediaFile->getFileExtension()) === mb_strtolower($extension)) {
+            if ($fileExtension === mb_strtolower($extension)) {
                 return;
             }
         }
 
-        throw new FileTypeNotSupportedException($mediaId);
+        throw new FileExtensionNotSupportedException($mediaId, $fileExtension);
     }
 
     /**

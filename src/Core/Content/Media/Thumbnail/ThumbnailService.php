@@ -9,8 +9,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
-use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
+use Shopware\Core\Content\Media\Exception\ThumbnailNotSupportedException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -124,7 +124,7 @@ class ThumbnailService
     /**
      * @deprecated tag:v6.5.0 - Will be removed, use `generate` instead
      *
-     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
     public function generateThumbnails(MediaEntity $media, Context $context): int
@@ -168,7 +168,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      *
      * @deprecated tag:v6.5.0 - Parameter $strict will be mandatory in future implementation
@@ -253,7 +253,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
     private function createThumbnailsForSizes(
@@ -327,7 +327,7 @@ class ThumbnailService
     }
 
     /**
-     * @throws FileTypeNotSupportedException
+     * @throws ThumbnailNotSupportedException
      *
      * @return resource
      */
@@ -338,7 +338,7 @@ class ThumbnailService
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if ($image === false) {
-            throw new FileTypeNotSupportedException($media->getId());
+            throw new ThumbnailNotSupportedException($media->getId());
         }
 
         if (\function_exists('exif_read_data')) {
@@ -370,7 +370,7 @@ class ThumbnailService
         }
 
         if ($image === false) {
-            throw new FileTypeNotSupportedException($media->getId());
+            throw new ThumbnailNotSupportedException($media->getId());
         }
 
         return $image;

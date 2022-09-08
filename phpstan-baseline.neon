@@ -22916,46 +22916,6 @@ parameters:
 			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:provideCustomEscaperCases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:provideObjectsForEscaping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:testObjectEscaping\\(\\) has parameter \\$safeClasses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$cssSpecialChars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$htmlAttrSpecialChars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$htmlSpecialChars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$jsSpecialChars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\SwEscapeFilterTest\\:\\:\\$urlSpecialChars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/SwEscapeFilterTest.php
-
-		-
 			message: "#^Cannot access offset 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Bundle' on array\\<string, class\\-string\\>\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/TemplateIteratorTest.php

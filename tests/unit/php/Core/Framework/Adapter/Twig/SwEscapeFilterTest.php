@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Twig;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -13,11 +13,14 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;
  * @internal
  *
  * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
+ * @covers \Shopware\Core\Framework\Adapter\Twig\sw_escape_filter
  */
 class SwEscapeFilterTest extends TestCase
 {
     /**
      * All character encodings supported by htmlspecialchars().
+     *
+     * @var array<int|string, string>
      */
     protected array $htmlSpecialChars = [
         '\'' => '&#039;',
@@ -27,6 +30,9 @@ class SwEscapeFilterTest extends TestCase
         '&' => '&amp;',
     ];
 
+    /**
+     * @var array<int|string, string>
+     */
     protected array $htmlAttrSpecialChars = [
         '\'' => '&#x27;',
         /* Characters beyond ASCII value 255 to unicode escape */
@@ -58,6 +64,9 @@ class SwEscapeFilterTest extends TestCase
         ' ' => '&#x20;',
     ];
 
+    /**
+     * @var array<int|string, string>
+     */
     protected array $jsSpecialChars = [
         /* HTML special chars - escape without exception to hex */
         '<' => '\\u003C',
@@ -91,6 +100,9 @@ class SwEscapeFilterTest extends TestCase
         ' ' => '\\u0020',
     ];
 
+    /**
+     * @var array<int|string, string>
+     */
     protected array $urlSpecialChars = [
         /* HTML special chars - escape without exception to percent encoding */
         '<' => '%3C',
@@ -126,6 +138,9 @@ class SwEscapeFilterTest extends TestCase
         '+' => '%2B',
     ];
 
+    /**
+     * @var array<int|string, string>
+     */
     protected array $cssSpecialChars = [
         /* HTML special chars - escape without exception to hex */
         '<' => '\\3C ',
@@ -336,11 +351,14 @@ class SwEscapeFilterTest extends TestCase
     public function testCustomEscaper(string $expected, $string, string $strategy): void
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
-        $twig->getExtension(EscaperExtension::class)->setEscaper('foo', 'Shopware\Core\Framework\Test\Adapter\Twig\foo_escaper_for_test');
+        $twig->getExtension(EscaperExtension::class)->setEscaper('foo', 'Shopware\Tests\Unit\Core\Framework\Adapter\Twig\foo_escaper_for_test');
 
         static::assertSame($expected, sw_escape_filter($twig, $string, $strategy));
     }
 
+    /**
+     * @return array<int, array<int, int|string|null>>
+     */
     public function provideCustomEscaperCases(): array
     {
         return [
@@ -363,6 +381,8 @@ class SwEscapeFilterTest extends TestCase
 
     /**
      * @dataProvider provideObjectsForEscaping
+     *
+     * @param array<string, string> $safeClasses
      */
     public function testObjectEscaping(string $escapedHtml, string $escapedJs, array $safeClasses): void
     {
@@ -373,13 +393,16 @@ class SwEscapeFilterTest extends TestCase
         static::assertSame($escapedJs, sw_escape_filter($twig, $obj, 'js', null, true));
     }
 
+    /**
+     * @return array<int, array<int, array<string, array<int, string>>|string>>
+     */
     public function provideObjectsForEscaping(): array
     {
         return [
-            ['&lt;br /&gt;', '<br />', ['\Shopware\Core\Framework\Test\Adapter\Twig\Extension_TestClass' => ['js']]],
-            ['<br />', '\u003Cbr\u0020\/\u003E', ['\Shopware\Core\Framework\Test\Adapter\Twig\Extension_TestClass' => ['html']]],
-            ['&lt;br /&gt;', '<br />', ['\Shopware\Core\Framework\Test\Adapter\Twig\Extension_TestClass' => ['js']]],
-            ['<br />', '<br />', ['\Shopware\Core\Framework\Test\Adapter\Twig\Extension_TestClass' => ['all']]],
+            ['&lt;br /&gt;', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['js']]],
+            ['<br />', '\u003Cbr\u0020\/\u003E', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['html']]],
+            ['&lt;br /&gt;', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['js']]],
+            ['<br />', '<br />', ['\Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension_TestClass' => ['all']]],
         ];
     }
 

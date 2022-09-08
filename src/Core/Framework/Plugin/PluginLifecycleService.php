@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
@@ -332,7 +333,7 @@ class PluginLifecycleService
     /**
      * @throws PluginNotInstalledException
      */
-    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
+    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false): ActivateContext
     {
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
@@ -349,7 +350,7 @@ class PluginLifecycleService
             $this->createMigrationCollection($pluginBaseClass)
         );
 
-        if ($plugin->getActive()) {
+        if ($reactivate === false && $plugin->getActive()) {
             return $activateContext;
         }
 
@@ -412,9 +413,12 @@ class PluginLifecycleService
             throw new PluginNotActivatedException($plugin->getName());
         }
 
+        /** @var PluginEntity[] $dependantPlugins */
+        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements();
+
         $dependants = $this->requirementValidator->resolveActiveDependants(
             $plugin,
-            $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements()
+            $dependantPlugins
         );
 
         if (\count($dependants) > 0) {
@@ -435,26 +439,46 @@ class PluginLifecycleService
 
         $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
-        $pluginBaseClass->deactivate($deactivateContext);
+        try {
+            $pluginBaseClass->deactivate($deactivateContext);
 
-        if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-            $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+            if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
+                $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+            }
+
+            $plugin->setActive(false);
+
+            // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
+            if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
+                $this->rebuildContainerWithNewPluginState($plugin);
+            }
+
+            $this->updatePluginData(
+                [
+                    'id' => $plugin->getId(),
+                    'active' => false,
+                ],
+                $shopwareContext
+            );
+        } catch (\Throwable $exception) {
+            $activateContext = new ActivateContext(
+                $pluginBaseClass,
+                $shopwareContext,
+                $this->shopwareVersion,
+                $plugin->getVersion(),
+                $this->createMigrationCollection($pluginBaseClass)
+            );
+
+            $this->eventDispatcher->dispatch(
+                new PluginPostDeactivationFailedEvent(
+                    $plugin,
+                    $activateContext,
+                    $exception
+                )
+            );
+
+            throw $exception;
         }
-
-        $plugin->setActive(false);
-
-        // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
-        if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
-            $this->rebuildContainerWithNewPluginState($plugin);
-        }
-
-        $this->updatePluginData(
-            [
-                'id' => $plugin->getId(),
-                'active' => false,
-            ],
-            $shopwareContext
-        );
 
         $this->signalWorkerStopInOldCacheDir();
 
@@ -519,6 +543,9 @@ class PluginLifecycleService
         return version_compare($updateVersion, $currentVersion, '>');
     }
 
+    /**
+     * @param array<string, mixed|null> $pluginData
+     */
     private function updatePluginData(array $pluginData, Context $context): void
     {
         $this->pluginRepo->update([$pluginData], $context);

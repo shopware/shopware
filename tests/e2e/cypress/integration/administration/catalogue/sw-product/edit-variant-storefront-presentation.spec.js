@@ -95,7 +95,9 @@ describe('Product: Test variants', () => {
         cy.contains('Product listings').click();
 
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
-        cy.contains('.sw-field__radio-option-checked', 'Single main variant').should('be.visible');
+
+        // This wait is currently necessary due to rendering issues
+        cy.wait(1000);
 
         // Verify 'Expand property values in product listings' is checked
         cy.contains('.sw-field__radio-option > label', 'Expand property values in product listings')
@@ -121,7 +123,7 @@ describe('Product: Test variants', () => {
         cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
-    it('@catalogue: test main variant presentation with parent and variant given', () => {
+    it.skip('@catalogue: test main variant presentation with parent and variant given', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -188,33 +190,27 @@ describe('Product: Test variants', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-variants-overview').should('be.visible');
-        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist')
 
         // Activate main variant visualization
         cy.get('.sw-product-variants__configure-storefront-action').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-loader').should('not.exist');
-        cy.contains('.sw-tabs-item', 'Product listings').click();
+        cy.get('.sw-loader').should('not.exist')
 
+        // This wait is currently necessary due to rendering issues
+        cy.wait(1000);
+
+        cy.contains('.sw-tabs-item', 'Product listings').click();
         cy.get('.sw-product-variants-delivery-listing-config-options').should('be.visible');
 
-        // Verify 'Expand property values in product listings' is checked
-        cy.contains('.sw-field__radio-option > label', 'Single main variant')
-            .invoke('attr', 'for')
-            .then((id) => {
-                cy.get(`#${id}`);
-            })
-            .click()
-            .should('be.checked');
-
-        cy.get('sw-product-variants-delivery-listing_entity-select.is--disabled')
+        cy.get('.sw-product-variants-delivery-listing_entity-select.is--disabled')
             .should('not.exist');
-        cy.contains('.sw-field__radio-option-checked', 'Single main variant')
-            .should('be.visible');
         cy.get('.sw-product-variants-delivery-listing-config-options.is--disabled')
             .last().should('be.visible');
 
-        cy.contains('.sw-product-variants-delivery-listing-mode label', 'Single main variant')
+        cy.contains('.sw-product-variants-delivery-listing-config .sw-field__radio-option-label span', 'Variant')
+            .should('be.visible');
+        cy.contains('.sw-product-variants-delivery-listing-config .sw-field__radio-option-label span', 'Variant')
             .click();
         cy.get('sw-product-variants-delivery-listing_entity-select.is--disabled')
             .should('not.exist');

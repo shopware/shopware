@@ -17,11 +17,16 @@ export default {
 };
 
 /**
- * Registry which holds all locales including the interface translations
- *
- * @type {Map}
+ * @private
  */
-const localeRegistry = new Map();
+export type Snippets = {
+    [key: string]: string|Snippets,
+};
+
+/**
+ * Registry which holds all locales including the interface translations
+ */
+const localeRegistry = new Map<string, Snippets>();
 
 /**
  * Defines the default locale
@@ -47,12 +52,8 @@ function getLocaleRegistry() {
 
 /**
  * Registers a new locale
- *
- * @param {String} localeName
- * @param {Object} [localeMessages={}]
- * @returns {Boolean|String}
  */
-function register(localeName, localeMessages = {}) {
+function register(localeName: string, localeMessages: Snippets = {}): boolean|string {
     if (!localeName || !localeName.length) {
         warn(
             'LocaleFactory',
@@ -86,12 +87,8 @@ function register(localeName, localeMessages = {}) {
 
 /**
  * Extends a given locale with the provided translations
- *
- * @param {String} localeName
- * @param {Object} [localeMessages={}]
- * @returns {Boolean|String}
  */
-function extend(localeName, localeMessages = {}) {
+function extend(localeName: string, localeMessages: Snippets = {}): boolean|string {
     if (localeName.split('-').length < 2) {
         warn(
             'LocaleFactory',
@@ -116,28 +113,19 @@ function extend(localeName, localeMessages = {}) {
 
 /**
  * Get translations for a specific locale
- *
- * @param {String} localeName
- * @returns {Boolean|String}
  */
-function getLocaleByName(localeName) {
-    if (!localeRegistry.has(localeName)) {
-        return false;
-    }
-
-    return localeRegistry.get(localeName);
+function getLocaleByName(localeName: string): Snippets|boolean {
+    return localeRegistry.get(localeName) || false;
 }
 
 /**
  * Checks if the {@link localStorage} has an item associated to the {@link localStorageKey} key.
- *
- * @returns {String}
  */
-function getLastKnownLocale() {
+function getLastKnownLocale(): string {
     let localeName = getBrowserLanguage();
 
     if (window.localStorage.getItem(localStorageKey) !== null) {
-        localeName = window.localStorage.getItem(localStorageKey);
+        localeName = window.localStorage.getItem(localStorageKey) as string;
     }
 
     return localeName;
@@ -146,17 +134,15 @@ function getLastKnownLocale() {
 /**
  * Terminates the browser language and checks if the language is in the registry.
  * If this is not the case the {@link defaultLocale} will be returned.
- *
- * @returns {String}
  */
-function getBrowserLanguage() {
-    const shortLanguageCodes = new Map();
+function getBrowserLanguage(): string {
+    const shortLanguageCodes = new Map<string, string>();
     localeRegistry.forEach((messages, locale) => {
         const lang = locale.split('-')[0];
         shortLanguageCodes.set(lang.toLowerCase(), locale);
     });
 
-    let matchedLanguage = null;
+    let matchedLanguage: string|null = null;
 
     getBrowserLanguages().forEach((language) => {
         if (!matchedLanguage && localeRegistry.has(language)) {
@@ -164,7 +150,7 @@ function getBrowserLanguage() {
         }
 
         if (!matchedLanguage && shortLanguageCodes.has(language)) {
-            matchedLanguage = shortLanguageCodes.get(language);
+            matchedLanguage = shortLanguageCodes.get(language) || null;
         }
     });
 
@@ -173,10 +159,8 @@ function getBrowserLanguage() {
 
 /**
  * Looks up all available browser languages.
- *
- * @returns {Array}
  */
-function getBrowserLanguages() {
+function getBrowserLanguages(): string[] {
     const languages = [];
 
     if (navigator.language) {
@@ -190,29 +174,29 @@ function getBrowserLanguages() {
         });
     }
 
+    // @ts-expect-error
     if (navigator.userLanguage) {
+        // @ts-expect-error
         languages.push(navigator.userLanguage);
     }
 
+    // @ts-expect-error
     if (navigator.systemLanguage) {
+        // @ts-expect-error
         languages.push(navigator.systemLanguage);
     }
 
-    return languages;
+    return languages as string[];
 }
 
 /**
  * Sets up the DOM and http client to use the provided locale
- *
- * @param {String} localeName
- * @param {AxiosInstance|null} [httpClient=null]
- * @returns {String}
  */
-function storeCurrentLocale(localeName) {
+function storeCurrentLocale(localeName: string): string {
     // Necessary for testing purpose
     if (typeof document === 'object') {
         const shortLocaleName = localeName.split('-')[0];
-        document.querySelector('html').setAttribute('lang', shortLocaleName);
+        document.querySelector('html')?.setAttribute('lang', shortLocaleName);
     }
 
     window.localStorage.setItem(localStorageKey, localeName);

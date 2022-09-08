@@ -2,6 +2,8 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
@@ -9,25 +11,39 @@ class SnippetFinder implements SnippetFinderInterface
 {
     private Kernel $kernel;
 
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(Kernel $kernel)
-    {
+    public function __construct(
+        Kernel $kernel,
+        Connection $connection
+    ) {
         $this->kernel = $kernel;
+        $this->connection = $connection;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function findSnippets(string $locale): array
     {
         $snippetFiles = $this->findSnippetFiles($locale);
+        $snippets = $this->parseFiles($snippetFiles);
 
-        if (!\count($snippetFiles)) {
+        $snippets = array_merge($snippets, $this->getAppAdministrationSnippets($locale, $snippets));
+
+        if (!\count($snippets)) {
             return [];
         }
 
-        return $this->parseFiles($snippetFiles);
+        return $snippets;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getPluginPaths(): array
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
@@ -61,6 +77,9 @@ class SnippetFinder implements SnippetFinderInterface
         return $paths;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function findSnippetFiles(?string $locale = null, bool $withPlugins = true): array
     {
         $finder = (new Finder())
@@ -89,6 +108,11 @@ class SnippetFinder implements SnippetFinderInterface
         return \array_unique($files);
     }
 
+    /**
+     * @param array<int, string> $files
+     *
+     * @return array<string, mixed>
+     */
     private function parseFiles(array $files): array
     {
         $snippets = [[]];
@@ -97,6 +121,7 @@ class SnippetFinder implements SnippetFinderInterface
             if (is_file($file) === false) {
                 continue;
             }
+
             $content = file_get_contents($file);
             if ($content !== false) {
                 $snippets[] = json_decode($content, true) ?? [];
@@ -108,5 +133,72 @@ class SnippetFinder implements SnippetFinderInterface
         ksort($snippets);
 
         return $snippets;
+    }
+
+    /**
+     * @param array<string, mixed> $existingSnippets
+     *
+     * @return array<string, mixed>
+     */
+    private function getAppAdministrationSnippets(string $locale, array $existingSnippets): array
+    {
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT app_administration_snippet.value
+             FROM locale
+             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
+             INNER JOIN app ON app_administration_snippet.app_id = app.id
+             WHERE locale.code = :code AND app.active = 1;',
+            ['code' => $locale]
+        );
+
+        $snippets = [];
+        foreach ($result as $data) {
+            $decodedSnippet = json_decode($data['value'], true);
+            $this->validateAppSnippets($existingSnippets, $decodedSnippet);
+            $decodedSnippet = $this->sanitizeAppSnippets($decodedSnippet);
+
+            $snippets = array_merge($snippets, $decodedSnippet);
+        }
+
+        return $snippets;
+    }
+
+    /**
+     * @param array<string, mixed> $existingSnippets
+     * @param array<string, mixed> $appSnippets
+     */
+    private function validateAppSnippets(array $existingSnippets, array $appSnippets): void
+    {
+        $existingSnippetKeys = array_keys($existingSnippets);
+        $appSnippetKeys = array_keys($appSnippets);
+
+        if ($duplicatedKeys = array_intersect($existingSnippetKeys, $appSnippetKeys)) {
+            throw SnippetException::duplicatedFirstLevelKey($duplicatedKeys);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $snippets
+     *
+     * @return array<string, mixed>
+     */
+    private function sanitizeAppSnippets(array $snippets): array
+    {
+        $sanitizer = new HtmlSanitizer();
+
+        $sanitizedSnippets = [];
+        foreach ($snippets as $key => $value) {
+            if (\is_string($value)) {
+                $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+
+                continue;
+            }
+
+            if (\is_array($value)) {
+                $sanitizedSnippets[$key] = $this->sanitizeAppSnippets($value);
+            }
+        }
+
+        return $sanitizedSnippets;
     }
 }

@@ -116,41 +116,6 @@ parameters:
 			path: src/Administration/Service/AdminSearcher.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\CachedSnippetFinder\\:\\:findSnippets\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/CachedSnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinder\\:\\:findSnippetFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinder\\:\\:findSnippets\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinder\\:\\:getPluginPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinder\\:\\:parseFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinder\\:\\:parseFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinder.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Snippet\\\\SnippetFinderInterface\\:\\:findSnippets\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Snippet/SnippetFinderInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Controller\\\\AdminExtensionApiControllerTest\\:\\:providerRunAction\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Controller/AdminExtensionApiControllerTest.php
@@ -329,26 +294,6 @@ parameters:
 			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Notification\\\\Repository\\\\NotificationRepositoryTest\\:\\:notificationProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Test/Notification/Repository/NotificationRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Snippet\\\\SnippetFinderTest\\:\\:ensureFileOrder\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Test/Snippet/SnippetFinderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Snippet\\\\SnippetFinderTest\\:\\:ensureFileOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Test/Snippet/SnippetFinderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Snippet\\\\SnippetFinderTest\\:\\:getResultSnippetsByCase\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Test/Snippet/SnippetFinderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Test\\\\Snippet\\\\SnippetFinderTest\\:\\:getSnippetFilePathsOfFixtures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Test/Snippet/SnippetFinderTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Address\\\\Error\\\\SalutationMissingError\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
@@ -15601,56 +15546,6 @@ parameters:
 			path: src/Core/Framework/App/Lifecycle/AbstractAppLifecycle.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AbstractAppLoader\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AbstractAppLoader.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getPrivileges\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:delete\\(\\) has parameter \\$app with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:enrichInstallMetadata\\(\\) has parameter \\$metadata with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:enrichInstallMetadata\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:getWebhooks\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:update\\(\\) has parameter \\$app with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:updateApp\\(\\) has parameter \\$metadata with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycle\\:\\:updateMetadata\\(\\) has parameter \\$metadata with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLifecycle.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycleIterator\\:\\:deleteNotFoundAndFailedInstallApps\\(\\) has parameter \\$successfulUpdates with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/AppLifecycleIterator.php
@@ -15659,11 +15554,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLifecycleIterator\\:\\:getRegisteredApps\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/AppLifecycleIterator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\AppLoader\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/AppLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Lifecycle\\\\Persister\\\\CustomFieldPersister\\:\\:generateCustomFieldSets\\(\\) has parameter \\$customFieldSets with no value type specified in iterable type array\\.$#"
@@ -24684,16 +24574,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$callback of function usort expects callable\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\)\\: int, Closure\\(Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookEntity, Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookEntity\\)\\: int\\<\\-1, 1\\> given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/App/Lifecycle/AppLifecycleTest.php
-
-		-
-			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Cms\\\\CmsExtensions\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/App/Lifecycle/AppLoaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$actualString of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringEqualsFile\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/App/Lifecycle/AppLoaderTest.php
 
 		-
 			message: "#^Cannot call method create\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"

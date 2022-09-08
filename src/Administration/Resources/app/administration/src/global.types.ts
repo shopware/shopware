@@ -13,6 +13,7 @@ import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type { default as VueType } from 'vue';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
+import type LocaleFactory from 'src/core/factory/locale.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -136,7 +137,7 @@ declare global {
         mixin: $TSFixMe,
         filter: $TSFixMe,
         directive: $TSFixMe,
-        locale: $TSFixMe,
+        locale: typeof LocaleFactory,
         shortcut: $TSFixMe,
         plugin: $TSFixMe,
         apiService: $TSFixMe,

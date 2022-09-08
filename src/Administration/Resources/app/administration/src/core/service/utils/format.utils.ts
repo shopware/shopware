@@ -78,7 +78,7 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale() as string;
+    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone as string) ?? 'UTC';
 

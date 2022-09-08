@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Test\Snippet;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
@@ -23,7 +24,10 @@ class SnippetFinderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->snippetFinder = new SnippetFinder($this->getKernel());
+        $this->snippetFinder = new SnippetFinder(
+            $this->getKernel(),
+            $this->getContainer()->get(Connection::class)
+        );
     }
 
     public function testGetPluginPath(): void
@@ -46,7 +50,10 @@ class SnippetFinderTest extends TestCase
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeBundle', __DIR__ . '/fixtures/caseBundleLoading/bundle')]);
 
-        $this->snippetFinder = new SnippetFinder($kernelMock);
+        $this->snippetFinder = new SnippetFinder(
+            $kernelMock,
+            $this->getContainer()->get(Connection::class)
+        );
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('getPluginPaths');
@@ -82,7 +89,10 @@ class SnippetFinderTest extends TestCase
             ->method('getBundles')
             ->willReturn([$pluginMock]);
 
-        $this->snippetFinder = new SnippetFinder($kernelMock);
+        $this->snippetFinder = new SnippetFinder(
+            $kernelMock,
+            $this->getContainer()->get(Connection::class)
+        );
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('getPluginPaths');
@@ -187,6 +197,9 @@ class SnippetFinderTest extends TestCase
         static::assertEquals($expectedEn, $actualEn);
     }
 
+    /**
+     * @return array<string>
+     */
     private function getSnippetFilePathsOfFixtures(string $folder, string $namePattern): array
     {
         $finder = (new Finder())
@@ -205,6 +218,9 @@ class SnippetFinderTest extends TestCase
         return $files;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getResultSnippetsByCase(string $folder, string $locale): array
     {
         $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $locale . '.json/');
@@ -220,6 +236,11 @@ class SnippetFinderTest extends TestCase
         );
     }
 
+    /**
+     * @param array<int, string> $files
+     *
+     * @return array<int, string>
+     */
     private function ensureFileOrder(array $files): array
     {
         // core should be overwritten by plugin fixture, therefore core should be index 0

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -56,9 +57,12 @@ class AppLoaderTest extends TestCase
         static::assertCount(1, $manifests);
         $manifest = $manifests['test'];
 
+        $icon = $appLoader->getIcon($manifest);
+        static::assertNotNull($icon);
+
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/icon.png',
-            $appLoader->getIcon($manifest)
+            $icon
         );
     }
 
@@ -124,8 +128,12 @@ class AppLoaderTest extends TestCase
         $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/test');
         $app = (new AppEntity())->assign(['path' => $path]);
 
-        static::assertNotNull($appLoader->getCmsExtensions($app)->getBlocks());
-        static::assertCount(2, $appLoader->getCmsExtensions($app)->getBlocks()->getBlocks());
+        $cmsManifest = $appLoader->getCmsExtensions($app);
+        static::assertInstanceOf(CmsManifest::class, $cmsManifest);
+
+        $blocks = $cmsManifest->getBlocks();
+        static::assertNotNull($blocks);
+        static::assertCount(2, $blocks->getBlocks());
     }
 
     public function testGetAssetPathForAppPath(): void

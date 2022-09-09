@@ -1,17 +1,35 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-language/page/sw-settings-language-detail';
+import 'src/app/component/utils/sw-inherit-wrapper';
+import flushPromises from 'flush-promises';
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [], languageId = null) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-settings-language-detail'), {
         localVue,
+        mocks: {
+            $tc(translationKey) {
+                return translationKey;
+            },
+        },
+        propsData: {
+            languageId,
+        },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve();
+                        return Promise.resolve(
+                            {
+                                aggregations: {
+                                    usedLocales: {
+                                        buckets: [],
+                                    },
+                                }
+                            }
+                        );
                     },
 
                     create: () => {
@@ -20,9 +38,12 @@ function createWrapper(privileges = []) {
                         });
                     },
 
-                    get: () => {
+                    get: (id) => {
                         return Promise.resolve({
-                            isNew: () => false
+                            id,
+                            isNew: () => false,
+                            parentId: '1234',
+                            translationCodeId: '5678',
                         });
                     },
 
@@ -70,6 +91,8 @@ function createWrapper(privileges = []) {
             'sw-field': true,
             'sw-entity-single-select': true,
             'sw-skeleton': true,
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inheritance-switch': true,
         }
     });
 }
@@ -80,6 +103,57 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should return metaInfo', () => {
+        const wrapper = createWrapper();
+        wrapper.vm.$options.$createTitle = () => 'Title';
+
+        const metaInfo = wrapper.vm.$options.metaInfo();
+
+        expect(metaInfo.title).toBe('Title');
+    });
+
+    it('should return identifier', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.identifier).toBe('');
+
+        wrapper.vm.language = {
+            name: 'English',
+        };
+
+        expect(wrapper.vm.identifier).toBe('English');
+    });
+
+    it('should return identifier', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.identifier).toBe('');
+
+        wrapper.vm.language = {
+            name: 'English',
+        };
+
+        expect(wrapper.vm.identifier).toBe('English');
+    });
+
+    it('should not be possible to inherit with no system language', () => {
+        const wrapper = createWrapper();
+        expect(wrapper.vm.inheritanceTooltipText).toBe('sw-settings-language.detail.tooltipLanguageNotChoosable');
+
+        wrapper.vm.language = {
+            id: Shopware.Context.api.systemLanguageId,
+        };
+        expect(wrapper.vm.inheritanceTooltipText).toBe('sw-settings-language.detail.tooltipInheritanceNotPossible');
+    });
+
+    it('should load entity data', async () => {
+        const wrapper = createWrapper([], Shopware.Context.api.systemLanguageId);
+        expect(wrapper.vm.languageId).toBe(Shopware.Context.api.systemLanguageId);
+        await flushPromises();
+
+        expect(wrapper.vm.language.id).toBe(Shopware.Context.api.systemLanguageId);
     });
 
     it('should be able to save the language', async () => {
@@ -98,7 +172,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]'
         );
         const languageTranslationCodeIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelIsoCode"]'
+            '#iso-codes'
         );
         const languageLocaleIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]'
@@ -125,7 +199,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]'
         );
         const languageTranslationCodeIdField = wrapper.find(
-            'sw-entity-single-select-stub[label="sw-settings-language.detail.labelIsoCode"]'
+            '#iso-codes'
         );
         const languageLocaleIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]'

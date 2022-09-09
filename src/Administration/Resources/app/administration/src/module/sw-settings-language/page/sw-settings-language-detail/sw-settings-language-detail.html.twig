@@ -94,9 +94,90 @@
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
+                            :error="languageNameError"
                             validation="required"
                             required
                         />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_language_detail_content_field_localeId %}
+                        <sw-entity-single-select
+                            id="locales"
+                            v-model="language.localeId"
+                            required
+                            show-clearable-button
+                            class="sw-settings-language-detail__select-locale"
+                            :disabled="!acl.can('language.editor')"
+                            :label="$tc('sw-settings-language.detail.labelLocale')"
+                            entity="locale"
+                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                            :error="languageLocaleIdError"
+                        >
+                            <template #selection-label-property="{ item, getKey }">
+                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                            </template>
+
+                            <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                                </template>
+                            </template>
+                        </sw-entity-single-select>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_language_detail_content_field_iso_code %}
+                        <sw-inherit-wrapper
+                            v-model="language.translationCodeId"
+                            :inherited-value="parentTranslationCodeId"
+                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
+                            :required="isIsoCodeRequired"
+                        >
+                            <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance }">
+                                <sw-entity-single-select
+                                    id="iso-codes"
+                                    :value="currentValue"
+                                    class="sw-settings-language-detail__select-iso-code"
+                                    :disabled="isInherited || !acl.can('language.editor')"
+                                    label-property="code"
+                                    show-clearable-button
+                                    :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                    :error="translationCodeError"
+                                    entity="locale"
+                                    @change="updateCurrentValue"
+                                >
+                                    <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <li
+                                            is="sw-select-result"
+                                            v-tooltip="{
+                                                showDelay: 300,
+                                                message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                                disabled: !isLocaleAlreadyUsed(item)
+                                            }"
+                                            :disabled="isLocaleAlreadyUsed(item)"
+                                            :selected="isSelected(item)"
+                                            v-bind="{ item, index }"
+                                            @item-select="setValue"
+                                        >
+                                            <sw-highlight-text
+                                                v-if="highlightSearchTerm"
+                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                :search-term="searchTerm"
+                                            />
+                                            <template v-else>
+                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </template>
+                                        </li>
+                                    </template>
+                                </sw-entity-single-select>
+                            </template>
+                        </sw-inherit-wrapper>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -136,77 +217,6 @@
                                         {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                     </template>
                                 </li>
-                            </template>
-                        </sw-entity-single-select>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_language_detail_content_field_iso_code %}
-                        <sw-entity-single-select
-                            id="iso-codes"
-                            v-model="language.translationCodeId"
-                            class="sw-settings-language-detail__select-iso-code"
-                            :disabled="!acl.can('language.editor')"
-                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
-                            :required="isIsoCodeRequired"
-                            label-property="code"
-                            show-clearable-button
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                            :help-text="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
-                            entity="locale"
-                        >
-                            <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <li
-                                    is="sw-select-result"
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
-                                        disabled: !isLocaleAlreadyUsed(item)
-                                    }"
-                                    :disabled="isLocaleAlreadyUsed(item)"
-                                    :selected="isSelected(item)"
-                                    v-bind="{ item, index }"
-                                    @item-select="setValue"
-                                >
-                                    <sw-highlight-text
-                                        v-if="highlightSearchTerm"
-                                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                        :search-term="searchTerm"
-                                    />
-                                    <template v-else>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
-                                </li>
-                            </template>
-                        </sw-entity-single-select>
-                        {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_language_detail_content_field_localeId %}
-                        <sw-entity-single-select
-                            id="locales"
-                            v-model="language.localeId"
-                            required
-                            show-clearable-button
-                            class="sw-settings-language-detail__select-locale"
-                            :disabled="!acl.can('language.editor')"
-                            :label="$tc('sw-settings-language.detail.labelLocale')"
-                            entity="locale"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                        >
-                            <template #selection-label-property="{ item, getKey }">
-                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                            </template>
-
-                            <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <sw-highlight-text
-                                    v-if="highlightSearchTerm"
-                                    :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
-                                    :search-term="searchTerm"
-                                />
-                                <template v-else>
-                                    {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
-                                </template>
                             </template>
                         </sw-entity-single-select>
                         {% endblock %}

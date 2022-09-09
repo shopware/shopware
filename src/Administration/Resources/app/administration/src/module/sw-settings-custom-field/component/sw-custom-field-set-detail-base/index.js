@@ -16,6 +16,11 @@ Component.register('sw-custom-field-set-detail-base', {
                 return {};
             },
         },
+        technicalNameError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -109,6 +114,10 @@ Component.register('sw-custom-field-set-detail-base', {
                     return label.toLowerCase().includes(lowerSearchTerm);
                 });
             });
+        },
+
+        onTechnicalNameChange() {
+            this.$emit('reset-errors');
         },
     },
 });

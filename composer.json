@@ -270,11 +270,13 @@
             "@build:js:storefront"
         ],
         "watch:admin": [
+            "Composer\\Config::disableProcessTimeout",
             "@php bin/console feature:dump",
             "@php bin/console bundle:dump",
             "@npm:admin run dev"
         ],
         "watch:storefront": [
+            "Composer\\Config::disableProcessTimeout",
             "@php bin/console feature:dump",
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"
@@ -374,15 +376,19 @@
             "@e2e:recovery:cypress run --browser chrome --headless --spec \"cypress/integration/recovery/**/*\""
         ],
         "e2e:open": [
+            "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
         ],
         "e2e:admin:open": [
+            "Composer\\Config::disableProcessTimeout",
             "@e2e:admin:cypress open"
         ],
         "e2e:storefront:open": [
+            "Composer\\Config::disableProcessTimeout",
             "@e2e:storefront:cypress open"
         ],
         "e2e:recovery:open": [
+            "Composer\\Config::disableProcessTimeout",
             "@e2e:recovery:cypress open"
         ],
         "admin:unit": [
@@ -390,6 +396,7 @@
             "@npm:admin run unit"
         ],
         "admin:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
             "@php bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
             "@npm:admin run unit-watch"
         ],
@@ -397,6 +404,7 @@
             "@npm:storefront run unit"
         ],
         "storefront:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
             "@npm:storefront run unit-watch"
         ]
     },

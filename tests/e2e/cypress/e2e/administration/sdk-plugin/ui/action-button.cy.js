@@ -44,7 +44,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-context-menu__content')
             .should('be.visible');
 
-        cy.contains('.sw-context-menu__content', 'Test action')
+        cy.contains('.sw-context-menu__content .sw-app-action-button', 'Test action')
             .click();
 
         cy.contains('.sw-alert__title', 'Action button click');

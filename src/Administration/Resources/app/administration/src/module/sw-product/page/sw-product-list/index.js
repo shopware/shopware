@@ -1,8 +1,10 @@
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-product-list', {
@@ -95,7 +97,6 @@ Component.register('sw-product-list', {
             const productCriteria = new Criteria(this.page, this.limit);
 
             productCriteria.setTerm(this.term);
-            productCriteria.addFilter(Criteria.equals('product.parentId', null));
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
@@ -223,11 +224,9 @@ Component.register('sw-product-list', {
             criteria = await this.addQueryScores(this.term, criteria);
 
             // Clone product query to its variant
-            criteria.queries.forEach(query => {
-                const queryPayload = query.query;
-                const field = queryPayload.field.replace('product', 'children');
-                criteria.addQuery(Criteria[queryPayload.type](field, queryPayload.value), query.score);
-            });
+            const variantCriteria = cloneDeep(criteria);
+            criteria.addFilter(Criteria.equals('product.parentId', null));
+            variantCriteria.addFilter(Criteria.not('AND', [Criteria.equals('product.parentId', null)]));
 
             this.activeFilterNumber = criteria.filters.length - 1;
 
@@ -243,6 +242,19 @@ Component.register('sw-product-list', {
             }
 
             try {
+                if (this.term) {
+                    const variants = await this.productRepository.search(variantCriteria);
+                    if (variants.length > 0) {
+                        const parentIds = [];
+
+                        variants.forEach(variant => {
+                            parentIds.push(variant.parentId);
+                        });
+
+                        criteria.addQuery(Criteria.equalsAny('id', parentIds), searchRankingPoint.HIGH_SEARCH_RANKING);
+                    }
+                }
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
                     this.currencyRepository.search(this.currencyCriteria),

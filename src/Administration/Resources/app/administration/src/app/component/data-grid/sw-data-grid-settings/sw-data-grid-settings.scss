@@ -32,6 +32,12 @@
         .sw-data-grid__settings-column-item-controls {
             margin-left: auto;
             flex-shrink: 0;
+
+            .icon--regular-chevron-down-xxs,
+            .icon--regular-chevron-up-xxs {
+                // @deprecated tag:v6.5.0 - The !important attribute can be removed
+                padding: 4px !important;
+            }
         }
     }
 

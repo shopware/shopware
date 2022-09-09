@@ -62,5 +62,10 @@ $sw-order-state-card-warning: $color-pumpkin-spice-500;
         .sw-order-state__success-icon {
             color: $sw-order-state-card-success;
         }
+
+        .icon--regular-chevron-down-xxs {
+            // @deprecated tag:v6.5.0 - The !important attribute can be removed
+            padding: 4px !important;
+        }
     }
 }

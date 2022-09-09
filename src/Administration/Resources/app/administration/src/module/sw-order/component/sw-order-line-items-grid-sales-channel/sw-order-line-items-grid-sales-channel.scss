@@ -45,4 +45,9 @@ $sw-order-line-item-border: $color-gray-300;
     .sw-entity-single-select__selection-text .sw-product-variant-info {
         max-width: 280px;
     }
+
+    .icon--regular-chevron-down-xxs {
+        // @deprecated tag:v6.5.0 - The !important attribute can be removed
+        padding: 4px !important;
+    }
 }

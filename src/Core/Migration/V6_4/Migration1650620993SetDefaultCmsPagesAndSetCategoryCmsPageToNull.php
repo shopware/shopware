@@ -58,8 +58,8 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends M
         $cmsPageId = $connection->fetchOne('
             SELECT id
             FROM  cms_page
-            WHERE type = :cmsPageType AND locked = 1
-            ORDER BY created_at ASC;
+            WHERE type = :cmsPageType
+            ORDER BY locked DESC, created_at ASC;
        ', ['cmsPageType' => $cmsPageType]);
 
         return Uuid::fromBytesToHex($cmsPageId);

@@ -1,5 +1,5 @@
 # Changelog
-This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
+This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.4.15.0
 *  [NEXT-21255 - Update design of header and footer for order documents](/changelog/release-6-4-15-0/2022-05-12-update-design-of-header-and-footer-for-order-documents.md)
@@ -43,20 +43,18 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-22244 - Fix query signing for plugins](/changelog/release-6-4-15-0/2022-07-28-fix-query-signing-for-plugins.md)
 *  [NEXT-22271 - All (even non-closable) offcanvases close on window resize due to OffCanvasAccountMenu._onViewportHasChanged method](/changelog/release-6-4-15-0/2022-07-28-offcanvases-close-on-window-resize.md)
 *  [NEXT-22672 - Add scheduled task should run](/changelog/release-6-4-15-0/2022-07-29-add-scheduled-task-should-run.md)
-*  [NEXT-19510 - Edit shipping cost to "0" in an order](/changelog/release-6-4-15-0/2022-07-29-implement-shipping-cost-in-order-can-be-edited-to-0.md)
 *  [NEXT-22723 - Add missing snippets in delivery times](/changelog/release-6-4-15-0/2022-08-02-add-missing-snippets-in-delivery-times.md)
 *  [NEXT-16780 - Implement order document number to be searchable](/changelog/release-6-4-15-0/2022-08-02-implement-order-document-number-to-be-searchable.md)
 *  [NEXT-22725 - Remove flags other than those of default languages (de-DE, en-GB)](/changelog/release-6-4-15-0/2022-08-02-remove-flags-other-than-those-of-default-languages-de-de-en-gb.md)
 *  [NEXT-22691 - Add block supports for Flow Export on commercial plugin](/changelog/release-6-4-15-0/2022-08-03-add-block-supports-for-flow-export-on-commercial-plugin.md)
 *  [NEXT-22603 - Descriptive text in payment sorting modal is too long](/changelog/release-6-4-15-0/2022-08-03-descriptive-text-in-payment-sorting-modal-is-too-long.md)
-*  [NEXT-22310 - add loading spinner on checkout register page](/changelog/release-6-4-15-0/2022-08-04-add-loading-spinner-on-checkout-register-page.md)
 *  [NEXT-22358 - fix PromotionRedemptionUpdater handling of unexpected customer count](/changelog/release-6-4-15-0/2022-08-04-fix-promotionredemptionupdater-handling-of-unexpected-customer-count.md)
 *  [NEXT-20062 - Theme configuration - config fields incorrect representation](/changelog/release-6-4-15-0/2022-08-04-theme-configuration-fields-incorrect-representation.md)
 *  [NEXT-22774 - Add cancelable event to csrf handler](/changelog/release-6-4-15-0/2022-08-08-add-cancelable-event-to-csrf-handler.md)
 *  [NEXT-22797 - Add compilerpass for demodata generator](/changelog/release-6-4-15-0/2022-08-09-add-compilerpass-for-demodata-generator.md)
 *  [NEXT-22246 - Add elasticsearch aware to criteria](/changelog/release-6-4-15-0/2022-08-09-add-elasticsearch-aware-to-criteria.md)
 *  [NEXT-22769 - Add event to modify order criteria in SalesChannelContextRestorer](/changelog/release-6-4-15-0/2022-08-09-add-sales-channel-context-restorer-order-criteria-event.md) ([Stefan Poensgen](https://github.com/stefanpoensgen))
-*  [22446 - Extending the open api schema](/changelog/release-6-4-15-0/2022-08-09-extending-the-open-api-schema.md)
+*  [NEXT-22446 - Extending the open api schema](/changelog/release-6-4-15-0/2022-08-09-extending-the-open-api-schema.md)
 *  [NEXT-21194 - Move installer into core](/changelog/release-6-4-15-0/2022-08-09-move-installer-to-core.md)
 *  [NEXT-20721 - Error placeholder within notifications is not translated](/changelog/release-6-4-15-0/2022-08-10-error-placeholder-within-notifications-is-not-translated.md)
 *  [NEXT-19784 - Fix documents template changes are not applied correctly](/changelog/release-6-4-15-0/2022-08-10-fix-documents-template-changes-are-not-applied-correctly.md)
@@ -86,6 +84,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-22937 - Don't validate plugin requirements for plugins managed by composer](/changelog/release-6-4-15-0/2022-08-26-dont-validate-requirements-for-composer-plugins.md)
 *  [NEXT-22997 - Improve error handling of rule settings](/changelog/release-6-4-15-0/2022-08-26-improve-error-handling-of-rule-settings.md)
 *  [NEXT-20062 - Theme configuration - config fields incorrect representation](/changelog/release-6-4-15-0/2022-7-6-theme-configuration-fields-incorrect-representation.md)
+*  [NEXT-23122 - Improve translations in storefront presentation settings](/changelog/release-6-4-15-0/2022-09-07-fixed-transalations.md)
 
 ## 6.4.14.0
 * [NEXT-6944 - Assign newly created layout automatically](/changelog/release-6-4-14-0/11-07-2022-assign-newly-created-layout-automatically.md)

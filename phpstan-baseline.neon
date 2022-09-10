@@ -4501,16 +4501,6 @@ parameters:
 			path: src/Core/Content/ContactForm/Event/ContactFormEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ContactForm\\\\SalesChannel\\\\ContactFormRoute\\:\\:getMailConfigs\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ContactForm\\\\SalesChannel\\\\ContactFormRoute\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
@@ -9246,26 +9236,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$time of function strtotime expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Cms/SlotDataResolver/Type/TextTypeDataResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ContactForm\\\\ContactFormRouteTest\\:\\:createCategoryData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ContactForm/ContactFormRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ContactForm\\\\ContactFormRouteTest\\:\\:createLandingPageData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ContactForm/ContactFormRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ContactForm\\\\ContactFormRouteTest\\:\\:createProductData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ContactForm/ContactFormRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ContactForm/ContactFormRouteTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\AddCustomerAffiliateAndCampaignCodeActionTest\\:\\:createDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

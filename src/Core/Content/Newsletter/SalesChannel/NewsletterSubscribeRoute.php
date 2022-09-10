@@ -78,7 +78,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * The regex to check if string contains an url
      */
-    public const DOMAIN_NAME_REGEX = '/(http[s]?\:\/\/)?(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}/';
+    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
     /**
      * @var EntityRepositoryInterface

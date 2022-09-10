@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -19,6 +20,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ContactFormValidationFactory implements DataValidationFactoryInterface
 {
+    /**
+     * The regex to check if string contains an url
+     */
+    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
+
     /**
      * @var EventDispatcherInterface
      */
@@ -54,19 +60,28 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
     {
         $definition = new DataValidationDefinition($validationName);
 
-        $definition->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
+        $definition
+            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]))
             ->add('email', new NotBlank(), new Email())
             ->add('subject', new NotBlank())
-            ->add('comment', new NotBlank());
+            ->add('comment', new NotBlank())
+            ->add('firstName', new Regex(['pattern' => self::DOMAIN_NAME_REGEX, 'match' => false]))
+            ->add('lastName', new Regex(['pattern' => self::DOMAIN_NAME_REGEX, 'match' => false]));
 
         $required = $this->systemConfigService->get('core.basicInformation.firstNameFieldRequired', $context->getSalesChannel()->getId());
         if ($required) {
-            $definition->add('firstName', new NotBlank());
+            $definition->set('firstName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
         }
 
         $required = $this->systemConfigService->get('core.basicInformation.lastNameFieldRequired', $context->getSalesChannel()->getId());
         if ($required) {
-            $definition->add('lastName', new NotBlank());
+            $definition->set('lastName', new NotBlank(), new Regex([
+                'pattern' => self::DOMAIN_NAME_REGEX,
+                'match' => false,
+            ]));
         }
 
         $required = $this->systemConfigService->get('core.basicInformation.phoneNumberFieldRequired', $context->getSalesChannel()->getId());

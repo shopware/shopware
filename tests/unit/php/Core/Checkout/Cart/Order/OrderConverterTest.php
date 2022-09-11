@@ -577,6 +577,8 @@ class OrderConverterTest extends TestCase
         $order->setTotalRounding($this->cashRoundingConfig);
         $order->setItemRounding($this->cashRoundingConfig);
         $order->setRuleIds(['order-rule-id-1', 'order-rule-id-2']);
+        $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
+
         if ($toManipulate !== 'order-no-order-customer') {
             $order->setOrderCustomer($this->getOrderCustomer());
         }

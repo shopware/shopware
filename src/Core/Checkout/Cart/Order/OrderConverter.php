@@ -107,6 +107,8 @@ class OrderConverter
 
     /**
      * @throws DeliveryWithoutAddressException
+     *
+     * @return array<string, mixed|float|string|array<int, array<string, string|int|bool|mixed>>|null>
      */
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
@@ -264,6 +266,8 @@ class OrderConverter
     }
 
     /**
+     * @param array<string, array<string, bool>|string> $overrideOptions
+     *
      * @throws InconsistentCriteriaIdsException
      */
     public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
@@ -334,6 +338,7 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
+        $salesChannelContext->setTaxState($order->getTaxStatus());
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);

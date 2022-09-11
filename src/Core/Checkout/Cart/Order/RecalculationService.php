@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -104,7 +105,7 @@ class RecalculationService
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
-        $recalculatedCart = $this->refresh($cart, $salesChannelContext);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
         $conversionContext = (new OrderConversionContext())
             ->setIncludeCustomer(false)
@@ -316,6 +317,8 @@ class RecalculationService
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
+
+        /** @var ?CustomerAddressEntity $customerAddress */
         $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
         if ($customerAddress === null) {
             throw new AddressNotFoundException($customerAddressId);
@@ -355,17 +358,12 @@ class RecalculationService
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        return $this->orderRepository
+        /** @var ?OrderEntity $order */
+        $order = $this->orderRepository
             ->search($criteria, $context)
             ->get($orderId);
-    }
 
-    private function refresh(Cart $cart, SalesChannelContext $context): Cart
-    {
-        $behavior = new CartBehavior($context->getPermissions());
-
-        // all prices are now prepared for calculation -  starts the cart calculation
-        return $this->processor->process($cart, $context, $behavior);
+        return $order;
     }
 
     /**

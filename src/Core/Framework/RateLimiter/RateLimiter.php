@@ -18,6 +18,11 @@ class RateLimiter
 
     public const CONTACT_FORM = 'contact_form';
 
+    public const NEWSLETTER_FORM = 'newsletter_form';
+
+    /**
+     * @var array<string, RateLimiterFactory>
+     */
     private array $factories;
 
     public function reset(string $route, string $key): void

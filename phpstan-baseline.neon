@@ -21316,11 +21316,6 @@ parameters:
 			path: src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\RateLimiter\\:\\:\\$factories type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/RateLimiter/RateLimiter.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\RateLimiter\\\\RateLimiterFactory\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/RateLimiter/RateLimiterFactory.php

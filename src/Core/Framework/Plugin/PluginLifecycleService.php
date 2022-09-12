@@ -443,7 +443,7 @@ class PluginLifecycleService
             $pluginBaseClass->deactivate($deactivateContext);
 
             if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
-                $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+                $this->assetInstaller->removeAssetsOfBundle($plugin->getName());
             }
 
             $plugin->setActive(false);

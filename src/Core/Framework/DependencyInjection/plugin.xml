@@ -175,10 +175,11 @@
         <service id="Shopware\Core\Framework\Plugin\Util\AssetService">
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="kernel"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument>%kernel.shopware_core_dir%</argument>
+            <argument type="service" id="parameter_bag"></argument>
         </service>
 
         <!-- Requirement -->

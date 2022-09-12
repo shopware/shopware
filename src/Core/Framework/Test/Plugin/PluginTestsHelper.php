@@ -67,6 +67,9 @@ trait PluginTestsHelper
 
         /** @var KernelPluginCollection $pluginCollection */
         $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
-        $pluginCollection->add(new $class($active, $testPluginBaseDir));
+        $plugin = new $class($active, $testPluginBaseDir);
+        $pluginCollection->add($plugin);
+
+        $this->getContainer()->get(Plugin\KernelPluginLoader\KernelPluginLoader::class)->getPluginInstances()->add($plugin);
     }
 }

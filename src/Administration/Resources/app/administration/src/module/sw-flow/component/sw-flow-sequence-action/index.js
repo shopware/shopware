@@ -162,7 +162,7 @@ Component.register('sw-flow-sequence-action', {
                 'customFields',
                 'triggerEvent',
             ]),
-        ...mapGetters('swFlowState', ['availableActions', 'actionGroups']),
+        ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
     },
 
     watch: {
@@ -297,6 +297,20 @@ Component.register('sw-flow-sequence-action', {
         },
 
         removeAction(id) {
+            const action = this.sequences.find(sequence => sequence.id === id);
+            if (action?.id) {
+                const sequencesInGroup = this.sequences.filter(item => item.parentId === action.parentId
+                    && item.trueCase === action.trueCase
+                    && item.id !== id);
+
+                sequencesInGroup.forEach((item, index) => {
+                    State.commit('swFlowState/updateSequence', {
+                        id: item.id,
+                        position: index + 1,
+                    });
+                });
+            }
+
             if (this.isAppDisabled(this.getSelectedAppFlowAction(this.sequence[id]?.actionName))) return;
 
             State.commit('swFlowState/removeSequences', [id]);

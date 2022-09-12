@@ -439,10 +439,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
+                    position: 5,
                 },
                 3: {
-                    ...sequencesFixture[1]
+                    ...sequencesFixture[1],
+                    position: 6,
                 }
             }
         });
@@ -493,10 +495,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
+                    position: 5,
                 },
                 3: {
-                    ...sequencesFixture[1]
+                    ...sequencesFixture[1],
+                    position: 6,
                 }
             }
         });
@@ -506,10 +510,33 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(2);
-        await moveDownAction.trigger('click');
-        expect(sequencesState[0].position).toEqual(2);
         expect(sequencesState[1].position).toEqual(1);
+        await moveDownAction.trigger('click');
+        expect(sequencesState[0].position).toEqual(6);
+        expect(sequencesState[1].position).toEqual(5);
+    });
+
+    it('should reset position after deleting action', async () => {
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        const wrapper = createWrapper({
+            sequence: {
+                2: {
+                    ...sequencesFixture[0],
+                },
+                3: {
+                    ...sequencesFixture[1],
+                }
+            }
+        });
+
+        // delete the first action with position 1
+        const deleteActions = wrapper.findAll('.sw-flow-sequence-action__delete-action');
+        await deleteActions.at(0).trigger('click');
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toBe(1);
+        expect(sequencesState[0].position).toBe(1);
     });
 
     it('should correct label in set order state description', async () => {

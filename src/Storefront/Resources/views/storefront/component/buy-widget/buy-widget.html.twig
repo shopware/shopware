@@ -126,15 +126,29 @@
                         </div>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
                     {% set remoteClickOptions = {
                         selector: "#review-tab-" ~ product.id,
                         scrollToElement: true
                     } %}
 
+                    {# @deprecated tag:v6.5.0 - Will be removed - The variable will be moved into block `buy_widget_reviews` #}
                     {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
 
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
+
+                            {% if remoteClickOptions is not defined %}
+                                {% set remoteClickOptions = {
+                                    selector: "#review-tab-" ~ product.id,
+                                    scrollToElement: true
+                                } %}
+                            {% endif %}
+
+                            {% if reviewTabHref is not defined %}
+                                {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+                            {% endif %}
+
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {

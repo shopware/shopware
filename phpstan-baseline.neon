@@ -8346,31 +8346,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Suggest/CachedProductSuggestRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzer\\:\\:analyze\\(\\) has parameter \\$configFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzer\\:\\:resolveEntityValue\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzer\\:\\:tokenize\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzer\\:\\:tokenize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerInterface\\:\\:analyze\\(\\) has parameter \\$configFields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzerInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Util\\\\VariantCombinationLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Util/VariantCombinationLoader.php
@@ -12684,21 +12659,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannelProductBuilderTest\\:\\:maxPurchaseProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannelProductBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:casesSearchBaseOnConfigField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getConfigFieldsByLanguageId\\(\\) has parameter \\$searchConfigId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerTest\\:\\:getConfigFieldsByLanguageId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SearchKeyword/ProductSearchKeywordAnalyzerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Api\\\\ProductExportControllerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"

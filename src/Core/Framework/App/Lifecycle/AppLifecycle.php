@@ -231,7 +231,7 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
-        $this->assetService->removeAssetsOfBundle($appEntity->getName());
+        $this->assetService->removeAssets($appEntity->getName());
         $this->customEntitySchemaUpdater->update();
     }
 

@@ -73,6 +73,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     beforeEach(() => {
+        jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
+
         Shopware.State.commit('setCurrentUser', null);
         Shopware.State.get('settingsItems').settingsGroups.shop = [];
         Shopware.State.get('settingsItems').settingsGroups.system = [];
@@ -229,6 +231,33 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 id: 'sw.second.level.last'
             })
         ]);
+    });
+
+    it('should render third level menu correctly', () => {
+        const thirdLevelEntries = wrapper.findAll('.navigation-list-item__level-3');
+
+        expect(thirdLevelEntries.length).toEqual(1);
+        expect(thirdLevelEntries.at(0).text()).toContain('first child of third top level entry');
+    });
+
+    it('should not render 4.level or higher menu item and throw error', () => {
+        const fourthLevelEntries = wrapper.findAll('.navigation-list-item__level-4');
+        const fifthLevelEntries = wrapper.findAll('.navigation-list-item__level-5');
+
+        // Levels dont get rendered
+        expect(fourthLevelEntries.length).toEqual(0);
+        expect(fifthLevelEntries.length).toEqual(0);
+
+        // Console error gets thrown for both levels
+        expect(Shopware.Utils.debug.error.mock.calls[0][0]).toBeInstanceOf(Error);
+        expect(Shopware.Utils.debug.error.mock.calls[0][0].toString()).toEqual(
+            'Error: The navigation entry \"sw.fourth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.'
+        );
+
+        expect(Shopware.Utils.debug.error.mock.calls[1][0]).toBeInstanceOf(Error);
+        expect(Shopware.Utils.debug.error.mock.calls[1][0].toString()).toEqual(
+            'Error: The navigation entry \"sw.fifth.level.first\" is nested on level 4 or higher.The admin menu only supports up to three levels of nesting.'
+        );
     });
 
     it('should check privileges for main menu entry children ', () => {

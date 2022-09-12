@@ -9,6 +9,9 @@ describe('Category: SDK Test', ()=> {
                     method: 'POST'
                 }).as('searchLocale');
 
+                // reset mouse position to neutral state
+                cy.get('body').realHover({ position: 'topLeft' });
+
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
                 cy.get('.sw-skeleton').should('not.exist');
@@ -52,6 +55,37 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-page__search-bar')
             .should('not.exist');
     });
+
+    it('@sdk: add menu item at third level', { browser: 'chrome' },()=> {
+        cy.get('.sw-card-view__content')
+            .scrollTo('bottom');
+
+        cy.get('.sw-loader')
+            .should('not.exist');
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('.sw-catalogue')
+            .click();
+
+        cy.get('.sw-manufacturer')
+            .should('be.visible')
+            .realHover();
+
+        cy.contains('Third level')
+            .should('be.visible')
+            .click();
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .should('be.visible');
+
+        cy.getSDKiFrame('ui-main-module-add-main-module')
+            .contains('Hello from the new Menu Page')
+
+        /**  Information: The complete flyout can't be tested because when one hover gets triggered
+         * the next one won't work in Cypress because the previous hover gets closed */
+    });
+
     it('@sdk: check menu position', ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');

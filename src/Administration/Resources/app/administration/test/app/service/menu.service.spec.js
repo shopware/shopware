@@ -23,7 +23,7 @@ describe('src/app/service/menu.service', () => {
 
             const navigationEntries = menuService.getNavigationFromAdminModules();
 
-            expect(navigationEntries).toHaveLength(9);
+            expect(navigationEntries).toHaveLength(12);
             expect(navigationEntries).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: 'sw.second.top.level' }),
                 expect.objectContaining({ id: 'sw.second.level.last' }),

@@ -42,7 +42,7 @@ class CompositeEntitySearcherTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_18762', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 

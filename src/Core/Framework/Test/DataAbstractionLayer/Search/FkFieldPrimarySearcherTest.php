@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\FkFieldPrimaryDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkFieldPrimaryDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,26 +29,9 @@ class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var string
-     */
-    private $productId;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14872', $this);
-        parent::setUp();
-    }
+    private string $productId;
 
     protected function tearDown(): void
     {
@@ -94,17 +78,20 @@ class FkFieldPrimarySearcherTest extends TestCase
         );
 
         $criteria = new Criteria([$this->productId]);
+        /** @var EntityRepositoryInterface $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = $this->getContainer()->get('fk_field_primary.repository');
-        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext());
-        static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel->getElements());
-        static::assertArrayHasKey('name', $fkFieldPrimaryTupel->getElements()[$this->productId]);
-        static::assertEquals('TestPrimary', $fkFieldPrimaryTupel->getElements()[$this->productId]['name']);
+        /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
+        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
+        static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel);
+        static::assertTrue($fkFieldPrimaryTupel[$this->productId]->has('name'));
+        static::assertEquals('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
     }
 
     public function testSearchByMultiPrimaryFkKey(): void
     {
         $this->addMultiPrimaryFkField();
 
+        /** @var EntityRepositoryInterface $multiPrimaryRepository */
         $multiPrimaryRepository = $this->getContainer()->get('multi_fk_field_primary.repository');
         $firstId = Uuid::randomHex();
         $secondId = Uuid::randomHex();
@@ -123,7 +110,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
         static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
-        static::assertEquals($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]['firstId']);
+        static::assertEquals($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]->get('firstId'));
     }
 
     public function testSearchForTranslation(): void
@@ -148,6 +135,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $criteria = new Criteria([['product_id' => $this->productId, 'language_id' => Defaults::LANGUAGE_SYSTEM]]);
 
         $productTranslationRepository = $this->getContainer()->get('product_translation.repository');
+        /** @var ProductTranslationCollection $productTranslation */
         $productTranslation = $productTranslationRepository->search($criteria, Context::createDefaultContext());
 
         $key = $this->productId . '-' . Defaults::LANGUAGE_SYSTEM;

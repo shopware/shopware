@@ -12,9 +12,6 @@ shopware:
         default: false
         major: true
         description: "composer require for plugins"
-      - name: FEATURE_NEXT_11917
-        major: false
-        description: "dynamic plugin acl privileges"
       - name: FEATURE_NEXT_16710
         default: false
         major: true
@@ -45,11 +42,6 @@ shopware:
         major: true
         description: "EntityLoadedEventFactory will be required in repositories"
         # issue: NEXT-16155
-      - name: FEATURE_NEXT_14872
-        default: false
-        major: false
-        description: "Search of FkField PrimaryKey"
-        # issue: NEXT-14872
       - name: FEATURE_NEXT_19501
         default: false
         major: false
@@ -60,21 +52,11 @@ shopware:
         major: false
         description: "Replace wrong displayed characters in number format"
         # issue: NEXT-15053
-      - name: FEATURE_NEXT_14114
-        default: false
-        major: true
-        description: "Brexit Changes"
-        # issue: NEXT-14114
       - name: FEATURE_NEXT_18215
         default: false
         major: true
         description: "Rules are aware of their assignment"
         # issue: NEXT-18215
-      - name: FEATURE_NEXT_12455
-        default: false
-        major: false
-        description: "Captcha Integration"
-        # issue: NEXT-12455
       - name: FEATURE_NEXT_15815
         default: false
         major: true
@@ -88,11 +70,6 @@ shopware:
         major: false
         description: "Delivery notice for EU geoblocking regulation"
         # issue: NEXT-15707
-      - name: FEATURE_NEXT_15475
-        default: false
-        major: false
-        description: "Refactor Preview Mail Dummy Data"
-        # issue: NEXT-15475
       - name: FEATURE_NEXT_14360
         default: false
         major: true
@@ -103,11 +80,6 @@ shopware:
         major: true
         description: "Sanitize html of fields with AllowHtml flag"
         # issue: NEXT-15172
-      - name: FEATURE_NEXT_15687
-        default: false
-        major: true
-        description: "Storefront Controller needs Twig injected"
-        # issue: NEXT-15687
       - name: FEATURE_NEXT_14001
         default: false
         major: true
@@ -136,11 +108,6 @@ shopware:
         major: true
         description: "VAT id field for guest"
         # issue: NEXT-15957
-      - name: FEATURE_NEXT_16223
-        default: false
-        major: false
-        description: "Remove CORS header in storefront"
-        # issue: NEXT-16223
       - name: FEATURE_NEXT_13601
         default: false
         major: true
@@ -201,11 +168,6 @@ shopware:
         major: true
         description: "Layout assignment for category as list"
         # issue: NEXT-6758
-      - name: FEATURE_NEXT_18592
-        default: false
-        major: true
-        description: "Major feature flag for CombinationLoader"
-        # issue: NEXT-18592
       - name: FEATURE_NEXT_19048
         default: false
         major: true
@@ -216,11 +178,6 @@ shopware:
         major: true
         description: "Enables lazy loading components in the administration"
         # issue: NEXT-19822
-      - name: FEATURE_NEXT_17540
-        default: false
-        major: false
-        description: "Basic Flow Builder and App System integration"
-        # issue: NEXT-17540
       - name: FEATURE_NEXT_18129
         default: false
         major: true
@@ -241,21 +198,11 @@ shopware:
         major: true
         description: "Change component factory to work with extension overrides in Administration"
         # issue: NEXT-17978
-      - name: FEATURE_NEXT_17869
-        default: false
-        major: true
-        description: "Delayed flow actions"
-        # issue: NEXT_17869
       - name: FEATURE_NEXT_11634
         default: false
         major: true
         description: "Webpack alias refactor"
         # issue: NEXT_11634
-      - name: FEATURE_NEXT_18762
-        default: false
-        major: true
-        description: "Remove composite search api"
-        # issue: NEXT_18762
       - name: FEATURE_NEXT_21547
         default: false
         major: true

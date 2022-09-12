@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
@@ -32,6 +33,11 @@ class JoinGroupBuilder
      * - A `JoinGroup` is generated when a to-many association is filtered with a `not-filter`
      * - A `JoinGroup` is generated when a to-many association is filtered by more than one `multi-filter`
      * - An "empty" filter will not lead to a join group (example `new EqualsFilter('product.tags.id', null)`)
+     *
+     * @param list<Filter> $filters
+     * @param list<string> $additionalFields
+     *
+     * @return list<Filter>
      */
     public function group(array $filters, EntityDefinition $definition, array $additionalFields = []): array
     {
@@ -69,6 +75,11 @@ class JoinGroupBuilder
         return $new;
     }
 
+    /**
+     * @param list<Filter> $filters
+     *
+     * @return array<string, mixed>
+     */
     private function recursion(array $filters, EntityDefinition $definition, string $operator, bool $negated): array
     {
         $mapped = [];
@@ -122,8 +133,6 @@ class JoinGroupBuilder
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $filter->getField(), false);
 
-        $fields = array_filter($fields);
-
         if (\count($fields) === 0) {
             return null;
         }
@@ -170,6 +179,12 @@ class JoinGroupBuilder
         return $filter->getValue() === null;
     }
 
+    /**
+     * @param array<string, mixed> $mapped
+     * @param list<string> $fields
+     *
+     * @return list<string>
+     */
     private function getDuplicates(array $mapped, array $fields): array
     {
         $paths = $fields;

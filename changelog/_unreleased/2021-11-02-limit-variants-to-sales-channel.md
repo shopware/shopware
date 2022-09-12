@@ -1,7 +1,6 @@
 ---
 title: Limit variants to sales channel
 issue: NEXT-11392
-flag: FEATURE_NEXT_18592
 author_github: @Dominik28111
 ---
 # Core

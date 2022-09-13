@@ -23,6 +23,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class SyncServiceTest extends TestCase
 {
     /**
+     * @deprecated tag:v6.5.0 - does not need to run in seperate service anymore
+     *
      * @runInSeparateProcess
      */
     public function testSyncSingleOperation(): void

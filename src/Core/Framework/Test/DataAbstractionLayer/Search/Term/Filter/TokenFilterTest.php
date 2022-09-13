@@ -6,24 +6,18 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 class TokenFilterTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -33,6 +27,10 @@ class TokenFilterTest extends TestCase
 
     /**
      * @dataProvider cases
+     *
+     * @param list<string> $tokens
+     * @param list<string> $excludedTerms
+     * @param list<string> $expected
      */
     public function testExcludedFilterFilter(array $tokens, array $excludedTerms, array $expected): void
     {
@@ -40,11 +38,15 @@ class TokenFilterTest extends TestCase
 
         $service = new TokenFilter($this->connection);
         $keywords = $service->filter($tokens, $this->context);
+
         sort($expected);
         sort($keywords);
         static::assertEquals($expected, $keywords);
     }
 
+    /**
+     * @return array<array{list<string>, list<string>, list<string>}>
+     */
     public function cases(): array
     {
         return [
@@ -91,9 +93,12 @@ class TokenFilterTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<string> $excludedTerms
+     */
     private function updateProductSearchConfig(array $excludedTerms): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `language_id` = UNHEX(:id)',
             [
                 'excludedTerms' => json_encode($excludedTerms),

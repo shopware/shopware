@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
+    private const RELEVANT_KEYWORD_COUNT = 8;
+
     private Connection $connection;
 
     private TokenizerInterface $tokenizer;
@@ -74,9 +75,8 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $pattern->setTokenTerms($matches);
 
         $scoring = $this->score($tokens, ArrayNormalizer::flatten($matches));
-        if ($pattern->getBooleanClause() === SearchPattern::BOOLEAN_CLAUSE_OR) {
-            $scoring = \array_slice($scoring, 0, 8, true);
-        }
+        // only use the 8 best matches, otherwise the query might explode
+        $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -243,6 +243,9 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
+                /**
+                 * @deprecated tag:v6.5.0 - if can be removed as php min version is higher, only keep else branch
+                 */
                 if (\PHP_VERSION_ID < 80000) {
                     $levenshtein = levenshtein(substr($match, 0, 255), substr((string) $token, 0, 255));
                 } else {
@@ -295,20 +298,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $andLogic = false;
         $currentLanguageId = $context->getLanguageId();
 
-        $query = new QueryBuilder($this->connection);
-        $query->select('and_logic, language_id');
-        $query->from('product_search_config');
-
-        $query->andWhere('language_id IN (:language)');
-
-        $query->setParameter('language', Uuid::fromHexToBytesList([
-            $currentLanguageId, Defaults::LANGUAGE_SYSTEM,
-        ]), Connection::PARAM_STR_ARRAY);
-
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
-
-        $configurations = $stmt->fetchAll();
+        $configurations = $this->connection->fetchAllAssociative(
+            'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
+            ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
+            ['language' => Connection::PARAM_STR_ARRAY]
+        );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];
             if (Uuid::fromBytesToHex($configuration['language_id']) === $currentLanguageId) {

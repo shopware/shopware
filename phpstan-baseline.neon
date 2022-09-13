@@ -18965,50 +18965,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:excludedTermsFilter\\(\\) has parameter \\$excludedTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:excludedTermsFilter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:excludedTermsFilter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:filter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:searchTermLengthFilter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:searchTermLengthFilter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern\\:\\:getAllTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -25655,30 +25612,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/EntityScoreBuilderTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilterTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/Filter/TokenFilterTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilterTest\\:\\:testExcludedFilterFilter\\(\\) has parameter \\$excludedTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/Filter/TokenFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilterTest\\:\\:testExcludedFilterFilter\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/Filter/TokenFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilterTest\\:\\:testExcludedFilterFilter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/Filter/TokenFilterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilterTest\\:\\:updateProductSearchConfig\\(\\) has parameter \\$excludedTerms with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/Filter/TokenFilterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\TokenizerTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -34465,46 +34399,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Integration\\\\ProductVisibilityTest\\:\\:createProduct\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Integration/ProductVisibilityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:caseWithFetchingTokenTerms\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:caseWithMatchingBooleanCause\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:caseWithMatchingSearchPatternTermLength\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:casesWithTokenFilter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:testMatching\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:testMatchingTokenTerms\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\KeywordSearchTermInterpreterTest\\:\\:testMatchingWithTokenFilter\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/KeywordSearchTermInterpreterTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Migration\\\\Migration1595492054SeoUrlTemplateDataTest\\:\\:customTemplateProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

@@ -461,6 +461,8 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">

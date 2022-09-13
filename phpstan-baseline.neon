@@ -30332,31 +30332,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextPersister\\:\\:getCustomerContext\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextPersister\\:\\:getCustomerContext\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextPersister\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextPersister\\:\\:save\\(\\) has parameter \\$newParameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$statement has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextRestorer\\:\\:getOrderById\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextRestorer.php

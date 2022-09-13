@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -29,15 +30,9 @@ class SalesChannelContextPersisterTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
     public function setUp(): void
     {
@@ -348,7 +343,8 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $result = $persister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
-        static::assertSame($result['expired'], $expectedExpired, print_r([$tokenAgeInDays, $lifeTimeInterval, $expectedExpired], true));
+        static::assertSame($result['expired'], $expectedExpired);
+        static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
     private function cartExists(string $token): bool

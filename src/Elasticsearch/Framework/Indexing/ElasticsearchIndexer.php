@@ -25,6 +25,8 @@ use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class ElasticsearchIndexer extends AbstractMessageHandler
 {
@@ -50,6 +52,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private int $indexingBatchSize;
 
+    private MessageBusInterface $bus;
+
     /**
      * @internal
      */
@@ -64,7 +68,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $languageRepository,
         EventDispatcherInterface $eventDispatcher,
-        int $indexingBatchSize
+        int $indexingBatchSize,
+        MessageBusInterface $bus
     ) {
         $this->connection = $connection;
         $this->helper = $helper;
@@ -77,6 +82,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->languageRepository = $languageRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->indexingBatchSize = $indexingBatchSize;
+        $this->bus = $bus;
     }
 
     /**
@@ -123,6 +129,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         return $this->iterate($offset);
     }
 
+    /**
+     * @param array<string> $ids
+     */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
         if (!$this->helper->allowIndexing()) {
@@ -144,11 +153,11 @@ class ElasticsearchIndexer extends AbstractMessageHandler
     }
 
     /**
-     * @param ElasticsearchIndexingMessage $message
+     * @param object|ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
      */
     public function handle($message): void
     {
-        if (!$message instanceof ElasticsearchIndexingMessage) {
+        if (!$message instanceof ElasticsearchIndexingMessage && !$message instanceof ElasticsearchLanguageIndexIteratorMessage) {
             return;
         }
 
@@ -156,68 +165,28 @@ class ElasticsearchIndexer extends AbstractMessageHandler
             return;
         }
 
-        $task = $message->getData();
+        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
+            $this->handleLanguageIndexIteratorMessage($message);
 
-        $ids = $task->getIds();
-
-        $index = $task->getIndex();
-
-        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
-            'idCount' => \count($ids),
-            'index' => $index,
-        ]);
-
-        if (!$this->client->indices()->exists(['index' => $index])) {
             return;
         }
 
-        $entity = $task->getEntity();
-
-        $definition = $this->registry->get($entity);
-
-        $context = $message->getContext();
-
-        $context->addExtension('currencies', $this->getCurrencies());
-
-        if (!$definition) {
-            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
-        }
-
-        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
-
-        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
-
-        $documents = [];
-        foreach ($data as $id => $document) {
-            $documents[] = ['index' => ['_id' => $id]];
-            $documents[] = $document;
-        }
-
-        foreach ($toRemove as $id) {
-            $documents[] = ['delete' => ['_id' => $id]];
-        }
-
-        $arguments = [
-            'index' => $index,
-            'body' => $documents,
-        ];
-
-        $result = $this->client->bulk($arguments);
-
-        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
-            $errors = $this->parseErrors($result);
-
-            throw new ElasticsearchIndexingException($errors);
-        }
+        $this->handleIndexingMessage($message);
     }
 
     public static function getHandledMessages(): iterable
     {
         return [
             ElasticsearchIndexingMessage::class,
+            ElasticsearchLanguageIndexIteratorMessage::class,
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return ElasticsearchIndexingMessage[]
+     */
     private function generateMessages(EntityDefinition $definition, array $ids): array
     {
         $languages = $this->getLanguages();
@@ -284,49 +253,26 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $this->createScripts();
 
-        $definitions = $this->registry->getDefinitions();
         $languages = $this->getLanguages();
-
-        $currencies = $this->getCurrencies();
 
         $timestamp = new \DateTime();
 
         foreach ($languages as $language) {
-            $context = $this->createLanguageContext($language);
-
-            $context->addExtension('currencies', $currencies);
-
-            foreach ($definitions as $definition) {
-                $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
-
-                $index = $alias . '_' . $timestamp->getTimestamp();
-
-                $hasAlias = $this->indexCreator->aliasExists($alias);
-
-                $this->indexCreator->createIndex($definition, $index, $alias, $context);
-
-                $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
-
-                // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
-                if ($hasAlias) {
-                    $this->connection->insert('elasticsearch_index_task', [
-                        'id' => Uuid::randomBytes(),
-                        '`entity`' => $definition->getEntityDefinition()->getEntityName(),
-                        '`index`' => $index,
-                        '`alias`' => $alias,
-                        '`doc_count`' => $iterator->fetchCount(),
-                    ]);
-                }
-            }
+            $this->createLanguageIndex($language, $timestamp);
         }
 
         return new IndexerOffset(
             $languages,
-            $definitions,
+            $this->registry->getDefinitions(),
             $timestamp->getTimestamp()
         );
     }
 
+    /**
+     * @param array<mixed> $result
+     *
+     * @return array{index: string, id: string, type: string, reason: string}[]
+     */
     private function parseErrors(array $result): array
     {
         $errors = [];
@@ -396,178 +342,127 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private function createScripts(): void
     {
-        $script = "
-            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        $finder = (new Finder())
+            ->files()
+            ->in(__DIR__ . '/Scripts')
+            ->name('*.groovy');
 
-                    def factor = accessor['factor'];
-                    def value = doc[key].value * factor;
+        foreach ($finder as $file) {
+            $name = pathinfo($file->getFilename(), \PATHINFO_FILENAME);
 
-                    value = Math.round(value * decimals);
-                    value = (double) value / decimals;
-
-                    if (!round) {
-                        return (double) value;
-                    }
-
-                    value = Math.round(value * multiplier);
-
-                    value = (double) value / multiplier;
-
-                    return (double) value;
-                }
-
-                return 0;
-            }
-
-            return getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
-        ";
-
-        $this->client->putScript([
-            'id' => 'cheapest_price',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
+            $this->client->putScript([
+                'id' => $name,
+                'body' => [
+                    'script' => [
+                        'lang' => 'painless',
+                        'source' => file_get_contents($file->getPathname()),
+                    ],
                 ],
-            ],
+            ]);
+        }
+    }
+
+    private function createLanguageIndex(LanguageEntity $language, \DateTime $timestamp): void
+    {
+        $context = $this->createLanguageContext($language);
+
+        foreach ($this->registry->getDefinitions() as $definition) {
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
+
+            $index = $alias . '_' . $timestamp->getTimestamp();
+
+            $hasAlias = $this->indexCreator->aliasExists($alias);
+
+            $this->indexCreator->createIndex($definition, $index, $alias, $context);
+
+            $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
+
+            // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
+            if ($hasAlias) {
+                $this->connection->insert('elasticsearch_index_task', [
+                    'id' => Uuid::randomBytes(),
+                    '`entity`' => $definition->getEntityDefinition()->getEntityName(),
+                    '`index`' => $index,
+                    '`alias`' => $alias,
+                    '`doc_count`' => $iterator->fetchCount(),
+                ]);
+            }
+        }
+    }
+
+    private function handleIndexingMessage(ElasticsearchIndexingMessage $message): void
+    {
+        $task = $message->getData();
+
+        $ids = $task->getIds();
+
+        $index = $task->getIndex();
+
+        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
+            'idCount' => \count($ids),
+            'index' => $index,
         ]);
 
-        $script = "
-            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        if (!$this->client->indices()->exists(['index' => $index])) {
+            return;
+        }
 
-                    def factor = accessor['factor'];
-                    def value = doc[key].value * factor;
+        $entity = $task->getEntity();
 
-                    value = Math.round(value * decimals);
-                    value = (double) value / decimals;
+        $definition = $this->registry->get($entity);
 
-                    if (!round) {
-                        return (double) value;
-                    }
+        $context = $message->getContext();
 
-                    value = Math.round(value * multiplier);
+        $context->addExtension('currencies', $this->getCurrencies());
 
-                    value = (double) value / multiplier;
+        if (!$definition) {
+            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
+        }
 
-                    return (double) value;
-                }
+        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
 
-                return 0;
-            }
+        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
-            def price = getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
+        $documents = [];
+        foreach ($data as $id => $document) {
+            $documents[] = ['index' => ['_id' => $id]];
+            $documents[] = $document;
+        }
 
-            def match = true;
-            if (params.containsKey('gte')) {
-                match = match && price >= params['gte'];
-            }
-            if (params.containsKey('gt')) {
-                match = match && price > params['gt'];
-            }
-            if (params.containsKey('lte')) {
-                match = match && price <= params['lte'];
-            }
-            if (params.containsKey('lt')) {
-                match = match && price < params['lt'];
-            }
+        foreach ($toRemove as $id) {
+            $documents[] = ['delete' => ['_id' => $id]];
+        }
 
-            return match;
-        ";
+        $arguments = [
+            'index' => $index,
+            'body' => $documents,
+        ];
 
-        $this->client->putScript([
-            'id' => 'cheapest_price_filter',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
-                ],
-            ],
-        ]);
+        $result = $this->client->bulk($arguments);
 
-        $script = "
-            double getPercentage(def accessors, def doc) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
+            $errors = $this->parseErrors($result);
 
-                    return (double) doc[key].value;
-                }
+            throw new ElasticsearchIndexingException($errors);
+        }
+    }
 
-                return 0;
-            }
+    private function handleLanguageIndexIteratorMessage(ElasticsearchLanguageIndexIteratorMessage $message): void
+    {
+        $language = $this->languageRepository->search(new Criteria([$message->getLanguageId()]), Context::createDefaultContext())->first();
 
-            return getPercentage(params['accessors'], doc);
-        ";
+        if ($language === null) {
+            return;
+        }
 
-        $this->client->putScript([
-            'id' => 'cheapest_price_percentage',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
-                ],
-            ],
-        ]);
+        $timestamp = new \DateTime();
+        $this->createLanguageIndex($language, $timestamp);
 
-        $script = "
-            String getPercentageKey(def accessors, def doc) {
-                for (accessor in accessors) {
-                    def key = accessor['key'];
-                    if (!doc.containsKey(key) || doc[key].empty) {
-                        continue;
-                    }
+        $offset = new IndexerOffset(new LanguageCollection([$language]), $this->registry->getDefinitions(), $timestamp->getTimestamp());
+        while ($message = $this->iterate($offset)) {
+            $offset = $message->getOffset();
 
-                    return key;
-                }
-
-                return '';
-            }
-
-            def percentageKey = getPercentageKey(params['accessors'], doc);
-
-            if (percentageKey == '') {
-                return false;
-            }
-
-            def percentage = (double) doc[percentageKey].value;
-
-            def match = true;
-            if (params.containsKey('gte')) {
-                match = match && percentage >= params['gte'];
-            }
-            if (params.containsKey('gt')) {
-                match = match && percentage > params['gt'];
-            }
-            if (params.containsKey('lte')) {
-                match = match && percentage <= params['lte'];
-            }
-            if (params.containsKey('lt')) {
-                match = match && percentage < params['lt'];
-            }
-
-            return match;
-        ";
-
-        $this->client->putScript([
-            'id' => 'cheapest_price_percentage_filter',
-            'body' => [
-                'script' => [
-                    'lang' => 'painless',
-                    'source' => $script,
-                ],
-            ],
-        ]);
+            $this->bus->dispatch($message);
+        }
     }
 }

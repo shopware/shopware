@@ -209,7 +209,16 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\LanguageSubscriber">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Profiler\DataCollector">

@@ -5,8 +5,11 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -17,13 +20,15 @@ class AssetService
 
     private KernelInterface $kernel;
 
-    private KernelPluginCollection $pluginCollection;
-
     private CacheInvalidator $cacheInvalidator;
 
     private AbstractAppLoader $appLoader;
 
     private string $coreDir;
+
+    private KernelPluginLoader $pluginLoader;
+
+    private ParameterBagInterface $parameterBag;
 
     /**
      * @internal
@@ -31,17 +36,19 @@ class AssetService
     public function __construct(
         FilesystemInterface $filesystem,
         KernelInterface $kernel,
-        KernelPluginCollection $pluginCollection,
+        KernelPluginLoader $pluginLoader,
         CacheInvalidator $cacheInvalidator,
         AbstractAppLoader $appLoader,
-        string $coreDir
+        string $coreDir,
+        ParameterBagInterface $parameterBag
     ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
-        $this->pluginCollection = $pluginCollection;
+        $this->pluginLoader = $pluginLoader;
         $this->cacheInvalidator = $cacheInvalidator;
         $this->coreDir = $coreDir;
         $this->appLoader = $appLoader;
+        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -52,6 +59,12 @@ class AssetService
         $bundle = $this->getBundle($bundleName);
 
         $this->copyAssets($bundle);
+
+        if ($bundle instanceof Plugin) {
+            foreach ($this->getAdditionalBundles($bundle) as $bundle) {
+                $this->copyAssets($bundle);
+            }
+        }
     }
 
     public function copyAssets(BundleInterface $bundle): void
@@ -61,9 +74,9 @@ class AssetService
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($bundle->getName());
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->removeAssets($bundle->getName());
 
+        $targetDirectory = $this->getTargetDirectory($bundle->getName());
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -77,9 +90,9 @@ class AssetService
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($appName);
-        $this->filesystem->deleteDir($targetDirectory);
+        $this->removeAssets($appName);
 
+        $targetDirectory = $this->getTargetDirectory($appName);
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -87,15 +100,26 @@ class AssetService
 
     public function removeAssetsOfBundle(string $bundleName): void
     {
-        $targetDirectory = $this->getTargetDirectory($bundleName);
+        $this->removeAssets($bundleName);
 
-        $this->filesystem->deleteDir($targetDirectory);
+        try {
+            $bundle = $this->getBundle($bundleName);
+
+            if ($bundle instanceof Plugin) {
+                foreach ($this->getAdditionalBundles($bundle) as $bundle) {
+                    $this->removeAssets($bundle->getName());
+                }
+            }
+        } catch (PluginNotFoundException $e) {
+            // plugin is already unloaded, we cannot find it. Ignore it
+        }
     }
 
     public function copyRecoveryAssets(): void
     {
         $targetDirectory = 'recovery';
 
+        // @codeCoverageIgnoreStart
         if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
             // platform installation
             $originDir = $this->coreDir . '/../Recovery/Resources/public';
@@ -105,10 +129,18 @@ class AssetService
         } else {
             return;
         }
+        // @codeCoverageIgnoreEnd
 
         $this->filesystem->deleteDir($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
+    }
+
+    public function removeAssets(string $name): void
+    {
+        $targetDirectory = $this->getTargetDirectory($name);
+
+        $this->filesystem->deleteDir($targetDirectory);
     }
 
     private function getTargetDirectory(string $name): string
@@ -131,9 +163,11 @@ class AssetService
         foreach ($files as $file) {
             $fs = fopen($file->getPathname(), 'rb');
 
+            // @codeCoverageIgnoreStart
             if (!\is_resource($fs)) {
                 throw new \RuntimeException('Could not open file ' . $file->getPathname());
             }
+            // @codeCoverageIgnoreEnd
 
             $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
             fclose($fs);
@@ -148,7 +182,7 @@ class AssetService
         try {
             $bundle = $this->kernel->getBundle($bundleName);
         } catch (\InvalidArgumentException $e) {
-            $bundle = $this->pluginCollection->get($bundleName);
+            $bundle = $this->pluginLoader->getPluginInstances()->get($bundleName);
         }
 
         if ($bundle === null) {
@@ -156,5 +190,19 @@ class AssetService
         }
 
         return $bundle;
+    }
+
+    /**
+     * @return array<BundleInterface>
+     */
+    private function getAdditionalBundles(Plugin $bundle): array
+    {
+        $params = new AdditionalBundleParameters(
+            $this->pluginLoader->getClassLoader(),
+            $this->pluginLoader->getPluginInstances(),
+            $this->parameterBag->all()
+        );
+
+        return $bundle->getAdditionalBundles($params);
     }
 }

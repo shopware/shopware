@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Lifecycle\Persister;
+namespace Shopware\Administration\Snippet;
 
-use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -11,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleException;
-use Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetCollection;
-use Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetEntity;
 
 /**
  * @internal
@@ -41,7 +38,7 @@ class AppAdministrationSnippetPersister
         $coreSnippets = $this->getCoreAdministrationSnippets();
 
         $firstLevelSnippetKeys = [];
-        foreach ($snippets as $localeCode => $snippetString) {
+        foreach ($snippets as $snippetString) {
             $decodedSnippets = json_decode($snippetString, true);
             $firstLevelSnippetKeys = array_keys($decodedSnippets);
         }
@@ -61,7 +58,6 @@ class AppAdministrationSnippetPersister
         $localeIds = array_column($localeIds, 'id', 'code');
 
         $existingLocales = [];
-        /** @var AppAdministrationSnippetEntity $snippetEntity */
         foreach ($existingSnippets as $snippetEntity) {
             $existingLocales[$snippetEntity->getLocaleId()] = $snippetEntity->getId();
         }
@@ -110,7 +106,7 @@ class AppAdministrationSnippetPersister
      */
     private function getCoreAdministrationSnippets(): array
     {
-        $path = __DIR__ . '/../../../../../Administration/Resources/app/administration/src/app/snippet/en-GB.json';
+        $path = __DIR__ . '/../Resources/app/administration/src/app/snippet/en-GB.json';
         $snippets = file_get_contents($path);
 
         if (!$snippets) {

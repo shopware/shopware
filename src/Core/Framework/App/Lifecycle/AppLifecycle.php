@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
@@ -108,7 +108,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private FlowActionPersister $flowBuilderActionPersister;
 
-    private AppAdministrationSnippetPersister $appAdministrationSnippetPersister;
+    private ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
@@ -137,7 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
         CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         Connection $connection,
         FlowActionPersister $flowBuilderActionPersister,
-        AppAdministrationSnippetPersister $appAdministrationSnippetPersister
+        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -197,9 +197,6 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->updateAclRole($app->getName(), $context);
-
-        $snippets = $this->appLoader->getSnippets($app);
-        $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
     }
 
     /**
@@ -214,9 +211,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $event = new AppUpdatedEvent($appEntity, $manifest, $context);
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppUpdatedHook($event));
-
-        $snippets = $this->appLoader->getSnippets($appEntity);
-        $this->appAdministrationSnippetPersister->updateSnippets($appEntity, $snippets, $context);
     }
 
     /**
@@ -316,6 +310,12 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateConfigurable($app, $manifest, $install, $context);
 
         $this->updateAllowDisable($app, $context);
+
+        // updates the snippets if the administration bundle is available
+        if ($this->appAdministrationSnippetPersister !== null) {
+            $snippets = $this->appLoader->getSnippets($app);
+            $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
+        }
 
         return $app;
     }

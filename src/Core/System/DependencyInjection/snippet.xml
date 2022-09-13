@@ -13,10 +13,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\System\Snippet\SnippetValidatorInterface" class="Shopware\Core\System\Snippet\SnippetValidator">
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" />
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetFileHandler" />

@@ -11,15 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class CheapestPriceUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var AbstractCheapestPriceQuantitySelector
-     */
-    private $quantitySelector;
+    private AbstractCheapestPriceQuantitySelector $quantitySelector;
 
     /**
      * @internal
@@ -64,9 +58,26 @@ class CheapestPriceUpdater
                 'version' => $versionId,
             ]);
 
+            $variantIds = $container->getVariantIds();
+
+            if (!$variantIds) {
+                continue;
+            }
+
+            $existingAccessors = $this->connection->fetchAllKeyValue(
+                'SELECT id, cheapest_price_accessor FROM product WHERE parent_id = :id AND version_id = :version',
+                ['id' => Uuid::fromHexToBytes($productId), 'version' => $versionId]
+            );
+
             foreach ($container->getVariantIds() as $variantId) {
+                $accessor = JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId));
+
+                if (($existingAccessors[Uuid::fromHexToBytes($variantId)] ?? null) === $accessor) {
+                    continue;
+                }
+
                 $accessorQuery->execute([
-                    'accessor' => JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId)),
+                    'accessor' => $accessor,
                     'id' => Uuid::fromHexToBytes($variantId),
                     'version' => $versionId,
                 ]);
@@ -74,6 +85,9 @@ class CheapestPriceUpdater
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildAccessor(CheapestPriceContainer $container, string $variantId): array
     {
         $rules = $container->getRuleIds();
@@ -98,6 +112,12 @@ class CheapestPriceUpdater
         return $formattedPrices;
     }
 
+    /**
+     * @param array<string, mixed> $prices
+     * @param array<string, mixed>|null $default
+     *
+     * @return array<string, mixed>|null
+     */
     private function getCheapest(?string $ruleId, array $prices, ?array $default): ?array
     {
         if (isset($prices[$ruleId])) {
@@ -111,6 +131,11 @@ class CheapestPriceUpdater
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $price
+     *
+     * @return array<string, mixed>
+     */
     private function mapPrice(array $price): array
     {
         $array = ['gross' => $price['gross'], 'net' => $price['net']];
@@ -132,6 +157,11 @@ class CheapestPriceUpdater
         return $array;
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<mixed>
+     */
     private function fetchPrices(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -165,7 +195,7 @@ class CheapestPriceUpdater
         $data = $query->execute()->fetchAllAssociative();
 
         $grouped = [];
-        /** @var array $row */
+        /** @var array<string, mixed> $row */
         foreach ($data as $row) {
             $row['price'] = json_decode($row['price'], true);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
@@ -196,7 +226,7 @@ class CheapestPriceUpdater
 
         $defaults = $query->execute()->fetchAllAssociative();
 
-        /** @var array $row */
+        /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
                 $grouped[$row['parent_id']][$row['variant_id']]['default'] = null;
@@ -218,6 +248,11 @@ class CheapestPriceUpdater
         return $grouped;
     }
 
+    /**
+     * @param array<string, mixed> $prices
+     *
+     * @return array<string, mixed>
+     */
     private function normalizePrices(array $prices): array
     {
         foreach ($prices as &$price) {

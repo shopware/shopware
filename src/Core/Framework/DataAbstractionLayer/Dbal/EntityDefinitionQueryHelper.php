@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -53,6 +53,9 @@ class EntityDefinitionQueryHelper
         return !empty($exists);
     }
 
+    /**
+     * @return list<Field>
+     */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
         $parts = explode('.', $accessor);
@@ -78,6 +81,7 @@ class EntityDefinitionQueryHelper
             }
 
             if ($field instanceof TranslatedField && $resolveTranslated) {
+                /** @var EntityDefinition $source */
                 $source = $source->getTranslationDefinition();
                 $fields = $source->getFields();
                 $accessorFields[] = $fields->get($part);
@@ -288,7 +292,7 @@ class EntityDefinitionQueryHelper
                 throw new \RuntimeException('Missing `VersionField` in `' . $definition->getClass() . '`');
             }
 
-            /** @var FkField|null $versionIdField */
+            /** @var FkField $versionIdField */
             $versionIdField = array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
@@ -377,6 +381,8 @@ class EntityDefinitionQueryHelper
      * Adds the full translation select part to the provided sql query.
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
+     *
+     * @param array<string, mixed> $partial
      */
     public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
     {
@@ -484,6 +490,9 @@ class EntityDefinitionQueryHelper
         return $field;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
         $count = \count($context->getLanguageIdChain()) - 1;
@@ -515,10 +524,7 @@ class EntityDefinitionQueryHelper
 
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
-            /** @feature-deprecated (flag:FEATURE_NEXT_14872) remove FeatureCheck
-             * if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
-             */
-            if ($primaryKeyField instanceof IdField || (Feature::isActive('FEATURE_NEXT_14872') && $primaryKeyField instanceof FkField)) {
+            if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
                 $primaryKeys = array_map(function ($id) {
                     if (\is_array($id)) {
                         /** @var string $shiftedId */
@@ -616,6 +622,9 @@ class EntityDefinitionQueryHelper
         $query->andWhere($wheres);
     }
 
+    /**
+     * @param list<string> $chain
+     */
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
     {
         if (!$field instanceof StorageAware) {
@@ -672,6 +681,17 @@ class EntityDefinitionQueryHelper
 
     private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string
     {
-        return $field->getAccessorBuilder()->buildAccessor($root, $field, $context, $accessor);
+        $accessorBuilder = $field->getAccessorBuilder();
+        if (!$accessorBuilder) {
+            throw new FieldAccessorBuilderNotFoundException($field->getPropertyName());
+        }
+
+        $accessor = $accessorBuilder->buildAccessor($root, $field, $context, $accessor);
+
+        if (!$accessor) {
+            throw new \RuntimeException(sprintf('Can not build accessor for field "%s" on root "%s"', $field->getPropertyName(), $root));
+        }
+
+        return $accessor;
     }
 }

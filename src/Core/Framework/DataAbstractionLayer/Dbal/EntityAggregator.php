@@ -209,8 +209,6 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $aggregation->getField(), false);
 
-        $fields = array_filter($fields);
-
         if (\count($fields) === 0) {
             return null;
         }
@@ -315,7 +313,10 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
-        $this->extendQuery($aggregation->getAggregation(), $query, $definition, $context);
+        /** @var Aggregation $aggregationStruct FilterAggregations always have an aggregation */
+        $aggregationStruct = $aggregation->getAggregation();
+
+        $this->extendQuery($aggregationStruct, $query, $definition, $context);
     }
 
     private function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
@@ -473,6 +474,9 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
     }
 
+    /**
+     * @param array<mixed> $rows
+     */
     private function hydrateResult(Aggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): AggregationResult
     {
         $name = $aggregation->getName();
@@ -487,8 +491,10 @@ class EntityAggregator implements EntityAggregatorInterface
                 return $this->hydrateTermsAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof FilterAggregation:
+                /** @var Aggregation $aggregationStruct FilterAggregations always have an aggregation */
+                $aggregationStruct = $aggregation->getAggregation();
 
-                return $this->hydrateResult($aggregation->getAggregation(), $definition, $rows, $context);
+                return $this->hydrateResult($aggregationStruct, $definition, $rows, $context);
 
             case $aggregation instanceof AvgAggregation:
                 $value = isset($rows[0]) ? $rows[0][$name] : 0;
@@ -535,6 +541,9 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
+    /**
+     * @param array<mixed> $rows
+     */
     private function hydrateEntityAggregation(EntityAggregation $aggregation, array $rows, Context $context): EntityResult
     {
         $ids = array_filter(array_column($rows, $aggregation->getName()));
@@ -553,6 +562,9 @@ class EntityAggregator implements EntityAggregatorInterface
         return new EntityResult($aggregation->getName(), $entities->getEntities());
     }
 
+    /**
+     * @param array<mixed> $rows
+     */
     private function hydrateDateHistogramAggregation(DateHistogramAggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): DateHistogramResult
     {
         if (empty($rows)) {
@@ -585,6 +597,9 @@ class EntityAggregator implements EntityAggregatorInterface
         return new DateHistogramResult($aggregation->getName(), $buckets);
     }
 
+    /**
+     * @param array<mixed> $rows
+     */
     private function hydrateTermsAggregation(TermsAggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): TermsResult
     {
         $buckets = [];
@@ -621,6 +636,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addOrderBy($countAccessor, $direction);
     }
 
+    /**
+     * @param array<mixed> $rows
+     *
+     * @return array<array{ count: int, buckets: list<mixed>}>
+     */
     private function groupBuckets(BucketAggregation $aggregation, array $rows): array
     {
         $valueKey = $aggregation->getName() . '.key';

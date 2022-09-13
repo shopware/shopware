@@ -8,7 +8,9 @@
         type="text"
         :label="$tc('sw-settings-mailer.card-smtp.host')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
+        :error="hostError"
         required
+        @change="$emit('host-changed')"
     />
     {% endblock %}
 
@@ -16,10 +18,13 @@
     {% block sw_settings_mailer_smtp_port %}
     <sw-field
         v-model="mailerSettings['core.mailerSettings.port']"
-        type="text"
+        type="number"
+        :max="65536"
         :label="$tc('sw-settings-mailer.card-smtp.port')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
+        :error="portError"
         required
+        @change="$emit('port-changed')"
     />
     {% endblock %}
 

@@ -10,6 +10,16 @@ Shopware.Component.register('sw-settings-mailer-smtp', {
             type: Object,
             required: true,
         },
+        hostError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+        portError: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {

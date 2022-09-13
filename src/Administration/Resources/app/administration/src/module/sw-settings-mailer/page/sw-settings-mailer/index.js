@@ -7,6 +7,8 @@ Shopware.Component.register('sw-settings-mailer', {
 
     inject: ['systemConfigApiService'],
 
+    mixins: ['notification'],
+
     data() {
         return {
             isLoading: true,
@@ -23,6 +25,8 @@ Shopware.Component.register('sw-settings-mailer', {
                 'core.mailerSettings.deliveryAddress': null,
                 'core.mailerSettings.disableDelivery': false,
             },
+            smtpHostError: null,
+            smtpPortError: null,
         };
     },
 
@@ -88,6 +92,23 @@ Shopware.Component.register('sw-settings-mailer', {
                 this.mailerSettings['core.mailerSettings.emailAgent'] = null;
             }
 
+            // Validate smtp configuration
+            if (this.isSmtpMode) {
+                this.validateSmtpConfiguration();
+            }
+
+            // SMTP configuration invalid stop save and propagate error notification
+            if (this.smtpHostError !== null || this.smtpPortError !== null) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-settings-mailer.card-smtp.error.notificationMessage'),
+                });
+
+                this.isLoading = false;
+
+                return;
+            }
+
             await this.systemConfigApiService.saveValues(this.mailerSettings);
             this.isLoading = false;
         },
@@ -98,6 +119,24 @@ Shopware.Component.register('sw-settings-mailer', {
 
         checkFirstConfiguration() {
             this.isFirstConfiguration = !this.mailerSettings['core.mailerSettings.emailAgent'];
+        },
+
+        validateSmtpConfiguration() {
+            this.smtpHostError = !this.mailerSettings['core.mailerSettings.host'] ? {
+                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+            } : null;
+
+            this.smtpPortError = typeof this.mailerSettings['core.mailerSettings.port'] !== 'number' ? {
+                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+            } : null;
+        },
+
+        resetSmtpHostError() {
+            this.smtpHostError = null;
+        },
+
+        resetSmtpPortError() {
+            this.smtpPortError = null;
         },
     },
 });

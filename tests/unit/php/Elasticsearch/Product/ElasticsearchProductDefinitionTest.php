@@ -508,6 +508,23 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $document['propertyIds']
         );
 
+        static::assertArrayHasKey('visibilities', $document);
+        static::assertSame(
+            [
+                [
+                    'visibility' => '20',
+                    'salesChannelId' => 'sc-2',
+                    '_count' => 1,
+                ],
+                [
+                    'visibility' => '30',
+                    'salesChannelId' => 'sc-1',
+                    '_count' => 1,
+                ],
+            ],
+            $document['visibilities']
+        );
+
         static::assertSame(
             [
                 [
@@ -619,7 +636,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         'coverId' => null,
                         'childCount' => 0,
                         'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
-                        'visibilities' => 'sc-1,20',
+                        'visibilities' => '20,sc-2|20,sc-2|20,sc-2|30,sc-1|30,sc-1|20,sc-2',
                         'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                         'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     ],

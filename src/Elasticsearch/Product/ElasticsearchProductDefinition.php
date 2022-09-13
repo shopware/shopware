@@ -250,7 +250,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $documents = [];
 
         foreach ($data as $id => $item) {
-            $visibilities = array_unique(array_filter(explode('|', $item['visibilities'] ?? '')));
+            $visibilities = array_values(array_unique(array_filter(explode('|', $item['visibilities'] ?? ''))));
 
             $visibilities = array_map(static function (string $text) {
                 [$visibility, $salesChannelId] = explode(',', $text);

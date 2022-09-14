@@ -115,7 +115,7 @@ class ElasticsearchHelper
      *
      * @deprecated tag:v6.5.0 - Parameter $criteria will be required
      */
-    public function allowSearch(EntityDefinition $definition, Context $context): bool
+    public function allowSearch(EntityDefinition $definition, Context $context/*, Criteria $criteria */): bool
     {
         /** @var Criteria|null $criteria */
         $criteria = \func_num_args() >= 3 ? func_get_arg(2) : null;

@@ -3131,8 +3131,8 @@ class ElasticsearchProductTest extends TestCase
                 '*-*' => 7,
                 'all' => 7,
                 'custom_key' => 3,
-                '*-100' => 1,
-                '100-160' => 2,
+                '*-100' => 2,
+                '100-160' => 1,
                 '200-500' => 4,
                 '*-500' => 7,
             ],
@@ -3151,7 +3151,7 @@ class ElasticsearchProductTest extends TestCase
         $aggregator = $this->createEntityAggregator();
         $criteria = new Criteria($data->prefixed('product-'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addAggregation(new RangeAggregation('test-range-aggregation', 'product.price.gross', $rangesDefinition));
+        $criteria->addAggregation(new RangeAggregation('test-range-aggregation', 'product.stock', $rangesDefinition));
 
         $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $this->context);
 

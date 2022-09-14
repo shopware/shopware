@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -153,7 +154,7 @@ class ProductPageTest extends TestCase
         static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
 
         $matrix = $page->getReviews()->getMatrix();
-        static::assertEquals(3.3333333333333, $matrix->getAverageRating());
+        static::assertTrue(FloatComparator::equals(3.3333333333333, $matrix->getAverageRating()));
         static::assertEquals(6, $matrix->getTotalReviewCount());
     }
 
@@ -178,7 +179,7 @@ class ProductPageTest extends TestCase
         static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
 
         $matrix = $page->getReviews()->getMatrix();
-        static::assertEquals(3.4285714285714, $matrix->getAverageRating());
+        static::assertTrue(FloatComparator::equals(3.4285714285714, $matrix->getAverageRating()));
         static::assertEquals(7, $matrix->getTotalReviewCount());
     }
 

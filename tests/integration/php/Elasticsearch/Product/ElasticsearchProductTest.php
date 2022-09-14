@@ -64,6 +64,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -814,7 +815,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('avg-stock');
             static::assertInstanceOf(AvgResult::class, $result);
 
-            static::assertEquals(194.57142857143, $result->getAvg());
+            static::assertTrue(FloatComparator::equals(194.57142857143, $result->getAvg()));
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -915,7 +916,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertEquals(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(136.66666666667, $price->getAvg());
+            static::assertTrue(FloatComparator::equals(136.66666666667, $price->getAvg()));
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
@@ -1363,7 +1364,8 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(50, $result->getMin());
             static::assertEquals(300, $result->getMax());
-            static::assertEquals(192.85714285714, $result->getAvg());
+            static::assertIsFloat($result->getAvg());
+            static::assertTrue(FloatComparator::equals(192.85714285714, $result->getAvg()));
             static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
             static::tearDown();

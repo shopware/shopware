@@ -61,20 +61,20 @@ class CartPrice extends Struct
         $this->totalPrice = FloatComparator::cast($totalPrice);
         $this->calculatedTaxes = $calculatedTaxes;
         $this->taxRules = $taxRules;
-        $this->positionPrice = $positionPrice;
+        $this->positionPrice = FloatComparator::cast($positionPrice);
         $this->taxStatus = $taxStatus;
         $rawTotal = $rawTotal ?? $totalPrice;
-        $this->rawTotal = $rawTotal;
+        $this->rawTotal = FloatComparator::cast($rawTotal);
     }
 
     public function getNetPrice(): float
     {
-        return FloatComparator::cast($this->netPrice);
+        return $this->netPrice;
     }
 
     public function getTotalPrice(): float
     {
-        return FloatComparator::cast($this->totalPrice);
+        return $this->totalPrice;
     }
 
     public function getCalculatedTaxes(): CalculatedTaxCollection

@@ -1,17 +1,23 @@
 import { shallowMount } from '@vue/test-utils';
+import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
+const MeteorPage = Shopware.Component.build('sw-meteor-page');
+
 function createWrapper(slotsData = {}) {
-    return shallowMount(Shopware.Component.build('sw-meteor-page'), {
+    return shallowMount(MeteorPage, {
         stubs: {
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-help-center': true,
             'sw-meteor-page-context': true,
-            'sw-meteor-navigation': true,
+            'sw-meteor-navigation': {
+                props: ['fromLink'],
+                template: '<div class="sw-meteor-navigation"></div>',
+            },
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
             'router-link': true
@@ -28,13 +34,17 @@ function createWrapper(slotsData = {}) {
                 }
             }
         },
-        slots: slotsData
+        slots: slotsData,
+        propsData: {
+            fromLink: {
+                name: 'path.to.from.link',
+            },
+        },
     });
 }
 
 describe('src/app/component/meteor/sw-meteor-page', () => {
-    /** @type Wrapper */
-    let wrapper;
+    let wrapper: Wrapper<typeof MeteorPage>;
 
     beforeEach(() => {
         wrapper = createWrapper();
@@ -97,8 +107,13 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
     });
 
     it('should render the meteor navigation component when the slot "smart-bar-back" is not used', () => {
-        const navigationComponent = wrapper.find('sw-meteor-navigation-stub');
-        expect(navigationComponent.exists()).toBe(true);
+        const navigationComponent = wrapper.get('.sw-meteor-navigation');
+
+        expect(navigationComponent.vm).toBeTruthy();
+
+        expect(navigationComponent.props('fromLink')).toEqual({
+            name: 'path.to.from.link',
+        });
     });
 
     it('should not render the meteor navigation component when the slot "smart-bar-back" is not used', () => {

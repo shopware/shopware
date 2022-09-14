@@ -40,7 +40,7 @@ interface SwRouteConfig {
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    meta?: any;
+    meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     // eslint-disable-next-line @typescript-eslint/ban-types
     props?: boolean | Object | RoutePropsFunction;
@@ -79,7 +79,10 @@ interface SettingsItem {
     label?: string,
 }
 
-interface ModuleManifest {
+/**
+ * @private
+ */
+export interface ModuleManifest {
     flag?: string,
     type: ModuleTypes,
     routeMiddleware?: (next: () => void, currentRoute: Route) => void,

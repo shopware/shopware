@@ -16,11 +16,10 @@
 
         {% block cms_form_privacy_opt_in_label %}
             <label for="{{ identifierTemplate|format(_key) }}" class="{{ formCheckLabelClass }}">
-                {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
-                {{ "general.privacyNotice"|trans({
+                {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% instead #}
+                {{ "contact.privacyNotice"|trans({
                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                    '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                    '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage')} )
+                    '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </label>
         {% endblock %}

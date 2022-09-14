@@ -33371,10 +33371,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Routing/NotFound/NotFoundSubscriber.php
 
-		-
-			message: "#^PHPDoc tag @var for variable \\$scopes has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/ResponseHeaderListener.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
@@ -34251,10 +34248,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Test/Framework/Routing/RequestTransformerTest.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\ResponseHeaderListenerTest\\:\\:dataProviderRevalidateRoutes\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/ResponseHeaderListenerTest.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\RouterTest\\:\\:urlCases\\(\\) has no return type specified\\.$#"

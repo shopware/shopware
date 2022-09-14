@@ -26,25 +26,25 @@ class ProductSearchBuilderTest extends TestCase
      */
     public function testArraySearchTerm($query, string $expected): void
     {
+        $criteria = new Criteria();
+        $request = new Request();
+        $productDefinition = new ProductDefinition();
+        $request->query->set('search', $query);
+        $context = Context::createDefaultContext();
+        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext->method('getContext')->willReturn($context);
+
         $mockProductSearchBuilder = $this->createMock(ProductSearchBuilder::class);
         $mockProductSearchBuilder->method('build')->willThrowException(new \Exception('Should not be called'));
 
         $mockElasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
-        $mockElasticsearchHelper->method('allowSearch')->willReturn(true);
+        $mockElasticsearchHelper->expects(static::once())->method('allowSearch')->with($productDefinition, $context, $criteria)->willReturn(true);
 
         $searchBuilder = new ProductSearchBuilder(
             $mockProductSearchBuilder,
             $mockElasticsearchHelper,
-            new ProductDefinition()
+            $productDefinition
         );
-
-        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
-        $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-
-        $criteria = new Criteria();
-        $request = new Request();
-
-        $request->query->set('search', $query);
 
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
 

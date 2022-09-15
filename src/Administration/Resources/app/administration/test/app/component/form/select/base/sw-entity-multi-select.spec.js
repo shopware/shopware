@@ -15,6 +15,7 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/base/sw-product-variant-info';
+import 'src/app/component/base/sw-icon';
 
 const fixture = [
     { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] }
@@ -79,9 +80,7 @@ const createEntityMultiSelect = (customOptions) => {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-icon': {
-                template: '<div></div>'
-            },
+            'sw-icon': Shopware.Component.build('sw-icon'),
             'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-label': true,
@@ -90,7 +89,13 @@ const createEntityMultiSelect = (customOptions) => {
             'sw-popover': Shopware.Component.build('sw-popover'),
             'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
+            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info'),
+            'icons-regular-checkmark-xs': {
+                template: '<div></div>'
+            },
+            'icons-regular-chevron-down-xs': {
+                template: '<div></div>'
+            }
         },
         propsData: {
             entity: 'test',
@@ -218,5 +223,40 @@ describe('components/sw-entity-multi-select', () => {
         expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
+    });
+
+    it('should render select indicator', async () => {
+        const swEntityMultiSelect = await createEntityMultiSelect({
+            propsData: {
+                entity: 'test',
+                entityCollection: new EntityCollection(
+                    '/property-group-option',
+                    'property_group_option',
+                    null,
+                    { isShopwareContext: true },
+                    [getPropertyCollection().at(0)],
+                    1,
+                    null
+                )
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getPropertyCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        swEntityMultiSelect.vm.loadData();
+        await flushPromises();
+
+        await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
+        await swEntityMultiSelect.find('input').trigger('change');
+        await flushPromises();
+
+        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .sw-icon').exists()).toBeTruthy();
     });
 });

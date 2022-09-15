@@ -38,13 +38,14 @@
             </slot>
         </template>
 
-        <template #result-item="{ item, index, searchTerm, highlightSearchTerm }">
+        <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected }">
             <slot
                 name="result-item"
                 v-bind="{ item, index, searchTerm, highlightSearchTerm }"
             >
                 <li
                     is="sw-select-result"
+                    :selected="isSelected(item)"
                     v-bind="{ item, index, searchTerm, highlightSearchTerm }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

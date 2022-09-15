@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @internal
@@ -101,7 +102,7 @@ class ProductReviewRouteTest extends TestCase
         static::assertArrayHasKey('max', $response['aggregations']);
         static::assertArrayHasKey('average', $response['aggregations']);
 
-        static::assertEquals(3.4, $response['aggregations']['average']['avg']);
+        static::assertTrue(FloatComparator::equals(3.4, $response['aggregations']['average']['avg']));
         static::assertEquals(5, $response['aggregations']['max']['max']);
     }
 

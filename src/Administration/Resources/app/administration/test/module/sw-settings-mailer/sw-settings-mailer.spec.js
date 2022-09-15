@@ -1,8 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-mailer/page/sw-settings-mailer';
+import flushPromises from 'flush-promises';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
-    const CreateSettingsMailer = function CreateSettingsMailer() {
+    const CreateSettingsMailer = function CreateSettingsMailer(emailAgent = null) {
         return shallowMount(Shopware.Component.build('sw-settings-mailer'), {
             stubs: {
                 'sw-page': {
@@ -12,7 +13,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
             provide: {
                 systemConfigApiService: {
                     getValues: () => Promise.resolve({
-                        'core.mailerSettings.emailAgent': null,
+                        'core.mailerSettings.emailAgent': emailAgent,
                         'core.mailerSettings.host': null,
                         'core.mailerSettings.port': null,
                         'core.mailerSettings.username': null,
@@ -89,5 +90,42 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         expect(spySaveValues).not.toHaveBeenCalledWith(expectedMailerSettings);
         await settingsMailer.vm.saveMailerSettings();
         expect(spySaveValues).toHaveBeenCalledWith(expectedMailerSettings);
+    });
+
+    it('should throw smtp configuration errors', async () => {
+        const wrapper = new CreateSettingsMailer('smtp');
+        await flushPromises();
+
+        expect(wrapper.vm.smtpHostError).toBe(null);
+        expect(wrapper.vm.smtpPortError).toBe(null);
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.saveMailerSettings();
+        await flushPromises();
+
+        expect(wrapper.vm.smtpHostError).toBeTruthy();
+        expect(wrapper.vm.smtpPortError).toBeTruthy();
+        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
+    });
+
+    it('should reset smtp host error', () => {
+        const wrapper = new CreateSettingsMailer();
+        wrapper.vm.smtpHostError = { detail: 'FooBar' };
+        expect(wrapper.vm.smtpHostError).toStrictEqual({ detail: 'FooBar' });
+
+        wrapper.vm.resetSmtpHostError();
+
+        expect(wrapper.vm.smtpHostError).toBe(null);
+    });
+
+    it('should reset smtp port error', () => {
+        const wrapper = new CreateSettingsMailer();
+        wrapper.vm.smtpPortError = { detail: 'FooBar' };
+        expect(wrapper.vm.smtpPortError).toStrictEqual({ detail: 'FooBar' });
+
+        wrapper.vm.resetSmtpPortError();
+
+        expect(wrapper.vm.smtpPortError).toBe(null);
     });
 });

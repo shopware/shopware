@@ -131,6 +131,10 @@
                 {% block sw_settings_mailer_smtp_settings %}
                 <sw-settings-mailer-smtp
                     :mailer-settings="mailerSettings"
+                    :host-error="smtpHostError"
+                    :port-error="smtpPortError"
+                    @host-changed="resetSmtpHostError"
+                    @port-changed="resetSmtpPortError"
                 />
                 {% endblock %}
 

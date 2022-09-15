@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\SearchKeyword;
+namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -311,6 +311,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         static::assertEquals($expected, $analyzerResult);
     }
 
+    /**
+     * @return array<string, array<int, bool|int>>
+     */
     public function casesSearchBaseOnConfigField(): array
     {
         return [
@@ -325,7 +328,10 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         ];
     }
 
-    private function getConfigFieldsByLanguageId($searchConfigId): array
+    /**
+     * @return array<mixed>
+     */
+    private function getConfigFieldsByLanguageId(string $searchConfigId): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select('*');

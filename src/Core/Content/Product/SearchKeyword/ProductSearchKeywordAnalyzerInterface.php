@@ -7,5 +7,8 @@ use Shopware\Core\Framework\Context;
 
 interface ProductSearchKeywordAnalyzerInterface
 {
+    /**
+     * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
+     */
     public function analyze(ProductEntity $product, Context $context, array $configFields): AnalyzedKeywordCollection;
 }

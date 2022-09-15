@@ -15,10 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
-    /**
-     * @var ProductSearchTermInterpreterInterface
-     */
-    private $interpreter;
+    private ProductSearchTermInterpreterInterface $interpreter;
 
     /**
      * @internal

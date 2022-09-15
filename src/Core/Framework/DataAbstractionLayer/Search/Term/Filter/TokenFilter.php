@@ -6,20 +6,26 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\Service\ResetInterface;
 
-class TokenFilter extends AbstractTokenFilter
+/**
+ * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
+ */
+class TokenFilter extends AbstractTokenFilter implements ResetInterface
 {
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
 
     /**
-     * @var array
+     * @deprecated tag:v6.5.0 - Will be private and directly initialized with []
+     *
+     * @var array<string, FilterConfig>
      */
-    protected $config;
+    protected array $config;
 
     /**
-     * @var Connection
+     * @deprecated tag:v6.5.0 - Will be private
      */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * @internal
@@ -27,6 +33,10 @@ class TokenFilter extends AbstractTokenFilter
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
+        /**
+         * @deprecated tag:v6.5.0 - Can be removed as the property will be correctly initialized
+         */
+        $this->config = [];
     }
 
     public function getDecorated(): AbstractTokenFilter
@@ -34,6 +44,11 @@ class TokenFilter extends AbstractTokenFilter
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     public function filter(array $tokens, Context $context): array
     {
         if (empty($tokens)) {
@@ -42,15 +57,25 @@ class TokenFilter extends AbstractTokenFilter
 
         $config = $this->getConfig($context->getLanguageId());
 
-        if (empty($config)) {
+        if ($config === null) {
             return $tokens;
         }
         $tokens = $this->searchTermLengthFilter($tokens, $config['min_search_length']);
-        $tokens = $this->excludedTermsFilter($tokens, $config['excluded_terms']);
 
-        return $tokens;
+        return $this->excludedTermsFilter($tokens, $config['excluded_terms']);
     }
 
+    public function reset(): void
+    {
+        $this->config = [];
+    }
+
+    /**
+     * @param list<string> $tokens
+     * @param list<string> $excludedTerms
+     *
+     * @return list<string>
+     */
     private function excludedTermsFilter(array $tokens, array $excludedTerms): array
     {
         if (empty($excludedTerms) || empty($tokens)) {
@@ -67,6 +92,11 @@ class TokenFilter extends AbstractTokenFilter
         return $filtered;
     }
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     private function searchTermLengthFilter(array $tokens, int $minSearchTermLength): array
     {
         $filtered = [];
@@ -83,13 +113,16 @@ class TokenFilter extends AbstractTokenFilter
         return $filtered;
     }
 
-    private function getConfig(string $languageId): array
+    /**
+     * @return FilterConfig|null
+     */
+    private function getConfig(string $languageId): ?array
     {
         if (isset($this->config[$languageId])) {
             return $this->config[$languageId];
         }
 
-        $config = $this->connection->fetchAssoc('
+        $config = $this->connection->fetchAssociative('
             SELECT
                 LOWER(`excluded_terms`) as `excluded_terms`,
                 `min_search_length`
@@ -99,7 +132,7 @@ class TokenFilter extends AbstractTokenFilter
         ', ['languageId' => Uuid::fromHexToBytes($languageId)]);
 
         if (empty($config)) {
-            return [];
+            return null;
         }
 
         return $this->config[$languageId] = [

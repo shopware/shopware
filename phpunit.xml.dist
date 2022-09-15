@@ -163,8 +163,9 @@
         <!--Enable to see Test structure violations. (Not formatted) -->
         <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->
     </listeners>
-    <!--Enable to see the db sideeffects of the tests. -->
     <extensions>
         <extension class="Shopware\Core\Test\FeatureFlagExtension" />
+        <!--Enable to see the db sideeffects of the tests. -->
+        <!--<extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension" />-->
     </extensions>
 </phpunit>

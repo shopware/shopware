@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test;
+namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter
  */
-class KeywordSearchTermInterpreterTest extends TestCase
+class ProductSearchTermInterpreterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -45,6 +46,8 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
     /**
      * @dataProvider cases
+     *
+     * @param list<string> $expected
      */
     public function testMatching(string $term, array $expected): void
     {
@@ -64,8 +67,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     /**
      * @dataProvider casesWithTokenFilter
      *
-     * NEXT-17291 - Test is flaky
-     * @group quarantined
+     * @param list<string> $expected
      */
     public function testMatchingWithTokenFilter(string $term, array $expected): void
     {
@@ -79,16 +81,13 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
         sort($expected);
         sort($keywords);
-        // @todo check for flaky test: Remove if the cause is found NEXT-17291
-        $query = $this->connection->executeQuery('SELECT keyword FROM product_keyword_dictionary');
-        static::assertEquals($expected, $keywords, print_r($query->fetchAllAssociative(), true));
+        static::assertEquals($expected, $keywords);
     }
 
     /**
      * @dataProvider caseWithFetchingTokenTerms
      *
-     * NEXT-17291 - Test is flaky
-     * @group quarantined
+     * @param list<list<string>> $expected
      */
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
@@ -151,6 +150,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
         static::assertGreaterThanOrEqual(0, \count($terms));
     }
 
+    /**
+     * @return array<array{0: string, 1: list<string>}>
+     */
     public function cases(): array
     {
         return [
@@ -168,15 +170,18 @@ class KeywordSearchTermInterpreterTest extends TestCase
             ],
             [
                 '1000',
-                ['10000', '10001', '10002', '10007'],
+                ['100', '10000', '10001', '10002', '10007'],
             ],
-            [
+            'test it uses only first 8 keywords' => [
                 '10',
-                ['10', '10000', '10001', '10002', '10007'],
+                ['10', '100', '101', '102', '103', '10000', '10001', '10002'],
             ],
         ];
     }
 
+    /**
+     * @return array<array{0: string, 1: list<string>}>
+     */
     public function casesWithTokenFilter(): array
     {
         return [
@@ -194,7 +199,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
             ],
             [
                 '1000',
-                ['10000', '10001', '10002', '10007'],
+                ['100', '10000', '10001', '10002', '10007'],
             ],
             [
                 '1',
@@ -211,6 +216,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array{0: string, 1: list<list<string>>}>
+     */
     public function caseWithFetchingTokenTerms(): array
     {
         return [
@@ -226,7 +234,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 'Büronetz 1000',
                 [
                     ['büronetzwerk'],
-                    ['10000', '10001', '10002', '10007'],
+                    ['100', '10000', '10001', '10002', '10007'],
                 ],
             ],
             [
@@ -267,7 +275,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 '³²¼¼³¬½{¬]Büronetz³²¼¼³¬½{¬] ³²¼¼³¬½{¬]1000³²¼¼³¬½{¬]',
                 [
                     ['büronetzwerk'],
-                    ['10000', '10001', '10002', '10007'],
+                    ['100', '10000', '10001', '10002', '10007'],
                 ],
             ],
             [
@@ -282,19 +290,22 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 '(๑★ .̫ ★๑)Büronet（★￣∀￣★） (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂1000(*＾v＾*)',
                 [
                     ['büronetzwerk'],
-                    ['10000', '10001', '10002', '10007'],
+                    ['100', '10000', '10001', '10002', '10007'],
                 ],
             ],
             [
                 '‰€€Büronet¥Æ ‡‡1000††',
                 [
                     ['büronetzwerk'],
-                    ['10000', '10001', '10002', '10007'],
+                    ['100', '10000', '10001', '10002', '10007'],
                 ],
             ],
         ];
     }
 
+    /**
+     * @return array<array{0: bool, 1: string}>
+     */
     public function caseWithMatchingBooleanCause(): array
     {
         return [
@@ -309,6 +320,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array{0: bool, 1: string}>
+     */
     public function caseWithMatchingSearchPatternTermLength(): array
     {
         return [
@@ -355,6 +369,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
         ];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Testcase can be removed, as php min version will be higher
+     */
     public function testLevenshteinCharacterLimit(): void
     {
         if (\PHP_VERSION_ID >= 80000) {
@@ -420,6 +437,10 @@ class KeywordSearchTermInterpreterTest extends TestCase
             '10002',
             '10007',
             '10',
+            '100',
+            '101',
+            '102',
+            '103',
             '2',
             '3',
             'between',
@@ -431,8 +452,6 @@ class KeywordSearchTermInterpreterTest extends TestCase
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         foreach ($keywords as $keyword) {
-            preg_match_all('/./us', $keyword, $ar);
-
             $this->connection->insert('product_keyword_dictionary', [
                 'id' => Uuid::randomBytes(),
                 'keyword' => $keyword,

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -290,9 +291,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((585.43 * $quantity) + 11.71, $response['price']['totalPrice']);
+            static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
         } else {
-            static::assertEquals((643.97 * $quantity) + 12.88, $response['price']['totalPrice']);
+            static::assertEquals(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
         }
     }
 

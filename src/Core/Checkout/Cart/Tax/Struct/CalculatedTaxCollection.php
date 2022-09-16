@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @extends Collection<CalculatedTax>
@@ -59,7 +60,7 @@ class CalculatedTaxCollection extends Collection
             }
         );
 
-        return array_sum($amounts);
+        return FloatComparator::cast(array_sum($amounts));
     }
 
     /**

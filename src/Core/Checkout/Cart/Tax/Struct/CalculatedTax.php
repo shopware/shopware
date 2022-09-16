@@ -36,7 +36,7 @@ class CalculatedTax extends Struct
 
     public function setTax(float $tax): void
     {
-        $this->tax = $tax;
+        $this->tax = FloatComparator::cast($tax);
     }
 
     public function getTaxRate(): float
@@ -51,13 +51,13 @@ class CalculatedTax extends Struct
 
     public function increment(self $calculatedTax): void
     {
-        $this->tax += $calculatedTax->getTax();
-        $this->price += $calculatedTax->getPrice();
+        $this->tax = FloatComparator::cast($this->tax + $calculatedTax->getTax());
+        $this->price = FloatComparator::cast($this->price + $calculatedTax->getPrice());
     }
 
     public function setPrice(float $price): void
     {
-        $this->price = $price;
+        $this->price = FloatComparator::cast($price);
     }
 
     public function getApiAlias(): string

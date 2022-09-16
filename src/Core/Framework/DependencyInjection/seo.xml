@@ -102,6 +102,8 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" />
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension">

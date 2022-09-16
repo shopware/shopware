@@ -3,6 +3,11 @@
 namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,6 +24,8 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     private RequestStack $requestStack;
 
     private Connection $connection;
+    private UrlGeneratorInterface $urlGenerator;
+    private EntityRepositoryInterface $mediaRepository;
 
     /**
      * @internal
@@ -26,11 +33,16 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
-        Connection $connection
+        Connection $connection,
+        EntityRepositoryInterface $mediaRepository,
+        UrlGeneratorInterface $urlGenerator
+
     ) {
         $this->router = $router;
         $this->requestStack = $requestStack;
         $this->connection = $connection;
+        $this->mediaRepository = $mediaRepository;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -131,21 +143,33 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
             }
         }
 
-        $query = $this->connection->createQueryBuilder();
-        $query->addSelect(['id', 'file_name', 'file_extension']);
+        $urls = $this->getMediaUrls($idsToMap, $context->getContext());
 
-        $query->from('media');
-        $query->setParameter('id', $idsToMap, Connection::PARAM_STR_ARRAY);
-
-        $mediaFiles = $query->execute()->fetchAll();
-        foreach ($mediaFiles as $mediaFile) {
-            $key = self::DOMAIN_PLACEHOLDER . $prefix . bin2hex($mediaFile['id']) . '#';
-
-            // WIP: Resolve full URL as seen in \Shopware\Core\Content\Mail\Service\MailService::getMediaUrls
-            $mapping[$key] = $mediaFile['file_name'] . '.' . $mediaFile['file_extension'];
+        foreach ($urls as $id=>$url) {
+            $key = self::DOMAIN_PLACEHOLDER . $prefix . $id . '#';
+            $mapping[$key] = $url;
         }
 
         return $mapping;
+    }
+
+    private function getMediaUrls(array $mediaIds, Context $context): array
+    {
+        $criteria = new Criteria($mediaIds);
+        $criteria->setTitle('seo-url-placeholder-handler::get-media-urls');
+        $media = null;
+        $mediaRepository = $this->mediaRepository;
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
+            /** @var MediaCollection $media */
+            $media = $mediaRepository->search($criteria, $context)->getElements();
+        });
+
+        $urls = [];
+        foreach ($media ?? [] as $mediaItem) {
+            $urls[$mediaItem->id] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+        }
+
+        return $urls;
     }
 
     private function removePrefix(string $subject, string $prefix): string

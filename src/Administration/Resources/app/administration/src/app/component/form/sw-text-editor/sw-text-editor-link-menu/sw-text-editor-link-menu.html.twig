@@ -23,6 +23,9 @@
             <option value="navigation">
                 {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
             </option>
+            <option value="media">
+                {{ $tc('sw-text-editor-toolbar.link.labelMedia') }}
+            </option>
             <option value="email">
                 {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
             </option>
@@ -94,6 +97,18 @@
             @selection-remove="removeCategorySelection"
         />
         {% endblock %}
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_media %}
+        <sw-media-field
+            v-else-if="linkCategory === 'media'"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :criteria="entityFilter"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderMedia')"
+            single-select
+            v-model="linkTarget"
+        />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

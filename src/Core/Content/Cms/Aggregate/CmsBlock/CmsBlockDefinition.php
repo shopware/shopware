@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -65,6 +66,7 @@ class CmsBlockDefinition extends EntityDefinition
             (new StringField('margin_bottom', 'marginBottom'))->addFlags(new ApiAware()),
             (new StringField('margin_left', 'marginLeft'))->addFlags(new ApiAware()),
             (new StringField('margin_right', 'marginRight'))->addFlags(new ApiAware()),
+            (new JsonField('margin_responsive', 'marginResponsive'))->addFlags(new ApiAware()),
             (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
             (new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()),
@@ -84,3 +86,4 @@ class CmsBlockDefinition extends EntityDefinition
         return $collection;
     }
 }
+

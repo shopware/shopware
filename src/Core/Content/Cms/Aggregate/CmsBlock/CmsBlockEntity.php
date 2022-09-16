@@ -70,6 +70,11 @@ class CmsBlockEntity extends Entity
     protected $marginRight;
 
     /**
+     * @var array|null
+     */
+    protected $marginResponsive;
+
+    /**
      * @var string|null
      */
     protected $backgroundColor;
@@ -212,6 +217,16 @@ class CmsBlockEntity extends Entity
     public function setMarginRight(string $marginRight): void
     {
         $this->marginRight = $marginRight;
+    }
+
+    public function getMarginResponsive(): ?array
+    {
+        return $this->marginResponsive;
+    }
+
+    public function setMarginResponsive(?array $marginResponsive): void
+    {
+        $this->marginResponsive = $marginResponsive;
     }
 
     public function getBackgroundColor(): ?string

@@ -29,8 +29,37 @@
         {% set sidebarClasses = 'has--sidebar' %}
     {% endif %}
 
+    {% set responsivePaddings = {} %}
+    {% for size in ['xs', 'sm', 'md', 'lg', 'xl'] %}
+        {% for position in ['top', 'left', 'right', 'bottom'] %}
+            {% set value = block.marginResponsive[position] %}
+
+            {% if value.enabled and value[size]|length > 0 %}
+                {% set responsivePaddings = {
+                    (size): { (position): value[size] }|merge(responsivePaddings[size] ?? {})
+                }|merge(responsivePaddings) %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    <style>
+        {% for size in responsivePaddings|keys %}
+
+        @media (min-width: {{ theme_config('breakpoint.' ~ size) }}px) {
+            [data-cms-block-id="{{ block.id }}"] {
+                {% for position, value in responsivePaddings[size] %}
+                    padding-{{ position }}: {{ value }};
+                {% endfor %}
+            }
+        }
+
+        {% endfor %}
+    </style>
+
     <div class="cms-block {{ blockClasses|join(' ') }}"
-         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}">
+         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}"
+         data-cms-block-id="{{ block.id }}"
+    >
         {% block section_content_block_background_image %}
             {% if block.backgroundMedia %}
                 {% sw_thumbnails 'cms-block-background' with {

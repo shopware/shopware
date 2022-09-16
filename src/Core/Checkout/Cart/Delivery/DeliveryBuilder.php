@@ -32,6 +32,11 @@ class DeliveryBuilder
         /** @var ShippingMethodEntity $shippingMethod */
         $shippingMethod = $data->get($key);
 
+        return $this->buildByUsingShippingMethod($cart, $shippingMethod, $context);
+    }
+
+    public function buildByUsingShippingMethod(Cart $cart, ShippingMethodEntity $shippingMethod, SalesChannelContext $context): DeliveryCollection
+    {
         $delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context);
 
         if (!$delivery) {

@@ -38,7 +38,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             });
     });
 
-    it('@base @content: use simple product block', () => {
+    it('@base @content: use simple product block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -115,7 +115,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.product-name[title="Third product"]').should('be.visible');
     });
 
-    it('@base @content: use product slider block with dynamic product group', () => {
+    it('@base @content: use product slider block with dynamic product group', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

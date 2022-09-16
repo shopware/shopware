@@ -30,7 +30,7 @@ describe('Sales Channel: Test product assignment operations', () => {
             });
     });
 
-    it('@general: assign individual products to sales channel', () => {
+    it('@general: assign individual products to sales channel', { tags: ['pa-sales-channels'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 
@@ -114,7 +114,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.contains('.product-detail-price', '10.00');
     });
 
-    it('@general: assign product from category to sales channel', () => {
+    it('@general: assign product from category to sales channel', { tags: ['pa-sales-channels'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 

@@ -26,7 +26,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         });
     });
 
-    it('@package: should set a rule based conditions to the promotion and check it in the storefront', () => {
+    it('@package: should set a rule based conditions to the promotion and check it in the storefront', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'

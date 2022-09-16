@@ -16,7 +16,7 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     // NEXT-19453
-    it('@base @marketing: generate and save a fixed promotion code', { tags: ['quarantined'] }, () => {
+    it('@base @marketing: generate and save a fixed promotion code', { tags: ['quarantined', 'pa-checkout'] }, () => {
         const testPromoCode = 'WelcomeIAmAPromotionCode';
 
         // Select fixed code type and edit manually
@@ -39,7 +39,7 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     // NEXT-19453
-    it("@base @marketing: show empty state, if there're no individual codes", { tags: ['quarantined'] }, () => {
+    it("@base @marketing: show empty state, if there're no individual codes", { tags: ['quarantined', 'pa-checkout'] }, () => {
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
@@ -52,7 +52,7 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     // NEXT-19453
-    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['quarantined'] }, () => {
+    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', { tags: ['quarantined', 'pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
             method: 'GET'

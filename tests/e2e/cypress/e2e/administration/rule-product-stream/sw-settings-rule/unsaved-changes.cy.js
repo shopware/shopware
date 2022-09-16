@@ -20,7 +20,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
             });
     });
 
-    it('@rule: edit rule then switch tab and discard changes', () => {
+    it('@rule: edit rule then switch tab and discard changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
 
         const page = new RulePageObject();
@@ -47,7 +47,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('input#sw-field--rule-name').should('have.value', 'Default Rule');
     });
 
-    it('@rule: edit rule condition then switch tab and discard changes', () => {
+    it('@rule: edit rule condition then switch tab and discard changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
 
         const page = new RulePageObject();
@@ -87,7 +87,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('input#sw-field--rule-name').should('have.value', 'Default Rule');
     });
 
-    it('@rule: edit rule and condition leave route and discard changes', () => {
+    it('@rule: edit rule and condition leave route and discard changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
 
         const page = new RulePageObject();
@@ -128,7 +128,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-rule-list-grid').should('be.visible');
     });
 
-    it('@rule: edit rule then save unsaved changes and switch to assignment tab', () => {
+    it('@rule: edit rule then save unsaved changes and switch to assignment tab', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
 
         const page = new RulePageObject();
@@ -159,7 +159,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-modal').should('not.exist');
     });
 
-    it('@rule: toggle assignment tab and toggle language and there should be no changes', () => {
+    it('@rule: toggle assignment tab and toggle language and there should be no changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
         const page = new RulePageObject();
 

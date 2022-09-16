@@ -68,7 +68,7 @@ describe('Rule builder: Test crud operations', () => {
     });
 
     // TODO: E2E will be fixed and removed skip in NEXT-16286
-    it('@rule: edit rule conditions', { tags: ['quarantined'] }, () => {
+    it('@rule: edit rule conditions', { tags: ['quarantined', 'pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
@@ -200,7 +200,7 @@ describe('Rule builder: Test crud operations', () => {
 
     resultCases.forEach(resultCase => {
         context(`Search property with term ${resultCase.value}`, () => {
-            it('@rule: search property', () => {
+            it('@rule: search property', { tags: ['pa-business-ops'] }, () => {
                 cy.window().then(() => {
                     const page = new RulePageObject();
 

@@ -15,7 +15,7 @@ describe('Customer:  Edit in various ways', () => {
             });
     });
 
-    it('@customer: navigate to create order page', () => {
+    it('@customer: navigate to create order page', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--firstName`).contains('Eroni, Pep');

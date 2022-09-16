@@ -15,7 +15,7 @@ describe('Dynamic product group: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue: create and read dynamic product group', () => {
+    it('@base @catalogue: create and read dynamic product group', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -40,7 +40,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, '01st1st Productstream');
     });
 
-    it('@base @catalogue: update and read dynamic product group', () => {
+    it('@base @catalogue: update and read dynamic product group', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -68,7 +68,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Streamline');
     });
 
-    it('@base @catalogue: delete dynamic product group', () => {
+    it('@base @catalogue: delete dynamic product group', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -95,7 +95,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 
-    it('@base @catalogue: duplicate and read dynamic product group', () => {
+    it('@base @catalogue: duplicate and read dynamic product group', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Requests we want to wait for later

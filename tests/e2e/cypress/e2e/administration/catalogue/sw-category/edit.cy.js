@@ -18,7 +18,7 @@ describe('Category: Edit categories', () => {
             });
     });
 
-    it('@catalogue: change content language without selected category', () => {
+    it('@catalogue: change content language without selected category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.contains('.sw-tree-item__label', 'Home')
@@ -39,7 +39,7 @@ describe('Category: Edit categories', () => {
             .should('be.visible');
     });
 
-    it('@catalogue: change content language with selected category', () => {
+    it('@catalogue: change content language with selected category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.contains('.sw-tree-item__label', 'Home')
@@ -56,7 +56,7 @@ describe('Category: Edit categories', () => {
             .should('have.value', 'Home');
     });
 
-    it('@catalogue: assign dynamic product group', () => {
+    it('@catalogue: assign dynamic product group', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'PATCH'
@@ -101,7 +101,7 @@ describe('Category: Edit categories', () => {
             .should('contain', '2nd Product stream');
     });
 
-    it('@catalogue: switch to other category without saving and applied changes', () => {
+    it('@catalogue: switch to other category without saving and applied changes', { tags: ['pa-content-management'] }, () => {
         cy.createCategoryFixture({
             parent: {
                 name: 'ParentCategory',
@@ -134,7 +134,7 @@ describe('Category: Edit categories', () => {
         });
     });
 
-    it('@catalogue: saving the data when changing content language', () => {
+    it('@catalogue: saving the data when changing content language', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'PATCH'

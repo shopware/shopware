@@ -11,7 +11,7 @@ describe('Theme: Test ACL privileges', () => {
             });
     });
 
-    it('@content: has no access to theme module', () => {
+    it('@content: has no access to theme module', { tags: ['pa-sales-channels'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -32,7 +32,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').should('not.exist');
     });
 
-    it('@content: can view theme', () => {
+    it('@content: can view theme', { tags: ['pa-sales-channels'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'theme',
@@ -88,7 +88,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.smart-bar__actions .sw-button--primary').should('have.attr', 'disabled');
     });
 
-    it('@content: can edit theme', () => {
+    it('@content: can edit theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH'
@@ -126,7 +126,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.value', '#000');
     });
 
-    it('@content: can create theme via duplicate functionality', () => {
+    it('@content: can create theme via duplicate functionality', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme`,
             method: 'POST'
@@ -175,7 +175,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-theme-manager-detail__inheritance').should('be.visible');
     });
 
-    it('@content: can delete theme', () => {
+    it('@content: can delete theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme/*`,
             method: 'delete'

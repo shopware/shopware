@@ -18,7 +18,7 @@ describe('Account: Edit order', () => {
         })
     });
 
-    it('@customer: reorder order', () => {
+    it('@customer: reorder order', { tags: ['pa-customers-orders'] }, () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');
@@ -44,7 +44,7 @@ describe('Account: Edit order', () => {
         cy.get('.finish-ordernumber').contains('Your order number: #10001');
     });
 
-    it('@base @customer: cancel order', () => {
+    it('@base @customer: cancel order', { tags: ['pa-customers-orders'] }, () => {
         // Enable refunds
         cy.loginViaApi().then(() => {
             cy.visit('/admin#/sw/settings/cart/index');
@@ -71,7 +71,7 @@ describe('Account: Edit order', () => {
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 
-    it('@base @customer: change payment', () => {
+    it('@base @customer: change payment', { tags: ['pa-customers-orders'] }, () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');

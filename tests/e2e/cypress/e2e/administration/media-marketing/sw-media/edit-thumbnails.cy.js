@@ -24,7 +24,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
             });
     });
 
-    it('@media: create and delete thumbnail sizes', () => {
+    it('@media: create and delete thumbnail sizes', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');
@@ -75,7 +75,7 @@ describe('Media: Test thumbnails', { browser: 'chrome' }, () => {
         cy.get('input[name=thumbnail-size-1920-1920-active]').should('not.exist');
     });
 
-    it('@media: inherit thumbnail settings', () => {
+    it('@media: inherit thumbnail settings', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

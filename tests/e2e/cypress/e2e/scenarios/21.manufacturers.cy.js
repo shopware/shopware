@@ -22,7 +22,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         });
     });
 
-    it('@package: create a manufacturer and verify appearance from the storefront', () => {
+    it('@package: create a manufacturer and verify appearance from the storefront', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
             method: 'POST'

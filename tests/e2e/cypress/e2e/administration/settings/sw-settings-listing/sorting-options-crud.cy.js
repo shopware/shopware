@@ -13,7 +13,7 @@ describe('Listing: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read product sorting ', () => {
+    it('@settings: create and read product sorting ', { tags: ['pa-system-settings'] }, () => {
         // change position via inline edit
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid').scrollIntoView();
@@ -93,7 +93,7 @@ describe('Listing: Test crud operations', () => {
         cy.contains('.sw-data-grid__row--4 .sw-data-grid__cell--priority', '1');
     });
 
-    it('@settings: create product sorting with custom field criteria', () => {
+    it('@settings: create product sorting with custom field criteria', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/search/custom-field-set',
             method: 'POST'
@@ -219,7 +219,7 @@ describe('Listing: Test crud operations', () => {
         cy.contains('.sw-data-grid__body .sw-data-grid__cell--priority', '1');
     });
 
-    it('@settings: edit an existing product sorting', () => {
+    it('@settings: edit an existing product sorting', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid').scrollIntoView();
 
@@ -257,7 +257,7 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@settings: delete an existing product sorting', () => {
+    it('@settings: delete an existing product sorting', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid').scrollIntoView();
 

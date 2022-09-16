@@ -14,7 +14,7 @@ describe('Scale units: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of scale unit module', () => {
+    it('@visual: check appearance of scale unit module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/unit`,
             method: 'POST'

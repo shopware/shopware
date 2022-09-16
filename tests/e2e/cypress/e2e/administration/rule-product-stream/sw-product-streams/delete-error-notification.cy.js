@@ -17,7 +17,7 @@ describe('Dynamic product group: Test notification on failed delete', () => {
             });
     });
 
-    it('@base @catalogue: delete dynamic product group', () => {
+    it('@base @catalogue: delete dynamic product group', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

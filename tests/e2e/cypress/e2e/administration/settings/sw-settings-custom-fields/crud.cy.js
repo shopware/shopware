@@ -8,7 +8,7 @@ describe('Custom Fields: Test crud operations', () => {
             });
     });
 
-    it('@settings: test entity type custom field', () => {
+    it('@settings: test entity type custom field', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
             method: 'POST'
@@ -51,7 +51,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create and read custom field', () => {
+    it('@settings: create and read custom field', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
@@ -114,7 +114,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-grid__row--0 .sw-grid-column:nth-of-type(5)').contains('1');
     });
 
-    it('@settings: edit custom field', () => {
+    it('@settings: edit custom field', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields/*`,
@@ -167,7 +167,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-grid__row--0 .sw-grid-column:nth-of-type(5)').contains('2');
     });
 
-    it('@settings: delete custom field', () => {
+    it('@settings: delete custom field', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,

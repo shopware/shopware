@@ -26,7 +26,7 @@ describe('Product: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic product workflow', () => {
+    it('@visual: check appearance of basic product workflow', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
@@ -65,7 +65,7 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Detail, base', '.sw-product-detail-base', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic product pricing', () => {
+    it('@visual: check appearance of basic product pricing', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -99,7 +99,7 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@catalogue @percy: check product property appearance', () => {
+    it('@catalogue @percy: check product property appearance', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Edit base data of product
@@ -119,7 +119,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-properties').should('be.visible');
     });
 
-    it('@visual: check appearance of product variant workflow', () => {
+    it('@visual: check appearance of product variant workflow', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -181,7 +181,7 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Storefront, Variants', '.product-detail-name');
     });
 
-    it('@visual: check appearance of product cross selling workflow', () => {
+    it('@visual: check appearance of product cross selling workflow', { tags: ['pa-inventory'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

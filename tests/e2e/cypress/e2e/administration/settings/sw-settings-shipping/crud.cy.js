@@ -15,7 +15,7 @@ describe('Shipping: Test crud operations', () => {
             });
     });
 
-    it('@base @settings: create and read shipping method', () => {
+    it('@base @settings: create and read shipping method', { tags: ['pa-checkout'] }, () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -40,7 +40,7 @@ describe('Shipping: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`, '1').should('be.visible');
     });
 
-    it('@base @settings: update and read shipping method', () => {
+    it('@base @settings: update and read shipping method', { tags: ['pa-checkout'] }, () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -69,7 +69,7 @@ describe('Shipping: Test crud operations', () => {
             .should('be.visible');
     });
 
-    it('@base @settings: delete shipping method', () => {
+    it('@base @settings: delete shipping method', { tags: ['pa-checkout'] }, () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -98,7 +98,7 @@ describe('Shipping: Test crud operations', () => {
         cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
     });
 
-    it('@base @settings: new shipping method should show default price matrix', () => {
+    it('@base @settings: new shipping method should show default price matrix', { tags: ['pa-checkout'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,

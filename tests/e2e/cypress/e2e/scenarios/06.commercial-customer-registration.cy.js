@@ -8,7 +8,7 @@ describe('Product creation via API and commercial customer registration', () => 
             cy.createProductFixture());
     });
 
-    it('@package: should order as commercial customer', () => {
+    it('@package: should order as commercial customer', { tags: ['pa-customers-orders'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,

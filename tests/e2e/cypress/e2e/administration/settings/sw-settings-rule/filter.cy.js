@@ -5,7 +5,7 @@ describe('Rule: Testing filter and reset filter', () => {
         cy.createDefaultFixture('rule');
     });
 
-    it('@settings: check filter function and display listing correctly', () => {
+    it('@settings: check filter function and display listing correctly',  { tags: ['pa-business-ops'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);

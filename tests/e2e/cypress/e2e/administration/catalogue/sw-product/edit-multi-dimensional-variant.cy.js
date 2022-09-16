@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@base @catalogue: add multidimensional variant to product', () => {
+    it('@base @catalogue: add multidimensional variant to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -62,7 +62,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: test multidimensional variant with restrictions', () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const optionsIndicator = '' +
             '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';

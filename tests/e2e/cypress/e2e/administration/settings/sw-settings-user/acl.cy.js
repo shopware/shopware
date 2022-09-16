@@ -8,7 +8,7 @@ describe('User: Test acl privileges', () => {
             });
     });
 
-    it('@settings: view user', () => {
+    it('@settings: view user', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -48,7 +48,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'max@muster.com');
     });
 
-    it('@settings: edit user', () => {
+    it('@settings: edit user', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -124,7 +124,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: edit user role', () => {
+    it('@settings: edit user role', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -202,7 +202,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'This is a description');
     });
 
-    it('@settings: create user', () => {
+    it('@settings: create user', { tags: ['pa-system-settings'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
@@ -283,7 +283,7 @@ describe('User: Test acl privileges', () => {
         cy.wait('@createCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create user and delete them', () => {
+    it('@settings: create user and delete them', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',

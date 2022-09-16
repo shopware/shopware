@@ -12,7 +12,7 @@ describe('Basic Informaion: Edit assignments', () => {
             });
     });
 
-    it('@settings: assign 404 error layout and test rollout', () => {
+    it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings'] }, () => {
         cy.createDefaultFixture('cms-page', {}, 'cms-error-page');
 
         // Request we want to wait for later
@@ -46,7 +46,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', '404 - Not Found');
     });
 
-    it('@settings: assign maintenance layout and test rollout', () => {
+    it('@settings: assign maintenance layout and test rollout', { tags: ['pa-system-settings'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         cy.createDefaultFixture('cms-page', {}, 'cms-maintenance-page');
@@ -95,7 +95,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', 'Maintenance');
     });
 
-    it('@settings: test default maintenance layout rollout', () => {
+    it('@settings: test default maintenance layout rollout', { tags: ['pa-system-settings'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -117,7 +117,7 @@ describe('Basic Informaion: Edit assignments', () => {
     });
 
     // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
-    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['quarantined'] }, () => {
+    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,

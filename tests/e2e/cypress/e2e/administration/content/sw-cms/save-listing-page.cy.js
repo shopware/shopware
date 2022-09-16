@@ -14,7 +14,7 @@ describe('CMS: check validation of product list page', () => {
             });
     });
 
-    it('@content: create product list page and try to save with deleted listing block', () => {
+    it('@content: create product list page and try to save with deleted listing block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'POST'

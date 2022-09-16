@@ -14,7 +14,7 @@ describe('Feature sets: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of delivery time module', () => {
+    it('@visual: check appearance of product feature sets module',  { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-feature-set`,
             method: 'POST'

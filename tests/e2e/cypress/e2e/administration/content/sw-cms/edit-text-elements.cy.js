@@ -14,7 +14,7 @@ describe('CMS: Check usage and editing of text elements', () => {
             });
     });
 
-    it('@base @content: use text block with headline', () => {
+    it('@base @content: use text block with headline', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -68,7 +68,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.contains('.cms-block', 'Chocolate cake dragée');
     });
 
-    it('@base @content: edit text block settings', () => {
+    it('@base @content: edit text block settings', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -110,7 +110,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-cms-block').should('have.css', 'background-color', 'rgb(255, 0, 0)');
     });
 
-    it('@content: use text block with three columns', () => {
+    it('@content: use text block with three columns', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

@@ -17,7 +17,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         }).as('verifyDomain');
     });
 
-    it('@general: Domains are displayed', () => {
+    it('@general: Domains are displayed', { tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -26,7 +26,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 1);
     });
 
-    it('@general: Add new domain', () => {
+    it('@general: Add new domain', { tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -39,7 +39,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@general: Can\'t add the same domain URL twice', () => {
+    it('@general: Can\'t add the same domain URL twice', { tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -51,7 +51,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.contains('.sw-block-field', 'Url').should('have.class', 'has--error');
     });
 
-    it('@general: Can re-add a previously deleted domain', () => {
+    it('@general: Can re-add a previously deleted domain', { tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);

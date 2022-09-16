@@ -15,7 +15,7 @@ describe('Search: Test crud operations', () => {
             });
     });
 
-    it('@base @settings: create search configuration for search behaviour', () => {
+    it('@base @settings: create search configuration for search behaviour', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
@@ -40,7 +40,7 @@ describe('Search: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
     });
 
-    it('@base @settings: create search configuration for search behaviour bases on another language', () => {
+    it('@base @settings: create search configuration for search behaviour bases on another language', { tags: ['pa-system-settings'] }, () => {
         const page = new CategoryPageObject();
         // Request we want to wait for later
         cy.intercept({

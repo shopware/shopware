@@ -21,7 +21,7 @@ describe('Storefront: test registration with country settings & invalid inputs',
         });
     });
 
-    it('@package: should not validate registration with wrong VAT Reg.No format', () => {
+    it('@package: should not validate registration with wrong VAT Reg.No format', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
             method: 'POST'

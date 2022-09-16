@@ -45,7 +45,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
             });
     });
 
-    it('@base @content: assign layout to landing page from layout editor', () => {
+    it('@base @content: assign layout to landing page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -118,7 +118,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 
-    it('@base @content: assign layout to category from layout editor', () => {
+    it('@base @content: assign layout to category from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -187,7 +187,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 
-    it('@base @content: assign layout to shop page from layout editor', () => {
+    it('@base @content: assign layout to shop page from layout editor', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

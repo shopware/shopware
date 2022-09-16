@@ -40,7 +40,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             });
     });
 
-    it('@base @customer: add new billing address', () => {
+    it('@base @customer: add new billing address', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Open customer
@@ -65,7 +65,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
     });
 
-    it('@base @customer: remove address', () => {
+    it('@base @customer: remove address', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -107,7 +107,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-    it('@base @customer: go to edit mode, save and edit again and then remove address', () => {
+    it('@base @customer: go to edit mode, save and edit again and then remove address', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -160,7 +160,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-    it('@customer: swap default billing and shipping address', () => {
+    it('@customer: swap default billing and shipping address', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         cy.get('.sw-customer-list__content').should('be.visible');
@@ -191,7 +191,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0:checked`);
     });
 
-    it('@base @customer: duplicate address', () => {
+    it('@base @customer: duplicate address', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -238,7 +238,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--2`).should('be.visible');
     });
 
-    it('@base @customer: search addresses', () => {
+    it('@base @customer: search addresses', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

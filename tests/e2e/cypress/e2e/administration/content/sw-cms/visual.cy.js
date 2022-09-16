@@ -15,7 +15,7 @@ describe('CMS: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of cms layout workflow', () => {
+    it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

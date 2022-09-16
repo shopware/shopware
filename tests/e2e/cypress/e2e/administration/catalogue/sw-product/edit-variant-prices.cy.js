@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: add variant with surcharge to product', () => {
+    it('@catalogue: add variant with surcharge to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

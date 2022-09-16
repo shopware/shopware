@@ -15,7 +15,7 @@ describe('Tax: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of tax module', () => {
+    it('@base @visual: check appearance of tax module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/tax`,
             method: 'POST'

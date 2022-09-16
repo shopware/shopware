@@ -15,7 +15,7 @@ describe('Flow builder: change customer group testing', () => {
             });
     });
 
-    it('@settings: change customer group flow', () => {
+    it('@settings: change customer group flow', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

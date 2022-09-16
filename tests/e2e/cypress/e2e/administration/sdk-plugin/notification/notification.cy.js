@@ -34,7 +34,7 @@ describe('SDK Tests: Notification', ()=> {
             })
     });
 
-    it('@sdk: dispatch a notification', ()=> {
+    it('@sdk: dispatch a notification', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')

@@ -34,7 +34,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
             });
     });
 
-    it('@base @content: use simple buy box element', () => {
+    it('@base @content: use simple buy box element', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -123,7 +123,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         });
     });
 
-    it('@base @content: use simple gallery buy box block', () => {
+    it('@base @content: use simple gallery buy box block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

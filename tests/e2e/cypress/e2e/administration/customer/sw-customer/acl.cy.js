@@ -32,7 +32,7 @@ describe('Customer: Test ACL privileges', () => {
             });
     });
 
-    it('@customer: has no access to customer module', () => {
+    it('@customer: has no access to customer module', { tags: ['pa-customers-orders'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -53,7 +53,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__item--sw-customer').should('not.exist');
     });
 
-    it('@customer: can view customer', () => {
+    it('@customer: can view customer', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -76,7 +76,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').should('be.disabled');
     });
 
-    it('@customer: can edit customer', () => {
+    it('@customer: can edit customer', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
@@ -118,7 +118,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--firstName`, 'Rika');
     });
 
-    it('@customer: can create customer', () => {
+    it('@customer: can create customer', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
@@ -177,7 +177,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@customer: can delete customer', () => {
+    it('@customer: can delete customer', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
@@ -217,7 +217,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get(page.elements.emptyState).should('be.visible');
     });
 
-    it('@customer: cannot create customer with duplicate email', () => {
+    it('@customer: cannot create customer with duplicate email', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
@@ -276,7 +276,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.contains('.sw-field--email .sw-field__error', 'The email address test@example.com is already in use');
     });
 
-    it('@customer: cannot edit customer with duplicate email', () => {
+    it('@customer: cannot edit customer with duplicate email', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         const page = new CustomerPageObject();
 

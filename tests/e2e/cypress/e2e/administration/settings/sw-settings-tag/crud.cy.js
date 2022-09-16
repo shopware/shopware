@@ -50,7 +50,7 @@ describe('Tag: Test crud operations', () => {
             });
     });
 
-    it('@settings: read tag', () => {
+    it('@settings: read tag', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Check tag listing
@@ -60,7 +60,7 @@ describe('Tag: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
-    it('@settings: delete tag', () => {
+    it('@settings: delete tag', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -86,7 +86,7 @@ describe('Tag: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 
-    it('@settings: duplicate tag', () => {
+    it('@settings: duplicate tag', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -118,7 +118,7 @@ describe('Tag: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
-    it('@settings: create tag with assignments', () => {
+    it('@settings: create tag with assignments', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -166,7 +166,7 @@ describe('Tag: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--categories`).contains(/1(\s)*category/);
     });
 
-    it('@settings: edit tag with assignments', () => {
+    it('@settings: edit tag with assignments', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

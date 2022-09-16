@@ -7,7 +7,7 @@ describe('Account: Login as customer', () => {
             .then(() => cy.createProductFixture());
     });
 
-    it('@login: Login with wrong credentials', () => {
+    it('@login: Login with wrong credentials', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -21,7 +21,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('@base @login: Login with valid credentials', () => {
+    it('@base @login: Login with valid credentials', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -34,7 +34,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('@login @package: Clear and delete cart after logout', () => {
+    it('@login @package: Clear and delete cart after logout', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

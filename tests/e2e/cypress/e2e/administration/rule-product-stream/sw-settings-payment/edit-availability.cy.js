@@ -17,7 +17,7 @@ describe('Payment: Test crud operations', () => {
     });
 
     // ToDo: NEXT-20936 - Find payment method in new list
-    it.skip('@base @rule: edit availability rule', () => {
+    it('@base @rule: edit availability rule', { tags: ['quarantined', 'pa-checkout'] }, () => {
         const page = new PaymentPageObject();
         const rulePage = new RulePageObject();
 

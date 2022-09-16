@@ -28,7 +28,7 @@ describe('Product: Test variants', () => {
     });
 
     // NEXT-20024
-    it('@base @catalogue: add variant to product', { tags: ['quarantined'] }, () => {
+    it('@base @catalogue: add variant to product', { tags: ['quarantined', 'pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -92,7 +92,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: variants display corresponding name based on specific language', () => {
+    it('@base @catalogue: variants display corresponding name based on specific language', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         cy.intercept({

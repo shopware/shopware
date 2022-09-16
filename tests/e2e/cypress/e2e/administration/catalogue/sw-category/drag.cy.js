@@ -40,7 +40,7 @@ describe('Category: Test drag categories', () => {
             });
     });
 
-    it('@base @catalogue: can drag category and expand', () => {
+    it('@base @catalogue: can drag category and expand', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
             method: 'POST'

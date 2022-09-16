@@ -15,7 +15,7 @@ describe('Customer group: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of customer group module', () => {
+    it('@visual: check appearance of customer group module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer-group`,
             method: 'POST'

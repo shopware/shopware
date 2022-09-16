@@ -22,7 +22,7 @@ describe('Test payment and shipping methods selection', () => {
             });
     });
 
-    it('@base @checkout: should show methods', () => {
+    it('@base @checkout: should show methods', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const page = new CheckoutPageObject();
 
@@ -58,7 +58,7 @@ describe('Test payment and shipping methods selection', () => {
         });
     });
 
-    it('@base @confirm: should have working collapse on multiple methods', () => {
+    it('@base @confirm: should have working collapse on multiple methods', { tags: ['pa-checkout'] }, () => {
         cy.createPaymentMethodFixture({ name: 'Test Method #1'})
             .then(() => {
                 return cy.createPaymentMethodFixture({ name: 'Test Method #2'});
@@ -112,7 +112,7 @@ describe('Test payment and shipping methods selection', () => {
             });
     });
 
-    it('@base @confirm @package: should change payment and shipping methods', () => {
+    it('@base @confirm @package: should change payment and shipping methods', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
 
         cy.window().then((win) => {
@@ -161,7 +161,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get('.account-welcome h1').contains('Orders');
     });
 
-    it('@base @confirm @package: should repeat the order with different payment method', () => {
+    it('@base @confirm @package: should repeat the order with different payment method', { tags: ['pa-checkout'] }, () => {
 
         cy.window().then((win) => {
             const page = new CheckoutPageObject();
@@ -230,7 +230,7 @@ describe('Test payment and shipping methods selection', () => {
         });
     });
 
-    it('@base @confirm @package: should cancel the order', () => {
+    it('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -295,7 +295,7 @@ describe('Test payment and shipping methods selection', () => {
         });
     });
 
-    it('@base @confirm: should have a working wishlist', () => {
+    it('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/wishlist/add/**`,
             method: 'POST'
@@ -376,7 +376,7 @@ describe('Test payment and shipping methods selection', () => {
         });
     });
 
-    it('@base @confirm: should have correct order of shipping methods', () => {
+    it('@base @confirm: should have correct order of shipping methods', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const salesChannels = [
                 { id: win.salesChannelId }

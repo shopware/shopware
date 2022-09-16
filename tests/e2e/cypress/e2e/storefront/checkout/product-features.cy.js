@@ -35,7 +35,7 @@ describe('Test if essential characteristics are displayed in checkout', () => {
         });
     });
 
-    it('@checkout: Should display essential characteristics', () => {
+    it('@checkout: Should display essential characteristics', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
 
         cy.window().then((win) => {

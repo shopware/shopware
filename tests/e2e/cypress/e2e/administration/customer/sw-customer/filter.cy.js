@@ -204,7 +204,7 @@ describe('Customer: Test filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it('@customer: check filter function and display list correctly', { tags: ['quarantined'] }, () => {
+    it('@customer: check filter function and display list correctly', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -289,7 +289,7 @@ describe('Customer: Test filter and reset filter', () => {
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
-    it('@customer: check reset filter and reset all filter', { tags: ['quarantined'] }, () => {
+    it('@customer: check reset filter and reset all filter', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);

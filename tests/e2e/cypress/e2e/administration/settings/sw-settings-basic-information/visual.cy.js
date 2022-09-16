@@ -14,7 +14,7 @@ describe('Basic information: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of basic information module', () => {
+    it('@visual: check appearance of basic information module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.basicInformation`,
             method: 'GET'

@@ -22,7 +22,7 @@ describe('Import/Export - Export:', () => {
         page = null;
     });
 
-    it('@base @settings: Create export with product profile', () => {
+    it('@base @settings: Create export with product profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST'

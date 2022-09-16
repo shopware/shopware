@@ -40,7 +40,7 @@ describe('SDK Tests: Context', ()=> {
             })
     });
 
-    it('@sdk: get current language', ()=> {
+    it('@sdk: get current language', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page')
 
         cy.get('.sw-card-view__content')
@@ -68,7 +68,7 @@ describe('SDK Tests: Context', ()=> {
             .contains(`languageId: ${DEFAULT_LANGUAGE_ID}`);
     })
 
-    it('@sdk: subscribe on language changes', ()=> {
+    it('@sdk: subscribe on language changes', { tags: ['ct-admin'] }, ()=> {
         cy.log('Change the language of the current user');
 
         cy.get('.sw-card-view__content')
@@ -128,7 +128,7 @@ describe('SDK Tests: Context', ()=> {
             .contains(`systemLanguageId: ${DEFAULT_LANGUAGE_ID}`);
     })
 
-    it('@sdk: get current environment', ()=> {
+    it('@sdk: get current environment', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -153,7 +153,7 @@ describe('SDK Tests: Context', ()=> {
             .contains(`Environment: production`);
     })
 
-    it('@sdk: get current locale', ()=> {
+    it('@sdk: get current locale', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -181,7 +181,7 @@ describe('SDK Tests: Context', ()=> {
             .contains(`Fallback Locale: ${FALLBACK_LOCALE}`);
     })
 
-    it('@sdk: subscribe on locale changes', ()=> {
+    it('@sdk: subscribe on locale changes', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-catalogue')
             .click();
 
@@ -250,7 +250,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('fallbackLocale: en-GB');
     })
 
-    it('@sdk: get current shopware version', ()=> {
+    it('@sdk: get current shopware version', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -276,7 +276,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('Shopware version: 6.');
     })
 
-    it('@sdk: get app information', ()=> {
+    it('@sdk: get app information', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -304,7 +304,7 @@ describe('SDK Tests: Context', ()=> {
             .contains('App type: plugin');
     })
 
-    it('@sdk: get module information', ()=> {
+    it('@sdk: get module information', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')

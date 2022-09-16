@@ -7,7 +7,7 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.loginViaApi();
     });
 
-    it('@base @searchBar @search: Search for a product using the keyword pro', () => {
+    it('@base @searchBar @search: Search for a product using the keyword pro', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -36,7 +36,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: Search for a category using the keyword cat', () => {
+    it('@searchBar @search: Search for a category using the keyword cat', { tags: ['pa-system-settings'] }, () => {
         cy.createCategoryFixture({ name: 'Sub Category'})
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -65,7 +65,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: Search for a customer using the keyword cus', () => {
+    it('@searchBar @search: Search for a customer using the keyword cus', { tags: ['pa-system-settings'] }, () => {
         cy.createCustomerFixture({ lastName: 'customer' })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -94,7 +94,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: Search for a order using the keyword ord', () => {
+    it('@searchBar @search: Search for a order using the keyword ord', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 return cy.createProductFixture({
@@ -154,7 +154,7 @@ describe('Search bar: Check search module with short keyword', () => {
         });
     });
 
-    it('@searchBar @search: Search for a media using the keyword med', () => {
+    it('@searchBar @search: Search for a media using the keyword med', { tags: ['pa-system-settings'] }, () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -205,7 +205,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: Search for a product using the keyword add new prod', () => {
+    it('@searchBar @search: Search for a product using the keyword add new prod', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

@@ -8,7 +8,7 @@ describe('Country: Test can setting VAT id field required', () => {
             });
     });
 
-    it('@settings: can setting VAT id field required', () => {
+    it('@settings: can setting VAT id field required', { tags: ['pa-system-settings'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

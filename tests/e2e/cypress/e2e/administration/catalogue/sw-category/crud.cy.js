@@ -13,7 +13,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it('@base @catalogue: create a subcategory, make it first invisible', () => {
+    it('@base @catalogue: create a subcategory, make it first invisible', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -81,7 +81,7 @@ describe('Category: Create several categories', () => {
         cy.contains('.breadcrumb-title', 'Invisibilian');
     });
 
-    it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', () => {
+    it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
@@ -139,7 +139,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible');
     });
 
-    it('@base @catalogue: should hide the elements not needed for a Link', () => {
+    it('@base @catalogue: should hide the elements not needed for a Link', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // we need to create a new category, because Home can not be a link because it's an entry point

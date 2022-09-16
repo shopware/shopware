@@ -65,7 +65,7 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    it('@catalogue: sort product listing', () => {
+    it('@catalogue: sort product listing', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,

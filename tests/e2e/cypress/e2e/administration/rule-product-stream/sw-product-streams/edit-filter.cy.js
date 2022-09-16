@@ -93,7 +93,7 @@ describe('Dynamic product group: Test various filters', () => {
             });
     });
 
-    it('@base @rule: edit filter', () => {
+    it('@base @rule: edit filter', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Verify product stream details
@@ -136,7 +136,7 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('button.sw-button .icon--regular-checkmark-xs').should('be.visible');
     });
 
-    it('@base @rule: search and add products with operator "Is equal to any of"', () => {
+    it('@base @rule: search and add products with operator "Is equal to any of"', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
@@ -188,7 +188,7 @@ describe('Dynamic product group: Test various filters', () => {
         });
     });
 
-    it('@base @rule: Should be able to filter with Manufacture', () => {
+    it('@base @rule: Should be able to filter with Manufacture', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Verify product stream details
@@ -316,7 +316,7 @@ describe('Dynamic product group: Test various filters', () => {
         });
     });
 
-    it('@base @rule: Should be able switch operator from negated type to negated type', () => {
+    it('@base @rule: Should be able switch operator from negated type to negated type', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         // Verify product stream details

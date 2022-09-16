@@ -64,7 +64,7 @@ describe('Tag: Test listing filters', () => {
             });
     });
 
-    it('@settings: filter tags', () => {
+    it('@settings: filter tags', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

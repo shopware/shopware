@@ -30,7 +30,7 @@ describe('Filter on startpage', () => {
         });
     });
 
-    it('Filter for manufacturer', () => {
+    it('Filter for manufacturer', { tags: ['pa-inventory'] }, () => {
         const actualItems = 3;
         const filteredItems = 1;
         const manufacturer = 'shopware AG';

@@ -14,7 +14,7 @@ describe('Administration: Check module navigation', () => {
             });
     });
 
-    it('@base @navigation: navigate to review module', () => {
+    it('@base @navigation: navigate to review module', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-review`,
             method: 'POST'

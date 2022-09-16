@@ -14,7 +14,7 @@ describe('Category: site builder feature', () => {
             });
     });
 
-    it('@base @catalogue: create a subcategory as entry point with main navigation', () => {
+    it('@base @catalogue: create a subcategory as entry point with main navigation', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
@@ -122,7 +122,7 @@ describe('Category: site builder feature', () => {
         cy.contains('.cms-page', 'Baumhaus landing page').should('be.visible');
     });
 
-    it('@base @catalogue: create a subcategory as entry point with footer navigation', () => {
+    it('@base @catalogue: create a subcategory as entry point with footer navigation', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
@@ -165,7 +165,7 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-sales-channel-detail__select-footer-category-id').should('contain', 'Categorian');
     });
 
-    it('@base @catalogue: create a subcategory as entry point with service navigation', () => {
+    it('@base @catalogue: create a subcategory as entry point with service navigation', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
@@ -208,7 +208,7 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-sales-channel-detail__select-service-category-id').should('contain', 'Categorian');
     });
 
-    it('@base @catalogue: create a subcategory as internal link to the main category', () => {
+    it('@base @catalogue: create a subcategory as internal link to the main category', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
@@ -254,7 +254,7 @@ describe('Category: site builder feature', () => {
         cy.url().should('be.eq', `${Cypress.config('baseUrl')}/`);
     });
 
-    it('@base @catalogue: create a subcategory as external link in new tab', () => {
+    it('@base @catalogue: create a subcategory as external link in new tab', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
         cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');

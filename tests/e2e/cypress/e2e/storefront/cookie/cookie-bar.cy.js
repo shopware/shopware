@@ -1,6 +1,6 @@
 describe('Test if the cookie bar works correctly', () => {
 
-    it('Should not show the acceptAll cookies in the cookie bar when config value is not set', () => {
+    it('Should not show the acceptAll cookies in the cookie bar when config value is not set', { tags: ['ct-storefront'] }, () => {
         // go to storefront homepage
         cy.visit('/');
 
@@ -14,7 +14,7 @@ describe('Test if the cookie bar works correctly', () => {
         cy.get('.js-cookie-accept-all-button').should('not.exist');
     });
 
-    it('Should show the accept all button in cookie bar and accept all cookies when the user clicks the button', () => {
+    it('Should show the accept all button in cookie bar and accept all cookies when the user clicks the button', { tags: ['ct-storefront'] }, () => {
         // activate the acceptAllCookies button
         cy.authenticate().then((result) => {
             const requestConfig = {

@@ -2,7 +2,7 @@
 
 const uuid = require('uuid/v4');
 
-describe('Product: Test pagination and the corosponding URL parameters', () => {
+describe('Product: Test pagination and the corresponding URL parameters', () => {
     beforeEach(() => {
         let taxId;
         let currencyId;
@@ -77,7 +77,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
             });
     });
 
-    it('@catalogue: check that the url parameters get set correctly', () => {
+    it('@catalogue: check that the url parameters get set correctly', { tags: ['pa-inventory'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -176,7 +176,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         });
     });
 
-    it('@catalogue: check that the url parameters get applied after a reload', () => {
+    it('@catalogue: check that the url parameters get applied after a reload', { tags: ['pa-inventory'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`);

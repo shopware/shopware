@@ -65,7 +65,7 @@ describe('Seo: Test crud operations on templates', () => {
             });
     });
 
-    it('@settings: update template', () => {
+    it('@settings: update template', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
@@ -97,7 +97,7 @@ describe('Seo: Test crud operations on templates', () => {
         cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
     });
 
-    it('@base @settings: update template for a sales channel', () => {
+    it('@base @settings: update template for a sales channel', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
@@ -135,14 +135,14 @@ describe('Seo: Test crud operations on templates', () => {
         cy.awaitAndCheckNotification('SEO URL templates have been saved.');
     });
 
-    it('@base @settings: cannot edit templates for headless sales channels', () => {
+    it('@base @settings: cannot edit templates for headless sales channels', { tags: ['pa-sales-channels'] }, () => {
         cy.get('.sw-sales-channel-switch')
             .typeSingleSelectAndCheck('Headless', '.sw-entity-single-select');
 
         cy.contains('.sw-card__content', 'SEO URLs cannot be assigned to a headless Sales Channel.');
     });
 
-    it('@base @settings: can save when the first template is empty', () => {
+    it('@base @settings: can save when the first template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
@@ -165,7 +165,7 @@ describe('Seo: Test crud operations on templates', () => {
             .should('be.visible');
     });
 
-    it('@base @settings: can save when the second template is empty', () => {
+    it('@base @settings: can save when the second template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
@@ -188,7 +188,7 @@ describe('Seo: Test crud operations on templates', () => {
             .should('be.visible');
     });
 
-    it('@base @settings: can save when the third template is empty', () => {
+    it('@base @settings: can save when the third template is empty', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'

@@ -33,7 +33,7 @@ describe('Product: Bulk edit variants', () => {
             });
     });
 
-    it('@package @bulk-edit: should modify variant products with the bulk edit functionality', () => {
+    it('@package @bulk-edit: should modify variant products with the bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
             method: 'POST'

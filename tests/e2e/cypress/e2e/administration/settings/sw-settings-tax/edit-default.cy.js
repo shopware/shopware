@@ -17,7 +17,7 @@ describe('Tax: Test default tax rates', () => {
             });
     });
 
-    it('@settings: should set new tax as default tax rate', () => {
+    it('@settings: should set new tax as default tax rate', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

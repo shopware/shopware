@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: duplicate product with variants and inherited fields in listing', () => {
+    it('@catalogue: duplicate product with variants and inherited fields in listing', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -95,7 +95,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@catalogue: duplicate product with variants and inherited fields in detail', () => {
+    it('@catalogue: duplicate product with variants and inherited fields in detail', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

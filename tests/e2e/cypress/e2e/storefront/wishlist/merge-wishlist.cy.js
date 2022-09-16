@@ -52,7 +52,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Wishlist can be merge from anonymous user to registered users', () => {
+    it('@wishlist: Wishlist can be merge from anonymous user to registered users', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.intercept({
@@ -96,7 +96,7 @@ describe('Wishlist: for wishlist', () => {
         heartIcon.get('.icon-wishlist-added').should('be.visible');
     });
 
-    it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', () => {
+    it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.intercept({
@@ -151,7 +151,7 @@ describe('Wishlist: for wishlist', () => {
         });
     });
 
-    it('@wishlist: Wishlist can be merge from anonymous user to registered users with different product', () => {
+    it('@wishlist: Wishlist can be merge from anonymous user to registered users with different product', { tags: ['pa-checkout'] }, () => {
         cy.createProductFixture({
             "id": "6dfd9dc216ab4ac99598b837ac600369",
             "name": "Test product 2",
@@ -225,7 +225,7 @@ describe('Wishlist: for wishlist', () => {
         });
     });
 
-    it('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', () => {
+    it('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', { tags: ['pa-checkout'] }, () => {
         cy.createProductFixture({
             "id": "6dfd9dc216ab4ac99598b837ac600369",
             "name": "Test product 2",

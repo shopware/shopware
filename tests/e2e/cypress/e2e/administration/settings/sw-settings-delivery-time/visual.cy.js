@@ -14,7 +14,7 @@ describe('Delivery times: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of delivery time module', () => {
+    it('@visual: check appearance of delivery time module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/delivery-time`,
             method: 'POST'

@@ -7,7 +7,7 @@ describe('Account: Handle addresses as customer', () => {
         });
     });
 
-    it('@base @customer @package: Add new address and swap roles of these two addresses', () => {
+    it('@base @customer @package: Add new address and swap roles of these two addresses', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -57,7 +57,7 @@ describe('Account: Handle addresses as customer', () => {
         cy.get('.shipping-address p').contains('Eroni');
     });
 
-    it('@base @customer: Add new address with account type commercial', () => {
+    it('@base @customer: Add new address with account type commercial', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

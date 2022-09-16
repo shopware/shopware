@@ -29,7 +29,7 @@ describe('Tag: Test listing sorting', () => {
             });
     });
 
-    it('@settings: sort tags by assignment count', () => {
+    it('@settings: sort tags by assignment count', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

@@ -29,7 +29,7 @@ describe('Create a new property and select value display type', () => {
         });
     });
 
-    it('@package: create new property', () => {
+    it('@package: create new property', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
             method: 'POST'

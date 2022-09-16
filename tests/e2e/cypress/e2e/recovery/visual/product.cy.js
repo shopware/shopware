@@ -14,7 +14,7 @@ describe('Product: Visual tests', () => {
         });
     });
 
-    it('@base @catalogue: create and read product', () => {
+    it('@base @catalogue: create and read product', { tags: ['pa-system-settings'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

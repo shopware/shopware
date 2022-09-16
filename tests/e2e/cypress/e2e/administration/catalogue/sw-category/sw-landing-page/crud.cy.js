@@ -14,7 +14,7 @@ describe('Category: Landing pages', () => {
             });
     });
 
-    it('@catalogue @package: create a landing page and check storefront behavior', () => {
+    it('@catalogue @package: create a landing page and check storefront behavior', { tags: ['pa-content-management'] }, () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/landing-page`).as('saveLandingPage');
 

@@ -18,7 +18,7 @@ describe('Product: Tagging product', () => {
             });
     });
 
-    it('@catalogue: edit a product\'s tags', () => {
+    it('@catalogue: edit a product\'s tags', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

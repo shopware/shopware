@@ -4,7 +4,7 @@ describe('create role with different permissions', () => {
         cy.loginViaApi();
     });
 
-    it('@package: create role', () => {
+    it('@package: create role', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/acl-role`,
             method: 'POST'

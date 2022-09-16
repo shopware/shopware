@@ -6,7 +6,7 @@ describe('Account - Login: Visual tests', () => {
         cy.createCustomerFixture();
     });
 
-    it('@visual: check appearance of basic storefront login workflow', () => {
+    it('@visual: check appearance of basic storefront login workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

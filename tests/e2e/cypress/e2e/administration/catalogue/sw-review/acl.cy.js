@@ -19,7 +19,7 @@ describe('Review: Test ACL privileges', () => {
             });
     });
 
-    it('@catalogue: has no access to review module', () => {
+    it('@catalogue: has no access to review module', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -41,7 +41,7 @@ describe('Review: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-review').should('not.exist');
     });
 
-    it('@catalogue: can view review', () => {
+    it('@catalogue: can view review', { tags: ['pa-content-management'] }, () => {
         const page = new ProductPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -64,7 +64,7 @@ describe('Review: Test ACL privileges', () => {
         cy.get('.sw-review-detail__save-action').should('be.disabled');
     });
 
-    it('@catalogue: can edit review', () => {
+    it('@catalogue: can edit review', { tags: ['pa-content-management'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-review/*`,
@@ -100,7 +100,7 @@ describe('Review: Test ACL privileges', () => {
         cy.wait('@saveProperty').its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can delete review', () => {
+    it('@catalogue: can delete review', { tags: ['pa-content-management'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-review/*`,

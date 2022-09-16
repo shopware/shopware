@@ -28,7 +28,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.contains('.search-suggest-container', 'No results found').should('be.visible');
     });
 
-    it('@package: should add via product selection', () => {
+    it('@package: should add via product selection', { tags: ['pa-sales-channels'] }, () => {
         // Add product from the sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
@@ -52,7 +52,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.contains('.search-suggest-product-name', 'Product name').should('be.visible');
     });
 
-    it('@package: should add via category selection', () => {
+    it('@package: should add via category selection', { tags: ['pa-sales-channels'] }, () => {
         // Add product to the home
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-skeleton').should('not.exist');
@@ -84,7 +84,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.contains('.search-suggest-product-name', 'Product name').should('be.visible');
     });
 
-    it('@package: should add and remove via product group selection', () => {
+    it('@package: should add and remove via product group selection', { tags: ['pa-sales-channels'] }, () => {
         // Add product to a dynamic product group
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
         cy.get('.sw-skeleton').should('not.exist');

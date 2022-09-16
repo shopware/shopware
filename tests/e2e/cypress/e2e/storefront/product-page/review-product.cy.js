@@ -12,7 +12,7 @@ describe('Test review function on Product page', () => {
         });
     });
 
-    it('Should show login form when guest review product', () => {
+    it('Should show login form when guest review product', { tags: ['pa-content-management'] }, () => {
         cy.get('.header-search-input').should('be.visible');
         cy.get('.header-search-input').type(product.name);
         cy.get('.search-suggest-product-name').contains(product.name);
@@ -30,7 +30,7 @@ describe('Test review function on Product page', () => {
         });
     });
 
-    it('Should paginate and filter reviews', () => {
+    it('Should paginate and filter reviews', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/product/**/reviews*'

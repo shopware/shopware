@@ -19,7 +19,7 @@ describe('Language: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read language', () => {
+    it('@settings: create and read language', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
         const productPage = new ProductPageObject();
 
@@ -65,7 +65,7 @@ describe('Language: Test crud operations', () => {
         cy.contains('.sw-language-info', '"Product name" displayed in the content language "Japanese".');
     });
 
-    it('@settings: update and read language', () => {
+    it('@settings: update and read language', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Language: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`, 'Kyoto Japanese').should('be.visible');
     });
 
-    it('@settings: delete language', () => {
+    it('@settings: delete language', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

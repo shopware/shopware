@@ -4,7 +4,7 @@ import CheckoutPageObject from '../../support/pages/checkout.page-object';
 
 const guestCustomer = require('../../fixtures/guest-customer.json');
 
-describe('Create a variant product using default customer and buy it via cash on delivery.', () => {
+describe('Create a variant product using default customer and buy it via cash on delivery.', { tags: ['pa-checkout'] }, () => {
     beforeEach(() => {
         cy.clearCookies().then(() => {
             return cy.loginViaApi();

@@ -38,7 +38,7 @@ describe('Basic Informaion: Edit assignments', () => {
             });
     });
 
-    it('@pages: should navigate to 404 page with full layout', () => {
+    it('@pages: should navigate to 404 page with full layout', { tags: ['pa-content-management'] }, () => {
         // Check 404 default site
         cy.get('.w-60-l')
             .contains('We are sorry, the page you\'re looking for could not be found.');

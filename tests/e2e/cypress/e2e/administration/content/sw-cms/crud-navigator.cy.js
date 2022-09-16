@@ -43,7 +43,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         });
     });
 
-    it('@base @content: should ask to save automatically on entering the sidebar without further asking', () => {
+    it('@base @content: should ask to save automatically on entering the sidebar without further asking', { tags: ['pa-content-management'] }, () => {
         cy.get('button[title="Settings"]').click();
         cy.contains('.sw-sidebar-item__title', 'Settings');
 
@@ -63,7 +63,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.wait('@searchData').its('response.statusCode').should('equal', 200);
     });
 
-    it('@base @content: should move sections', () => {
+    it('@base @content: should move sections', { tags: ['pa-content-management'] }, () => {
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(2).contains('Section 2 - Block C');
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
@@ -105,7 +105,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(4).contains('Section 3 - Block E');
     });
 
-    it('@base @content: should clone blocks', () => {
+    it('@base @content: should clone blocks', { tags: ['pa-content-management'] }, () => {
         cy.get('.sw-cms-sidebar__navigator-element').should('have.length', 6);
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(2).contains('Section 2 - Block C');
@@ -136,7 +136,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(7).contains('Section 3 - Block F');
     });
 
-    it('@base @content: should clone sections and blocks', () => {
+    it('@base @content: should clone sections and blocks', { tags: ['pa-content-management'] }, () => {
         cy.get('.sw-cms-sidebar__navigator-element').should('have.length', 6);
         // Section 1
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
@@ -199,7 +199,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(10).contains('Section 3 - Block E');
     });
 
-    it('@base @content: should delete blocks', () => {
+    it('@base @content: should delete blocks', { tags: ['pa-content-management'] }, () => {
         cy.get('.sw-cms-sidebar__navigator-element').should('have.length', 6);
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(1).contains('Section 1 - Block B');
@@ -230,7 +230,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(blockSelector).eq(3).contains('Section 3 - Block F');
     });
 
-    it('@base @content: should delete sections', () => {
+    it('@base @content: should delete sections', { tags: ['pa-content-management'] }, () => {
         cy.get('.sw-cms-sidebar__navigator-element').should('have.length', 6);
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(1).contains('Section 1 - Block B');

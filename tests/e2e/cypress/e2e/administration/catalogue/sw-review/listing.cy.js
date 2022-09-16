@@ -131,7 +131,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
     });
 
     // TODO: E2E will be fixed and removed skip in NEXT-16286
-    it('@catalogue: check that the url parameters get set', { tags: ['quarantined'] }, () => {
+    it('@catalogue: check that the url parameters get set', { tags: ['quarantined', 'pa-content-management'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);
@@ -219,7 +219,7 @@ describe('Review: Test pagination and the corresponding URL parameters', () => {
         });
     });
 
-    it('@catalogue: check that the url parameters get applied after a reload', () => {
+    it('@catalogue: check that the url parameters get applied after a reload', { tags: ['pa-content-management'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index?term=product&page=2&limit=10&sortBy=customer.lastName,customer.firstName&sortDirection=ASC&naturalSorting=false`);

@@ -26,7 +26,7 @@ describe('Rule builder: Sorting rules', () => {
             });
     });
 
-    it('@base @rule: sort rules by assignment counts', () => {
+    it('@base @rule: sort rules by assignment counts', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.intercept({

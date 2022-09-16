@@ -20,7 +20,7 @@ describe('Checkout: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic checkout workflow', () => {
+    it('@visual: check appearance of basic checkout workflow', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();

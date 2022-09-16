@@ -24,7 +24,7 @@ describe('Product: Search Keyword product', () => {
             });
     });
 
-    it('@catalogue: edit a product\'s search keyword', () => {
+    it('@catalogue: edit a product\'s search keyword', { tags: ['pa-inventory'] }, () => {
         setCustomSearchKeywordIsSearchable();
 
         cy.intercept({

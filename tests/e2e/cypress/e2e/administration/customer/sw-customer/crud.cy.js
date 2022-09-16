@@ -34,7 +34,7 @@ describe('Customer: Test crud operations', () => {
             });
     });
 
-    it('@base @customer: create customer', () => {
+    it('@base @customer: create customer', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
 
@@ -103,7 +103,7 @@ describe('Customer: Test crud operations', () => {
         cy.contains('tester@example.com');
     });
 
-    it('@base @customer: edit customers\' base data', () => {
+    it('@base @customer: edit customers\' base data', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -137,7 +137,7 @@ describe('Customer: Test crud operations', () => {
         cy.contains('.sw-data-grid__cell--firstName', 'Weasley, Ronald');
     });
 
-    it('@base @customer: delete customer', () => {
+    it('@base @customer: delete customer', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

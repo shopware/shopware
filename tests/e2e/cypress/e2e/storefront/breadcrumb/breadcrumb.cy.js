@@ -47,7 +47,7 @@ describe('Test if breadcrumb works correctly', () => {
         });
     });
 
-    it('@breadcrumb: Check if correct category types are clickable', () => {
+    it('@breadcrumb: Check if correct category types are clickable', { tags: ['pa-content-management'] }, () => {
         cy.get('.nav-link.main-navigation-link').contains('Test category 1').trigger('mouseenter').then(() => {
             cy.get('.navigation-flyout-content').should('be.visible');
             cy.get('.nav-link.navigation-flyout-link').contains('Sub 1').click();

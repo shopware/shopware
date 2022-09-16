@@ -13,7 +13,7 @@ describe('Product: Test ACL privileges', () => {
             });
     });
 
-    it('@base @catalogue: can view product', () => {
+    it('@base @catalogue: can view product', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'POST'
@@ -72,7 +72,7 @@ describe('Product: Test ACL privileges', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: can edit product', () => {
+    it('@base @catalogue: can edit product', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
@@ -116,7 +116,7 @@ describe('Product: Test ACL privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'T-Shirt');
     });
 
-    it('@base @catalogue: can create product', () => {
+    it('@base @catalogue: can create product', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
@@ -195,7 +195,7 @@ describe('Product: Test ACL privileges', () => {
         cy.contains('.product-detail-price', '10.00');
     });
 
-    it('@base @catalogue: can delete product', () => {
+    it('@base @catalogue: can delete product', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,

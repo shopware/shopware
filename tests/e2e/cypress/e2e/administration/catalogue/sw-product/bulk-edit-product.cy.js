@@ -75,7 +75,7 @@ describe('Product: Test bulk edit product', () => {
             });
     });
 
-    it('@product: bulk edit product', () => {
+    it('@product: bulk edit product', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'

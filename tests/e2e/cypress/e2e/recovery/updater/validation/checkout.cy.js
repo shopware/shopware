@@ -8,7 +8,7 @@ describe('Validate checkout after auto update', () => {
      * - update-service-mock.js must be running
      */
 
-    it('@update: Check checkout process after update', () => {
+    it('@update: Check checkout process after update', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {

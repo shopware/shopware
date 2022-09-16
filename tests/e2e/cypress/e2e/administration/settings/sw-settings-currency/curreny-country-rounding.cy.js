@@ -15,7 +15,7 @@ describe('Currency: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read currency with currency country roundings', () => {
+    it('@settings: create and read currency with currency country roundings', { tags: ['pa-system-settings'] }, () => {
         cy.window().then(() => {
             const page = new SettingsPageObject();
             // Request we want to wait for later

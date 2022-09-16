@@ -27,7 +27,7 @@ describe('Captcha: Google ReCaptcha', () => {
 
     // NEXT-20973 - Hangs sometimes, might be caused by the rate limit
     // https://developers.google.com/recaptcha/docs/faq#are-there-any-qps-or-daily-limits-on-my-use-of-recaptcha
-    it('@captcha: grecaptcha is loaded when V2 or V3 activated', { tags: ['quarantined'] }, () => {
+    it('@captcha: grecaptcha is loaded when V2 or V3 activated', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         setActiveCaptchas({
             'googleReCaptchaV2': {
                 'isActive': false,
@@ -73,7 +73,7 @@ describe('Captcha: Google ReCaptcha', () => {
     });
 
     // NEXT-20973
-    it('@captcha: register form show google captcha v2 checkbox', { tags: ['quarantined'] }, () => {
+    it('@captcha: register form show google captcha v2 checkbox', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',
@@ -95,7 +95,7 @@ describe('Captcha: Google ReCaptcha', () => {
     });
 
     // NEXT-20973
-    it('@captcha: contact form show google captcha v2 checkbox', { tags: ['quarantined'] }, () => {
+    it('@captcha: contact form show google captcha v2 checkbox', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',
@@ -132,7 +132,7 @@ describe('Captcha: Google ReCaptcha', () => {
     });
 
     // NEXT-20973
-    it('@captcha: register form show google captcha v2 invisible and v3', { tags: ['quarantined'] }, () => {
+    it('@captcha: register form show google captcha v2 invisible and v3', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',

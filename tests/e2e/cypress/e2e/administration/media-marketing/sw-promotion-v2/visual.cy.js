@@ -24,7 +24,7 @@ describe('Promotion v2: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic promotion workflow', () => {
+    it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -8,7 +8,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it('should be able to assign layouts with the grid view', () => {
+    it('should be able to assign layouts with the grid view', { tags: ['pa-content-management'] }, () => {
         cy.log('Go to Category Layout selection screen');
         cy.get('.tree-link:nth(0)').click();
         cy.get('.sw-category-detail__tab-cms').click();
@@ -32,7 +32,7 @@ describe('Category: Create several categories', () => {
         cy.contains('.sw-category-layout-card > .sw-card__content .sw-cms-list-item__title', 'Default listing layout');
     });
 
-    it('should be able to assign layouts with the list view ', () => {
+    it('should be able to assign layouts with the list view ', { tags: ['pa-content-management'] }, () => {
         cy.log('Go to Category Layout selection screen');
         cy.get('.tree-link:nth(0)').click();
         cy.get('.sw-category-detail__tab-cms').click();

@@ -7,7 +7,7 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.loginViaApi();
     });
 
-    it('@base @searchBar @search: search for a product using tag in dashboard', () => {
+    it('@base @searchBar @search: search for a product using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -33,7 +33,7 @@ describe('Search bar: Check search functionality with tags', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a category using tag in dashboard', () => {
+    it('@searchBar @search: search for a category using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
         cy.get('.sw-dashboard')
@@ -56,7 +56,7 @@ describe('Search bar: Check search functionality with tags', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a customer using tag in dashboard', () => {
+    it('@searchBar @search: search for a customer using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createCustomerFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -82,7 +82,7 @@ describe('Search bar: Check search functionality with tags', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a order using tag in dashboard', () => {
+    it('@searchBar @search: search for a order using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 return cy.createProductFixture({
@@ -134,7 +134,7 @@ describe('Search bar: Check search functionality with tags', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a media using tag in dashboard', () => {
+    it('@searchBar @search: search for a media using tag in dashboard', { tags: ['pa-system-settings'] }, () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);

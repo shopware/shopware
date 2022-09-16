@@ -7,7 +7,7 @@ describe('Storefront profile settings', () => {
         cy.loginViaApi();
     });
 
-    it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', () => {
+    it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `/account/register`,
             method: 'POST'

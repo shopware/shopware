@@ -13,7 +13,7 @@ describe('Theme: Test loading and saving of theme', () => {
             });
     });
 
-    it('@base @content: opens and loads theme config', () => {
+    it('@base @content: opens and loads theme config', { tags: ['pa-sales-channels'] }, () => {
         cy.get('.sw-theme-list-item')
             .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
@@ -26,7 +26,7 @@ describe('Theme: Test loading and saving of theme', () => {
         cy.contains('.sw-theme-manager-detail__content--section_field-full-width', 'Mobile');
     });
 
-    it('@base @content: rename theme', () => {
+    it('@base @content: rename theme', { tags: ['pa-sales-channels'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,

@@ -95,7 +95,7 @@ describe('Order: Read order with nested line items', () => {
             });
     });
 
-    it('@base @order: can open and view nested line items in its modal', () => {
+    it('@base @order: can open and view nested line items in its modal', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');

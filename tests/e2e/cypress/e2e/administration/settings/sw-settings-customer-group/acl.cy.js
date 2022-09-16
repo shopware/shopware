@@ -13,7 +13,7 @@ describe('Customer groups: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view customer groups', () => {
+    it('@settings: can view customer groups', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -39,7 +39,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get('input[name="sw-field--customerGroup-registrationActive"]').should('not.be.checked');
     });
 
-    it('@settings: can edit customer group', () => {
+    it('@settings: can edit customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -100,7 +100,7 @@ describe('Customer groups: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: can create customer group', () => {
+    it('@settings: can create customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -157,7 +157,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnName}`, 'VIP');
     });
 
-    it('@settings: can delete customer group', () => {
+    it('@settings: can delete customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

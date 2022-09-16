@@ -15,7 +15,7 @@ describe('Sitemap: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of sitemap module', () => {
+    it('@visual: check appearance of sitemap module', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.sitemap`,
             method: 'GET'

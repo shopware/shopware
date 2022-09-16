@@ -6,7 +6,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
     });
 
     // NEXT-20024
-    it('@searchBar search frequently used modules', { tags: ['quarantined'] }, () => {
+    it('@searchBar search frequently used modules', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/increment/user_activity?*`,
             method: 'GET'
@@ -42,7 +42,7 @@ describe('Search bar: Check search by frequently used and recently searched',() 
             .and('contain', 'Dashboard');
     })
 
-    it('@searchBar search recently searched', () => {
+    it('@searchBar search recently searched', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

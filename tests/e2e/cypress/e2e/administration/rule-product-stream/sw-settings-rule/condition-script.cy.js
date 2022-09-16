@@ -72,7 +72,7 @@ describe('Rule builder: Test app script conditions', () => {
             });
     });
 
-    it('@base @rule: test script conditions are selectable and rendered', () => {
+    it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
@@ -130,7 +130,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('.sw-condition-script .sw-field--text').should('exist');
     });
 
-    it('@base @rule: test script conditions persist', () => {
+    it('@base @rule: test script conditions persist', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.intercept({

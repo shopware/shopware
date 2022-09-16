@@ -18,7 +18,7 @@ describe('Search settings: Live Search', () => {
             });
     });
 
-    it('@settings: link should open the example popup', () => {
+    it('@settings: link should open the example popup', { tags: ['pa-system-settings', 'jest'] }, () => {
         cy.contains('Sales Channel live search');
 
         cy.get('.sw-settings-search-live-search__show-example-link').click();
@@ -26,7 +26,7 @@ describe('Search settings: Live Search', () => {
     });
 
 
-    it('@settings: Search for a keyword with no result', () => {
+    it('@settings: Search for a keyword with no result', { tags: ['pa-system-settings'] }, () => {
         cy.contains('Sales Channel live search');
 
         // Request we want to wait for later
@@ -52,7 +52,7 @@ describe('Search settings: Live Search', () => {
         cy.get('.sw-settings-search-live-search__no-result').should('be.visible');
     });
 
-    it('@settings: Search for a keyword with result', () => {
+    it('@settings: Search for a keyword with result', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
             method: 'POST'
@@ -77,7 +77,7 @@ describe('Search settings: Live Search', () => {
         cy.get('.sw-settings-search-live-search-keyword__highlight').should('be.visible');
     });
 
-    it('@settings: Clicking on the search icon to trigger search', () => {
+    it('@settings: Clicking on the search icon to trigger search', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
             method: 'POST'
@@ -104,7 +104,7 @@ describe('Search settings: Live Search', () => {
         cy.get('.sw-settings-search-live-search-keyword__highlight').should('be.visible');
     });
 
-    it('@settings: Search for a keyword with multiple results', () => {
+    it('@settings: Search for a keyword with multiple results', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
             method: 'POST'

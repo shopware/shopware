@@ -18,7 +18,7 @@ describe('Category: SDK Test', ()=> {
                     .should('exist');
             });
     });
-    it('@sdk: Check tab existence', ()=> {
+    it('@sdk: Check tab existence', { tags: ['ct-admin'] }, ()=> {
         const Page = new ProductPageObject();
 
         cy.clickContextMenuItem(

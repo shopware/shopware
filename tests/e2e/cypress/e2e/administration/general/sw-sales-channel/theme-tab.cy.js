@@ -10,7 +10,7 @@ describe('Sales Channel: Tests about the theme tab in the sales channel', () => 
             });
     });
 
-    it('@general: open theme tab', () => {
+    it('@general: open theme tab', { tags: ['pa-sales-channels', 'jest'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -19,7 +19,7 @@ describe('Sales Channel: Tests about the theme tab in the sales channel', () => 
         cy.get('.sw-sales-channel-detail-theme').should('exist');
     });
 
-    it('@general: theme tab has a title', () => {
+    it('@general: theme tab has a title', { tags: ['pa-sales-channels', 'jest'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);

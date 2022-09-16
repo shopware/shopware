@@ -48,7 +48,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Wishlist state is set correctly', () => {
+    it('@wishlist: Wishlist state is set correctly', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -70,7 +70,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge display on header', () => {
+    it('@wishlist: Heart icon badge display on header', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -78,7 +78,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge display on product box in product listing', () => {
+    it('@wishlist: Heart icon badge display on product box in product listing', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -99,7 +99,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge display in product detail', () => {
+    it('@wishlist: Heart icon badge display in product detail', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -119,7 +119,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge display the counter', () => {
+    it('@wishlist: Heart icon badge display the counter', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -134,7 +134,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', () => {
+    it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -157,7 +157,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Order in which the products are displayed is based on the time they were added to the wishlist', () => {
+    it('@wishlist: Order in which the products are displayed is based on the time they were added to the wishlist', { tags: ['pa-checkout'] }, () => {
         cy.createProductFixture({
             "id": "6dfd9dc216ab4ac99598b837ac600369",
             "name": "Test product 2",
@@ -208,7 +208,7 @@ describe('Wishlist: for wishlist', () => {
         cy.get('.cms-listing-col').eq(1).contains(product.name);
     });
 
-    it('@wishlist: Heart icon badge display on product box in product listing pagination', () => {
+    it('@wishlist: Heart icon badge display on product box in product listing pagination', { tags: ['pa-checkout'] }, () => {
         Array.from(products).forEach(product => cy.createProductFixture(product));
 
         cy.visit('/');

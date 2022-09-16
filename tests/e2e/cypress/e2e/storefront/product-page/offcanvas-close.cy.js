@@ -14,10 +14,10 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
         });
     });
 
-    it('Should close offcanvas on browser back', () => {
+    it('Should close offcanvas on browser back', { tags: ['pa-checkout'] }, () => {
         cy.featureIsActive('v6.5.0.0').then((isActive) => {
             const offCanvasShow = isActive ?  '.offcanvas.show': '.offcanvas.is-open'
-            
+
             // set to mobile viewport
             cy.viewport(360, 640);
 
@@ -63,7 +63,7 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
         })
     });
 
-    it('Should close offcanvas on clicking on backdrop', () => {
+    it('Should close offcanvas on clicking on backdrop', { tags: ['pa-checkout'] }, () => {
         cy.featureIsActive('v6.5.0.0').then((isActive) => {
             const page = new CheckoutPageObject();
 

@@ -11,7 +11,7 @@ describe('Theme: Test common editing of theme', () => {
             });
     });
 
-    it('@base @media @content: change theme logo image', () => {
+    it('@base @media @content: change theme logo image', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH'
@@ -54,7 +54,7 @@ describe('Theme: Test common editing of theme', () => {
             .and('match', /sw-test-image/);
     });
 
-    it('@base @content: saves theme primary color', () => {
+    it('@base @content: saves theme primary color', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH'
@@ -79,7 +79,7 @@ describe('Theme: Test common editing of theme', () => {
             .should('have.css', 'color', 'rgb(0, 0, 0)');
     });
 
-    it('@base @media @content: change theme logo image by sidebar', () => {
+    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH'

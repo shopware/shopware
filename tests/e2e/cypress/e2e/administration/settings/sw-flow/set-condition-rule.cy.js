@@ -13,7 +13,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
             });
     });
 
-    it('@settings: create new rule for condition sequence', () => {
+    it('@settings: create new rule for condition sequence', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -82,7 +82,7 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Time rule').should('be.visible');
     });
 
-    it('@settings: update rule for condition sequence', () => {
+    it('@settings: update rule for condition sequence', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

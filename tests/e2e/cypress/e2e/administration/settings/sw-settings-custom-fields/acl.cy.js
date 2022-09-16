@@ -13,7 +13,7 @@ describe('Custom fields: Test ACL privileges', () => {
             });
     });
 
-    it('@settings @customField: has no access to custom field module', () => {
+    it('@settings @customField: has no access to custom field module', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -31,7 +31,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('.sw-settings-custom-field-set-list__card').should('not.exist');
     });
 
-    it('@settings @customField: can view custom field set', () => {
+    it('@settings @customField: can view custom field set', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'custom_field',
@@ -51,7 +51,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('.sw-settings-set-detail__save-action').should('be.disabled');
     });
 
-    it('@settings @customField: can edit custom field set', () => {
+    it('@settings @customField: can edit custom field set', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
@@ -83,7 +83,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
     });
 
-    it('@settings @customfield: can create custom field set', () => {
+    it('@settings @customfield: can create custom field set', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
@@ -127,7 +127,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings @customfield: can delete custom field set', () => {
+    it('@settings @customfield: can delete custom field set', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

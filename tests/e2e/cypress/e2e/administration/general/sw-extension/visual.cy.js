@@ -16,7 +16,7 @@ describe('Dashboard:  Visual tests', () => {
     });
 
     // skipped because it has a dependency to the sbp, see NEXT-15818
-    it('@visual: check appearance of my extension overview', { tags: ['quarantined'] }, () => {
+    it('@visual: check appearance of my extension overview', { tags: ['quarantined', 'pa-merchant-services'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
             method: 'GET'

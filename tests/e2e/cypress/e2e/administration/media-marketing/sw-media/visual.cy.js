@@ -16,7 +16,7 @@ describe('Media: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic media workflow', () => {
+    it('@visual: check appearance of basic media workflow', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -86,7 +86,7 @@ describe('Media: Visual tests', () => {
         cy.takeSnapshot('[Media] Listing', '.sw-media-library', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic product media workflow', () => {
+    it('@visual: check appearance of basic product media workflow', { tags: ['pa-content-management'] }, () => {
         const page = new ProductPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

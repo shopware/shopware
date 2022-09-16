@@ -17,7 +17,7 @@ describe('Flow builder: generate document testing', () => {
             });
     });
 
-    it('@settings: generate document flow', () => {
+    it('@settings: generate document flow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
             method: 'POST'

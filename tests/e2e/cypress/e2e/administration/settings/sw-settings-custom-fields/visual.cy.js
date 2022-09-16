@@ -14,7 +14,7 @@ describe('Custom fields: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of custom field module', () => {
+    it('@base @visual: check appearance of custom field module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
             method: 'POST'

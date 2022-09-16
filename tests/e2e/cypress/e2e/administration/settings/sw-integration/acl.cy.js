@@ -55,7 +55,7 @@ describe('Integration: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of integration', () => {
+    it('@settings: can view a list of integration', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

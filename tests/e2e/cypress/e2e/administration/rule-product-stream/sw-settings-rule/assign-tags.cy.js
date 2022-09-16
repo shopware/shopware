@@ -15,7 +15,7 @@ describe('Rule builder: Test assigning tags', () => {
             });
     });
 
-    it('@base @rule: create rule with tags and verify assignment', () => {
+    it('@base @rule: create rule with tags and verify assignment', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later

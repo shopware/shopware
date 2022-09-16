@@ -32,7 +32,7 @@ describe('Dynamic product group: Test relative time filters', () => {
             });
     });
 
-    it('@base @rule: can preview products with relative time filters', () => {
+    it('@base @rule: can preview products with relative time filters', { tags: ['pa-business-ops'] }, () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
         cy.get('.sw-skeleton').should('not.exist');

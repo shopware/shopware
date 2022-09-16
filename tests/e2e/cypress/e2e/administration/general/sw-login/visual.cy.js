@@ -12,7 +12,7 @@ describe('Login: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic login workflow', () => {
+    it('@visual: check appearance of basic login workflow', { tags: ['ct-admin'] }, () => {
         // Remove login image if percy is used
         if(!Cypress.env('usePercy')) {
 

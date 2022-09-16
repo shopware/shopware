@@ -13,7 +13,7 @@ describe('Search settings: Search Index', () => {
             });
     });
 
-    it('@settings: rebuild search index', () => {
+    it('@settings: rebuild search index', { tags: ['pa-system-settings'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_22900')
 
         cy.contains('Search index');
@@ -29,7 +29,7 @@ describe('Search settings: Search Index', () => {
         cy.get('.sw-settings-search__search-index-rebuilding-progress').should('not.exist');
     });
 
-    it('@settings: should show the warning popup when leaving before indexing process finish', () => {
+    it('@settings: should show the warning popup when leaving before indexing process finish', { tags: ['pa-system-settings'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_22900')
 
         cy.contains('Search index');

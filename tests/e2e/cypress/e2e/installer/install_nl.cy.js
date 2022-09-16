@@ -10,7 +10,7 @@ describe('Minimal install', () => {
      * - db `Cypress.env('dbName')` must not exists
      * - install.lock must not exist
      */
-    it('@install: nl-NL and Euro', () => {
+    it('@install: nl-NL and Euro', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/installer', {
             headers: {
                 'Accept-Language': Cypress.env('acceptLanguage')

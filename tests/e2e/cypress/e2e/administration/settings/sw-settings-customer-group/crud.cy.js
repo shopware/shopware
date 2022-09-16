@@ -14,7 +14,7 @@ describe('Customer group: Test crud operations', () => {
         });
     });
 
-    it('@settings: create and read customer group', () => {
+    it('@settings: create and read customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
         const salesChannelPage = new SalesChannelPageObject();
 
@@ -63,7 +63,7 @@ describe('Customer group: Test crud operations', () => {
             .typeSingleSelectAndCheck('E2E Merchant', '.sw-sales-channel-detail__select-customer-group');
     });
 
-    it('@settings: update and read customer group', () => {
+    it('@settings: update and read customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -92,7 +92,7 @@ describe('Customer group: Test crud operations', () => {
             .should('be.visible');
     });
 
-    it('@settings: delete customer group', () => {
+    it('@settings: delete customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -118,7 +118,7 @@ describe('Customer group: Test crud operations', () => {
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: throw error when deleting standard customer group', () => {
+    it('@settings: throw error when deleting standard customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

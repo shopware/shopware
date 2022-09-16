@@ -26,7 +26,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             });
     });
 
-    it('@package: should create promotion, configure conditions and discounts', () => {
+    it('@package: should create promotion, configure conditions and discounts', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'
@@ -129,7 +129,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         });
     });
 
-    it('@package: should create fixed promotion code and check from the storefront', () => {
+    it('@package: should create fixed promotion code and check from the storefront', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'
@@ -240,7 +240,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         });
     });
 
-    it('@package: should create individual promotion codes and check from the storefront', () => {
+    it('@package: should create individual promotion codes and check from the storefront', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'

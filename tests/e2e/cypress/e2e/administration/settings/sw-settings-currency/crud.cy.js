@@ -15,7 +15,7 @@ describe('Currency: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read currency', () => {
+    it('@settings: create and read currency', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -50,7 +50,7 @@ describe('Currency: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`, 'Dukaten');
     });
 
-    it('@settings: update and read currency', () => {
+    it('@settings: update and read currency', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -79,7 +79,7 @@ describe('Currency: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Kreuzer').should('be.visible');
     });
 
-    it('@settings: delete currency', () => {
+    it('@settings: delete currency', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

@@ -14,7 +14,7 @@ describe('Tax: Test tax-rule listing operations', () => {
             });
     });
 
-    it('@setting: test the default sorting and page', () => {
+    it('@setting: test the default sorting and page', { tags: ['pa-customers-orders'] }, () => {
         cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
             'Standard rate').click();
 
@@ -31,7 +31,7 @@ describe('Tax: Test tax-rule listing operations', () => {
         });
     });
 
-    it('@setting: test the sorting and limit function', () => {
+    it('@setting: test the sorting and limit function', { tags: ['pa-customers-orders'] }, () => {
         cy.contains('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value',
             'Standard rate').click();
 

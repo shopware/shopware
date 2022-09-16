@@ -8,7 +8,7 @@ describe('Account: Edit profile\'s Vat Id', () => {
         });
     });
 
-    it('@customer @package: Update profile', () => {
+    it('@customer @package: Update profile', { tags: ['pa-customers-orders'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

@@ -64,7 +64,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: inline edit variant image', () => {
+    it('@catalogue: inline edit variant image', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -157,7 +157,7 @@ describe('Product: Test variants', () => {
         cy.get('.icon-placeholder').should('be.visible');
     });
 
-    it('@catalogue: set cover for variant image', () => {
+    it('@catalogue: set cover for variant image', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -281,7 +281,7 @@ describe('Product: Test variants', () => {
         cy.get('.icon-placeholder').should('be.visible');
     });
 
-    it('@catalogue: view preview image modal', () => {
+    it('@catalogue: view preview image modal', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

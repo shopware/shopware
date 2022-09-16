@@ -8,7 +8,7 @@ describe('Checkout: Visual tests', () => {
         cy.visit('/');
     });
 
-    it('@visual: check appearance of basic checkout workflow', () => {
+    it('@visual: check appearance of basic checkout workflow', { tags: ['pa-system-settings'] }, () => {
         if(!Cypress.env('testDataUsage')) {
             return;
         }

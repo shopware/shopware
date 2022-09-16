@@ -36,7 +36,7 @@ describe('Product: Check cross selling integration', () => {
             });
     });
 
-    it('@catalogue @package: add cross selling stream to product', () => {
+    it('@catalogue @package: add cross selling stream to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -124,7 +124,7 @@ describe('Product: Check cross selling integration', () => {
         });
     });
 
-    it('@catalogue @package: add manual cross selling to product', () => {
+    it('@catalogue @package: add manual cross selling to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -223,7 +223,7 @@ describe('Product: Check cross selling integration', () => {
         });
     });
 
-    it('@catalogue @package: should handle required fields', () => {
+    it('@catalogue @package: should handle required fields', { tags: ['pa-inventory'] }, () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

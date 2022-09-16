@@ -15,7 +15,7 @@ describe('Media: Test crud operations of folders', () => {
             });
     });
 
-    it('@base @media: create and read folder', () => {
+    it('@base @media: create and read folder', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -33,7 +33,7 @@ describe('Media: Test crud operations of folders', () => {
             .should('be.visible');
     });
 
-    it('@base @media: update and read folder using rename', () => {
+    it('@base @media: update and read folder using rename', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -62,7 +62,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
     });
 
-    it('@base @media: create a subfolder and check configuration', () => {
+    it('@base @media: create a subfolder and check configuration', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -133,7 +133,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked');
     });
 
-    it('@base @media: delete folder', () => {
+    it('@base @media: delete folder', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

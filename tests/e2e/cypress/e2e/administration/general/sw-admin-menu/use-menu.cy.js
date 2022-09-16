@@ -16,7 +16,7 @@ describe('Admin menu: Toggle different admin menu appearances, change and assert
             });
     });
 
-    it('@navigation: toggle different menu appearances', () => {
+    it('@navigation: toggle different menu appearances', { tags: ['ct-admin'] }, () => {
         const page = new MenuPageObject();
 
         // Check expanded and collapsed menu

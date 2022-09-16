@@ -8,7 +8,7 @@ describe('Login / Registration: Test show operations on templates', () => {
             });
     });
 
-    it('@settings: Customer scope', () => {
+    it('@settings: Customer scope', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,

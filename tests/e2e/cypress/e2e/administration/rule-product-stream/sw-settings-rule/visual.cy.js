@@ -15,7 +15,7 @@ describe('Rule builder: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic rule workflow', () => {
+    it('@visual: check appearance of basic rule workflow', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,

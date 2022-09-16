@@ -11,7 +11,7 @@ describe('Login: Test login', () => {
             });
     });
 
-    it('@base @general: login as admin user', () => {
+    it('@base @general: login as admin user', { tags: ['ct-admin'] }, () => {
         cy.login('admin');
     });
 });

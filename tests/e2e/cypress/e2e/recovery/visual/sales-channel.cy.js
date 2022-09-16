@@ -19,7 +19,7 @@ describe('Sales Channel: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic sales channel workflow', () => {
+    it('@visual: check appearance of basic sales channel workflow', { tags: ['pa-system-settings'] }, () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later

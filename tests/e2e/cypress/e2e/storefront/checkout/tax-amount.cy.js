@@ -70,7 +70,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 })
             });
 
-            it('@base @checkout @package: Run checkout', () => {
+            it('@base @checkout @package: Run checkout', { tags: ['pa-checkout'] }, () => {
 
                 cy.window().then((win) => {
                     /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */

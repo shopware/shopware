@@ -13,7 +13,7 @@ describe('Payment: Test ACL privileges', () => {
             });
     });
 
-    it('@settings: has no access to payment module', () => {
+    it('@settings: has no access to payment module', { tags: ['pa-checkout'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
@@ -31,7 +31,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-list').should('not.exist');
     });
 
-    it('@settings: can view payment but is not able to edit or activate payment ', () => {
+    it('@settings: can view payment but is not able to edit or activate payment ', { tags: ['pa-checkout'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
@@ -57,7 +57,7 @@ describe('Payment: Test ACL privileges', () => {
             .should('be.disabled');
     });
 
-    it('@settings: can edit payment', () => {
+    it('@settings: can edit payment', { tags: ['pa-checkout'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,
@@ -103,7 +103,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('My description');
     });
 
-    it('@settings: can create payment', () => {
+    it('@settings: can create payment', { tags: ['pa-checkout'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,
@@ -143,7 +143,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('1 Coleur');
     });
 
-    it('@settings: can delete settings-payment', () => {
+    it('@settings: can delete settings-payment', { tags: ['pa-checkout'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,

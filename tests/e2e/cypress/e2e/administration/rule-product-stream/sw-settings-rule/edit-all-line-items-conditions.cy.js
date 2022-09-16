@@ -15,7 +15,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
             });
     });
 
-    it('@rule: edit all line items container conditions', () => {
+    it('@rule: edit all line items container conditions', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'

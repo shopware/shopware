@@ -15,7 +15,7 @@ describe('Product: Duplicate product', () => {
             });
     });
 
-    it('@base @catalogue: duplicate product in product-list', () => {
+    it('@base @catalogue: duplicate product in product-list', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -46,7 +46,7 @@ describe('Product: Duplicate product', () => {
         cy.contains('.sw-page__smart-bar-amount', '2');
     });
 
-    it('@base @catalogue: duplicate product in product-detail', () => {
+    it('@base @catalogue: duplicate product in product-detail', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -147,7 +147,7 @@ describe('Product: Duplicate product', () => {
             });
     });
 
-    it('@catalogue: duplicate duplicated product in product-detail', () => {
+    it('@catalogue: duplicate duplicated product in product-detail', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

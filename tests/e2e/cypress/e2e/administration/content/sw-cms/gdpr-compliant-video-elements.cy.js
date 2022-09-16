@@ -21,7 +21,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
     });
 
     platforms.forEach(({ name, videoId }) => {
-        it(`use ${name} element with GDPR compliant options`, () => {
+        it(`use ${name} element with GDPR compliant options`, { tags: ['pa-content-management'] }, () => {
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/cms-page/*`,
                 method: 'PATCH'

@@ -6,7 +6,7 @@ describe('Account - Password: Visual tests', () => {
         cy.createCustomerFixture();
     });
 
-    it('@visual: check appearance of password recovery workflow', () => {
+    it('@visual: check appearance of password recovery workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.loginCard).should('be.visible');

@@ -9,7 +9,7 @@ describe('Check out of stock variants', () => {
         });
     });
 
-    it('@base @checkout: should gray out variant if they\'re out of stock or not in sales channel', () => {
+    it('@base @checkout: should gray out variant if they\'re out of stock or not in sales channel', { tags: ['pa-inventory'] }, () => {
         // Product detail
         cy.contains('.product-detail-name', 'Test product').should('be.visible');
 

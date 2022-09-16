@@ -41,7 +41,7 @@ describe('Product: Test filter variants', () => {
             });
     });
 
-    it('@catalogue: should filter options by properties', () => {
+    it('@catalogue: should filter options by properties', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'

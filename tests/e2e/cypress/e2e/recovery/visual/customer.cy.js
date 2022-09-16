@@ -42,7 +42,7 @@ describe('Customer:  Visual test', () => {
             });
     });
 
-    it('@visual: check appearance of basic customer workflow', () => {
+    it('@visual: check appearance of basic customer workflow', { tags: ['pa-system-settings'] }, () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
         cy.intercept({

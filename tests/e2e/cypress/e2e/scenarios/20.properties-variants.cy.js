@@ -35,7 +35,7 @@ describe('Create a new property, select value display type and test their appear
             });
     });
 
-    it('@package: add property and multidimensional variant to product', () => {
+    it('@package: add property and multidimensional variant to product', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
             method: 'POST'

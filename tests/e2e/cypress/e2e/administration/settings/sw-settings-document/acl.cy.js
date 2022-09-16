@@ -8,7 +8,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         });
     });
 
-    it('@general: read documents with ACL, but without rights', () => {
+    it('@general: read documents with ACL, but without rights', { tags: ['pa-customers-orders'] }, () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -25,7 +25,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@general: read document with ACL', () => {
+    it('@general: read document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
         cy.loginAsUserWithPermissions([{ key: 'document', role: 'viewer' }]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
@@ -50,7 +50,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get('.sw-settings-document-detail__save-action').should('be.disabled');
     });
 
-    it('@catalogue: create and read document with ACL', () => {
+    it('@catalogue: create and read document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -95,7 +95,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.contains('.sw-settings-document-list-grid', 'very Document');
     });
 
-    it('@catalogue: edit and read documents with ACL', () => {
+    it('@catalogue: edit and read documents with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -132,7 +132,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-settings-document-list-grid', 'very Document');
     });
-    it('@catalogue: create, read and then edit document with ACL', () => {
+    it('@catalogue: create, read and then edit document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -200,7 +200,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-settings-document-list-grid', 'very Document1');
     });
-    it('@catalogue: delete document with ACL', () => {
+    it('@catalogue: delete document with ACL', { tags: ['pa-customers-orders'] }, () => {
         const page = new DocumentPageObject();
         cy.loginAsUserWithPermissions([
             { key: 'document', role: 'viewer' },

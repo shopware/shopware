@@ -20,6 +20,11 @@
             {% endif %}
 
             <ul class="list-unstyled navigation-offcanvas-list">
+                {% if isRoot %}
+                    {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
+                    {{ block("layout_main_navigation_menu_home", "@Storefront/storefront/layout/navigation/navigation.html.twig") }}
+                {% endif %}
+                
                 {% if not isRoot and page.navigation.active.type != "folder" %}
                     {# @deprecated tag:v6.5.0 - Passed variable `item` will be removed. Variable `treeItem` will be passed instead. #}
                     {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active, treeItem: active } %}

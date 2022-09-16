@@ -25,7 +25,7 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
 import utils
  */
 import TimezoneUtil from 'src/utility/timezone/timezone.util';
-import TooltipUtil from 'src/utility/tooltip/tooltip.util';
+import BootstrapUtil from 'src/utility/bootstrap/bootstrap.util';
 
 /*
 import plugins
@@ -232,5 +232,4 @@ run utils
 */
 new TimezoneUtil();
 
-new TooltipUtil();
-
+BootstrapUtil.initBootstrapPlugins();

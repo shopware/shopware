@@ -1,3 +1,6 @@
+/**
+ * @deprecated tag:v6.5.0 - tooltip.util is deprecated - Use `BootstrapUtil.initTooltip()` instead
+ */
 import Feature from 'src/helper/feature.helper';
 /* Enable tooltips everywhere
  * https://getbootstrap.com/docs/4.3/components/tooltips/#example-enable-tooltips-everywhere

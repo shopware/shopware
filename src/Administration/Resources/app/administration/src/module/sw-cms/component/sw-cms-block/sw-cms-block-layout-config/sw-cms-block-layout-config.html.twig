@@ -16,6 +16,13 @@
         v-model="block.marginTop"
         :label="$tc('sw-cms.detail.label.blockTopMarginField')"
     />
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_top_margin_field_responsive %}
+        <sw-cms-block-layout-config-margin-field
+            v-model="block.marginResponsive.top"
+        />
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -24,6 +31,13 @@
         v-model="block.marginBottom"
         :label="$tc('sw-cms.detail.label.blockBottomMarginField')"
     />
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_bottom_margin_field_responsive %}
+        <sw-cms-block-layout-config-margin-field
+            v-model="block.marginResponsive.bottom"
+        />
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -32,6 +46,13 @@
         v-model="block.marginLeft"
         :label="$tc('sw-cms.detail.label.blockLeftMarginField')"
     />
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_left_margin_field_responsive %}
+        <sw-cms-block-layout-config-margin-field
+            v-model="block.marginResponsive.left"
+        />
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -40,6 +61,13 @@
         v-model="block.marginRight"
         :label="$tc('sw-cms.detail.label.blockRightMarginField')"
     />
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_right_margin_field_responsive %}
+        <sw-cms-block-layout-config-margin-field
+            v-model="block.marginResponsive.right"
+        />
+    {% endblock %}
     {% endblock %}
 </div>
 {% endblock %}

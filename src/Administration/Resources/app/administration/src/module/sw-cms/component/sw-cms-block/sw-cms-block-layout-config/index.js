@@ -1,5 +1,6 @@
 import template from './sw-cms-block-layout-config.html.twig';
 import './sw-cms-block-layout-config.scss';
+import './sw-cms-block-layout-config-margin-field';
 
 const { Component } = Shopware;
 

@@ -122,6 +122,14 @@
         "blockRightMarginField": "Right margin",
         "blockBottomMarginField": "Bottom margin",
         "blockLeftMarginField": "Left margin",
+        "blockResponsiveMargin": {
+          "specify": "Specify responsive margins",
+          "xs": "XS",
+          "sm": "SM",
+          "md": "MD",
+          "lg": "LG",
+          "xl": "XL"
+        },
         "sizingOptionBoxed": "Boxed content",
         "sizingOptionFull": "Full width",
         "buttonMappingAction": "Data mapping",

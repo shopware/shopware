@@ -120,6 +120,15 @@ Component.register('sw-cms-block', {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
+
+            if (!this.block.marginResponsive) {
+                this.block.marginResponsive = {
+                    top: { enabled: false },
+                    bottom: { enabled: false },
+                    left: { enabled: false },
+                    right: { enabled: false },
+                };
+            }
         },
 
         onBlockOverlayClick() {

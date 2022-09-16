@@ -1,0 +1,14 @@
+.sw-cms-block-layout-config-margin-field {
+    margin-top: -1.5rem;
+    margin-bottom: 2rem;
+
+    .sw-cms-block-layout-config-margin-field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1rem;
+
+        .sw-field {
+            margin-bottom: 0;
+        }
+    }
+}

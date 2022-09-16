@@ -1,0 +1,28 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_block_layout_config_margin_field %}
+<div class="sw-cms-block-layout-config-margin-field">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_margin_field_enabled %}
+    <sw-checkbox-field v-model="value.enabled"
+                       :label="$tc('sw-cms.detail.label.blockResponsiveMargin.specify')"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_block_layout_config_margin_field_grid %}
+    <div v-if="value.enabled"
+         class="sw-cms-block-layout-config-margin-field-grid"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_block_layout_config_margin_field_grid_item %}
+        <sw-text-field
+            v-for="size in sizes"
+            :key="size"
+            v-model="value[size]"
+            :label="$tc('sw-cms.detail.label.blockResponsiveMargin.' + size)"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

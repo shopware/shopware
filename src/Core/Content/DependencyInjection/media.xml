@@ -244,6 +244,11 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileFetcher"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Media\MediaUrlPlaceholderHandler" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
             <argument type="service" id="shopware.filesystem.public"/>
         </service>

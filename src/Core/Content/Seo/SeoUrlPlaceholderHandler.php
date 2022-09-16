@@ -54,7 +54,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
             if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
                 $mapping = $this->createDefaultMapping($matches[0]);
-                $seoMapping = $this->createSeoMapping($context, $mapping);
+                $seoMapping = $this->createMediaMapping($context, $mapping);
+                $seoMapping = $this->createSeoMapping($context, $seoMapping);
+
                 foreach ($seoMapping as $key => $value) {
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
@@ -109,6 +111,38 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
             }
             $key = self::DOMAIN_PLACEHOLDER . $seoUrl['path_info'] . '#';
             $mapping[$key] = $seoPathInfo;
+        }
+
+        return $mapping;
+    }
+
+    private function createMediaMapping(SalesChannelContext $context, array $mapping): array
+    {
+        $prefix = '/mediaId/';
+
+        if (empty($mapping)) {
+            return [];
+        }
+
+        $idsToMap = [];
+        foreach($mapping as $item) {
+            if (str_starts_with($item, $prefix)) {
+                $idsToMap[] = substr($item, strlen($prefix));
+            }
+        }
+
+        $query = $this->connection->createQueryBuilder();
+        $query->addSelect(['id', 'file_name', 'file_extension']);
+
+        $query->from('media');
+        $query->setParameter('id', $idsToMap, Connection::PARAM_STR_ARRAY);
+
+        $mediaFiles = $query->execute()->fetchAll();
+        foreach ($mediaFiles as $mediaFile) {
+            $key = self::DOMAIN_PLACEHOLDER . $prefix . bin2hex($mediaFile['id']) . '#';
+
+            // WIP: Resolve full URL as seen in \Shopware\Core\Content\Mail\Service\MailService::getMediaUrls
+            $mapping[$key] = $mediaFile['file_name'] . '.' . $mediaFile['file_extension'];
         }
 
         return $mapping;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -18,10 +18,12 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
  * @group store-api
+ * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute
  */
 class CartOrderRouteTest extends TestCase
 {
@@ -75,7 +77,9 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -91,7 +95,9 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CART_EMPTY', $response['errors'][0]['code']);
@@ -119,7 +125,9 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -132,11 +140,65 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame(10, $response['transactions'][0]['amount']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
+    }
+
+    public function testOrderWithBlockingCartErrors(): void
+    {
+        $this->createCustomerAndLogin(null, null, SyncTestPaymentHandler::class, true);
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order'
+            );
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
+
+        $statusCode = (int) ($response['errors'][0]['status']);
+        static::assertGreaterThanOrEqual(400, $statusCode);
+        static::assertLessThanOrEqual(500, $statusCode);
+
+        if ($statusCode === 400) {
+            static::assertSame('salutation-missing-profile', $response['errors'][0]['meta']['parameters']['key']);
+        } else {
+            static::assertSame('CHECKOUT__CART_INVALID', $response['errors'][0]['code']);
+        }
     }
 
     public function testOrderWithComment(): void
@@ -161,7 +223,9 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -177,7 +241,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test comment', $response['customerComment']);
@@ -205,7 +271,9 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -222,7 +290,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test affiliate code', $response['affiliateCode']);
@@ -251,7 +321,9 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -267,7 +339,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test affiliate code', $response['affiliateCode']);
@@ -296,7 +370,9 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -312,7 +388,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertNull($response['affiliateCode']);
@@ -371,7 +449,13 @@ class CartOrderRouteTest extends TestCase
         $response = $this->browser->getResponse();
         $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($originalToken);
-        $data = json_decode($response->getContent(), true);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true);
+
         static::assertCount(1, $data['lineItems']);
 
         $interval = new \DateInterval($this->getContainer()->getParameter('shopware.api.store.context_lifetime'));
@@ -390,13 +474,16 @@ class CartOrderRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
         $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($guestToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // we should get a new token and it should be different from the expired token context
         static::assertNotNull($guestToken);
         static::assertNotEquals($originalToken, $guestToken);
 
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true);
         static::assertEmpty($data['lineItems']);
 
         $this->browser
@@ -418,7 +505,9 @@ class CartOrderRouteTest extends TestCase
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertSame($guestToken, $token);
 
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true);
         static::assertCount(1, $data['lineItems']);
 
         // the cart should be merged on login and a new token should be created
@@ -429,7 +518,9 @@ class CartOrderRouteTest extends TestCase
         $response = $this->browser->getResponse();
         $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        $data = json_decode($response->getContent(), true);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $data = json_decode($content, true);
         static::assertCount(2, $data['lineItems']);
 
         static::assertNotSame($guestToken, $mergedToken);
@@ -463,7 +554,7 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        TestCase::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
+        static::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
     }
 
     public function testPreparedPaymentStructForwarded(): void
@@ -495,9 +586,9 @@ class CartOrderRouteTest extends TestCase
         static::assertSame(PreparedTestPaymentHandler::TEST_STRUCT_CONTENT, PreparedTestPaymentHandler::$preOrderPaymentStruct->all());
     }
 
-    protected function catchEvent(string $eventName, &$eventResult): void
+    protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -523,16 +614,19 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    private function createCustomerAndLogin($email = null, $password = null, string $paymentHandler = SyncTestPaymentHandler::class): void
+    /**
+     * @param class-string $paymentHandler
+     */
+    private function createCustomerAndLogin(?string $email = null, ?string $password = null, string $paymentHandler = SyncTestPaymentHandler::class, bool $invalidSalutaionId = false): void
     {
         $email = $email ?? (Uuid::randomHex() . '@example.com');
         $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email, $paymentHandler);
+        $this->createCustomer($password, $email, $paymentHandler, $invalidSalutaionId);
 
         $this->login($email, $password);
     }
 
-    private function login($email = null, $password = null): void
+    private function login(?string $email = null, ?string $password = null): void
     {
         $this->browser
             ->request(
@@ -544,8 +638,11 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('contextToken', $response);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
@@ -554,7 +651,7 @@ class CartOrderRouteTest extends TestCase
     /**
      * @param class-string $paymentHandler
      */
-    private function createCustomer(string $password, ?string $email = null, string $paymentHandler = SyncTestPaymentHandler::class): string
+    private function createCustomer(string $password, ?string $email = null, string $paymentHandler = SyncTestPaymentHandler::class, bool $invalidSalutaionId = false): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -590,7 +687,7 @@ class CartOrderRouteTest extends TestCase
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => $this->getValidSalutationId(),
+                'salutationId' => ($invalidSalutaionId ? null : $this->getValidSalutationId()),
                 'customerNumber' => '12345',
             ],
         ], Context::createDefaultContext());

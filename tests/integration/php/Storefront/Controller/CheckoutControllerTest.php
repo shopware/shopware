@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -91,6 +91,9 @@ class CheckoutControllerTest extends TestCase
         static::assertSame($savedCustomerComment, $order->getCustomerComment());
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function customerComments(): array
     {
         return [
@@ -255,7 +258,7 @@ class CheckoutControllerTest extends TestCase
      *
      * @param array<string> $errorKeys
      */
-    public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
+    public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false, bool $orderShouldBeBlocked = false): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
         $browser->followRedirects(true);
@@ -264,7 +267,14 @@ class CheckoutControllerTest extends TestCase
         $productId = Uuid::randomHex();
         $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
 
+        $stockError = false;
+
         foreach ($errors as $error) {
+            if ($error instanceof ProductOutOfStockError) {
+                // If not redirected e.g. 'ProductOutOfStockError' does
+                $stockError = true;
+            }
+
             $this->prepareErrors(
                 $error,
                 $browser,
@@ -308,8 +318,17 @@ class CheckoutControllerTest extends TestCase
             $activePaymentMethod = $crawler->filterXPath('//div[contains(concat(" ",normalize-space(@class)," "), " payment-method-radio ")][input/@checked]')->text();
             static::assertStringContainsString('Paid in advance', $activePaymentMethod);
         }
+
+        // Ensure submit order button is disabled
+        if (!$stockError) {
+            $submitButton = $crawler->filterXPath('//button[@id="confirmFormSubmit"][@disabled]');
+            static::assertCount(($orderShouldBeBlocked || $errors->blockOrder()) ? 1 : 0, $submitButton);
+        }
     }
 
+    /**
+     * @return array<array<mixed>>
+     */
     public function errorDataProvider(): array
     {
         return [
@@ -335,6 +354,8 @@ class CheckoutControllerTest extends TestCase
                 [
                     \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
                 ],
+                false,
+                true,
             ],
             // One payment method blocked is expected to be switched
             [
@@ -360,6 +381,8 @@ class CheckoutControllerTest extends TestCase
                 [
                     self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT,
                 ],
+                false,
+                true,
             ],
             // Standard shipping and payment method blocked expected to switch both
             [

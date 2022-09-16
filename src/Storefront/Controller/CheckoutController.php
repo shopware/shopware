@@ -160,7 +160,6 @@ class CheckoutController extends StorefrontController
                 ),
             );
         }
-        $cartErrors->clear();
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }

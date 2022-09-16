@@ -49,7 +49,6 @@ Component.register('sw-text-editor-link-menu', {
         buttonVariant: ButtonVariant,
         linkCategory: LinkCategories,
         categoryCollection?: EntityCollectionType,
-        mediaCollection?: EntityCollectionType,
         buttonVariantList: Array<{ id: ButtonVariant, name: string }>
         } {
         return {
@@ -103,10 +102,6 @@ Component.register('sw-text-editor-link-menu', {
         categoryRepository(): RepositoryType {
             return this.repositoryFactory.create('category');
         },
-
-        mediaRepository(): RepositoryType {
-            return this.repositoryFactory.create('media');
-        },
     },
 
     watch: {
@@ -139,7 +134,6 @@ Component.register('sw-text-editor-link-menu', {
     methods: {
         createdComponent(): void {
             this.categoryCollection = this.getEmptyCategoryCollection();
-            this.mediaCollection = this.getEmptyMediaCollection();
         },
 
         mountedComponent(): void {
@@ -159,18 +153,10 @@ Component.register('sw-text-editor-link-menu', {
             );
         },
 
-        getEmptyMediaCollection(): EntityCollectionType {
-            return new EntityCollection(
-                this.mediaRepository.route,
-                this.mediaRepository.entityName,
-                Shopware.Context.api,
-            );
-        },
-
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories, target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'media'].includes(slicedLink[1])) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
                 }
@@ -205,10 +191,6 @@ Component.register('sw-text-editor-link-menu', {
             this.linkTarget = '';
         },
 
-        replaceMediaSelection(media: { id: string }): void {
-            this.linkTarget = media.id;
-        },
-
         prepareLink(): string {
             switch (this.linkCategory) {
                 case 'detail':
@@ -216,7 +198,7 @@ Component.register('sw-text-editor-link-menu', {
                 case 'navigation':
                     return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
                 case 'media':
-                    return `${this.seoUrlReplacePrefix}/media/${this.linkTarget}#`;
+                    return `${this.seoUrlReplacePrefix}/mediaId/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
                 case 'phone':

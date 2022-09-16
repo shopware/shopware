@@ -1190,6 +1190,7 @@
       "labelLink": "Link",
       "labelProduct": "Product",
       "labelCategory":"Category",
+      "labelMedia": "File",
       "labelEmail": "Email address",
       "labelPhoneNumber": "Phone number",
       "placeholderPhoneNumber": "Enter phone number...",

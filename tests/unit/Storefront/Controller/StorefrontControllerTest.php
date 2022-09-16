@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
@@ -83,6 +84,9 @@ class StorefrontControllerTest extends TestCase
             ->with('<html lang="en">test</html>', 'foo', $context)
             ->willReturn('<html lang="en">test</html>');
 
+        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler->method('replace')->willReturnArgument(0);
+
         $templateFinder = static::createMock(TemplateFinder::class);
         $templateFinder
             ->expects(static::once())
@@ -96,6 +100,7 @@ class StorefrontControllerTest extends TestCase
         $container->set('twig', $twig);
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
+        $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
         $container->set(SystemConfigService::class, static::createMock(SystemConfigService::class));
 
         $this->controller->setContainer($container);

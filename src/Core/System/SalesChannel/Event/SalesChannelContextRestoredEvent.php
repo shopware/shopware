@@ -13,9 +13,15 @@ class SalesChannelContextRestoredEvent extends NestedEvent
      */
     protected $restoredContext;
 
-    public function __construct(SalesChannelContext $restoredContext)
+    /**
+     * @var SalesChannelContext|null
+     */
+    protected $currentContext;
+
+    public function __construct(SalesChannelContext $restoredContext, SalesChannelContext $currentContext = null)
     {
         $this->restoredContext = $restoredContext;
+        $this->currentContext = $currentContext;
     }
 
     public function getRestoredSalesChannelContext(): SalesChannelContext
@@ -26,5 +32,10 @@ class SalesChannelContextRestoredEvent extends NestedEvent
     public function getContext(): Context
     {
         return $this->restoredContext->getContext();
+    }
+
+    public function getCurrentContext(): ?SalesChannelContext
+    {
+        return $this->currentContext;
     }
 }

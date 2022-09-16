@@ -82,7 +82,7 @@ class CartRestorer
         $cartWithErrors->setErrors($errors);
         $this->cartService->setCart($cartWithErrors);
 
-        $this->eventDispatcher->dispatch(new SalesChannelContextRestoredEvent($customerContext));
+        $this->eventDispatcher->dispatch(new SalesChannelContextRestoredEvent($customerContext, $currentContext));
 
         return $customerContext;
     }

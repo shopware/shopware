@@ -4096,11 +4096,6 @@ parameters:
 			path: src/Core/Content/Category/SalesChannel/TreeBuildingNavigationRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Tree/Tree.php
@@ -8576,26 +8571,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 9
 			path: src/Core/Content/Test/Category/SalesChannel/NavigationRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilderTest\\:\\:breadcrumbDataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/CategoryBreadcrumbBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilderTest\\:\\:createSeoCriteria\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/CategoryBreadcrumbBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilderTest\\:\\:createTestProduct\\(\\) has parameter \\$products with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/CategoryBreadcrumbBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CategoryBreadcrumbBuilderTest\\:\\:seoCategoryProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/Service/CategoryBreadcrumbBuilderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\Service\\\\CategoryUrlGeneratorTest\\:\\:dataProviderLinkTypes\\(\\) return type has no value type specified in iterable type array\\.$#"

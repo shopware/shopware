@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Category\Service;
+namespace Shopware\Tests\Integration\Core\Content\Category\Service;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -71,6 +73,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
+     * @return iterable<array<string|boolean>>
      * @dataProvider
      */
     public function breadcrumbDataProvider(): iterable
@@ -89,10 +92,12 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
+     * @return iterable<array<boolean>>
      * @dataProvider
      */
     public function seoCategoryProvider(): iterable
     {
+        yield [false, false, false];
         yield [false, false, false];
         yield [false, false, true];
         yield [false, true, false];
@@ -188,6 +193,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $productData = [
             [
                 'id' => $this->ids->get('seo-product'),
+                'active' => true,
+                'weight' => 999,
                 'visibilities' => [
                     ['salesChannelId' => $this->ids->get('sales-channel-2'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
@@ -227,6 +234,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
+        $this->createProductStreams();
+        $this->createCategoryStreams();
+        $product->setStreamIds([$this->ids->create('stream_id_1')]);
+
         $category = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
         $category2 = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->contextFactory->create('', $this->ids->get('sales-channel-2')));
 
@@ -261,6 +272,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     public function testApiResponseHasSeoCategory(): void
     {
         $this->createTestData('navigation-test');
+        $this->createProductStreams();
+        $this->createCategoryStreams();
 
         $productId = $this->ids->get('pid');
         $this->createTestProduct([
@@ -278,6 +291,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+
+        $this->updateProductStream($productId, $this->ids->create('stream_id_1'));
 
         $this->browser->request('POST', '/store-api/product/' . $productId);
         $response = $this->browser->getResponse();
@@ -434,6 +449,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ], false);
 
+        $this->updateProductStream($this->ids->get('variant-product-3'), $this->ids->get('stream_id_1'));
+
         $mainProduct = $this->productRepository->search($this->createSeoCriteria([$this->ids->get('variant-product')]), Context::createDefaultContext())->first();
         $categoryMain = $this->breadcrumbBuilder->getProductSeoCategory($mainProduct, $this->salesChannelContext);
 
@@ -486,6 +503,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
         $this->createTestProduct($productData);
+
+        $this->updateProductStream($this->ids->get('seo-product'), $this->ids->get('stream_id_1'));
+
         $criteria = new Criteria([$this->ids->get('seo-product')]);
         $criteria->addAssociation('categories');
         /** @var ProductEntity $product */
@@ -509,6 +529,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
     }
 
+    /**
+     * @param array<string> $ids
+     */
     private function createSeoCriteria(array $ids): Criteria
     {
         $criteria = new Criteria($ids);
@@ -568,6 +591,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         return $this->ids->get($key);
     }
 
+    /**
+     * @param array<mixed> $products
+     */
     private function createTestProduct(array $products = [], bool $fillAll = true): void
     {
         $basicPayload = [
@@ -588,6 +614,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 ],
             ],
             'stock' => 0,
+            'weight' => 998,
             'active' => true,
             'visibilities' => [
                 ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
@@ -603,5 +630,53 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         }
 
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
+    }
+
+    private function createProductStreams(): void
+    {
+        $stream = [
+            'id' => $this->ids->create('stream_id_1'),
+            'name' => 'test',
+            'filters' => [
+                [
+                    'type' => 'equals',
+                    'field' => 'weight',
+                    'value' => '999',
+                    'parameters' => [
+                        'operator' => 'eq',
+                    ],
+                ],
+            ],
+        ];
+
+        $productStreamsRepository = $this->getContainer()->get('product_stream.repository');
+        $productStreamsRepository->create([$stream], $this->salesChannelContext->getContext());
+    }
+
+    private function createCategoryStreams(): string
+    {
+        $data = [
+            'id' => $this->ids->create('category_stream_id_1'),
+            'productStreamId' => $this->ids->get('stream_id_1'),
+            'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+            'active' => true,
+            'name' => 'Home',
+        ];
+
+        $this->getContainer()->get('category.repository')->create([$data], Context::createDefaultContext());
+
+        return $this->ids->get('category_stream_id_1');
+    }
+
+    private function updateProductStream(string $productId, string $streamId): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
+            [
+                'streamIds' => json_encode([$streamId]),
+                'id' => Uuid::fromHexToBytes($productId),
+            ]
+        );
     }
 }

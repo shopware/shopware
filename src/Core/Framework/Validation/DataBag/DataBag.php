@@ -50,7 +50,7 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     public function only(string ...$keys): array
     {

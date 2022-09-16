@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
@@ -49,6 +48,9 @@ class SalesChannelContextPersister
         $this->cartPersister = $cartPersister;
     }
 
+    /**
+     * @param array<string, mixed> $newParameters
+     */
     public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
     {
         $existing = $this->load($token, $salesChannelId, $customerId);
@@ -134,6 +136,9 @@ class SalesChannelContextPersister
         return $newToken;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function load(string $token, string $salesChannelId, ?string $customerId = null): array
     {
         $qb = $this->connection->createQueryBuilder();
@@ -155,14 +160,7 @@ class SalesChannelContextPersister
             $qb->setMaxResults(1);
         }
 
-        /** @var ResultStatement $statement */
-        $statement = $qb->execute();
-
-        if (!$statement instanceof ResultStatement) {
-            return [];
-        }
-
-        $data = $statement->fetchAll();
+        $data = $qb->execute()->fetchAllAssociative();
 
         if (empty($data)) {
             return [];
@@ -177,7 +175,12 @@ class SalesChannelContextPersister
 
         $payload = array_filter(json_decode($context['payload'], true));
         $now = new \DateTimeImmutable();
-        $payload['expired'] = $expiredTime < $now;
+        if ($expiredTime < $now) {
+            // context is expired
+            $payload = ['expired' => true];
+        } else {
+            $payload['expired'] = false;
+        }
 
         if ($customerId) {
             $payload['token'] = $context['token'];
@@ -215,6 +218,11 @@ class SalesChannelContextPersister
         $qb->execute();
     }
 
+    /**
+     * @param list<array<string, mixed>> $data
+     *
+     * @return array<string, mixed>|null
+     */
     private function getCustomerContext(array $data, string $salesChannelId, string $customerId): ?array
     {
         foreach ($data as $row) {

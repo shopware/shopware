@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductReview;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -70,7 +71,7 @@ class ProductReviewDefinition extends EntityDefinition
             (new StringField('external_email', 'externalEmail'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('title', 'title'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new LongTextField('content', 'content'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING), new AllowHtml()),
-            (new FloatField('points', 'points'))->addFlags(new ApiAware()),
+            (new FloatField('points', 'points', 0, Defaults::MAX_REVIEW_RATING_VALUE))->addFlags(new ApiAware()),
             (new BoolField('status', 'status'))->addFlags(new ApiAware()),
             (new LongTextField('comment', 'comment'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

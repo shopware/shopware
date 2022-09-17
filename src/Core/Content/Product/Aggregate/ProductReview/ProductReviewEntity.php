@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductReview;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -172,11 +173,12 @@ class ProductReviewEntity extends Entity
 
     public function getPoints(): ?float
     {
-        return $this->points;
+        return (float) min(Defaults::MAX_REVIEW_RATING_VALUE,max(0,$this->points));
     }
 
     public function setPoints(?float $points): void
     {
+
         $this->points = $points;
     }
 

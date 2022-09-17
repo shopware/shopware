@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -41,9 +42,14 @@ class FloatFieldSerializer extends AbstractFieldSerializer
 
     protected function getConstraints(Field $field): array
     {
-        return [
+        $constraints = [
             new NotBlank(),
             new Type('numeric'),
         ];
+
+        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
+            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
+        }
+        return $constraints;
     }
 }

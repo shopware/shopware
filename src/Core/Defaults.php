@@ -51,4 +51,6 @@ final class Defaults
      * via the `CustomerDefaultSalutationSubscriber`.
      */
     public const SALUTATION = 'ed643807c9f84cc8b50132ea3ccb1c3b';
+
+    public const MAX_REVIEW_RATING_VALUE = 5;
 }

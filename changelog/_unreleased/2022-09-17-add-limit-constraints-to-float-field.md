@@ -11,22 +11,4 @@ author_email: cccpmik@gmail.com
 * Extend FloatFieldSerializer with a range constraint
 * Extend Defaults class with new const MAX_REVIEW_RATING_VALUE
 * Set limit to points in ProductReviewEntity 
-
-___
-
-# API
-
-*
-
-___
-
-# Administration
-
-*
-
-___
-# Storefront
-*
-___
-# Upgrade Information
-
+* Added tests for FloatFieldSerializer

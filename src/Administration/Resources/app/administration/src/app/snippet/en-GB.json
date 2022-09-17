@@ -1031,6 +1031,7 @@
       "labelLink": "Link",
       "labelProduct": "Product",
       "labelCategory":"Category",
+      "placeholderMedia": "Media",
       "labelEmail": "Email address",
       "labelPhoneNumber": "Phone number",
       "placeholderPhoneNumber": "Enter phone number...",

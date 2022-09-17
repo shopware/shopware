@@ -103,10 +103,10 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_media %}
         <sw-media-field
             v-else-if="linkCategory === 'media'"
+            v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
             single-select
-            v-model="linkTarget"
         />
         {% endblock %}
 

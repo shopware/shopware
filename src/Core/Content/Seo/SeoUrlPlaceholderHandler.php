@@ -24,7 +24,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     private RequestStack $requestStack;
 
     private Connection $connection;
+
     private UrlGeneratorInterface $urlGenerator;
+
     private EntityRepositoryInterface $mediaRepository;
 
     /**
@@ -36,7 +38,6 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         Connection $connection,
         EntityRepositoryInterface $mediaRepository,
         UrlGeneratorInterface $urlGenerator
-
     ) {
         $this->router = $router;
         $this->requestStack = $requestStack;
@@ -137,15 +138,15 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         }
 
         $idsToMap = [];
-        foreach($mapping as $item) {
+        foreach ($mapping as $item) {
             if (str_starts_with($item, $prefix)) {
-                $idsToMap[] = substr($item, strlen($prefix));
+                $idsToMap[] = substr($item, \strlen($prefix));
             }
         }
 
         $urls = $this->getMediaUrls($idsToMap, $context->getContext());
 
-        foreach ($urls as $id=>$url) {
+        foreach ($urls as $id => $url) {
             $key = self::DOMAIN_PLACEHOLDER . $prefix . $id . '#';
             $mapping[$key] = $url;
         }

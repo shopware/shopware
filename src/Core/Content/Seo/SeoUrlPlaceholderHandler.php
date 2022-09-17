@@ -72,7 +72,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     {
         $mapping = [];
         foreach ($matches as $match) {
-            $mapping[$match] = str_replace(self::DOMAIN_PLACEHOLDER, '', rtrim($match, '#'));
+            // remove self::DOMAIN_PLACEHOLDER from start
+            // remove # from end
+            $mapping[$match] = substr($match, 32, -1);
         }
 
         return $mapping;

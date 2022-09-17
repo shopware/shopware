@@ -261,7 +261,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.vm.linkCategory).toBe('link');
 
         const options = wrapper.find('select').findAll('option');
-        await options.at(3).setSelected();
+        await options.at(4).setSelected();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

@@ -159,6 +159,8 @@ Component.register('sw-text-editor-link-menu', {
             if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                } else if (slicedLink[1] === 'mediaId') {
+                    slicedLink[1] = 'media';
                 }
                 return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
             }

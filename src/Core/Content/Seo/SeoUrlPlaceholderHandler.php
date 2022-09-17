@@ -137,14 +137,14 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
             return [];
         }
 
-        $idsToMap = [];
+        $mediaIds = [];
         foreach ($mapping as $item) {
             if (str_starts_with($item, $prefix)) {
-                $idsToMap[] = substr($item, \strlen($prefix));
+                $mediaIds[] = substr($item, \strlen($prefix));
             }
         }
 
-        $urls = $this->getMediaUrls($idsToMap, $context->getContext());
+        $urls = $this->getMediaUrls($mediaIds, $context->getContext());
 
         foreach ($urls as $id => $url) {
             $key = self::DOMAIN_PLACEHOLDER . $prefix . $id . '#';

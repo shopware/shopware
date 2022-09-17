@@ -45,6 +45,14 @@ class RefreshIndexCommandTest extends TestCase
 
         static::assertStringNotContainsString('sales_channel.indexer', $message);
         static::assertStringNotContainsString('category.indexer', $message);
+
+        $commandTester = new CommandTester($this->refreshIndexCommand);
+        $commandTester->execute(['--only' => 'sales_channel.indexer']);
+
+        $message = $commandTester->getDisplay();
+
+        static::assertStringContainsString('sales_channel.indexer', $message);
+        static::assertStringNotContainsString('category.indexer', $message);
     }
 
     public function testExecuteWithSkipSeoUpdaterOption(): void

@@ -66,10 +66,14 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         ];
     }
 
-    public function index(bool $useQueue, array $skip = []): void
+    public function index(bool $useQueue, array $skip = [], array $only = []): void
     {
         foreach ($this->indexer as $indexer) {
             if (\in_array($indexer->getName(), $skip, true)) {
+                continue;
+            }
+
+            if (\count($only) > 0 && !\in_array($indexer->getName(), $only, true)) {
                 continue;
             }
 

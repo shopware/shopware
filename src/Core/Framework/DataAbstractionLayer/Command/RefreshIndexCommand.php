@@ -40,6 +40,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
             ->setDescription('Refreshes the shop indices')
             ->addOption('use-queue', null, InputOption::VALUE_NONE, 'Ignore cache and force generation')
             ->addOption('skip', null, InputArgument::OPTIONAL, 'Comma separated list of indexer names to be skipped')
+            ->addOption('only', null, InputArgument::OPTIONAL, 'Comma separated list of indexer names to be generated')
         ;
     }
 
@@ -48,8 +49,9 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $this->io = new ShopwareStyle($input, $output);
 
         $skip = \is_string($input->getOption('skip')) ? explode(',', $input->getOption('skip')) : [];
+        $only = \is_string($input->getOption('only')) ? explode(',', $input->getOption('only')) : [];
 
-        $this->registry->index($input->getOption('use-queue'), $skip);
+        $this->registry->index($input->getOption('use-queue'), $skip, $only);
 
         return self::SUCCESS;
     }

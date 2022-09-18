@@ -67,12 +67,13 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
             if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
                 $mapping = $this->createDefaultMapping($matches[0]);
-                $seoMapping = $this->createMediaMapping($context, $mapping);
-                $seoMapping = $this->createSeoMapping($context, $seoMapping);
+                $seoMapping = $this->createSeoMapping($context, $mapping);
 
                 foreach ($seoMapping as $key => $value) {
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
+
+                $seoMapping = $this->createMediaMapping($context, $seoMapping);
 
                 return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
                     return $seoMapping[$match[0]];
@@ -167,7 +168,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
         $urls = [];
         foreach ($media ?? [] as $mediaItem) {
-            $urls[$mediaItem->id] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+            $urls[$mediaItem->id] = $this->urlGenerator->getAbsoluteMediaUrl($mediaItem);
         }
 
         return $urls;

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
  */
 class MigrationWithBackwardTrigger extends MigrationStep
 {
@@ -45,6 +47,9 @@ class MigrationWithBackwardTrigger extends MigrationStep
         $this->removeTrigger($connection, self::TRIGGER_NAME);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getTrigger(): array
     {
         return [

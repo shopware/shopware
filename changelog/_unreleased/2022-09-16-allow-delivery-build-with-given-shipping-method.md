@@ -7,4 +7,3 @@ author_github: jonthn4
 ---
 # Core
 * add public method inside `\Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder` to build delivery based on specific given shipping method
-___

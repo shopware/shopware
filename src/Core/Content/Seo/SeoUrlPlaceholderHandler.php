@@ -98,6 +98,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $query->setParameter('pathInfo', $mapping, Connection::PARAM_STR_ARRAY);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
+        $query->addOrderBy('seo_url.sales_channel_id');
 
         $seoUrls = $query->execute()->fetchAll();
         foreach ($seoUrls as $seoUrl) {

@@ -7,8 +7,9 @@
                 "tags": [
                     "Database Migrations"
                 ],
+                "deprecated": true,
                 "summary": "Sync migrations to the database",
-                "description": "Reads all migrations of the provided bundle name and inserts them to the `migration` database table.",
+                "description": "Will be removed in v6.5.0.0. Database migrations should only be executed over CLI. Reads all migrations of the provided bundle name and inserts them to the `migration` database table.",
                 "operationId": "syncMigrations",
                 "requestBody": {
                     "content": {
@@ -38,8 +39,9 @@
                 "tags": [
                     "Database Migrations"
                 ],
+                "deprecated": true,
                 "summary": "Execute migrations",
-                "description": "Executes all migrations for the provided bundle name.",
+                "description": "Will be removed in v6.5.0.0. Database migrations should only be executed over CLI. Executes all migrations for the provided bundle name.",
                 "operationId": "migrate",
                 "requestBody": {
                     "content": {
@@ -77,8 +79,9 @@
                 "tags": [
                     "Database Migrations"
                 ],
+                "deprecated": true,
                 "summary": "Execute destructive migrations",
-                "description": "Executes all destructive migrations for the provided bundle name.",
+                "description": "Will be removed in v6.5.0.0. Database migrations should only be executed over CLI. Executes all destructive migrations for the provided bundle name.",
                 "operationId": "migrateDestructive",
                 "requestBody": {
                     "content": {

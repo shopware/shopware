@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Migration\Api;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @deprecated tag:v6.5.0 - Will be removed, migrations should be executed over the CLI instead
  */
 class MigrationController extends AbstractController
 {
@@ -45,6 +46,11 @@ class MigrationController extends AbstractController
      */
     public function syncMigrations(Request $request): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'The `database` endpoint is deprecated and will be removed in v6.5.0.0, migrations should be executed over the CLI instead'
+        );
+
         $this->getCollection($request, MigrationCollectionLoader::VERSION_SELECTION_ALL)->sync();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
@@ -56,6 +62,11 @@ class MigrationController extends AbstractController
     */
     public function migrate(Request $request): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'The `database` endpoint is deprecated and will be removed in v6.5.0.0, migrations should be executed over the CLI instead'
+        );
+
         if (!($limit = $request->request->getInt('limit'))) {
             $limit = null;
         }
@@ -81,6 +92,11 @@ class MigrationController extends AbstractController
     */
     public function migrateDestructive(Request $request): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'The `database` endpoint is deprecated and will be removed in v6.5.0.0, migrations should be executed over the CLI instead'
+        );
+
         if (!($limit = $request->request->getInt('limit'))) {
             $limit = null;
         }

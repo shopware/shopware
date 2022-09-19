@@ -25927,10 +25927,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/fixtures/DummyHandler.php
 
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/Api/MigrationControllerTest.php
+
 
 		-
 			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"

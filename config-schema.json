@@ -397,6 +397,9 @@
                 "batch_size": {
                     "type": "integer"
                 },
+                "max_rule_prices": {
+                    "type": "integer"
+                },
                 "versioning": {
                     "type": "object",
                     "additionalProperties": false,

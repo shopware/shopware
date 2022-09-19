@@ -6,6 +6,9 @@
     "runner.file_pattern": "*Bench.php",
     "runner.iterations": 10,
     "runner.revs": 3,
+    "runner.php_env": {
+        "APP_ENV": "test"
+    },
     "report.generators": {
         "compressed": {
             "generator": "expression",

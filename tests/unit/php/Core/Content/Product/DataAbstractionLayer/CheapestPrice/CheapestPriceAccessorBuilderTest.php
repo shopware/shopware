@@ -1,29 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\CheapestPrice;
+namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder
  */
 class CheapestPriceAccessorBuilderTest extends TestCase
 {
-    use KernelTestBehaviour;
-
-    /**
-     * @var CheapestPriceAccessorBuilder
-     */
-    protected $builder;
+    protected CheapestPriceAccessorBuilder $builder;
 
     public function setUp(): void
     {
-        $this->builder = $this->getContainer()->get(CheapestPriceAccessorBuilder::class);
+        $this->builder = new CheapestPriceAccessorBuilder(
+            1,
+            new NullLogger()
+        );
     }
 
     public function testWithPriceAccessor(): void
@@ -63,6 +62,21 @@ class CheapestPriceAccessorBuilderTest extends TestCase
         $context = Context::createDefaultContext();
         $context->setRuleIds([
             $ruleId,
+        ]);
+
+        $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');
+
+        static::assertSame('COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.rule' . $ruleId . '.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`product`.`cheapest_price_accessor`, "$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))', $sql);
+    }
+
+    public function testRuleLimit(): void
+    {
+        $priceField = new CheapestPriceField('cheapest_price_accessor', 'cheapest_price_accessor');
+        $ruleId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([
+            $ruleId,
+            Uuid::randomHex(),
         ]);
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'cheapestPrice.percentage');

@@ -33384,10 +33384,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
 
-		-
-			message: "#^Parameter \\#4 \\$activeLanguage of class Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet constructor expects Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity, Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Pagelet/Header/HeaderPageletLoader.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\Account\\\\NewsletterAccountPagelet\\:\\:addMessages\\(\\) has parameter \\$messages with no value type specified in iterable type array\\.$#"

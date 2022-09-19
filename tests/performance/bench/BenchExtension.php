@@ -15,6 +15,8 @@ class BenchExtension implements ExtensionInterface
 {
     public function load(Container $container): void
     {
+        $_SERVER['APP_ENV'] = 'test';
+
         if (isset($_SERVER['DATABASE_URL'])) {
             $url = $_SERVER['DATABASE_URL'];
         }

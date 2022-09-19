@@ -16,10 +16,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class RuleLoader extends AbstractRuleLoader
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
     public function __construct(EntityRepositoryInterface $repository)
     {

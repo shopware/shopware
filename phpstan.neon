@@ -60,6 +60,7 @@ parameters:
             message: '#Service ".*" is private#'
             paths:
                 - src/**/*Test.php
+                - tests/performance/**/*Bench.php
                 - tests/integration/**/*Test.php
 
         # ignore errors caused by static::markTestSkipped

@@ -1,7 +1,7 @@
 {# @var navigation \Shopware\Core\Content\Category\Tree\Tree #}
 {% set activeId = navigation.active.id ?? context.salesChannel.navigationCategoryId %}
 {% set isRoot = activeId == context.salesChannel.navigationCategoryId %}
-{% set children = navigation.children(activeId) %}
+{% set children = navigation.getChildren(activeId) %}
 {% set active = navigation.active %}
 
 {% block layout_navigation_offcanvas_navigation_categories %}

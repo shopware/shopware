@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
 use Twig\Source;
+use Twig\Template;
 
 if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) {
     /**
@@ -26,12 +27,23 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
     function sw_get_attribute(Environment $env, Source $source, $object, $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
     {
         try {
-            if ($object instanceof Entity) {
+            if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
 
-                $getter = 'get' . $item;
+                if ($type === Template::METHOD_CALL) {
+                    return $object->$item(...$arguments);
+                }
 
-                return $object->$getter();
+                $getter = 'get' . ucfirst($item);
+                $isGetter = 'is' . ucfirst($item);
+
+                if (method_exists($object, $getter)) {
+                    return $object->$getter();
+                } elseif (method_exists($object, $isGetter)) {
+                    return $object->$isGetter();
+                } elseif (method_exists($object, $item)) {
+                    return $object->$item();    //property()
+                }
             }
 
             return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);

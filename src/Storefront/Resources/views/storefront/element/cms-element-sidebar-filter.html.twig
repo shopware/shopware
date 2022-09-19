@@ -2,7 +2,7 @@
     {# Use values from cms data if context is a cmsPage, otherwise `listing` and `sidebar` must be set manually #}
     {% if cmsPage is defined %}
         {% set config = element.fieldConfig.elements %}
-        {% set slot = cmsPage.firstElementOfType('product-listing') %}
+        {% set slot = cmsPage.getFirstElementOfType('product-listing') %}
         {% set listing = slot.data.listing %}
         {% set sidebar = block.sectionPosition == 'sidebar' %}
     {% endif %}

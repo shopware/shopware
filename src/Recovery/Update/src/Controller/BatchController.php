@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Update\Controller;
 
-use Gaufrette\Filesystem;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -87,10 +86,6 @@ class BatchController
         $localFilesystem = $factory->createLocalFilesystem();
         $remoteFilesystem = $factory->createRemoteFilesystem();
 
-        if ($offset === 0) {
-            $this->validateFilesytems($localFilesystem, $remoteFilesystem);
-        }
-
         /** @var PathBuilder $pathBuilder */
         $pathBuilder = $this->container->get('path.builder');
 
@@ -104,24 +99,6 @@ class BatchController
         }
 
         return $this->toJson($response, 200, $this->resultMapper->toExtJs($result));
-    }
-
-    /**
-     * @throws \RuntimeException
-     */
-    private function validateFilesytems(Filesystem $localFilesyste, Filesystem $remoteFilesyste): void
-    {
-        if (!$remoteFilesyste->has('src/Kernel.php')) {
-            throw new \RuntimeException('shopware.php not found in remote filesystem');
-        }
-
-        if (!$localFilesyste->has('src/Kernel.php')) {
-            throw new \RuntimeException('src/Kernel.php not found in local filesystem');
-        }
-
-        if ($localFilesyste->checksum('src/Kernel.php') !== $remoteFilesyste->checksum('src/Kernel.php')) {
-            throw new \RuntimeException('Filesytems does not seem to match');
-        }
     }
 
     private function toJson(ResponseInterface $response, int $code, array $data): ResponseInterface

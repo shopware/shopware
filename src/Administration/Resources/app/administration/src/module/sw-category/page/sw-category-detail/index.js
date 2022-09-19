@@ -78,6 +78,10 @@ Component.register('sw-category-detail', {
     },
 
     computed: {
+        changesetGenerator() {
+            return new ChangesetGenerator();
+        },
+
         showEmptyState() {
             return !this.category && !this.landingPage;
         },
@@ -276,13 +280,48 @@ Component.register('sw-category-detail', {
             return;
         }
 
-        if (this.category && this.categoryRepository.hasChanges(this.category)) {
-            this.isDisplayingLeavePageWarning = true;
-            this.nextRoute = to;
-            next(false);
-        } else {
+        if (!this.category) {
             next();
+
+            return;
         }
+
+
+        /*
+         * Generate changeset for category and delete `id` and `versionId` to only consider actual changes.
+         * A new version without changes should not trigger the navigation guard.
+         */
+        const { changes, deletionQueue } = this.changesetGenerator.generate(this.category);
+        const keysToDelete = ['id', 'versionId'];
+        const changedKeys = Object.keys(changes).filter(key => !keysToDelete.includes(key));
+        const hasDeletions = deletionQueue.length > 0;
+
+        /*
+         * Allow exiting the route to the `cms.page.create` route
+         * when just the cmsPage assignment has been cleared.
+         */
+        if (
+            to.name === 'sw.cms.create' &&
+            changedKeys.length === 1 &&
+            changedKeys[0] === 'cmsPageId' &&
+            changes.cmsPageId === null &&
+            !hasDeletions
+        ) {
+            next();
+            return;
+        }
+
+        if (
+            changedKeys.length === 0 &&
+            !hasDeletions
+        ) {
+            next();
+            return;
+        }
+
+        this.isDisplayingLeavePageWarning = true;
+        this.nextRoute = to;
+        next(false);
     },
 
     methods: {
@@ -763,8 +802,7 @@ Component.register('sw-category-detail', {
 
             this.deleteSpecifcKeys(this.cmsPage.sections);
 
-            const changesetGenerator = new ChangesetGenerator();
-            const { changes } = changesetGenerator.generate(this.cmsPage);
+            const { changes } = this.changesetGenerator.generate(this.cmsPage);
 
             const slotOverrides = {};
             if (changes === null) {

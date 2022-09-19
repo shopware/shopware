@@ -6,6 +6,6 @@ author_github: jonas-sfx
 ---
 # Storefront
 * Changed: `src/Storefront/Resources/snippet/de_DE/storefront.de-DE.json`
-  * Language-String general.privacyNotice changed as long as TOS/T&Cs-agreement is not mandatory for contact/newsletter
+  * Added language-String contact.privacyNotice because TOS/T&Cs-agreement is not mandatory for contact/newsletter
 * Changed: `src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json`
-  *  Language-String general.privacyNotice changed (English Translation, same reason.)
+  * Added language-String contact.privacyNotice (English Translation, same reason.)

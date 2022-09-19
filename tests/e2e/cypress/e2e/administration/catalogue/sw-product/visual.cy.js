@@ -231,7 +231,7 @@ describe('Product: Visual tests', () => {
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 
         // Fill in cross selling form
-        cy.get('#sw-field--crossSelling-name').typeAndCheck('Kunden kauften auch');
+        cy.get('#sw-field--crossSelling-name').typeAndCheck('Frequently bought together');
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '2nd Product stream',
@@ -264,7 +264,7 @@ describe('Product: Visual tests', () => {
             cy.get('.product-cross-selling-tab-navigation')
                 .scrollIntoView()
                 .should('be.visible');
-            cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
+            cy.get('.product-detail-tab-navigation-link.active').contains('Frequently bought together');
             cy.get('.product-slider-item .product-name[title="Second product"]')
                 .should('be.visible');
             cy.get('.product-slider-item .product-name[title="Third product"]')

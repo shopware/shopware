@@ -1,6 +1,6 @@
 ---
 title: Extending the open api schema
-issue: 22446
+issue: NEXT-22446
 author: Christian Rades
 ---
 # Core

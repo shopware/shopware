@@ -1,4 +1,17 @@
 # 6.5.0.0
+## Introduced in 6.4.15.0
+## Deprecated the `OpenApiPathsEvent`:
+* Move the schema described by your `@OpenApi` / `@OA` annotations to json files.
+* New the openapi specification is now loaded from `$bundlePath/Resources/Schema/`.
+* For an examples look at `src/Core/Framework/Api/ApiDefinition/Generator/Schema`.
+## Removed `DatabaseInitializer`
+
+Removed class `\Shopware\Core\Maintenance\System\Service\DatabaseInitializer`, use `SetupDatabaseAdapter` instead.
+
+## Removed `JwtCertificateService`
+
+Removed class `\Shopware\Recovery\Common\Service\JwtCertificateService`, use `JwtCertificateGenerator` instead.
+
 ## Introduced in 6.4.14.0
 ## Removal of old icons:
 * Replace any old icon your integration uses with its successor. A mapping can be found here `src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js`.

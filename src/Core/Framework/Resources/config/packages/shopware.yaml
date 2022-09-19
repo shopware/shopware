@@ -132,6 +132,17 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            newsletter_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
 
     admin_worker:
         enable_admin_worker: true

@@ -7,15 +7,19 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -71,6 +75,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             $mock,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SystemConfigService::class),
+            $this->createMock(RateLimiter::class),
+            $this->createMock(RequestStack::class),
         );
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
@@ -111,5 +117,57 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]),
             ],
         ];
+    }
+
+    public function testRateLimitation(): void
+    {
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'test@example.com',
+            'option' => 'direct',
+        ]);
+
+        $newsletterRecipientEntity = new NewsletterRecipientEntity();
+        $newsletterRecipientEntity->setId(Uuid::randomHex());
+        $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+
+        $idSearchResult = $this->createMock(IdSearchResult::class);
+        $idSearchResult->expects(static::once())->method('firstId')->willReturn($newsletterRecipientEntity->getId());
+
+        $entityRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
+        $entityRepositoryMock->expects(static::once())->method('searchIds')->willReturn($idSearchResult);
+        $entityRepositoryMock->expects(static::once())->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('newsletter_recipient', 1, new NewsletterRecipientCollection([$newsletterRecipientEntity]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $raleLimiterMock = $this->createMock(RateLimiter::class);
+
+        $request = $this->createMock(Request::class);
+        $request->method('getClientIp')->willReturn('127.0.0.1');
+
+        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock
+            ->expects(static::once())
+            ->method('getMainRequest')
+            ->willReturn($request);
+
+        $raleLimiterMock
+            ->expects(static::once())
+            ->method('ensureAccepted')
+            ->willReturnCallback(function (string $route, string $key): void {
+                static::assertSame($route, RateLimiter::NEWSLETTER_FORM);
+                static::assertSame($key, '127.0.0.1');
+            });
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepositoryMock,
+            $this->createMock(DataValidator::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SystemConfigService::class),
+            $raleLimiterMock,
+            $requestStackMock,
+        );
+
+        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }
 }

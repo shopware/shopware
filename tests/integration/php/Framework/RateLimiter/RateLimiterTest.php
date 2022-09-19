@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\RateLimiter;
+namespace Shopware\Tests\Integration\Framework\RateLimiter;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
+use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
+use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -298,5 +300,33 @@ class RateLimiterTest extends TestCase
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));
+    }
+
+    public function testRateLimitNewsletterForm(): void
+    {
+        for ($i = 0; $i <= 3; ++$i) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/newsletter/subscribe',
+                    [
+                        'email' => 'test@example.com',
+                        'option' => 'subscribe',
+                        'storefrontUrl' => 'http://localhost',
+                    ]
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+
+            if ($i >= 3) {
+                $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+                static::assertArrayHasKey('errors', $response);
+                static::assertEquals(429, $response['errors'][0]['status']);
+                static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+            } else {
+                static::assertEquals(204, $this->browser->getResponse()->getStatusCode());
+            }
+        }
     }
 }

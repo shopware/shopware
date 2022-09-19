@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -95,6 +97,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     private SystemConfigService $systemConfigService;
 
+    private RequestStack $requestStack;
+
+    private RateLimiter $rateLimiter;
+
     /**
      * @internal
      */
@@ -102,12 +108,16 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        RateLimiter $rateLimiter,
+        RequestStack $requestStack
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
+        $this->rateLimiter = $rateLimiter;
+        $this->requestStack = $requestStack;
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -136,6 +146,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
 
         $this->validator->validate($dataBag->all(), $validator);
+
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
+        }
 
         /** @var SubscribeRequest $data */
         $data = $dataBag->only(

@@ -195,6 +195,9 @@
                 },
                 "notification": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "newsletter_form": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"

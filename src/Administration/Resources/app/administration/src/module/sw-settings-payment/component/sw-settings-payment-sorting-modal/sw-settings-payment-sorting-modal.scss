@@ -3,6 +3,7 @@
 .sw-modal {
     .sw-modal__body {
         &.sw-settings-payment-sorting-modal__subtitle {
+            padding: 24px;
             display: flex;
             flex: none;
             overflow-y: hidden;
@@ -17,13 +18,12 @@
     grid-row-gap: 16px;
 
     &-item {
-        display: grid;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         padding: 12px 24px 12px 12px;
-        grid-template-columns: 16px 34px auto;
-        grid-column-gap: 8px;
         border: 1px solid $color-gray-300;
         border-radius: 4px;
-        align-items: center;
 
         &.is--disabled {
             color: $color-gray-500;
@@ -39,6 +39,11 @@
             position: relative;
             width: 34px;
             height: 24px;
+        }
+
+        .sw-icon {
+            width: 16px;
+            margin-right: 4px;
         }
 
         .sw-media-preview-v2.is--icon .sw-media-preview-v2__item {

@@ -1,5 +1,8 @@
 {% block cms_form_privacy_opt_in %}
     {% set identifierTemplate = 'form-privacy-opt-in-%s' %}
+    {% if requiresTermsOfService is not defined %}
+        {% set requiresTermsOfService = true %}
+    {% endif %}
 
     {% block cms_form_privacy_opt_in_title %}
         <div>{{ "general.privacyTitle"|trans }} {{ "general.required"|trans }}</div>
@@ -16,11 +19,18 @@
 
         {% block cms_form_privacy_opt_in_label %}
             <label for="{{ identifierTemplate|format(_key) }}" class="{{ formCheckLabelClass }}">
-                {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% instead #}
-                {{ "contact.privacyNotice"|trans({
-                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                    '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
-                })|raw }}
+                {% if requiresTermsOfService == true %}
+                    {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
+                    {{ "general.privacyNotice"|trans({
+                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
+                        '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
+                        '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage')} )
+                    })|raw }}
+                {% else %}
+                    {{ "contact.privacyNotice"|trans({
+                        '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
+                    })|raw }}
+                {% endif %}
             </label>
         {% endblock %}
     </div>

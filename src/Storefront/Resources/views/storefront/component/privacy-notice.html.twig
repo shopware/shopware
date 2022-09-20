@@ -1,8 +1,4 @@
 {% block component_privacy_notice %}
-    {% set privacyNotice = 'contact.privacyNotice' %}
-    {% if controllerAction is same as ('checkoutRegisterPage') %}
-    {% set privacyNotice = 'general.privacyNotice' %}
-    {% endif %}
     <div class="form-text privacy-notice">
         {% block component_privacy_title %}
             <strong>{{ "general.privacyTitle"|trans|sw_sanitize }}</strong><br/>
@@ -25,7 +21,7 @@
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
                             {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
-                            {{ privacyNotice|trans({
+                            {{ "general.privacyNotice"|trans({
                                 '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
@@ -40,7 +36,7 @@
                     {% block component_privacy_label %}
                         <label>
                             {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
-                            {{ privacyNotice|trans({
+                            {{ "general.privacyNotice"|trans({
                                 '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })

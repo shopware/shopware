@@ -339,7 +339,7 @@ class OrderConverterTest extends TestCase
 
         $expected = $this->getExpectedConvertToCart();
 
-        static::assertSame($expected, $result);
+        static::assertEquals($expected, $result);
     }
 
     /**
@@ -372,7 +372,7 @@ class OrderConverterTest extends TestCase
         $expected = $this->getExpectedConvertToCart();
         $expected['deliveries'] = [];
 
-        static::assertSame($expected, $result);
+        static::assertEquals($expected, $result);
     }
 
     /**
@@ -768,6 +768,12 @@ class OrderConverterTest extends TestCase
     private function getExpectedConvertToCart(): array
     {
         return [
+            'extensions' => [
+                'originalOrderNumber' => [
+                    'extensions' => [],
+                    'id' => '10000',
+                ],
+            ],
             'name' => 'recalculation',
             'price' => [
                 'netPrice' => 19.5,
@@ -966,9 +972,6 @@ class OrderConverterTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
-            'extensions' => [
-                'originalOrderNumber' => ['id' => '10000', 'extensions' => []],
-            ],
         ];
     }
 

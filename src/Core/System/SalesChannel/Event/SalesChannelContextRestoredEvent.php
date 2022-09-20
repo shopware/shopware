@@ -8,17 +8,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextRestoredEvent extends NestedEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    protected $restoredContext;
+    protected SalesChannelContext $restoredContext;
+
+    protected ?SalesChannelContext $currentContext;
 
     /**
-     * @var SalesChannelContext|null
+     * @deprecated tag:v6.5.0 - Parameter $currentContext will be mandatory
      */
-    protected $currentContext;
-
-    public function __construct(SalesChannelContext $restoredContext, SalesChannelContext $currentContext = null)
+    public function __construct(SalesChannelContext $restoredContext, ?SalesChannelContext $currentContext = null)
     {
         $this->restoredContext = $restoredContext;
         $this->currentContext = $currentContext;
@@ -34,7 +31,7 @@ class SalesChannelContextRestoredEvent extends NestedEvent
         return $this->restoredContext->getContext();
     }
 
-    public function getCurrentContext(): ?SalesChannelContext
+    public function getCurrentSalesChannelContext(): ?SalesChannelContext
     {
         return $this->currentContext;
     }

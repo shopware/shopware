@@ -21,7 +21,9 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         const profiles = Cypress.env('locale') === 'en-GB' ? 'Profiles' : 'Profile';
-        cy.get('.sw-tabs-item').contains(profiles);
+        cy.contains('.sw-tabs-item', profiles);
+        const profileType = Cypress.env('locale') === 'en-GB' ? 'Default' : 'Standard';
+        cy.get('.sw-data-grid__cell--systemDefault').should('contain', profileType);
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Import export - Profiles overview`,
             '.sw-import-export-view-profiles__listing'

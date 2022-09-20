@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import Feature from 'src/helper/feature.helper';
 import AjaxOffcanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 
@@ -21,15 +18,7 @@ jest.mock('src/service/http-client.service', () => {
 describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {
-        window.csrf = {
-            enabled: false,
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            initializePlugins: jest.fn(),
-        };
+        window.PluginManager.initializePlugins = jest.fn();
     });
 
     afterEach(() => {

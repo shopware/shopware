@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
@@ -11,24 +7,6 @@ describe('VariantSwitchPlugin tests', () => {
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
-
         document.$emitter = new NativeEventEmitter();
 
         // mock variant switch plugins

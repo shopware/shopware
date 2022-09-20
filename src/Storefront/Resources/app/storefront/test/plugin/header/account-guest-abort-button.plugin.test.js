@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import AccountGuestAbortButtonPlugin from 'src/plugin/header/account-guest-abort-button.plugin';
 
 describe('AccountGuestAbortButtonPlugin tests', () => {
@@ -12,21 +9,8 @@ describe('AccountGuestAbortButtonPlugin tests', () => {
         const mockElement = document.createElement('a');
         mockElement.href = '/account/logout';
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new AccountGuestAbortButtonPlugin(mockElement);
-            },
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new AccountGuestAbortButtonPlugin(mockElement);
         };
 
         accouctGuestAbortButton = new AccountGuestAbortButtonPlugin(mockElement);

@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
 describe('Form auto submit plugin', () => {
@@ -25,23 +21,6 @@ describe('Form auto submit plugin', () => {
     }
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            }
-        };
-
-        window.router = [];
-
-        window.csrf = {
-            enabled: false
-        };
-
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
 
         document.body.innerHTML = template;

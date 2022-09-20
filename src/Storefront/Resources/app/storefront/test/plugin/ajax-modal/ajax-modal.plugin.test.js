@@ -1,12 +1,16 @@
-/**
- * @jest-environment jsdom
- */
-
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import DomAccess from 'src/helper/dom-access.helper';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
+
+// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
+jest.mock('src/plugin-system/plugin.manager', () => ({
+    __esModule: true,
+    default: {
+        initializePlugins: jest.fn(),
+    },
+}));
 
 describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
@@ -14,25 +18,7 @@ describe('AjaxModalPlugin tests', () => {
     beforeEach(() => {
         const mockElement = document.createElement('div');
 
-        window.csrf = {
-            enabled: false,
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => [],
-                };
-            },
-            initializePlugins: undefined,
-        };
-
-        // mock ajax modal plugins
+        // init ajax modal plugins
         ajaxModalPlugin = new AjaxModalPlugin(mockElement);
     });
 
@@ -64,7 +50,6 @@ describe('AjaxModalPlugin tests', () => {
         const pseudoModalUtil = new PseudoModalUtil();
 
         pseudoModalUtil.getModal = jest.fn(() => element);
-        PluginManager.initializePlugins = jest.fn();
         ajaxModalPlugin.$emitter.publish = jest.fn();
 
         ajaxModalPlugin._onModalOpen(pseudoModalUtil, classes);

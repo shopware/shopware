@@ -9,31 +9,12 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
             execute: () => {}
         };
 
-        window.router = {};
-
         const mockElement = document.createElement('form');
         const inputField = document.createElement('input');
         const iframe = document.createElement('iframe');
         inputField.className = 'grecaptcha-input';
         mockElement.appendChild(inputField);
         mockElement.appendChild(iframe);
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
 
         googleReCaptchav2Plugin = new GoogleReCaptchaV2Plugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha-input'

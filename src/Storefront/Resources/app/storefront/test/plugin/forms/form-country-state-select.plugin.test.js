@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import FormCountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 
 describe('Form country state select plugin', () => {
@@ -28,23 +24,6 @@ describe('Form country state select plugin', () => {
     }
 
     beforeEach(() => {
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => [],
-                };
-            },
-        };
-
-        window.router = [];
-
-        window.csrf = {
-            enabled: false,
-        };
-
         document.body.innerHTML = template;
     });
 

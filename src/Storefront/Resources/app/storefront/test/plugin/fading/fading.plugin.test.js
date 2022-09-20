@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /** @deprecated tag:v6.5.0 - jQuery import will be removed. */
 import $ from 'jquery';
 
@@ -32,24 +28,6 @@ describe('Fading plugin test', () => {
 
     beforeEach(() => {
         document.body.innerHTML = template;
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstances: () => {
-                return [
-                    {
-                        refreshRegistry: () => {},
-                    },
-                ];
-            },
-            getPlugin: () => {
-                return {
-                    get: () => [],
-                };
-            },
-            initializePlugins: undefined,
-        };
 
         /** @deprecated tag:v6.5.0 - Feature flag reset will be removed. */
         Feature.init({ 'v6.5.0.0': false });

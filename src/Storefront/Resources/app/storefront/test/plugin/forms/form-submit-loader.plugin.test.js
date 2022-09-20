@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import Storage from 'src/helper/storage/storage.helper';
 import template from './form-submit-loader.plugin.template.html';
@@ -11,20 +7,6 @@ import editedSelectorTemplate from './form-submit-loader-edited-form-selector.pl
 import FormSubmitLoader from "../../../src/plugin/forms/form-submit-loader.plugin";
 
 function setUpFormLoader(formSelector) {
-    window.PluginManager = {
-        getPluginInstancesFromElement: () => {
-            return new Map();
-        },
-        getPluginInstanceFromElement: () => {
-            return null;
-        },
-        getPlugin: () => {
-            return {
-                get: () => []
-            };
-        }
-    };
-
     Storage.clear();
 
     const form = document.querySelector(formSelector);

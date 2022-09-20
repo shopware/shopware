@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 
 describe('BasicCaptchaPlugin tests', () => {
@@ -19,23 +15,6 @@ describe('BasicCaptchaPlugin tests', () => {
             '<input id="-precheck">' +
             '</div>';
         mockElement.appendChild(mockDiv);
-        window.csrf = {
-            enabled: false
-        };
-
-        window.router = [];
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            initializePlugins: undefined
-        };
 
         // mock basic captcha plugins
         basicCaptchaPlugin = new BasicCaptchaPlugin(mockElement);

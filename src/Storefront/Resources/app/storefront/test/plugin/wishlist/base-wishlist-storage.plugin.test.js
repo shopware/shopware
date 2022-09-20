@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 
@@ -14,17 +10,6 @@ describe('BaseWishlistStoragePlugin tests', () => {
         window.wishlistEnabled = true;
 
         const mockElement = document.createElement('div');
-
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
 
         wishlistStoragePlugin = new BaseWishlistStoragePlugin(mockElement);
     });

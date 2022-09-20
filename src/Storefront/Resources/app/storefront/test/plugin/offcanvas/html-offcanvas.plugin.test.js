@@ -1,18 +1,7 @@
-/**
- * @jest-environment jsdom
- */
 import Feature from 'src/helper/feature.helper';
 import HtmlOffcanvas from 'src/plugin/offcanvas/html-offcanvas.plugin';
 
 describe('HtmlOffcanvas tests', () => {
-
-    beforeEach(() => {
-        window.csrf = {
-            enabled: false,
-        };
-
-        window.router = [];
-    });
 
     afterEach(() => {
         jest.useRealTimers();

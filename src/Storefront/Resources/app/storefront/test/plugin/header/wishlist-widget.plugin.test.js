@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
@@ -17,24 +13,11 @@ describe('WishlistWidgetPlugin tests', () => {
         // mock search plugin
         document.body.innerHTML = '<div class="wishlist-widget"></div>';
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new WishlistLocalStoragePlugin(mockElement);
-            },
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-        };
-
         const mockElement = document.querySelector('.wishlist-widget');
+
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new WishlistLocalStoragePlugin(mockElement);
+        }
 
         wishlistWidgetPlugin = new WishlistWidgetPlugin(mockElement);
     });

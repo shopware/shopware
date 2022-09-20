@@ -1,49 +1,24 @@
-/**
- * @jest-environment jsdom
- */
-
-/* eslint-disable-next-line import/no-unresolved */
-import { call } from 'file-loader';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-
+import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import template from './offcanvas.template.html';
 
+// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
+jest.mock('src/plugin-system/plugin.manager', () => ({
+    __esModule: true,
+    default: {},
+}));
+
 describe('CookieConfiguration plugin tests', () => {
-    let plugin = null;
-    let CookieConfiguration;
-    let COOKIE_CONFIGURATION_UPDATE;
-
-    beforeAll(async () => {
-        window.router = {
-            'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
-        };
-
-        const importedCookieConfiguration = await import('src/plugin/cookie/cookie-configuration.plugin');
-        CookieConfiguration = importedCookieConfiguration.default;
-        COOKIE_CONFIGURATION_UPDATE = importedCookieConfiguration.COOKIE_CONFIGURATION_UPDATE;
-    });
+    let plugin;
 
     beforeEach(() => {
         document.body.innerHTML = template;
 
-        window.csrf = {
-            enabled: false,
+        window.router = {
+            'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
         };
 
-        window.PluginManager = {
-            getPluginInstances: () => {
-                return new Map();
-            },
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPlugin: () => {
-                return {
-                    get: () => [],
-                };
-            },
-            initializePlugins: () => jest.fn(),
-        };
+        window.PluginManager.initializePlugins = () => jest.fn();
 
         const container = document.createElement('div');
         plugin = new CookieConfiguration(container);
@@ -60,7 +35,7 @@ describe('CookieConfiguration plugin tests', () => {
 
         document.$emitter.unsubscribe(COOKIE_CONFIGURATION_UPDATE);
 
-        plugin = null;
+        plugin = undefined;
     });
 
     test('The cookie configuration plugin can be instantiated', () => {

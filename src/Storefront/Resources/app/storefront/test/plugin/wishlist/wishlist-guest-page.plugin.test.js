@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 /* eslint-disable */
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
@@ -14,30 +10,12 @@ describe('GuestWishlistPagePlugin tests', () => {
     beforeEach(() => {
         // create mocks
         window.wishlistEnabled = true;
-        window.csrf = {
-            enabled: false
-        };
-        window.router = [];
-
 
         const mockElement = document.createElement('div');
 
-        window.PluginManager = {
-            getPluginInstancesFromElement: () => {
-                return new Map();
-            },
-            getPluginInstanceFromElement: () => {
-                return new WishlistLocalStoragePlugin(mockElement);
-            },
-            getPlugin: () => {
-                return {
-                    get: () => []
-                };
-            },
-            getPluginInstances: () => {
-                return new Map();
-            }
-        };
+        window.PluginManager.getPluginInstanceFromElement = () => {
+            return new WishlistLocalStoragePlugin(mockElement);
+        }
 
         const wishlistBasket = document.createElement('div');
         wishlistBasket.setAttribute('id', 'wishlist-basket');
@@ -105,7 +83,7 @@ describe('GuestWishlistPagePlugin tests', () => {
         validProductIds.forEach(productId => {
             guestWishlistPagePlugin._wishlistStorage.add(productId)
         });
-        
+
         expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts()).length).toBe(3);
 
         window.useDefaultCookieConsent = true;

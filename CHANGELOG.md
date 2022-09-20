@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.15.1
+*  [NEXT-23304 - Fix CLI updater](/changelog/release-6-4-15-1/2022-09-20-fix-cli-updater.md)
+
 ## 6.4.15.0
 *  [NEXT-21255 - Update design of header and footer for order documents](/changelog/release-6-4-15-0/2022-05-12-update-design-of-header-and-footer-for-order-documents.md)
 *  [NEXT-9933 - Implement documents display company address](/changelog/release-6-4-15-0/2022-06-06-documents-display-company-address.md)

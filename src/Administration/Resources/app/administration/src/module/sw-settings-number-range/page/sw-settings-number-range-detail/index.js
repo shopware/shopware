@@ -2,6 +2,7 @@ import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-number-range-detail', {
@@ -196,6 +197,8 @@ Component.register('sw-settings-number-range-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        ...mapPropertyErrors('numberRange', ['name', 'typeId']),
     },
 
     watch: {
@@ -305,14 +308,6 @@ Component.register('sw-settings-number-range-detail', {
             const numberRangeName = this.numberRange.name || this.placeholder(this.numberRange, 'name');
 
             this.onChangePattern();
-            if (this.noSalesChannelSelected()) {
-                this.createNotificationError(
-                    {
-                        message: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededMessage'),
-                    },
-                );
-                return false;
-            }
 
             if (!this.numberRange.pattern) {
                 this.createNotificationError(

@@ -411,8 +411,7 @@
     "autoload": {
         "files":[
             "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "src/Core/Framework/Adapter/Twig/functions.php",
-            "vendor/twig/twig/src/Extension/CoreExtension.php"
+            "src/Core/Framework/Adapter/Twig/functions.php"
         ],
         "psr-4": {
             "Shopware\\Administration\\": "src/Administration/",

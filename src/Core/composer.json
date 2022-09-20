@@ -11,8 +11,7 @@
     "autoload": {
         "files": [
             "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "Framework/Adapter/Twig/functions.php",
-            "vendor/twig/twig/src/Extension/CoreExtension.php"
+            "Framework/Adapter/Twig/functions.php"
         ],
         "exclude-from-classmap": [
             "*/Test/"

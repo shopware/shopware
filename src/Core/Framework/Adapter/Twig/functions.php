@@ -46,9 +46,9 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
                 }
             }
 
-            return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+            return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } catch (\Throwable $e) {
-            return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+            return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }

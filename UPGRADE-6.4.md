@@ -1,6 +1,25 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.15.0
+## Demodata generator registration in DI
+
+Demodata generators now accepts the following new attributes:
+* `option-name`: Option name for the command, optional if command has no option.
+* `option-default`: Default value for the number of items to generate (Default: 0).
+* `option-description`: Description for the command line option, not required.
+
+```xml
+<service id="Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator">
+    <argument type="service" id="property_group.repository" />
+    
+    <tag name="shopware.demodata_generator" option-name="properties" option-default="10" option-description="Property group count (option count rand(30-300))"/>
+</service>
+```
+## Dump env vars
+You can now dump the env vars to a optimized `env.local.php` file by running `bin/console system:setup --dump-env` or `bin/console dotenv:dump --env {APP_ENV}` command.
+For more information on the `env.local.php` file, see the [symfony docs](https://symfony.com/doc/current/configuration.html#configuring-environment-variables-in-production).
+
 # 6.4.14.0
 ## Deprecate old document generation endpoint, introduce new bulk order's documents generator endpoint
 

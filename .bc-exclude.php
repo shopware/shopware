@@ -58,5 +58,7 @@ return [
 
         // temporary to fix types in final methods
         'Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader',
+        // Should be safe
+        'Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\#\\_\\_destruct\\(\\) was removed'
     ],
 ];

@@ -56,7 +56,7 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             });
     });
 
-    it('@base @rule: can preview products with boolean field', () => {
+    it('@base @rule: can preview products with boolean field', { tags: ['pa-business-ops'] }, () => {
         const productStreamPage = new ProductStreamObject();
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
 
@@ -131,7 +131,7 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         });
     });
 
-    it('@base @rule: can preview products with custom field is boolean', () => {
+    it('@base @rule: can preview products with custom field is boolean', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,

@@ -15,7 +15,7 @@ describe('Shipping: Edit in various ways', () => {
             });
     });
 
-    it('@base @settings: edit shipping price matrix', () => {
+    it('@base @settings: edit shipping price matrix', { tags: ['pa-checkout'] }, () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later

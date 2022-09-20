@@ -22,7 +22,7 @@ describe('CMS: product page layout', () => {
     const page = new ProductPageObject();
     const pageMedia = new MediaPageObject();
 
-    it('@package: create product page layout with image', () => {
+    it('@package: create product page layout with image', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page`,
             method: 'POST'

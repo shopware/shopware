@@ -19,7 +19,7 @@ describe('Search bar: Check main functionality', () => {
         cy.loginViaApi();
     });
 
-    it('@base @searchBar @search: search for a product', () => {
+    it('@base @searchBar @search: search for a product', { tags: ['pa-system-settings'] }, () => {
         let taxId; let
             currencyId;
 
@@ -111,7 +111,7 @@ describe('Search bar: Check main functionality', () => {
         cy.contains('.smart-bar__header h2', 'product-');
     });
 
-    it('@searchBar @search: search for a category', () => {
+    it('@searchBar @search: search for a category', { tags: ['pa-system-settings'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
         cy.get('.sw-dashboard')
@@ -132,7 +132,7 @@ describe('Search bar: Check main functionality', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a customer', () => {
+    it('@searchBar @search: search for a customer', { tags: ['pa-system-settings'] }, () => {
         cy.createCustomerFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -154,7 +154,7 @@ describe('Search bar: Check main functionality', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a order', () => {
+    it('@searchBar @search: search for a order', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 return cy.createProductFixture({
@@ -205,7 +205,7 @@ describe('Search bar: Check main functionality', () => {
             .should('be.visible');
     });
 
-    it('@searchBar @search: search for a media', () => {
+    it('@searchBar @search: search for a media', { tags: ['pa-system-settings'] }, () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -253,7 +253,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('.sw-media-base-item__name', 'sw-login-background');
     });
 
-    it('@searchBar @search: toggle result box with results for the letter "e"', () => {
+    it('@searchBar @search: toggle result box with results for the letter "e"', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -284,7 +284,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-search-bar__results').then($el => expect($el.html()).to.be.equal(searchResultsMarkup));
     });
 
-    it('@searchBar @search: navigate in the results for the letter "e"', () => {
+    it('@searchBar @search: navigate in the results for the letter "e"', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

@@ -18,7 +18,7 @@ describe('Product: Base price', () => {
             });
     });
 
-    it('@base @catalogue: Editing product with base price', () => {
+    it('@base @catalogue: Editing product with base price', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -12,7 +12,7 @@ describe('Flow builder: Test crud operations', () => {
         });
     });
 
-    it('@settings: Create and read flow', () => {
+    it('@settings: Create and read flow', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -52,7 +52,7 @@ describe('Flow builder: Test crud operations', () => {
             .contains('Order placed v1');
     });
 
-    it('@settings: Try to create flow with empty required fields', () => {
+    it('@settings: Try to create flow with empty required fields', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
             method: 'POST'
@@ -98,7 +98,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.awaitAndCheckNotification('Flow could not be saved.');
     });
 
-    it('@settings: Update and read flow', () => {
+    it('@settings: Update and read flow', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -163,7 +163,7 @@ describe('Flow builder: Test crud operations', () => {
             .contains('Order placed v2');
     });
 
-    it('@settings: Delete flow', () => {
+    it('@settings: Delete flow', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

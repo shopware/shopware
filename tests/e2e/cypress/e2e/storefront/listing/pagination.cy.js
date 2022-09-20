@@ -18,7 +18,7 @@ describe('Listing: Test product pagination', () => {
                 cy.loginViaApi().then(() => cy.visit('/admin#/sw/settings/listing/index'));
             });
 
-            it('Run pagination', () => {
+            it('Run pagination', { tags: ['pa-inventory'] }, () => {
                 cy.get('input[name="core.listing.productsPerPage"]').scrollIntoView().then(() => {
                     cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
                 });
@@ -61,7 +61,7 @@ describe('Listing: Test product pagination', () => {
                 }
             });
 
-            it('Run pagination on search', () => {
+            it('Run pagination on search', { tags: ['pa-inventory'] }, () => {
                 cy.get('input[name="core.listing.productsPerPage"]').scrollIntoView().then(() => {
                     cy.get('input[name="core.listing.productsPerPage"]').clearTypeAndCheck(testCase.toString());
                 });

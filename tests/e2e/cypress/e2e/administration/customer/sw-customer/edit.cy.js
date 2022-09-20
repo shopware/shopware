@@ -15,7 +15,7 @@ describe('Customer:  Edit in various ways', () => {
             });
     });
 
-    it('@customer: edit customer via inline edit', () => {
+    it('@customer: edit customer via inline edit', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
@@ -36,7 +36,7 @@ describe('Customer:  Edit in various ways', () => {
         cy.contains('.sw-data-grid__cell--firstName', 'Ech, Woody');
     });
 
-    it('@customer: edit customer via detail page', () => {
+    it('@customer: edit customer via detail page', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

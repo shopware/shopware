@@ -12,7 +12,7 @@ describe('Rule builder: Test duplication of rule', () => {
             });
     });
 
-    it('@rule: Duplication of rules should open duplicated one for editing', () => {
+    it('@rule: Duplication of rules should open duplicated one for editing', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later

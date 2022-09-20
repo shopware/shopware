@@ -20,7 +20,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         }).as('saveTemplate');
     });
 
-    it('@settings: Assign sales channel', () => {
+    it('@settings: Assign sales channel', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
@@ -59,7 +59,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('#mailHeaderFooterGrid').find('.sw-data-grid__body .sw-data-grid__row').first().find('.sw-data-grid__cell--salesChannels-name').contains('Storefront');
     });
 
-    it('@settings: Re-assign sales channel to new header-footer template will pop up modal', () => {
+    it('@settings: Re-assign sales channel to new header-footer template will pop up modal', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
@@ -126,7 +126,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.contains('.sw-data-grid__row', 'Example').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
     });
 
-    it('@settings: Re-assign sales channel to existing header-footer template will pop up modal', () => {
+    it('@settings: Re-assign sales channel to existing header-footer template will pop up modal', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',

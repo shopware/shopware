@@ -10,7 +10,7 @@ describe('Media: Test ACL privileges', () => {
             });
     });
 
-    it('@media: has no access to media module', () => {
+    it('@media: has no access to media module', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
@@ -28,7 +28,7 @@ describe('Media: Test ACL privileges', () => {
         cy.get('.sw-media-library').should('not.exist');
     });
 
-    it('@media: can view media', () => {
+    it('@media: can view media', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -56,7 +56,7 @@ describe('Media: Test ACL privileges', () => {
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
     });
 
-    it('@media: can edit media', () => {
+    it('@media: can edit media', { tags: ['pa-content-management'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-method/*`,
@@ -92,7 +92,7 @@ describe('Media: Test ACL privileges', () => {
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('not.exist');
     });
 
-    it('@media: can create media', () => {
+    it('@media: can create media', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST'
@@ -136,7 +136,7 @@ describe('Media: Test ACL privileges', () => {
             .should('be.visible');
     });
 
-    it('@media: can delete media', () => {
+    it('@media: can delete media', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -165,7 +165,7 @@ describe('Media: Test ACL privileges', () => {
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--deleter').should('not.exist');
     });
 
-    it('@media: can edit settings for media folder', () => {
+    it('@media: can edit settings for media folder', { tags: ['pa-content-management'] }, () => {
         // open context menu and open settings modal
         cy.get('.sw-media-grid-item__item--0 .sw-context-button__button').click({ force: true });
         cy.get('.sw-media-context-item__open-settings-action').click();

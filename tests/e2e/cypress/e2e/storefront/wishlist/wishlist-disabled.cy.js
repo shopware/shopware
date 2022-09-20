@@ -30,7 +30,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Wishlist state is not set', () => {
+    it('@wishlist: Wishlist state is not set', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -39,7 +39,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge is not display on header', () => {
+    it('@wishlist: Heart icon badge is not display on header', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then(() => {
@@ -47,7 +47,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge not display on product box in product listing', () => {
+    it('@wishlist: Heart icon badge not display on product box in product listing', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
         cy.window().then(() => {

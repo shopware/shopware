@@ -13,7 +13,7 @@ describe('Flow builder: Create mail template for send mail action testing', () =
             });
     });
 
-    it('@settings: create mail template for send mail action', () => {
+    it('@settings: create mail template for send mail action', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

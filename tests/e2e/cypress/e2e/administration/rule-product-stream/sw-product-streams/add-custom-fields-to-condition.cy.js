@@ -17,7 +17,7 @@ describe('Dynamic product group: Add custom fields to condition', () => {
             });
     });
 
-    it('@visual: can create dynamic product group with custom field', () => {
+    it('@visual: can create dynamic product group with custom field', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,

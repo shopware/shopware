@@ -13,7 +13,7 @@ describe('Category: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic category workflow', () => {
+    it('@visual: check appearance of basic category workflow', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST'

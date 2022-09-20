@@ -9,7 +9,7 @@ describe('Test if listingPrice is shown even on Variantes with differing prices'
         });
     });
 
-    it('Should show listingPrice (Streichpreis)', () => {
+    it('Should show listingPrice (Streichpreis)', { tags: ['pa-inventory'] }, () => {
         // go to first product
         cy.visit('/Variant-product/TEST.1');
         // check if normal price is correct

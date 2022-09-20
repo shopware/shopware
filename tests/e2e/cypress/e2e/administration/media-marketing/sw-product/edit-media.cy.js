@@ -15,7 +15,7 @@ describe('Product: Edit product media', () => {
             });
     });
 
-    it('@catalogue: change media sorting', () => {
+    it('@catalogue: change media sorting', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -98,7 +98,7 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
     });
 
-    it('@base @catalogue: set another cover image', () => {
+    it('@base @catalogue: set another cover image', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -174,7 +174,7 @@ describe('Product: Edit product media', () => {
             .and('match', /plugin-manager--login/);
     });
 
-    it('@catalogue: remove a product\'s image', () => {
+    it('@catalogue: remove a product\'s image', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

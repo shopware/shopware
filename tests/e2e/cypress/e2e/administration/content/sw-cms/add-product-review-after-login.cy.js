@@ -26,7 +26,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
             });
     });
 
-    it('@content: can login to write review when assign category for layout', () => {
+    it('@content: can login to write review when assign category for layout', { tags: ['pa-content-management'] }, () => {
         const page = new AccountPageObject();
 
         cy.intercept({
@@ -112,7 +112,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.product-detail-review-item-content').first().contains('This product is the most good product that I have used');
     });
 
-    it('@content: can login to write review when assign product for PDP layout', () => {
+    it('@content: can login to write review when assign product for PDP layout', { tags: ['pa-content-management'] }, () => {
         const page = new AccountPageObject();
 
 

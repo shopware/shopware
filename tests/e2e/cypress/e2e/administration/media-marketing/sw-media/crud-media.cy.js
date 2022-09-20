@@ -12,7 +12,7 @@ describe('Media: Test crud operations', () => {
             });
     });
 
-    it('@base @media: "create" via file upload and read medium', () => {
+    it('@base @media: "create" via file upload and read medium', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -36,7 +36,7 @@ describe('Media: Test crud operations', () => {
             .should('be.visible');
     });
 
-    it('@base @media: "create" via file url and read medium', () => {
+    it('@base @media: "create" via file url and read medium', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -69,7 +69,7 @@ describe('Media: Test crud operations', () => {
             .should('be.visible');
     });
 
-    it('@base @media: update and read medium\'s meta data (uploaded via url)', () => {
+    it('@base @media: update and read medium\'s meta data (uploaded via url)', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -108,7 +108,7 @@ describe('Media: Test crud operations', () => {
         cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
-    it('@base @media: delete medium', () => {
+    it('@base @media: delete medium', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

@@ -19,7 +19,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
         page = null;
     });
 
-    it('@settings: Edit identfiers', () => {
+    it('@settings: Edit identfiers', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'PATCH'

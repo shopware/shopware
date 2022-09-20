@@ -17,7 +17,7 @@ describe('Order: Create order', () => {
             });
     });
 
-    it('@base @order: create order with an existing customer', () => {
+    it('@base @order: create order with an existing customer', { tags: ['pa-customers-orders'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -102,7 +102,7 @@ describe('Order: Create order', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '10');
     });
 
-    it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
+    it('@base @order: create order with a new customer, update line item and shipping cost manually', { tags: ['pa-customers-orders'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -380,7 +380,7 @@ describe('Order: Create order', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`, '5');
     });
 
-    it('@base @order: add promotion code', () => {
+    it('@base @order: add promotion code', { tags: ['pa-customers-orders'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -541,7 +541,7 @@ describe('Order: Create order', () => {
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@order: add invalid promotion code', () => {
+    it('@order: add invalid promotion code', { tags: ['pa-customers-orders'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -651,7 +651,7 @@ describe('Order: Create order', () => {
         cy.contains('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content', '10');
     });
 
-    it('@base @order create new order', () => {
+    it('@base @order create new order', { tags: ['pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -684,7 +684,7 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-initial-modal__tab-product').click();
 
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(10).type('{enter}');
-    
+
         cy.get('.sw-button--primary').click();
 
         cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);

@@ -24,7 +24,7 @@ describe('Essential characteristics: Test create operation', () => {
             });
     });
 
-    it('@settings: create a feature set', () => {
+    it('@settings: create a feature set', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set`,

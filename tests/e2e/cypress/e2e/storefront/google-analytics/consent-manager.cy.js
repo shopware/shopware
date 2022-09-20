@@ -1,6 +1,6 @@
 describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () => {
 
-    it('@cookies: There is a new analytics cookie in the manager if it is activated for the saleschannel', () => {
+    it('@cookies: There is a new analytics cookie in the manager if it is activated for the saleschannel', { tags: ['ct-storefront'] }, () => {
         cy.setAnalyticsFixtureToSalesChannel(true);
 
         cy.visit('/');
@@ -15,7 +15,7 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         cy.get('.offcanvas-cookie-group').eq(1).find('.offcanvas-cookie-entry').contains('Google Analytics');
     });
 
-    it('@cookies: There is no statistics group in the cookie manager if google analytics is not activated for the saleschannel', () => {
+    it('@cookies: There is no statistics group in the cookie manager if google analytics is not activated for the saleschannel', { tags: ['ct-storefront'] }, () => {
         cy.setAnalyticsFixtureToSalesChannel(false);
 
         cy.visit('/');
@@ -28,7 +28,7 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         cy.get('.offcanvas-cookie-group').should('not.contain', 'Statistic');
     });
 
-    it('@cookies: Google Analytics cookies will be set and removed again', () => {
+    it('@cookies: Google Analytics cookies will be set and removed again', { tags: ['ct-storefront'] }, () => {
         cy.setAnalyticsFixtureToSalesChannel(true);
 
         cy.intercept({

@@ -14,7 +14,7 @@ describe('Category: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic category workflow', () => {
+    it('@visual: check appearance of basic category workflow', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/category',

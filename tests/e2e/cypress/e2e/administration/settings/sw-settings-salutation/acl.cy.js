@@ -10,7 +10,7 @@ describe('Salutation: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of salutation if have viewer privilege', () => {
+    it('@settings: can view a list of salutation if have viewer privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -28,7 +28,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
     });
 
-    it('@settings: can create a new salutation if have creator privilege', () => {
+    it('@settings: can create a new salutation if have creator privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -94,7 +94,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Ms').should('be.visible');
     });
 
-    it('@settings: can edit a salutation if have editor privilege', () => {
+    it('@settings: can edit a salutation if have editor privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -147,7 +147,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
-    it('@settings: can delete a salutation if have a deleter privilege', () => {
+    it('@settings: can delete a salutation if have a deleter privilege', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

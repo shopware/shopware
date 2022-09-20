@@ -5,7 +5,7 @@ describe('Product creation via UI and private customer registration', () => {
         cy.loginViaApi();
     });
 
-    it('@package: should order as private customer', () => {
+    it('@package: should order as private customer', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

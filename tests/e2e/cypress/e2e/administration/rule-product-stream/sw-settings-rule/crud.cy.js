@@ -15,7 +15,7 @@ describe('Rule builder: Test crud operations', () => {
             });
     });
 
-    it('@base @rule: create and read rule', () => {
+    it('@base @rule: create and read rule', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
@@ -82,7 +82,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Rule 1st');
     });
 
-    it('@base @rule: delete rule', () => {
+    it('@base @rule: delete rule', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
@@ -109,7 +109,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
     });
 
-    it('@base @rule: should show the condition select upwards', () => {
+    it('@base @rule: should show the condition select upwards', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('a[href="#/sw/settings/rule/create"]').click();
         cy.get('.sw-skeleton').should('not.exist');

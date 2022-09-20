@@ -17,7 +17,7 @@ describe('Mail templates: Check module navigation in settings', () => {
             });
     });
 
-    it('@visual: check appearance of email templates module', () => {
+    it('@visual: check appearance of email templates module', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

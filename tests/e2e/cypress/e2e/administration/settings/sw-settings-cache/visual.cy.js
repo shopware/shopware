@@ -14,7 +14,7 @@ describe('Cache: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of country module', () => {
+    it('@visual: check appearance of country module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/cache_info`,
             method: 'GET'

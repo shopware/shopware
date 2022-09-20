@@ -18,7 +18,7 @@ describe('Theme: Test Inheritance', () => {
             });
     });
 
-    it('@content: check inherited theme', () => {
+    it('@content: check inherited theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme/*`,
             method: 'delete'

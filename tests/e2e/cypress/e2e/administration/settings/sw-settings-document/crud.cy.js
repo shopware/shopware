@@ -12,7 +12,7 @@ describe('Documents: Test crud operations', () => {
             });
     });
 
-    it('@settings: Create invoice document', () => {
+    it('@settings: Create invoice document', { tags: ['pa-customers-orders'] }, () => {
         cy.window().then(() => {
             cy.get('.sw-settings-document-list__add-document').click();
 

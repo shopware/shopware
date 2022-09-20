@@ -12,7 +12,7 @@ describe('Flow builder: set order status testing', () => {
             });
     });
 
-    it('@settings: set order state flow', () => {
+    it('@settings: set order state flow', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -121,7 +121,7 @@ describe('Flow builder: set order status testing', () => {
             cy.contains('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]', 'Shipped');
         });
     });
-    it('@settings: set order state flow with force transition', () => {
+    it('@settings: set order state flow with force transition', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

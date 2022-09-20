@@ -27,7 +27,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: add document to order', () => {
+    it('@base @order: add document to order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.featureIsActive('v6.5.0.0').then(isActive => {
@@ -127,7 +127,7 @@ describe('Order: Test order state', () => {
         });
     });
 
-    it('@base @order: add document to order with existing invoice number', () => {
+    it('@base @order: add document to order with existing invoice number', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.featureIsActive('v6.5.0.0').then(isActive => {
@@ -267,7 +267,7 @@ describe('Order: Test order state', () => {
         });
     });
 
-    it('@order: upload customer document file to document order', () => {
+    it('@order: upload customer document file to document order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.featureIsActive('v6.5.0.0').then(isActive => {

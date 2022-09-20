@@ -9,7 +9,7 @@ describe('Profile: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic profile workflow', () => {
+    it('@visual: check appearance of basic profile workflow',  { tags: ['pa-system-settings'] }, () => {
         // Take snapshot for visual testing
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-tabs-item').contains(/General|Search preferences/g);

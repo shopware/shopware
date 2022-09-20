@@ -15,7 +15,7 @@ describe('Product: Edit list prices of context prices', () => {
             });
     });
 
-    it('@base @rule @product: creates context price rules', () => {
+    it('@base @rule @product: creates context price rules', { tags: ['pa-inventory'] }, () => {
         cy.window().then(() => {
             const page = new ProductPageObject();
             const emptySelectRule = '.sw-product-detail-context-prices__empty-state-select-rule';

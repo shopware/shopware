@@ -28,7 +28,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
             });
     });
 
-    it('@package: should create manual order and use credit', ()=> {
+    it('@package: should create manual order and use credit', { tags: ['pa-customers-orders'] }, ()=> {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
             method: 'POST'

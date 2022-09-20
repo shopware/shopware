@@ -15,7 +15,7 @@ describe('Property: Test ACL privileges', () => {
             });
     });
 
-    it('@catalogue: has no access to property module', () => {
+    it('@catalogue: has no access to property module', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -37,7 +37,7 @@ describe('Property: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-property').should('not.exist');
     });
 
-    it('@catalogue: can view property', () => {
+    it('@catalogue: can view property', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -63,7 +63,7 @@ describe('Property: Test ACL privileges', () => {
         cy.get('.sw-property-option-list__delete-button').should('be.disabled');
     });
 
-    it('@catalogue: can edit property', () => {
+    it('@catalogue: can edit property', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/property-group/*`,
@@ -105,7 +105,7 @@ describe('Property: Test ACL privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`, 'My description');
     });
 
-    it('@catalogue: can create property', () => {
+    it('@catalogue: can create property', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -142,7 +142,7 @@ describe('Property: Test ACL privileges', () => {
         cy.contains('.sw-data-grid__row', '1 Coleur');
     });
 
-    it('@catalogue: can delete property', () => {
+    it('@catalogue: can delete property', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'delete',

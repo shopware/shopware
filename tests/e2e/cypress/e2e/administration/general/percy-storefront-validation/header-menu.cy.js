@@ -12,7 +12,7 @@ describe('Header menu:Visual tests', () => {
             cy.viewport(1280, 720);
         });
 
-        it('@visual: check appearance of basic header workflow', () => {
+        it('@visual: check appearance of basic header workflow', { tags: ['ct-storefront'] }, () => {
             cy.get('.nav-main-toggle').should('not.be.visible');
 
             // Take snapshot for visual testing
@@ -28,7 +28,7 @@ describe('Header menu:Visual tests', () => {
             cy.viewport('iphone-6');
         });
 
-        it('@visual: check appearance of mobile menu workflow', () => {
+        it('@visual: check appearance of mobile menu workflow', { tags: ['ct-storefront'] }, () => {
             cy.get('.nav.main-navigation-menu').should('not.be.visible');
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
 

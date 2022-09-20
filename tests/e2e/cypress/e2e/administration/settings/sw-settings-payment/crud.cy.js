@@ -15,7 +15,7 @@ describe('Payment: Test crud operations', () => {
             });
     });
 
-    it('@base @settings: create and read payment method', () => {
+    it('@base @settings: create and read payment method', { tags: ['pa-checkout'] }, () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -41,7 +41,7 @@ describe('Payment: Test crud operations', () => {
         cy.contains('.sw-card__title', 'Bar bei Abholung');
     });
 
-    it('@base @settings: update and read payment method', () => {
+    it('@base @settings: update and read payment method', { tags: ['pa-checkout'] }, () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
@@ -69,7 +69,7 @@ describe('Payment: Test crud operations', () => {
     });
 
     // ToDo: NEXT-20936 - We need an opportunity
-    it.skip('@base @settings: delete payment method', () => {
+    it('@base @settings: delete payment method', { tags: ['quarantined', 'pa-checkout'] }, () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later

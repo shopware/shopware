@@ -12,7 +12,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             });
     });
 
-    it('@general: read manufacturer with ACL, but without rights', () => {
+    it('@general: read manufacturer with ACL, but without rights', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
@@ -22,7 +22,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@general: read manufacturer with ACL', () => {
+    it('@general: read manufacturer with ACL', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -48,7 +48,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get(page.elements.manufacturerSave).should('be.disabled');
     });
 
-    it('@catalogue: create and read manufacturer with ACL', () => {
+    it('@catalogue: create and read manufacturer with ACL', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -92,7 +92,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.contains('.sw-manufacturer-list__content', 'MAN-U-FACTURE');
     });
 
-    it('@catalogue: edit and read manufacturer with ACL', () => {
+    it('@catalogue: edit and read manufacturer with ACL', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -130,7 +130,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
-    it('@catalogue: delete manufacturer with ACL', () => {
+    it('@catalogue: delete manufacturer with ACL', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         cy.loginAsUserWithPermissions([

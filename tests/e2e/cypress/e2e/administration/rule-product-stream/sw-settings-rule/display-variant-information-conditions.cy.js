@@ -19,7 +19,7 @@ describe('Rule builder: Test display variant information at condition', () => {
             });
     });
 
-    it('@rule: Display variant information at rule condition input', () => {
+    it('@rule: Display variant information at rule condition input', { tags: ['pa-business-ops'] }, () => {
         cy.window().then(() => {
             const page = new RulePageObject();
 
@@ -66,7 +66,7 @@ describe('Rule builder: Test display variant information at condition', () => {
         });
     });
 
-    it('@rule: Display variant information at rule condition list', () => {
+    it('@rule: Display variant information at rule condition list', { tags: ['pa-business-ops'] }, () => {
         cy.window().then(() => {
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,

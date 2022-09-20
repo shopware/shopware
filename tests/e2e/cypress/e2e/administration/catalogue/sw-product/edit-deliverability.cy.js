@@ -13,7 +13,7 @@ describe('Product: Deliverability', () => {
             });
     });
 
-    it('@base @catalogue: Editing product with extended purchase amounts', () => {
+    it('@base @catalogue: Editing product with extended purchase amounts', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -27,7 +27,7 @@ describe('Property: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic property workflow', () => {
+    it('@visual: check appearance of basic property workflow', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later

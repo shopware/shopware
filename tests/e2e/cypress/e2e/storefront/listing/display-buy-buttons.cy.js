@@ -45,7 +45,7 @@ describe('Test allowBuyInListing config setting', () => {
         }
     }
 
-    it('Should display buy button', () => {
+    it('Should display buy button', { tags: ['pa-checkout'] }, () => {
         setAllowBuyInListing(true);
 
         cy.visit('/')
@@ -68,7 +68,7 @@ describe('Test allowBuyInListing config setting', () => {
             .should('have.class', 'btn-buy');
     });
 
-    it('Shouldn\'t display buy button, but should display detail button', () => {
+    it('Shouldn\'t display buy button, but should display detail button', { tags: ['pa-checkout'] }, () => {
         setAllowBuyInListing(false);
 
         cy.visit('/')

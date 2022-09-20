@@ -27,7 +27,7 @@ describe('Account - Order: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic account order workflow', () => {
+    it('@visual: check appearance of basic account order workflow', { tags: ['pa-customers-orders'] }, () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');

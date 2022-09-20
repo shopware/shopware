@@ -12,7 +12,7 @@ describe('Test visibility of reviews', () => {
         });
     });
 
-    it('@package: should display and then hide the review', () => {
+    it('@package: should display and then hide the review', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'

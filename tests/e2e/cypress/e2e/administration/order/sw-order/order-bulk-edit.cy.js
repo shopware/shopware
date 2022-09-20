@@ -29,7 +29,7 @@ describe('Order: Bulk edit orders', () => {
             });
     });
 
-    it('@package @order: should modify orders with the bulk edit functionality', () => {
+    it('@package @order: should modify orders with the bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         cy.intercept({
@@ -133,7 +133,7 @@ describe('Order: Bulk edit orders', () => {
             });
     });
 
-    it('@package @order: should be able to generate documents with the bulk edit functionality', () => {
+    it('@package @order: should be able to generate documents with the bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         cy.intercept({
@@ -185,7 +185,7 @@ describe('Order: Bulk edit orders', () => {
         cy.get('.sw-order-document-card .sw-data-grid__row.sw-data-grid__row--0').contains('Invoice');
     });
 
-    it('@package @order: should be able to download documents with the bulk edit functionality', () => {
+    it('@package @order: should be able to download documents with the bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         cy.intercept({

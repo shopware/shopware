@@ -11,7 +11,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic im/ex profile workflow', () => {
+    it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/import-export-profile',
             method: 'post'

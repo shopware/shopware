@@ -15,7 +15,7 @@ describe('Promotion v2: Test crud operations', () => {
         });
     });
 
-    it('@base @marketing: create, update and read promotion', { tags: ['quarantined'] }, () => {
+    it('@base @marketing: create, update and read promotion', { tags: ['quarantined', 'pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'
@@ -172,7 +172,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
     });
 
-    it('@base @marketing: create promotion in non system language', () => {
+    it('@base @marketing: create promotion in non system language', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'POST'
@@ -192,7 +192,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-language-switch__select').should('have.class', 'is--disabled');
     });
 
-    it('@base @marketing: delete promotion', () => {
+    it('@base @marketing: delete promotion', { tags: ['pa-checkout'] }, () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion/*`,

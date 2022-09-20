@@ -27,7 +27,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: edit order state', { tags: ['quarantined'] }, () => {
+    it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -159,7 +159,7 @@ describe('Order: Test order state', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Done');
     });
 
-    it('@order: edit order state on details tab', () => {
+    it('@order: edit order state on details tab', { tags: ['pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -225,7 +225,7 @@ describe('Order: Test order state', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Cancelled');
     });
 
-    it('@order: check order history', () => {
+    it('@order: check order history', { tags: ['pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();

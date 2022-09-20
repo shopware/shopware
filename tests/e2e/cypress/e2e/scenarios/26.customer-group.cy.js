@@ -9,7 +9,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         });
     });
 
-    it('@package: should register with new customer group', () => {
+    it('@package: should register with new customer group', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `/account/register`,
             method: 'POST'
@@ -68,7 +68,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.visit('/account');
         cy.get('.alert-content').should('not.exist');
     });
-    it('@package: should register with new commercial customer group', () => {
+    it('@package: should register with new commercial customer group', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

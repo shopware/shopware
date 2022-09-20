@@ -26,7 +26,7 @@ describe('Product: Mode advanced settings at product detail', () => {
             });
     });
 
-    it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in General tab', () => {
+    it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in General tab', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
             method: 'PATCH'
@@ -145,7 +145,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
     });
 
-    it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in Specification tab', () => {
+    it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in Specification tab', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.intercept({

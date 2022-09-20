@@ -111,7 +111,7 @@ describe('Order: Read order', () => {
             });
     });
 
-    it('@base @order: can add existing product', () => {
+    it('@base @order: can add existing product', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -162,7 +162,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@base @order: can add new products', () => {
+    it('@base @order: can add new products', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -231,7 +231,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@base @order: can add custom products', () => {
+    it('@base @order: can add custom products', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -308,7 +308,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@base @order: can add custom credit items', () => {
+    it('@base @order: can add custom credit items', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -376,7 +376,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@base @order: can delete multiple items', () => {
+    it('@base @order: can delete multiple items', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -425,7 +425,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    it('@base @order: can delete single item', () => {
+    it('@base @order: can delete single item', { tags: ['pa-customers-orders'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -454,7 +454,7 @@ describe('Order: Read order', () => {
         cy.get(`${page.elements.tabs.general.gridCard} .sw-data-grid__body`).children().should('have.length', 0);
     });
 
-    it('@base @order: can edit existing line items', () => {
+    it('@base @order: can edit existing line items', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);

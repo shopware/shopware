@@ -10,7 +10,7 @@ describe('Cache module', () => {
             });
     });
 
-    it('@settings: clear cache shortcut', () => {
+    it('@settings: clear cache shortcut', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('body').type('{alt}c', { release: false });
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -20,7 +20,7 @@ describe('Cache module', () => {
     });
 
     // NEXT-20024
-    it('@base @settings: clear cache', { tags: ['quarantined'] }, () => {
+    it('@base @settings: clear cache', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.contains('Caches & indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();
@@ -28,14 +28,14 @@ describe('Cache module', () => {
         cy.awaitAndCheckNotification('All caches cleared.');
     });
 
-    it('@base @settings: rebuild index', () => {
+    it('@base @settings: rebuild index', { tags: ['pa-system-settings'] }, () => {
         cy.contains('Caches & indexes');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();
         cy.awaitAndCheckNotification('Building indexes.');
     });
 
-    it('@base @settings: rebuild index with skip options', () => {
+    it('@base @settings: rebuild index with skip options', { tags: ['pa-system-settings'] }, () => {
         cy.contains('Caches & indexes');
 
         cy.get('.sw-settings-cache__indexers-select').should('be.visible').click();

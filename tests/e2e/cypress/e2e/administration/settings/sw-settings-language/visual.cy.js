@@ -15,7 +15,7 @@ describe('Language: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of language module', () => {
+    it('@base @visual: check appearance of language module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
             method: 'POST'

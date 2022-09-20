@@ -11,7 +11,7 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it('@settings: read number range with ACL, but without rights', { tags: ['quarantined'] }, () => {
+    it('@settings: read number range with ACL, but without rights', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -25,7 +25,7 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it('@settings: read number range with ACL', { tags: ['quarantined'] }, () => {
+    it('@settings: read number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -47,7 +47,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get('input').should('be.disabled');
     });
 
-    it('@settings: create and read number range with ACL', () => {
+    it('@settings: create and read number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -119,7 +119,7 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it('@settings: can edit number range with ACL', { tags: ['quarantined'] }, () => {
+    it('@settings: can edit number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
@@ -164,7 +164,7 @@ describe('Number Range: Test acl privileges', () => {
     });
 
     // TODO: Unskip with NEXT-15489
-    it('@settings: can delete number range with ACL', { tags: ['quarantined'] }, () => {
+    it('@settings: can delete number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',

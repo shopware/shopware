@@ -22,7 +22,7 @@ describe('Hide products after clearance & free shipping.', () => {
         });
     });
 
-    it('@package: create a clearance product, make an order and verify from the storefront', () => {
+    it('@package: create a clearance product, make an order and verify from the storefront', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
             method: 'POST'
@@ -131,7 +131,7 @@ describe('Hide products after clearance & free shipping.', () => {
         });
     });
 
-    it('@package: should NOT show a product at the store front after changing settings', () => {
+    it('@package: should NOT show a product at the store front after changing settings', { tags: ['pa-inventory'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

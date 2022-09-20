@@ -19,7 +19,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
-    it('@settings: Create and read update only profile', () => {
+    it('@settings: Create and read update only profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'
@@ -71,7 +71,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(page.elements.dataGridRow).should('contain', 'Basic');
     });
 
-    it('@settings @base: Create and read profile with wizard', () => {
+    it('@settings @base: Create and read profile with wizard', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'
@@ -167,7 +167,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'BasicWizard');
     });
 
-    it('@settings @base: Createprofile with wizard and import mapping via CSV file', () => {
+    it('@settings @base: Createprofile with wizard and import mapping via CSV file', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'
@@ -258,7 +258,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'UploadWizard');
     });
 
-    it('@settings @base: Duplicate profile', () => {
+    it('@settings @base: Duplicate profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'
@@ -291,7 +291,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Copy of: E2E');
     });
 
-    it('@settings: Update and read profile', () => {
+    it('@settings: Update and read profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'PATCH'
@@ -337,7 +337,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Updated E2E');
     });
 
-    it('@settings @base: Update and read profile in different content language', () => {
+    it('@settings @base: Update and read profile in different content language', { tags: ['pa-system-settings'] }, () => {
         // sw-simple-search component got refactored on NEXT-16271 to address loosing input issue
         cy.onlyOnFeature('FEATURE_NEXT_16271');
         cy.intercept({
@@ -405,7 +405,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'E2E');
     });
 
-    it('@settings @base: Create profile disabled in different content language', () => {
+    it('@settings @base: Create profile disabled in different content language', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
             method: 'POST'
@@ -423,7 +423,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__create-action').should('be.disabled');
     });
 
-    it('@settings: Delete profile', () => {
+    it('@settings: Delete profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'delete'
@@ -478,7 +478,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing .sw-data-grid__body').should('not.contain', 'E2E');
     });
 
-    it('@settings @base: Create an export profile with wizard', () => {
+    it('@settings @base: Create an export profile with wizard', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'

@@ -21,7 +21,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         });
     });
 
-    it('Should checkout with tax-free and price rounding', () => {
+    it('Should checkout with tax-free and price rounding', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const pageSettings = new SettingsPageObject();
 

@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: check fields in inheritance', () => {
+    it('@catalogue: check fields in inheritance', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -22,7 +22,7 @@ describe('Listing: Filter on mobile', () => {
         cy.get('.filter-active').contains(filterBy.size).should('have.length', 1)
     }
 
-    it('Should keep filtered values when clicking on close button', () => {
+    it('Should keep filtered values when clicking on close button', { tags: ['pa-inventory'] }, () => {
         // set to mobile viewport
         cy.viewport(360, 640)
 

@@ -15,7 +15,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             });
     });
 
-    it('@base @rule @package: edit rule with shipping zipcode condition', () => {
+    it('@base @rule @package: edit rule with shipping zipcode condition', { tags: ['pa-business-ops'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
@@ -75,7 +75,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@base @rule @package: edit rule with billing zipcode condition', () => {
+    it('@base @rule @package: edit rule with billing zipcode condition', { tags: ['pa-business-ops'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',

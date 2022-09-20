@@ -30,7 +30,7 @@ describe('Dynamic product group: Test product has cover image filter with and wi
             });
     });
 
-    it('@catalogue: filters products by cover image existing', () => {
+    it('@catalogue: filters products by cover image existing', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
         cy.get('.sw-product-stream-filter').as('productStreamFilterHasCoverImage');
 

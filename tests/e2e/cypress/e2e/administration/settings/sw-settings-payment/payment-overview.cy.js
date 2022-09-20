@@ -11,7 +11,7 @@ describe('Payment: Test crud operations', () => {
             });
     });
 
-    it('@base @settings: delete payment method', () => {
+    it('@base @settings: delete payment method', { tags: ['pa-checkout'] }, () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later

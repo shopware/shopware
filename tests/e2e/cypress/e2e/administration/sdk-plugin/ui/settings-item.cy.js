@@ -11,7 +11,7 @@ describe('Category: SDK Test', ()=> {
                     .should('exist');
             });
     });
-    it('@sdk: add settings without searchbar', () => {
+    it('@sdk: add settings without searchbar', { tags: ['ct-admin'] }, () => {
         cy.contains('.sw-settings__content-header', 'Settings');
         cy.get('.sw-loader')
             .should('not.exist');
@@ -34,7 +34,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-page__search-bar')
             .should('not.exist');
     });
-    it('@sdk: add settings with searchbar', () => {
+    it('@sdk: add settings with searchbar', { tags: ['ct-admin'] }, () => {
         cy.get('.sw-settings')
             .click();
         cy.get('.sw-settings__tab-plugins')

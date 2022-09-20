@@ -13,7 +13,7 @@ describe('Currency: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view currency', () => {
+    it('@settings: can view currency', { tags: ['pa-inventory'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -39,7 +39,7 @@ describe('Currency: Test acl privileges', () => {
         cy.get('#sw-field--currency-factor').should('have.value', '1');
     });
 
-    it('@settings: can edit currency', () => {
+    it('@settings: can edit currency', { tags: ['pa-inventory'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -84,7 +84,7 @@ describe('Currency: Test acl privileges', () => {
             .contains('Kreuzer');
     });
 
-    it('@settings: can create currency', () => {
+    it('@settings: can create currency', { tags: ['pa-inventory'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -130,7 +130,7 @@ describe('Currency: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`, 'Dukaten');
     });
 
-    it('@settings: can delete currency', () => {
+    it('@settings: can delete currency', { tags: ['pa-inventory'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

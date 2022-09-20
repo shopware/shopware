@@ -42,7 +42,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.viewport(device.model, device.orientation)
             });
 
-            it('@base @checkout: Run checkout', () => {
+            it('@base @checkout: Run checkout', { tags: ['pa-checkout'] }, () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
 

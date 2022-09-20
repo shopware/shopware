@@ -125,7 +125,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         });
     });
 
-    it('@Customer: check that the url parameters get set correctly', () => {
+    it('@Customer: check that the url parameters get set correctly', { tags: ['pa-customers-orders'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -237,7 +237,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         });
     });
 
-    it('@Customer: check that the url parameters get applied after a reload', () => {
+    it('@Customer: check that the url parameters get applied after a reload', { tags: ['pa-customers-orders'] }, () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index?term=Pep&page=2&limit=10&sortBy=lastName,firstName&sortDirection=ASC&naturalSorting=false`);

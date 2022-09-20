@@ -25,7 +25,7 @@ describe('Checkout: Use rounding', () => {
         });
     });
 
-    it('@base @checkout: Run checkout with 0.50', () => {
+    it('@base @checkout: Run checkout with 0.50', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: '/api/currency/**',
             method: 'PATCH'

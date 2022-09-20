@@ -20,7 +20,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it('@marketing: read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
+    it('@marketing: read NewsletterRecipient with ACL', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
@@ -34,7 +34,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it('@marketing: edit and read NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
+    it('@marketing: edit and read NewsletterRecipient with ACL', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
@@ -61,7 +61,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
     });
 
     // TODO Unskip if NEXT-11444 is fixed
-    it('@marketing: delete NewsletterRecipient with ACL', { tags: ['quarantined'] }, () => {
+    it('@marketing: delete NewsletterRecipient with ACL', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         const page = new NewsletterRecipientPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);

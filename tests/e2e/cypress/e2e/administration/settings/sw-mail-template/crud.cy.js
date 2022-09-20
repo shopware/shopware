@@ -12,7 +12,7 @@ describe('Mail templates: Test crud privileges', () => {
             });
     });
 
-    it('@settings: create and read email template', () => {
+    it('@settings: create and read email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to create a mail template
@@ -70,7 +70,7 @@ describe('Mail templates: Test crud privileges', () => {
             'Get feedback');
     });
 
-    it('@settings: edit email template', () => {
+    it('@settings: edit email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template
@@ -139,7 +139,7 @@ describe('Mail templates: Test crud privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: delete email template', () => {
+    it('@settings: delete email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template
@@ -188,7 +188,7 @@ describe('Mail templates: Test crud privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: duplicate email template', () => {
+    it('@settings: duplicate email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template
@@ -243,7 +243,7 @@ describe('Mail templates: Test crud privileges', () => {
             'Duplicated description');
     });
 
-    it('@settings: create and read email header footer', () => {
+    it('@settings: create and read email header footer', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to create a mail header footer
@@ -294,7 +294,7 @@ describe('Mail templates: Test crud privileges', () => {
             'Default description');
     });
 
-    it('@settings: edit email header footer', () => {
+    it('@settings: edit email header footer', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template
@@ -352,7 +352,7 @@ describe('Mail templates: Test crud privileges', () => {
             'Storefront');
     });
 
-    it('@settings: delete email header footer', () => {
+    it('@settings: delete email header footer', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template
@@ -393,7 +393,7 @@ describe('Mail templates: Test crud privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: duplicate email header footer', () => {
+    it('@settings: duplicate email header footer', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // prepare api to update a mail template

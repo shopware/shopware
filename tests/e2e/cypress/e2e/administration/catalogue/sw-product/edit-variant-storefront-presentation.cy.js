@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@base @catalogue: test multidimensional variant with diversification', () => {
+    it('@base @catalogue: test multidimensional variant with diversification', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -123,7 +123,7 @@ describe('Product: Test variants', () => {
         cy.contains('.product-variant-characteristics', 'Color: Green | Size: L');
     });
 
-    it.skip('@catalogue: test main variant presentation with parent and variant given', () => {
+    it('@catalogue: test main variant presentation with parent and variant given', { tags: ['quarantined', 'pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -228,7 +228,7 @@ describe('Product: Test variants', () => {
         cy.contains('h1', 'Green variant product name').should('be.visible');
     });
 
-    it('@catalogue: test main variant presentation with parent but without variant given', () => {
+    it('@catalogue: test main variant presentation with parent but without variant given', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

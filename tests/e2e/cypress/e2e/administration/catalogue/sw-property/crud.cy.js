@@ -17,7 +17,7 @@ describe('Property: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue: create and read property', () => {
+    it('@base @catalogue: create and read property', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
@@ -42,7 +42,7 @@ describe('Property: Test crud operations', () => {
         cy.contains('.sw-data-grid__row', '1 Coleur');
     });
 
-    it('@base @catalogue: update and read property', () => {
+    it('@base @catalogue: update and read property', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
@@ -80,7 +80,7 @@ describe('Property: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Bleu');
     });
 
-    it('@base @catalogue: delete property', () => {
+    it('@base @catalogue: delete property', { tags: ['pa-inventory'] }, () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later

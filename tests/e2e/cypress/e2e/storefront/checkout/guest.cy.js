@@ -15,7 +15,7 @@ describe(`Checkout as Guest`, () => {
             });
     });
 
-    it('@base @checkout @package: Run checkout', () => {
+    it('@base @checkout @package: Run checkout', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
@@ -83,7 +83,7 @@ describe(`Checkout as Guest`, () => {
         });
     });
 
-    it('@base @checkout @package: Run checkout with account type', () => {
+    it('@base @checkout @package: Run checkout with account type', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

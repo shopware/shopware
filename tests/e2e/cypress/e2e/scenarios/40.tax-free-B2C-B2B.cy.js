@@ -23,7 +23,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
     });
     const page = new ProductPageObject();
 
-    it('@package: should validate tax free with B2C', () => {
+    it('@package: should validate tax free with B2C', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
@@ -109,7 +109,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         });
     });
 
-    it('@package: should validate tax free with B2B', () => {
+    it('@package: should validate tax free with B2B', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

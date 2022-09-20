@@ -85,7 +85,7 @@ describe('Product: Edit property assignment', () => {
             });
     });
 
-    it('@base @catalogue: delete property values', () => {
+    it('@base @catalogue: delete property values', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -105,7 +105,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
-    it('@base @catalogue: delete property', () => {
+    it('@base @catalogue: delete property', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -134,7 +134,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
-    it('@base @catalogue: delete properties', () => {
+    it('@base @catalogue: delete properties', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -163,7 +163,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
     });
 
-    it('@base @catalogue: search properties', () => {
+    it('@base @catalogue: search properties', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.clickContextMenuItem(
@@ -194,7 +194,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.icon--regular-checkmark-xs').should('be.visible');
     });
 
-    it('@base @catalogue: add properties', () => {
+    it('@base @catalogue: add properties', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,

@@ -15,7 +15,7 @@ describe('Country: Test crud operations', () => {
             });
     });
 
-    it('@settings: update and read country', () => {
+    it('@settings: update and read country', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -42,7 +42,7 @@ describe('Country: Test crud operations', () => {
             .should('be.visible');
     });
 
-    it('@settings: delete country', () => {
+    it('@settings: delete country', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -69,7 +69,7 @@ describe('Country: Test crud operations', () => {
             .should('not.have.value', '1.Niemandsland');
     });
 
-    it('@settings: update currency dependent values and read country', () => {
+    it('@settings: update currency dependent values and read country', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -146,7 +146,7 @@ describe('Country: Test crud operations', () => {
         });
     });
 
-    it('@settings: create and read country', () => {
+    it('@settings: create and read country', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

@@ -41,7 +41,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             });
     });
 
-    it('@content: use cross selling element in another block', () => {
+    it('@content: use cross selling element in another block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -162,7 +162,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
             .should('be.visible');
     });
 
-    it('@content: use cross selling block in landing page', () => {
+    it('@content: use cross selling block in landing page', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

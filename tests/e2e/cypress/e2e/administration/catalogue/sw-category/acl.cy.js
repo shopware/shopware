@@ -24,7 +24,7 @@ describe('Category: Test ACL privileges', () => {
             });
     });
 
-    it('@base @catalogue: can view category', () => {
+    it('@base @catalogue: can view category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -85,7 +85,7 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-cms-page-form').should('not.exist');
     });
 
-    it('@catalogue: can edit category', () => {
+    it('@catalogue: can edit category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -131,7 +131,7 @@ describe('Category: Test ACL privileges', () => {
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can create category', () => {
+    it('@catalogue: can create category', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -179,7 +179,7 @@ describe('Category: Test ACL privileges', () => {
         cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(2)`, 'Categorian');
     });
 
-    it('@catalogue: can delete category', () => {
+    it('@catalogue: can delete category', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',

@@ -49,7 +49,7 @@ describe('Sales Channel: Test list', () => {
             });
     });
 
-    it('@base @general: open listing page', () => {
+    it('@base @general: open listing page', { tags: ['pa-sales-channels'] }, () => {
         // check if listing works correctly
         cy.contains('.sw-page__smart-bar-amount', '6');
 
@@ -68,12 +68,12 @@ describe('Sales Channel: Test list', () => {
         cy.contains('.smart-bar__header', 'Headless');
     });
 
-    it('@general: Should show six sales-channels and 8 columns', () => {
+    it('@general: Should show six sales-channels and 8 columns', { tags: ['pa-sales-channels'] }, () => {
         cy.get('.sw-data-grid__body .sw-data-grid__row').should('have.length', 6);
         cy.get('.sw-data-grid__header .sw-data-grid__cell').should('have.length', 8);
     });
 
-    it('@general: Name should be sortable', () => {
+    it('@general: Name should be sortable', { tags: ['pa-sales-channels'] }, () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.log('change Sorting direction from None to ASC');
@@ -86,7 +86,7 @@ describe('Sales Channel: Test list', () => {
         cy.contains('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--name', 'Storefront');
     });
 
-    it('@general: Type should be sortable', () => {
+    it('@general: Type should be sortable', { tags: ['pa-sales-channels', 'jest'] }, () => {
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Type').click('left');
         cy.get('.sw-skeleton').should('not.exist');
 
@@ -95,7 +95,7 @@ describe('Sales Channel: Test list', () => {
         cy.contains('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--type-name', 'Storefront');
     });
 
-    it('@general: Column should be hidable', () => {
+    it('@general: Column should be hidable', { tags: ['pa-sales-channels', 'jest'] }, () => {
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').find('.sw-context-button__button').click();
         cy.get('.sw-skeleton').should('not.exist');
 

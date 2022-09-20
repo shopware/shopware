@@ -15,7 +15,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@base @catalogue: check out-of-stock-behavior without clearance', () => {
+    it('@base @catalogue: check out-of-stock-behavior without clearance', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -53,7 +53,7 @@ describe('Product: Edit in various ways', () => {
         });
     });
 
-    it('@base @catalogue: check product with full stock', () => {
+    it('@base @catalogue: check product with full stock', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -91,7 +91,7 @@ describe('Product: Edit in various ways', () => {
         });
     });
 
-    it('@base @catalogue: check out-of-stock-behavior with clearance', () => {
+    it('@base @catalogue: check out-of-stock-behavior with clearance', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

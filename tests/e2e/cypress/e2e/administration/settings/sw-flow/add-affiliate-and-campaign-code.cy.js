@@ -10,7 +10,7 @@ describe('Flow builder: add an affiliate and campaign code testing', () => {
         });
     });
 
-    it('@settings: add an affilicate and campaign code flow', () => {
+    it('@settings: add an affilicate and campaign code flow', { tags: ['pa-business-ops'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

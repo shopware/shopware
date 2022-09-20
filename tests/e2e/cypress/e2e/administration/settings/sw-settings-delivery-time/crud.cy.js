@@ -16,7 +16,7 @@ describe('Delivery times group: Test crud operations', () => {
             });
     });
 
-    it('@settings: Create and read delivery time', () => {
+    it('@settings: Create and read delivery time', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -72,7 +72,7 @@ describe('Delivery times group: Test crud operations', () => {
             .typeSingleSelectAndCheck('Very long delivery', '#deliveryTimeId');
     });
 
-    it('@settings: Try to create delivery time with empty required fields', () => {
+    it('@settings: Try to create delivery time with empty required fields', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time`,
             method: 'POST'
@@ -97,7 +97,7 @@ describe('Delivery times group: Test crud operations', () => {
             .should('contain', 'This field must not be empty.');
     });
 
-    it('@settings: Update and read delivery time', () => {
+    it('@settings: Update and read delivery time', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -134,7 +134,7 @@ describe('Delivery times group: Test crud operations', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Turtle').should('be.visible');
     });
 
-    it('@settings: Delete delivery time', () => {
+    it('@settings: Delete delivery time', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

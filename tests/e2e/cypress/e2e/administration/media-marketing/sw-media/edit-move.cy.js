@@ -22,7 +22,7 @@ describe('Media: Move folder and image', () => {
             });
     });
 
-    it('@media: move folder and medium', () => {
+    it('@media: move folder and medium', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

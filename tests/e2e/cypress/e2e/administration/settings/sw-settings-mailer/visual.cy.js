@@ -14,7 +14,7 @@ describe('Mailer: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of mailer module', () => {
+    it('@base @visual: check appearance of mailer module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config?domain=core.mailerSettings`,
             method: 'GET'

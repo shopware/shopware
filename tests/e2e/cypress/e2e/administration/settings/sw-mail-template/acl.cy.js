@@ -10,7 +10,7 @@ describe('Mail templates: Test acl privileges', () => {
             });
     });
 
-    it('@settings: read email template', () => {
+    it('@settings: read email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -63,7 +63,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get('#sw-field--mailHeaderFooter-description').should('have.value', 'Default email footer derived from basic information');
     });
 
-    it('@settings: edit email template', () => {
+    it('@settings: edit email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -170,7 +170,7 @@ describe('Mail templates: Test acl privileges', () => {
             'Edited description');
     });
 
-    it('@settings: create email template', () => {
+    it('@settings: create email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -247,7 +247,7 @@ describe('Mail templates: Test acl privileges', () => {
         // TODO: verify fields will do when NEXT-7072 search function is fixed
     });
 
-    it('@settings: delete email template', () => {
+    it('@settings: delete email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -325,7 +325,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`).should('not.exist');
     });
 
-    it('@settings: duplicate email template', () => {
+    it('@settings: duplicate email template', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

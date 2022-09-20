@@ -21,7 +21,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
             });
     });
 
-    it('@content: use product description reviews element in another block', () => {
+    it('@content: use product description reviews element in another block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -94,7 +94,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.contains('.product-detail-description-text', 'Pudding wafer apple pie fruitcake cupcake');
     });
 
-    it('@content: use product description reviews block in landing page', () => {
+    it('@content: use product description reviews block in landing page', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

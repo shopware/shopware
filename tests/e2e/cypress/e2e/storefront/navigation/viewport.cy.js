@@ -11,7 +11,7 @@ describe('Index page on various viewports', () => {
             cy.viewport(1280, 720)
         });
 
-        it('displays full header', () => {
+        it('displays full header', { tags: ['ct-storefront'] }, () => {
             cy.get('.nav.main-navigation-menu').should('be.visible');
             cy.get('.nav-main-toggle').should('not.be.visible');
         });
@@ -24,7 +24,7 @@ describe('Index page on various viewports', () => {
             cy.viewport('iphone-6');
         });
 
-        it('@navigation: Displays mobile menu on click', () => {
+        it('@navigation: Displays mobile menu on click', { tags: ['ct-storefront'] }, () => {
             cy.get('.nav.main-navigation-menu').should('not.be.visible');
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
         });

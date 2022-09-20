@@ -55,7 +55,7 @@ describe('Test product filters get disabled if a combination is not possible', (
         });
     });
 
-    it('Should disable some filters if filtered by manufacturer', () => {
+    it('Should disable some filters if filtered by manufacturer', { tags: ['pa-inventory'] }, () => {
         cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
         cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
 
@@ -158,7 +158,7 @@ describe('Test product filters get disabled if a combination is not possible', (
         });
     });
 
-    it('Should disable some filters if filtered by size', () => {
+    it('Should disable some filters if filtered by size', { tags: ['pa-inventory'] }, () => {
         cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
         cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
 
@@ -271,7 +271,7 @@ describe('Test product filters get disabled if a combination is not possible', (
         });
     });
 
-    it('Should disable free shipping filter', () => {
+    it('Should disable free shipping filter', { tags: ['pa-inventory'] }, () => {
         cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
         cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
 
@@ -326,7 +326,7 @@ describe('Test product filters get disabled if a combination is not possible', (
             });
     });
 
-    it('Should filter by rating and disable not possible rating filter options', () => {
+    it('Should filter by rating and disable not possible rating filter options', { tags: ['pa-inventory'] }, () => {
         cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
         cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
 

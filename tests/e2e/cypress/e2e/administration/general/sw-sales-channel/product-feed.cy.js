@@ -19,7 +19,7 @@ describe('Sales Channel: Test product comparison', () => {
             });
     });
 
-    it('@general: create product comparison sales channel', { browser: '!firefox' }, () => {
+    it('@general: create product comparison sales channel', {  browser: '!firefox', tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 

@@ -31,7 +31,7 @@ describe('Category: SDK Test', ()=> {
                     .should('have.length', 3);
             });
     });
-    it('@sdk: add menu item', ()=> {
+    it('@sdk: add menu item', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
@@ -56,7 +56,7 @@ describe('Category: SDK Test', ()=> {
             .should('not.exist');
     });
 
-    it('@sdk: add menu item at third level', { browser: 'chrome' },()=> {
+    it('@sdk: add menu item at third level', { tags: ['ct-admin'], browser: 'chrome' }, ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 
@@ -86,7 +86,7 @@ describe('Category: SDK Test', ()=> {
          * the next one won't work in Cypress because the previous hover gets closed */
     });
 
-    it('@sdk: check menu position', ()=> {
+    it('@sdk: check menu position', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
 

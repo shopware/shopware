@@ -27,7 +27,7 @@ describe('Order: Read order', () => {
             });
     });
 
-    it('@package @order: read order', () => {
+    it('@package @order: read order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');

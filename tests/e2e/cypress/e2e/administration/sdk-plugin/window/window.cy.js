@@ -34,7 +34,7 @@ describe('SDK Tests: Window', ()=> {
             })
     });
 
-    it('@sdk: redirect to another URL', ()=> {
+    it('@sdk: redirect to another URL', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -60,7 +60,7 @@ describe('SDK Tests: Window', ()=> {
         cy.get('@Open').should('have.been.calledOnceWith', 'https://www.shopware.com')
     })
 
-    it('@sdk: reload page', ()=> {
+    it('@sdk: reload page', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -85,7 +85,7 @@ describe('SDK Tests: Window', ()=> {
         cy.window().should('not.have.prop', 'beforeReload', true)
     })
 
-    it('@sdk: push router', ()=> {
+    it('@sdk: push router', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')

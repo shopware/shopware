@@ -27,7 +27,7 @@ describe('Promotions: pre-conditions', () => {
         });
     });
 
-    it('@package: should create promotion, configure conditions and discounts', () => {
+    it('@package: should create promotion, configure conditions and discounts', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'

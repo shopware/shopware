@@ -14,7 +14,7 @@ describe('Sales Channel: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic sales channel workflow', () => {
+    it('@visual: check appearance of basic sales channel workflow', { tags: ['pa-sales-channels'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,

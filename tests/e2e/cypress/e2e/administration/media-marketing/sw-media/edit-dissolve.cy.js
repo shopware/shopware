@@ -15,7 +15,7 @@ describe('Media: Dissolve folder', () => {
             });
     });
 
-    it('@media: dissolve folder', () => {
+    it('@media: dissolve folder', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

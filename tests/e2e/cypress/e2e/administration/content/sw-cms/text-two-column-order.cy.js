@@ -14,7 +14,7 @@ describe('CMS: Check order of slots throughout layout edits', () => {
             });
     });
 
-    it('@base @content: create two column texts and test order', () => {
+    it('@base @content: create two column texts and test order', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

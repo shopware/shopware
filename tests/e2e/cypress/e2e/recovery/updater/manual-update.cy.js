@@ -7,7 +7,7 @@ describe('Manual update', () => {
      * - install.lock must exist
      * - update was unpacked
      */
-    it('@update: en-GB and EUR', () => {
+    it('@update: en-GB and EUR', { tags: ['pa-system-settings'] }, () => {
         // match applyMigrations where offset == total
         cy.intercept({
             url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update$/,

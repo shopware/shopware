@@ -1,7 +1,7 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account: Register via account menu', () => {
-    it('@login: Trigger validation error', () => {
+    it('@login: Trigger validation error', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
@@ -10,7 +10,7 @@ describe('Account: Register via account menu', () => {
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
     });
 
-    it('@base @login: Fill registration form and submit', () => {
+    it('@base @login: Fill registration form and submit', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
@@ -41,7 +41,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@base @login: Register commercial customer with different address', () => {
+    it('@base @login: Register commercial customer with different address', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -127,7 +127,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@base @login: Company field at different commercial address section should be required', () => {
+    it('@base @login: Company field at different commercial address section should be required', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -183,7 +183,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@base @login: Register commercial customer with different commercial address', () => {
+    it('@base @login: Register commercial customer with different commercial address', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -276,7 +276,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@base @login: Register non-commercial customer with different commercial address', () => {
+    it('@base @login: Register non-commercial customer with different commercial address', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -366,7 +366,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@login: Fill registration without state', () => {
+    it('@login: Fill registration without state', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
@@ -395,7 +395,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@login: Fill registration form as commercial user', () => {
+    it('@login: Fill registration form as commercial user', { tags: ['pa-customers-orders'] }, () => {
         // activate the showAccountTypeSelection
         cy.authenticate().then((result) => {
             const requestConfig = {
@@ -448,7 +448,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('@registration: Trigger validation error with account type selection', () => {
+    it('@registration: Trigger validation error with account type selection', { tags: ['pa-customers-orders'] }, () => {
         cy.window().then((win) => {
             cy.authenticate().then((result) => {
                 const requestConfig = {
@@ -497,7 +497,7 @@ describe('Account: Register via account menu', () => {
 
     });
 
-    it('@registration @package: Check non-default registration fields and allow customer deletion', () => {
+    it('@registration @package: Check non-default registration fields and allow customer deletion', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -572,7 +572,7 @@ describe('Account: Register via account menu', () => {
         cy.get('.alert-content').contains('account was deleted').should('be.visible');
     });
 
-    it('@registration @package: Trigger validation error with short password', () => {
+    it('@registration @package: Trigger validation error with short password', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

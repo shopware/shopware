@@ -14,7 +14,7 @@ describe('Documents: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of document module', () => {
+    it('@visual: check appearance of document module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document-base-config`,
             method: 'POST'

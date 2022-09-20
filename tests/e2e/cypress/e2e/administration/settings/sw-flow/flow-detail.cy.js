@@ -18,7 +18,7 @@ describe('Flow builder: flow detail page', () => {
             });
     });
 
-    it('@settings: show warning modal when unsaved changes on flow detail page', () => {
+    it('@settings: show warning modal when unsaved changes on flow detail page', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,

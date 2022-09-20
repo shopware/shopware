@@ -11,7 +11,7 @@ describe('Theme: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic theme workflow', () => {
+    it('@visual: check appearance of basic theme workflow', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH'

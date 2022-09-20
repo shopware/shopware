@@ -16,7 +16,7 @@ describe('Search - Storefront: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic storefront search workflow', () => {
+    it('@visual: check appearance of basic storefront search workflow', { tags: ['ct-storefront'] }, () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 

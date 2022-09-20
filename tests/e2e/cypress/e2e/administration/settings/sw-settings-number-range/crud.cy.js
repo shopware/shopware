@@ -10,7 +10,7 @@ describe('Number Range: Test crud number range', () => {
             });
     });
 
-    it('@settings: create and read number range', () => {
+    it('@settings: create and read number range', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/search/number-range',
             method: 'POST'
@@ -59,7 +59,7 @@ describe('Number Range: Test crud number range', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
-    it('@settings: update and read number range', () => {
+    it('@settings: update and read number range', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/number-range/*',
@@ -88,7 +88,7 @@ describe('Number Range: Test crud number range', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
-    it('@settings: delete number range', () => {
+    it('@settings: delete number range', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/number-range/*',

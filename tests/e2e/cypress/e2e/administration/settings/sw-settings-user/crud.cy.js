@@ -14,7 +14,7 @@ describe('User: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and delete user', () => {
+    it('@settings: create and delete user', { tags: ['pa-system-settings'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
@@ -130,7 +130,7 @@ describe('User: Test crud operations', () => {
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
-    it('@settings: update existing user', () => {
+    it('@settings: update existing user', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
@@ -179,7 +179,7 @@ describe('User: Test crud operations', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: can not create a user with an invalid field', () => {
+    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,

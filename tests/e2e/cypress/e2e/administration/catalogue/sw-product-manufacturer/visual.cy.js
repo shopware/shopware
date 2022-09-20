@@ -16,7 +16,7 @@ describe('Manufacturer: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic manufacturer workflow', () => {
+    it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later

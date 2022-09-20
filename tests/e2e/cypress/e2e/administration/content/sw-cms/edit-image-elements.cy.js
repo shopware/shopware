@@ -16,7 +16,7 @@ describe('CMS: Check usage and editing of image elements', () => {
             });
     });
 
-    it('@base @content: use simple image block', () => {
+    it('@base @content: use simple image block', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.intercept({
@@ -87,7 +87,7 @@ describe('CMS: Check usage and editing of image elements', () => {
             .and('match', /sw-login-background/);
     });
 
-    it('@content: use image slider block', () => {
+    it('@content: use image slider block', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.intercept({

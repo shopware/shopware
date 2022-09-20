@@ -12,7 +12,7 @@ describe('Integration: crud integrations', () => {
             });
     });
 
-    it('@settings: can create a new integration', () => {
+    it('@settings: can create a new integration', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
@@ -40,7 +40,7 @@ describe('Integration: crud integrations', () => {
         cy.contains('.sw-data-grid__cell-content a[href="#"]', 'chat-key');
     });
 
-    it('@settings: can create a new integration with double click', () => {
+    it('@settings: can create a new integration with double click', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
@@ -68,7 +68,7 @@ describe('Integration: crud integrations', () => {
         cy.contains('.sw-data-grid__cell-content a[href="#"]', 'chat-key');
     });
 
-    it('@settings: can edit a integration', () => {
+    it('@settings: can edit a integration', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
         // Request we want to wait for later
         cy.intercept({
@@ -114,7 +114,7 @@ describe('Integration: crud integrations', () => {
         cy.wait('@editIntegration').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: can delete a integration', () => {
+    it('@settings: can delete a integration', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
         // Request we want to wait for later
         cy.intercept({

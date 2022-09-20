@@ -10,7 +10,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
             });
     });
 
-    it('@general: open analytics tab', () => {
+    it('@general: open analytics tab', { tags: ['pa-sales-channels', 'jest'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -19,14 +19,14 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         cy.get('.sw-sales-channel-detail-analytics__headline-text').should('exist');
     });
 
-    it('@general: there\'s no analytics tab for non-storefront sales channels', () => {
+    it('@general: there\'s no analytics tab for non-storefront sales channels', { tags: ['pa-sales-channels', 'jest'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Headless', 0);
         cy.contains('.sw-tabs-item', 'Analytics').should('not.exist');
     });
 
-    it('@general: save analytics data', () => {
+    it('@general: save analytics data', { tags: ['pa-sales-channels'] }, () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later

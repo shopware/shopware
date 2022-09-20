@@ -18,7 +18,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@base @catalogue: edit a product\'s translation', () => {
+    it('@base @catalogue: edit a product\'s translation', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -49,7 +49,7 @@ describe('Product: Edit in various ways', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`, 'Sauerkraut');
     });
 
-    it('@catalogue: edit product via inline edit', () => {
+    it('@catalogue: edit product via inline edit', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
@@ -74,7 +74,7 @@ describe('Product: Edit in various ways', () => {
         cy.contains('.sw-data-grid__cell--name', 'That\'s not my name');
     });
 
-    it('@base @catalogue: edit a product\'s custom field translation', () => {
+    it('@base @catalogue: edit a product\'s custom field translation', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

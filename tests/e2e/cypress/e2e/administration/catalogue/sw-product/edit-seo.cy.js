@@ -33,7 +33,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@catalogue: set list price', () => {
+    it('@catalogue: set list price', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
@@ -84,7 +84,7 @@ describe('Product: Edit in various ways', () => {
     });
 
     // NEXT-20024
-    it('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', { tags: ['quarantined'] }, () => {
+    it('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', { tags: ['quarantined', 'pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 
@@ -175,7 +175,7 @@ describe('Product: Edit in various ways', () => {
             .should('be.visible');
     });
 
-    it('@catalogue: check Seo Url Category is not inheritance when variant\'s category inherited from parent', () => {
+    it('@catalogue: check Seo Url Category is not inheritance when variant\'s category inherited from parent', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 
@@ -291,7 +291,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });
 
-    it('@catalogue: check Seo Url Category is not inheritance when variant\'s category didn\'t inherit from parent', () => {
+    it('@catalogue: check Seo Url Category is not inheritance when variant\'s category didn\'t inherit from parent', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 

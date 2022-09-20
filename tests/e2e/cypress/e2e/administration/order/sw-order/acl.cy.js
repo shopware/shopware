@@ -25,7 +25,7 @@ describe('Order: Test ACL privileges', () => {
             });
     });
 
-    it('@acl: can read order', () => {
+    it('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -83,7 +83,7 @@ describe('Order: Test ACL privileges', () => {
         });
     });
 
-    it('@acl: can edit order', () => {
+    it('@acl: can edit order', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
             method: 'POST'
@@ -170,7 +170,7 @@ describe('Order: Test ACL privileges', () => {
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@acl: can delete order', () => {
+    it('@acl: can delete order', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/order/**`,
             method: 'delete'

@@ -17,7 +17,7 @@ describe('Creating custom fields and assigning to various models', () => {
             });
     });
 
-    it('@package: create custom text field and verify from categories, product', () => {
+    it('@package: create custom text field and verify from categories, product', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST'

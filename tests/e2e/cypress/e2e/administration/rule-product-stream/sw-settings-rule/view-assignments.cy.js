@@ -75,7 +75,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
             });
     });
 
-    it('@rule: add, verify and delete payment method rule assignment', () => {
+    it('@rule: add, verify and delete payment method rule assignment', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Switch to assignments tab
@@ -99,7 +99,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-rule-detail-assignments__card-payment_method .sw-settings-rule-detail-assignments__add-button').should('be.enabled');
     });
 
-    it('@rule: verify, delete and add promotion rule assignments', () => {
+    it('@rule: verify, delete and add promotion rule assignments', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         // Switch to assignments tab
@@ -166,7 +166,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .sw-settings-rule-detail-assignments__add-button').should('be.disabled');
     });
 
-    it('@rule @package: assign rule to shipping method and verify assignment', () => {
+    it('@rule @package: assign rule to shipping method and verify assignment', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.intercept({
@@ -221,7 +221,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get(`.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule ${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Testing Method');
     });
 
-    it('@rule @package: assign shipping method to rule via assignment tab, verify assignment and delete assignment', () => {
+    it('@rule @package: assign shipping method to rule via assignment tab, verify assignment and delete assignment', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
 
         cy.intercept({

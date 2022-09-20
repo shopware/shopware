@@ -14,7 +14,7 @@ describe('SEO: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of seo module', () => {
+    it('@visual: check appearance of seo module', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/seo-url-template`,
             method: 'POST'

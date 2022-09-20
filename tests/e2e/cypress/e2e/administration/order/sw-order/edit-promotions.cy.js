@@ -40,7 +40,7 @@ describe('Order: Test promotions in existing orders', () => {
             });
     });
 
-    it('@base @order: add promotion to existing order', () => {
+    it('@base @order: add promotion to existing order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {
@@ -110,7 +110,7 @@ describe('Order: Test promotions in existing orders', () => {
             .scrollIntoView();
     });
 
-    it('@base @order: add automatic promotion to existing order', { tags: ['quarantined'] }, () => {
+    it('@base @order: add automatic promotion to existing order', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {

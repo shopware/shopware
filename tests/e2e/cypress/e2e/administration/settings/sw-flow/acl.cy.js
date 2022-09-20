@@ -10,7 +10,7 @@ describe('Flow builder: Test acl privilege', () => {
         });
     });
 
-    it('@settings: can view flow builder', () => {
+    it('@settings: can view flow builder', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -35,7 +35,7 @@ describe('Flow builder: Test acl privilege', () => {
             .click();
     });
 
-    it('@settings: can edit flow builder', () => {
+    it('@settings: can edit flow builder', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -114,7 +114,7 @@ describe('Flow builder: Test acl privilege', () => {
             .contains('Order placed v2');
     });
 
-    it('@settings: can create flow builder', () => {
+    it('@settings: can create flow builder', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -170,7 +170,7 @@ describe('Flow builder: Test acl privilege', () => {
             .contains('Order placed v1');
     });
 
-    it('@settings: can delete flow', () => {
+    it('@settings: can delete flow', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

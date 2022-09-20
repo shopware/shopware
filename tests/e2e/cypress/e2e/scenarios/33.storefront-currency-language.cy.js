@@ -11,7 +11,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         });
     });
 
-    it('@package: create sales channel', () => {
+    it('@package: create sales channel', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel-domain`,
             method: 'POST'

@@ -22,7 +22,7 @@ describe('Profile module', () => {
             });
     });
 
-    it('@base @general: profile change email', () => {
+    it('@base @general: profile change email',  { tags: ['pa-system-settings'] }, () => {
         cy.get('#sw-field--email').should('be.visible');
         cy.get('#sw-field--email').scrollIntoView();
         cy.get('#sw-field--email').realHover();
@@ -59,7 +59,7 @@ describe('Profile module', () => {
             });
     });
 
-    it('@general: profile raise a notification for invalid authentication', () => {
+    it('@general: profile raise a notification for invalid authentication',  { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-profile__save-action')
             .should('be.visible')
             .click();
@@ -87,7 +87,7 @@ describe('Profile module', () => {
             });
     });
 
-    it('@base @general: profile change avatar', () => {
+    it('@base @general: profile change avatar',  { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
             .eq(1)
             .click()

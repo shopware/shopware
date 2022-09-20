@@ -12,7 +12,7 @@ describe('Salutation: crud salutations', () => {
             });
     });
 
-    it('@settings: can create a new salutation', () => {
+    it('@settings: can create a new salutation', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
         // Request we want to wait for later
         cy.intercept({
@@ -55,7 +55,7 @@ describe('Salutation: crud salutations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Ms').should('be.visible');
     });
 
-    it('@settings: can edit a salutation', () => {
+    it('@settings: can edit a salutation', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Salutation: crud salutations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
-    it('@settings: can delete a salutation', () => {
+    it('@settings: can delete a salutation', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
         // Prepare api to delete salutation
         cy.intercept({

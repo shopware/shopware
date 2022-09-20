@@ -52,7 +52,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: should edit variants in modal', () => {
+    it('@catalogue: should edit variants in modal', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             method: 'PATCH',
             url: `${Cypress.env('apiPath')}/product/*`
@@ -82,7 +82,7 @@ describe('Product: Test variants', () => {
             .click();
     });
 
-    it('@catalogue @base: delete variants in modal', { tags: ['quarantined'] }, () => {
+    it('@catalogue @base: delete variants in modal', { tags: ['quarantined', 'pa-inventory'] }, () => {
         cy.intercept({
             method: 'POST',
             url: 'api/_action/sync'

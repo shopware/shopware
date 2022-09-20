@@ -19,7 +19,7 @@ describe('Checkout as Guest', () => {
         });
     });
 
-    it('@base @checkout: Edit VAT id when confirm order', () => {
+    it('@base @checkout: Edit VAT id when confirm order', { tags: ['pa-checkout'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

@@ -6,7 +6,7 @@ describe('Account - Register: Visual tests', () => {
         cy.createCustomerFixture();
     });
 
-    it('@visual: check appearance of basic registration workflow', () => {
+    it('@visual: check appearance of basic registration workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');

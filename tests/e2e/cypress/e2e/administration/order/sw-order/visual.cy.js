@@ -30,7 +30,7 @@ describe('Order: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic order workflow', () => {
+    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.intercept({
@@ -101,7 +101,7 @@ describe('Order: Visual tests', () => {
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of order creation workflow', () => {
+    it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'POST'

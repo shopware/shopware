@@ -58,7 +58,7 @@ describe('Flow builder: set entity custom field testing', () => {
             });
     });
 
-    it('@settings: set entity custom field flow', () => {
+    it('@settings: set entity custom field flow', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-flow-list').should('be.visible');
         cy.get('.sw-flow-list__create').click();
 
@@ -102,7 +102,7 @@ describe('Flow builder: set entity custom field testing', () => {
     });
 
     // NEXT-19144: Fix dependency on previous test case
-    it('@settings: set entity custom field test field option', { tags: ['quarantined'] }, () => {
+    it('@settings: set entity custom field test field option', { tags: ['quarantined', 'pa-business-ops'] }, () => {
         cy.get('.sw-flow-sequence-action__actions').should('be.visible');
         cy.get('.sw-flow-sequence-action__add-button').click();
 
@@ -148,7 +148,7 @@ describe('Flow builder: set entity custom field testing', () => {
     });
 
     // NEXT-19144: Fix dependency on previous test case
-    it('@settings: test fields are invalid', { tags: ['quarantined'] }, () => {
+    it('@settings: test fields are invalid', { tags: ['quarantined', 'pa-business-ops'] }, () => {
         cy.get('.sw-flow-sequence-action__actions').should('be.visible');
         cy.get('.sw-flow-sequence-action__add-button').click();
 

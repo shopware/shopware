@@ -15,7 +15,7 @@ describe('Flow builder: Visual testing', () => {
             });
     });
 
-    it('@visual: @check appearance of flow builder workflow', () => {
+    it('@visual: @check appearance of flow builder workflow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
             method: 'POST'

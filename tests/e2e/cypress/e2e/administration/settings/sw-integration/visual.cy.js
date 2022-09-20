@@ -14,7 +14,7 @@ describe('Integration: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of integrations module', () => {
+    it('@visual: check appearance of integrations module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/integration`,
             method: 'POST'

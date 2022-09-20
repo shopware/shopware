@@ -36,7 +36,7 @@ describe('Landing pages: Test ACL privileges', () => {
             });
     });
 
-    it('@catalogue: can duplicate landing pages', () => {
+    it('@catalogue: can duplicate landing pages', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -90,7 +90,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.contains(`${page.elements.categoryTreeItem}:nth-child(2)`, 'Testingpage Copy');
     });
 
-    it('@catalogue: can create landing pages', () => {
+    it('@catalogue: can create landing pages', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -147,7 +147,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).first().contains('MyLandingPage');
     });
 
-    it('@catalogue: can view landing pages', () => {
+    it('@catalogue: can view landing pages', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -184,7 +184,7 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get('#landingPageName').should('have.value', 'Testingpage');
     });
 
-    it('@catalogue: can edit landing pages', () => {
+    it('@catalogue: can edit landing pages', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -241,7 +241,7 @@ describe('Landing pages: Test ACL privileges', () => {
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can delete landing pages', () => {
+    it('@catalogue: can delete landing pages', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',

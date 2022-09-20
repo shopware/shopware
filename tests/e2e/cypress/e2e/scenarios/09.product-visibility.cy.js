@@ -14,7 +14,7 @@ describe('Admin & Storefront - product visibility', () => {
         });
     });
 
-    it('@package: should handle a visible product', ()=>{
+    it('@package: should handle a visible product', { tags: ['pa-inventory'] }, ()=>{
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,

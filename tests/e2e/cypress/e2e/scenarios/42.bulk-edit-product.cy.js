@@ -26,7 +26,7 @@ describe('Bulk Edit - Products', () => {
         });
     });
 
-    it('@package: should modify products with bulk edit functionality', () => {
+    it('@package: should modify products with bulk edit functionality', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
             method: 'POST'

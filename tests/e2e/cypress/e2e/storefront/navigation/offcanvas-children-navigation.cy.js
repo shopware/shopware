@@ -61,7 +61,7 @@ describe('Offcanvas navigation with regards to children visibility', () => {
             cy.viewport('iphone-6');
         });
 
-        it('@navigation: Check menu entries for visible children', () => {
+        it('@navigation: Check menu entries for visible children', { tags: ['pa-sales-channels'] }, () => {
             cy.intercept({
                 url: '/widgets/menu/offcanvas*',
                 method: 'GET'

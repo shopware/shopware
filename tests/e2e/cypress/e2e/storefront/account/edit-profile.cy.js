@@ -5,7 +5,7 @@ describe('Account: Edit profile', () => {
         return cy.createCustomerFixtureStorefront();
     });
 
-    it('@base @customer @package: Update profile', () => {
+    it('@base @customer @package: Update profile', { tags: ['pa-customers-orders'] }, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

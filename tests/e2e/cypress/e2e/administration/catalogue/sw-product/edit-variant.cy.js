@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@base @catalogue: variants display corresponding name based on specific language', () => {
+    it('@base @catalogue: variants display corresponding name based on specific language', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.intercept({
@@ -101,7 +101,7 @@ describe('Product: Test variants', () => {
         cy.contains('.sw-data-grid__body', 'Green');
     });
 
-    it('@base @catalogue: add multidimensional variant to product', () => {
+    it('@base @catalogue: add multidimensional variant to product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -149,7 +149,7 @@ describe('Product: Test variants', () => {
     });
 
     // TODO: Unskip with NEXT-15469, the restriction must be configured while creating the variants and not afterwards
-    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['quarantined'] }, () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['quarantined', 'pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -206,7 +206,7 @@ describe('Product: Test variants', () => {
     });
 
     // TODO: unskip the test with NEXT-19240 - was skipped because it is extremely flaky
-    it('@base @catalogue: test surcharges / discounts in variant', { tags: ['quarantined'] }, () => {
+    it('@base @catalogue: test surcharges / discounts in variant', { tags: ['quarantined', 'pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         cy.intercept({

@@ -17,7 +17,7 @@ describe('Product: Edit manufacturer', () => {
             });
     });
 
-    it('@catalogue: should create new manufacturer by using select field', () => {
+    it('@catalogue: should create new manufacturer by using select field', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

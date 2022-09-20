@@ -51,7 +51,7 @@ describe('Tag: Test bulk merge', () => {
             });
     });
 
-    it('@settings: tag bulk merge', () => {
+    it('@settings: tag bulk merge', { tags: ['pa-business-ops'] }, () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

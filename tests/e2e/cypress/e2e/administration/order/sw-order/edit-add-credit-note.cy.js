@@ -28,7 +28,7 @@ describe('Order: Create credit note', () => {
     });
 
     // NEXT-21363
-    it('@base @order: create credit note', { tags: ['quarantined'] }, () => {
+    it('@base @order: create credit note', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.featureIsActive('v6.5.0.0').then(isActive => {

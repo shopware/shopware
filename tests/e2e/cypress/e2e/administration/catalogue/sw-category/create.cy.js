@@ -13,7 +13,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it('@catalogue: create a category after root category', () => {
+    it('@catalogue: create a category after root category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -43,7 +43,7 @@ describe('Category: Create several categories', () => {
         });
     });
 
-    it('@catalogue: create a category before root category', () => {
+    it('@catalogue: create a category before root category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -73,7 +73,7 @@ describe('Category: Create several categories', () => {
         cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(1)`, 'Categorian');
     });
 
-    it('@catalogue: delete additional element after create category', () => {
+    it('@catalogue: delete additional element after create category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -107,7 +107,7 @@ describe('Category: Create several categories', () => {
         });
     });
 
-    it('@base @catalogue @package: create a subcategory', () => {
+    it('@base @catalogue @package: create a subcategory', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -164,7 +164,7 @@ describe('Category: Create several categories', () => {
         cy.get('.main-navigation-link.active').should('be.visible');
     });
 
-    it('@catalogue: create a category with layout default', () => {
+    it('@catalogue: create a category with layout default', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later

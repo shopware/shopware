@@ -5,7 +5,7 @@ import CheckoutPageObject from '../../support/pages/checkout.page-object';
 const page = new ProductPageObject();
 const checkoutPage = new CheckoutPageObject();
 
-describe('Add an advance pricing rule and make an order', () => {
+describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory'] }, () => {
     beforeEach(() => {
         cy.loginViaApi().then(() => {
             cy.createProductFixture({

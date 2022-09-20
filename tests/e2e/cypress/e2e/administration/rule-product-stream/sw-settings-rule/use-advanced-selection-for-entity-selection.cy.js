@@ -31,7 +31,7 @@ describe('Rule builder: Use advanced selection for entity selection', () => {
             });
     });
 
-    it('@rule: Use advanced selection for product selection inside item condition', () => {
+    it('@rule: Use advanced selection for product selection inside item condition', { tags: ['pa-business-ops'] }, () => {
         const page = new RulePageObject();
         cy.contains('.sw-data-grid__cell-value', 'Ruler').click();
 

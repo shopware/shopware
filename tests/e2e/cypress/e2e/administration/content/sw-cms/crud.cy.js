@@ -14,7 +14,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@base @content @package: create and read layout', () => {
+    it('@base @content @package: create and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'POST'
@@ -60,7 +60,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.contains('.sw-cms-list-item--0', 'Laidout - Copy').should('be.visible');
     });
 
-    it('@base @content @package: update and read layout', () => {
+    it('@base @content @package: update and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -113,7 +113,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.contains('.cms-block h2', 'Lorem Ipsum dolor sit amet');
     });
 
-    it('@base @content @package: delete layout', () => {
+    it('@base @content @package: delete layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'delete'

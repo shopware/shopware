@@ -38,7 +38,7 @@ describe('Customer:  Visual test', () => {
             });
     });
 
-    it('@visual: check appearance of basic customer workflow', () => {
+    it('@visual: check appearance of basic customer workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
         cy.intercept({
@@ -108,7 +108,7 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('[Customer] Detail', '.sw-customer-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of customer address workflow', () => {
+    it('@visual: check appearance of customer address workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Open customer
@@ -139,7 +139,7 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of customer edit workflow', () => {
+    it('@visual: check appearance of customer edit workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new CustomerPageObject();
 
         // Open customer

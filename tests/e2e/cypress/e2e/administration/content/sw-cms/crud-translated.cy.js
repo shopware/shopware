@@ -19,7 +19,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@base @content: create, translate and read layout', () => {
+    it('@base @content: create, translate and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'POST'
@@ -117,7 +117,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Deutscher Titel');
     });
 
-    it('@base @content: update translation and read layout', () => {
+    it('@base @content: update translation and read layout', { tags: ['pa-content-management'] }, () => {
         const page = new MediaPageObject();
 
         cy.intercept({

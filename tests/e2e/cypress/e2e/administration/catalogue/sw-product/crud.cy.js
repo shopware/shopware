@@ -15,7 +15,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue: create and read product', () => {
+    it('@base @catalogue: create and read product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Test crud operations', () => {
         cy.contains('.product-detail-price', '10.00');
     });
 
-    it('@base @catalogue: update and read product', () => {
+    it('@base @catalogue: update and read product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -117,7 +117,7 @@ describe('Product: Test crud operations', () => {
             'What remains of Edith Finch');
     });
 
-    it('@base @catalogue: delete product', () => {
+    it('@base @catalogue: delete product', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -142,7 +142,7 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.emptyState).should('be.visible');
     });
 
-    it('@base @catalogue: should be visible advanced mode setting', () => {
+    it('@base @catalogue: should be visible advanced mode setting', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -153,7 +153,7 @@ describe('Product: Test crud operations', () => {
         cy.get('.sw-product-settings-mode').should('be.visible');
     });
 
-    it('@base @catalogue: Text field could be updated to null', () => {
+    it('@base @catalogue: Text field could be updated to null', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -202,7 +202,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue: Test floating point precision', () => {
+    it('@base @catalogue: Test floating point precision', { tags: ['pa-inventory'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,

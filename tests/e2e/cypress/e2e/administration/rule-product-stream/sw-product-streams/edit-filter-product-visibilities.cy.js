@@ -29,7 +29,7 @@ describe('Dynamic product group: Test product visibilities filter', () => {
             });
     });
 
-    it('@catalogue: can see and add product visibilities', () => {
+    it('@catalogue: can see and add product visibilities', { tags: ['pa-business-ops'] }, () => {
         const page = new ProductStreamObject();
 
         const search = 'Storefront: Product name';

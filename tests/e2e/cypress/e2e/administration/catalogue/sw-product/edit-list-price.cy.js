@@ -15,7 +15,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@base @catalogue: set list price', () => {
+    it('@base @catalogue: set list price', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -6,7 +6,7 @@ const page = new ProductPageObject();
 const checkoutPage = new CheckoutPageObject();
 const promoCode = 'Flash sale';
 
-describe('Promotions: Discount for a specific range of products', () => {
+describe('Promotions: Discount for a specific range of products', { tags: ['pa-checkout'] }, () => {
     beforeEach(() => {
        cy.loginViaApi()
             .then(() => {

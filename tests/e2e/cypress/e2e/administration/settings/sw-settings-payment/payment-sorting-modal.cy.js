@@ -11,7 +11,7 @@ describe('Payment: Visual testing', () => {
             });
     });
 
-    it('@base @settings: should sort payment methods accordingly', () => {
+    it('@base @settings: should sort payment methods accordingly', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
             method: 'POST'
@@ -70,7 +70,7 @@ describe('Payment: Visual testing', () => {
         cy.get(lastItem).contains('Cash on delivery');
     });
 
-    it('@base: settings: should default to original order on cancel', () => {
+    it('@base: settings: should default to original order on cancel', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
             method: 'POST'

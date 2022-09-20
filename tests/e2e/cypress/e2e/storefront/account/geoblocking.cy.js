@@ -22,7 +22,7 @@ describe('Account: indicate non shippable country on register page', () => {
         });
     })
 
-    it('@registration: Register with non shippable countries', () => {
+    it('@registration: Register with non shippable countries', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -73,7 +73,7 @@ describe('Account: indicate non shippable country on register page', () => {
         });
     });
 
-    it('User is not able to set new shipping address with a non-shippable country', () => {
+    it('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/country/country-state-data'

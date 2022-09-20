@@ -5,7 +5,7 @@ describe('Account: Visual tests', () => {
         cy.createCustomerFixture();
     });
 
-    it('@visual: check appearance of basic account address workflow', () => {
+    it('@visual: check appearance of basic account address workflow', { tags: ['pa-customers-orders'] }, () => {
         cy.visit('/account/login');
 
         // Login

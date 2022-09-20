@@ -22,7 +22,7 @@ describe('Account: Paginated orders', () => {
         })
     });
 
-    it('@customer: orders pagination', () => {
+    it('@customer: orders pagination', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: '/account/order',
             method: 'POST'

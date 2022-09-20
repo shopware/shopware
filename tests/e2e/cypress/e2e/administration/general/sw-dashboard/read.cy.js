@@ -40,7 +40,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
             });
     });
 
-    it('@base @general: read dashboard', () => {
+    it('@base @general: read dashboard', { tags: ['pa-merchant-services'] }, () => {
         // Check today stats
         cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
 

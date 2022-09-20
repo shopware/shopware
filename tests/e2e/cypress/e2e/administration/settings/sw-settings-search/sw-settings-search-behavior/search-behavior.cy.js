@@ -10,7 +10,7 @@ describe('Product Search: Test crud operations', () => {
             });
     });
 
-    it('@settings: create search configuration for search behaviour', () => {
+    it('@settings: create search configuration for search behaviour', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
 
         cy.intercept({
@@ -33,7 +33,7 @@ describe('Product Search: Test crud operations', () => {
         cy.awaitAndCheckNotification('Configuration saved.');
     });
 
-    it('@settings: create search configuration for search behaviour bases on another language', () => {
+    it('@settings: create search configuration for search behaviour bases on another language', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
 
         cy.intercept({

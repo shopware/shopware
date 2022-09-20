@@ -86,7 +86,6 @@ type NavigationMenuEntry = {
 }
 
 /**
- * @internal
  * @private
  */
 export default class CustomEntityDefinitionService {
@@ -116,7 +115,7 @@ export default class CustomEntityDefinitionService {
         const customEntityDefinitionsWithAdminUi: { name: string, adminUi: AdminUiDefinition }[] = [];
 
         this.#state.customEntityDefinitions.forEach(entityDefinition => {
-            const adminUi = entityDefinition.flags['admin-ui'];
+            const adminUi = entityDefinition.flags?.['admin-ui'];
 
             if (!adminUi) {
                 return;

@@ -27,6 +27,7 @@
       "general": "General",
       "cms": "Layout",
       "products": "Products",
+      "customEntity": "Custom Entities",
       "seo": "SEO",
       "columnInfoHeader": "Footer element",
       "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a headline for the column. All categories on the first level below this category are displayed as rows below the column headline."
@@ -43,6 +44,7 @@
           "title": "Category type",
           "page": "Page / List",
           "folder": "Structuring element / Entry point",
+          "customEntity": "Custom Entity",
           "link": "Link",
           "linkUnavailable": "Link (not selectable if category is defined as entry point)",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
@@ -101,7 +103,21 @@
         "imageLabel": "Display image",
         "descriptionLabel": "Description",
                 "descriptionPlaceholder": "Enter description..."
-
+      },
+      "customEntity": {
+        "cardTitle": "Assigned articles",
+        "assignment": {
+          "label": "Entry type",
+          "helpText": "Select the post type to be displayed in this category."
+        },
+        "instanceAssignment": {
+          "title": "Title",
+          "label": "Entries",
+          "placeholder": "Search and assign entries...",
+          "emptyState": {
+            "title": "No entries assigned"
+          }
+        }
       },
       "cms": {
         "title": "Layout assignment",

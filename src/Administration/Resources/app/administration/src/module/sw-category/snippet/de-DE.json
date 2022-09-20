@@ -27,6 +27,7 @@
       "general": "Allgemein",
       "cms": "Layout",
       "products": "Produkte",
+      "customEntity": "Custom Entities",
       "seo": "SEO",
       "columnInfoHeader": "Fußzeilen-Element",
       "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
@@ -43,6 +44,7 @@
           "title": "Kategorietyp",
           "page": "Seite / Liste",
           "folder": "Strukturelement / Einstiegspunkt",
+          "customEntity": "Custom Entity",
           "link": "Link",
           "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
@@ -101,6 +103,21 @@
         "imageLabel": "Anzeigebild",
         "descriptionLabel": "Beschreibung",
         "descriptionPlaceholder": "Gib eine Beschreibung ein ..."
+      },
+      "customEntity": {
+        "cardTitle": "Eintragszuweisung",
+        "assignment": {
+          "label": "Eintragstyp",
+          "helpText": "Hier muss der Eintragstyp ausgewählt werden."
+        },
+        "instanceAssignment": {
+          "title": "Titel",
+          "label": "Einträge",
+          "placeholder": "Einträge auswählen ...",
+          "emptyState": {
+            "title": "Keine Einträge ausgewählt"
+          }
+        }
       },
       "cms": {
         "title": "Layout-Zuweisung",

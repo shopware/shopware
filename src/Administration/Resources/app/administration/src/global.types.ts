@@ -213,6 +213,7 @@ declare global {
             languageId: string,
             currentLocale: string|null,
         },
+        swCategoryDetail: $TSFixMe,
         menuItem: MenuItemState,
         extensionSdkModules: ExtensionSdkModuleState,
         extensionMainModules: MainModuleState,

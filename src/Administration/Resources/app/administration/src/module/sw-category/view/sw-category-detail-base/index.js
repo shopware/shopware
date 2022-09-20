@@ -53,6 +53,10 @@ export default {
                     label: this.$tc('sw-category.base.general.types.folder'),
                 },
                 {
+                    value: 'custom_entity',
+                    label: this.$tc('sw-category.base.general.types.customEntity'),
+                },
+                {
                     value: 'link',
                     label: this.typeLinkLabel,
                     disabled: this.isSalesChannelEntryPoint,

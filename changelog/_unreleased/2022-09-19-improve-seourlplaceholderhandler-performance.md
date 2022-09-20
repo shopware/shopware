@@ -6,5 +6,4 @@ author_email: rk@vi-arise.com
 author_github: RafaelKr
 ---
 # Core
-* Use the generally faster substr instead of str_replace 
-___
+* Changed `Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler::createDefaultMapping()` to use `substr()` instead of `str_replace()`

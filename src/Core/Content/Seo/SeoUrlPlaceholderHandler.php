@@ -71,10 +71,11 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     private function createDefaultMapping(array $matches): array
     {
         $mapping = [];
+        $placeholder = \strlen(self::DOMAIN_PLACEHOLDER);
         foreach ($matches as $match) {
             // remove self::DOMAIN_PLACEHOLDER from start
             // remove # from end
-            $mapping[$match] = substr($match, 32, -1);
+            $mapping[$match] = substr($match, $placeholder, -1);
         }
 
         return $mapping;

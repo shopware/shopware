@@ -9,13 +9,14 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @package core
  *
  * To allow custom server parameters,
  */
-class TwigAppVariable extends AppVariable
+class TwigAppVariable extends AppVariable implements ResetInterface
 {
     private ?Request $request = null;
 
@@ -25,6 +26,8 @@ class TwigAppVariable extends AppVariable
      * @var list<string>
      */
     private array $allowList;
+
+    private array $flashes = [];
 
     /**
      * @internal
@@ -116,6 +119,36 @@ class TwigAppVariable extends AppVariable
      */
     public function getFlashes(string|array|null $types = null): array
     {
-        return $this->appVariable->getFlashes($types);
+        if (\is_string($types)) {
+            $flashes = $this->appVariable->getFlashes($types);
+            $result = $flashes;
+
+            if (isset($this->flashes[$types])) {
+                $result = [...$result, ...$this->flashes[$types]];
+            }
+
+            $this->flashes[$types] = [...$flashes, ...($this->flashes[$types] ?? [])];
+        } else {
+            $flashes = $this->appVariable->getFlashes($types);
+            $result = $flashes;
+
+            foreach ($this->flashes as $key => $values) {
+                if ($types === null || \in_array($key, $types)) {
+                    $result[$key] = [...$values, ...$result[$key] ?? []];
+                }
+            }
+
+            foreach ($flashes as $key => $values) {
+                $this->flashes[$key] = [...$values, ...($this->flashes[$key] ?? [])];
+            }
+        }
+
+        return $result;
+    }
+
+    public function reset(): void
+    {
+        $this->request = null;
+        $this->flashes = [];
     }
 }

@@ -56,7 +56,7 @@ class InternalClassRule implements Rule
             /**
              * @deprecated tag:v6.5.0 - remove deprecation check, as all listener should become internal in v6.5.0
              */
-            if (\str_contains($classDeprecation, 'reason:becomes-internal')) {
+            if (\str_contains($classDeprecation, 'reason:becomes-internal') || \str_contains($classDeprecation, 'reason:remove-subscriber')) {
                 return [];
             }
 

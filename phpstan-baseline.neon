@@ -28194,35 +28194,18 @@ parameters:
 			count: 1
 			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\CachedLanguageLoader\\:\\:loadLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/CachedLanguageLoader.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\Exception\\\\LanguageForeignKeyDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageLoader\\:\\:loadLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/LanguageLoader.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageLoaderInterface\\:\\:loadLanguages\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/LanguageLoaderInterface.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageValidator\\:\\:buildViolation\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/LanguageValidator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Language/LanguageValidator.php
+
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\SalesChannel\\\\CachedLanguageRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
@@ -28239,25 +28222,7 @@ parameters:
 			count: 1
 			path: src/Core/System/Language/SalesChannel/CachedLanguageRoute.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\TranslationValidator\\:\\:buildViolation\\(\\) has parameter \\$invalidValue with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/TranslationValidator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\TranslationValidator\\:\\:buildViolation\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/TranslationValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\TranslationValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Language/TranslationValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\TranslationValidator\\:\\:getDeletedSystemTranslationViolations\\(\\) has parameter \\$writeCommands with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Language/TranslationValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\Aggregate\\\\LocaleTranslation\\\\LocaleTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -28844,90 +28809,7 @@ parameters:
 			count: 1
 			path: src/Core/System/SalesChannel/StoreApiResponse.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:extractMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:fetchCurrentLanguageStates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:getDuplicates\\(\\) has parameter \\$channel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:getDuplicates\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:handleSalesChannelLanguageMapping\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:handleSalesChannelMapping\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:mergeCurrentStatesWithMapping\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:mergeCurrentStatesWithMapping\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:mergeCurrentStatesWithMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:validDeleteCase\\(\\) has parameter \\$channel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:validInsertCase\\(\\) has parameter \\$channel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:validUpdateCase\\(\\) has parameter \\$channel with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:validateLanguages\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:writeDeleteViolationExceptions\\(\\) has parameter \\$deletions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:writeDuplicateViolationExceptions\\(\\) has parameter \\$duplicates with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:writeInsertViolationExceptions\\(\\) has parameter \\$inserts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Validation\\\\SalesChannelValidator\\:\\:writeUpdateViolationExceptions\\(\\) has parameter \\$updates with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Validation/SalesChannelValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Salutation\\\\SalesChannel\\\\CachedSalutationRoute\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"
@@ -29394,15 +29276,7 @@ parameters:
 			count: 1
 			path: src/Core/System/Snippet/SnippetValidatorInterface.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriber\\:\\:setInsertSnippets\\(\\) has parameter \\$snippetSets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriber\\:\\:setInsertSnippets\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineHistory\\\\StateMachineHistoryEntity\\:\\:getEntityId\\(\\) return type has no value type specified in iterable type array\\.$#"

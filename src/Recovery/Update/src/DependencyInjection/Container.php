@@ -156,7 +156,7 @@ class Container extends BaseContainer
 
         $container['system.locker'] = function () {
             return new SystemLocker(
-                SW_PATH . \DIRECTORY_SEPARATOR . 'recovery' . \DIRECTORY_SEPARATOR . 'install' . \DIRECTORY_SEPARATOR . 'data' . \DIRECTORY_SEPARATOR . 'install.lock'
+                SW_PATH . '/install.lock'
             );
         };
 

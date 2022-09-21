@@ -4,11 +4,14 @@ import 'src/module/sw-order/component/sw-order-document-settings-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-group';
 import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-select-field';
+import 'src/app/component/form/field-base/sw-block-field';
 
 const orderFixture = {
     id: 'order1',
     documents: [
         {
+            id: '1',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -21,6 +24,23 @@ const orderFixture = {
                 documentNumber: 1000,
                 custom: {
                     invoiceNumber: 1000,
+                }
+            }
+        },
+        {
+            id: '2',
+            orderId: 'order1',
+            sent: true,
+            documentMediaFileId: null,
+            documentType: {
+                id: '1',
+                name: 'Invoice',
+                technicalName: 'invoice',
+            },
+            config: {
+                documentNumber: 1001,
+                custom: {
+                    invoiceNumber: 1001,
                 }
             }
         },
@@ -41,6 +61,7 @@ const orderFixture = {
             }
         },
         {
+            id: '3',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -90,20 +111,27 @@ function createWrapper() {
             'sw-upload-listener': true,
             'sw-textarea-field': true,
             'sw-icon': true,
-            'sw-select-field': {
-                model: {
-                    prop: 'value',
-                    event: 'change'
-                },
-                template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options']
-            },
+            'sw-select-field': Shopware.Component.build('sw-select-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field-error': true,
+            'sw-loader': true,
         },
         provide: {
             numberRangeService: {
                 reserve: () => Promise.resolve({})
             },
             mediaService: {},
+
+            repositoryFactory: {
+                create: () => ({
+                    get: () => Promise.resolve({
+                        id: '1',
+                        deepLinkCode: 'b829671a-20a3-4f81-be1d-b5df2c6dcd12',
+                        lineItems: []
+                    }),
+                })
+            }
         },
         propsData: {
             order: orderFixture,
@@ -125,17 +153,17 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show only invoice numbers in invoice number select field', () => {
+    it('should show only invoice numbers in invoice number select field', async () => {
         const wrapper = createWrapper();
+
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
+        await invoiceSelect.trigger('click');
 
         const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
             .findAll('option');
 
-        const invoiceNumbers = ['1000', '1001'];
-
-        invoiceOptions.wrappers.forEach((option, index) => {
-            expect(option.attributes().value).toEqual(invoiceNumbers[index]);
-        });
+        expect(invoiceOptions.at(1).text()).toEqual('1000');
+        expect(invoiceOptions.at(2).text()).toEqual('1001');
     });
 
     it('should disable create button if there is no selected invoice', () => {
@@ -151,15 +179,41 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
     it('should enable create button if there is at least one selected invoice', async () => {
         const wrapper = createWrapper();
 
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
+        await invoiceSelect.trigger('click');
+
         const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
             .findAll('option');
 
-        await invoiceOptions.at(0).setSelected();
+        await invoiceOptions.at(1).setSelected();
+        await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
         expect(createButton.attributes().disabled).toBeUndefined();
 
         const createContextMenu = wrapper.find('.sw-context-button');
         expect(createContextMenu.attributes().disabled).toBeUndefined();
+    });
+
+    it('should set deepLinkCode by version context if the selected invoice', async () => {
+        const wrapper = createWrapper();
+
+        const invoiceSelect = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select');
+        await invoiceSelect.trigger('click');
+
+        const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select')
+            .findAll('option');
+
+        await invoiceOptions.at(3).setSelected();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.documentConfig.custom.invoiceNumber).toEqual('');
+        expect(wrapper.vm.deepLinkCode).toBeNull();
+
+        await invoiceOptions.at(1).setSelected();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.documentConfig.custom.invoiceNumber).toEqual(1000);
+        expect(wrapper.vm.deepLinkCode).toEqual('b829671a-20a3-4f81-be1d-b5df2c6dcd12');
     });
 });

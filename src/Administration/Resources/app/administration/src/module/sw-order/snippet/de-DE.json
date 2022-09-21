@@ -393,7 +393,7 @@
       "labelPreview": "Vorschau",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Gesamt",
-      "labelNoItems": "Keine Gutschriften hinzugefügt",
+      "labelNoItems": "Für die gewählte Rechnungsnummer sind keine Gutschriften vorhanden",
       "fileInputLabel": "Eigenes Dokument hochladen"
     },
     "documentSendModal": {

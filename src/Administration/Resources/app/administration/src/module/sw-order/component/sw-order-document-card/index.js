@@ -391,12 +391,12 @@ Component.register('sw-order-document-card', {
             }
         },
 
-        onPreview(params) {
+        onPreview(params, deepLinkCode = null) {
             this.isLoadingPreview = true;
 
-            this.documentService.getDocumentPreview(
+            return this.documentService.getDocumentPreview(
                 this.order.id,
-                this.order.deepLinkCode,
+                deepLinkCode ?? this.order.deepLinkCode,
                 this.currentDocumentType.technicalName,
                 params,
             ).then((response) => {
@@ -409,6 +409,8 @@ Component.register('sw-order-document-card', {
                 }
 
                 this.isLoadingPreview = false;
+
+                return response;
             });
         },
 

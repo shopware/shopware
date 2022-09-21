@@ -3,7 +3,6 @@
 namespace Shopware\Core;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
@@ -357,16 +356,6 @@ class Kernel extends HttpKernel
         $connection = self::getConnection();
 
         try {
-            $nonDestructiveMigrations = $connection->executeQuery('
-            SELECT `creation_timestamp`
-            FROM `migration`
-            WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
-        ')->fetchAll(FetchMode::COLUMN);
-
-            $activeMigrations = $this->container->getParameter('migration.active');
-
-            $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
-
             $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
             $connectionVariables = [];
 
@@ -380,12 +369,26 @@ class Kernel extends HttpKernel
                 $connectionVariables[] = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
             }
 
+            /**
+             * @deprecated tag:v6.5.0 - old trigger logic is removed, therefore we don't need all those connection variables
+             */
+            $nonDestructiveMigrations = $connection->executeQuery('
+                SELECT `creation_timestamp`
+                FROM `migration`
+                WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
+            ')->fetchFirstColumn();
+
+            $activeMigrations = $this->container->getParameter('migration.active');
+
+            $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
+
             foreach ($activeNonDestructiveMigrations as $migration) {
                 $connectionVariables[] = sprintf(
                     'SET %s = TRUE',
                     sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
                 );
             }
+            // end deprecated
 
             if (empty($connectionVariables)) {
                 return;

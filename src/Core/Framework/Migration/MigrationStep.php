@@ -6,9 +6,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 
 abstract class MigrationStep
 {
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
+     */
     public const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
     public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
@@ -41,26 +45,39 @@ abstract class MigrationStep
     }
 
     /**
-     * FORWARD triggers are executed when an old application has to work with a newer Database
-     * and has to keep it update-safe
+     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
      */
     protected function addForwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
+        );
+
         $this->addTrigger($connection, $name, $table, $time, $event, $statements, 'IS NULL');
     }
 
     /**
-     * @internal this method is kept because we don't want hard breaks in old migrations
-     *
-     * @deprecated tag:v6.4.0 - reason:becomes-internal - use createTrigger instead
+     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
      */
     protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
-        @trigger_error('addBackwardTrigger is not supported anymore. Use createTrigger instead', \E_USER_DEPRECATED);
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
+        );
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed use `createTrigger` instead
+     */
     protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'createTrigger')
+        );
+
         $query = sprintf(
             'CREATE TRIGGER %s
             %s %s ON `%s` FOR EACH ROW
@@ -81,7 +98,7 @@ abstract class MigrationStep
             $condition,
             $statements
         );
-        $connection->exec($query);
+        $connection->executeStatement($query);
     }
 
     /**
@@ -96,7 +113,7 @@ abstract class MigrationStep
             return;
         }
 
-        $connection->executeUpdate($query, $params);
+        $connection->executeStatement($query, $params);
     }
 
     /**

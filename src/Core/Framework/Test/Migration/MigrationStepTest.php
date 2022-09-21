@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_\MigrationWithBackwardTrigger;
 use Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_\MigrationWithForwardTrigger;
@@ -12,10 +13,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
+ * and this testcase only covers the trigger logic
  */
 class MigrationStepTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
 
     public function tearDown(): void
     {

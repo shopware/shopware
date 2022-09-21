@@ -26006,10 +26006,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationSourceTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\_test_trigger_with_trigger_\\\\MigrationWithBackwardTrigger\\:\\:getTrigger\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Migration/_test_trigger_with_trigger_/MigrationWithBackwardTrigger.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\PersonalData\\\\CleanPersonalDataCommandTest\\:\\:fetchAllCarts\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -28606,25 +28603,7 @@ parameters:
 			count: 1
 			path: src/Core/Migration/Test/MigrationForeignDefaultLanguageTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:executeQuery\\(\\) return type has no value type specified in iterable type Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverResultStatement\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/NullConnection.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:executeQuery\\(\\) return type has no value type specified in iterable type Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverResultStatement\\|Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverStatement\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/NullConnection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:executeQuery\\(\\) return type has no value type specified in iterable type Doctrine\\\\DBAL\\\\ForwardCompatibility\\\\DriverStatement\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/NullConnection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:query\\(\\) return type has no value type specified in iterable type Doctrine\\\\DBAL\\\\Driver\\\\Statement\\.$#"
-			count: 1
-			path: src/Core/Migration/Test/NullConnection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Traits\\\\StateMachineMigration\\:\\:__construct\\(\\) has parameter \\$states with no value type specified in iterable type array\\.$#"

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed as the old trigger logic will be removed
  */
 class MigrationWithForwardTrigger extends MigrationStep
 {

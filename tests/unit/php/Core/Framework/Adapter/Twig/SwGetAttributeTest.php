@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
 use Twig\Source;
 use Twig\Template;
 use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
@@ -26,6 +27,8 @@ class SwGetAttributeTest extends TestCase
     protected function setUp(): void
     {
         $this->environmentMock = $this->createMock(Environment::class);
+        /** This is a fix for a autoload issue in the testsuite. Do not delete. */
+        class_exists(CoreExtension::class);
     }
 
     public function testSwGetAttributeBothNull(): void

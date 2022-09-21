@@ -11,7 +11,7 @@
 
 {# By default the srcset sizes will be calculated automatically if `columns` are present and no `sizes` are configured. #}
 {# When set to false the sizes attribute will not be generated automatically. #}
-{% if autoColumnSizes %}
+{% if autoColumnSizes is not defined %}
     {% set autoColumnSizes = true %}
 {% endif %}
 

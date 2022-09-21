@@ -31414,10 +31414,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Event/ThemeCompilerEnrichScssVariablesEvent.php
 
-		-
-			message: "#^PHPDoc tag @var for variable \\$scopes has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/AffiliateTracking/AffiliateTrackingListener.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Annotation\\\\HttpCache\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -31519,10 +31516,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Captcha/AbstractCaptcha.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\CaptchaRouteListener\\:\\:__construct\\(\\) has parameter \\$captchas with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/CaptchaRouteListener.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Command\\\\SalesChannelCreateStorefrontCommand\\:\\:getSalesChannelConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -31554,10 +31548,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Cookie/CookieProviderInterface.php
 
-		-
-			message: "#^PHPDoc tag @var for variable \\$scopes has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Csrf/CsrfRouteListener.php
+
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
@@ -31644,10 +31635,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Routing/NotFound/NotFoundPageTagsEvent.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundSubscriber\\:\\:generateTags\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/NotFound/NotFoundSubscriber.php
+
 
 
 
@@ -31696,10 +31684,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
 
-		-
-			message: "#^PHPDoc tag @var for variable \\$scope has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/StorefrontSubscriber.php
+
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Script\\\\Api\\\\StorefrontHook\\:\\:__construct\\(\\) has parameter \\$query with no value type specified in iterable type array\\.$#"
@@ -31736,15 +31721,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Framework/Script/Api/StorefrontHook.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlUpdateListener\\:\\:getCategoryChildren\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlUpdateListener\\:\\:getCategoryChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\ErrorTemplateStruct\\:\\:__construct\\(\\) has parameter \\$arguments with no type specified\\.$#"

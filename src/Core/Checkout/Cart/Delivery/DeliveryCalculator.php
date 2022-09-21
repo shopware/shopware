@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -64,6 +65,7 @@ class DeliveryCalculator
     private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
+
         if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $cart->hasExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS)) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
@@ -84,14 +86,16 @@ class DeliveryCalculator
             return;
         }
 
-        if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
+        if (
+            $this->hasDeliveryPriceRecalculationSkipWithZeroUnitPrice($cart->getBehavior(), $delivery->getShippingCosts()->getUnitPrice())
+            || $this->hasDeliveryWithOnlyShippingFreeItems($delivery)
+        ) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
                 new PriceCollection([new Price(Defaults::CURRENCY, 0, 0, false)]),
                 $delivery->getPositions()->getLineItems(),
                 $context
             );
-
             $delivery->setShippingCosts($costs);
 
             return;
@@ -214,6 +218,7 @@ class DeliveryCalculator
 
     private function getCurrencyPrice(PriceCollection $priceCollection, SalesChannelContext $context): float
     {
+        /** @var Price $price */
         $price = $priceCollection->getCurrencyPrice($context->getCurrency()->getId());
 
         $value = $this->getPriceForTaxState($price, $context);
@@ -238,9 +243,13 @@ class DeliveryCalculator
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
-                $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
+                /** @var PriceCollection $priceCollectionA */
+                $priceCollectionA = $priceEntityA->getCurrencyPrice();
+                $priceA = $this->getCurrencyPrice($priceCollectionA, $context);
 
-                $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
+                /** @var PriceCollection $priceCollectionB */
+                $priceCollectionB = $priceEntityB->getCurrencyPrice();
+                $priceB = $this->getCurrencyPrice($priceCollectionB, $context);
 
                 return $priceA <=> $priceB;
             }
@@ -266,5 +275,12 @@ class DeliveryCalculator
         }
 
         return $costs;
+    }
+
+    private function hasDeliveryPriceRecalculationSkipWithZeroUnitPrice(?CartBehavior $behavior, float $unitPrice): bool
+    {
+        return $behavior
+            && $behavior->hasPermission(DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION)
+            && $unitPrice === 0.0;
     }
 }

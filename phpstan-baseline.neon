@@ -331,21 +331,6 @@ parameters:
 			path: src/Core/Checkout/Cart/CartSerializationCleaner.php
 
 		-
-			message: "#^Cannot call method getCurrencyId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
-
-		-
-			message: "#^Parameter \\#1 \\$price of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\DeliveryCalculator\\:\\:getPriceForTaxState\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
-
-		-
-			message: "#^Parameter \\#1 \\$priceCollection of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\DeliveryCalculator\\:\\:getCurrencyPrice\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\PriceCollection, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\PriceCollection\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation\\:\\:getCountry\\(\\) should return Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity but returns Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/Struct/ShippingLocation.php

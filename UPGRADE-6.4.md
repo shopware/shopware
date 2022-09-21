@@ -1,6 +1,12 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.16.0
+## Added possibility to extend snippets in the Administration via App. 
+* Snippets can be imported via AdminExtensionSDK
+* Snippets will be validated to not override existing snippets
+* Snippets will be sanitized to avoid script injection
+
 # 6.4.15.0
 ## Demodata generator registration in DI
 

@@ -120,6 +120,15 @@
             <tag name="shopware.route_scope"/>
         </service>
 
+        <service id="Shopware\Administration\Snippet\AppAdministrationSnippetDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister">
+            <argument type="service" id="app_administration_snippet.repository"/>
+            <argument type="service" id="locale.repository"/>
+        </service>
+
         <service id="Shopware\Administration\Snippet\SnippetFinder">
             <argument type="service" id="kernel" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>

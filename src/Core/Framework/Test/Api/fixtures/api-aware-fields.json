@@ -1448,10 +1448,5 @@
     "app_flow_action_translation.createdAt",
     "app_flow_action_translation.updatedAt",
     "app_flow_action_translation.appFlowActionId",
-    "app_flow_action_translation.languageId",
-    "app_administration_snippet.value",
-    "app_administration_snippet.appId",
-    "app_administration_snippet.localeId",
-    "app_administration_snippet.createdAt",
-    "app_administration_snippet.updatedAt"
+    "app_flow_action_translation.languageId"
 ]

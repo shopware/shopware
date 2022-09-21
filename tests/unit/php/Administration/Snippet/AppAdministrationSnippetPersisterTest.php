@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App\AppLifecycle\Persister;
+namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
+use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
+use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
+use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,14 +16,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetCollection;
-use Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetDefinition;
-use Shopware\Core\System\Snippet\Administration\AppAdministrationSnippetEntity;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Persister\AppAdministrationSnippetPersister
+ * @covers \Shopware\Administration\Snippet\AppAdministrationSnippetPersister
  */
 class AppAdministrationSnippetPersisterTest extends TestCase
 {
@@ -94,7 +94,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'snippetId',
-                        'value' => json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
@@ -109,7 +109,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             ]),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'en-GB' => json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
+                'en-GB' => \json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
             ],
         ];
 
@@ -118,7 +118,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'snippetId',
-                        'value' => json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'snippets'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
@@ -143,7 +143,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'snippetToDelete',
-                        'value' => json_encode(['my' => 'deleted'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'deleted'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'de-DE',
                     ],
@@ -151,7 +151,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'snippetToAdd',
-                        'value' => json_encode(['my' => 'added'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'added'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
@@ -172,7 +172,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             ]),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'en-GB' => json_encode(['my' => 'added'], \JSON_THROW_ON_ERROR),
+                'en-GB' => \json_encode(['my' => 'added'], \JSON_THROW_ON_ERROR),
             ],
         ];
 
@@ -181,7 +181,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'oldSnippetId',
-                        'value' => json_encode(['my' => 'oldTranslation'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'oldTranslation'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
@@ -189,7 +189,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                 [
                     [
                         'id' => 'oldSnippetId',
-                        'value' => json_encode(['my' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                        'value' => \json_encode(['my' => 'newTranslation'], \JSON_THROW_ON_ERROR),
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
@@ -205,7 +205,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             ]),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'en-GB' => json_encode(['my' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                'en-GB' => \json_encode(['my' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
         ];
     }
@@ -220,7 +220,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             'localeRepository' => $this->getLocaleRepository(),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'en-GB' => json_encode(['global' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                'en-GB' => \json_encode(['global' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
             'exceptionMessage' => 'The following keys extend or overwrite the core snippets which is not allowed: global',
         ];
@@ -230,7 +230,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             'localeRepository' => $this->getLocaleRepository(),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'de-DE' => json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                'de-DE' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
             'exceptionMessage' => 'The following snippet file must always be provided when providing snippets: en-GB',
         ];
@@ -245,8 +245,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             ]),
             'appEntity' => $this->getAppEntity('appId'),
             'newSnippets' => [
-                'en-GB' => json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
-                'foo-bar' => json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                'en-GB' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
+                'foo-bar' => \json_encode(['myCustomSnippetName' => 'newTranslation'], \JSON_THROW_ON_ERROR),
             ],
             'exceptionMessage' => 'The locale foo-bar does not exists.',
         ];

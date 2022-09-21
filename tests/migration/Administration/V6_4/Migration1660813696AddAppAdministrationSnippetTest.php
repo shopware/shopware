@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_4;
+namespace Shopware\Tests\Migration\Administration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Migration\V6_4\Migration1660813696AddAppAdministrationSnippet;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_4\Migration1660813696AddAppAdministrationSnippet;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_4\Migration1660813696AddAppAdministrationSnippet
+ * @covers \Shopware\Administration\Migration\V6_4\Migration1660813696AddAppAdministrationSnippet
  */
 class Migration1660813696AddAppAdministrationSnippetTest extends TestCase
 {

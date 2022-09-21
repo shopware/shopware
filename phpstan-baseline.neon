@@ -22809,15 +22809,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Api/ApiAliasTest.php
 
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/ApiAwareTest.php
 
-		-
-			message: "#^Parameter \\#3 \\$cacheId of static method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseBase\\\\KernelLifecycleManager\\:\\:createKernel\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/ApiAwareTest.php
 
 		-
 			message: "#^Parameter \\#3 \\$headers of class Symfony\\\\Component\\\\BrowserKit\\\\Response constructor expects array, string given\\.$#"

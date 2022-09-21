@@ -35,6 +35,9 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     private RequestStack $requestStack;
@@ -282,7 +285,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|array $scope */
+        /** @var RouteScope|list<string> $scope */
         $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
         if ($scope instanceof RouteScope) {
             $scope = $scope->getScopes();

@@ -13,6 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**
@@ -26,6 +29,8 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
     /**
      * @internal
+     *
+     * @param iterable<AbstractCaptcha> $captchas
      */
     public function __construct(
         iterable $captchas,

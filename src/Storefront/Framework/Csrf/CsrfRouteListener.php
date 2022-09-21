@@ -17,17 +17,14 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 {
-    /**
-     * @var bool
-     */
-    protected $csrfEnabled;
+    protected bool $csrfEnabled;
 
-    /**
-     * @var string
-     */
-    protected $csrfMode;
+    protected string $csrfMode;
 
     private CsrfTokenManagerInterface $csrfTokenManager;
 
@@ -36,10 +33,7 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
      */
     private bool $csrfChecked = false;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * @internal
@@ -81,7 +75,7 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
             return;
         }
 
-        /** @var RouteScope|array $scopes */
+        /** @var RouteScope|list<string> $scopes */
         $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes instanceof RouteScope) {
@@ -96,6 +90,9 @@ class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
         $this->validateCsrfToken($request);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - method will become private in v6.5.0
+     */
     public function validateCsrfToken(Request $request): void
     {
         $this->csrfChecked = true;

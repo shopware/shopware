@@ -9,22 +9,16 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ThemeAppLifecycleHandler implements EventSubscriberInterface
 {
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $themeRegistry;
+    private StorefrontPluginRegistryInterface $themeRegistry;
 
-    /**
-     * @var AbstractStorefrontPluginConfigurationFactory
-     */
-    private $themeConfigFactory;
+    private AbstractStorefrontPluginConfigurationFactory $themeConfigFactory;
 
-    /**
-     * @var ThemeLifecycleHandler
-     */
-    private $themeLifecycleHandler;
+    private ThemeLifecycleHandler $themeLifecycleHandler;
 
     /**
      * @internal

@@ -17,26 +17,20 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
     public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
     public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
     public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
 
-    /**
-     * @var SeoUrlUpdater
-     */
-    private $seoUrlUpdater;
+    private SeoUrlUpdater $seoUrlUpdater;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $indexerRegistry;
+    private EntityIndexerRegistry $indexerRegistry;
 
     /**
      * @internal
@@ -103,6 +97,11 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
     private function getCategoryChildren(array $ids): array
     {
         if (empty($ids)) {
@@ -111,7 +110,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query = $this->connection->createQueryBuilder();
 
-        $query->select('category.id, category.type');
+        $query->select('category.id');
         $query->from('category');
 
         foreach ($ids as $id) {
@@ -122,7 +121,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query->setParameter('type', CategoryDefinition::TYPE_LINK);
 
-        $children = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $children = $query->execute()->fetchFirstColumn();
 
         if (!$children) {
             return [];

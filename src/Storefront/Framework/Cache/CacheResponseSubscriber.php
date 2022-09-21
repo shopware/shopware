@@ -19,6 +19,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
     public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;

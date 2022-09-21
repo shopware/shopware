@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Migration\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Api\MigrationController;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
@@ -12,11 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0 - Will be removed as the controller will also be removed
  */
 class MigrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use MigrationTestBehaviour;
+
+    public function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
 
     protected function tearDown(): void
     {
@@ -41,7 +49,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request('POST', $url, ['identifier' => self::INTEGRATION_IDENTIFIER()]);
 
-        static::assertSame(204, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+        static::assertSame(204, $client->getResponse()->getStatusCode());
     }
 
     public function testMigrateActionCall(): void

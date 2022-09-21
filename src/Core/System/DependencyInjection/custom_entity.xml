@@ -17,9 +17,13 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\CustomEntity\Schema\SchemaUpdater">
+        </service>
+
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\Lock\LockFactory"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\SchemaUpdater"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityApiController" public="true">

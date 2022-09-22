@@ -101,8 +101,6 @@ Component.register('sw-customer-detail', {
             return criteria;
         },
 
-        console.log('lets start');
-
         generalRoute() {
             return {
                 name: 'sw.customer.detail.base',

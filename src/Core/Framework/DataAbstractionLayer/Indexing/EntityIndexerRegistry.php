@@ -41,6 +41,8 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     /**
      * @internal
+     *
+     * @param EntityIndexer[] $indexer
      */
     public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
     {
@@ -66,10 +68,18 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         ];
     }
 
-    public function index(bool $useQueue, array $skip = []): void
+    /**
+     * @param array<string> $skip
+     * @param array<string> $only
+     */
+    public function index(bool $useQueue, array $skip = [], array $only = []): void
     {
         foreach ($this->indexer as $indexer) {
             if (\in_array($indexer->getName(), $skip, true)) {
+                continue;
+            }
+
+            if (\count($only) > 0 && !\in_array($indexer->getName(), $only, true)) {
                 continue;
             }
 

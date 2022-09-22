@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Webhook;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
     private WebhookDispatcher $dispatcher;

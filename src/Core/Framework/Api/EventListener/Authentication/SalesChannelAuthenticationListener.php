@@ -16,19 +16,16 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
+    private RouteScopeRegistry $routeScopeRegistry;
 
     /**
      * @internal
@@ -60,11 +57,10 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)) {
+        $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
+        if (!$accessKey) {
             throw new UnauthorizedHttpException('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
         }
-
-        $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
 
         $origin = AccessKeyHelper::getOrigin($accessKey);
         if ($origin !== 'sales-channel') {

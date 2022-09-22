@@ -6,11 +6,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class EntityProtectionValidator implements EventSubscriberInterface
 {
     /**
@@ -25,6 +29,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
     }
 
     /**
+     * @param list<array{entity: string, value: string|null, definition: EntityDefinition, field: Field|null}> $pathSegments
      * @param array<string> $protections FQCN of the protections that need to be validated
      */
     public function validateEntityPath(array $pathSegments, array $protections, Context $context): void
@@ -90,6 +95,9 @@ class EntityProtectionValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, Criteria> $associations
+     */
     private function validateCriteriaAssociation(EntityDefinition $definition, array $associations, Context $context): void
     {
         /** @var Criteria $criteria */

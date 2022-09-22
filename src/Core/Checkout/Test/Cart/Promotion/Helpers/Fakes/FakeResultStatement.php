@@ -32,7 +32,7 @@ class FakeResultStatement implements \IteratorAggregate, ResultStatement, Result
 
     public function columnCount(): int
     {
-        return 0;
+        return isset($this->dbResult[0]) ? \count($this->dbResult[0]) : 0;
     }
 
     public function rowCount(): int

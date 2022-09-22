@@ -24,7 +24,7 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
     /**
      * @var array<string>|null
      */
-    private ?array $customFields;
+    private ?array $customFields = null;
 
     private Connection $connection;
 

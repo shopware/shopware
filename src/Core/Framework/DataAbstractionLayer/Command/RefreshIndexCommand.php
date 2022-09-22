@@ -11,16 +11,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RefreshIndexCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
 
     protected static $defaultName = 'dal:refresh:index';
 
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $registry;
+    private EntityIndexerRegistry $registry;
 
     /**
      * @internal

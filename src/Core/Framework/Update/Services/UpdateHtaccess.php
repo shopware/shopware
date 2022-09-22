@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Update\Services;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class UpdateHtaccess implements EventSubscriberInterface
 {
     private const MARKER_START = '# BEGIN Shopware';
@@ -48,7 +51,7 @@ class UpdateHtaccess implements EventSubscriberInterface
         $content = file_get_contents($this->htaccessPath);
 
         // User has deleted the markers. So we will ignore the update process
-        if (strpos($content, self::MARKER_START) === false || strpos($content, self::MARKER_STOP) === false) {
+        if (!$content || strpos($content, self::MARKER_START) === false || strpos($content, self::MARKER_STOP) === false) {
             return;
         }
 
@@ -96,11 +99,14 @@ class UpdateHtaccess implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return array{0: list<string>, 1: list<string>, 2: list<string>}
+     */
     private function getLinesFromMarkedFile(string $path): array
     {
         $fp = fopen($path, 'rb+');
         if (!$fp) {
-            return [];
+            return [[], [], []];
         }
 
         $lines = [];

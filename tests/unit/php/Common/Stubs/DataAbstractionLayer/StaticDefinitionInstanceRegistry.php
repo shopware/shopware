@@ -81,7 +81,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,
                 $this->validator,
-                new CustomFieldService(new FakeConnection([])),
+                new CustomFieldService(new FakeConnection([['foo', 'int']])),
                 new WriteCommandExtractor($this->entityWriteGateway, $this)
             ),
             ManyToManyAssociationFieldSerializer::class => new ManyToManyAssociationFieldSerializer(

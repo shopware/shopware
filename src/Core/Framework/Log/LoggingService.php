@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class LoggingService implements EventSubscriberInterface
 {
     /**
@@ -18,6 +21,8 @@ class LoggingService implements EventSubscriberInterface
 
     /**
      * @deprecated tag:v6.5.0 - property will be removed
+     *
+     * @var array<string, string>
      */
     protected array $subscribedEvents;
 
@@ -38,7 +43,7 @@ class LoggingService implements EventSubscriberInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Function is deprecated.
+     * @deprecated tag:v6.5.0 - Function is deprecated and will be removed.
      */
     public function logBusinessEvent(BusinessEvent $event): void
     {

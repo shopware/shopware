@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CreditOrderLineItemListener implements EventSubscriberInterface
 {
     public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';

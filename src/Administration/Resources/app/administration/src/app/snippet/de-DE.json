@@ -747,7 +747,8 @@
           }
         },
         "customerCustomFieldRule": "Kunde mit Zusatzfeld",
-        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ..."
+        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
+        "customerBirthdayRule": "Kundengeburtstag"
       }
     },
     "sw-condition-generic": {

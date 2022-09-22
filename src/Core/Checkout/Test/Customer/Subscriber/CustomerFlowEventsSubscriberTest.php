@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -34,8 +35,6 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     private EntityRepositoryInterface $flowRepository;
 
-    private ?EntityRepositoryInterface $customerRepository;
-
     private ?EventDispatcherInterface $dispatcher;
 
     private FlowActionTestSubscriber $flowActionTestSubscriber;
@@ -47,8 +46,6 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $this->flowActionTestSubscriber = new FlowActionTestSubscriber();
 
         $this->flowRepository = $this->getContainer()->get('flow.repository');
-
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -83,6 +80,8 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     public function testTriggerCustomerRegisterEventWhenCustomerCreated(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->createFlow(CustomerRegisterEvent::EVENT_NAME);
         $context = Context::createDefaultContext();
         $this->createCustomer($context);
@@ -128,6 +127,9 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         static::assertTrue(\in_array($expectTagId, \json_decode($tagIds, true), true));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function registerCustomerProvider(): array
     {
         $trueId = Uuid::randomHex();
@@ -139,6 +141,10 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, string> $trueCase
+     * @param array<string, string> $falseCase
+     */
     private function createFlowTriggerRegisterCustomer(
         string $salesChannelId,
         string $customerGroupId,

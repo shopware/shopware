@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Event;
 
 use Monolog\Logger;
+use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware
+class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware, NameAware
 {
     public const NAME = 'product_export.log';
 
@@ -27,15 +28,9 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
      */
     private $logLevel;
 
-    /**
-     * @var \Throwable
-     */
-    private $throwable;
+    private ?\Throwable $throwable = null;
 
-    /**
-     * @var string
-     */
-    private $name = self::NAME;
+    private string $name = self::NAME;
 
     /**
      * @internal
@@ -49,7 +44,7 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
         ?\Throwable $throwable = null
     ) {
         $this->context = $context;
-        $this->name = $name;
+        $this->name = $name ?? self::NAME;
         $this->logLevel = $logLevel ?? Logger::DEBUG;
         $this->throwable = $throwable;
     }
@@ -77,6 +72,9 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
         return $this->name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogData(): array
     {
         $logData = [];

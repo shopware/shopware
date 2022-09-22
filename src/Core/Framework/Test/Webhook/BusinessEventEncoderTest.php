@@ -45,9 +45,16 @@ class BusinessEventEncoderTest extends TestCase
     public function testScalarEvents(BusinessEventInterface $event): void
     {
         $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
+        static::assertTrue(
+            method_exists($event, 'getEncodeValues'),
+            'Event does not have method getEncodeValues'
+        );
         static::assertEquals($event->getEncodeValues($shopwareVersion), $this->businessEventEncoder->encode($event));
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function getEvents(): array
     {
         return [
@@ -87,6 +94,9 @@ class BusinessEventEncoderTest extends TestCase
         /** @var EntityRepositoryInterface $taxRepo */
         $taxRepo = $this->getContainer()->get('tax.repository');
 
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        $taxes = $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        static::assertInstanceOf(TaxCollection::class, $taxes);
+
+        return $taxes;
     }
 }

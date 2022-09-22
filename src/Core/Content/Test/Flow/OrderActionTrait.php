@@ -43,6 +43,9 @@ trait OrderActionTrait
         $this->login($email, $password);
     }
 
+    /**
+     * @param array<string, mixed> $additionalData
+     */
     private function prepareCustomer(string $password, ?string $email = null, array $additionalData = []): void
     {
         static::assertNotNull($this->customerRepository);
@@ -153,6 +156,9 @@ trait OrderActionTrait
             );
     }
 
+    /**
+     * @param array<string, mixed> $additionalData
+     */
     private function createOrder(string $customerId, array $additionalData = []): void
     {
         $this->getContainer()->get('order.repository')->create([

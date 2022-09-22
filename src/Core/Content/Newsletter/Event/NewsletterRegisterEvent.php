@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
@@ -13,7 +15,7 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware
+class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware
 {
     public const EVENT_NAME = 'newsletter.register';
 
@@ -103,5 +105,10 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
+    }
+
+    public function getNewsletterRecipientId(): string
+    {
+        return $this->newsletterRecipient->getId();
     }
 }

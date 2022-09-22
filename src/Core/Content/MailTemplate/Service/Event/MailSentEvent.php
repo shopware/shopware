@@ -3,6 +3,9 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Logger;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
@@ -11,7 +14,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailSentEvent extends Event implements BusinessEventInterface, LogAware
+class MailSentEvent extends Event implements BusinessEventInterface, LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
     public const EVENT_NAME = 'mail.sent';
 
@@ -26,15 +29,19 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware
     private $subject;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $contents;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $recipients;
 
+    /**
+     * @param array<string, mixed> $recipients
+     * @param array<string, mixed> $contents
+     */
     public function __construct(string $subject, array $recipients, array $contents, Context $context)
     {
         $this->subject = $subject;
@@ -66,16 +73,25 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware
         return $this->subject;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getContents(): array
     {
         return $this->contents;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRecipients(): array
     {
         return $this->recipients;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogData(): array
     {
         return [

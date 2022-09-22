@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -104,6 +106,8 @@ class SetOrderStateActionTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $expects
      * @dataProvider setStatusProvider
      */
     public function testSetOrderStatus(array $config, array $expects): void
@@ -121,7 +125,16 @@ class SetOrderStateActionTest extends TestCase
             $this->getContainer()->get(OrderService::class)
         );
 
-        $subscriber->handle(new FlowEvent(CheckoutOrderPlacedEvent::EVENT_NAME, new FlowState($event), $config));
+        if (!Feature::isActive('v6.5.0.0')) {
+            $subscriber->handle(new FlowEvent(CheckoutOrderPlacedEvent::EVENT_NAME, new FlowState($event), $config));
+        } else {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = $this->getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        }
 
         $orderStateAfterAction = $this->getOrderState(Uuid::fromHexToBytes($orderId));
         static::assertSame($expects['order'], $orderStateAfterAction);
@@ -133,6 +146,9 @@ class SetOrderStateActionTest extends TestCase
         static::assertSame($expects['order_transaction'], $orderTransactionStateAfterAction);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function setStatusProvider(): array
     {
         return [
@@ -312,6 +328,9 @@ class SetOrderStateActionTest extends TestCase
         );
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function getOrderData(string $orderId, Context $context): array
     {
         $addressId = Uuid::randomHex();

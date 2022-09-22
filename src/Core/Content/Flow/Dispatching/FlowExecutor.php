@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
@@ -10,7 +11,7 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -22,22 +23,37 @@ class FlowExecutor
 
     private AppFlowActionProvider $appFlowActionProvider;
 
-    public function __construct(EventDispatcherInterface $dispatcher, AppFlowActionProvider $appFlowActionProvider)
+    /**
+     * @var array<string, mixed>
+     */
+    private array $actions;
+
+    /**
+     * @param FlowAction[] $actions
+     */
+    public function __construct(EventDispatcherInterface $dispatcher, AppFlowActionProvider $appFlowActionProvider, $actions)
     {
         $this->dispatcher = $dispatcher;
         $this->appFlowActionProvider = $appFlowActionProvider;
+        $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
 
-    public function execute(Flow $flow, FlowEventAware $event): void
+    public function execute(Flow $flow, StorableFlow $event): void
     {
-        $state = new FlowState($event);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $state = new FlowState($event->getOriginalEvent());
+        } else {
+            $state = new FlowState();
+        }
+
+        $event->setFlowState($state);
         $state->flowId = $flow->getId();
         foreach ($flow->getSequences() as $sequence) {
             $state->sequenceId = $sequence->sequenceId;
             $state->delayed = false;
 
             try {
-                $this->executeSequence($sequence, $state);
+                $this->executeSequence($sequence, $event);
             } catch (\Exception $e) {
                 throw new ExecuteSequenceException($sequence->flowId, $sequence->sequenceId, $e->getMessage(), $e->getCode(), $e);
             }
@@ -48,71 +64,101 @@ class FlowExecutor
         }
     }
 
-    public function executeSequence(?Sequence $sequence, FlowState $state): void
+    public function executeSequence(?Sequence $sequence, StorableFlow $event): void
     {
         if ($sequence === null) {
             return;
         }
 
-        $state->currentSequence = $sequence;
+        $event->getFlowState()->currentSequence = $sequence;
 
         if ($sequence instanceof IfSequence) {
-            $this->executeIf($sequence, $state);
+            $this->executeIf($sequence, $event);
 
             return;
         }
 
         if ($sequence instanceof ActionSequence) {
-            $this->executeAction($sequence, $state);
+            $this->executeAction($sequence, $event);
         }
     }
 
-    public function executeAction(ActionSequence $sequence, FlowState $state): void
+    public function executeAction(ActionSequence $sequence, StorableFlow $event): void
     {
         $actionName = $sequence->action;
         if (!$actionName) {
             return;
         }
 
-        if ($state->stop) {
+        if ($event->getFlowState()->stop) {
             return;
         }
 
-        $globalEvent = new FlowEvent($actionName, $state, $sequence->config);
+        $event->setConfig($sequence->config);
 
-        if ($sequence->appFlowActionId) {
-            $eventData = $this->appFlowActionProvider->getWebhookData($globalEvent, $sequence->appFlowActionId);
+        $this->callHandle($sequence, $event);
 
-            $globalEvent = new AppFlowActionEvent(
-                $actionName,
-                $eventData['headers'],
-                $eventData['payload']
-            );
-        }
-
-        $this->dispatcher->dispatch($globalEvent, $actionName);
-
-        if ($state->delayed) {
+        if ($event->getFlowState()->delayed) {
             return;
         }
 
-        $state->currentSequence = $sequence;
+        $event->getFlowState()->currentSequence = $sequence;
 
         /** @var ActionSequence $nextAction */
         $nextAction = $sequence->nextAction;
         if ($nextAction !== null) {
-            $this->executeAction($nextAction, $state);
+            $this->executeAction($nextAction, $event);
         }
     }
 
-    public function executeIf(IfSequence $sequence, FlowState $state): void
+    public function executeIf(IfSequence $sequence, StorableFlow $event): void
     {
-        if (\in_array($sequence->ruleId, $state->event->getContext()->getRuleIds(), true)) {
-            $this->executeSequence($sequence->trueCase, $state);
+        if (\in_array($sequence->ruleId, $event->getContext()->getRuleIds(), true)) {
+            $this->executeSequence($sequence->trueCase, $event);
 
             return;
         }
 
-        $this->executeSequence($sequence->falseCase, $state);
+        $this->executeSequence($sequence->falseCase, $event);
+    }
+
+    private function callHandle(ActionSequence $sequence, StorableFlow $event): void
+    {
+        if ($sequence->appFlowActionId) {
+            $this->callApp($sequence, $event);
+
+            return;
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $action = $this->actions[$sequence->action] ?? null;
+            if ($action) {
+                $action->handleFlow($event);
+            }
+
+            return;
+        }
+
+        $globalEvent = new FlowEvent($sequence->action, $event->getFlowState(), $sequence->config);
+        $event->setFlowEvent($globalEvent);
+
+        $this->dispatcher->dispatch($globalEvent, $sequence->action);
+    }
+
+    private function callApp(ActionSequence $sequence, StorableFlow $event): void
+    {
+        if (!$sequence->appFlowActionId) {
+            return;
+        }
+
+        $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
+
+        $globalEvent = new AppFlowActionEvent(
+            $sequence->action,
+            $eventData['headers'],
+            $eventData['payload'],
+        );
+
+        $this->dispatcher->dispatch($globalEvent, $sequence->action);
     }
 }

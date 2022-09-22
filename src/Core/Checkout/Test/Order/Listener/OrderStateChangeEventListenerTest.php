@@ -43,6 +43,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $this->createCustomer($ids);
         $this->createOrder($ids);
 
         $this->assertEvent('state_leave.order_transaction.state.open');
@@ -65,6 +66,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $this->createCustomer($ids);
         $this->createOrder($ids);
         $this->assertEvent('state_leave.order.state.open');
         $this->assertEvent('state_enter.order.state.in_progress');
@@ -86,6 +88,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $this->createCustomer($ids);
         $this->createOrder($ids);
         $this->assertEvent('state_leave.order_delivery.state.open');
         $this->assertEvent('state_enter.order_delivery.state.shipped');
@@ -106,6 +109,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     public function testReEvaluateRuleForOrderContext(): void
     {
         $ids = new TestDataCollection();
+        $this->createCustomer($ids);
         $this->createOrder($ids);
         $ruleId = Uuid::randomHex();
         $rule = [
@@ -138,7 +142,9 @@ class OrderStateChangeEventListenerTest extends TestCase
                 Context::createDefaultContext()
             );
 
-        static::assertTrue(\in_array($ruleId, $validator->event->getContext()->getRuleIds(), true));
+        $event = $validator->event;
+        static::assertNotNull($event);
+        static::assertTrue(\in_array($ruleId, $event->getContext()->getRuleIds(), true));
     }
 
     public function testRulesForOrder(): void
@@ -163,6 +169,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->getContainer()->get('rule.repository')
             ->create([$rule], Context::createDefaultContext());
 
+        $this->createCustomer($ids);
         $this->createOrder($ids);
 
         $validator = new RuleValidator();
@@ -212,11 +219,12 @@ class OrderStateChangeEventListenerTest extends TestCase
             'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'ruleIds' => [$ids->get('rule')],
             'orderCustomer' => [
-                'id' => $ids->get('customer'),
+                'id' => $ids->get('order_customer'),
                 'salutationId' => $this->getValidSalutationId(),
                 'email' => 'test',
                 'firstName' => 'test',
                 'lastName' => 'test',
+                'customerId' => $ids->get('customer'),
             ],
             'addresses' => [
                 [
@@ -284,6 +292,46 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
+    private function createCustomer(TestDataCollection $ids): string
+    {
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $ids->get('customer'),
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $ids->get('customer'),
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
+
+        return $ids->get('customer');
+    }
+
     private function getPrePaymentMethodId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -294,10 +342,13 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        static::assertIsString($id);
+
+        return $id;
     }
 
-    private function getStateId(string $state, string $machine)
+    private function getStateId(string $state, string $machine): ?string
     {
         return $this->getContainer()->get(Connection::class)
             ->fetchColumn('

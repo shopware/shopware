@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryD
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ShopNameAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -18,7 +21,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
+class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ResetUrlAware, ShopNameAware
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
@@ -87,6 +90,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public function getMailStruct(): MailRecipientStruct
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            /** @var CustomerEntity $customer */
             $customer = $this->customerRecovery->getCustomer();
 
             $this->mailRecipientStruct = new MailRecipientStruct([
@@ -120,5 +124,10 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public function getCustomerId(): string
     {
         return $this->getCustomerRecovery()->getCustomerId();
+    }
+
+    public function getCustomerRecoveryId(): string
+    {
+        return $this->customerRecovery->getId();
     }
 }

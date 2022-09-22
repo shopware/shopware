@@ -29,13 +29,51 @@ class BusinessEventEncoder
         $this->definitionRegistry = $definitionRegistry;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function encode(FlowEventAware $event): array
     {
         return $this->encodeType($event::getAvailableData()->toArray(), $event);
     }
 
     /**
-     * @param object|array<mixed> $object
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $stored
+     *
+     * @return array<string, mixed>
+     */
+    public function encodeData(array $data, array $stored): array
+    {
+        foreach ($data as $key => $property) {
+            if (!$property instanceof Entity) {
+                $data[$key] = $stored[$key];
+
+                continue;
+            }
+
+            $entityName = $property->getInternalEntityName();
+            if ($entityName === null) {
+                continue;
+            }
+
+            $definition = $this->definitionRegistry->getByClassOrEntityName($entityName);
+            $data[$key] = $this->entityEncoder->encode(
+                new Criteria(),
+                $definition,
+                $property,
+                '/store-api'
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $dataTypes
+     * @param object|array<string, mixed> $object
+     *
+     * @return array<string, mixed>
      */
     private function encodeType(array $dataTypes, $object): array
     {
@@ -47,6 +85,12 @@ class BusinessEventEncoder
         return $data;
     }
 
+    /**
+     * @param array<string, mixed> $dataType
+     * @param mixed $property
+     *
+     * @return array<string, mixed>|mixed
+     */
     private function encodeProperty(array $dataType, $property)
     {
         switch ($dataType['type']) {
@@ -72,7 +116,9 @@ class BusinessEventEncoder
     }
 
     /**
-     * @param object|array $object
+     * @param object|array<string, mixed> $object
+     *
+     * @return mixed
      */
     private function getProperty(string $propertyName, $object)
     {
@@ -102,7 +148,10 @@ class BusinessEventEncoder
     }
 
     /**
+     * @param array<string, mixed> $dataType
      * @param Entity|EntityCollection<Entity> $property
+     *
+     * @return array<string, mixed>
      */
     private function encodeEntity(array $dataType, $property): array
     {
@@ -116,6 +165,12 @@ class BusinessEventEncoder
         );
     }
 
+    /**
+     * @param array<string, mixed> $dataType
+     * @param array<string, mixed> $property
+     *
+     * @return array<int, mixed>
+     */
     private function encodeArray(array $dataType, array $property): array
     {
         $data = [];

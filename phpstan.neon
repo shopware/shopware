@@ -55,6 +55,7 @@ parameters:
             paths:
                 - src/**/*Test.php
                 - tests/unit/php
+                - tests/integration/php
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'
@@ -262,6 +263,13 @@ parameters:
             message: '#Parameter \#1 \$expected of static method PHPUnit\\Framework\\Assert::assertSame\(\) contains unresolvable type#'
             count: 4
             path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
+
+        # PHPstan does not realize that we used bypass final
+        -
+            message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<(.*)>\\:\\:getMock\\(\\) contains unresolvable type.$#"
+            paths:
+                - tests/unit/php
+
 
 services:
     -

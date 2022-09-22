@@ -10,10 +10,20 @@ class AppFlowActionEvent extends Event implements Hookable
 {
     private string $name;
 
+    /**
+     * @var array<int|string, string>
+     */
     private array $headers;
 
+    /**
+     * @var array<mixed>
+     */
     private array $payload;
 
+    /**
+     * @param array<int|string, string> $headers
+     * @param array<mixed> $payload
+     */
     public function __construct(string $name, array $headers, array $payload)
     {
         $this->name = $name;
@@ -26,11 +36,17 @@ class AppFlowActionEvent extends Event implements Hookable
         return $this->name;
     }
 
+    /**
+     * @return array<int|string, string>
+     */
     public function getWebhookHeaders(): array
     {
         return $this->headers;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getWebhookPayload(): array
     {
         return $this->payload;

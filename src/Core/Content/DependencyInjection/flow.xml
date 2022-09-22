@@ -16,6 +16,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowDispatcher" decorates="event_dispatcher" decoration-priority="1000">
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowDispatcher.inner"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowFactory"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -25,42 +26,43 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowExecutor" public="true">
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" />
+            <argument type="tagged_iterator" tag="flow.action" index-by="key" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction">
             <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="1000" />
+            <tag name="flow.action" priority="1000" key="action.add.order.tag" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction">
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="900" />
+            <tag name="flow.action" priority="900" key="action.add.customer.tag"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction">
             <argument type="service" id="order_tag.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="800" />
+            <tag name="flow.action" priority="800" key="action.remove.order.tag"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction">
             <argument type="service" id="customer_tag.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="700" />
+            <tag name="flow.action" priority="700" key="action.remove.customer.tag"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction">
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="690" />
+            <tag name="flow.action" priority="690" key="action.change.customer.group"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction">
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="680" />
+            <tag name="flow.action" priority="680" key="action.change.customer.status"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
@@ -79,7 +81,7 @@
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument>%shopware.mail.update_mail_variables_on_send%</argument>
             <tag name="kernel.event_subscriber"/>
-            <tag name="flow.action" priority="500" />
+            <tag name="flow.action" priority="500" key="action.mail.send"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction">
@@ -90,7 +92,7 @@
             <argument type="service" id="logger"/>
 
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="620" />
+            <tag name="flow.action" priority="620" key="action.generate.document" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction">
@@ -98,47 +100,47 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="400" />
+            <tag name="flow.action" priority="400" key="action.set.order.state" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="350" />
+            <tag name="flow.action" priority="350" key="action.set.customer.custom.field"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="300" />
+            <tag name="flow.action" priority="300" key="action.set.order.custom.field"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer_group.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="350" />
+            <tag name="flow.action" priority="350" key="action.set.customer.group.custom.field"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="350" />
+            <tag name="flow.action" priority="350" key="action.add.customer.affiliate.and.campaign.code"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="350" />
+            <tag name="flow.action" priority="350" key="action.add.order.affiliate.and.campaign.code"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction">
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="1" />
+            <tag name="flow.action" priority="1" key="action.stop.flow" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Api\FlowActionCollector">
@@ -178,5 +180,109 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
+            <argument type="service" id="order.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer">
+            <argument type="service" id="customer.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UserStorer">
+            <argument type="service" id="user_recovery.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer">
+            <argument type="service" id="customer_group.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer">
+            <argument type="service" id="customer_recovery.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer">
+            <argument type="service" id="order_transaction.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer">
+            <argument type="service" id="newsletter_recipient.repository"/>
+
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContentsStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContextTokenStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ShopNameStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SubjectStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\TemplateDataStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer">
+            <tag name="flow.storer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowFactory" public="true">
+            <argument type="tagged_iterator" tag="flow.storer"/>
+        </service>
     </services>
 </container>

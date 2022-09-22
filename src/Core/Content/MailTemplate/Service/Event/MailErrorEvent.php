@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Logger;
+use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailErrorEvent extends Event implements LogAware, FlowEventAware, BusinessEventInterface
+class MailErrorEvent extends Event implements LogAware, FlowEventAware, BusinessEventInterface, NameAware
 {
     public const NAME = 'mail.sent.error';
 
@@ -64,6 +65,9 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, Business
         return $this->logLevel;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogData(): array
     {
         $logData = [];

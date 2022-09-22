@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -15,6 +16,8 @@ use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -110,25 +113,47 @@ class SendMailAction extends FlowAction
         return 'action.mail.send';
     }
 
+    /**
+     *  @deprecated tag:v6.5.0 Will be removed
+     */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return [];
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return [
             self::getName() => 'handle',
         ];
     }
 
+    /**
+     * @return array<string>
+     */
     public function requirements(): array
     {
         return [MailAware::class, DelayAware::class];
     }
 
     /**
+     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
+     *
      * @throws MailEventConfigurationException
      * @throws SalesChannelNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
     public function handle(Event $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         if (!$event instanceof FlowEvent) {
             return;
         }
@@ -164,11 +189,16 @@ class SendMailAction extends FlowAction
             return;
         }
 
-        $injectedTranslator = $this->injectTranslator($mailEvent);
+        $injectedTranslator = $this->injectTranslator($mailEvent->getContext(), $mailEvent->getSalesChannelId());
 
         $data = new DataBag();
 
-        $recipients = $this->getRecipients($eventConfig['recipient'], $mailEvent);
+        $contactFormData = [];
+        if ($mailEvent instanceof ContactFormEvent) {
+            $contactFormData = $mailEvent->getContactFormData();
+        }
+
+        $recipients = $this->getRecipients($eventConfig['recipient'], $mailEvent->getMailStruct()->getRecipients(), $contactFormData);
 
         if (empty($recipients)) {
             return;
@@ -185,7 +215,13 @@ class SendMailAction extends FlowAction
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
-        $attachments = array_unique($this->buildAttachments($mailEvent, $mailTemplate, $extension, $eventConfig), \SORT_REGULAR);
+        $attachments = array_unique($this->buildAttachments(
+            $event->getContext(),
+            $mailTemplate,
+            $extension,
+            $eventConfig,
+            $event instanceof OrderAware ? $event->getOrderId() : null
+        ), \SORT_REGULAR);
 
         if (!empty($attachments)) {
             $data->set('binAttachments', $attachments);
@@ -194,14 +230,114 @@ class SendMailAction extends FlowAction
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
         if ($data->has('templateId')) {
-            $this->updateMailTemplateType($event, $mailEvent, $mailTemplate);
+            $this->updateMailTemplateType(
+                $event->getContext(),
+                $event,
+                $this->getTemplateData($mailEvent),
+                $mailTemplate
+            );
         }
 
+        $this->send($data, $event->getContext(), $this->getTemplateData($mailEvent), $attachments, $extension, $injectedTranslator);
+    }
+
+    /**
+     * @throws MailEventConfigurationException
+     * @throws SalesChannelNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function handleFlow(StorableFlow $flow): void
+    {
+        $extension = $flow->getContext()->getExtension(self::MAIL_CONFIG_EXTENSION);
+        if (!$extension instanceof MailSendSubscriberConfig) {
+            $extension = new MailSendSubscriberConfig(false, [], []);
+        }
+
+        if ($extension->skip()) {
+            return;
+        }
+
+        if (!$flow->hasStore(MailAware::MAIL_STRUCT) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
+            throw new MailEventConfigurationException('Not have data from MailAware', \get_class($flow));
+        }
+
+        $eventConfig = $flow->getConfig();
+        if (empty($eventConfig['recipient'])) {
+            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', \get_class($flow));
+        }
+
+        if (!isset($eventConfig['mailTemplateId'])) {
+            return;
+        }
+
+        $mailTemplate = $this->getMailTemplate($eventConfig['mailTemplateId'], $flow->getContext());
+
+        if ($mailTemplate === null) {
+            return;
+        }
+
+        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getStore(MailAware::SALES_CHANNEL_ID));
+
+        $data = new DataBag();
+
+        $recipients = $this->getRecipients(
+            $eventConfig['recipient'],
+            $flow->getStore(MailAware::MAIL_STRUCT)['recipients'],
+            $flow->getStore('contactFormData', []),
+        );
+
+        if (empty($recipients)) {
+            return;
+        }
+
+        $data->set('recipients', $recipients);
+        $data->set('senderName', $mailTemplate->getTranslation('senderName'));
+        $data->set('salesChannelId', $flow->getStore(MailAware::SALES_CHANNEL_ID));
+
+        $data->set('templateId', $mailTemplate->getId());
+        $data->set('customFields', $mailTemplate->getCustomFields());
+        $data->set('contentHtml', $mailTemplate->getTranslation('contentHtml'));
+        $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
+        $data->set('subject', $mailTemplate->getTranslation('subject'));
+        $data->set('mediaIds', []);
+
+        $attachments = array_unique($this->buildAttachments(
+            $flow->getContext(),
+            $mailTemplate,
+            $extension,
+            $eventConfig,
+            $flow->getStore(OrderAware::ORDER_ID),
+        ), \SORT_REGULAR);
+
+        if (!empty($attachments)) {
+            $data->set('binAttachments', $attachments);
+        }
+
+        $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
+
+        if ($data->has('templateId')) {
+            $this->updateMailTemplateType(
+                $flow->getContext(),
+                $flow,
+                $flow->data(),
+                $mailTemplate
+            );
+        }
+
+        $this->send($data, $flow->getContext(), $flow->data(), $attachments, $extension, $injectedTranslator);
+    }
+
+    /**
+     * @param array<string, mixed> $templateData
+     * @param array<mixed, mixed> $attachments
+     */
+    private function send(DataBag $data, Context $context, array $templateData, array $attachments, MailSendSubscriberConfig $extension, bool $injectedTranslator): void
+    {
         try {
             $this->emailService->send(
                 $data->all(),
-                $event->getContext(),
-                $this->getTemplateData($mailEvent)
+                $context,
+                $templateData
             );
 
             $documentAttachments = array_filter($attachments, function (array $attachment) use ($extension) {
@@ -232,8 +368,16 @@ class SendMailAction extends FlowAction
         }
     }
 
-    private function updateMailTemplateType(FlowEvent $event, MailAware $mailAware, MailTemplateEntity $mailTemplate): void
-    {
+    /**
+     * @param FlowEvent|StorableFlow $event
+     * @param array<string, mixed> $templateData
+     */
+    private function updateMailTemplateType(
+        Context $context,
+        $event,
+        array $templateData,
+        MailTemplateEntity $mailTemplate
+    ): void {
         if (!$mailTemplate->getMailTemplateTypeId()) {
             return;
         }
@@ -245,7 +389,7 @@ class SendMailAction extends FlowAction
         $mailTemplateTypeTranslation = $this->connection->fetchOne(
             'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId AND mail_template_type_id =:mailTemplateTypeId',
             [
-                'languageId' => Uuid::fromHexToBytes($event->getContext()->getLanguageId()),
+                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
                 'mailTemplateTypeId' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId()),
             ]
         );
@@ -263,8 +407,8 @@ class SendMailAction extends FlowAction
 
         $this->mailTemplateTypeRepository->update([[
             'id' => $mailTemplate->getMailTemplateTypeId(),
-            'templateData' => $this->getTemplateData($mailAware),
-        ]], $mailAware->getContext());
+            'templateData' => $templateData,
+        ]], $context);
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
@@ -281,6 +425,8 @@ class SendMailAction extends FlowAction
 
     /**
      * @throws MailEventConfigurationException
+     *
+     * @return array<string, mixed>
      */
     private function getTemplateData(MailAware $event): array
     {
@@ -297,8 +443,18 @@ class SendMailAction extends FlowAction
         return $data;
     }
 
-    private function buildAttachments(MailAware $mailEvent, MailTemplateEntity $mailTemplate, MailSendSubscriberConfig $extensions, array $eventConfig): array
-    {
+    /**
+     * @param array<string, mixed> $eventConfig
+     *
+     * @return array<mixed, mixed>
+     */
+    private function buildAttachments(
+        Context $context,
+        MailTemplateEntity $mailTemplate,
+        MailSendSubscriberConfig $extensions,
+        array $eventConfig,
+        ?string $orderId
+    ): array {
         $attachments = [];
 
         if ($mailTemplate->getMedia() !== null) {
@@ -306,13 +462,13 @@ class SendMailAction extends FlowAction
                 if ($mailTemplateMedia->getMedia() === null) {
                     continue;
                 }
-                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $mailEvent->getContext()->getLanguageId()) {
+                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $context->getLanguageId()) {
                     continue;
                 }
 
                 $attachments[] = $this->mediaService->getAttachment(
                     $mailTemplateMedia->getMedia(),
-                    $mailEvent->getContext()
+                    $context
                 );
             }
         }
@@ -321,17 +477,18 @@ class SendMailAction extends FlowAction
             $criteria = new Criteria($extensions->getMediaIds());
             $criteria->setTitle('send-mail::load-media');
 
-            $entities = $this->mediaRepository->search($criteria, $mailEvent->getContext());
+            /** @var MediaCollection<MediaEntity> $entities */
+            $entities = $this->mediaRepository->search($criteria, $context);
 
             foreach ($entities as $media) {
-                $attachments[] = $this->mediaService->getAttachment($media, $mailEvent->getContext());
+                $attachments[] = $this->mediaService->getAttachment($media, $context);
             }
         }
 
         $documentIds = $extensions->getDocumentIds();
 
-        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $mailEvent instanceof OrderAware) {
-            $latestDocuments = $this->getLatestDocumentsOfTypes($mailEvent->getOrderId(), $eventConfig['documentTypeIds']);
+        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $orderId) {
+            $latestDocuments = $this->getLatestDocumentsOfTypes($orderId, $eventConfig['documentTypeIds']);
 
             $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
         }
@@ -339,18 +496,18 @@ class SendMailAction extends FlowAction
         if (!empty($documentIds)) {
             $extensions->setDocumentIds($documentIds);
             if (Feature::isActive('v6.5.0.0')) {
-                $attachments = $this->mappingAttachments($documentIds, $attachments, $mailEvent->getContext());
+                $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
             } else {
-                $attachments = $this->buildOrderAttachments($documentIds, $attachments, $mailEvent->getContext());
+                $attachments = $this->buildOrderAttachments($documentIds, $attachments, $context);
             }
         }
 
         return $attachments;
     }
 
-    private function injectTranslator(MailAware $event): bool
+    private function injectTranslator(Context $context, ?string $salesChannelId): bool
     {
-        if ($event->getSalesChannelId() === null) {
+        if ($salesChannelId === null) {
             return false;
         }
 
@@ -359,16 +516,23 @@ class SendMailAction extends FlowAction
         }
 
         $this->translator->injectSettings(
-            $event->getSalesChannelId(),
-            $event->getContext()->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($event->getContext()->getLanguageId()),
-            $event->getContext()
+            $salesChannelId,
+            $context->getLanguageId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+            $context
         );
 
         return true;
     }
 
-    private function getRecipients(array $recipients, MailAware $mailEvent): array
+    /**
+     * @param array<string, mixed> $recipients
+     * @param array<string, mixed> $mailStructRecipients
+     * @param array<int|string, mixed> $contactFormData
+     *
+     * @return array<int|string, string>
+     */
+    private function getRecipients(array $recipients, array $mailStructRecipients, array $contactFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:
@@ -384,23 +548,25 @@ class SendMailAction extends FlowAction
 
                 return $emails;
             case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
-                if (!$mailEvent instanceof ContactFormEvent) {
-                    return [];
-                }
-                $data = $mailEvent->getContactFormData();
-
-                if (!\array_key_exists('email', $data)) {
+                if (empty($contactFormData)) {
                     return [];
                 }
 
-                return [$data['email'] => ($data['firstName'] ?? '') . ' ' . ($data['lastName'] ?? '')];
+                if (!\array_key_exists('email', $contactFormData)) {
+                    return [];
+                }
+
+                return [$contactFormData['email'] => ($contactFormData['firstName'] ?? '') . ' ' . ($contactFormData['lastName'] ?? '')];
             default:
-                return $mailEvent->getMailStruct()->getRecipients();
+                return $mailStructRecipients;
         }
     }
 
     /**
      * @param array<string> $documentIds
+     * @param array<mixed, mixed> $attachments
+     *
+     * @return array<mixed, mixed>
      */
     private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
     {
@@ -417,6 +583,8 @@ class SendMailAction extends FlowAction
 
     /**
      * @param array<string> $documentTypeIds
+     *
+     * @return array<string>
      */
     private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
@@ -451,6 +619,11 @@ class SendMailAction extends FlowAction
         return $documentIds;
     }
 
+    /**
+     * @param array<mixed, mixed> $attachments
+     *
+     * @return array<mixed, mixed>
+     */
     private function mappingAttachmentsInfo(DocumentCollection $documents, array $attachments, Context $context): array
     {
         foreach ($documents as $document) {
@@ -470,6 +643,9 @@ class SendMailAction extends FlowAction
 
     /**
      * @param array<string> $documentIds
+     * @param array<mixed, mixed> $attachments
+     *
+     * @return array<mixed, mixed>
      */
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {

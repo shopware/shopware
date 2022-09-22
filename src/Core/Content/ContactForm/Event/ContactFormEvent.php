@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContactForm\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -12,7 +13,7 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class ContactFormEvent extends Event implements FlowEventAware, SalesChannelAware, MailAware
+final class ContactFormEvent extends Event implements FlowEventAware, SalesChannelAware, MailAware, ContactFormDataAware
 {
     public const EVENT_NAME = 'contact_form.send';
 
@@ -32,7 +33,7 @@ final class ContactFormEvent extends Event implements FlowEventAware, SalesChann
     private $recipients;
 
     /**
-     * @var array
+     * @var array<int|string, mixed>
      */
     private $contactFormData;
 
@@ -70,6 +71,9 @@ final class ContactFormEvent extends Event implements FlowEventAware, SalesChann
         return $this->salesChannelId;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     public function getContactFormData(): array
     {
         return $this->contactFormData;

@@ -97,6 +97,7 @@
                             :disabled="!acl.can('payment.editor')"
                             :label="$tc('sw-settings-payment.detail.labelName')"
                             :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
+                            :error="paymentMethodNameError"
                         />
                         {% endblock %}
 

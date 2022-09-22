@@ -4,6 +4,8 @@ import './sw-settings-payment-detail.scss';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
+const { mapPropertyErrors } = Component.getComponentHelper();
+const { hasOwnProperty } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-payment-detail', {
@@ -110,6 +112,8 @@ Component.register('sw-settings-payment-detail', {
         showCustomFields() {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        ...mapPropertyErrors('paymentMethod', ['name']),
     },
 
     watch: {
@@ -159,7 +163,12 @@ Component.register('sw-settings-payment-detail', {
             this.paymentMethodRepository.get(this.paymentMethodId)
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
-                    this.setMediaItem({ targetId: this.paymentMethod.mediaId });
+
+                    if (!paymentMethod || !hasOwnProperty(paymentMethod, 'mediaId')) {
+                        return;
+                    }
+
+                    this.setMediaItem({ targetId: paymentMethod.mediaId });
                 })
                 .finally(() => {
                     this.isLoading = false;

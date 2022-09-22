@@ -28,7 +28,7 @@ function getCollection(repository) {
     );
 }
 
-function createWrapper(privileges = [], isNewRule = false) {
+function createWrapper(privileges = [], isNewRule = false, computed = {}) {
     return shallowMount(Shopware.Component.build('sw-settings-rule-detail'), {
         stubs: {
             'sw-page': {
@@ -103,7 +103,8 @@ function createWrapper(privileges = [], isNewRule = false) {
                     id: ''
                 }
             }
-        }
+        },
+        computed,
     });
 }
 
@@ -229,5 +230,39 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(wrapper.vm.isDisplayingSaveChangesWarning).toBeFalsy();
         expect(next).toHaveBeenCalled();
+    });
+
+    it('should return tab has no error for assignment tab', async () => {
+        const wrapper = createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.tabHasError({
+            route: {
+                name: 'sw.settings.rule.detail.assignments',
+            },
+        })).toBe(false);
+    });
+
+    it('should return tab has error for assignment tab', async () => {
+        const wrapper = createWrapper(
+            [],
+            false,
+            {
+                ruleNameError() {
+                    return {
+                        detail: 'error'
+                    };
+                }
+            }
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.tabHasError({
+            route: {
+                name: 'sw.settings.rule.detail.base',
+            },
+        })).toBe(true);
     });
 });

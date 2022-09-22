@@ -34,6 +34,12 @@ Component.register('sw-product-stream-field-select', {
             required: false,
             default: false,
         },
+
+        hasError: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -70,6 +76,14 @@ Component.register('sw-product-stream-field-select', {
             }
 
             return entityFields;
+        },
+
+        arrowPrimaryColor() {
+            if (this.hasError) {
+                return '#de294c';
+            }
+
+            return '#758ca3';
         },
     },
 

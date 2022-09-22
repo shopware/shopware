@@ -108,6 +108,12 @@ Component.register('sw-inherit-wrapper', {
             required: false,
             default: null,
         },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -159,6 +165,12 @@ Component.register('sw-inherit-wrapper', {
             }
 
             return this.value === null || this.value === undefined;
+        },
+
+        labelClasses() {
+            return {
+                'has--error': !!this.error,
+            };
         },
     },
 

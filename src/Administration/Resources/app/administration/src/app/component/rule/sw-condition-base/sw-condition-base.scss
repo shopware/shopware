@@ -16,6 +16,19 @@ $sw-condition-color-border-default: $color-gray-300;
 
         &.has--error {
             border: 1px solid $color-crimson-500;
+            background: $color-crimson-50;
+
+            .sw-condition__placeholder {
+                background: $color-crimson-50;
+
+                input {
+                    background: $color-crimson-50;
+                }
+            }
+
+            .sw-condition__context-button {
+                border-left: 1px solid $color-crimson-500;
+            }
         }
 
         &.is--disabled {

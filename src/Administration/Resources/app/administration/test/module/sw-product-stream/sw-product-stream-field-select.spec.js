@@ -6,7 +6,7 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 
-function createWrapper() {
+function createWrapper(propsData = {}) {
     return shallowMount(Shopware.Component.build('sw-product-stream-field-select'), {
         provide: {
             conditionDataProviderService: {
@@ -35,7 +35,8 @@ function createWrapper() {
             definition: {
                 entity: 'product',
                 properties: {}
-            }
+            },
+            ...propsData,
         }
     });
 }
@@ -63,5 +64,19 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
             label: 'jsontest',
             value: 'json.test'
         }]);
+    });
+
+    it('should return gray arrow primary color without error', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.arrowPrimaryColor).toBe('#758ca3');
+    });
+
+    it('should return red arrow primary color with error', () => {
+        const wrapper = createWrapper({
+            hasError: true,
+        });
+
+        expect(wrapper.vm.arrowPrimaryColor).toBe('#de294c');
     });
 });

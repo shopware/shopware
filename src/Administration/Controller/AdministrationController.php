@@ -37,6 +37,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function version_compare;
 
 /**
  * @Route(defaults={"_routeScope"={"administration"}})
@@ -68,6 +69,8 @@ class AdministrationController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private bool $esEnable;
+
     /**
      * @internal
      */
@@ -83,7 +86,8 @@ class AdministrationController extends AbstractController
         EntityRepositoryInterface $customerRepo,
         EntityRepositoryInterface $currencyRepository,
         HtmlSanitizer $htmlSanitizer,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        bool $esEnable
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -97,6 +101,7 @@ class AdministrationController extends AbstractController
         $this->currencyRepository = $currencyRepository;
         $this->htmlSanitizer = $htmlSanitizer;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->esEnable = $esEnable;
     }
 
     /**
@@ -121,6 +126,7 @@ class AdministrationController extends AbstractController
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
+            'adminEsEnable' => $this->esEnable,
         ]);
     }
 
@@ -168,6 +174,8 @@ class AdministrationController extends AbstractController
      */
     public function resetExcludedSearchTerm(Context $context)
     {
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Native return type JsonResponse will be added');
+
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
@@ -312,7 +320,10 @@ class AdministrationController extends AbstractController
     private function getLatestApiVersion(): int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-        usort($sortedSupportedApiVersions, 'version_compare');
+
+        usort($sortedSupportedApiVersions, function (int $version1, int $version2) {
+            return version_compare((string) $version1, (string) $version2);
+        });
 
         return array_pop($sortedSupportedApiVersions);
     }

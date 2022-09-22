@@ -96,6 +96,9 @@ class EnvConfigWriter
         $newEnv[] = 'SHOPWARE_ES_INDEXING_ENABLED=0';
         $newEnv[] = 'SHOPWARE_ES_INDEX_PREFIX=sw';
         $newEnv[] = 'SHOPWARE_ES_THROW_EXCEPTION=1';
+        $newEnv[] = 'SHOPWARE_ADMIN_ES_INDEX_PREFIX=sw-admin';
+        $newEnv[] = 'SHOPWARE_ADMIN_ES_ENABLED=0';
+        $newEnv[] = 'SHOPWARE_ADMIN_ES_REFRESH_INDICES=0';
         $newEnv[] = '###< shopware/elasticsearch ###';
         $newEnv[] = '';
 

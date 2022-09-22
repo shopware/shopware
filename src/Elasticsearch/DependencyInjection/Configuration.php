@@ -25,6 +25,8 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('indexing_batch_size')->defaultValue(100)->end()
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
+                ->scalarNode('admin_enabled')->end()
+                ->scalarNode('admin_refresh_indices')->end()
                 ->scalarNode('throw_exception')->end()
                 ->scalarNode('logger_level')->defaultValue($debug ? Logger::DEBUG : Logger::ERROR)->end()
                 ->arrayNode('ssl')

@@ -197,8 +197,8 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminTestCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearcher"/>
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector">
@@ -256,9 +256,6 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchController" public="true">
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
@@ -266,108 +263,112 @@
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearcher">
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">
             <tag name="kernel.event_subscriber"/>
             <tag name="messenger.message_handler" />
-            <argument type="tagged" tag="elastic.admin-searcher-index"/>
+            <argument type="tagged" tag="shopware.elastic.admin-searcher-index" index-by="key"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%elasticsearch.admin_refresh_indices%</argument>
+            <argument>%elasticsearch.index.config%</argument>
+            <argument>%elasticsearch.index.mapping%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="cms_page.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="cms-page-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CustomerAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="customer.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="customer-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="customer_group.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="customer-group-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="landing_page.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="landing-page-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ManufacturerAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product_manufacturer.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="manufacturer-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="media.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="media-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="order.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="order-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="payment_method.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="payment-method-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="product-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="promotion.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="promotion-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="property_group.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="property-group-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="sales_channel.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="sales-channel-listing"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="shipping_method.repository"/>
-            <tag name="elastic.admin-searcher-index" />
+            <tag name="shopware.elastic.admin-searcher-index" key="shipping-method-listing"/>
         </service>
     </services>
 </container>

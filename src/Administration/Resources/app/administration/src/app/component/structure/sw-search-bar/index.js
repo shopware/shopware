@@ -488,11 +488,8 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            const useElastic = true;
-
             let response;
-
-            if (useElastic) {
+            if (Context.app.adminEsEnable) {
                 const names = [];
                 Object.keys(this.userSearchPreference).forEach((key) => {
                     if (this._isEmptyObject(this.userSearchPreference[key])) {
@@ -509,7 +506,7 @@ Component.register('sw-search-bar', {
                     searchTerm,
                     this.criteriaCollection,
                     this.searchLimit + 1,
-                    0
+                    0,
                 );
                 response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
             }
@@ -853,7 +850,7 @@ Component.register('sw-search-bar', {
 
         getModuleEntities(searchTerm, limit = 5) {
             const minSearch = 3;
-            const regex = new RegExp(`^${searchTerm.toLowerCase()}(.*)`);
+            const regex = new RegExp(`^${searchTerm.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').toLowerCase()}(.*)`);
 
             if (!searchTerm || searchTerm.length < minSearch) {
                 return [];

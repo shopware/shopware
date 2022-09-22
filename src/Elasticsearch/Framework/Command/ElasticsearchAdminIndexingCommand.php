@@ -10,9 +10,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
+/**
+ * @internal
+ */
+final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;
+
+    public static $defaultDescription = 'Index the elasticsearch for the admin search';
 
     protected static $defaultName = 'es:admin:index';
 
@@ -25,14 +30,6 @@ class ElasticsearchAdminIndexingCommand extends Command implements EventSubscrib
     {
         parent::__construct();
         $this->registry = $registry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure(): void
-    {
-        $this->setDescription('Index the elasticsearch for the admin search');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -3,23 +3,30 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Elasticsearch\Client;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
-use Shopware\Elasticsearch\Admin\Indexer\AdminSearchIndexer;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscriberInterface
+/**
+ * @internal
+ */
+final class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
+    public const CONFIG_KEY_STORE_ADMIN_ES_INDICES = 'core.store.adminESIndices';
+
     /**
-     * @var AdminSearchIndexer[]
+     * @var array<string, mixed>
      */
-    private iterable $indexer;
+    private array $indexer;
 
     private MessageBusInterface $queue;
 
@@ -27,12 +34,54 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
 
     private Client $client;
 
-    public function __construct(iterable $indexer, MessageBusInterface $queue, EventDispatcherInterface $dispatcher, Client $client)
-    {
-        $this->indexer = $indexer;
+    private SystemConfigService $configService;
+
+    private bool $refreshIndices;
+
+    /**
+     * @var array<mixed>
+     */
+    private array $config;
+
+    /**
+     * @var array<mixed>
+     */
+    private array $mapping;
+
+    /**
+     * @param AbstractAdminIndexer[] $indexer
+     * @param array<mixed> $config
+     * @param array<mixed> $mapping
+     */
+    public function __construct(
+        $indexer,
+        MessageBusInterface $queue,
+        EventDispatcherInterface $dispatcher,
+        Client $client,
+        SystemConfigService $configService,
+        bool $refreshIndices,
+        array $config,
+        array $mapping
+    ) {
+        $this->indexer = $indexer instanceof \Traversable ? iterator_to_array($indexer) : $indexer;
         $this->queue = $queue;
         $this->dispatcher = $dispatcher;
         $this->client = $client;
+        $this->configService = $configService;
+        $this->refreshIndices = $refreshIndices;
+        $this->mapping = $mapping;
+
+        if (isset($config['settings']['index'])) {
+            if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
+                unset($config['settings']['index']['number_of_shards']);
+            }
+
+            if (\array_key_exists('number_of_replicas', $config['settings']['index']) && $config['settings']['index']['number_of_replicas'] === null) {
+                unset($config['settings']['index']['number_of_replicas']);
+            }
+        }
+
+        $this->config = $config;
     }
 
     public static function getSubscribedEvents(): array
@@ -53,9 +102,7 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
 
     public function iterate(): void
     {
-        $this->deleteIndices();
-
-        $this->createIndices();
+        $indices = $this->createIndices();
 
         foreach ($this->indexer as $indexer) {
             $iterator = $indexer->getIterator();
@@ -63,28 +110,42 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
             $this->dispatcher->dispatch(new ProgressStartedEvent($indexer->getName(), $iterator->fetchCount()));
 
             while ($ids = $iterator->fetch()) {
-                $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getName(), $ids));
+                $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getName(), $indices, $ids));
 
                 $this->dispatcher->dispatch(new ProgressAdvancedEvent(\count($ids)));
             }
 
             $this->dispatcher->dispatch(new ProgressFinishedEvent($indexer->getName()));
         }
+
+        $this->swapAlias($indices);
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $this->createIndices();
+        if (!$this->isIndexedEntityWritten($event)) {
+            return;
+        }
+
+        if ($this->refreshIndices) {
+            $this->refreshIndices();
+        }
+
+        $indices = $this->configService->get(self::CONFIG_KEY_STORE_ADMIN_ES_INDICES);
+
+        if (!\is_array($indices)) {
+            return;
+        }
 
         foreach ($this->indexer as $indexer) {
-            $ids = $event->getPrimaryKeys($indexer->getName());
+            $ids = $event->getPrimaryKeys($indexer->getEntity());
 
             if (empty($ids)) {
                 continue;
             }
             $documents = $indexer->fetch($ids);
 
-            $this->push($indexer, $documents, $ids);
+            $this->push($indexer, $indices, $documents, $ids);
         }
     }
 
@@ -98,41 +159,58 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
 
         $documents = $indexer->fetch($message->getIds());
 
-        $this->push($indexer, $documents, $message->getIds());
+        $this->push($indexer, $message->getIndices(), $documents, $message->getIds());
     }
 
     /**
-     * @return AdminSearchIndexer[]
+     * @return AbstractAdminIndexer[]
      */
     public function getIndexers(): iterable
     {
         return $this->indexer;
     }
 
-    public function getIndexer(string $name): AdminSearchIndexer
+    public function getIndexer(string $name): AbstractAdminIndexer
+    {
+        $indexer = $this->indexer[$name] ?? $this->indexer[$this->buildName($name)];
+
+        if ($indexer) {
+            return $indexer;
+        }
+
+        throw new ElasticsearchIndexingException([\sprintf('Indexer for name %s not found', $name)]);
+    }
+
+    private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
     {
         foreach ($this->indexer as $indexer) {
-            if ($indexer->getName() === $name) {
-                return $indexer;
-            }
-            if ($indexer->getIndex() === $name) {
-                return $indexer;
+            $ids = $event->getPrimaryKeys($indexer->getEntity());
+
+            if (!empty($ids)) {
+                return true;
             }
         }
 
-        throw new \RuntimeException(\sprintf('Indexer for name %s not found', $name));
+        return false;
     }
 
-    private function push(AdminSearchIndexer $indexer, array $data, array $ids): void
+    /**
+     * @param array<string, string> $indices
+     * @param array<string, array<string|int, string>> $data
+     * @param array<string> $ids
+     */
+    private function push(AbstractAdminIndexer $indexer, array $indices, array $data, array $ids): void
     {
-        $toRemove = array_filter($ids, static fn (string $id) => !isset($data[$id]));
+        $toRemove = array_filter($ids, static function (string $id) use ($data): bool {
+            return !isset($data[$id]);
+        });
 
         $documents = [];
         foreach ($data as $id => $document) {
             $documents[] = ['index' => ['_id' => $id]];
 
             $documents[] = \array_replace(
-                ['entity_name' => $indexer->getEntity(), 'parameters' => [], 'text' => ''],
+                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'text' => ''],
                 $document
             );
         }
@@ -142,7 +220,7 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
         }
 
         $arguments = [
-            'index' => $indexer->getIndex(),
+            'index' => $indices[$indexer->getIndex()],
             'body' => $documents,
         ];
 
@@ -155,27 +233,89 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
         }
     }
 
-    private function createIndices(): void
+    /**
+     * @return array<string, string>
+     */
+    private function createIndices(): array
     {
+        $newIndices = [];
         foreach ($this->indexer as $indexer) {
-            if ($this->indexExists($indexer->getIndex())) {
+            $alias = (string) $indexer->getIndex();
+            $index = $alias . '_' . time();
+
+            if ($this->indexExists($index)) {
                 continue;
             }
 
-            $mapping = $indexer->mapping([
-                'properties' => [
-                    'id' => ['type' => 'keyword'],
-                    'text' => ['type' => 'text'],
-                    'entity_name' => ['type' => 'keyword'],
-                    'parameters' => ['type' => 'keyword'],
-                ],
-            ]);
+            $this->create($indexer, $index, $alias);
 
-            $this->client->indices()->create([
-                'index' => $indexer->getIndex(),
-                'body' => ['mappings' => $mapping],
-            ]);
+            $newIndices[$alias] = $index;
         }
+
+        $indices = $this->configService->get(self::CONFIG_KEY_STORE_ADMIN_ES_INDICES);
+
+        if (\is_array($indices)) {
+            $newIndices = \array_replace($indices, $newIndices);
+        }
+
+        $this->configService->set(self::CONFIG_KEY_STORE_ADMIN_ES_INDICES, $newIndices);
+
+        return $newIndices;
+    }
+
+    private function refreshIndices(): void
+    {
+        $newIndices = [];
+        foreach ($this->indexer as $indexer) {
+            $alias = (string) $indexer->getIndex();
+
+            if ($this->aliasExists($alias)) {
+                continue;
+            }
+
+            $index = $alias . '_' . time();
+            $this->create($indexer, $index, $alias);
+
+            $newIndices[$alias] = $index;
+        }
+
+        if (empty($newIndices)) {
+            return;
+        }
+
+        $indices = $this->configService->get(self::CONFIG_KEY_STORE_ADMIN_ES_INDICES);
+
+        if (\is_array($indices)) {
+            $newIndices = \array_replace($indices, $newIndices);
+        }
+
+        $this->configService->set(self::CONFIG_KEY_STORE_ADMIN_ES_INDICES, $newIndices);
+    }
+
+    private function create(AbstractAdminIndexer $indexer, string $index, string $alias): void
+    {
+        $mapping = $indexer->mapping([
+            'properties' => [
+                'id' => ['type' => 'keyword'],
+                'text' => ['type' => 'text'],
+                'entityName' => ['type' => 'keyword'],
+                'parameters' => ['type' => 'keyword'],
+            ],
+        ]);
+
+        $mapping = array_merge_recursive($mapping, $this->mapping);
+
+        $body = array_merge(
+            $this->config,
+            ['mappings' => $mapping]
+        );
+
+        $this->client->indices()->create([
+            'index' => $index,
+            'body' => $body,
+        ]);
+
+        $this->createAliasIfNotExisting($index, $alias);
     }
 
     private function indexExists(string $name): bool
@@ -183,6 +323,16 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
         return $this->client->indices()->exists(['index' => $name]);
     }
 
+    private function aliasExists(string $alias): bool
+    {
+        return $this->client->indices()->existsAlias(['name' => $alias]);
+    }
+
+    /**
+     * @param array<string, array<array<string, mixed>>> $result
+     *
+     * @return array<array{reason: string}|string>
+     */
     private function parseErrors(array $result): array
     {
         $errors = [];
@@ -204,14 +354,56 @@ class AdminSearchRegistry extends AbstractMessageHandler implements EventSubscri
         return $errors;
     }
 
-    private function deleteIndices(): void
+    private function buildName(string $name): string
     {
-        foreach ($this->indexer as $indexer) {
-            if (!$this->indexExists($indexer->getIndex())) {
-                continue;
+        return str_replace(EnvironmentHelper::getVariable('SHOPWARE_ADMIN_ES_INDEX_PREFIX', 'sw-admin') . '-', '', $name);
+    }
+
+    private function createAliasIfNotExisting(string $index, string $alias): void
+    {
+        $exist = $this->client->indices()->existsAlias(['name' => $alias]);
+
+        if ($exist) {
+            return;
+        }
+
+        $this->putAlias($index, $alias);
+    }
+
+    /**
+     * @param array<string, string> $indices
+     */
+    private function swapAlias($indices): void
+    {
+        foreach ($indices as $alias => $index) {
+            $exist = $this->client->indices()->existsAlias(['name' => $alias]);
+
+            if (!$exist) {
+                $this->putAlias($index, $alias);
+
+                return;
             }
 
-            $this->client->indices()->delete(['index' => $indexer->getIndex()]);
+            $current = $this->client->indices()->getAlias(['name' => $alias]);
+
+            if (!isset($current[$index])) {
+                $this->putAlias($index, $alias);
+            }
+
+            unset($current[$index]);
+            $current = array_keys($current);
+
+            foreach ($current as $value) {
+                $this->client->indices()->delete(['index' => $value]);
+            }
         }
+    }
+
+    private function putAlias(string $index, string $alias): void
+    {
+        $this->client->indices()->refresh([
+            'index' => $index,
+        ]);
+        $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
     }
 }

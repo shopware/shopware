@@ -5,16 +5,19 @@ namespace Shopware\Elasticsearch\Admin;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AdminSearchController extends AbstractController
+/**
+ * @internal
+ */
+final class AdminSearchController
 {
     private AdminSearcher $searcher;
 
@@ -42,17 +45,18 @@ class AdminSearchController extends AbstractController
     public function elastic(Request $request, Context $context): Response
     {
         $term = trim($request->get('term', ''));
+        $entities = $request->request->all('entities');
 
         if (empty($term)) {
             throw new \RuntimeException('Search term is empty');
         }
 
-        $results = $this->searcher->search($term, $context);
+        $results = $this->searcher->search($term, $entities, $context);
 
         foreach ($results as $entityName => $result) {
             $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-            /** @var EntityCollection $entityCollection */
+            /** @var EntityCollection<Entity> $entityCollection */
             $entityCollection = $result['data'];
             $entities = [];
 

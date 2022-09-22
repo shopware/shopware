@@ -2,13 +2,17 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
-use Doctrine\Common\Collections\Criteria;
 use ONGR\ElasticsearchDSL\Search;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
-abstract class AdminSearchIndexer
+/**
+ * @internal
+ */
+abstract class AbstractAdminIndexer
 {
     abstract public function getDecorated(): self;
 
@@ -16,6 +20,11 @@ abstract class AdminSearchIndexer
 
     abstract public function getEntity(): string;
 
+    /**
+     * @param array<string, array<string, array<string, string>>> $mapping
+     *
+     * @return array<string, array<string, array<string, string>>>
+     */
     public function mapping(array $mapping): array
     {
         return $mapping;
@@ -23,21 +32,22 @@ abstract class AdminSearchIndexer
 
     final public function getIndex(): string
     {
-        return 'admin-' . \strtolower(\str_replace(['_', ' '], '-', $this->getName()));
+        return EnvironmentHelper::getVariable('SHOPWARE_ADMIN_ES_INDEX_PREFIX', 'sw-admin') . '-' . \strtolower(\str_replace(['_', ' '], '-', $this->getName()));
     }
 
     abstract public function getIterator(): IterableQuery;
 
     /**
-     * @param array $ids<string>
-     * @return array<{id:string, text:string}>
+     * @param array<string>|array<int, array<string>> $ids
+     *
+     * @return array<string, array<string, string>>
      */
     abstract public function fetch(array $ids): array;
 
     /**
-     * @param array $result{index:string, total:int, hits:array<{id:string, score:float, parameters:array, entity_name:string}>}
-     * @param Context $context
-     * @return array{total:int, data:array<Struct>}
+     * @param array<string, mixed> $result
+     *
+     * @return array{total:int, data:EntityCollection<Entity>}
      */
     abstract public function globalData(array $result, Context $context): array;
 

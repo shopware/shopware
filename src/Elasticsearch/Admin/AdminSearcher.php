@@ -3,43 +3,47 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Elasticsearch\Client;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\QueryStringQuery;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
-class AdminSearcher
+/**
+ * @internal
+ */
+final class AdminSearcher
 {
     private Client $client;
-
-    private Tokenizer $tokenizer;
 
     private AdminSearchRegistry $registry;
 
     /**
      * @internal
      */
-    public function __construct(Client $client, Tokenizer $tokenizer, AdminSearchRegistry $registry)
+    public function __construct(Client $client, AdminSearchRegistry $registry)
     {
         $this->client = $client;
-        $this->tokenizer = $tokenizer;
         $this->registry = $registry;
     }
 
-    public function search(string $term, Context $context, int $limit = 5): array
+    /**
+     * @param array<string> $entities
+     *
+     * @return array<string, array{total: int, data:EntityCollection<Entity>, indexer: string, index: string}>
+     */
+    public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
         $index = [];
         foreach ($this->registry->getIndexers() as $indexer) {
+            if (!\in_array($indexer->getEntity(), $entities, true)) {
+                continue;
+            }
+
             $index[] = ['index' => $indexer->getIndex()];
 
-            $index[] = $indexer->globalCriteria($term, $this->buildSearch($term, $limit));
+            $index[] = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
         }
 
         $responses = $this->client->msearch(['body' => $index]);
@@ -54,7 +58,7 @@ class AdminSearcher
 
             $result[$index] = [
                 'total' => $response['hits']['total']['value'],
-                'hits' => []
+                'hits' => [],
             ];
 
             foreach ($response['hits']['hits'] as $hit) {
@@ -62,14 +66,16 @@ class AdminSearcher
                     'id' => $hit['_id'],
                     'score' => $hit['_score'],
                     'parameters' => $hit['_source']['parameters'],
-                    'entity_name' => $hit['_source']['entity_name'],
+                    'entityName' => $hit['_source']['entityName'],
                 ];
             }
         }
 
         $mapped = [];
         foreach ($result as $index => $values) {
-            $indexer = $this->registry->getIndexer($index);
+            $alias = explode('_', (string) $index);
+            $alias = array_shift($alias);
+            $indexer = $this->registry->getIndexer((string) $alias);
 
             if (!$context->isAllowed($indexer->getEntity() . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
@@ -79,7 +85,7 @@ class AdminSearcher
             $data['indexer'] = $indexer->getName();
             $data['index'] = $indexer->getIndex();
 
-            $mapped[] = $data;
+            $mapped[$indexer->getEntity()] = $data;
         }
 
         return $mapped;
@@ -87,16 +93,10 @@ class AdminSearcher
 
     private function buildSearch(string $term, int $limit): Search
     {
-        $tokens = $this->tokenizer->tokenize($term);
-
+        $term = str_replace(' or ', ' OR ', $term);
+        $term = str_replace(' and ', ' AND ', $term);
         $search = new Search();
-
-        $query = new BoolQuery();
-        foreach ($tokens as $token) {
-            $query->add(new MatchQuery('text', $token), BoolQuery::SHOULD);
-            $query->add(new WildcardQuery('text', '*' . $token . '*'), BoolQuery::SHOULD);
-        }
-        $query->addParameter('minimum_should_match', 1);
+        $query = new QueryStringQuery($term);
 
         $search->addQuery($query);
         $search->setSize($limit);

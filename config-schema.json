@@ -871,6 +871,16 @@
                     "description": "Elasticsearch Index Prefix",
                     "default": "sw"
                 },
+                "admin_enabled": {
+                    "type": "boolean",
+                    "description": "Admin Elasticsearch Enabled",
+                    "default": false
+                },
+                "admin_refresh_indices": {
+                    "type": "boolean",
+                    "description": "Admin Elasticsearch Refresh Indices",
+                    "default": false
+                },
                 "throw_exception": {
                     "type": ["string", "boolean"],
                     "description": "Throw exception when Elasticsearch queries failing",

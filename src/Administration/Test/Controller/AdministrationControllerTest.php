@@ -46,6 +46,8 @@ class AdministrationControllerTest extends TestCase
 
     public function testResetExcludedSearchTerm(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         /** @var string $coreDir */
         $coreDir = $this->getContainer()->getParameter('kernel.shopware_core_dir');
         $defaultExcludedTermEn = require $coreDir . '/Migration/Fixtures/stopwords/en.php';

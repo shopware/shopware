@@ -2,19 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,31 +22,30 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
+
+    private EntityRepository $customerGroupRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
     private SalesChannelContextRestorer $restorer;
 
-    private Connection $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
+        EntityRepository $customerRepository,
+        EntityRepository $customerGroupRepository,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextRestorer $restorer,
-        Connection $connection
+        SalesChannelContextRestorer $restorer
     ) {
         $this->customerRepository = $customerRepository;
+        $this->customerGroupRepository = $customerGroupRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->restorer = $restorer;
-        $this->connection = $connection;
     }
 
     /**
-     * @throws \Doctrine\DBAL\Driver\Exception
      * @throws Exception
      *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
@@ -73,10 +68,6 @@ class CustomerGroupRegistrationActionController
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
-
         $updateData = [];
 
         foreach ($customers as $customer) {
@@ -92,8 +83,17 @@ class CustomerGroupRegistrationActionController
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw new \RuntimeException('customer group not found');
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
                 $customerRequestedGroup,
@@ -106,7 +106,6 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @throws Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
      *
      * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
@@ -128,10 +127,6 @@ class CustomerGroupRegistrationActionController
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
-        if (empty($customers)) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-        }
-
         $updateData = [];
 
         foreach ($customers as $customer) {
@@ -146,8 +141,17 @@ class CustomerGroupRegistrationActionController
         foreach ($customers as $customer) {
             $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
-            /** @var CustomerGroupEntity $customerRequestedGroup */
-            $customerRequestedGroup = $customer->getRequestedGroup();
+            /** @var CustomerEntity $customer */
+            $customer = $salesChannelContext->getCustomer();
+
+            $criteria = new Criteria([$customer->getGroupId()]);
+            $criteria->setLimit(1);
+            $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+            if ($customerRequestedGroup === null) {
+                throw new \RuntimeException('customer group not found');
+            }
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
                 $customerRequestedGroup,
@@ -156,32 +160,6 @@ class CustomerGroupRegistrationActionController
         }
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @throws \Doctrine\DBAL\Driver\Exception
-     * @throws \Exception
-     */
-    public function getContextByCustomerId(string $customerId): Context
-    {
-        $langId = $this->connection->createQueryBuilder()
-            ->select('LOWER(HEX(language_id))')
-            ->from('customer')
-            ->where('id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($customerId))
-            ->execute()
-            ->fetchOne();
-
-        if (!$langId) {
-            throw new \Exception('languageId not found for customer with the id: "' . $customerId . '"');
-        }
-
-        $context = Context::createDefaultContext();
-        $context->assign([
-            'languageIdChain' => [$langId],
-        ]);
-
-        return $context;
     }
 
     /**
@@ -215,36 +193,32 @@ class CustomerGroupRegistrationActionController
     /**
      * @param array<string> $customerIds
      *
-     * @throws \Doctrine\DBAL\Driver\Exception
-     *
      * @return array<CustomerEntity>
      */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): array
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('requestedGroup');
-        $criteria->addAssociation('salutation');
+        $criteria = new Criteria($customerIds);
+        $result = $this->customerRepository->search($criteria, $context);
 
         $customers = [];
 
-        foreach ($customerIds as $customerId) {
-            $criteria->setIds([$customerId]);
-            $customerContext = $this->getContextByCustomerId($customerId);
-
+        if ($result->getTotal()) {
             /** @var CustomerEntity $customer */
-            $customer = $this->customerRepository->search($criteria, $customerContext)->first();
+            foreach ($result->getElements() as $customer) {
+                if ($customer->getRequestedGroupId() === null) {
+                    if ($silentError === false) {
+                        throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
+                    }
 
-            if ($customer->getRequestedGroupId() === null) {
-                if ($silentError === false) {
-                    throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
+                    continue;
                 }
 
-                continue;
+                $customers[] = $customer;
             }
 
-            $customers[] = $customer;
+            return $customers;
         }
 
-        return $customers;
+        throw new \RuntimeException('Cannot find Customers');
     }
 }

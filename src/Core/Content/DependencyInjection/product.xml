@@ -466,6 +466,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">
+            <argument>%shopware.dal.max_rule_prices%</argument>
+            <argument type="service" id="logger"/>
+
             <tag name="shopware.field_accessor_builder" priority="-200"/>
         </service>
 

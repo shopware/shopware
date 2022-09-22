@@ -294,6 +294,20 @@
             "customerGroupId": "{customer-group}",
             "currencyId": "{currency}",
             "countryId": "{country}",
+            "domains": [
+                {
+                    "id": "{sales-channel-domain}",
+                    "url": "http://localhost:8000/bench",
+                    "languageId": "{language}",
+                    "currencyId": "{currency}",
+                    "snippetSet": {
+                        "id": "{snippet-set}",
+                        "name": "Default",
+                        "baseFile": "messages.en-GB",
+                        "iso": "en-GB"
+                    }
+                }
+            ],
             "languages": [
                 { "id": "{language}" }
             ],

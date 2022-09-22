@@ -170,6 +170,7 @@ shopware:
 
     dal:
         batch_size: 125
+        max_rule_prices: 100
         versioning:
             expire_days: 30
 

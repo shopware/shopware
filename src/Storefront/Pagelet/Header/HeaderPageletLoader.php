@@ -60,7 +60,6 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         }
 
         $languages = $this->getLanguages($context, $request);
-
         $event = new CurrencyRouteRequestEvent($request, new Request(), $context);
         $this->eventDispatcher->dispatch($event);
 
@@ -78,11 +77,16 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             ->load($event->getStoreApiRequest(), $context, $criteria)
             ->getCurrencies();
 
+        $contextLanguage = $languages->get($context->getContext()->getLanguageId());
+        if (!$contextLanguage) {
+            throw new \RuntimeException(sprintf('Context language with id %s not found', $context->getContext()->getLanguageId()));
+        }
+
         $page = new HeaderPagelet(
             $navigation,
             $languages,
             $currencies,
-            $languages->get($context->getContext()->getLanguageId()),
+            $contextLanguage,
             $context->getCurrency(),
             $this->getServiceMenu($context)
         );

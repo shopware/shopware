@@ -553,5 +553,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'promotion',
     });
 
+    ruleConditionService.addCondition('customerBirthday', {
+        component: isMajorFlagActive ? 'sw-condition-generic' : 'sw-condition-customer-birthday',
+        label: 'global.sw-condition.condition.customerBirthdayRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+
     return ruleConditionService;
 });

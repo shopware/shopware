@@ -747,7 +747,8 @@
           }
         },
         "customerCustomFieldRule": "Customer with custom field",
-        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character..."
+        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character...",
+        "customerBirthdayRule": "Customer date of birth"
       }
     },
     "sw-condition-generic": {

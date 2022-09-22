@@ -284,5 +284,9 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule">
+            <tag name="shopware.rule.definition" />
+        </service>
+
     </services>
 </container>

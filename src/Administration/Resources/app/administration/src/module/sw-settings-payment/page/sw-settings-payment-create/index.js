@@ -23,13 +23,10 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
             this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
-        },
-
         onSave() {
-            this.$super('onSave');
+            this.$super('onSave').then(() => {
+                this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
+            });
         },
     },
 });

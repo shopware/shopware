@@ -144,6 +144,9 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
     }
 
+    /**
+     * @return array<string, string|array<int, string>>
+     */
     private function getSlotConfig(string $slotId, string $navigationId, SalesChannelContext $context, ?string $entityName = null): array
     {
         $mailConfigs['receivers'] = [];
@@ -178,6 +181,9 @@ class ContactFormRoute extends AbstractContactFormRoute
         return $mailConfigs;
     }
 
+    /**
+     * @return array<string, array<string, array<int, mixed>|bool|float|int|string|null>|string|mixed>
+     */
     private function getMailConfigs(SalesChannelContext $context, ?string $slotId = null, ?string $navigationId = null, ?string $entityName = null): array
     {
         $mailConfigs['receivers'] = [];

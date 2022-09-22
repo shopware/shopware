@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ContactForm;
+namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -73,7 +73,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
@@ -134,7 +134,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
 
@@ -188,7 +188,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
@@ -198,6 +198,76 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
+    /**
+     * @dataProvider contactFormWithDomainProvider
+     */
+    public function testContactFormWithInvalid(string $firstName, string $lastName, \Closure $expectClosure): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/contact-form',
+                [
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'email' => 'test@shopware.com',
+                    'phone' => '12345/6789',
+                    'subject' => 'Subject',
+                    'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        $expectClosure($response);
+    }
+
+    public function contactFormWithDomainProvider(): \Generator
+    {
+        yield 'subscribe with URL protocol HTTPS' => [
+            'Y https://shopware.test',
+            'Tran',
+            function (array $response): void {
+                static::assertArrayHasKey('errors', $response);
+                static::assertCount(1, $response['errors']);
+
+                $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+
+                static::assertContains('/firstName', $errors);
+            },
+        ];
+
+        yield 'subscribe with URL protocol HTTP' => [
+            'Y http://shopware.test',
+            'Tran',
+            function (array $response): void {
+                static::assertArrayHasKey('errors', $response);
+                static::assertCount(1, $response['errors']);
+
+                $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+
+                static::assertContains('/firstName', $errors);
+            },
+        ];
+
+        yield 'subscribe with URL localhost' => [
+            'Y http://localhost:8080',
+            'Tran',
+            function (array $response): void {
+                static::assertArrayHasKey('errors', $response);
+                static::assertCount(1, $response['errors']);
+
+                $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+
+                static::assertContains('/firstName', $errors);
+            },
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
     private function createCategoryData(bool $withSlotConfig = false): array
     {
         $contactCategoryId = $this->ids->get('contact-category-test');
@@ -276,6 +346,9 @@ class ContactFormRouteTest extends TestCase
         $this->getContainer()->get('cms_page.repository')->create($cmsData, Context::createDefaultContext());
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function createLandingPageData(): array
     {
         $landingPageId = $this->ids->get('contact-landingpage-test');
@@ -310,6 +383,9 @@ class ContactFormRouteTest extends TestCase
         return [$landingPageId, $slotId];
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function createProductData(): array
     {
         $productId = $this->ids->get('contact-product-test');

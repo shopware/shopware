@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Exception\InvalidCustomerIdException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -367,7 +368,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidSalesChannelIdException
+     * @throws InvalidCustomerIdException
      */
     private function fetchCustomer(string $customerId, Context $context): CustomerEntity
     {
@@ -375,7 +376,7 @@ class SalesChannelProxyController extends AbstractController
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
 
         if ($customer === null) {
-            throw new InvalidSalesChannelIdException($customerId);
+            throw new InvalidCustomerIdException($customerId);
         }
 
         return $customer;

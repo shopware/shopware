@@ -221,6 +221,7 @@
       "buttonSave": "Speichern",
       "buttonCancel": "Abbrechen",
       "buttonEdit": "Bearbeiten",
+      "buttonLoginAsCustomer": "Als Kunde Anmelden",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",

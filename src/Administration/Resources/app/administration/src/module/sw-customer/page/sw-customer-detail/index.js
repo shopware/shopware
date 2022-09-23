@@ -2,8 +2,9 @@ import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
+import ApiService from '../../../../core/service/api.service';
 
-const { Component, Mixin } = Shopware;
+const { Component, Service, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
@@ -261,6 +262,19 @@ Component.register('sw-customer-detail', {
         onAbortButtonClick() {
             this.discardChanges();
             this.editMode = false;
+        },
+
+        async onLoginAsCustomerButtonClick() {
+            const contextStoreService = Service('contextStoreService');
+
+            await contextStoreService.loginAsCustomerTokenGenerate(
+                this.customer.id,
+                this.customer.salesChannelId,
+            ).then((response) => {
+                const handledResponse = ApiService.handleResponse(response);
+
+                window.open(handledResponse.redirectUrl);
+            });
         },
 
         onActivateCustomerEditMode() {

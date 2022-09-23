@@ -221,6 +221,7 @@
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
+      "buttonLoginAsCustomer": "Login as customer",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
       "messageSaveError": "Customer could not be saved.",

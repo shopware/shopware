@@ -205,4 +205,201 @@ describe('src/component/list/sw-sortable-list', () => {
         expect(wrapper.emitted().itemsSorted[0][1]).toBeFalsy();
         expect(wrapper.emitted().itemsSorted[1][1]).toBeTruthy();
     });
+
+    it('should set dragElement', async () => {
+        wrapper = createWrapper();
+
+        const dragElement = {
+            id: 'drag-element-id',
+        };
+
+        wrapper.vm.onDragStart({}, {}, dragElement);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.dragElement).toEqual(dragElement);
+    });
+
+    it('should add event to scrollable parent', async () => {
+        wrapper = createWrapper({
+            propsData: {
+                scrollOnDrag: true,
+            }
+        });
+
+        wrapper.vm.$el = {
+            scrollHeight: 10,
+            clientHeight: 0,
+            id: 'element',
+            addEventListener(type, callback) {
+                expect(type).toEqual('scroll');
+                expect(callback).toEqual(wrapper.vm.onScroll);
+            },
+        };
+
+        wrapper.vm.onDragStart({}, {}, { id: 'drag-element-id' });
+    });
+
+    it('should find scrollable parent', async () => {
+        wrapper = createWrapper();
+
+        const scrollableParent = {
+            scrollHeight: 10,
+            clientHeight: 0,
+            id: 'scrollable-parent',
+        };
+
+        wrapper.vm.$el = {
+            scrollHeight: 0,
+            clientHeight: 0,
+            id: 'element',
+            parentElement: {
+                scrollHeight: 1,
+                clientHeight: 5,
+                id: 'parent-element',
+                parentElement: scrollableParent,
+            },
+        };
+
+        expect(wrapper.vm.scrollableParent).toEqual(scrollableParent);
+    });
+
+    it('should scroll when in scroll margin', async () => {
+        wrapper = createWrapper({
+            propsData: {
+                scrollOnDrag: true,
+                scrollOnDragConf: {
+                    speed: 10,
+                    margin: 10,
+                    accelerationMargin: 0,
+                }
+            },
+        });
+
+        wrapper.vm.dragElement = {
+            id: 'drag-element-id',
+            getBoundingClientRect() {
+                return {
+                    top: 100,
+                    bottom: 91,
+                };
+            },
+        };
+
+        const scrollByOptions = [];
+        wrapper.vm.$el = {
+            scrollHeight: 10,
+            clientHeight: 0,
+            id: 'element',
+            getBoundingClientRect() {
+                return {
+                    top: 91,
+                    bottom: 100,
+                };
+            },
+            scrollBy(options) {
+                scrollByOptions.push(options);
+            },
+        };
+
+        wrapper.vm.scroll();
+
+        await wrapper.vm.$nextTick();
+
+        expect(scrollByOptions.length).toEqual(2);
+        expect(scrollByOptions[0].top).toEqual(-10);
+        expect(scrollByOptions[1].top).toEqual(10);
+    });
+
+    it('should scroll accelerated when in acceleration margin', async () => {
+        wrapper = createWrapper({
+            propsData: {
+                scrollOnDrag: true,
+                scrollOnDragConf: {
+                    speed: 10,
+                    margin: 10,
+                    accelerationMargin: 0,
+                }
+            },
+        });
+
+        wrapper.vm.dragElement = {
+            id: 'drag-element-id',
+            getBoundingClientRect() {
+                return {
+                    top: 100,
+                    bottom: 110,
+                };
+            },
+        };
+
+        const scrollByOptions = [];
+        wrapper.vm.$el = {
+            scrollHeight: 10,
+            clientHeight: 0,
+            id: 'element',
+            getBoundingClientRect() {
+                return {
+                    top: 110,
+                    bottom: 100,
+                };
+            },
+            scrollBy(options) {
+                scrollByOptions.push(options);
+            },
+        };
+
+        wrapper.vm.scroll();
+
+        await wrapper.vm.$nextTick();
+
+        expect(scrollByOptions.length).toEqual(2);
+        expect(scrollByOptions[0].top).toBeLessThan(-10);
+        expect(scrollByOptions[1].top).toBeGreaterThan(10);
+    });
+
+    it('should not scroll when not in scroll margin', async () => {
+        wrapper = createWrapper({
+            propsData: {
+                scrollOnDrag: true,
+                scrollOnDragConf: {
+                    speed: 10,
+                    margin: 10,
+                    accelerationMargin: 0,
+                }
+            },
+        });
+
+        wrapper.vm.dragElement = {
+            id: 'drag-element-id',
+            getBoundingClientRect() {
+                return {
+                    top: 100,
+                    bottom: 0,
+                };
+            },
+        };
+
+        const scrollByOptions = [];
+        wrapper.vm.$el = {
+            scrollHeight: 10,
+            clientHeight: 0,
+            id: 'element',
+            getBoundingClientRect() {
+                return {
+                    top: 0,
+                    bottom: 100,
+                };
+            },
+            scrollBy(options) {
+                scrollByOptions.push(options);
+            },
+        };
+
+        wrapper.vm.scroll();
+
+        await wrapper.vm.$nextTick();
+
+        expect(scrollByOptions.length).toEqual(0);
+    });
 });

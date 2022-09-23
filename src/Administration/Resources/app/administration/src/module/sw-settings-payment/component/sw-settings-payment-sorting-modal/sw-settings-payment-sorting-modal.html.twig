@@ -23,6 +23,8 @@
             <sw-sortable-list
                 class="sw-settings-payment-sorting-modal__payment-method-list"
                 :items="sortedPaymentMethods"
+                :scroll-on-drag="true"
+                :scroll-on-drag-conf="scrollOnDragConf"
                 @itemsSorted="onSort"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -606,7 +608,11 @@ class AuthControllerTest extends TestCase
             $this->createMock(AbstractLogoutRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
-            $this->getContainer()->get(SalesChannelContextService::class)
+            $this->getContainer()->get(SalesChannelContextService::class),
+            $this->getContainer()->get(CartRestorer::class),
+            $this->getContainer()->get(LoginAsCustomerTokenGenerator::class),
+            $this->getContainer()->get('customer.repository'),
+            $this->getContainer()->get('event_dispatcher')
         );
         $controller->setContainer($this->getContainer());
         $controller->setTwig($this->getContainer()->get('twig'));

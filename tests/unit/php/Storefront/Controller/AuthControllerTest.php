@@ -4,12 +4,15 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +21,7 @@ use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,6 +60,10 @@ class AuthControllerTest extends TestCase
             $this->createStub(StorefrontCartFacade::class),
             $this->createStub(AccountRecoverPasswordPageLoader::class),
             $salesChannelContextService,
+            $this->createStub(CartRestorer::class),
+            $this->createStub(LoginAsCustomerTokenGenerator::class),
+            $this->createStub(EntityRepositoryInterface::class),
+            $this->createStub(EventDispatcher::class)
         );
         $authController->setContainer($containerBuilder);
 

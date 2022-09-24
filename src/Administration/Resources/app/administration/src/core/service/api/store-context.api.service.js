@@ -62,30 +62,6 @@ class StoreContextService extends ApiService {
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 
-    loginAsCustomer(
-        customerId,
-        salesChannelId,
-        contextToken,
-        additionalParams = {},
-        additionalHeaders = {},
-    ) {
-        const route = '_proxy/login-as-customer';
-        const headers = {
-            ...this.getBasicHeaders(additionalHeaders),
-            'sw-context-token': contextToken,
-        };
-
-        return this.httpClient
-            .post(
-                route,
-                {
-                    customerId,
-                    salesChannelId,
-                },
-                { additionalParams, headers },
-            );
-    }
-
     loginAsCustomerTokenGenerate(
         customerId,
         salesChannelId,

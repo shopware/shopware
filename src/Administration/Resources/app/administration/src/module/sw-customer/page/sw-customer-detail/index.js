@@ -274,6 +274,10 @@ Component.register('sw-customer-detail', {
                 const handledResponse = ApiService.handleResponse(response);
 
                 window.open(handledResponse.redirectUrl);
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.notificationLoginAsCustomerErrorMessage'),
+                });
             });
         },
 

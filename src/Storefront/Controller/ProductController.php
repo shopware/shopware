@@ -5,12 +5,10 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -40,7 +38,7 @@ class ProductController extends StorefrontController
 {
     private ProductPageLoader $productPageLoader;
 
-    private FindProductVariantRoute $findVariantRoute;
+    private AbstractFindProductVariantRoute $findVariantRoute;
 
     private MinimalQuickViewPageLoader $minimalQuickViewPageLoader;
 
@@ -63,7 +61,7 @@ class ProductController extends StorefrontController
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $productCombinationFinder,
-        FindProductVariantRoute $findVariantRoute,
+        AbstractFindProductVariantRoute $findVariantRoute,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         AbstractProductReviewSaveRoute $productReviewSaveRoute,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,

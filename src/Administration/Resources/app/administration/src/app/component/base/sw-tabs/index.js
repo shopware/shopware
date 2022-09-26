@@ -198,7 +198,7 @@ Component.register('sw-tabs', {
             this.recalculateSlider();
 
             // check if tab bar contains items with url routes
-            if (this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
+            if (this.$scopedSlots.default && this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
                 this.hasRoutes = true;
             }
         },

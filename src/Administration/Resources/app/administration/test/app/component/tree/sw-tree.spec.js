@@ -200,4 +200,38 @@ describe('src/app/component/tree/sw-tree', () => {
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).toBeDefined();
     });
+
+    it('should adjust the children count correctly, when moving elements out of a folder', async () => {
+        const treeItems = wrapper.props('items');
+
+        const rootCategoryId = 'a1d1da1e6d434902a2e5ffed7784c951';
+        const testCategoryIds = ['d3aabfa637cf435e8ad3c9bf1d2de565', '8da86665f27740dd8160c92e27b1c4c8'];
+        const rootCategory = treeItems.find(element => element.id === rootCategoryId);
+        const testCategories = testCategoryIds.map((id) => {
+            return treeItems.find(element => element.id === id);
+        });
+        let expectedRootChildCount = 2;
+
+        expect(rootCategory.childCount).toBe(rootCategory.data.childCount);
+        expect(rootCategory.childCount).toBe(expectedRootChildCount);
+        expect(rootCategory.parentId).toBeNull();
+
+        testCategories.forEach((category) => {
+            expect(category.childCount).toBe(category.data.childCount);
+            expect(category.parentId).toBe(rootCategoryId);
+
+            // Move the child outside and above its former parent
+            wrapper.vm.startDrag({ item: category });
+            wrapper.vm.moveDrag(category, rootCategory);
+            wrapper.vm.endDrag();
+
+            expectedRootChildCount -= 1;
+
+            expect(category.childCount).toBe(category.data.childCount);
+            expect(rootCategory.childCount).toBe(expectedRootChildCount);
+
+            expect(category.parentId).toBeNull();
+            expect(rootCategory.parentId).toBeNull();
+        });
+    });
 });

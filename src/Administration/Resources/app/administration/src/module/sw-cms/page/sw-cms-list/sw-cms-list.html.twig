@@ -255,15 +255,10 @@
                             {% endblock %}
 
                             <template v-else>
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
-                                <sw-skeleton variant="gallery" />
+                                <sw-skeleton
+                                    v-for="index in 9"
+                                    :key="`cms-list-skeleton-${index}`"
+                                    variant="gallery" />
                             </template>
                         </div>
                         {% endblock %}

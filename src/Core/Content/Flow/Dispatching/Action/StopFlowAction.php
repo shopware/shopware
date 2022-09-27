@@ -6,6 +6,10 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
+ * therefore the actions won't implement the EventSubscriberInterface anymore.
+ */
 class StopFlowAction extends FlowAction
 {
     public static function getName(): string

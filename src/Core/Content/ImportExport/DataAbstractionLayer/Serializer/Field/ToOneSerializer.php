@@ -52,11 +52,12 @@ class ToOneSerializer extends FieldSerializer
 
         $definition = $toOne->getReferenceDefinition();
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
+        /** @var \Traversable<mixed> $records */
         $records = $this->primaryKeyResolver->resolvePrimaryKeyFromUpdatedBy($config, $definition, $records);
 
         $result = $entitySerializer->deserialize($config, $definition, $records);
 
-        if (is_iterable($result) && !\is_array($result)) {
+        if (!\is_array($result)) {
             $result = iterator_to_array($result);
         }
         if (empty($result)) {

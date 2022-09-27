@@ -10,22 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ProductExportEventListener implements EventSubscriberInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productExportRepository;
+    private EntityRepositoryInterface $productExportRepository;
 
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
+    private ProductExportFileHandlerInterface $productExportFileHandler;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $fileSystem;
+    private FilesystemInterface $fileSystem;
 
     /**
      * @internal

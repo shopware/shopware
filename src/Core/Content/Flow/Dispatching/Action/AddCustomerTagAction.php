@@ -10,6 +10,10 @@ use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
+ * therefore the actions won't implement the EventSubscriberInterface anymore.
+ */
 class AddCustomerTagAction extends FlowAction
 {
     private EntityRepositoryInterface $customerRepository;

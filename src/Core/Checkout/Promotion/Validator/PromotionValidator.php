@@ -17,6 +17,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PromotionValidator implements EventSubscriberInterface
 {
     /**
@@ -33,8 +36,14 @@ class PromotionValidator implements EventSubscriberInterface
 
     private Connection $connection;
 
+    /**
+     * @var list<array<string, mixed>>
+     */
     private array $databasePromotions;
 
+    /**
+     * @var list<array<string, mixed>>
+     */
     private array $databaseDiscounts;
 
     /**
@@ -78,7 +87,6 @@ class PromotionValidator implements EventSubscriberInterface
                     $promotionId = $command->getPrimaryKey()['id'];
 
                     try {
-                        /** @var array $promotion */
                         $promotion = $this->getPromotionById($promotionId);
                     } catch (ResourceNotFoundException $ex) {
                         $promotion = [];
@@ -99,7 +107,6 @@ class PromotionValidator implements EventSubscriberInterface
                     $discountId = $command->getPrimaryKey()['id'];
 
                     try {
-                        /** @var array $discount */
                         $discount = $this->getDiscountById($discountId);
                     } catch (ResourceNotFoundException $ex) {
                         $discount = [];
@@ -125,6 +132,8 @@ class PromotionValidator implements EventSubscriberInterface
      * This function collects all database data that might be
      * required for any of the received entities and values.
      *
+     * @param list<WriteCommand> $writeCommands
+     *
      * @throws ResourceNotFoundException
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -133,7 +142,6 @@ class PromotionValidator implements EventSubscriberInterface
         $promotionIds = [];
         $discountIds = [];
 
-        /** @var WriteCommand $command */
         foreach ($writeCommands as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
@@ -164,7 +172,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
 
-            $this->databasePromotions = $promotionQuery->fetchAll();
+            $this->databasePromotions = $promotionQuery->fetchAllAssociative();
         }
 
         $this->databaseDiscounts = [];
@@ -175,7 +183,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
 
-            $this->databaseDiscounts = $discountQuery->fetchAll();
+            $this->databaseDiscounts = $discountQuery->fetchAllAssociative();
         }
     }
 
@@ -183,8 +191,8 @@ class PromotionValidator implements EventSubscriberInterface
      * Validates the provided Promotion data and adds
      * violations to the provided list of violations, if found.
      *
-     * @param array                   $promotion     the current promotion from the database as array type
-     * @param array                   $payload       the incoming delta-data
+     * @param array<string, mixed>    $promotion     the current promotion from the database as array type
+     * @param array<string, mixed>    $payload       the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
      * @param int                     $index         the index of this promotion in the command queue
      *
@@ -293,8 +301,8 @@ class PromotionValidator implements EventSubscriberInterface
      * Validates the provided PromotionDiscount data and adds
      * violations to the provided list of violations, if found.
      *
-     * @param array                   $discount      the discount as array from the database
-     * @param array                   $payload       the incoming delta-data
+     * @param array<string, mixed>    $discount      the discount as array from the database
+     * @param array<string, mixed>    $payload       the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
      */
     private function validateDiscount(array $discount, array $payload, ConstraintViolationList $violationList, int $index): void
@@ -339,9 +347,9 @@ class PromotionValidator implements EventSubscriberInterface
      * Gets a value from an array. It also does clean checks if
      * the key is set, and also provides the option for default values.
      *
-     * @param array  $data  the data array
-     * @param string $key   the requested key in the array
-     * @param array  $dbRow the db row of from the database
+     * @param array<string, mixed> $data  the data array
+     * @param string               $key   the requested key in the array
+     * @param array<string, mixed> $dbRow the db row of from the database
      *
      * @return mixed the object found in the key, or the default value
      */
@@ -364,11 +372,10 @@ class PromotionValidator implements EventSubscriberInterface
     /**
      * @throws ResourceNotFoundException
      *
-     * @return array|mixed
+     * @return array<string, mixed>
      */
     private function getPromotionById(string $id)
     {
-        /** @var array $promotion */
         foreach ($this->databasePromotions as $promotion) {
             if ($promotion['id'] === $id) {
                 return $promotion;
@@ -381,11 +388,10 @@ class PromotionValidator implements EventSubscriberInterface
     /**
      * @throws ResourceNotFoundException
      *
-     * @return array|mixed
+     * @return array<string, mixed>
      */
     private function getDiscountById(string $id)
     {
-        /** @var array $discount */
         foreach ($this->databaseDiscounts as $discount) {
             if ($discount['id'] === $id) {
                 return $discount;
@@ -438,13 +444,13 @@ class PromotionValidator implements EventSubscriberInterface
             ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
             ->setParameter('pattern', $pattern);
 
-        $promotions = $query->execute()->fetchAll();
+        $promotions = $query->execute()->fetchFirstColumn();
 
-        /** @var array $p */
-        foreach ($promotions as $p) {
+        /** @var string $id */
+        foreach ($promotions as $id) {
             // if we have a promotion id to verify
             // and a promotion with another id exists, then return that is used
-            if ($promotionId !== null && $p['id'] !== $promotionId) {
+            if ($promotionId !== null && $id !== $promotionId) {
                 return true;
             }
         }
@@ -465,7 +471,7 @@ class PromotionValidator implements EventSubscriberInterface
         // check if its existing somewhere,
         // if we have an Id, verify if it's existing in another promotion
         $query = $qb
-            ->select('id')
+            ->select('COUNT(*)')
             ->from('promotion_individual_code')
             ->where($qb->expr()->eq('code', ':code'))
             ->setParameter('code', $code);
@@ -475,7 +481,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter('promotion_id', $promotionId);
         }
 
-        $existingIndividual = \count($query->execute()->fetchAll()) > 0;
+        $existingIndividual = ((int) $query->execute()->fetchOne()) > 0;
 
         if ($existingIndividual) {
             return true;
@@ -487,7 +493,7 @@ class PromotionValidator implements EventSubscriberInterface
         // again with either an existing promotion Id
         // or without one.
         $query
-            = $qb->select('id')
+            = $qb->select('COUNT(*)')
             ->from('promotion')
             ->where($qb->expr()->eq('code', ':code'))
             ->setParameter('code', $code);
@@ -497,6 +503,6 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter('id', $promotionId);
         }
 
-        return \count($query->execute()->fetchAll()) > 0;
+        return ((int) $query->execute()->fetchOne()) > 0;
     }
 }

@@ -17,12 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $codesRepository;
+    private EntityRepositoryInterface $codesRepository;
 
     /**
      * @internal
@@ -45,14 +45,14 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
-        foreach ($event->getOrder()->getLineItems() as $item) {
+        foreach ($event->getOrder()->getLineItems() ?? [] as $item) {
             // only update promotions in here
             if ($item->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
                 continue;
             }
 
             /** @var string $code */
-            $code = $item->getPayload()['code'];
+            $code = $item->getPayload()['code'] ?? '';
 
             try {
                 // first try if its an individual
@@ -76,7 +76,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             // for later needs
             $individualCode->setRedeemed(
                 $item->getOrderId(),
-                $customer->getCustomerId(),
+                $customer->getCustomerId() ?? '',
                 $customer->getFirstName() . ' ' . $customer->getLastName()
             );
 

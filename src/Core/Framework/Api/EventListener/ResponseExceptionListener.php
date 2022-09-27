@@ -34,17 +34,21 @@ class ResponseExceptionListener implements EventSubscriberInterface
     /**
      * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be changed to void in v6.5.0
      */
-    public function onKernelException(ExceptionEvent $event): void
+    public function onKernelException(ExceptionEvent $event)
     {
         if (
             $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)
             && !$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)
         ) {
-            return;
+            /** @deprecated tag:v6.5.0 - it won't return the event anymore */
+            return $event;
         }
 
         $exception = $event->getThrowable();
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
+
+        /** @deprecated tag:v6.5.0 - it won't return the event anymore */
+        return $event;
     }
 }

@@ -8,12 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -45,7 +45,7 @@ class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 
     private function clearLegacyPassword(string $customerId): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `customer` SET `legacy_password` = null, `legacy_encoder` = null WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($customerId),

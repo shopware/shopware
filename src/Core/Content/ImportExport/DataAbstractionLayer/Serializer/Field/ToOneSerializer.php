@@ -21,6 +21,11 @@ class ToOneSerializer extends FieldSerializer
         $this->primaryKeyResolver = $primaryKeyResolver;
     }
 
+    /**
+     * @param mixed $record
+     *
+     * @return iterable<string, mixed>
+     */
     public function serialize(Config $config, Field $toOne, $record): iterable
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
@@ -44,6 +49,11 @@ class ToOneSerializer extends FieldSerializer
         }
     }
 
+    /**
+     * @param mixed $records
+     *
+     * @return mixed
+     */
     public function deserialize(Config $config, Field $toOne, $records)
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {

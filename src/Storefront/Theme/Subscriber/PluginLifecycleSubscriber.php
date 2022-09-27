@@ -161,7 +161,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             $event->getPlugin()->getBaseClass()
         );
 
-        // add plugin configuration to the list of all active plugin configurations
+        // ensure plugin configuration is in the list of all active plugin configurations
         $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
         $configurationCollection->add($storefrontPluginConfig);
 

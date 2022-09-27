@@ -2,9 +2,8 @@ import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
-import ApiService from '../../../../core/service/api.service';
 
-const { Component, Service, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
@@ -46,6 +45,7 @@ Component.register('sw-customer-detail', {
             customerAddressCustomFieldSets: [],
             customerCustomFieldSets: [],
             errorEmailCustomer: null,
+            showLoginAsCustomerModal: false,
         };
     },
 
@@ -264,23 +264,6 @@ Component.register('sw-customer-detail', {
             this.editMode = false;
         },
 
-        async onLoginAsCustomerButtonClick() {
-            const contextStoreService = Service('contextStoreService');
-
-            await contextStoreService.loginAsCustomerTokenGenerate(
-                this.customer.id,
-                this.customer.salesChannelId,
-            ).then((response) => {
-                const handledResponse = ApiService.handleResponse(response);
-
-                window.open(handledResponse.redirectUrl);
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.notificationLoginAsCustomerErrorMessage'),
-                });
-            });
-        },
-
         onActivateCustomerEditMode() {
             this.editMode = true;
         },
@@ -296,6 +279,14 @@ Component.register('sw-customer-detail', {
         onChangeLanguage(languageId) {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             this.createdComponent();
+        },
+
+        onClickButtonShowLoginAsCustomerModal() {
+            this.showLoginAsCustomerModal = true;
+        },
+
+        onClickButtonCloseLoginAsCustomerModal() {
+            this.showLoginAsCustomerModal = false;
         },
 
         async validPassword(customer) {

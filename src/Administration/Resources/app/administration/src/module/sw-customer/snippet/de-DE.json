@@ -184,6 +184,10 @@
       "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
       "buttonCreateOrder": "Bestellung anlegen"
     },
+    "loginAsCustomerModal": {
+      "modalTitle": "Wählen einen Verkaufskanal aus, für du dich anmelden möchtest",
+      "labelCancel": "Schließen"
+    },
     "addressForm": {
       "labelCompany": "Firma",
       "labelDepartment": "Abteilung",

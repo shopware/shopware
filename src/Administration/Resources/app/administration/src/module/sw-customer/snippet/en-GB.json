@@ -184,6 +184,10 @@
       "emptySubline": "Manage your customers' orders here",
       "buttonCreateOrder": "Add order"
     },
+    "loginAsCustomerModal": {
+      "modalTitle": "Select the sales channel below you wish to perform the login",
+      "labelCancel": "Close"
+    },
     "addressForm": {
       "labelCompany": "Company",
       "labelDepartment": "Department",

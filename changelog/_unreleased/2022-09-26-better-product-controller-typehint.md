@@ -1,9 +1,9 @@
 ---
 title: Better product controller typehint
-issue: -
+issue: NEXT-23442
 author: Jochen Manz
 author_email: j.manz@kellerkinder.de
 author_github: jochenmanz
 ---
 # Core
-* In the `ProductController` the type of the `findProductVariantRoute` was changed to `AbstractFindProductVariantRoute`
+* Changed the type of the `FindProductVariantRoute` to `AbstractFindProductVariantRoute` in `ProductController`

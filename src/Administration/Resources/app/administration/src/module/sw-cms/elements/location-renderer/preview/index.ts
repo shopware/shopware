@@ -4,6 +4,9 @@ import type { ElementDataProp } from '../index';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-cms-el-preview-location-renderer', {
     template,
 

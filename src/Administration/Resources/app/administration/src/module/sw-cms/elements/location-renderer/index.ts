@@ -2,6 +2,9 @@ import './component';
 import './config';
 import './preview';
 
+/**
+ * @private
+ */
 export interface ElementDataProp {
     name: string,
     label: string

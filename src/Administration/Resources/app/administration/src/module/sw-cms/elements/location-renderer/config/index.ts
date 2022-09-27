@@ -4,6 +4,9 @@ import type { ElementDataProp } from '../index';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-cms-el-config-location-renderer', {
     template,
 

@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 export default function initializeCms(): void {
     Shopware.ExtensionAPI.handle('cmsRegisterElement', (element, additionalInformation) => {
         const extension = Object.values(Shopware.State.get('extensions'))

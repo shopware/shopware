@@ -439,5 +439,5 @@
             "Shopware\\Tests\\Migration\\": "tests/migration/"
         }
     },
-    "version": "6.4.15.1"
+    "version": "6.4.15.2"
 }

@@ -1,15 +1,14 @@
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Component, Mixin, Context, Utils, Data } = Shopware;
+const { Component, Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
-const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-media-quickinfo', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'acl'],
+    inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -47,9 +46,13 @@ Component.register('sw-media-quickinfo', {
             return this.repositoryFactory.create('media');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - removed without replacement
+         */
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
+
         isMediaObject() {
             return this.item.type === 'media';
         },
@@ -70,14 +73,20 @@ Component.register('sw-media-quickinfo', {
 
     methods: {
         createdComponent() {
-            this.getCustomFieldSets();
+            this.loadCustomFieldSets();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Use loadCustomFieldSets() instead
+         */
         async getCustomFieldSets() {
-            const criteria = new Criteria(1, 100)
-                .addFilter(Criteria.equals('relations.entityName', 'media'));
+            return this.loadCustomFieldSets();
+        },
 
-            this.customFieldSets = await this.customFieldSetRepository.search(criteria);
+        loadCustomFieldSets() {
+            return this.customFieldDataProviderService.getCustomFieldSets('media').then((sets) => {
+                this.customFieldSets = sets;
+            });
         },
 
         async onSaveCustomFields(item) {

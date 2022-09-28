@@ -113,7 +113,7 @@ E2E install NL:
             alias: database
     variables:
         APP_ENV: e2e
-        APP_DEBUG: 'true'
+        APP_DEBUG: 0
         CYPRESS_baseUrl: "http://localhost:8000"
         CYPRESS_localUsage: 1
         CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots

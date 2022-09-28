@@ -19,4 +19,9 @@ trait EntityCustomFieldsTrait
     {
         $this->customFields = $customFields;
     }
+
+    public function getCustomFieldsValue(string $key): ?string 
+    {
+        return array_key_exists($key, $this->getCustomFields())? $this->getCustomFields()[$key]: null;
+    }
 }

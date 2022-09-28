@@ -47,6 +47,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('EUR');
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             '.sw-context-button__button',

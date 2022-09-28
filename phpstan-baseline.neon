@@ -2223,31 +2223,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Promotion/CartScopeDiscountPackagerTest.php
 
 		-
-			message: "#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$request \\(Symfony\\\\Component\\\\HttpFoundation\\\\InputBag\\<bool\\|float\\|int\\|string\\>\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeGetRequest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\Fakes\\\\FakePostRequest\\:\\:__construct\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakePostRequest.php
-
-		-
-			message: "#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$request \\(Symfony\\\\Component\\\\HttpFoundation\\\\InputBag\\<bool\\|float\\|int\\|string\\>\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakePostRequest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\Fakes\\\\FakeProductGateway\\:\\:get\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakeProductGateway.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\Fakes\\\\FakePromotionGateway\\:\\:__construct\\(\\) has parameter \\$promotions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/Fakes/FakePromotionGateway.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Helpers\\\\PromotionFixtureBuilder\\:\\:\\$dataDiscounts type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Helpers/PromotionFixtureBuilder.php
@@ -2386,56 +2361,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$ids has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Promotion/Integration/PromotionHandlingTest.php
-
-		-
-			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Aggregate/PromotionSetGroup/PromotionSetGroupEntityTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Aggregate\\\\PromotionSetGroup\\\\PromotionSetGroupEntityTest\\:\\:KEY_SORTER_PRICE_ASC is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Aggregate/PromotionSetGroup/PromotionSetGroupEntityTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Aggregate\\\\PromotionSetGroup\\\\PromotionSetGroupEntityTest\\:\\:KEY_SORTER_PRICE_DESC is unused\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Aggregate/PromotionSetGroup/PromotionSetGroupEntityTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Aggregate\\\\PromotionSetGroup\\\\PromotionSetGroupEntityTest\\:\\:\\$context is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Aggregate/PromotionSetGroup/PromotionSetGroupEntityTest.php
-
-		-
-			message: "#^Cannot call method getFilter\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PriceDefinitionInterface\\|null\\.$#"
-			count: 3
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Cart/Builder/PromotionItemBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Cart\\\\Builder\\\\PromotionItemBuilderTest\\:\\:getDefaultCurrencyDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Cart/Builder/PromotionItemBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Cart\\\\Builder\\\\PromotionItemBuilderTest\\:\\:testDefaultCurrencyFactor\\(\\) has parameter \\$type with no type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Cart/Builder/PromotionItemBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Gateway\\\\Template\\\\PermittedGlobalCodePromotionsTest\\:\\:getExpectedFilter\\(\\) has parameter \\$codes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Gateway/Template/PermittedGlobalCodePromotionsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Gateway\\\\Template\\\\PermittedIndividualCodePromotionsTest\\:\\:getExpectedFilter\\(\\) has parameter \\$codes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Gateway/Template/PermittedIndividualCodePromotionsTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Promotion\\\\Unit\\\\Validator\\\\PromotionValidatorTest\\:\\:getPromotionDbRows\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Promotion/Unit/Validator/PromotionValidatorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Rule\\\\CartHasFreeDeliveryItemRuleTest\\:\\:getLineItemFreeDeliveryTestData\\(\\) return type has no value type specified in iterable type array\\.$#"

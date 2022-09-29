@@ -37,26 +37,48 @@ class MailTemplateTypes
 
     public const MAILTYPE_CUSTOMER_GROUP_CHANGE_REJECT = 'customer_group_change_reject';
 
+    public const MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED = 'customer.group.registration.accepted';
+
+    public const MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED = 'customer.group.registration.declined';
+
+    public const MAILTYPE_GUEST_ORDER_DOUBLE_OPT_IN = 'guest_order.double_opt_in';
+
     public const MAILTYPE_CUSTOMER_REGISTER = 'customer_register';
 
     public const MAILTYPE_CUSTOMER_REGISTER_DOUBLE_OPT_IN = 'customer_register.double_opt_in';
 
     public const MAILTYPE_SEPA_CONFIRMATION = 'sepa_confirmation';
+
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY = 'order_delivery.state.shipped_partially';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY = 'order_transaction.state.refunded_partially';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED = 'order_transaction.state.reminded';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN = 'order_transaction.state.open';
+
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY = 'order_delivery.state.returned_partially';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID = 'order_transaction.state.paid';
+
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED = 'order_delivery.state.returned';
+
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED = 'order.state.cancelled';
+
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED = 'order_delivery.state.cancelled';
+
     public const MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED = 'order_delivery.state.shipped';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED = 'order_transaction.state.cancelled';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED = 'order_transaction.state.refunded';
+
     public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY = 'order_transaction.state.paid_partially';
+
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'order.state.open';
+
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'order.state.in_progress';
+
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED = 'order.state.completed';
 
     public const MAILTYPE_CONTACT_FORM = 'contact_form';

@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Routing\Subscriber;
+namespace Shopware\Core\Profiling\Subscriber;
 
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
@@ -20,6 +22,9 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
 {
     private EntityRepositoryInterface $ruleRepository;
 
+    /**
+     * @var array<string>
+     */
     private array $ruleIds = [];
 
     public function __construct(EntityRepositoryInterface $ruleRepository)
@@ -41,7 +46,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
     }
 
     /**
-     * @return array|Data
+     * @return array<string, RuleEntity>|Data<string, RuleEntity>
      */
     public function getData()
     {
@@ -62,7 +67,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
         $this->data = $this->getMatchingRules();
     }
 
-    public static function getTemplate(): ?string
+    public static function getTemplate(): string
     {
         return '@Profiling/Collector/rules.html.twig';
     }
@@ -72,6 +77,9 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
         $this->ruleIds = $event->getContext()->getRuleIds();
     }
 
+    /**
+     * @return array<string, Entity>
+     */
     private function getMatchingRules(): array
     {
         if (empty($this->ruleIds)) {

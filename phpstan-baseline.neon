@@ -9862,15 +9862,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:__construct\\(\\) has parameter \\$config with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:\\$config has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
 
 		-
 			message: "#^Cannot call method disable\\(\\) on object\\|null\\.$#"
@@ -20083,31 +20075,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$scopes has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/SalesChannelRequestContextResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getMatchingRules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:\\$ruleIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Api\\\\RuleConfigController\\:\\:\\$config type has no value type specified in iterable type array\\.$#"

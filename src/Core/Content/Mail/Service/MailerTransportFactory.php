@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -24,6 +23,10 @@ class MailerTransportFactory extends Transport
 
     public function fromString(string $dsn): TransportInterface
     {
+        if (trim($this->configService->getString('core.mailerSettings.emailAgent')) === '') {
+            return parent::fromString($dsn);
+        }
+
         return $this->create();
     }
 
@@ -36,14 +39,6 @@ class MailerTransportFactory extends Transport
         $emailAgent = $configService->getString('core.mailerSettings.emailAgent');
 
         if ($emailAgent === '') {
-            $mailerUrl = (string) EnvironmentHelper::getVariable('MAILER_URL', '');
-            if ($mailerUrl !== '') {
-                try {
-                    return parent::fromString($mailerUrl);
-                } catch (\Throwable $e) {
-                    // Mailer Url not valid. Use standard sendmail
-                }
-            }
             $dsn = new Dsn(
                 'sendmail',
                 'default'

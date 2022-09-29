@@ -50,5 +50,12 @@
         <service id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
         </service>
+
+        <service id="Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber">
+            <argument type="service" id="rule.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+        </service>
     </services>
 </container>

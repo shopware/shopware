@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\SalesChannel\FindVariant;
+namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ * @covers \Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute
  */
 class FindProductVariantRouteTest extends TestCase
 {

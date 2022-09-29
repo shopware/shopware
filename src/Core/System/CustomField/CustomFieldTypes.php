@@ -5,7 +5,7 @@ namespace Shopware\Core\System\CustomField;
 final class CustomFieldTypes
 {
     public const BOOL = 'bool';
-    public const CHECKBOX = 'checkbox'
+    public const CHECKBOX = 'checkbox';
     public const COLORPICKER = 'colorpicker';
     public const DATE = 'date';
     public const DATETIME = 'datetime';

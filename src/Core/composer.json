@@ -133,7 +133,7 @@
         "true/punycode": "2.1.1",
         "twig/intl-extra": "~3.3.5",
         "twig/string-extra": "~3.3.5",
-        "twig/twig": "~3.3.8",
+        "twig/twig": "~3.4.3",
         "zircote/swagger-php": "~3.3.6",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },

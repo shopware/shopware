@@ -282,16 +282,19 @@ Component.register('sw-category-detail', {
 
         if (!this.category) {
             next();
-
             return;
         }
 
-
         /*
-         * Generate changeset for category and delete `id` and `versionId` to only consider actual changes.
+         * Generate change set for category and delete `id` and `versionId` to only consider actual changes.
          * A new version without changes should not trigger the navigation guard.
          */
         const { changes, deletionQueue } = this.changesetGenerator.generate(this.category);
+        if (changes === null) {
+            next();
+            return;
+        }
+
         const keysToDelete = ['id', 'versionId'];
         const changedKeys = Object.keys(changes).filter(key => !keysToDelete.includes(key));
         const hasDeletions = deletionQueue.length > 0;
@@ -311,10 +314,7 @@ Component.register('sw-category-detail', {
             return;
         }
 
-        if (
-            changedKeys.length === 0 &&
-            !hasDeletions
-        ) {
+        if (changedKeys.length === 0 && !hasDeletions) {
             next();
             return;
         }

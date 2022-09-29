@@ -1,6 +1,7 @@
 export default function getTreeItems() {
     return [
         {
+            id: 'a1d1da1e6d434902a2e5ffed7784c951',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: null,
             parentVersionId: null,
@@ -13,6 +14,10 @@ export default function getTreeItems() {
             level: 1,
             path: null,
             childCount: 2,
+            data: {
+                parentId: null,
+                childCount: 2,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -48,9 +53,9 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'a1d1da1e6d434902a2e5ffed7784c951',
             children: [
                 {
+                    id: 'd3aabfa637cf435e8ad3c9bf1d2de565',
                     versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
                     parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
                     parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -63,6 +68,10 @@ export default function getTreeItems() {
                     level: 2,
                     path: '|a1d1da1e6d434902a2e5ffed7784c951|',
                     childCount: 5,
+                    data: {
+                        parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
+                        childCount: 5,
+                    },
                     type: 'page',
                     productAssignmentType: 'product',
                     visible: true,
@@ -100,7 +109,6 @@ export default function getTreeItems() {
                         keywords: null,
                     },
                     apiAlias: null,
-                    id: 'd3aabfa637cf435e8ad3c9bf1d2de565',
                     children: [],
                     translations: [],
                     products: [],
@@ -113,6 +121,7 @@ export default function getTreeItems() {
                     seoUrls: [],
                 },
                 {
+                    id: '8da86665f27740dd8160c92e27b1c4c8',
                     versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
                     parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
                     parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -125,6 +134,10 @@ export default function getTreeItems() {
                     level: 2,
                     path: '|a1d1da1e6d434902a2e5ffed7784c951|',
                     childCount: 12,
+                    data: {
+                        parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
+                        childCount: 12,
+                    },
                     type: 'page',
                     productAssignmentType: 'product',
                     visible: true,
@@ -162,7 +175,6 @@ export default function getTreeItems() {
                         keywords: null,
                     },
                     apiAlias: null,
-                    id: '8da86665f27740dd8160c92e27b1c4c8',
                     children: [],
                     translations: [],
                     products: [],
@@ -353,6 +365,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -365,6 +378,10 @@ export default function getTreeItems() {
             level: 2,
             path: '|a1d1da1e6d434902a2e5ffed7784c951|',
             childCount: 5,
+            data: {
+                parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
+                childCount: 5,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -402,7 +419,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             children: [],
             translations: [],
             products: [],
@@ -415,6 +431,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'f547f999d3714a3aa620e02e7e299cc5',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -428,6 +445,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
+            data: {
+                parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -465,7 +486,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'f547f999d3714a3aa620e02e7e299cc5',
             children: [],
             translations: [],
             products: [],
@@ -478,6 +498,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'c03fdf1aaa534b7f8631bf16705ef213',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -491,6 +512,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
+            data: {
+                parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -528,7 +553,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'c03fdf1aaa534b7f8631bf16705ef213',
             children: [],
             translations: [],
             products: [],
@@ -541,6 +565,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '82dcfd4ada3e41a1a2451b9cbfb1ad81',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -554,6 +579,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
+            data: {
+                parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -591,7 +620,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '82dcfd4ada3e41a1a2451b9cbfb1ad81',
             children: [],
             translations: [],
             products: [],
@@ -604,6 +632,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '37a310885dce42169848338ec1fe9d73',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -617,6 +646,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
+            data: {
+                parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -654,7 +687,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '37a310885dce42169848338ec1fe9d73',
             children: [],
             translations: [],
             products: [],
@@ -667,6 +699,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '154766d843954ea79bd370c4de42e0c4',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -680,6 +713,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|d3aabfa637cf435e8ad3c9bf1d2de565|',
             childCount: 0,
+            data: {
+                parentId: 'd3aabfa637cf435e8ad3c9bf1d2de565',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -717,7 +754,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '154766d843954ea79bd370c4de42e0c4',
             children: [],
             translations: [],
             products: [],
@@ -730,6 +766,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '8da86665f27740dd8160c92e27b1c4c8',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -742,6 +779,10 @@ export default function getTreeItems() {
             level: 2,
             path: '|a1d1da1e6d434902a2e5ffed7784c951|',
             childCount: 12,
+            data: {
+                parentId: 'a1d1da1e6d434902a2e5ffed7784c951',
+                childCount: 12,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -779,7 +820,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '8da86665f27740dd8160c92e27b1c4c8',
             children: [],
             translations: [],
             products: [],
@@ -792,6 +832,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '02547a0b1c92411eb7ddb81e67f81f90',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -805,6 +846,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -842,7 +887,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '02547a0b1c92411eb7ddb81e67f81f90',
             children: [],
             translations: [],
             products: [],
@@ -855,6 +899,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '1ca968936d324f74933ee08abc1c646e',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -868,6 +913,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -905,7 +954,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '1ca968936d324f74933ee08abc1c646e',
             children: [],
             translations: [],
             products: [],
@@ -918,6 +966,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '3cc35d190b6c4b68bf6abec4a14014b5',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -931,6 +980,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -968,7 +1021,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '3cc35d190b6c4b68bf6abec4a14014b5',
             children: [],
             translations: [],
             products: [],
@@ -981,6 +1033,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '4031f4e5b42c4aefa83b45a1141f70ad',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -994,6 +1047,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1031,7 +1088,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '4031f4e5b42c4aefa83b45a1141f70ad',
             children: [],
             translations: [],
             products: [],
@@ -1044,6 +1100,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '42e05522afbd4a8183f143318c2fc4ca',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1057,6 +1114,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1094,7 +1155,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '42e05522afbd4a8183f143318c2fc4ca',
             children: [],
             translations: [],
             products: [],
@@ -1107,6 +1167,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '4b0e9b4c59e641ca915fe916a66de894',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1120,6 +1181,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1157,7 +1222,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '4b0e9b4c59e641ca915fe916a66de894',
             children: [],
             translations: [],
             products: [],
@@ -1170,6 +1234,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '4eaa55866a24411cb1e9be12d182799f',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1183,6 +1248,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1220,7 +1289,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '4eaa55866a24411cb1e9be12d182799f',
             children: [],
             translations: [],
             products: [],
@@ -1233,6 +1301,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: '672af2c32c22402dabbfd9ab9343e211',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1246,6 +1315,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1283,7 +1356,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: '672af2c32c22402dabbfd9ab9343e211',
             children: [],
             translations: [],
             products: [],
@@ -1296,6 +1368,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'a6a951fa633b4583b973cd69e567f9f1',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1309,6 +1382,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1346,7 +1423,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'a6a951fa633b4583b973cd69e567f9f1',
             children: [],
             translations: [],
             products: [],
@@ -1359,6 +1435,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'ac708d3f3e3f43d09949168bdc825095',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1372,6 +1449,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1409,7 +1490,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'ac708d3f3e3f43d09949168bdc825095',
             children: [],
             translations: [],
             products: [],
@@ -1422,6 +1502,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'b4c10cda5f47464eb9e53ceaf687a984',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1435,6 +1516,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1472,7 +1557,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'b4c10cda5f47464eb9e53ceaf687a984',
             children: [],
             translations: [],
             products: [],
@@ -1485,6 +1569,7 @@ export default function getTreeItems() {
             seoUrls: [],
         },
         {
+            id: 'edd7b5fd00814cac8586c4002d5f8710',
             versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
             parentId: '8da86665f27740dd8160c92e27b1c4c8',
             parentVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -1498,6 +1583,10 @@ export default function getTreeItems() {
             path:
                 '|a1d1da1e6d434902a2e5ffed7784c951|8da86665f27740dd8160c92e27b1c4c8|',
             childCount: 0,
+            data: {
+                parentId: '8da86665f27740dd8160c92e27b1c4c8',
+                childCount: 0,
+            },
             type: 'page',
             productAssignmentType: 'product',
             visible: true,
@@ -1535,7 +1624,6 @@ export default function getTreeItems() {
                 keywords: null,
             },
             apiAlias: null,
-            id: 'edd7b5fd00814cac8586c4002d5f8710',
             children: [],
             translations: [],
             products: [],

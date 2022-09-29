@@ -405,6 +405,8 @@ Component.register('sw-tree', {
             this.draggedItem = null;
             this.droppedItem = null;
 
+            this.isLoading = true;
+
             this.$emit('drag-end', eventData);
         },
 
@@ -525,6 +527,7 @@ Component.register('sw-tree', {
                 const newElem = this.$parent.createNewElement(contextItem, contextItem.id);
                 const newTreeItem = this.getNewTreeItem(newElem);
 
+                parentElement.childCount += 1;
                 parentElement.data.childCount += 1;
                 this.newElementId = newElem.id;
                 this.createdItem = newTreeItem;
@@ -614,6 +617,7 @@ Component.register('sw-tree', {
 
                 const parent = this.findById(item.parentId);
                 if (parent.id === item.parentId && parent.data) {
+                    parent.childCount -= 1;
                     parent.data.childCount -= 1;
                 }
             }

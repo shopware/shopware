@@ -148,7 +148,6 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('li.sw-flow-sequence-action__action-item').should('have.length', 2);
 
         cy.get('.sw-flow-detail__save').click();
-        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

@@ -65,6 +65,10 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-23295 - Admin net input field no content visible](/changelog/release-6-4-16-0/2022-09-20-net-input-field-no-content.md)
 *  [NEXT-23097 - Remove timeout for composer watch:admin](/changelog/release-6-4-16-0/2022-9-9-remove-timeout-for-composer-watch-admin.md)
 
+## 6.4.15.2
+*  [NEXT-23464 - Fix twig source path for icons](/changelog/release-6-4-15-2/2022-09-28-fix-twig-source-path.md)
+*  [NEXT-23464 - Update twig dependency to at least v3.4.3](/changelog/release-6-4-15-2/2022-09-28-update-twig.md)
+
 ## 6.4.15.1
 *  [NEXT-23304 - Fix CLI updater](/changelog/release-6-4-15-1/2022-09-20-fix-cli-updater.md)
 

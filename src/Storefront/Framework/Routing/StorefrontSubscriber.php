@@ -394,6 +394,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $iconConfig = [];
         foreach ($themeConfig->getIconSets() as $pack => $path) {
+            if (file_exists($path . '/../app/storefront/dist')) {
+                $path . '/../app/storefront/dist';
+            }
             $iconConfig[$pack] = [
                 'path' => $path,
                 'namespace' => $theme,

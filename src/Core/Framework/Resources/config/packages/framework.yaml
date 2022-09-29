@@ -1,6 +1,7 @@
 parameters:
     messenger.default_transport_name: 'default'
     env(MAILER_URL): 'null://null'
+    env(MESSENGER_TRANSPORT_DSN): "enqueue://default?receiveTimeout=100"
 
 framework:
     esi: true
@@ -44,7 +45,7 @@ framework:
         reset_on_message: true
         transports:
             default:
-                dsn: "enqueue://default?receiveTimeout=100"
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
         default_bus: messenger.bus.shopware
         buses:
             messenger.bus.shopware:

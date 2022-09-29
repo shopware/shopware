@@ -35,6 +35,9 @@ class MailerTransportFactoryTest extends TestCase
         $transport = $factory->fromString('sendmail://default');
 
         static::assertInstanceOf(SendmailTransport::class, $transport);
+
+        // Create returns default Sendmail
+        static::assertInstanceOf(SendmailTransport::class, $factory->create());
     }
 
     public function testFactoryWithoutConfig(): void
@@ -70,7 +73,10 @@ class MailerTransportFactoryTest extends TestCase
         static::assertEquals(\get_class($original), \get_class($mailer));
     }
 
-    public function testFactoryWithConfig(): void
+    /**
+     * @dataProvider providerEncryption
+     */
+    public function testFactoryWithConfig(?string $encryption): void
     {
         $original = new EsmtpTransport();
 
@@ -82,7 +88,7 @@ class MailerTransportFactoryTest extends TestCase
                 'core.mailerSettings.port' => '225',
                 'core.mailerSettings.username' => 'root',
                 'core.mailerSettings.password' => 'root',
-                'core.mailerSettings.encryption' => 'ssl',
+                'core.mailerSettings.encryption' => $encryption,
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
             ])
         );
@@ -91,6 +97,16 @@ class MailerTransportFactoryTest extends TestCase
         $mailer = $factory->fromString('null://null');
 
         static::assertEquals(\get_class($original), \get_class($mailer));
+    }
+
+    /**
+     * @return iterable<string, array{0: string|null}>
+     */
+    public function providerEncryption(): iterable
+    {
+        yield 'tls' => ['tls'];
+        yield 'ssl' => ['ssl'];
+        yield 'null' => [null];
     }
 
     public function testFactoryWithLocalAndInvalidConfig(): void
@@ -105,6 +121,21 @@ class MailerTransportFactoryTest extends TestCase
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Given sendmail option "-t && echo bla" is invalid');
+
+        $factory->fromString('null://null');
+    }
+
+    public function testFactoryInvalidAgent(): void
+    {
+        $factory = new MailerTransportFactory(
+            $this->getFactories(),
+            new ConfigService([
+                'core.mailerSettings.emailAgent' => 'test',
+            ])
+        );
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Invalid mail agent given "test"');
 
         $factory->fromString('null://null');
     }

@@ -138,7 +138,7 @@ class DeliveryBuilder
                 continue;
             }
 
-            // if the item is completely instock, use the delivery date
+            // if the item is completely in stock, use the delivery date
             if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
                 $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
             } else {

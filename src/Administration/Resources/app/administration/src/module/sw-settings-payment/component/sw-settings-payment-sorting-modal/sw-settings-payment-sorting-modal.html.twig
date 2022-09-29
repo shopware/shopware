@@ -37,6 +37,7 @@
                         <sw-icon
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
                             name="default-action-drag-horizontal"
+                            :class="feature.isActive('v6.5.0.0') ? '' : 'legacy'"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -9862,15 +9862,7 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Mail/Service/MailServiceTest.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:__construct\\(\\) has parameter \\$config with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Mail\\\\Service\\\\ConfigService\\:\\:\\$config has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Mail/Service/MailerTransportFactoryTest.php
 
 		-
 			message: "#^Cannot call method disable\\(\\) on object\\|null\\.$#"

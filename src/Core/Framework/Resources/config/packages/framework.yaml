@@ -1,5 +1,6 @@
 parameters:
     messenger.default_transport_name: 'default'
+    env(MAILER_URL): 'null://null'
 
 framework:
     esi: true
@@ -20,6 +21,7 @@ framework:
     http_method_override: true
     mailer:
         message_bus: false
+        dsn: '%env(MAILER_URL)%'
     php_errors:
         log: true
     cache:

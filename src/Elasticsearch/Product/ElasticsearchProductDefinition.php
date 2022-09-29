@@ -384,7 +384,7 @@ SELECT
     p.available AS available,
     CONCAT(
         '[',
-            GROUP_CONCAT(
+            GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'languageId', lower(hex(product_main.language_id)),
                     'name', product_main.name,
@@ -399,7 +399,7 @@ SELECT
     ) as translation,
     CONCAT(
         '[',
-            GROUP_CONCAT(
+            GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'languageId', lower(hex(product_parent.language_id)),
                     'name', product_parent.name,
@@ -414,7 +414,7 @@ SELECT
     ) as translation_parent,
     CONCAT(
         '[',
-            GROUP_CONCAT(
+            GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'languageId', lower(hex(product_manufacturer_translation.language_id)),
                     'name', product_manufacturer_translation.name
@@ -425,7 +425,7 @@ SELECT
 
     CONCAT(
         '[',
-        GROUP_CONCAT(
+        GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'id', lower(hex(tag.id)),
                     'name', tag.name
@@ -436,7 +436,7 @@ SELECT
 
     CONCAT(
         '[',
-        GROUP_CONCAT(
+        GROUP_CONCAT(DISTINCT
                 JSON_OBJECT(
                     'id', lower(hex(category_translation.category_id)),
                     'languageId', lower(hex(category_translation.language_id)),

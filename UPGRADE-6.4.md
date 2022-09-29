@@ -7,6 +7,30 @@ UPGRADE FROM 6.3.x.x to 6.4
 * Snippets will be validated to not override existing snippets
 * Snippets will be sanitized to avoid script injection
 
+# 6.4.15.2
+## Changed icon.html.twig
+
+We changed the base pathes to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
+If you have overwritten the block `utilities_icon` please change it as follows:
+
+Before:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
+After:
+```twig
+...
+{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+...
+{% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+...
+```
+
 # 6.4.15.0
 ## Demodata generator registration in DI
 

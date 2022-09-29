@@ -1,12 +1,17 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension/page/sw-extension-config';
+import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
+import 'src/module/sw-extension/page/sw-extension-config';
+import extensionStore from 'src/module/sw-extension/store/extensions.store';
+
+const SwExtensionConfig = Shopware.Component.build('sw-extension-config');
+const SwMeteorPage = Shopware.Component.build('sw-meteor-page');
 
 function createWrapper() {
     const localVue = createLocalVue();
 
-    return shallowMount(Shopware.Component.build('sw-extension-config'), {
+    return shallowMount(SwExtensionConfig, {
         localVue,
         propsData: {
             namespace: 'MyExtension'
@@ -50,8 +55,11 @@ function createWrapper() {
 }
 
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
-    /** @type Wrapper */
-    let wrapper;
+    let wrapper: Wrapper<typeof SwExtensionConfig>;
+
+    beforeAll(async () => {
+        Shopware.State.registerModule('shopwareExtensions', extensionStore);
+    });
 
     beforeEach(async () => {
         wrapper = await createWrapper();
@@ -135,5 +143,23 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         const metaLink = wrapper.get('.sw-extension-config__producer-link');
         expect(metaLink.attributes().href).toEqual('https://www.shopware.com/');
         expect(metaLink.text()).toEqual('shopware AG');
+    });
+
+    it('saves from route when router navigates to sw-extension-config page', async () => {
+        const fromRoute = {
+            name: 'from.route.name'
+        };
+
+        SwExtensionConfig.beforeRouteEnter.call(
+            wrapper.vm,
+            undefined,
+            fromRoute,
+            (c) => c(wrapper.vm),
+        );
+        await wrapper.vm.$nextTick();
+
+        const page = wrapper.findComponent(SwMeteorPage);
+
+        expect(page.props('fromLink')).toBe(fromRoute);
     });
 });

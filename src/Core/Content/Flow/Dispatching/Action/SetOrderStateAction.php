@@ -57,7 +57,7 @@ class SetOrderStateAction extends FlowAction
     }
 
     /**
-     * @deprecated tag:v6.5.0 Will be removed
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed
      *
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
@@ -66,11 +66,6 @@ class SetOrderStateAction extends FlowAction
         if (Feature::isActive('v6.5.0.0')) {
             return [];
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
 
         return [
             self::getName() => 'handle',

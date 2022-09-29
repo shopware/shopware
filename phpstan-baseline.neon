@@ -20077,31 +20077,6 @@ parameters:
 			path: src/Core/Framework/Routing/SalesChannelRequestContextResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:getMatchingRules\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Routing\\\\Subscriber\\\\ActiveRulesDataCollectorSubscriber\\:\\:\\$ruleIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Subscriber/ActiveRulesDataCollectorSubscriber.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Api\\\\RuleConfigController\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/Api/RuleConfigController.php

@@ -213,14 +213,24 @@ export default class AddressEditorPlugin extends Plugin {
                         if (shouldBeClosed) {
                             pseudoModal.close();
                             PageLoadingIndicatorUtil.create();
-                            window.location.reload();
+
+                            // dirty hack, because chromium cache is weird
+                            // basically a window.location.reload() but chrome reloads
+                            // with ?redirected=1 which is not the wanted behaviour
+                            // this replaces the redirected=1 to a redirected=0
+                            if (typeof URL === "function") {
+                                const url = new URL(window.location.href);
+                                url.searchParams.delete('redirected');
+                                window.location.assign(url.toString());
+                            } else {
+                                window.location.reload();
+                            }
                         }
                     });
                 }
 
             });
         }
-
         this.$emitter.publish('registerAjaxSubmitCallback', { pseudoModal });
     }
 }

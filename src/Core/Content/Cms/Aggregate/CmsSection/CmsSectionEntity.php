@@ -89,6 +89,11 @@ class CmsSectionEntity extends Entity
      */
     protected $cmsPageVersionId;
 
+    /**
+     * @var array<string, bool>|null
+     */
+    protected $visibility;
+
     public function getType(): string
     {
         return $this->type;
@@ -237,5 +242,21 @@ class CmsSectionEntity extends Entity
     public function setCmsPageVersionId(?string $cmsPageVersionId): void
     {
         $this->cmsPageVersionId = $cmsPageVersionId;
+    }
+
+    /**
+     * @return array<string, bool>|null
+     */
+    public function getVisibility(): ?array
+    {
+        return $this->visibility;
+    }
+
+    /**
+     * @param array<string, bool>|null $visibility
+     */
+    public function setVisibility(?array $visibility): void
+    {
+        $this->visibility = $visibility;
     }
 }

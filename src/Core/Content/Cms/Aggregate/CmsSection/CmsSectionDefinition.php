@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -66,6 +67,7 @@ class CmsSectionDefinition extends EntityDefinition
             (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()),
             (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
             (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new JsonField('visibility', 'visibility'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_section_id'))->addFlags(new ApiAware(), new CascadeDelete()),

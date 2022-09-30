@@ -28,13 +28,14 @@ Component.register('sw-sales-channel-menu', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 7);
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
             criteria.addAssociation('domains');
 
             if (this.salesChannelFavorites.length) {
+                criteria.setLimit(50);
                 criteria.addFilter(Criteria.equalsAny('id', this.salesChannelFavorites));
             }
 

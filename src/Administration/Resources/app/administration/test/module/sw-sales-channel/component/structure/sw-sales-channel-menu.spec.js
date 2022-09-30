@@ -347,7 +347,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         wrapper.destroy();
     });
 
-    it('shows "more" when more than 25 sales channels are available', async () => {
+    it('shows "more" when no favourites are selected and there are more than 7 saleschannels', async () => {
         const salesChannels = [
             storeFrontWithStandardDomain,
             storefrontWithoutDefaultDomain,
@@ -356,7 +356,39 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             inactiveStorefront
         ];
 
-        for (let i = 0; i < 21; i += 1) {
+        for (let i = 0; i < 3; i += 1) {
+            salesChannels.push({
+                id: `${i}a`,
+                translated: { name: `${i}a` },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            });
+        }
+
+        const wrapper = createWrapper(salesChannels);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // check if "more" item is visible
+        const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
+        expect(moreItems.isVisible()).toBe(true);
+        expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
+        wrapper.destroy();
+    });
+
+    it('shows "more" when more than 50 sales channels are available and marked as favourites', async () => {
+        const salesChannels = [
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront
+        ];
+
+        for (let i = 0; i < 51; i += 1) {
             salesChannels.push({
                 id: `${i}a`,
                 translated: { name: `${i}a` },
@@ -381,7 +413,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         wrapper.destroy();
     });
 
-    it('hide "more" when less than 7 sales channels are available', async () => {
+    it('hide "more" when less than 7 sales channels are available and no favourites are selected', async () => {
         const wrapper = createWrapper([
             storeFrontWithStandardDomain,
             storefrontWithoutDefaultDomain,
@@ -405,6 +437,29 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 }
             }
         ]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // check if "more" item is hidden
+        const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
+        expect(moreItems.exists()).toBe(false);
+
+        wrapper.destroy();
+    });
+
+    it('hide "more" when less than 50 sales channels are available and favourites are selected', async () => {
+        const salesChannels = [
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront
+        ];
+
+        const wrapper = createWrapper(salesChannels);
+
+        Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

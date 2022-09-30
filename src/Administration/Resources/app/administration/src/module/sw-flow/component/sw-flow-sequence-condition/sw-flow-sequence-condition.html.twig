@@ -213,14 +213,17 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_condition_rule_header %}
                         <div class="sw-flow-sequence-condition__rule-header">
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_flow_sequence_condition_rule_name %}
-                            <div class="sw-flow-sequence-condition__rule-name">
+                            <div class="sw-flow-sequence-condition__rule-icon">
                                 <sw-icon
                                     size="12px"
                                     name="regular-rule-s"
                                 />
+                            </div>
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_flow_sequence_condition_rule_name %}
+                            <div class="sw-flow-sequence-condition__rule-name">
+
                                 <h3>{{ sequence.rule.name }}</h3>
                             </div>
                             {% endblock %}

@@ -89,22 +89,25 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_action_actions_item_header %}
                             <div class="sw-flow-sequence-action__action-header">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_flow_sequence_action_actions_item_name %}
-                                <div class="sw-flow-sequence-action__action-name">
+                                <div class="sw-flow-sequence-action__action-icon">
                                     <sw-icon
                                         v-if="!item.iconRaw"
                                         :name="`${item.icon}`"
                                         size="12px"
                                         class="sw-icon-action"
                                     />
+
                                     <img
                                         v-else
                                         class="sw-flow-sequence-action__icon-raw"
                                         :src="`data:image/png;base64, ${item.iconRaw}`"
                                         alt=""
                                     >
+                                </div>
 
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_flow_sequence_action_actions_item_name %}
+                                <div class="sw-flow-sequence-action__action-name">
                                     <h3>{{ item.label }}</h3>
                                 </div>
                                 {% endblock %}

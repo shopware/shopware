@@ -40,11 +40,3 @@ Based on custom offcanvas component.
         font-weight: $font-weight-bold;
     }
 }
-
-.navigation-offcanvas-list .main-navigation-link {
-    color: $body-color;
-    &.active {
-        color: $primary;
-        font-weight: $font-weight-bold;
-    }
-}

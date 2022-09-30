@@ -21,8 +21,23 @@
 
             <ul class="list-unstyled navigation-offcanvas-list">
                 {% if isRoot %}
-                    {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
-                    {{ block("layout_main_navigation_menu_home", "@Storefront/storefront/layout/navigation/navigation.html.twig") }}
+                    {% block layout_main_navigation_menu_home %}
+                        {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
+                        {% set isActive = page.navigationId == activeId %}
+                    
+                        {% if context.salesChannel.translated.homeEnabled %}
+                            <li class="navigation-offcanvas-list-item">
+                                <a class="navigation-offcanvas-link nav-item nav-link {% if isActive %} navigation-offcanvas-headline {% endif %}"
+                                    href="{{ path('frontend.home.page') }}"
+                                    itemprop="url"
+                                    title="{{ homeLabel|striptags }}">
+                                    <div class="main-navigation-link-text">
+                                        <span itemprop="name">{{ homeLabel|sw_sanitize }}</span>
+                                    </div>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endblock %}
                 {% endif %}
                 
                 {% if not isRoot and page.navigation.active.type != "folder" %}

@@ -19016,20 +19016,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/ProductManufacturerGenerator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductReviewGenerator\\:\\:generate\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductReviewGenerator.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductReviewGenerator\\:\\:getCustomerIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductReviewGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductReviewGenerator\\:\\:getProductIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductReviewGenerator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductStreamGenerator\\:\\:generate\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"

@@ -46,6 +46,9 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         return ProductReviewDefinition::class;
     }
 
+    /**
+     * @param array<mixed> $options
+     */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $context->getConsole()->progressStart($numberOfItems);
@@ -64,6 +67,8 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'customerId' => $context->getFaker()->randomElement($customerIds),
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'externalUser' => $context->getFaker()->name,
+                'externalEmail' => $context->getFaker()->email,
                 'title' => $context->getFaker()->sentence(),
                 'content' => $context->getFaker()->text(),
                 'points' => $context->getFaker()->randomElement($points),
@@ -81,20 +86,26 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @return array<string>
+     */
     private function getCustomerIds(): array
     {
         $sql = 'SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200';
 
-        $customerIds = $this->connection->fetchAll($sql);
+        $customerIds = $this->connection->fetchAllAssociative($sql);
 
         return array_column($customerIds, 'id');
     }
 
+    /**
+     * @return array<string>
+     */
     private function getProductIds(): array
     {
-        $sql = 'SELECT LOWER(HEX(id)) as id FROM product LIMIT 200';
+        $sql = 'SELECT LOWER(HEX(id)) as id FROM product WHERE version_id = :liveVersionId LIMIT 200';
 
-        $productIds = $this->connection->fetchAll($sql);
+        $productIds = $this->connection->fetchAllAssociative($sql, ['liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]);
 
         return array_column($productIds, 'id');
     }

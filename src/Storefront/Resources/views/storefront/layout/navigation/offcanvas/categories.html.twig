@@ -10,25 +10,21 @@
             {% if not isRoot %}
                 {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-all-link.html.twig' %}
 
-                {# @deprecated tag:v6.5.0 - Passed variable `item` will be removed. Variable `treeItem` will be passed instead. #}
-                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/active-item-link.html.twig' with { item: active, treeItem: active } %}
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/active-item-link.html.twig' with { item: active } %}
 
-                {# @deprecated tag:v6.5.0 - Passed variable `item` will be removed. Variable `treeItem` will be passed instead. #}
-                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/back-link.html.twig' with { item: active, treeItem: active } %}
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/back-link.html.twig' with { item: active } %}
             {% else %}
                 {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/general-headline.html.twig' %}
             {% endif %}
 
             <ul class="list-unstyled navigation-offcanvas-list">
                 {% if not isRoot and page.navigation.active.type != "folder" %}
-                    {# @deprecated tag:v6.5.0 - Passed variable `item` will be removed. Variable `treeItem` will be passed instead. #}
-                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active, treeItem: active } %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active } %}
                 {% endif %}
 
                 {# @var item \Shopware\Core\Content\Category\Tree\TreeItem #}
-                {% for treeItem in children.tree %}
-                    {# @deprecated tag:v6.5.0 - Passed variable `item` will be removed. Variable `treeItem` will be passed instead. #}
-                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: treeItem, treeItem: treeItem, activeId: activeId } %}
+                {% for item in children.tree %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: item, activeId: activeId } %}
                 {% endfor %}
             </ul>
         </div>

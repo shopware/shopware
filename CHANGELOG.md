@@ -10,7 +10,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-22347 - Prevent deleting default cms page](/changelog/release-6-4-16-0/2022-07-11-prevent-deleting-default-cms-page.md)
 *  [NEXT-19540 - Fix issue with overriden product export results](/changelog/release-6-4-16-0/2022-07-18-fix-issue-with-overriden-product-export-results.md)
 *  [NEXT-22597 - Default layout - Listing view](/changelog/release-6-4-16-0/2022-07-28-default-layout-listing-view.md)
-*  [NEXT-22676 - Uniform navigation item name](/changelog/release-6-4-16-0/2022-07-30-uniform-navigation-item-name.md) ([Tommy Quissens](https://github.com/quisse))
 *  [NEXT-22823 - Handle bool setup as string in CustomerCustomFieldRule](/changelog/release-6-4-16-0/2022-08-01-handle-bool-setup-as-string-in-customercustomfieldrule.md) ([Leszek Prabucki](https://github.com/l3l0))
 *  [NEXT-22877 - Set an expiration for the redis cart integration](/changelog/release-6-4-16-0/2022-08-03-set-expiration-in-redis.md) ([Micha Hobert](https://github.com/Isengo1989))
 *  [NEXT-22761 - Implement admin translation via AdminExtensionSDK](/changelog/release-6-4-16-0/2022-08-05-implement-admin-translation-via-adminextensionsdk.md)

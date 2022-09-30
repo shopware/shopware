@@ -452,22 +452,32 @@ Component.register('sw-media-upload-v2', {
 
             const fileTypes = this.fileAccept.split(',');
 
-            fileTypes.forEach(fileType => {
-                const fileAcceptType = fileType.split('/');
+            // eslint-disable-next-line no-restricted-syntax
+            for (const fileType of fileTypes) {
                 const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
 
-                if (fileAcceptType[0] !== currentFileType[0]) {
-                    this.isCorrectFileType = false;
-                    return;
-                }
+                if (fileType.substring(0, 1) === '.') {
+                    this.isCorrectFileType = file.name.endsWith(fileType) || currentFileType[1] === fileType.substr(1);
+                } else {
+                    const fileAcceptType = fileType.split('/');
 
-                if (fileAcceptType[1] === '*') {
-                    this.isCorrectFileType = true;
-                    return;
-                }
+                    if (fileAcceptType[0] !== currentFileType[0]) {
+                        this.isCorrectFileType = false;
+                        // eslint-disable-next-line no-continue
+                        continue;
+                    }
 
-                this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
-            });
+                    if (fileAcceptType[1] === '*') {
+                        this.isCorrectFileType = true;
+                        break;
+                    }
+
+                    this.isCorrectFileType = fileAcceptType[1] === currentFileType[1];
+                }
+                if (this.isCorrectFileType) {
+                    break;
+                }
+            }
 
             if (this.isCorrectFileType) {
                 return true;

@@ -72,11 +72,19 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the default accept value', async () => {
+    it('prop "fileAccept" should contain the default accept value', async () => {
         expect(fileInput.attributes().accept).toBe('image/*');
     });
 
-    it('should contain "application/pdf" value', async () => {
+    it('prop "fileAccept" should contain ".pdf" mime type value', async () => {
+        await wrapper.setProps({
+            fileAccept: '.pdf'
+        });
+
+        expect(fileInput.attributes().accept).toBe('.pdf');
+    });
+
+    it('prop "fileAccept" should contain "application/pdf" mime type value', async () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
@@ -84,7 +92,15 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(fileInput.attributes().accept).toBe('application/pdf');
     });
 
-    it('should contain "image/jpeg","image/gif","image/png" values', async () => {
+    it('prop "fileAccept" should contain ".jpeg,.gif,.png" value', async () => {
+        await wrapper.setProps({
+            fileAccept: '.jpeg,.gif,.png'
+        });
+
+        expect(fileInput.attributes().accept).toBe('.jpeg,.gif,.png');
+    });
+
+    it('prop "fileAccept" should contain "image/jpeg,image/gif,image/png" value', async () => {
         await wrapper.setProps({
             fileAccept: 'image/jpeg,image/gif,image/png'
         });
@@ -92,7 +108,15 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png');
     });
 
-    it('should contain mixed content-types value', async () => {
+    it('prop "fileAccept" should contain mixed mime types value', async () => {
+        await wrapper.setProps({
+            fileAccept: '.jpeg,.gif,.png,.pdf,.mp4'
+        });
+
+        expect(fileInput.attributes().accept).toBe('.jpeg,.gif,.png,.pdf,.mp4');
+    });
+
+    it('prop "fileAccept" should contain mixed mime types value', async () => {
         await wrapper.setProps({
             fileAccept: 'image/jpeg,image/gif,image/png,application/pdf,image/x-eps'
         });
@@ -100,7 +124,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(fileInput.attributes().accept).toBe('image/jpeg,image/gif,image/png,application/pdf,image/x-eps');
     });
 
-    it('should contain all content-types value', async () => {
+    it('prop "fileAccept" should contain all mime types value', async () => {
         await wrapper.setProps({
             fileAccept: '*/*'
         });
@@ -285,7 +309,29 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(openMediaButton.find('.sw-icon').exists()).toBeTruthy();
     });
 
-    it('should show error notification able file type is not suitable', async () => {
+    it('should show an error message able file type is not suitable (accept: file extension)', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setProps({
+            fileAccept: '.jpg',
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 12345,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.sw-media-upload-v2.notification.invalidFileType.message',
+            title: 'global.default.error',
+        });
+    });
+
+    it('should show an error message able file type is not suitable (accept: mime type)', async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.setProps({
@@ -330,9 +376,75 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
     });
 
-    it('should able emit "media-upload-add-file" event when file type and file size are matched', async () => {
+    it('should able emit "media-upload-add-file" event when file type and file size are matched (accept: file extension)', async () => {
+        await wrapper.setProps({
+            fileAccept: '.pdf',
+            maxFileSize: 2000,
+            useFileData: true,
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+    });
+
+    it('should able emit "media-upload-add-file" event when file type and file size are matched (accept: mime type)', async () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf',
+            maxFileSize: 2000,
+            useFileData: true,
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+    });
+
+    it('should able emit "media-upload-add-file" event when file type and file size are matched (accept: multiple file extensions)', async () => {
+        await wrapper.setProps({
+            fileAccept: '.pdf,.png',
+            maxFileSize: 2000,
+            useFileData: true,
+        });
+
+        fileInputValue = 'dummy.pdf';
+        fileInputFilesGet.mockReturnValue([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+
+        await fileInput.trigger('change');
+        expect(wrapper.emitted('media-upload-add-file')[0][0]).toEqual([{
+            size: 1234,
+            name: 'dummy.pdf',
+            type: 'application/pdf'
+        }]);
+    });
+
+    it('should able emit "media-upload-add-file" event when file type and file size are matched (accept: multiple mime types)', async () => {
+        await wrapper.setProps({
+            fileAccept: 'application/pdf,image/png',
             maxFileSize: 2000,
             useFileData: true,
         });

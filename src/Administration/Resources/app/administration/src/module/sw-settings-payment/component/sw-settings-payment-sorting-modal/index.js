@@ -10,6 +10,7 @@ Component.register('sw-settings-payment-sorting-modal', {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [Mixin.getByName('notification')],

@@ -41,6 +41,14 @@
             height: 24px;
         }
 
+        &__action {
+            padding: 4px;
+
+            &.legacy {
+                padding: 0;
+            }
+        }
+
         .sw-icon {
             width: 16px;
             margin-right: 4px;

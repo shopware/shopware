@@ -1,9 +1,7 @@
-{# @deprecated tag:v6.5.0 - Variable `item` will be removed. Use `treeItem` instead. #}
-
-{% if treeItem.parentId == context.salesChannel.navigationCategoryId %}
+{% if item.parentId == context.salesChannel.navigationCategoryId %}
     {% set url = path('frontend.menu.offcanvas') %}
 {% else %}
-    {% set url = path('frontend.menu.offcanvas', { 'navigationId': treeItem.parentId }) %}
+    {% set url = path('frontend.menu.offcanvas', { 'navigationId': item.parentId }) %}
 {% endif %}
 
 <a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"

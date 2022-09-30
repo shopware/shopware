@@ -71,6 +71,8 @@ class DocumentConfiguration extends Struct
      */
     protected $displayLineItemPosition;
 
+    protected bool $displaySalutationInPostalAddress = true;
+
     /**
      * @var int|null
      */
@@ -247,6 +249,16 @@ class DocumentConfiguration extends Struct
     public function setPageOrientation(?string $pageOrientation): void
     {
         $this->pageOrientation = $pageOrientation;
+    }
+
+    public function getDisplaySalutationInPostalAddress(): bool
+    {
+        return $this->displaySalutationInPostalAddress;
+    }
+
+    public function setDisplaySalutationInPostalAddress(bool $displaySalutationInPostalAddress): void
+    {
+        $this->displaySalutationInPostalAddress = $displaySalutationInPostalAddress;
     }
 
     public function getPageSize(): ?string

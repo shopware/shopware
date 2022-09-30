@@ -66,6 +66,7 @@
       "disabledTypeSelect": "The type of global documents cannot be changed.",
       "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\"",
       "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
+      "labelDisplaySalutationInPostalAddress": "Display salutation in postal address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries."
     }

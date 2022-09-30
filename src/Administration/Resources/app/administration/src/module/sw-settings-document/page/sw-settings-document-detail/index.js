@@ -144,6 +144,14 @@ Component.register('sw-settings-document-detail', {
                         helpText: this.$tc('sw-settings-document.detail.helpTextDisplayDocumentInCustomerAccount'),
                     },
                 },
+                {
+                    name: 'displaySalutationInPostalAddress',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: this.$tc('sw-settings-document.detail.labelDisplaySalutationInPostalAddress'),
+                    },
+                },
             ],
             companyFormFields: [
                 {

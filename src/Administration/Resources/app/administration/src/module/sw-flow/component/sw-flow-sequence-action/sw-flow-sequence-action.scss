@@ -5,7 +5,7 @@
 .sw-flow-sequence-action {
     &__card {
         margin-right: 32px;
-        width: 322px;
+        width: 326px;
         background: $color-white;
         border-radius: 8px;
         border: 1px solid $color-gray-300;
@@ -15,7 +15,7 @@
 
     &__header {
         display: flex;
-        padding: 16px 23px;
+        padding: 16px 16px 12px 24px;
         justify-content: space-between;
         max-height: 55px;
         border-bottom: 1px solid $color-gray-300;
@@ -52,7 +52,7 @@
     }
 
     &__action-item {
-        padding: 12px 24px;
+        padding: 12px 16px 16px 24px;
 
         &:not(:last-child) {
             border-bottom: 1px solid $color-gray-300;
@@ -65,12 +65,14 @@
 
     &__action-header {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 9px;
+        margin-bottom: 4px;
     }
 
     &__action-name {
-        @include flex-centering-vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+        flex-basis: 100%;
+        padding-top: 2px;
 
         h3 {
             font-size: 15px;

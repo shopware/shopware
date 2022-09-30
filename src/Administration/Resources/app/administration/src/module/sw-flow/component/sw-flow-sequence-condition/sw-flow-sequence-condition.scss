@@ -190,7 +190,7 @@
     &__header {
         display: flex;
         background: $color-gray-100;
-        padding: 16px 23px;
+        padding: 16px 16px 12px 24px;
         justify-content: space-between;
         max-height: 55px;
     }
@@ -222,7 +222,7 @@
     }
 
     &__rule-info {
-        padding: 12px 24px;
+        padding: 12px 16px 16px 24px;
 
         p {
             font-size: $font-size-small;
@@ -233,12 +233,14 @@
 
     &__rule-header {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 9px;
+        margin-bottom: 4px;
     }
 
     &__rule-name {
-        @include flex-centering-vertical;
+        overflow: hidden;
+        word-wrap: break-word;
+        flex-basis: 100%;
+        padding-top: 2px;
 
         h3 {
             font-size: 15px;

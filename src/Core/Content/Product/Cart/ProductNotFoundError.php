@@ -36,7 +36,7 @@ class ProductNotFoundError extends Error
 
     public function getLevel(): int
     {
-        return self::LEVEL_WARNING;
+        return self::LEVEL_ERROR;
     }
 
     public function blockOrder(): bool

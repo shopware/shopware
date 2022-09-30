@@ -138,9 +138,6 @@ class RuleEntity extends Entity
         $this->name = $name;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
-     */
     public function getPayload()
     {
         $this->checkIfPropertyAccessIsAllowed('payload');

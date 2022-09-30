@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
@@ -27,6 +29,9 @@ class CategoryBreadcrumbBuilder
         $this->categoryRepository = $categoryRepository;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function build(CategoryEntity $category, ?SalesChannelEntity $salesChannel = null, ?string $navigationCategoryId = null): ?array
     {
         $categoryBreadcrumb = $category->getPlainBreadcrumb();
@@ -66,26 +71,31 @@ class CategoryBreadcrumbBuilder
 
     public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if ($product->getCategoryTree() === null || \count($product->getCategoryTree()) === 0) {
-            return null;
-        }
-
         $category = $this->getMainCategory($product, $context);
 
         if ($category !== null) {
             return $category;
         }
 
-        $ids = $product->getCategoryIds();
+        $categoryIds = $product->getCategoryIds() ?? [];
+        $productStreamIds = $product->getStreamIds() ?? [];
 
-        if (empty($ids)) {
+        if (empty($productStreamIds) && empty($categoryIds)) {
             return null;
         }
 
-        $criteria = new Criteria($ids);
+        $criteria = new Criteria();
         $criteria->setTitle('breadcrumb-builder');
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('active', true));
+
+        if (!empty($categoryIds)) {
+            $criteria->setIds($categoryIds);
+        } else {
+            $criteria->addFilter(new EqualsAnyFilter('productStream.id', $productStreamIds));
+            $criteria->addFilter(new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM));
+        }
+
         $criteria->addFilter($this->getSalesChannelFilter($context));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext());

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Page;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -205,6 +206,8 @@ class ProductPageTest extends TestCase
                 ['id' => $seoCategoryId],
             ],
         ]);
+
+        $this->updateProductStream($product->getId(), Uuid::randomHex());
 
         $request = new Request([], [], ['productId' => $product->getId()]);
 
@@ -418,5 +421,17 @@ class ProductPageTest extends TestCase
 
         $this->getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());
+    }
+
+    private function updateProductStream(string $productId, string $streamId): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
+            [
+                'streamIds' => json_encode([$streamId]),
+                'id' => Uuid::fromHexToBytes($productId),
+            ]
+        );
     }
 }

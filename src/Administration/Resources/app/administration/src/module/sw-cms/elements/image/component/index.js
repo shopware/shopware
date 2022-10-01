@@ -37,6 +37,12 @@ Component.register('sw-cms-el-image', {
             };
         },
 
+        horizontalAlign() {
+            return {
+                'justify-content': this.element.config.horizontalAlign.value || null,
+            };
+        },
+
         mediaUrl() {
             const fallBackImageFileName = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
             const staticFallBackImage = this.assetFilter(`administration/static/img/cms/${fallBackImageFileName}`);

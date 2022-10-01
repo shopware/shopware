@@ -235,3 +235,16 @@ div.card-tabs .cms-card-header {
     padding-left: 0;
     padding-right: 0;
 }
+
+.cms-element-image-horizontal  {
+    &-left {
+        justify-content: flex-start;
+    }
+    &-center {
+        justify-content: center;
+    }
+    &-right {
+        justify-content: flex-end;
+    }
+    
+}

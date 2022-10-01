@@ -1,17 +1,19 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_element_image %}
-<div
-    class="sw-cms-el-image"
-    :class="displayModeClass"
-    :style="styles"
->
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_cms_element_image_content %}
-    <img
-        :src="mediaUrl"
-        :style="imgStyles"
-        alt=""
+<div class="sw-cms-el-image" :style="horizontalAlign">
+    <div
+        class="sw-cms-el-image__content"
+        :class="displayModeClass"
+        :style="styles"
     >
-    {% endblock %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_element_image_content %}
+        <img
+            :src="mediaUrl"
+            :style="imgStyles"
+            alt=""
+        >
+        {% endblock %}
+    </div>
 </div>
 {% endblock %}

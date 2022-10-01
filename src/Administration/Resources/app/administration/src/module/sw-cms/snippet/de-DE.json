@@ -208,7 +208,11 @@
             "displayModeContain": "Beinhalten",
             "autoSlide": "Automatischer Wechsel",
             "autoplayTimeout": "Verzögerung",
-            "speed": "Animationsverzögerung"
+            "speed": "Animationsverzögerung",
+            "horizontalAlign": "Horizontale Ausrichtung",
+            "horizontalAlignLeft": "Links",
+            "horizontalAlignCenter": "Mitte",
+            "horizontalAlignRight": "Rechts"
           },
           "helpText": {
             "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",

@@ -211,7 +211,11 @@
             "displayModeContain": "Contain",
             "autoSlide": "Auto slide",
             "autoplayTimeout": "Delay",
-            "speed": "Animation delay"
+            "speed": "Animation delay",
+            "horizontalAlign": "Horizontal align",
+            "horizontalAlignLeft": "Left",
+            "horizontalAlignCenter": "Center",
+            "horizontalAlignRight": "Right"
           },
           "helpText": {
             "autoSlide": "The slide will be slided automatically.",

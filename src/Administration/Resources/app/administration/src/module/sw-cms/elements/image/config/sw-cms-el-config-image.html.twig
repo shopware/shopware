@@ -97,6 +97,25 @@
     </sw-select-field>
     {% endblock %}
 
+    {% block sw_cms_element_image_config_horizontal_align %}
+    <sw-select-field
+        v-model="element.config.horizontalAlign.value"
+        :label="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
+        :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
+        :disabled="element.config.displayMode.value === 'cover'"
+    >
+        <option value="flex-start">
+            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignLeft') }}
+        </option>
+        <option value="center">
+            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignCenter') }}
+        </option>
+        <option value="flex-end">
+            {{ $tc('sw-cms.elements.general.config.label.horizontalAlignRight') }}
+        </option>
+    </sw-select-field>
+    {% endblock %}
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_link %}
     <div class="sw-cms-el-config-image__link">

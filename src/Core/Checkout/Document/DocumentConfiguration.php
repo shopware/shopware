@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Document;
 
@@ -110,6 +112,11 @@ class DocumentConfiguration extends Struct
      * @var string|null
      */
     protected $companyUrl;
+
+    /**
+     * @var string|null
+     */
+    protected $companyPhone;
 
     /**
      * @var string|null

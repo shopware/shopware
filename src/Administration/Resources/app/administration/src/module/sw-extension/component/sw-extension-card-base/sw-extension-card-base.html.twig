@@ -9,6 +9,13 @@
     <sw-loader v-if="isLoading" />
     {% endblock %}
 
+    <sw-icon
+        class="sw-extension-card-base__type_icon"
+        size="20"
+        :title="extension.type === 'plugin' ? $tc('sw-extension-store.component.sw-extension-card-base.extensionTypePlugin') : $tc('sw-extension-store.component.sw-extension-card-base.extensionTypeApp')"
+        :name="extension.type === 'plugin' ? 'regular-harddisk' : 'regular-cloud-upload'"
+    ></sw-icon>
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_activation_switch %}
     <div class="sw-extension-card-base__switch">

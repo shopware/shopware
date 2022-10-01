@@ -239,6 +239,8 @@
         }
       },
       "sw-extension-card-base": {
+        "extensionTypePlugin": "Based on plugin system",
+        "extensionTypeApp": "Based on app system",
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
         "purchasedLabel": "Purchased on",

@@ -27,6 +27,14 @@
                 {% endblock %}
             </div>
             {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_users_permissions_detailed_permissions_grid_header_roles_select_all %}
+            <div class="sw-users-permissions-detailed-permissions-grid__checkbox-wrapper">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {{ $tc('global.entities.all') }}
+            </div>
+            {% endblock %}
         </div>
         {% endblock %}
 
@@ -96,6 +104,20 @@
                         </div>
                     </div>
                 </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_users_permissions_detailed_permissions_grid_permissions_roles_select_all %}
+            <div class="sw-users-permissions-detailed-permissions-grid__checkbox-wrapper">
+                {% block sw_users_permissions_detailed_permissions_grid_permissions_roles_select_all_button %}
+                <sw-button
+                    size="x-small"
+                    @click="enablePermissionsForEntity(entity)"
+                >
+                    {{ $tc('global.entities.all') }}
+                </sw-button>
                 {% endblock %}
             </div>
             {% endblock %}

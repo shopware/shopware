@@ -82,5 +82,13 @@ Component.register('sw-users-permissions-detailed-permissions-grid', {
 
             this.detailedPrivileges.push(identifier);
         },
+
+        enablePermissionsForEntity(entity) {
+            this.permissionTypes.forEach((permissionType) => {
+                if (!this.isEntityDisabled(entity, permissionType) && !this.isEntitySelected(entity, permissionType)) {
+                    this.changePermissionForEntity(entity, permissionType);
+                }
+            });
+        },
     },
 });

@@ -103,7 +103,7 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
 
         if ($customer === null) {
-            throw new CustomerNotFoundByIdException($customerId);
+            throw CustomerException::customerNotFoundById($customerId);
         }
 
         return $customer;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
 use Shopware\Core\Framework\HttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,5 +49,10 @@ class CustomerException extends HttpException
             self::LOGIN_AS_CUSTOMER_MISSING_TOKEN_CODE,
             'token is missing.',
         );
+    }
+
+    public static function customerNotFoundById(string $customerId): CustomerNotFoundByIdException
+    {
+        return new CustomerNotFoundByIdException($customerId);
     }
 }

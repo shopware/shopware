@@ -597,7 +597,7 @@
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Show results in module({count})",
-      "labelShowResultsInModuleV2": "Show all matching results in {entityName}..."
+      "labelShowResultsInModuleV2": "Show all matching results in {entityNameLower}..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Press the enter key to add values."

@@ -76,10 +76,15 @@ Component.register('sw-search-more-results', {
         },
 
         searchContent() {
+            const entityName = this.$tc(`global.entities.${this.entity}`, 0);
+
             return this.$tc(
                 'global.sw-search-more-results.labelShowResultsInModuleV2',
                 0,
-                { entityName: this.$tc(`global.entities.${this.entity}`, 0).toLowerCase() },
+                {
+                    entityName: entityName,
+                    entityNameLower: entityName.toLowerCase(),
+                },
             );
         },
     },

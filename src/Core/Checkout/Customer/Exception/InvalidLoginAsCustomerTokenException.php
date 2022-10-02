@@ -2,26 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Checkout\Customer\CustomerException;
 
-class InvalidLoginAsCustomerTokenException extends ShopwareHttpException
+class InvalidLoginAsCustomerTokenException extends CustomerException
 {
-    public function __construct(string $token)
-    {
-        parent::__construct(
-            'The token "{{ token }}" is invalid.',
-            ['token' => $token]
-        );
-    }
 
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__LOGIN_AS_CUSTOMER_INVALID_TOKEN';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
 }

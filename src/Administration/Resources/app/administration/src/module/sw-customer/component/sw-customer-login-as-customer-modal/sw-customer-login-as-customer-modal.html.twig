@@ -19,7 +19,7 @@
                 icon="default-action-external"
                 target="_blank"
                 :key="salesChannelDomain.id"
-                @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId)">
+                @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)">
                 {{ salesChannelDomain.url }}
             </sw-context-menu-item>
         {% endblock %}

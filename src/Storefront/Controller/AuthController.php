@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -12,23 +10,18 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
-use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
-use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,7 +34,6 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoadedHook;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -64,19 +56,13 @@ class AuthController extends StorefrontController
 
     private AbstractLogoutRoute $logoutRoute;
 
+    private AbstractLoginAsCustomerRoute $loginAsCustomerRoute;
+
     private StorefrontCartFacade $cartFacade;
 
     private AccountRecoverPasswordPageLoader $recoverPasswordPageLoader;
 
     private SalesChannelContextServiceInterface $salesChannelContext;
-
-    private CartRestorer $cartRestorer;
-
-    private LoginAsCustomerTokenGenerator $loginAsCustomerTokenGenerator;
-
-    private EntityRepositoryInterface $customerRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
@@ -87,26 +73,20 @@ class AuthController extends StorefrontController
         AbstractResetPasswordRoute $resetPasswordRoute,
         AbstractLoginRoute $loginRoute,
         AbstractLogoutRoute $logoutRoute,
+        AbstractLoginAsCustomerRoute $loginAsCustomerRoute,
         StorefrontCartFacade $cartFacade,
         AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        CartRestorer $cartRestorer,
-        LoginAsCustomerTokenGenerator $loginAsCustomerTokenGenerator,
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher
+        SalesChannelContextServiceInterface $salesChannelContextService
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->sendPasswordRecoveryMailRoute = $sendPasswordRecoveryMailRoute;
         $this->resetPasswordRoute = $resetPasswordRoute;
         $this->loginRoute = $loginRoute;
         $this->logoutRoute = $logoutRoute;
+        $this->loginAsCustomerRoute = $loginAsCustomerRoute;
         $this->cartFacade = $cartFacade;
         $this->recoverPasswordPageLoader = $recoverPasswordPageLoader;
         $this->salesChannelContext = $salesChannelContextService;
-        $this->cartRestorer = $cartRestorer;
-        $this->loginAsCustomerTokenGenerator = $loginAsCustomerTokenGenerator;
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -393,19 +373,28 @@ class AuthController extends StorefrontController
     public function loginAsCustomer(string $token, string $salesChannelId, string $customerId, SalesChannelContext $context, Request $request): Response
     {
         try {
-            $this->loginAsCustomerTokenGenerator->validate($token, $salesChannelId, $customerId);
+            $dataBag = new RequestDataBag([
+                'token' => $token,
+                'salesChannelId' => $salesChannelId,
+                'customerId' => $customerId,
+            ]);
 
-            $customer = $this->fetchCustomer($customerId, $context->getContext());
+            $contextToken = $this->loginAsCustomerRoute->loginAsCustomer($dataBag, $context)->getToken();
 
-            $restoredCart = $this->cartRestorer->restore($customer->getId(), $context);
+            $newContext = $this->salesChannelContext->get(
+                new SalesChannelContextServiceParameters(
+                    $context->getSalesChannelId(),
+                    $contextToken,
+                    $context->getLanguageIdChain()[0],
+                    $context->getCurrencyId(),
+                    $context->getDomainId(),
+                    $context->getContext()
+                )
+            );
 
-            $cartToken = $restoredCart->getToken();
-
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $restoredCart);
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $cartToken);
-
-            $event = new CustomerLoginEvent($context, $customer, $cartToken);
-            $this->eventDispatcher->dispatch($event);
+            // Update the sales channel context for CacheResponseSubscriber
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $newContext);
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
             return $this->redirectToRoute('frontend.account.home.page');
         } catch (InvalidLoginAsCustomerTokenException $exception) {
@@ -413,21 +402,5 @@ class AuthController extends StorefrontController
         } catch (CustomerNotFoundByIdException $exception) {
             return $this->redirectToRoute('frontend.account.login.page');
         }
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws CustomerNotFoundByIdException
-     */
-    private function fetchCustomer(string $customerId, Context $context): CustomerEntity
-    {
-        /** @var CustomerEntity|null $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
-
-        if ($customer === null) {
-            throw new CustomerNotFoundByIdException($customerId);
-        }
-
-        return $customer;
     }
 }

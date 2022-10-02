@@ -330,6 +330,13 @@
             <argument type="service" id="sales_channel.newsletter_recipient.repository" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginAsCustomerRoute" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService">
             <argument type="service" id="customer.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />

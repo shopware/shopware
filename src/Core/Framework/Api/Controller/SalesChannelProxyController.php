@@ -216,13 +216,13 @@ class SalesChannelProxyController extends AbstractController
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
-        $salesChannelId = (string) $request->request->get('salesChannelId');
-
-        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
-
         if (!$request->request->has(self::CUSTOMER_ID)) {
             throw new MissingRequestParameterException(self::CUSTOMER_ID);
         }
+
+        $salesChannelId = (string) $request->request->get('salesChannelId');
+
+        $this->fetchSalesChannel($salesChannelId, $context);
 
         $customerId = (string) $request->request->get('customerId');
 
@@ -230,19 +230,8 @@ class SalesChannelProxyController extends AbstractController
 
         $token = $this->loginAsCustomerTokenGenerator->generate($salesChannelId, $customerId);
 
-        $redirectUrlWithToken = sprintf(
-            '%s/%s',
-            $salesChannel->getDomains()->first()->getUrl(),
-            $this->generateUrl('frontend.account.login.customer', [
-                'token' => $token,
-                'salesChannelId' => $salesChannelId,
-                'customerId' => $customerId,
-            ])
-        );
-
         $content = json_encode([
             'token' => $token,
-            'redirectUrl' => $redirectUrlWithToken,
         ], \JSON_THROW_ON_ERROR);
         $response = new Response();
         $response->headers->set('content-type', 'application/json');

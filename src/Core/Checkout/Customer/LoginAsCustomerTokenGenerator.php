@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
-use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
-
 class LoginAsCustomerTokenGenerator
 {
     private string $appSecret;
@@ -28,7 +26,7 @@ class LoginAsCustomerTokenGenerator
         $expectedToken = $this->generate($salesChannelId, $customerId);
 
         if (!hash_equals($expectedToken, $givenToken)) {
-            throw new InvalidLoginAsCustomerTokenException($givenToken);
+            throw CustomerException::invalidToken($givenToken);
         }
     }
 }

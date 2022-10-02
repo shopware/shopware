@@ -39,6 +39,7 @@ Component.register('sw-customer-login-as-customer-modal', {
 
         salesChannelDomainCriteria() {
             const criteria = new Criteria();
+            criteria.addAssociation('salesChannel');
 
             if (this.customer && this.customer.boundSalesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannelId', this.customer.boundSalesChannelId));
@@ -57,14 +58,21 @@ Component.register('sw-customer-login-as-customer-modal', {
             this.fetchSalesChannelDomains();
         },
 
-        async onSalesChannelDomainMenuItemClick(salesChannelId) {
+        async onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {
             await Service('contextStoreService').loginAsCustomerTokenGenerate(
                 this.customer.id,
                 salesChannelId,
             ).then((response) => {
                 const handledResponse = ApiService.handleResponse(response);
 
-                window.open(handledResponse.redirectUrl);
+                window.open(
+                    this.buildSalesChannelUrl(
+                        salesChannelDomainUrl,
+                        handledResponse.token,
+                        salesChannelId,
+                        this.customer.id,
+                    ),
+                );
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-customer.detail.notificationLoginAsCustomerErrorMessage'),
@@ -83,6 +91,10 @@ Component.register('sw-customer-login-as-customer-modal', {
             ).then((loadedDomains) => {
                 this.salesChannelDomains = loadedDomains;
             });
+        },
+
+        buildSalesChannelUrl(salesChannelDomainUrl, token, salesChannelId, customerId) {
+            return `${salesChannelDomainUrl}/account/login/customer/${token}/${salesChannelId}/${customerId}`;
         },
     },
 });

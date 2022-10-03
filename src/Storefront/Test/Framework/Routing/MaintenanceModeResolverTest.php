@@ -49,6 +49,43 @@ class MaintenanceModeResolverTest extends TestCase
         }
     }
 
+    /**
+     * Tests if the resolver redirects requests from the maintenance page to the shop correctly.
+     *
+     * @dataProvider maintenanceModeInactiveProvider
+     * @dataProvider maintenanceModeActiveProvider
+     */
+    public function testShouldRedirectToShop(Request $request, bool $shouldRedirect): void
+    {
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+
+        if ($shouldRedirect) {
+            static::assertFalse(
+                $resolver->shouldRedirectToShop($request),
+                'Expected to be redirected from the maintenance page, but shouldRedirectToShop returned true.'
+            );
+        } else {
+            static::assertTrue(
+                $resolver->shouldRedirectToShop($request),
+                'Didn\'t expect to not be redirected from the maintenance page, but shouldRedirectToShop returned false.'
+            );
+        }
+    }
+
+    /**
+     * Test if the maintenance mode is active by request.
+     *
+     * @dataProvider maintenanceModeInactiveProvider
+     * @dataProvider maintenanceModeActiveProvider
+     */
+    public function testIsMaintenanceRequest(Request $request, bool $expected): void
+    {
+        static::assertEquals(
+            (new MaintenanceModeResolver($this->getRequestStack($request)))->isMaintenanceRequest($request),
+            $expected
+        );
+    }
+
     public function maintenanceModeInactiveProvider(): array
     {
         return [

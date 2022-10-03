@@ -8,11 +8,11 @@
             :allow-edit="false"
             :allow-delete="false"
             :allow-bulk-edit="false"
-            :columns="flowColumns"
+            :columns="flowTemplateColumns"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
-            :repository="flowRepository"
-            :items="flows"
+            :repository="flowTemplateRepository"
+            :items="flowTemplates"
             :is-loading="isLoading"
             :full-page="false"
             :show-selection="false"
@@ -23,9 +23,9 @@
         >
             <template #column-eventName="{ item }">
                 <strong>
-                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.eventName)) }}
+                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.config.eventName)) }}
                 </strong>
-                <p>{{ item.eventName }}</p>
+                <p>{{ item.config.eventName }}</p>
             </template>
 
             <template #column-createFlow="{ item }">

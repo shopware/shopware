@@ -26,6 +26,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
 {
+    public const CUSTOMER_ID = 'customerId';
+
+    public const SALES_CHANNEL_ID = 'salesChannelId';
+
+    public const TOKEN = 'token';
+
     private EventDispatcherInterface $eventDispatcher;
 
     private EntityRepositoryInterface $customerRepository;
@@ -60,21 +66,21 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
      */
     public function loginAsCustomer(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
-        if (!$data->has('customerId')) {
+        if (!$data->has(self::CUSTOMER_ID)) {
             throw CustomerException::missingCustomerId();
         }
 
-        if (!$data->has('salesChannelId')) {
+        if (!$data->has(self::SALES_CHANNEL_ID)) {
             throw CustomerException::missingSalesChannelId();
         }
 
-        if (!$data->has('token')) {
+        if (!$data->has(self::TOKEN)) {
             throw CustomerException::missingToken();
         }
 
-        $customerId = (string) $data->get('customerId');
-        $salesChannelId = (string) $data->get('salesChannelId');
-        $token = (string) $data->get('token');
+        $customerId = (string) $data->get(self::CUSTOMER_ID);
+        $salesChannelId = (string) $data->get(self::SALES_CHANNEL_ID);
+        $token = (string) $data->get(self::TOKEN);
 
         $this->tokenGenerator->validate($token, $salesChannelId, $customerId);
 

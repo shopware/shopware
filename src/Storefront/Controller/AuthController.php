@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginAsCustomerRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -374,9 +375,9 @@ class AuthController extends StorefrontController
     {
         try {
             $dataBag = new RequestDataBag([
-                'token' => $token,
-                'salesChannelId' => $salesChannelId,
-                'customerId' => $customerId,
+                LoginAsCustomerRoute::TOKEN => $token,
+                LoginAsCustomerRoute::SALES_CHANNEL_ID => $salesChannelId,
+                LoginAsCustomerRoute::CUSTOMER_ID => $customerId,
             ]);
 
             $contextToken = $this->loginAsCustomerRoute->loginAsCustomer($dataBag, $context)->getToken();

@@ -58,7 +58,6 @@ Component.register('sw-flow-list', {
             }
 
             criteria
-                .addFilter(Criteria.equals('locked', false))
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));
 

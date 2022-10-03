@@ -1,0 +1,96 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
+use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Validation;
+
+/**
+ * @internal
+ * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer
+ */
+class FlowTemplateConfigFieldSerializerTest extends TestCase
+{
+    private FlowTemplateConfigFieldSerializer $serializer;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $this->serializer = new FlowTemplateConfigFieldSerializer($validator, $definitionRegistry);
+    }
+
+    public function testSerializeWithInvalidConfigArray(): void
+    {
+        static::expectException(WriteConstraintViolationException::class);
+
+        $this->encode([
+            'eventName' => 111,
+            'description' => 'description test',
+            'sequences' => [],
+        ]);
+    }
+
+    public function testSerializeWithValidConfigArray(): void
+    {
+        $config = $this->encode([
+            'eventName' => 'test',
+            'description' => 'description test',
+            'sequences' => [
+                [
+                    'id' => '1111',
+                    'actionName' => 'action.name',
+                ],
+            ],
+        ]);
+
+        $data = json_decode($config, true);
+
+        static::assertArrayHasKey('sequences', $data);
+        static::assertCount(1, $data['sequences']);
+
+        static::assertArrayHasKey('parentId', $data['sequences'][0]);
+        static::assertArrayHasKey('ruleId', $data['sequences'][0]);
+        static::assertArrayHasKey('position', $data['sequences'][0]);
+        static::assertArrayHasKey('displayGroup', $data['sequences'][0]);
+        static::assertArrayHasKey('trueCase', $data['sequences'][0]);
+
+        static::assertEquals(1, $data['sequences'][0]['position']);
+        static::assertEquals(1, $data['sequences'][0]['displayGroup']);
+        static::assertEquals(0, $data['sequences'][0]['trueCase']);
+    }
+
+    /**
+     *  @param array<string, mixed> $data
+     */
+    private function encode(array $data): string
+    {
+        $field = new FlowTemplateConfigField('config', 'config');
+        $existence = new EntityExistence('config', ['someId'], true, false, false, []);
+        $keyPair = new KeyValuePair('someId', $data, false);
+        $bag = new WriteParameterBag(
+            $this->createMock(FlowTemplateDefinition::class),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue()
+        );
+
+        $data = iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
+
+        return $data['config'];
+    }
+}

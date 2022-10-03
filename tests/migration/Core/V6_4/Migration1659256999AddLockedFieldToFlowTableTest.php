@@ -3,53 +3,36 @@
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Column;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_4\Migration1659256999AddLockedFieldToFlowTable;
+use Shopware\Core\Migration\V6_4\Migration1659256999CreateFlowTemplateTable;
 
 /**
  * @internal
- * @covers \Shopware\Core\Migration\V6_4\Migration1659256999AddLockedFieldToFlowTable
+ * @covers \Shopware\Core\Migration\V6_4\Migration1659256999CreateFlowTemplateTable
  */
-class Migration1659256999AddLockedFieldToFlowTableTest extends TestCase
+class Migration1659256999CreateFlowTemplateTableTest extends TestCase
 {
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `flow_template`');
     }
 
-    public function testMigration(): void
+    public function testTablesArePresent(): void
     {
-        $this->prepare();
-
-        $migration = new Migration1659256999AddLockedFieldToFlowTable();
+        $migration = new Migration1659256999CreateFlowTemplateTable();
         $migration->update($this->connection);
 
-        // check if migration ran successfully
-        $resultColumnExists = $this->hasColumn('flow', 'locked');
+        $flowTemplateColumns = array_column($this->connection->fetchAllAssociative('SHOW COLUMNS FROM flow_template'), 'Field');
 
-        static::assertTrue($resultColumnExists);
-    }
-
-    private function prepare(): void
-    {
-        $resultColumnExists = $this->hasColumn('flow', 'locked');
-
-        if ($resultColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `flow` DROP COLUMN `locked`');
-        }
-    }
-
-    private function hasColumn(string $table, string $columnName): bool
-    {
-        return \count(array_filter(
-            $this->connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column) use ($columnName): bool {
-                return $column->getName() === $columnName;
-            }
-        )) > 0;
+        static::assertContains('id', $flowTemplateColumns);
+        static::assertContains('name', $flowTemplateColumns);
+        static::assertContains('config', $flowTemplateColumns);
+        static::assertContains('created_at', $flowTemplateColumns);
+        static::assertContains('updated_at', $flowTemplateColumns);
     }
 }

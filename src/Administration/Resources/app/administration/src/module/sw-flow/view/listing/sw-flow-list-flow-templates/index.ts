@@ -6,10 +6,10 @@ import type { MetaInfo } from 'vue-meta';
 import template from './sw-flow-list-flow-templates.html.twig';
 import './sw-flow-list-flow-templates.scss';
 
-interface FlowEntity extends Entity {
+interface FlowTemplateEntity extends Entity {
     name: string,
-        description: string,
-        eventName: string,
+    description: string,
+    eventName: string,
 }
 
 const { Component, Mixin } = Shopware;
@@ -39,15 +39,15 @@ Component.register('sw-flow-list-flow-templates', {
         sortDirection: string,
         total: number,
         isLoading: boolean,
-        flows: Array<FlowEntity>,
-        selectedItems: Array<FlowEntity>,
+        flowTemplates: Array<FlowTemplateEntity>,
+        selectedItems: Array<FlowTemplateEntity>,
         } {
         return {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             total: 0,
             isLoading: false,
-            flows: [],
+            flowTemplates: [],
             selectedItems: [],
         };
     },
@@ -61,11 +61,11 @@ Component.register('sw-flow-list-flow-templates', {
     },
 
     computed: {
-        flowRepository(): Repository {
-            return this.repositoryFactory.create('flow');
+        flowTemplateRepository(): Repository {
+            return this.repositoryFactory.create('flow_template');
         },
 
-        flowCriteria(): CriteriaType {
+        flowTemplateCriteria(): CriteriaType {
             const criteria = new Criteria(1, 25);
 
             if (this.searchTerm) {
@@ -73,7 +73,6 @@ Component.register('sw-flow-list-flow-templates', {
             }
 
             criteria
-                .addFilter(Criteria.equals('locked', true))
                 // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
@@ -82,7 +81,7 @@ Component.register('sw-flow-list-flow-templates', {
             return criteria;
         },
 
-        flowColumns() {
+        flowTemplateColumns() {
             return [
                 {
                     property: 'name',
@@ -93,7 +92,7 @@ Component.register('sw-flow-list-flow-templates', {
                     primary: true,
                 },
                 {
-                    property: 'description',
+                    property: 'config.description',
                     label: this.$tc('sw-flow.list.labelColumnDescription'),
                     allowResize: false,
                     sortable: false,
@@ -135,12 +134,12 @@ Component.register('sw-flow-list-flow-templates', {
 
             // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            this.flowRepository.search(this.flowCriteria)
+            this.flowTemplateRepository.search(this.flowTemplateCriteria)
                 .then((data: EntityCollection) => {
                     // @ts-expect-error
                     this.total = data.total;
                     // @ts-expect-error
-                    this.flows = data as unknown as Array<FlowEntity>;
+                    this.flowTemplates = data as unknown as Array<FlowTemplateEntity>;
                 })
                 .finally(() => {
                     // @ts-expect-error
@@ -148,37 +147,11 @@ Component.register('sw-flow-list-flow-templates', {
                 });
         },
 
-        createFlowFromTemplate(item: FlowEntity): void {
-            const behavior = {
-                overwrites: {
-                    locked: 0,
-                },
-            };
-
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            this.flowRepository.clone(item.id, Shopware.Context.api, behavior)
-                .then((response: FlowEntity) => {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
-                    });
-
-                    if (response?.id) {
-                        this.$router.push({ name: 'sw.flow.detail', params: { id: response.id } });
-                    }
-                })
-                .catch(() => {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageCreateError'),
-                    });
-                });
+        createFlowFromTemplate(item: FlowTemplateEntity): void {
+            this.$router.push({ name: 'sw.flow.detail', params: { flowTemplateId: item.id } });
         },
 
-        onEditFlow(item: FlowEntity): void {
+        onEditFlow(item: FlowTemplateEntity): void {
             if (!item?.id) {
                 return;
             }
@@ -193,7 +166,8 @@ Component.register('sw-flow-list-flow-templates', {
 
         updateRecords(result: EntityCollection) {
             // @ts-expect-error
-            this.flows = result as unknown as Array<FlowEntity>;
+            this.flowTemplates = result as unknown as Array<FlowTemplateEntity>;
+
             // @ts-expect-error
             this.total = result.total;
         },
@@ -202,7 +176,7 @@ Component.register('sw-flow-list-flow-templates', {
             return value.replace(/\./g, '_');
         },
 
-        selectionChange(selection: { [key:string]: FlowEntity }) {
+        selectionChange(selection: { [key:string]: FlowTemplateEntity }) {
             // @ts-expect-error
             this.selectedItems = Object.values(selection);
         },

@@ -291,5 +291,15 @@
         <service id="Shopware\Core\Content\Flow\Rule\OrderTagRule">
             <tag name="shopware.rule.definition"/>
         </service>
+
+        <service id="Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer">
+            <argument type="service" id="validator" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+            <tag name="shopware.field_serializer"/>
+        </service>
     </services>
 </container>

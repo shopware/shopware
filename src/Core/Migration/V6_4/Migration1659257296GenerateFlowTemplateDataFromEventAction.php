@@ -3,8 +3,7 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
-use Shopware\Core\Content\Flow\FlowDefinition;
+use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -22,41 +21,44 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
         $mailTemplates = $this->getDefaultMailTemplates($connection);
         $eventActions = $this->getDefaultEventActions();
 
-        $flows = [];
-        $flowSequences = [];
+        $flowTemplates = [];
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach ($eventActions as $eventAction) {
-            $flow = [
+            $flowTemplate = [
                 'id' => Uuid::randomBytes(),
                 'name' => $this->getEventFullNameByEventName($eventAction['event_name']),
-                'event_name' => $eventAction['event_name'],
-                'locked' => 1,
                 'created_at' => $createdAt,
             ];
 
             $config = !\array_key_exists($eventAction['mail_template_type'], $mailTemplates) ? null
                 : $this->getConfigData($mailTemplates[$eventAction['mail_template_type']]);
 
-            $flowSequences[] = [
-                'id' => Uuid::randomBytes(),
-                'flow_id' => $flow['id'],
-                'action_name' => 'action.mail.send',
-                'created_at' => $createdAt,
-                'config' => $config,
-            ];
+            $flowTemplate['config'] = json_encode([
+                'eventName' => $eventAction['event_name'],
+                'description' => null,
+                'customFields' => null,
+                'sequences' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'actionName' => 'action.mail.send',
+                        'config' => $config,
+                        'parentId' => null,
+                        'ruleId' => null,
+                        'position' => 1,
+                        'trueCase' => 0,
+                        'displayGroup' => 1,
+                    ],
+                ],
+            ]);
 
-            $flows[] = $flow;
+            $flowTemplates[] = $flowTemplate;
         }
 
         $queue = new MultiInsertQueryQueue($connection);
 
-        foreach ($flows as $flow) {
-            $queue->addInsert(FlowDefinition::ENTITY_NAME, $flow);
-        }
-
-        foreach ($flowSequences as $flowSequence) {
-            $queue->addInsert(FlowSequenceDefinition::ENTITY_NAME, $flowSequence);
+        foreach ($flowTemplates as $flowTemplate) {
+            $queue->addInsert(FlowTemplateDefinition::ENTITY_NAME, $flowTemplate);
         }
 
         $queue->execute();
@@ -94,8 +96,10 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
 
     /**
      * @param array<string, string> $mailTemplateData
+     *
+     * @return array<string, mixed>
      */
-    private function getConfigData(array $mailTemplateData): string
+    private function getConfigData(array $mailTemplateData): array
     {
         $config = [];
         foreach ($mailTemplateData as $key => $value) {
@@ -105,7 +109,7 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
 
         $config['recipient'] = ['data' => [], 'type' => 'default'];
 
-        return (string) json_encode($config);
+        return $config;
     }
 
     /**

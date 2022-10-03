@@ -19,7 +19,10 @@ function createWrapper(privileges = []) {
                         return Promise.resolve([
                             {
                                 id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed'
+                                name: 'test flow template',
+                                config: {
+                                    eventName: 'checkout.order.placed'
+                                }
                             }
                         ]);
                     }

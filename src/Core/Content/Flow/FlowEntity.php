@@ -26,8 +26,6 @@ class FlowEntity extends Entity
 
     protected int $priority;
 
-    protected bool $locked;
-
     /**
      * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
      *
@@ -129,15 +127,5 @@ class FlowEntity extends Entity
     public function setSequences(FlowSequenceCollection $sequences): void
     {
         $this->sequences = $sequences;
-    }
-
-    public function isLocked(): bool
-    {
-        return $this->locked;
-    }
-
-    public function setLocked(bool $locked): void
-    {
-        $this->locked = $locked;
     }
 }

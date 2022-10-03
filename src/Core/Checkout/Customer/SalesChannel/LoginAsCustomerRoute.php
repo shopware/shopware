@@ -66,6 +66,15 @@ class LoginAsCustomerRoute extends AbstractLoginAsCustomerRoute
      */
     public function loginAsCustomer(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
+        $salesChannelIdFromContext = $context->getSalesChannelId();
+
+        // in case of existing sales channel set the salesChannelId
+        // this is useful as the context is loaded from sw-access-key
+        // so we do not need to set salesChannelId in the payload
+        if ($salesChannelIdFromContext) {
+            $data->set(self::SALES_CHANNEL_ID, $salesChannelIdFromContext);
+        }
+
         if (!$data->has(self::CUSTOMER_ID)) {
             throw CustomerException::missingCustomerId();
         }

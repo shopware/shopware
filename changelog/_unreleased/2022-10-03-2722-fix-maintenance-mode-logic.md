@@ -1,8 +1,8 @@
 ---
 title: Is maintenance mode active by request
-issue: NEXT-X
+issue: NEXT-23513
 author: AubreyHewes
 author_github: AubreyHewes
 ---
 # Storefront
-* Fixed public method `Shopware\Storefront\Framework\Routing\MaintenanceModeResolver::isMaintenanceRequest` to actually use the correct logic and dogfood it in the other public methods.
+* Changed `Shopware\Storefront\Framework\Routing\MaintenanceModeResolver::isMaintenanceRequest` to use the correct logic

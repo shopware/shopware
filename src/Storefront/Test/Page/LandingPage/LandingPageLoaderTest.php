@@ -3,9 +3,12 @@
 namespace Shopware\Storefront\Test\Page\LandingPage;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -55,7 +58,16 @@ class LandingPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(LandingPage::class, $page);
-        static::assertSame($this->ids->get('cms-page'), $page->getCmsPage()->getId());
+
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertInstanceOf(LandingPageEntity::class, $page->getLandingPage());
+            static::assertInstanceOf(CmsPageEntity::class, $page->getLandingPage()->getCmsPage());
+            static::assertSame($this->ids->get('cms-page'), $page->getLandingPage()->getCmsPage()->getId());
+        } else {
+            static::assertInstanceOf(CmsPageEntity::class, $page->getCmsPage());
+            static::assertSame($this->ids->get('cms-page'), $page->getCmsPage()->getId());
+        }
+
         self::assertPageEvent(LandingPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

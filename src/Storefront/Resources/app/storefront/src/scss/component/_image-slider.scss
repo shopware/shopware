@@ -14,7 +14,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         display: block;
         width: 100%;
     }
-
+    .arrows-outside {
+        .image-slider-item  {
+            padding: 0 25px;
+        }
+    }
     .image-slider-item {
         display: grid;
         max-width: 100%;
@@ -56,7 +60,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 
     &.is-nav-prev-outside {
-        left: -15px;
+        left: 0;
     }
 }
 
@@ -66,7 +70,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 
     &.is-nav-next-outside {
-        right: -15px;
+        right: 0;
     }
 }
 

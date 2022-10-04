@@ -48,6 +48,11 @@ class MaintenanceModeResolver
             && !$this->isMaintenanceRequest($request);
     }
 
+    public function shouldBeCached(Request $request): bool
+    {
+        return !$this->isMaintenanceModeActive($request) || !$this->isClientAllowed($request);
+    }
+
     /**
      * isMaintenanceRequest returns true, when the maintenance mode is active and the client's IP address
      * is not listed in the maintenance mode whitelist.

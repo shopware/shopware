@@ -59,7 +59,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             false,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -99,7 +99,7 @@ class CacheResponseSubscriberTest extends TestCase
             $service,
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -196,7 +196,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($whitelist));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist));
         $request->server->set('REMOTE_ADDR', self::IP);
         $requestStack->push($request);
 
@@ -266,7 +266,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             $reverseProxyEnabled,
             null,
             null
@@ -332,7 +332,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             1,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -354,7 +354,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -397,7 +397,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -431,7 +431,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -474,7 +474,7 @@ class CacheResponseSubscriberTest extends TestCase
             $cartService,
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null
@@ -510,7 +510,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            $this->createMock(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             '5',
             '6'
@@ -596,7 +596,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createStub(CartService::class),
             100,
             true,
-            $this->createStub(MaintenanceModeResolver::class),
+            new MaintenanceModeResolver(new RequestStack()),
             false,
             null,
             null

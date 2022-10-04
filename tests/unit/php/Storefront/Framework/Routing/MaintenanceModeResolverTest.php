@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Routing;
+namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\SalesChannelRequest;
@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Storefront\Framework\Routing\MaintenanceModeResolver
  */
 class MaintenanceModeResolverTest extends TestCase
 {
@@ -19,7 +21,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * Tests wether the resolver redirects requests to the maintenance page correctly.
+     * Tests whether the resolver redirects requests to the maintenance page correctly.
      *
      * @dataProvider maintenanceModeInactiveProvider
      * @dataProvider maintenanceModeActiveProvider
@@ -86,6 +88,9 @@ class MaintenanceModeResolverTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: boolean}>
+     */
     public function maintenanceModeInactiveProvider(): array
     {
         return [
@@ -108,6 +113,9 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: boolean}>
+     */
     public function maintenanceModeActiveProvider(): array
     {
         return [
@@ -150,6 +158,9 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: boolean}>
+     */
     public function xmlHttpRequestProvider(): array
     {
         return [
@@ -172,6 +183,9 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: boolean}>
+     */
     public function maintenancePageRequestProvider(): array
     {
         return [
@@ -186,6 +200,9 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: boolean}>
+     */
     public function errorControllerRequestProvider(): array
     {
         return [
@@ -211,6 +228,9 @@ class MaintenanceModeResolverTest extends TestCase
         return $requestStack;
     }
 
+    /**
+     * @param string[] $allowedIpAddresses
+     */
     private function getRequest(
         bool $useProxy,
         bool $isXmlHttpRequest,

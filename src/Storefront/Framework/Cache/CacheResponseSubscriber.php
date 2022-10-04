@@ -102,7 +102,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
+        if (!$this->maintenanceResolver->shouldBeCached($request)) {
             return;
         }
 

@@ -535,4 +535,13 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(wrapper.vm.showLayoutSetAsDefaultModal).toBe(false);
     });
+
+    it('should limit association loading in the loadPageCriteria', () => {
+        const wrapper = createWrapper();
+        const criteria = wrapper.vm.loadPageCriteria;
+
+        ['categories', 'landingPages', 'products', 'products.manufacturer'].forEach((association) => {
+            expect(criteria.getAssociation(association).getLimit()).toBe(25);
+        });
+    });
 });

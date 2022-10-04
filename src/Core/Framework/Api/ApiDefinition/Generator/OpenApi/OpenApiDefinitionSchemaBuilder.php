@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -348,11 +349,11 @@ class OpenApiDefinitionSchemaBuilder
 
     private function resolveJsonField(JsonField $jsonField): Property
     {
-        if ($jsonField instanceof ListField) {
+        if ($jsonField instanceof ListField || $jsonField instanceof BreadcrumbField) {
             $definition = new Property([
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
-                'items' => $this->getPropertyAssocsByField($jsonField->getFieldType()),
+                'items' => $this->getPropertyAssocsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
             ]);
         } else {
             $definition = new Property([

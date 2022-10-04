@@ -7631,13 +7631,6 @@ parameters:
 			path: src/Core/Content/Product/Cart/ProductLineItemFactory.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\CheapestPrice\\\\CheapestPriceField\\:\\:__construct\\(\\) has parameter \\$propertyMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceField.php
-
-
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizer\\:\\:fetchMapping\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizer.php
@@ -17648,11 +17641,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ConfigJsonField\\:\\:__construct\\(\\) has parameter \\$propertyMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/ConfigJsonField.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CreatedByField\\:\\:__construct\\(\\) has parameter \\$allowedWriteScopes with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
@@ -17702,25 +17690,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/Flag/WriteProtected.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField\\:\\:__construct\\(\\) has parameter \\$default with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/JsonField.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField\\:\\:__construct\\(\\) has parameter \\$propertyMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/JsonField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField\\:\\:getDefault\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/JsonField.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\JsonField\\:\\:\\$default type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/JsonField.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\PasswordField\\:\\:__construct\\(\\) has parameter \\$hashOptions with no value type specified in iterable type array\\.$#"

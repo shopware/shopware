@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -77,13 +78,16 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateUrlCount(string $id, string $template, int $count, ?string $pathInfo): void
+    public function testGenerateUrlCount(string $id, string $template, int $count, string $pathInfo): void
     {
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+        static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
+
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $route,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -97,13 +101,16 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateSeoPathInfo(string $id, string $template, int $count, ?string $pathInfo): void
+    public function testGenerateSeoPathInfo(string $id, string $template, int $count, string $pathInfo): void
     {
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+        static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
+
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $route,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -115,6 +122,9 @@ class SeoUrlGeneratorTest extends TestCase
         }
     }
 
+    /**
+     * @return list<array{id: string, template: string, count: int, pathInfo: string}>
+     */
     public function templateDataProvider(): array
     {
         return [
@@ -226,14 +236,13 @@ class SeoUrlGeneratorTest extends TestCase
         $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
         $template = '{{ product.translated.name|lower }}{% if product.options %}{% for var in product.options|sort((a,b)=> a.position <=> b.position) %}-{{ var.name }}{% endfor %}{% endif %}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+        static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
         $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
 
-        static::assertFalse(!$result->current());
-
         $expected = ['parent', 'tshirt-red', 'tshirt-green-xl'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->seoPathInfo);
+            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -253,14 +262,13 @@ class SeoUrlGeneratorTest extends TestCase
         $productIds = $ids->getList(['product']);
         $template = '{% if product.categories %}{% for var in product.categories %}{{ var.translated.name }}-{% endfor %}{% endif %}{{ product.manufacturer.translated.name }}-{{ product.translated.name|lower }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+        static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
         $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
 
-        static::assertFalse(!$result->current());
-
         $expected = ['test-category-shopware-product'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->seoPathInfo);
+            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 

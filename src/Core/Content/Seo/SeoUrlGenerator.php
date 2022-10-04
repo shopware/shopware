@@ -58,6 +58,10 @@ class SeoUrlGenerator
 
     /**
      * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     *
+     * @param array<string|array<string, string>> $ids
+     *
+     * @return iterable<SeoUrlEntity>
      */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
     {
@@ -89,6 +93,8 @@ class SeoUrlGenerator
      * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
      *
      * @param EntityCollection<Entity> $entities
+     *
+     * @return iterable<SeoUrlEntity>
      */
     private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
@@ -169,6 +175,9 @@ class SeoUrlGenerator
         return mb_substr($subject, mb_strlen($prefix));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAssociations(string $template, EntityDefinition $definition): array
     {
         try {

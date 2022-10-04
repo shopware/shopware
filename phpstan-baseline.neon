@@ -8158,56 +8158,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrl/SeoUrlEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:generate\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:generateUrls\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:getAssociations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:findCanonicalPaths\\(\\) has parameter \\$foreignKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:findCanonicalPaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:markAsDeleted\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:obsoleteIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:updateSeoUrls\\(\\) has parameter \\$foreignKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:updateSeoUrls\\(\\) has parameter \\$seoUrls with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createDefaultMapping\\(\\) has parameter \\$matches with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
@@ -11928,41 +11878,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Seo/SalesChannel/SeoUrlRouteTest.php
-
-		-
-			message: "#^Cannot call method current\\(\\) on iterable\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Seo/SeoUrlGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Seo\\\\SeoUrlGeneratorTest\\:\\:templateDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$suffix of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringEndsWith\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlGeneratorTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$route of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:generate\\(\\) expects Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface, Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\|null given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Seo/SeoUrlGeneratorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Seo\\\\SeoUrlUpdaterTest\\:\\:seoLanguageDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Seo\\\\SeoUrlUpdaterTest\\:\\:testSeoLanguageInheritance\\(\\) has parameter \\$translations with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlUpdaterTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Seo\\\\SeoUrlUpdaterTest\\:\\:\\$salesChannel type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlUpdaterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Command\\\\SitemapGenerateCommandTest\\:\\:\\$exporter has no type specified\\.$#"

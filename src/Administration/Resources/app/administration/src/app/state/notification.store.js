@@ -243,11 +243,11 @@ export default {
             const mergedNotification = Object.assign(
                 {},
                 state.notificationDefaults,
-                notification,
                 {
                     uuid: utils.createId(),
                     timestamp: new Date(),
                 },
+                notification,
             );
 
             if (mergedNotification.variant === 'success') {

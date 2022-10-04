@@ -140,6 +140,7 @@
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\SalutationSerializer">
@@ -273,6 +274,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
@@ -286,6 +288,7 @@
             <argument type="service" id="property_group_option.repository"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">

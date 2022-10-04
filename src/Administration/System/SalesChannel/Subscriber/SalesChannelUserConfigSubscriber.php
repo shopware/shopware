@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_KEY = 'sales-channel-favorites';

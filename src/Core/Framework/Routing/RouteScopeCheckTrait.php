@@ -12,7 +12,7 @@ trait RouteScopeCheckTrait
 
     private function isRequestScoped(Request $request, string $scopeClass): bool
     {
-        /** @var RouteScope|array $scopes */
+        /** @var RouteScope|list<string> $scopes */
         $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes instanceof RouteScope) {

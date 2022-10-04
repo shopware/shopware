@@ -18,8 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class ProductVariantsSubscriber implements EventSubscriberInterface
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
+class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private SyncServiceInterface $syncService;
 
@@ -29,8 +33,14 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $optionRepository;
 
+    /**
+     * @var array<string, string>
+     */
     private array $groupIdCache = [];
 
+    /**
+     * @var array<string, string>
+     */
     private array $optionIdCache = [];
 
     /**
@@ -145,8 +155,16 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
         }
     }
 
+    public function reset(): void
+    {
+        $this->groupIdCache = [];
+        $this->optionIdCache = [];
+    }
+
     /**
      * convert "size: m, l, xl" to ["size|m", "size|l", "size|xl"]
+     *
+     * @return list<list<string>>
      */
     private function parseVariantString(string $variantsString): array
     {
@@ -186,6 +204,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
         ));
     }
 
+    /**
+     * @param list<list<string>> $variants
+     *
+     * @return list<array<string, mixed>>
+     */
     private function getCombinationsPayload(array $variants, string $parentId, string $productNumber): array
     {
         $combinations = $this->getCombinations($variants);
@@ -193,6 +216,10 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
 
         foreach ($combinations as $key => $combination) {
             $options = [];
+
+            if (\is_string($combination)) {
+                $combination = [$combination];
+            }
 
             foreach ($combination as $option) {
                 list($group, $option) = explode('|', $option);
@@ -228,6 +255,10 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
     /**
      * convert [["size|m", "size|l"], ["color|blue", "color|red"]]
      * to [["size|m", "color|blue"], ["size|l", "color|blue"], ["size|m", "color|red"], ["size|l", "color|red"]]
+     *
+     * @param list<list<string>> $variants
+     *
+     * @return list<list<string>>|list<string>
      */
     private function getCombinations(array $variants, int $currentIndex = 0): array
     {
@@ -254,6 +285,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
         return $result;
     }
 
+    /**
+     * @param list<array<string, mixed>> $variantsPayload
+     *
+     * @return list<array<string, mixed>>
+     */
     private function getProductConfiguratorSettingPayload(array $variantsPayload, string $parentId): array
     {
         $options = array_merge(...array_column($variantsPayload, 'options'));

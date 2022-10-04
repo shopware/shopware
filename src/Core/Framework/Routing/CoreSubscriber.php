@@ -9,6 +9,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CoreSubscriber implements EventSubscriberInterface
 {
     /**
@@ -18,10 +21,12 @@ class CoreSubscriber implements EventSubscriberInterface
 
     /**
      * @internal
+     *
+     * @param array<string> $cspTemplates
      */
-    public function __construct($cspTemplates)
+    public function __construct(array $cspTemplates)
     {
-        $this->cspTemplates = (array) $cspTemplates;
+        $this->cspTemplates = $cspTemplates;
     }
 
     /**

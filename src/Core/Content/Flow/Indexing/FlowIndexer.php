@@ -26,6 +26,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     private IteratorFactory $iteratorFactory;
@@ -83,7 +86,7 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
     }
 
     /**
-     * @param array|null $offset
+     * @param array{offset: string}|null $offset
      *
      * @deprecated tag:v6.5.0 The parameter $offset will be native typed
      */

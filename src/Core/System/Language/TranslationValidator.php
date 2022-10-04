@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -15,6 +16,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class TranslationValidator implements EventSubscriberInterface
 {
     public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
@@ -40,6 +44,9 @@ class TranslationValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param list<WriteCommand> $writeCommands
+     */
     private function getDeletedSystemTranslationViolations(array $writeCommands): ConstraintViolationList
     {
         $violations = new ConstraintViolationList();
@@ -68,7 +75,6 @@ class TranslationValidator implements EventSubscriberInterface
                 $this->buildViolation(
                     'Cannot delete system translation',
                     ['{{ id }}' => $id],
-                    null,
                     '/' . $id . '/translations/' . Defaults::LANGUAGE_SYSTEM,
                     [$id, Defaults::LANGUAGE_SYSTEM],
                     self::VIOLATION_DELETE_SYSTEM_TRANSLATION
@@ -105,10 +111,13 @@ class TranslationValidator implements EventSubscriberInterface
         return $fields;
     }
 
+    /**
+     * @param array<string, string> $parameters
+     * @param array<mixed>|null $invalidValue
+     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
-        $root = null,
         ?string $propertyPath = null,
         ?array $invalidValue = null,
         ?string $code = null
@@ -117,7 +126,7 @@ class TranslationValidator implements EventSubscriberInterface
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
-            $root,
+            null,
             $propertyPath,
             $invalidValue,
             null,

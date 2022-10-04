@@ -11,25 +11,24 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RouteScopeListener implements EventSubscriberInterface
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
+    private RouteScopeRegistry $routeScopeRegistry;
 
     /**
      * @var RouteScopeWhitelistInterface[]
      */
-    private $whitelists;
+    private array $whitelists;
 
     /**
      * @internal
+     *
+     * @param iterable<RouteScopeWhitelistInterface> $whitelists
      */
     public function __construct(
         RouteScopeRegistry $routeScopeRegistry,
@@ -38,7 +37,7 @@ class RouteScopeListener implements EventSubscriberInterface
     ) {
         $this->routeScopeRegistry = $routeScopeRegistry;
         $this->requestStack = $requestStack;
-        $this->whitelists = $whitelists;
+        $this->whitelists = \is_array($whitelists) ? $whitelists : iterator_to_array($whitelists);
     }
 
     public static function getSubscribedEvents(): array
@@ -76,17 +75,27 @@ class RouteScopeListener implements EventSubscriberInterface
         throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
     }
 
-    private function extractControllerClass(ControllerEvent $event): string
+    private function extractControllerClass(ControllerEvent $event): ?string
     {
         $controllerCallable = \Closure::fromCallable($event->getController());
         $controllerCallable = new \ReflectionFunction($controllerCallable);
 
-        return \get_class($controllerCallable->getClosureThis());
+        $controller = $controllerCallable->getClosureThis();
+
+        if (!$controller) {
+            return null;
+        }
+
+        return \get_class($controller);
     }
 
     private function isWhitelistedController(ControllerEvent $event): bool
     {
         $controllerClass = $this->extractControllerClass($event);
+
+        if (!$controllerClass) {
+            return false;
+        }
 
         foreach ($this->whitelists as $whitelist) {
             if ($whitelist->applies($controllerClass)) {
@@ -97,11 +106,14 @@ class RouteScopeListener implements EventSubscriberInterface
         return false;
     }
 
+    /**
+     * @return list<string>
+     */
     private function extractCurrentScopeAnnotation(ControllerEvent $event): array
     {
         $currentRequest = $event->getRequest();
 
-        /** @var RouteScopeAnnotation|array $scopes */
+        /** @var RouteScopeAnnotation|list<string> $scopes */
         $scopes = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes instanceof RouteScopeAnnotation) {

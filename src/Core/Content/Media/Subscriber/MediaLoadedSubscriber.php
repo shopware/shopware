@@ -10,6 +10,9 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class MediaLoadedSubscriber implements EventSubscriberInterface
 {
     private UrlGeneratorInterface $urlGenerator;
@@ -42,7 +45,7 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 
             $media->setUrl($this->urlGenerator->getAbsoluteMediaUrl($media));
 
-            foreach ($media->getThumbnails() as $thumbnail) {
+            foreach ($media->getThumbnails() ?? [] as $thumbnail) {
                 $this->addThumbnailUrl($thumbnail, $media);
             }
         }

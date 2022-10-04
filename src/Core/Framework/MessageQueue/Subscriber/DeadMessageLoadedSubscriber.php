@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class DeadMessageLoadedSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

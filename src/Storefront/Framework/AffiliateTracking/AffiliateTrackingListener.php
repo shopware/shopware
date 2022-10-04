@@ -11,6 +11,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class AffiliateTrackingListener implements EventSubscriberInterface
 {
     public const AFFILIATE_CODE_KEY = OrderService::AFFILIATE_CODE_KEY;
@@ -29,7 +32,7 @@ class AffiliateTrackingListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        /** @var RouteScope|array $scopes */
+        /** @var RouteScope|list<string> $scopes */
         $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes instanceof RouteScope) {

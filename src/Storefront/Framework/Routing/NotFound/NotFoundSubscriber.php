@@ -26,6 +26,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class NotFoundSubscriber implements EventSubscriberInterface
 {
     private const ALL_TAG = 'error-page';
@@ -165,6 +168,9 @@ class NotFoundSubscriber implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate([self::ALL_TAG]);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - method will become private in v6.5.0
+     */
     public static function buildName(string $salesChannelId, string $domainId, string $languageId): string
     {
         return 'error-page-' . $salesChannelId . $domainId . $languageId;
@@ -181,6 +187,9 @@ class NotFoundSubscriber implements EventSubscriberInterface
         return $event->getKey();
     }
 
+    /**
+     * @return list<string>
+     */
     private function generateTags(string $name, Request $request, SalesChannelContext $context): array
     {
         $tags = array_merge(

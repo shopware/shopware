@@ -12,8 +12,14 @@ use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
+    /**
+     * @var array<string, array<string, array{template: string, updatedAt: \DateTimeInterface|null}|null>>
+     */
     private array $databaseTemplateCache = [];
 
     private Connection $connection;
@@ -91,6 +97,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         return true;
     }
 
+    /**
+     * @return array{template: string, updatedAt: \DateTimeInterface|null}|null
+     */
     private function findDatabaseTemplate(string $name): ?array
     {
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
@@ -110,7 +119,8 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $path = $templateName['path'];
 
         if (empty($this->databaseTemplateCache)) {
-            $templates = $this->connection->fetchAll('
+            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string}> $templates */
+            $templates = $this->connection->fetchAllAssociative('
                 SELECT
                     `app_template`.`path` AS `path`,
                     `app_template`.`template` AS `template`,
@@ -121,7 +131,6 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
                 WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
             ');
 
-            /** @var array $template */
             foreach ($templates as $template) {
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [
                     'template' => $template['template'],
@@ -139,6 +148,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         return $this->databaseTemplateCache[$path][$namespace] = null;
     }
 
+    /**
+     * @return array{namespace: string, path: string}
+     */
     private function splitTemplateName(string $template): array
     {
         // remove static template inheritance prefix

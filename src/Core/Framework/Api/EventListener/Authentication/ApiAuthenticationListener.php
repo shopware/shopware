@@ -19,39 +19,24 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
-    /**
-     * @var ResourceServer
-     */
-    private $resourceServer;
+    private ResourceServer $resourceServer;
 
-    /**
-     * @var AuthorizationServer
-     */
-    private $authorizationServer;
+    private AuthorizationServer $authorizationServer;
 
-    /**
-     * @var UserRepositoryInterface
-     */
-    private $userRepository;
+    private UserRepositoryInterface $userRepository;
 
-    /**
-     * @var RefreshTokenRepositoryInterface
-     */
-    private $refreshTokenRepository;
+    private RefreshTokenRepositoryInterface $refreshTokenRepository;
 
-    /**
-     * @var PsrHttpFactory
-     */
-    private $psrHttpFactory;
+    private PsrHttpFactory $psrHttpFactory;
 
-    /**
-     * @var RouteScopeRegistry
-     */
-    private $routeScopeRegistry;
+    private RouteScopeRegistry $routeScopeRegistry;
 
     /**
      * @internal

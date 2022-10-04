@@ -14,9 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
@@ -62,7 +66,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
+            /** @var array<string, string> $pk */
+            $pk = $writeResult->getPrimaryKey();
+            $ids[] = $pk['customerGroupId'];
         }
 
         if (\count($ids) === 0) {
@@ -78,7 +84,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
         foreach ($event->getWriteResults() as $writeResult) {
             if ($writeResult->hasPayload('registrationTitle')) {
-                $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
+                /** @var array<string, string> $pk */
+                $pk = $writeResult->getPrimaryKey();
+                $ids[] = $pk['customerGroupId'];
             }
         }
 
@@ -94,7 +102,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
+            /** @var array<string, string> $pk */
+            $pk = $writeResult->getPrimaryKey();
+            $ids[] = $pk['customerGroupId'];
         }
 
         if (\count($ids) === 0) {
@@ -117,6 +127,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         }, $ids), $event->getContext());
     }
 
+    /**
+     * @param list<string> $ids
+     */
     private function createUrls(array $ids, Context $context): void
     {
         $criteria = new Criteria($ids);
@@ -141,10 +154,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $criteria = new Criteria($languageIds);
+                /** @var LanguageCollection $languageCollection */
                 $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
 
                 foreach ($languageIds as $languageId) {
-                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
+                    /** @var LanguageEntity $language */
+                    $language = $languageCollection->get($languageId);
+                    $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
                     if (!isset($buildUrls[$languageId])) {
                         $buildUrls[$languageId] = [

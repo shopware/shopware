@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed with FEATURE_NEXT_7739
+ */
 class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface
 {
     private EntityRepositoryInterface $salutationRepository;

@@ -26,6 +26,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
     public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
@@ -116,6 +119,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param list<string> $affected
+     */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
         $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($affected) {
@@ -153,6 +159,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         $this->thumbnailRepository->delete($thumbnails, $context);
     }
 
+    /**
+     * @param list<string> $affected
+     */
     private function handleFolderDeletion(array $affected, Context $context): void
     {
         $ids = $this->fetchChildrenIds($affected);
@@ -174,6 +183,11 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         $this->mediaRepository->delete($media, $context);
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
     private function fetchChildrenIds(array $ids): array
     {
         $children = $this->connection->fetchFirstColumn(
@@ -193,6 +207,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         return \array_merge($ids, $children, $nested);
     }
 
+    /**
+     * @param list<string> $affected
+     */
     private function handleThumbnailDeletion(BeforeDeleteEvent $event, array $affected, Context $context): void
     {
         $privatePaths = [];
@@ -220,6 +237,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         });
     }
 
+    /**
+     * @param list<string> $ids
+     */
     private function getThumbnails(array $ids, Context $context): MediaThumbnailCollection
     {
         $criteria = new Criteria();
@@ -234,6 +254,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         return $thumbnails;
     }
 
+    /**
+     * @param list<string> $paths
+     */
     private function performFileDelete(Context $context, array $paths, string $visibility): void
     {
         if (\count($paths) <= 0) {

@@ -7,17 +7,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class ResponseExceptionListener implements EventSubscriberInterface
 {
-    /**
-     * @var bool
-     */
-    private $debug;
+    private bool $debug;
 
     /**
      * @internal
      */
-    public function __construct($debug = false)
+    public function __construct(bool $debug = false)
     {
         $this->debug = $debug;
     }
@@ -31,12 +31,16 @@ class ResponseExceptionListener implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be changed to void in v6.5.0
+     */
     public function onKernelException(ExceptionEvent $event)
     {
         if (
             $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)
             && !$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)
         ) {
+            /** @deprecated tag:v6.5.0 - it won't return the event anymore */
             return $event;
         }
 
@@ -44,6 +48,7 @@ class ResponseExceptionListener implements EventSubscriberInterface
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
 
+        /** @deprecated tag:v6.5.0 - it won't return the event anymore */
         return $event;
     }
 }

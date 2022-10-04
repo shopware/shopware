@@ -12,6 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class CustomerTokenSubscriber implements EventSubscriberInterface
 {
     private SalesChannelContextPersister $contextPersister;
@@ -70,6 +73,9 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     private function customerCredentialsChanged(array $payload): bool
     {
         return isset($payload['password']);

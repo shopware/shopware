@@ -12,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @internal
@@ -62,7 +62,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                 GROUP BY order_line_item.promotion_id, order_customer.customer_id
 SQL;
 
-        $promotions = $this->connection->fetchAll(
+        $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => Connection::PARAM_STR_ARRAY]

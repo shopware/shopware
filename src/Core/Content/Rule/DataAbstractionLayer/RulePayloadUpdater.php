@@ -11,10 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RulePayloadUpdater implements EventSubscriberInterface
 {
     private Connection $connection;
@@ -37,9 +41,14 @@ class RulePayloadUpdater implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array{payload: string|null, invalid: bool}>
+     */
     public function update(array $ids): array
     {
-        $conditions = $this->connection->fetchAll(
+        $conditions = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(rc.rule_id)) as array_key, rc.*, rs.script, rs.identifier, rs.updated_at as lastModified
             FROM rule_condition rc
             LEFT JOIN app_script_condition rs ON rc.script_id = rs.id AND rs.active = 1
@@ -57,6 +66,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
         );
 
         $updated = [];
+        /** @var string $id */
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
@@ -102,6 +112,11 @@ class RulePayloadUpdater implements EventSubscriberInterface
         $this->update(Uuid::fromBytesToHexList($ruleIds));
     }
 
+    /**
+     * @param array<string, mixed> $rules
+     *
+     * @return list<Rule>
+     */
     private function buildNested(array $rules, ?string $parentId): array
     {
         $nested = [];

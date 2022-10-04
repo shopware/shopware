@@ -22,6 +22,9 @@ use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     private StorefrontPluginRegistryInterface $storefrontPluginRegistry;

@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     public const PAYLOAD_UPDATER = 'rule.payload';
@@ -87,7 +90,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
     }
 
     /**
-     * @param array|null $offset
+     * @param array{offset: string}|null $offset
      *
      * @deprecated tag:v6.5.0 The parameter $offset will be native typed
      */

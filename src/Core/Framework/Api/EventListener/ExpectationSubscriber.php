@@ -14,6 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ *
+ * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
+ */
 class ExpectationSubscriber implements EventSubscriberInterface
 {
     private const SHOPWARE_CORE_PACKAGES = [
@@ -27,12 +32,14 @@ class ExpectationSubscriber implements EventSubscriberInterface
     private string $shopwareVersion;
 
     /**
-     * @var array{'composerName': string, 'active': bool, 'version': string}[]
+     * @var list<PluginData>
      */
     private array $plugins;
 
     /**
      * @internal
+     *
+     * @param list<PluginData> $plugins
      */
     public function __construct(string $shopwareVersion, array $plugins)
     {
@@ -55,7 +62,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|array $scope */
+        /** @var RouteScope|list<string> $scope */
         $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scope instanceof RouteScope) {
@@ -73,6 +80,9 @@ class ExpectationSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function checkPackages(Request $request): array
     {
         // swag/plugin1:~6.1,swag/plugin2:~6.1
@@ -112,6 +122,11 @@ class ExpectationSubscriber implements EventSubscriberInterface
                 }
             }
 
+            if ($installedVersion === null) {
+                // should never happen, but phpstan would complain otherwise
+                continue;
+            }
+
             if (Semver::satisfies($installedVersion, $constraint)) {
                 continue;
             }
@@ -124,6 +139,8 @@ class ExpectationSubscriber implements EventSubscriberInterface
 
     /**
      * Plugins are not in the InstalledPackages file until now
+     *
+     * @return array<string, string>
      */
     private function getIndexedPackages(): array
     {

@@ -65,8 +65,18 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         $methodContent = $this->getMethodContent($node, $scope, $class);
-
         $method = $class->getMethod($node->name->name, $scope);
+
+        $classDeprecation = $class->getDeprecatedDescription();
+        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+            return [
+                \sprintf(
+                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                    $class->getName(),
+                    $method->getName()
+                ),
+            ];
+        }
 
         $methodDeprecation = $method->getDeprecatedDescription() ?? '';
 
@@ -80,17 +90,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
                     'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
                     $method->getName(),
                     $class->getName()
-                ),
-            ];
-        }
-
-        $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
-            return [
-                \sprintf(
-                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
-                    $class->getName(),
-                    $method->getName()
                 ),
             ];
         }

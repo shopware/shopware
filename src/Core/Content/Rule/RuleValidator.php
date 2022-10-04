@@ -28,27 +28,18 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - EventSubscribers will become internal in v6.5.0
+ */
 class RuleValidator implements EventSubscriberInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ValidatorInterface $validator;
 
-    /**
-     * @var RuleConditionRegistry
-     */
-    private $ruleConditionRegistry;
+    private RuleConditionRegistry $ruleConditionRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleConditionRepository;
+    private EntityRepositoryInterface $ruleConditionRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appScriptConditionRepository;
+    private EntityRepositoryInterface $appScriptConditionRepository;
 
     /**
      * @internal

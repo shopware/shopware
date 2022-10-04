@@ -224,6 +224,7 @@
         "config": {
           "label": {
             "minHeight": "Minimale Höhe",
+            "minHeightHelpText": "Gebe die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "linkNewTab": "Link in neuem Tab öffnen"
           },
           "placeholder": {

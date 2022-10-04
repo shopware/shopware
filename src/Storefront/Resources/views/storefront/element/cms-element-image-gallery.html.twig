@@ -13,7 +13,7 @@
         {% set keepAspectRatioOnZoom = sliderConfig.keepAspectRatioOnZoom.value %}
         {% set magnifierOverGallery = sliderConfig.magnifierOverGallery.value %}
         {% set zoomModal = sliderConfig.fullScreen.value %}
-        {% set minHeight = sliderConfig.minHeight.value %}
+        {% set minHeight = sliderConfig.minHeight.value|trim|replace({' ':''}) %}
         {% set displayMode = sliderConfig.displayMode.value %}
         {% set navigationArrows = sliderConfig.navigationArrows.value %}
         {% set navigationDots = sliderConfig.navigationDots.value %}

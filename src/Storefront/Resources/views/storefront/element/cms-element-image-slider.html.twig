@@ -47,7 +47,8 @@
                                 {% endset %}
 
                                 {% block element_image_slider_inner_item %}
-                                    <div class="image-slider-item-container">
+                                    <div class="image-slider-item-container{% if sliderConfig.navigationArrows.value == "outside" %} arrows-outside {% endif %}">
+                                        <div class="image-slider-item-wrapper">
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
                                                class="image-slider-link"
@@ -57,6 +58,7 @@
                                         {% else %}
                                             {{ imageElement }}
                                         {% endif %}
+                                        </div>
                                     </div>
                                 {% endblock %}
                             {% endfor %}

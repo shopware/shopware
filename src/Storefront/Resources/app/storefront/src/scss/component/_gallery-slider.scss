@@ -34,6 +34,12 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     position: relative;
     height: 100%;
 
+    .arrows-outside {
+        .gallery-slider-item-wrapper {
+            padding: 0 25px;
+        }
+    }
+
     .gallery-slider-image {
         display: block;
     }
@@ -83,7 +89,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     left: 0;
 
     &.is-nav-prev-outside {
-        left: -10px;
+        left: 0;
     }
 }
 
@@ -91,7 +97,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     right: 0;
 
     &.is-nav-next-outside {
-        right: -10px;
+        right: 0;
     }
 }
 

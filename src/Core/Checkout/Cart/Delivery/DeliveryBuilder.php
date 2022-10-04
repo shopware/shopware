@@ -32,6 +32,11 @@ class DeliveryBuilder
         /** @var ShippingMethodEntity $shippingMethod */
         $shippingMethod = $data->get($key);
 
+        return $this->buildByUsingShippingMethod($cart, $shippingMethod, $context);
+    }
+
+    public function buildByUsingShippingMethod(Cart $cart, ShippingMethodEntity $shippingMethod, SalesChannelContext $context): DeliveryCollection
+    {
         $delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context);
 
         if (!$delivery) {
@@ -133,7 +138,7 @@ class DeliveryBuilder
                 continue;
             }
 
-            // if the item is completely instock, use the delivery date
+            // if the item is completely in stock, use the delivery date
             if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
                 $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
             } else {

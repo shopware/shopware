@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
-class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
+class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
     private Connection $connection;
 
@@ -57,7 +57,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
      */
     public function requirements(): array
     {
-        return [OrderAware::class, DelayAware::class];
+        return [OrderAware::class];
     }
 
     /**

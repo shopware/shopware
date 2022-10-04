@@ -21,22 +21,41 @@ class Metadata extends XmlElement
         'url',
     ];
 
+    private const BOOLEAN_FIELD = ['delayable'];
+
+    /**
+     * @var array<string, mixed>
+     */
     protected array $label;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $description = null;
 
     protected string $name;
 
     protected string $url;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $requirements = [];
 
     protected ?string $icon = null;
 
     protected ?string $swIcon = null;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $headline = null;
 
+    protected bool $delayable = false;
+
+    /**
+     * @param array<string, mixed> $data
+     */
     private function __construct(array $data)
     {
         $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
@@ -46,11 +65,17 @@ class Metadata extends XmlElement
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLabel(): array
     {
         return $this->label;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getDescription(): ?array
     {
         return $this->description;
@@ -66,6 +91,9 @@ class Metadata extends XmlElement
         return $this->url;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRequirements(): array
     {
         return $this->requirements;
@@ -81,9 +109,22 @@ class Metadata extends XmlElement
         return $this->swIcon;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getHeadline(): ?array
     {
         return $this->headline;
+    }
+
+    public function getDelayable(): bool
+    {
+        return $this->delayable;
+    }
+
+    public function setDelayable(bool $delayable = false): void
+    {
+        $this->delayable = $delayable;
     }
 
     public static function fromXml(\DOMElement $element): self
@@ -91,6 +132,9 @@ class Metadata extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -107,6 +151,9 @@ class Metadata extends XmlElement
         return $data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -119,6 +166,12 @@ class Metadata extends XmlElement
             // translated
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
+
+                continue;
+            }
+
+            if (\in_array($child->nodeName, self::BOOLEAN_FIELD, true)) {
+                $values[$child->nodeName] = $child->nodeValue === 'true';
 
                 continue;
             }

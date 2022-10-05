@@ -56,7 +56,10 @@ function createWrapper(privileges = []) {
                 Mixin.getByName('notification'),
                 Mixin.getByName('media-sidebar-modal-mixin'),
                 Mixin.getByName('placeholder')
-            ]
+            ],
+            customFieldDataProviderService: {
+                getCustomFieldSets: () => Promise.resolve([])
+            }
         },
         stubs: {
             'sw-page': {

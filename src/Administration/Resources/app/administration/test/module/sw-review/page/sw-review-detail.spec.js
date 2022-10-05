@@ -8,6 +8,7 @@ function createWrapper(privileges = []) {
     localVue.directive('tooltip', {});
     localVue.filter('date', v => v);
 
+
     return shallowMount(Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {

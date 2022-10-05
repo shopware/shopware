@@ -2,6 +2,7 @@ import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -136,6 +137,8 @@ Component.register('sw-settings-rule-detail', {
                 },
             ];
         },
+
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     watch: {
@@ -397,6 +400,14 @@ Component.register('sw-settings-rule-detail', {
                 message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
             });
             this.isLoading = false;
+        },
+
+        tabHasError(tab) {
+            if (tab.route.name !== 'sw.settings.rule.detail.base') {
+                return false;
+            }
+
+            return !!this.ruleNameError || !!this.rulePriorityError;
         },
 
         onCancel() {

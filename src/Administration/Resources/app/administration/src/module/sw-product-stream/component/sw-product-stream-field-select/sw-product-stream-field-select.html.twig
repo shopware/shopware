@@ -3,7 +3,8 @@
 <sw-arrow-field
     v-if="options.length > 1"
     class="sw-product-stream-field-select"
-    primary="#758ca3"
+    :class="{ 'has--error': hasError }"
+    :primary="arrowPrimaryColor"
     secondary="#ffffff"
 >
     <sw-single-select

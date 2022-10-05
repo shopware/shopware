@@ -1,6 +1,6 @@
 ---
 title: Adds support for CustomFieldTypes::PRICE to Shopware\Elasticsearch\Product\CustomFieldUpdater::getTypeFromCustomFieldType()
-issue: NEXT-23534
+issue: NEXT-23538
 author: pariweshsubedi
 author_github: pariweshsubedi
 ---

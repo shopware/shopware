@@ -738,18 +738,22 @@
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",
         "edit": "Bearbeiten",
+        "rename": "Umbenennen",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
         "addPreviewImage": "Vorschau hinzufügen",
-        "setAsDefaultProductList": "Als Standard für Produktlistings festlegen", 
+        "setAsDefaultProductList": "Als Standard für Produktlistings festlegen",
         "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",
         "defaultLayout": "Standardlayout",
-        "defaultLayoutProductList": "Standardlayout - Produktseite", 
+        "defaultLayoutProductList": "Standardlayout - Produktseite",
         "defaultLayoutProductDetail": "Standardlayout - Produktlisting",
         "removePreviewImage": "Vorschau entfernen",
         "notificationDeleteErrorMessage": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
         "modal": {
+          "renameModalTitle": "Layout umbenennen",
+          "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
+          "buttonRename": "Umbenennen",
           "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }

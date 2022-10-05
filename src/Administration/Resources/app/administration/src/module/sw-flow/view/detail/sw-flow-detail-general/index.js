@@ -58,6 +58,10 @@ Component.register('sw-flow-detail-general', {
             ];
         },
 
+        isFlowTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },

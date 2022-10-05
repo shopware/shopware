@@ -39,25 +39,16 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         if (\array_key_exists('sequences', $value)) {
             foreach ($value['sequences'] as $index => $sequence) {
-                if (!\array_key_exists('parentId', $sequence)) {
-                    $value['sequences'][$index]['parentId'] = null;
-                }
-
-                if (!\array_key_exists('ruleId', $sequence)) {
-                    $value['sequences'][$index]['ruleId'] = null;
-                }
-
-                if (!\array_key_exists('position', $sequence)) {
-                    $value['sequences'][$index]['position'] = 1;
-                }
-
-                if (!\array_key_exists('displayGroup', $sequence)) {
-                    $value['sequences'][$index]['displayGroup'] = 1;
-                }
-
-                if (!\array_key_exists('trueCase', $sequence)) {
-                    $value['sequences'][$index]['trueCase'] = 0;
-                }
+                $value['sequences'][$index] = array_merge(
+                    [
+                        'parentId' => null,
+                        'ruleId' => null,
+                        'position' => 1,
+                        'displayGroup' => 1,
+                        'trueCase' => 0,
+                    ],
+                    $value['sequences'][$index]
+                );
             }
         }
 

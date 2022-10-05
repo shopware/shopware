@@ -83,6 +83,7 @@
       "messageDownloadSuccess": "Flow heruntergeladen.",
       "messageDownloadError": "Flow konnte nicht heruntergeladen werden.",
       "messageCreateSuccess": "Flow erstellt.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
       "messageCreateError": "Flow konnte nicht erstellt werden."
     },
     "actions": {

@@ -39,7 +39,7 @@ Component.register('sw-flow-list-flow-templates', {
         sortDirection: string,
         total: number,
         isLoading: boolean,
-        flowTemplates: Array<FlowTemplateEntity>,
+        flowTemplates: Array<FlowTemplateEntity>|null,
         selectedItems: Array<FlowTemplateEntity>,
         } {
         return {
@@ -47,7 +47,7 @@ Component.register('sw-flow-list-flow-templates', {
             sortDirection: 'DESC',
             total: 0,
             isLoading: false,
-            flowTemplates: [],
+            flowTemplates: null,
             selectedItems: [],
         };
     },
@@ -88,8 +88,6 @@ Component.register('sw-flow-list-flow-templates', {
                     dataIndex: 'name',
                     label: this.$tc('sw-flow.list.labelColumnName'),
                     allowResize: false,
-                    routerLink: 'sw.flow.detail',
-                    primary: true,
                 },
                 {
                     property: 'config.description',
@@ -148,7 +146,7 @@ Component.register('sw-flow-list-flow-templates', {
         },
 
         createFlowFromTemplate(item: FlowTemplateEntity): void {
-            this.$router.push({ name: 'sw.flow.detail', params: { flowTemplateId: item.id } });
+            this.$router.push({ name: 'sw.flow.create', params: { flowTemplateId: item.id } });
         },
 
         onEditFlow(item: FlowTemplateEntity): void {
@@ -161,6 +159,9 @@ Component.register('sw-flow-list-flow-templates', {
                 params: {
                     id: item.id,
                 },
+                query: {
+                    type: 'template',
+                },
             });
         },
 
@@ -170,10 +171,6 @@ Component.register('sw-flow-list-flow-templates', {
 
             // @ts-expect-error
             this.total = result.total;
-        },
-
-        getTranslatedEventName(value: string): string {
-            return value.replace(/\./g, '_');
         },
 
         selectionChange(selection: { [key:string]: FlowTemplateEntity }) {

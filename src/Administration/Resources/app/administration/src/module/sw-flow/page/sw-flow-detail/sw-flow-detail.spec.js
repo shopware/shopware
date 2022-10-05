@@ -41,6 +41,9 @@ const sequencesFixture = [
     }
 ];
 
+const ID_FLOW = '4006d6aa64ce409692ac2b952fa56ade';
+const ID_FLOW_TEMPLATE = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
+
 function getSequencesCollection(collection = []) {
     return new EntityCollection(
         '/flow_sequence',
@@ -53,7 +56,14 @@ function getSequencesCollection(collection = []) {
     );
 }
 
-async function createWrapper(privileges = []) {
+async function createWrapper(
+    privileges = [],
+    query = {},
+    config = {},
+    flowId = null,
+    promise = Promise.resolve(),
+    param = {}
+) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -62,17 +72,28 @@ async function createWrapper(privileges = []) {
         provide: { repositoryFactory: {
             create: () => ({
                 create: () => {
-                    return Promise.resolve({});
+                    return {};
                 },
                 save: () => {
-                    return Promise.resolve();
+                    return promise;
                 },
                 get: (id) => {
+                    if (id === ID_FLOW) {
+                        return Promise.resolve(
+                            {
+                                id,
+                                name: 'Flow 1',
+                                eventName: 'checkout.customer',
+                                ...config
+                            }
+                        );
+                    }
+
                     return Promise.resolve(
                         {
                             id,
-                            name: 'Flow 1',
-                            eventName: 'checkout.customer'
+                            name: 'Flow template 1',
+                            config: config
                         }
                     );
                 }
@@ -92,6 +113,14 @@ async function createWrapper(privileges = []) {
                 return privileges.includes(identifier);
             }
         } },
+
+        mocks: {
+            $route: { params: param, query: query },
+        },
+
+        propsData: {
+            flowId: flowId
+        },
 
         stubs: {
             'sw-page': {
@@ -150,7 +179,18 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     it('should be able to save a flow ', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
-        ]);
+        ], {}, {}, ID_FLOW);
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should be able to save a flow template ', () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        });
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -176,6 +216,98 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(2);
+    });
+
+    it('should able to remove selector sequences before saving template', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        }, {
+            eventName: 'checkout.customer',
+            sequences: [1, 2]
+        });
+
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                name: 'Flow 1',
+                config: {
+                    eventName: 'checkout.customer',
+                    sequences: getSequencesCollection(sequencesFixture)
+                }
+            });
+
+        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(4);
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+
+        sequencesState = Shopware.State.getters['swFlowState/sequences'];
+
+        expect(sequencesState.length).toEqual(2);
+    });
+
+    it('should not able to saving flow', async () => {
+        const wrapper = createWrapper([
+            'flow.editor'
+        ], {}, {
+            eventName: 'checkout.customer',
+            sequences: [1, 2]
+        }, null, Promise.reject());
+
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                name: 'Flow 1',
+                config: {
+                    eventName: 'checkout.customer',
+                    sequences: getSequencesCollection(sequencesFixture)
+                }
+            });
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(4);
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toBeCalled();
+    });
+
+    it('should not able to saving template', async () => {
+        const wrapper = createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        }, {
+            eventName: 'checkout.customer',
+            sequences: [1, 2]
+        }, null, Promise.reject());
+
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                name: 'Flow 1',
+                config: {
+                    eventName: 'checkout.customer',
+                    sequences: getSequencesCollection(sequencesFixture)
+                }
+            });
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(4);
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toBeCalled();
     });
 
     it('should able to validate sequences before saving', async () => {
@@ -206,5 +338,59 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
         wrapper.vm.createNotificationWarning.mockRestore();
+    });
+
+    it('should able to validate sequences before saving template', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        });
+
+        wrapper.vm.createNotificationWarning = jest.fn();
+
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                eventName: 'checkout.customer',
+                name: 'Flow 1',
+                sequences: getSequencesCollection([{
+                    ...sequenceFixture,
+                    ruleId: ''
+                }])
+            });
+
+        let invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
+        expect(invalidSequences).toEqual([]);
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+
+        invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
+        expect(invalidSequences).toEqual(['1']);
+
+        expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
+        wrapper.vm.createNotificationWarning.mockRestore();
+    });
+
+    it('should able to create flow from flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {}, {
+            eventName: 'checkout.customer',
+            sequences: [{
+                id: 'sequence-id',
+                config: {}
+            }]
+        }, null, Promise.resolve(), {
+            flowTemplateId: ID_FLOW_TEMPLATE
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(1);
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        expect(saveButton.attributes().disabled).toBeFalsy();
     });
 });

@@ -390,6 +390,16 @@
                                     </sw-context-menu-item>
                                     {% endblock %}
 
+                                    {% block sw_cms_list_listing_list_item_option_rename %}
+                                        <sw-context-menu-item
+                                            :disabled="!acl.can('cms.editor')"
+                                            v-if="!cmsPage.locked"
+                                            @click="onRenameCmsPage(cmsPage)"
+                                        >
+                                            {{ $tc('sw-cms.components.cmsListItem.rename') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                     <sw-context-menu-item
@@ -478,6 +488,48 @@
             @cancel="onCloseLayoutSetAsDefault"
             @close="onCloseLayoutSetAsDefault"
         />
+
+        {% block sw_cms_list_rename_modal %}
+            <sw-modal
+                v-if="showRenameModal"
+                :title="$tc('sw-cms.components.cmsListItem.modal.renameModalTitle')"
+                variant="small"
+                @modal-close="onCloseRenameModal"
+            >
+
+                {% block sw_cms_list_rename_modal_confirm_rename_input %}
+                    <div>{{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0,
+                        { pageName: currentPage.translated.name || currentPage.name }) }}</div>
+                    <sw-text-field
+                        v-model="newName"
+                        size="medium"
+                    />
+                {% endblock %}
+
+                {% block sw_cms_list_rename_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_cms_list_rename_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseRenameModal"
+                            >
+                                {{ $tc('sw-cms.components.cmsListItem.modal.buttonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_cms_list_rename_modal_confirm %}
+                            <sw-button
+                                size="small"
+                                variant="primary"
+                                @click="onConfirmPageRename"
+                            >
+                                {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_list_delete_modal %}

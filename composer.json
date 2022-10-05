@@ -187,6 +187,7 @@
     "scripts": {
         "post-install-cmd": [
             "@composer bin all install --ansi"
+
         ],
         "post-update-cmd": [
             "@composer bin all update --ansi"
@@ -308,7 +309,10 @@
             "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
             "phpstan analyze --memory-limit=2G"
         ],
-        "bc-check": "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)",
+        "bc-check": [
+            "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
+            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+        ],
         "static-analyze": [
             "@phpstan src/"
         ],

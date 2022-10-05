@@ -1,71 +1,57 @@
-diff --git a/src/Factory/ComposerInstallationReflectorFactory.php b/src/Factory/ComposerInstallationReflectorFactory.php
-index 4edd527..aa84243 100644
---- a/src/Factory/ComposerInstallationReflectorFactory.php
-+++ b/src/Factory/ComposerInstallationReflectorFactory.php
-@@ -5,6 +5,8 @@ declare(strict_types=1);
+--- /dev/null
++++ ../src/Factory/ComposerInstallationReflectorFactory.php
+@@ -5,6 +5,9 @@
  namespace Roave\BackwardCompatibility\Factory;
-
+ 
  use Roave\BackwardCompatibility\LocateSources\LocateSources;
++use Roave\BetterReflection\Identifier\Identifier;
++use Roave\BetterReflection\Identifier\IdentifierType;
 +use Roave\BetterReflection\Reflection\Reflection;
-+use Roave\BetterReflection\Reflection\ReflectionClass;
- use Roave\BetterReflection\Reflector\ClassReflector;
+ use Roave\BetterReflection\Reflector\DefaultReflector;
+ use Roave\BetterReflection\Reflector\Reflector;
  use Roave\BetterReflection\SourceLocator\Exception\InvalidDirectory;
- use Roave\BetterReflection\SourceLocator\Exception\InvalidFileInfo;
-@@ -29,14 +31,63 @@ final class ComposerInstallationReflectorFactory
-      * @throws InvalidDirectory
-      */
-     public function __invoke(
--        string $installationDirectory,
-+        string        $installationDirectory,
-         SourceLocator $dependencies
--    ): ClassReflector {
--        return new ClassReflector(
+@@ -28,10 +31,51 @@
+         SourceLocator $dependencies,
+     ): Reflector {
+         return new DefaultReflector(
 -            new MemoizingSourceLocator(new AggregateSourceLocator([
--                $this->locateSources->__invoke($installationDirectory),
+-                ($this->locateSources)($installationDirectory),
 -                $dependencies,
--            ]))
-+    ): ClassReflector
-+    {
-+        $reflector = new FilteredLocator(
-+            new MemoizingSourceLocator(
-+                new AggregateSourceLocator([
-+                    $this->locateSources->__invoke($installationDirectory),
+-            ])),
++            new FilteredSourceLocator(
++                new MemoizingSourceLocator(new AggregateSourceLocator([
++                    ($this->locateSources)($installationDirectory),
 +                    $dependencies,
-+                ])
-+            )
-+        );
-+
-+        return $reflector;
++                ])),
++            ),
+         );
 +    }
 +}
 +
-+class FilteredLocator extends ClassReflector
++class FilteredSourceLocator implements SourceLocator
 +{
 +    private array $excludePatterns;
 +
-+    public function __construct(SourceLocator $sourceLocator)
++    public function __construct(private SourceLocator $sourceLocator)
 +    {
-+        parent::__construct($sourceLocator);
-+
 +        $excludes = require __DIR__ . '/../../../../../../../.bc-exclude.php';
 +        $this->excludePatterns = $excludes['filePatterns'];
 +    }
 +
-+
-+    public function reflect(string $className): Reflection
++    public function locateIdentifier(Reflector $reflector, Identifier $identifier): Reflection|null
 +    {
-+        return parent::reflect($className);
++        return $this->sourceLocator->locateIdentifier($reflector, $identifier);
 +    }
 +
-+    public function getAllClasses(): array
++    public function locateIdentifiersByType(Reflector $reflector, IdentifierType $identifierType): array
 +    {
 +        return array_filter(
-+            parent::getAllClasses(),
-+            fn(ReflectionClass $class) => !$this->isExcluded($class->getFileName())
-         );
-     }
++            $this->sourceLocator->locateIdentifiersByType($reflector, $identifierType),
++            fn(Reflection $reflection) => !$this->isExcluded($reflection->getFileName())
++        );
++    }
 +
-+    public function isExcluded(?string $file): bool
++    private function isExcluded(?string $file): bool
 +    {
 +        if (null === $file) {
 +            return false;
@@ -77,8 +63,6 @@ index 4edd527..aa84243 100644
 +            }
 +        }
 +
-+
 +        return false;
-+    }
-+
+     }
  }

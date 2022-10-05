@@ -22,9 +22,19 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class CsrfRouteListener implements EventSubscriberInterface, ResetInterface
 {
-    protected bool $csrfEnabled;
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - Will become private and natively typed to bool
+     *
+     * @var bool
+     */
+    protected $csrfEnabled;
 
-    protected string $csrfMode;
+    /**
+     * @deprecated tag:v6.5.0 - reason:visibility-change - Will become private and natively typed to string
+     *
+     * @var string
+     */
+    protected $csrfMode;
 
     private CsrfTokenManagerInterface $csrfTokenManager;
 

@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.15.2
+*  [NEXT-23464 - Fix twig source path for icons](/changelog/release-6-4-15-2/2022-09-28-fix-twig-source-path.md)
+*  [NEXT-23464 - Update twig dependency to at least v3.4.3](/changelog/release-6-4-15-2/2022-09-28-update-twig.md)
+
 ## 6.4.15.1
 *  [NEXT-23304 - Fix CLI updater](/changelog/release-6-4-15-1/2022-09-20-fix-cli-updater.md)
 

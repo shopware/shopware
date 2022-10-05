@@ -26,6 +26,9 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 
             $fileSystemLoader->addMethodCall('addPath', [$directory]);
             $fileSystemLoader->addMethodCall('addPath', [$directory, $name]);
+            if (file_exists($directory . '/../app/storefront/dist')) {
+                $fileSystemLoader->addMethodCall('addPath', [$directory . '/../app/storefront/dist', $name]);
+            }
         }
 
         // App templates are only loaded in dev env from files

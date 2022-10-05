@@ -83,6 +83,7 @@
       "messageDownloadSuccess": "Flow has been downloaded.",
       "messageDownloadError": "The flow could not be downloaded.",
       "messageCreateSuccess": "Flow created.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
       "messageCreateError": "Flow could not be created."
     },
     "actions": {

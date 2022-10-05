@@ -5,6 +5,11 @@
         border-right: none;
     }
 
+    .sw-flow-list-my-flows__content__update-flow-template-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
     .sw-flow-list-my-flows__content__create-flow-link {
         color: $color-shopware-brand-300;
         text-decoration: underline;

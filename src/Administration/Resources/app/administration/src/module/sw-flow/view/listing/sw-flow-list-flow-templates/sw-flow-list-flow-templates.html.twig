@@ -21,11 +21,14 @@
             @page-change="onPageChange"
             @update-records="updateRecords"
         >
-            <template #column-eventName="{ item }">
-                <strong>
-                    {{ $tc('global.businessEvents.' + getTranslatedEventName(item.config.eventName)) }}
-                </strong>
-                <p>{{ item.config.eventName }}</p>
+            <template #column-name="{ item }">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <a
+                    class="sw-flow-list-my-flows__content__update-flow-template-link"
+                    @click="onEditFlow(item)"
+                >
+                    {{ item.name }}
+                </a>
             </template>
 
             <template #column-createFlow="{ item }">

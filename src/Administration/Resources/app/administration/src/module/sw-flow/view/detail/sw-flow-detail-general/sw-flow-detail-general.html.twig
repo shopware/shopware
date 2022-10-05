@@ -40,6 +40,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_general_information_priority %}
             <sw-number-field
+                v-if="!isFlowTemplate"
                 v-model="flow.priority"
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor')"
@@ -50,6 +51,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_detail_general_information_active %}
             <sw-switch-field
+                v-if="!isFlowTemplate"
                 v-model="flow.active"
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor')"

@@ -205,7 +205,12 @@ export default {
                 scope: this,
             });
 
-            if (this.flowId && !this.$route.params.flowTemplateId) {
+            if (this.$route.query?.type === 'template') {
+                this.getDetailFlowTemplate();
+                return;
+            }
+
+            if (this.flowId) {
                 this.getDetailFlow();
                 return;
             }
@@ -229,7 +234,7 @@ export default {
 
         createNewFlow() {
             if (this.$route.params.flowTemplateId) {
-                return this.createFlowFromFlowTemplate();
+                return this.createFromFlowTemplate();
             }
 
             const flow = this.flowRepository.create();
@@ -244,6 +249,25 @@ export default {
             this.isLoading = true;
 
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
+                .then((data) => {
+                    State.commit('swFlowState/setFlow', data);
+                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
+                    this.getDataForActionDescription();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        getDetailFlowTemplate() {
+            this.isLoading = true;
+
+            return this.flowTemplateRepository.get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
@@ -276,6 +300,35 @@ export default {
 
             this.isSaveSuccessful = false;
             this.isLoading = true;
+
+            if (this.$route.query?.type === 'template') {
+                const flowTemplate = this.flowTemplateRepository.create();
+                flowTemplate.id = this.flowId;
+                flowTemplate.name = this.flow.name;
+                flowTemplate.config = {
+                    eventName: this.flow.eventName,
+                    sequences: this.flow.sequences,
+                    description: this.flow.description,
+                };
+                flowTemplate._isNew = false;
+
+                return this.flowTemplateRepository.save(flowTemplate)
+                    .then(() => {
+                        this.createNotificationSuccess({
+                            message: this.$tc('sw-flow.flowNotification.messageUpdateTemplateSuccess'),
+                        });
+
+                        this.getDetailFlowTemplate();
+                    }).catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                        });
+
+                        this.handleFieldValiationError();
+                    }).finally(() => {
+                        this.isLoading = false;
+                    });
+            }
 
             return this.flowRepository.save(this.flow)
                 .then(() => {
@@ -446,7 +499,7 @@ export default {
             return Promise.all(promises);
         },
 
-        createFlowFromFlowTemplate() {
+        createFromFlowTemplate() {
             const flow = this.flowRepository.create();
             flow.id = Utils.createId();
             flow.priority = 0;

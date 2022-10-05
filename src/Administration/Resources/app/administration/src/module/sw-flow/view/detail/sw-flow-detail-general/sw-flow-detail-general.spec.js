@@ -6,7 +6,7 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-detail-general', swFlowDetailGeneral);
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], query = {}) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -18,6 +18,10 @@ async function createWrapper(privileges = []) {
                     return Promise.resolve({});
                 }
             })
+        },
+
+        mocks: {
+            $route: { params: {}, query: query },
         },
 
         acl: {

@@ -54,7 +54,7 @@
                 {% block sw_flow_tabs_header_general %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-general"
-                    :route="{ name: routeDetailTab('general') }"
+                    :route="{ name: routeDetailTab('general'), query: { type: $route.query.type } }"
                 >
                     {{ $tc('sw-flow.page.tabGeneral') }}
                 </sw-tabs-item>
@@ -64,7 +64,7 @@
                 {% block sw_flow_tabs_header_builder %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-flow"
-                    :route="{ name: routeDetailTab('flow') }"
+                    :route="{ name: routeDetailTab('flow'), query: { type: $route.query.type } }"
                 >
                     {{ $tc('sw-flow.page.tabFlow') }}
                 </sw-tabs-item>

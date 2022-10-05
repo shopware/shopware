@@ -58,6 +58,10 @@ export default {
             ];
         },
 
+        isFlowTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },

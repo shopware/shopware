@@ -36,6 +36,7 @@ function createWrapper(customPropsData = {}) {
                 { value: '-', type: 'plain' },
                 { value: 'address/department', type: 'snippet' },
             ],
+            totalLines: 3,
             linePosition: 0,
             ...customPropsData
         },
@@ -186,5 +187,21 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
                 { value: 'address/department', type: 'snippet' }
             ]
         ]);
+    });
+
+    it('should disable "delete item" menu context if totalLines is equal or less than default min lines', async () => {
+        const wrapper = await createWrapper({ totalLines: 1 });
+
+        const menuContextButton = wrapper.findAll('.sw-context-menu-item').at(5);
+
+        expect(menuContextButton.attributes().disabled).toBeDefined();
+    });
+
+    it('should disabled "add new item" context menu item if totalLines is equal or higher than default max lines', async () => {
+        const wrapper = await createWrapper({ totalLines: 10 });
+
+        const menuContextButton = wrapper.findAll('.sw-context-menu-item').at(0);
+
+        expect(menuContextButton.attributes().disabled).toBeDefined();
     });
 });

@@ -8,6 +8,7 @@ import './sw-settings-country-address-handling.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
 interface CustomerEntity extends Entity {
     firstName: string,
@@ -52,7 +53,7 @@ interface CountryEntity extends Entity {
     postalCodeRequired: boolean,
     checkPostalCodePattern: boolean,
     checkAdvancedPostalCodePattern: boolean,
-    advancedPostalCodePattern?: string,
+    advancedPostalCodePattern: string|null,
     addressFormat: Array<Snippet[]> | []
 }
 
@@ -134,14 +135,6 @@ Component.register('sw-settings-country-address-handling', {
             } as DragConfig;
         },
 
-        isDisabled(): boolean {
-            if (!this.addressFormat) {
-                return false;
-            }
-
-            return this.addressFormat.length <= 1;
-        },
-
         addressFormat(): Array<Snippet[]> {
             return this.country.addressFormat;
         },
@@ -185,7 +178,7 @@ Component.register('sw-settings-country-address-handling', {
 
     methods: {
         createdComponent(): void {
-            this.advancedPostalCodePattern = this.country.advancedPostalCodePattern ?? null;
+            this.advancedPostalCodePattern = cloneDeep(this.country.advancedPostalCodePattern);
 
             void this.getSnippets();
         },

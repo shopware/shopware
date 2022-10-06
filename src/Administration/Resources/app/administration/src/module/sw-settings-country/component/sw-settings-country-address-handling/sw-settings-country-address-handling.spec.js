@@ -185,7 +185,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         Shopware.State.get('session').currentUser = {};
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        global.activeFeatureFlags = ['v6.5.0.0'];
+
         wrapper = createWrapper();
     });
 
@@ -225,7 +227,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should not able to edit the address handling tab', async () => {
-        wrapper = createWrapper([], {
+        wrapper = await createWrapper([], {
             checkAdvancedPostalCodePattern: true,
         });
 
@@ -254,31 +256,29 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to toggle advanced postal code pattern', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
         await wrapper.setProps({
             country: {
                 ...wrapper.vm.country,
-                checkPostalCodePattern: true,
+                checkPostalCodePattern: false,
             }
         });
 
-        expect(wrapper.find('.advanced-postal-code .is--disabled').exists()).toBeTruthy();
+        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
 
-        const checkAdvancedPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(3);
+        const checkAdvancedPostalCodePatternField = wrapper.findAll('.sw-settings-country-address-handling__option-items').at(2);
         await checkAdvancedPostalCodePatternField
             .find('.sw-field--switch__input input')
-            .trigger('click');
+            .setChecked();
 
-        expect(wrapper.find(
-            '.advanced-postal-code .is--disabled'
-        ).exists()).toBeFalsy();
+        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeFalsy();
     });
 
     it('should be not able to toggle advanced postal code pattern', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
@@ -290,17 +290,15 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
-        expect(wrapper.find(
-            '.advanced-postal-code .is--disabled'
-        ).exists()).toBeFalsy();
+        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeFalsy();
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(2);
 
         await checkPostalCodePatternField
             .find('.sw-field--switch__input input')
-            .trigger('click');
+            .setChecked(false);
 
-        expect(wrapper.find('.advanced-postal-code .is--disabled').exists()).toBeTruthy();
+        expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
             'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
@@ -310,7 +308,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {
-        wrapper = createWrapper(['country.editor']);
+        wrapper = await createWrapper(['country.editor']);
 
         await wrapper.setProps({
             country: {
@@ -321,30 +319,31 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             }
         });
 
+        await wrapper.vm.$nextTick();
 
         const checkPostalCodePatternField = wrapper.findAll('.sw-field--switch').at(2);
 
         await checkPostalCodePatternField
             .find('.sw-field--switch__input input')
-            .trigger('click');
+            .setChecked(false);
 
-        expect(wrapper.vm.country.advancedPostalCodePattern).toBeNull();
+        expect(wrapper.vm.country.checkAdvancedPostalCodePattern).toBe(false);
 
         await checkPostalCodePatternField
             .find('.sw-field--switch__input input')
-            .trigger('click');
+            .setChecked();
 
         const checkAdvancedPostalCodePattern = wrapper.findAll('.sw-field--switch').at(3);
 
         await checkAdvancedPostalCodePattern
             .find('.sw-field--switch__input input')
-            .trigger('click');
+            .setChecked();
 
         expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
     });
 
     it('should able to show the modal with insert new snippet', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
@@ -363,11 +362,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to add a new row above than current row', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 
@@ -389,11 +388,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to add a new row below than current row', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 
@@ -415,11 +414,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to move the current row to the top', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 
@@ -476,11 +475,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to move the current row to the bottom', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 
@@ -530,11 +529,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to delete the current row', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 
@@ -674,11 +673,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to revert address to the default', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             country: { addressFormat }
         });
 

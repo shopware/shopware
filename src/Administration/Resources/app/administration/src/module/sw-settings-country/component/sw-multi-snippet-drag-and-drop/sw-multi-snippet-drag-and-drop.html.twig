@@ -63,27 +63,36 @@
     </sw-select-base>
 
     <sw-context-button class="sw-multi-snippet-drag-and-drop__context-button">
-        <sw-context-menu-item @click="openModal">
+        <sw-context-menu-item
+            :disabled="isMaxLines"
+            @click="openModal"
+        >
             {{ $tc('sw-settings-country.general.actions.newSnippet') }}
         </sw-context-menu-item>
 
-        <sw-context-menu-item @click="addNewLineAt('above')">
+        <sw-context-menu-item
+            :disabled="isMaxLines"
+            @click="addNewLineAt('above')"
+        >
             {{ $tc('sw-settings-country.general.actions.createBefore') }}
         </sw-context-menu-item>
 
-        <sw-context-menu-item @click="addNewLineAt('below')">
+        <sw-context-menu-item
+            :disabled="isMaxLines"
+            @click="addNewLineAt('below')"
+        >
             {{ $tc('sw-settings-country.general.actions.createAfter') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
-            :disabled="disabled"
+            :disabled="isMinLines"
             @click="moveToLocation(0)"
         >
             {{ $tc('sw-settings-country.general.actions.moveTop') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
-            :disabled="disabled"
+            :disabled="isMinLines"
             @click="moveToLocation"
         >
             {{ $tc('sw-settings-country.general.actions.moveBottom') }}
@@ -91,7 +100,7 @@
 
         <sw-context-menu-item
             variant="danger"
-            :disabled="disabled"
+            :disabled="isMinLines"
             @click="onDelete"
         >
             {{ $tc('global.default.delete') }}

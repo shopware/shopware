@@ -50,10 +50,17 @@ describe('Theme: Test sales channel assignment', () => {
             method: 'GET'
         }).as('loadData');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/theme/*`,
+            method: 'PATCH'
+        }).as('saveData');
+
         cy.get('.sw-theme-list-item')
             .last()
             .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
+
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-theme-manager-detail__saleschannels-select')
             .get('.sw-select__selection')
@@ -67,7 +74,8 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
-        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

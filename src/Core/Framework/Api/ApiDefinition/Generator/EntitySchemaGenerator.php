@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtectio
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -148,6 +149,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return $this->createJsonObjectType($definition, $field, $flags);
 
             case $field instanceof ListField:
+            case $field instanceof BreadcrumbField:
                 return ['type' => 'json_list', 'flags' => $flags];
 
             case $field instanceof JsonField:

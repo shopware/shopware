@@ -260,10 +260,6 @@ Component.register('sw-cms-detail', {
             const sortCriteria = Criteria.sort('position', 'ASC', true);
 
             criteria
-                .addAssociation('categories')
-                .addAssociation('landingPages')
-                .addAssociation('products.manufacturer')
-
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -272,6 +268,16 @@ Component.register('sw-cms-detail', {
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
+
+            criteria
+                .getAssociation('categories')
+                .setLimit(25);
+            criteria
+                .getAssociation('landingPages')
+                .setLimit(25);
+
+            criteria.getAssociation('products').setLimit(25);
+            criteria.getAssociation('products.manufacturer').setLimit(25);
 
             return criteria;
         },

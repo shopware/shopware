@@ -17,7 +17,7 @@ class FlowActionCollector
     /**
      * @var iterable<FlowAction>
      */
-    protected $actions;
+    protected iterable $actions;
 
     private EventDispatcherInterface $eventDispatcher;
 

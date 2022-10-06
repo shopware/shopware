@@ -157,6 +157,10 @@ class AddCustomerTagActionTest extends TestCase
 
     public function actionProvider(): \Generator
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return;
+        }
+
         $ids = new IdsCollection();
 
         $awareState = new FlowState(new CustomerAwareEvent($ids->get('customer')));

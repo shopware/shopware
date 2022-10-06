@@ -16,18 +16,16 @@ class TokenFilter extends AbstractTokenFilter implements ResetInterface
     private const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be private and natively typed as array and directly initialized with []
+     * @deprecated tag:v6.5.0 - Will be private and directly initialized with []
      *
      * @var array<string, FilterConfig>
      */
-    protected $config;
+    protected array $config;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be private and natively typed as Connection
-     *
-     * @var Connection
+     * @deprecated tag:v6.5.0 - Will be private
      */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * @internal

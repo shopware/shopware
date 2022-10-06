@@ -89,6 +89,7 @@ Component.register('sw-mail-header-footer-list', {
                 dataIndex: 'name',
                 label: 'sw-mail-header-footer.list.columnName',
                 allowResize: true,
+                routerLink: 'sw.mail.template.detail_head_foot',
                 primary: true,
             }, {
                 property: 'description',

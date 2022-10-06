@@ -165,8 +165,8 @@ Component.register('sw-custom-field-detail', {
             }
 
             this.currentCustomField.config = {
-                ...this.currentCustomField.config,
                 ...this.fieldTypes[customFieldType].config,
+                ...this.currentCustomField.config,
             };
         },
     },

@@ -140,7 +140,7 @@ export default function createCustomFieldService() {
     }
 
     function upsertType(name, configuration) {
-        $typeStore[name] = { ...$typeStore[name], ...{ configuration } };
+        $typeStore[name] = { ...$typeStore[name], ...configuration };
     }
 
     function getTypes() {

@@ -284,7 +284,7 @@ class VersionManager
             $id = $data->getEntityId();
             $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
 
-            if (empty($data->getPayload())) {
+            if ($data->getPayload() === null) {
                 return $data;
             }
 

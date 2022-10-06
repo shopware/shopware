@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;supprimez les fichiers des répertoires %d',
     'cache_clear_error' => 'Une erreur est survenue. Veuillez supprimer manuellement le cache après la mise à jour.',
     'finish_update' => 'Terminer la mise à jour',
+    'version' => 'Version',
 ];

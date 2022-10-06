@@ -62,6 +62,6 @@ return [
     'done_backend' => 'Zur Administration',
     'deleted_files' => '&nbsp;entfernte Dateien aus %d Verzeichnissen',
     'cache_clear_error' => 'Es ist ein Fehler aufgetreten. Bitte lösche den Cache nach dem Update manuell.',
-
     'finish_update' => 'Update abschließen',
+    'version' => 'Version',
 ];

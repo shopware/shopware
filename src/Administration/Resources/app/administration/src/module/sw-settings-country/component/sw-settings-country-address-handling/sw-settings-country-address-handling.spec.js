@@ -202,7 +202,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     it('should be able to edit the address handling tab', async () => {
         wrapper = await createWrapper([
             'country.editor'
-        ],);
+        ], {
+            defaultPostalCodePattern: '\\d{5}'
+        });
 
         const countryForceStateInRegistrationField = wrapper.find(
             'sw-base-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
@@ -258,7 +260,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     it('should be able to toggle advanced postal code pattern', async () => {
         wrapper = await createWrapper([
             'country.editor'
-        ]);
+        ], {
+            defaultPostalCodePattern: '\\d{5}'
+        });
 
         await wrapper.setProps({
             country: {
@@ -280,7 +284,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     it('should be not able to toggle advanced postal code pattern', async () => {
         wrapper = await createWrapper([
             'country.editor'
-        ]);
+        ], {
+            defaultPostalCodePattern: '\\d{5}'
+        });
 
         await wrapper.setProps({
             country: {
@@ -308,7 +314,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {
-        wrapper = await createWrapper(['country.editor']);
+        wrapper = await createWrapper(['country.editor'], {
+            defaultPostalCodePattern: '\\d{5}'
+        });
 
         await wrapper.setProps({
             country: {
@@ -340,6 +348,30 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             .setChecked();
 
         expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
+    });
+
+    it('should disable postal code validation', async () => {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const prop of [
+            {
+                checkPostalCodePattern: true,
+                checkAdvancedPostalCodePattern: true,
+            },
+            {}
+        ]) {
+            wrapper = createWrapper(['country.editor'], prop);
+
+            const countryCheckPostalCodePatternField = wrapper.find(
+                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]'
+            );
+
+            const countryCheckAdvancedPostalCodePatternField = wrapper.find(
+                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
+            );
+
+            expect(countryCheckPostalCodePatternField.attributes().disabled).toBeDefined();
+            expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).not.toBeDefined();
+        }
     });
 
     it('should able to show the modal with insert new snippet', async () => {

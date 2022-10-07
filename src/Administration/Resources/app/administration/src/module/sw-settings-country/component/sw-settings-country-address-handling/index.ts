@@ -54,7 +54,8 @@ interface CountryEntity extends Entity {
     checkPostalCodePattern: boolean,
     checkAdvancedPostalCodePattern: boolean,
     advancedPostalCodePattern: string|null,
-    addressFormat: Array<Snippet[]> | []
+    addressFormat: Array<Snippet[]> | [],
+    defaultPostalCodePattern: string|null,
 }
 
 const CUSTOM_SNIPPET_TYPE = {
@@ -138,6 +139,18 @@ Component.register('sw-settings-country-address-handling', {
         addressFormat(): Array<Snippet[]> {
             return this.country.addressFormat;
         },
+
+        hasDefaultPostalCodePattern(): boolean {
+            return !!this.country.defaultPostalCodePattern;
+        },
+
+        disabledAdvancedPostalCodePattern(): boolean {
+            if (!this.hasDefaultPostalCodePattern) {
+                return false;
+            }
+
+            return !this.country.checkPostalCodePattern;
+        },
     },
 
     watch: {
@@ -157,6 +170,10 @@ Component.register('sw-settings-country-address-handling', {
 
                 this.$set(this.country, 'advancedPostalCodePattern', this.advancedPostalCodePattern);
                 return;
+            }
+
+            if (!this.hasDefaultPostalCodePattern) {
+                this.$set(this.country, 'checkPostalCodePattern', value);
             }
 
             this.advancedPostalCodePattern = this.country?.advancedPostalCodePattern ?? null;

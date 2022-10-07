@@ -25,7 +25,7 @@
                 v-model="country.checkPostalCodePattern"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
-                :disabled="!acl.can('country.editor')"
+                :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
                 :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
             />
@@ -34,7 +34,7 @@
                 <sw-switch-field
                     v-model="country.checkAdvancedPostalCodePattern"
                     class="sw-settings-country-address-handling__option-items"
-                    :disabled="!acl.can('country.editor') || !country.checkPostalCodePattern"
+                    :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern"
                     :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
                     :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', 0, {5: '{5}', 4: '{4}', 2: '{2}'})"
                 />

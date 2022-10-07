@@ -17,11 +17,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class CustomerZipCodeValidator extends ConstraintValidator
 {
-    /**
-     * @var string[]
-     */
-    private $patterns = [
-        'AC' => 'ASCN 1ZZ',
+    public const PATTERNS = [
+        'AC' => '[Aa][Ss][Cc][Nn]\\s{0,1}[1][Zz][Zz]',
         'AD' => 'AD[1-7]0\\d',
         'AF' => '\\d{4}',
         'AI' => '(?:AI-)?2640',
@@ -42,16 +39,19 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'BL' => '9[78][01]\\d{2}',
         'BM' => '[A-Z]{2} ?[A-Z0-9]{2}',
         'BN' => '[A-Z]{2} ?\\d{4}',
+        'BO' => '\\d{4}',
         'BR' => '\\d{5}-?\\d{3}',
         'BT' => '\\d{5}',
         'BY' => '\\d{6}',
         'CA' => '[ABCEGHJKLMNPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z] ?\\d[ABCEGHJ-NPRSTV-Z]\\d',
         'CC' => '6799',
+        'CD' => '[Cc][Dd]',
         'CH' => '[1-9]\\d{3}',
         'CL' => '\\d{7}',
         'CN' => '\\d{6}',
         'CO' => '\\d{6}',
         'CR' => '\\d{4,5}|\\d{3}-\\d{4}',
+        'CU' => '\\d{5}',
         'CV' => '\\d{4}',
         'CX' => '6798',
         'CY' => '\\d{4}',
@@ -67,20 +67,21 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'ES' => '^([0-4]\\d{4}|5[0-2]\\d{3})$',
         'ET' => '\\d{4}',
         'FI' => '\\d{5}',
-        'FK' => 'FIQQ 1ZZ',
+        'FK' => '[Ff][Ii][Qq]{2}\\s{0,1}[1][Zz]{2}',
         'FM' => '(9694[1-4])(?:[ \\-](\\d{4}))?',
         'FO' => '\\d{3}',
         'FR' => '\\d{1}(?:A|B|\\d{1}) ?\\d{3}',
+        'GA' => '\\d{2}\\s[a-zA-Z-_ ]\\s\\d{2}',
         'GB' => '^GIR ?0AA$|^(?:(?:AB|AL|B|BA|BB|BD|BH|BL|BN|BR|BS|BT|BX|CA|CB|CF|CH|CM|CO|CR|CT|CV|CW|DA|DD|DE|DG|DH|DL|DN|DT|DY|E|EC|EH|EN|EX|FK|FY|G|GL|GY|GU|HA|HD|HG|HP|HR|HS|HU|HX|IG|IM|IP|IV|JE|KA|KT|KW|KY|L|LA|LD|LE|LL|LN|LS|LU|M|ME|MK|ML|N|NE|NG|NN|NP|NR|NW|OL|OX|PA|PE|PH|PL|PO|PR|RG|RH|RM|S|SA|SE|SG|SK|SL|SM|SN|SO|SP|SR|SS|ST|SW|SY|TA|TD|TF|TN|TQ|TR|TS|TW|UB|W|WA|WC|WD|WF|WN|WR|WS|WV|YO|ZE)(?:\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}))$|^BFPO ?\\d{1,4}$',
         'GE' => '\\d{4}',
         'GF' => '9[78]3\\d{2}',
         'GG' => 'GY\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}',
-        'GI' => 'GX11 1AA',
+        'GI' => '[Gg][Xx][1]{2}\\s{0,1}[1][Aa]{2}',
         'GL' => '39\\d{2}',
         'GN' => '\\d{3}',
         'GP' => '9[78][01]\\d{2}',
         'GR' => '\\d{3} ?\\d{2}',
-        'GS' => 'SIQQ 1ZZ',
+        'GS' => '[Ss][Ii][Qq]{2}\\s{0,1}[1][Zz]{2}',
         'GT' => '\\d{5}',
         'GU' => '(969(?:[12]\\d|3[12]))(?:[ \\-](\\d{4}))?',
         'GW' => '\\d{4}',
@@ -95,7 +96,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'IL' => '\\d{5}(?:\\d{2})?',
         'IM' => 'IM\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}',
         'IN' => '\\d{6}',
-        'IO' => 'BBND 1ZZ',
+        'IO' => '[Bb]{2}[Nn][Dd]\\s{0,1}[1][Zz]{2}',
         'IQ' => '\\d{5}',
         'IR' => '\\d{5}-?\\d{5}',
         'IS' => '\\d{3}',
@@ -120,6 +121,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'LT' => '(LT-)?\\d{5}',
         'LU' => '\\d{4}',
         'LV' => '(LV-)?\\d{4}',
+        'LY' => '\\d{5}',
         'MA' => '\\d{5}',
         'MC' => '980\\d{2}',
         'MD' => '\\d{4}',
@@ -135,10 +137,12 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'MQ' => '9[78]2\\d{2}',
         'MT' => '[A-Z]{3} ?\\d{2,4}',
         'MU' => '\\d{3}(?:\\d{2}|[A-Z]{2}\\d{3})',
+        'MS' => '[Mm][Ss][Rr]\\s{0,1}\\d{4}',
         'MV' => '\\d{5}',
         'MX' => '\\d{5}',
         'MY' => '\\d{5}',
         'MZ' => '\\d{4}',
+        'NA' => '\\d{5}',
         'NC' => '988\\d{2}',
         'NE' => '\\d{4}',
         'NF' => '2899',
@@ -167,6 +171,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'RS' => '\\d{5,6}',
         'RU' => '\\d{6}',
         'SA' => '\\d{5}',
+        'SD' => '\\d{5}',
         'SE' => '\\d{3} ?\\d{2}',
         'SG' => '\\d{6}',
         'SH' => '(?:ASCN|STHL) 1ZZ',
@@ -180,11 +185,13 @@ class CustomerZipCodeValidator extends ConstraintValidator
         'SZ' => '[HLMS]\\d{3}',
         'TA' => 'TDCU 1ZZ',
         'TC' => 'TKCA 1ZZ',
+        'TD' => '\\d{5}',
         'TH' => '\\d{5}',
         'TJ' => '\\d{6}',
         'TM' => '\\d{6}',
         'TN' => '\\d{4}',
         'TR' => '\\d{5}',
+        'TT' => '\\d{6}',
         'TW' => '\\d{3}(?:\\d{2})?',
         'TZ' => '\\d{4,5}',
         'UA' => '\\d{5}',
@@ -244,16 +251,13 @@ class CustomerZipCodeValidator extends ConstraintValidator
         $iso = $addressConfigs->getIso();
 
         if ($addressConfigs->getCheckPostalCodePattern() && !$addressConfigs->getCheckAdvancedPostalCodePattern()) {
-            if (!isset($this->patterns[$iso])) {
-                throw new ConstraintDefinitionException(sprintf('Invalid iso code "%s" for default validation', $iso));
-            }
-            $pattern = $this->patterns[$iso];
+            $pattern = \array_key_exists((string) $iso, self::PATTERNS) ? self::PATTERNS[$iso] : '';
         }
 
         $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
 
         try {
-            if (!preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches)) {
+            if ($pattern && !preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches)) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ iso }}', $this->formatValue($iso))
                     ->setCode(CustomerZipCode::ZIP_CODE_INVALID)

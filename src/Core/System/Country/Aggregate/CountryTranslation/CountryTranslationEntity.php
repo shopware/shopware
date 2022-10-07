@@ -10,11 +10,20 @@ class CountryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    protected string $countryId;
+    /**
+     * @var string
+     */
+    protected $countryId;
 
-    protected ?string $name;
+    /**
+     * @var string|null
+     */
+    protected $name;
 
-    protected ?CountryEntity $country;
+    /**
+     * @var CountryEntity|null
+     */
+    protected $country;
 
     /**
      * @var array<array<string, array<string, string>>>|null

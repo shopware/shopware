@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +19,7 @@ use Shopware\Storefront\Pagelet\Country\CountryStateDataPagelet;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletCriteriaEvent;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 

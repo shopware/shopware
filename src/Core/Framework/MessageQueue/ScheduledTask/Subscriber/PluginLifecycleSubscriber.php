@@ -6,6 +6,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
@@ -32,6 +33,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         return [
             PluginPostActivateEvent::class => 'afterPluginStateChange',
             PluginPostDeactivateEvent::class => 'afterPluginStateChange',
+            PluginPostUpdateEvent::class => 'afterPluginStateChange',
         ];
     }
 

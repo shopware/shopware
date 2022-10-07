@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,7 +39,7 @@ class TranslationFieldResolver extends AbstractFieldResolver
 
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#foreignKey#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
+            '#foreignKey#' => $this->getParentReferenceFkField($definition, $translationDefinition)->getStorageName(),
             '#on#' => EntityDefinitionQueryHelper::escape($context->getAlias()),
         ];
 
@@ -136,7 +138,8 @@ class TranslationFieldResolver extends AbstractFieldResolver
         $first = array_shift($chain);
         $firstAlias = $on . '.translation';
 
-        $foreignKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $definition->getEntityName() . '_id';
+        $parentReferenceFkField = $this->getParentReferenceFkField($definition, $translationDefinition);
+        $foreignKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $parentReferenceFkField->getStorageName();
 
         // used as join condition
         $query->addSelect($foreignKey);
@@ -209,5 +212,23 @@ class TranslationFieldResolver extends AbstractFieldResolver
         }
 
         return $query;
+    }
+
+    private function getParentReferenceFkField(
+        EntityDefinition $parentDefinition,
+        EntityDefinition $translationDefinition
+    ): FkField {
+        $fkFields = $translationDefinition->getFields()
+            ->filterByFlag(PrimaryKey::class)
+            ->filterInstance(FkField::class);
+
+        /** @var FkField $fkField */
+        foreach ($fkFields as $fkField) {
+            if ($parentDefinition->getEntityName() === $fkField->getReferenceDefinition()->getEntityName()) {
+                return $fkField;
+            }
+        }
+
+        throw new \RuntimeException(sprintf('Can not detect foreign key reference for translation definition of entity %s', $parentDefinition->getEntityName()));
     }
 }

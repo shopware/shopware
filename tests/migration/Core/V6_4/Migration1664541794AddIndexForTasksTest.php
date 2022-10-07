@@ -5,7 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForTasks;
+use Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForLogEntryTask;
 
 /**
  * @internal
@@ -26,14 +26,14 @@ class Migration1664541794AddIndexForTasksTest extends TestCase
     public function testHasCorrectTimestamp(): void
     {
         static::assertStringContainsString(
-            (string) (new Migration1664541794AddIndexForTasks())->getCreationTimestamp(),
-            Migration1664541794AddIndexForTasks::class
+            (string) (new Migration1664541794AddIndexForLogEntryTask())->getCreationTimestamp(),
+            Migration1664541794AddIndexForLogEntryTask::class
         );
     }
 
     public function testAddsIndexToOrderTable(): void
     {
-        $migration = new Migration1664541794AddIndexForTasks();
+        $migration = new Migration1664541794AddIndexForLogEntryTask();
         $connection = KernelLifecycleManager::getConnection();
 
         static::assertFalse($this->indexExists($connection));
@@ -45,7 +45,7 @@ class Migration1664541794AddIndexForTasksTest extends TestCase
 
     public function testCanBeExecutedMultipleTimes(): void
     {
-        $migration = new Migration1664541794AddIndexForTasks();
+        $migration = new Migration1664541794AddIndexForLogEntryTask();
         $connection = KernelLifecycleManager::getConnection();
 
         static::assertFalse($this->indexExists($connection));

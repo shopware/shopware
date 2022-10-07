@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1664541794AddIndexForTasks extends MigrationStep
+class Migration1664541794AddIndexForLogEntryTask extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {

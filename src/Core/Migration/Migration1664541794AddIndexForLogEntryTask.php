@@ -8,6 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @deprecated tag:v6.4.0 - Will be deleted. Migrations are now namespaced by major version
  */
-class Migration1664541794AddIndexForTasks extends \Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForTasks
+class Migration1664541794AddIndexForLogEntryTask extends \Shopware\Core\Migration\V6_4\Migration1664541794AddIndexForLogEntryTask
 {
 }

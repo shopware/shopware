@@ -17,6 +17,9 @@ class Action extends XmlElement
 
     protected Config $config;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -44,6 +47,9 @@ class Action extends XmlElement
         return $this->config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -52,6 +58,7 @@ class Action extends XmlElement
             'name' => $this->meta->getName(),
             'swIcon' => $this->meta->getSwIcon(),
             'url' => $this->meta->getUrl(),
+            'delayable' => $this->meta->getDelayable(),
             'parameters' => $this->normalizeParameters(),
             'config' => array_map(function ($config) {
                 return $config->jsonSerialize();
@@ -71,9 +78,12 @@ class Action extends XmlElement
         return new self(self::parse($element));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function normalizeParameters(): array
     {
-        /** @var array $parameters */
+        /** @var array<string, mixed> $parameters */
         $parameters = array_map(function ($parameter) {
             return $parameter->jsonSerialize();
         }, $this->parameters->getParameters());
@@ -87,6 +97,9 @@ class Action extends XmlElement
         return json_decode($parameters, true);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private static function parse(\DOMElement $element): array
     {
         $values = [];

@@ -8,7 +8,6 @@ use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -41,7 +40,7 @@ class ChangeCustomerGroupActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [CustomerAware::class, DelayAware::class],
+            [CustomerAware::class],
             $this->action->requirements()
         );
     }

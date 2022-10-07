@@ -4,12 +4,12 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
 
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Feature;
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
-class SetCustomerGroupCustomFieldAction extends FlowAction
+class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
@@ -60,7 +60,7 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
      */
     public function requirements(): array
     {
-        return [CustomerGroupAware::class, DelayAware::class];
+        return [CustomerGroupAware::class];
     }
 
     /**

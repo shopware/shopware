@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Feature;
@@ -100,7 +99,7 @@ class SendMailActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [MailAware::class, DelayAware::class],
+            [MailAware::class],
             $this->action->requirements()
         );
     }

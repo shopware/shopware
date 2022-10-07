@@ -14,11 +14,11 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -30,7 +30,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
  * @deprecated tag:v6.5.0 - reason:remove-subscriber - FlowActions won't be executed over the event system anymore,
  * therefore the actions won't implement the EventSubscriberInterface anymore.
  */
-class GenerateDocumentAction extends FlowAction
+class GenerateDocumentAction extends FlowAction implements DelayableAction
 {
     /**
      * @deprecated tag:v6.5.0 - Property $documentService will be removed due to unused
@@ -92,7 +92,7 @@ class GenerateDocumentAction extends FlowAction
      */
     public function requirements(): array
     {
-        return [OrderAware::class, DelayAware::class];
+        return [OrderAware::class];
     }
 
     /**

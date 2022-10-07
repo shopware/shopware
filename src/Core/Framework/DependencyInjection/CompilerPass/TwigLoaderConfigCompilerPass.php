@@ -19,15 +19,20 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
         }
 
         foreach ($bundlesMetadata as $name => $bundle) {
-            $directory = $bundle['path'] . '/Resources/views';
-            if (!file_exists($directory)) {
-                continue;
+            $viewDirectory = $bundle['path'] . '/Resources/views';
+            $resourcesDirectory = $bundle['path'] . '/Resources';
+
+            if (file_exists($viewDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory]);
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory, $name]);
             }
 
-            $fileSystemLoader->addMethodCall('addPath', [$directory]);
-            $fileSystemLoader->addMethodCall('addPath', [$directory, $name]);
-            if (file_exists($directory . '/../app/storefront/dist')) {
-                $fileSystemLoader->addMethodCall('addPath', [$directory . '/../app/storefront/dist', $name]);
+            if (file_exists($viewDirectory . '/../app/storefront/dist')) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory . '/../app/storefront/dist', $name]);
+            }
+
+            if (file_exists($resourcesDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$resourcesDirectory, $name]);
             }
         }
 
@@ -55,14 +60,21 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
         }
 
         foreach ($apps as $app) {
-            $directory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
+            $viewDirectory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
+            $resourcesDirectory = sprintf('%s/%s/Resources', $projectDir, $app['path']);
 
-            if (!file_exists($directory)) {
-                continue;
+            if (file_exists($viewDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory]);
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory, $app['name']]);
             }
 
-            $fileSystemLoader->addMethodCall('addPath', [$directory]);
-            $fileSystemLoader->addMethodCall('addPath', [$directory, $app['name']]);
+            if (file_exists($viewDirectory . '/../app/storefront/dist')) {
+                $fileSystemLoader->addMethodCall('addPath', [$viewDirectory . '/../app/storefront/dist', $app['name']]);
+            }
+
+            if (file_exists($resourcesDirectory)) {
+                $fileSystemLoader->addMethodCall('addPath', [$resourcesDirectory, $app['name']]);
+            }
         }
     }
 }

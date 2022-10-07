@@ -16,7 +16,7 @@ class Migration1664541794AddIndexForTasks extends MigrationStep
     public function update(Connection $connection): void
     {
         try {
-            $connection->executeStatement('ALTER TABLE `cart` ADD INDEX `idx.log_entry.created_at` (`created_at`)');
+            $connection->executeStatement('ALTER TABLE `log_entry` ADD INDEX `idx.log_entry.created_at` (`created_at`)');
         } catch (\Exception $e) {
             // index already exists
         }

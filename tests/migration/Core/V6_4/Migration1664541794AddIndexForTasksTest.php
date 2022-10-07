@@ -19,7 +19,7 @@ class Migration1664541794AddIndexForTasksTest extends TestCase
         $connection = KernelLifecycleManager::getConnection();
 
         if ($this->indexExists($connection)) {
-            $connection->executeStatement('DROP INDEX `idx.log_entry.created_at` ON `cart`');
+            $connection->executeStatement('DROP INDEX `idx.log_entry.created_at` ON `log_entry`');
         }
     }
 
@@ -59,7 +59,7 @@ class Migration1664541794AddIndexForTasksTest extends TestCase
     private function indexExists(Connection $connection): bool
     {
         $index = $connection->executeQuery(
-            'SHOW INDEXES FROM `cart` WHERE key_name = :indexName',
+            'SHOW INDEXES FROM `log_entry` WHERE key_name = :indexName',
             ['indexName' => 'idx.log_entry.created_at']
         )->fetchOne();
 

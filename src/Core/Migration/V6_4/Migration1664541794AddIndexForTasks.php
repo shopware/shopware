@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1664541794AddIndexForTasks extends MigrationStep

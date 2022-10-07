@@ -9,6 +9,7 @@ import 'src/app/component/base/sw-button';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/app/component/base/sw-button-process';
 import TimezoneService from 'src/core/service/timezone.service';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -39,7 +40,7 @@ async function createWrapper(privileges = []) {
             },
             loginService: {},
             userService: {
-                getUser: () => Promise.resolve()
+                getUser: () => Promise.resolve({ data: {} })
             },
             userValidationService: {},
             integrationService: {},
@@ -55,7 +56,10 @@ async function createWrapper(privileges = []) {
                                         username: 'admin',
                                         firstName: '',
                                         lastName: 'admin',
-                                        email: 'info@shopware.com'
+                                        email: 'info@shopware.com',
+                                        accessKeys: {
+                                            entity: 'product',
+                                        }
                                     }
                                 );
                             }
@@ -64,7 +68,14 @@ async function createWrapper(privileges = []) {
 
                     if (entityName === 'language') {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0
+                            )),
                             get: () => Promise.resolve()
                         };
                     }

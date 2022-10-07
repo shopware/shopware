@@ -1,8 +1,5 @@
 import FlatTree from 'src/core/helper/flattree.helper';
 
-// Disable developer hints in jest output
-const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 describe('core/helper/flattree.helper.js', () => {
     let flatTree;
 
@@ -29,6 +26,9 @@ describe('core/helper/flattree.helper.js', () => {
     });
 
     it('expects a node to have a path or id property', () => {
+        const warnSpy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
+
         flatTree.add({
             label: 'with path',
             path: '/foo/bar'
@@ -56,7 +56,10 @@ describe('core/helper/flattree.helper.js', () => {
         );
     });
 
-    it('should not be possible to register different nodes with the same id', () => {
+    it('should not be possible to register different nodes with the same id', async () => {
+        const warnSpy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
+
         flatTree.add({
             label: 'Foobar',
             id: 'sw.foo.bar'
@@ -75,6 +78,18 @@ describe('core/helper/flattree.helper.js', () => {
             id: 'sw.foo.bar',
             children: []
         });
+
+        // [FlatTree] Tree contains node with unique identifier sw.foo.bar already. Please remove it first before adding a new one. { label: 'Foobar', id: 'sw.foo.bar', position: 1 }
+        expect(warnSpy).toBeCalledWith(
+            '[FlatTree]',
+            'Tree contains node with unique identifier sw.foo.bar already.',
+            'Please remove it first before adding a new one.',
+            expect.objectContaining({
+                label: 'Foobar',
+                id: 'sw.foo.bar',
+                position: 1,
+            })
+        );
     });
 
     it('automatically sets target to _self if a link is specified', () => {

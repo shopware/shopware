@@ -4,6 +4,7 @@ import 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
+import flushPromises from 'flush-promises';
 
 const swProfileStateMock = {
     namespaced: true,
@@ -67,13 +68,18 @@ function createWrapper() {
                     };
                 }
             }
-        }
+        },
+        attachTo: document.body,
     });
 }
 
 describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swProfile', swProfileStateMock);
+    });
+
+    beforeEach(() => {
+        Shopware.Application.view.deleteReactive = () => {};
     });
 
     it('should be a Vue.js component', () => {
@@ -124,6 +130,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should be able to select all', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
@@ -138,7 +145,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             ]
         }]);
 
-        wrapper.find(
+        await wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-select-all'
         ).trigger('click');
 
@@ -160,6 +167,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should be able to deselect all', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
@@ -174,7 +182,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             ]
         }]);
 
-        wrapper.find(
+        await wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all'
         ).trigger('click');
 
@@ -196,6 +204,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should be able to change search preference', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
@@ -235,6 +244,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should not be able to change search preference', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',

@@ -84,7 +84,8 @@ function createWrapper(extension) {
             'sw-extension-removal-modal': Shopware.Component.build('sw-extension-removal-modal'),
             'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-extension-adding-failed': Shopware.Component.build('sw-extension-adding-failed')
+            'sw-extension-adding-failed': Shopware.Component.build('sw-extension-adding-failed'),
+            'sw-extension-rating-modal': true,
         },
         provide: {
             extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -295,6 +296,37 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should open the rating modal', () => {
+        wrapper = createWrapper({
+            id: 1,
+            name: 'Sample Extension',
+            label: 'Sample Extension Label',
+            shortDescription: 'Sample Extension description',
+            languages: [],
+            rating: 3,
+            numberOfRatings: 10,
+            installedAt: {
+                date: '2021-02-01T03:30:35+01:00'
+            },
+            storeLicense: {
+                id: 1095324,
+                creationDate: '2021-02-08T15:47:59.000+01:00',
+                variant: 'rent',
+                netPrice: 23.75,
+                nextBookingDate: '2021-03-08T15:47:59.000+01:00',
+                licensedExtension: null,
+                extensions: [],
+                expirationDate: null,
+                subscription: null,
+                trialPhaseIncluded: true,
+                discountInformation: null
+            },
+            permissions: {},
+            icon: 'https://example.com',
+            iconRaw: null,
+            active: false,
+            type: 'plugin'
+        });
+
         expect(wrapper.vm.showRatingModal).toEqual(false);
 
         expect(wrapper.find('.sw-extension-card-bought__rate-link')

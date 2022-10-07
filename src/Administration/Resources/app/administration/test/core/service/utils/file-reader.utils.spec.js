@@ -11,7 +11,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         expect(fileReaderUtils.readFileAsArrayBuffer(fileMock)).toBeInstanceOf(Object);
     });
 
-    it('should read a file as text', async done => {
+    it('should read a file as text', done => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsText(fileMock).then((loadedText) => {
@@ -19,7 +19,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         }).finally(done);
     });
 
-    it('should read a file as DataURL', async done => {
+    it('should read a file as DataURL', done => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsDataURL(fileMock).then((dataURL) => {
@@ -27,7 +27,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         }).finally(done);
     });
 
-    it('should read a file as ArrayBuffer', async done => {
+    it('should read a file as ArrayBuffer', done => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsArrayBuffer(fileMock).then((dataBuffer) => {

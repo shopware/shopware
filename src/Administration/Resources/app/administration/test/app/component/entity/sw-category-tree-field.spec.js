@@ -1,29 +1,40 @@
 import { shallowMount } from '@vue/test-utils';
-
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/app/component/entity/sw-category-tree-field';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/tree/sw-tree';
-
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+import flushPromises from 'flush-promises';
 
 const categoryData = [{
     id: 'categoryId-0',
+    attributes: {
+        id: 'categoryId-0',
+    },
     translated: {
         name: 'categoryName-0'
-    }
+    },
+    relationships: {},
 }, {
     id: 'categoryId-1',
+    attributes: {
+        id: 'categoryId-1',
+    },
     translated: {
         name: 'categoryName-1'
-    }
+    },
+    relationships: {},
 }, {
     id: 'categoryId-2',
+    attributes: {
+        id: 'categoryId-2',
+    },
     translated: {
         name: 'categoryName-2'
-    }
+    },
+    relationships: {},
 }];
 
 function createCategoryCollection() {
@@ -62,7 +73,8 @@ function createWrapper() {
         propsData: {
             placeholder: 'some-placeholder',
             categoriesCollection: createCategoryCollection()
-        }
+        },
+        attachTo: document.body,
     });
 }
 
@@ -70,12 +82,14 @@ function createWrapper() {
 describe('src/app/component/entity/sw-category-tree-field', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should close the dropdown when selecting in the single select mode', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
         await wrapper.setProps({
             singleSelect: true
@@ -89,10 +103,8 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
 
-        await wrapper.vm.$nextTick();
-
-        wrapper.vm.onCheckItem({ id: 'categoryId-0', checked: true, data: 'some-data' });
-        await wrapper.vm.$nextTick();
+        wrapper.vm.onCheckItem({ id: 'categoryId-0', checked: true, data: { translated: { name: 'some-data' } } });
+        await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
     });

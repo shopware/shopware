@@ -1,8 +1,5 @@
 import string from 'src/core/service/utils/string.utils';
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 // these tests use Blob objects to simulate a File objects
 describe('src/core/service/utils/types.utils.js', () => {
     it('should be false if text exists', async () => {

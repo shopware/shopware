@@ -73,6 +73,9 @@ Component.register('sw-bulk-edit-product-media', {
             return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
+                    if (defaultFolder === null) {
+                        return null;
+                    }
 
                     if (defaultFolder.folder?.id) {
                         return defaultFolder.folder.id;

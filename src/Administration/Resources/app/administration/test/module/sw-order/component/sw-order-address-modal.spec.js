@@ -14,7 +14,7 @@ function createWrapper() {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([]);
+                        return Promise.resolve([{ addresses: [] }]);
                     },
                     save: () => {
                         return Promise.resolve();

@@ -2,6 +2,8 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
 import TimezoneService from 'src/core/service/timezone.service';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-users-permissions-user-create'), {
@@ -15,7 +17,7 @@ function createWrapper(privileges = []) {
             },
             loginService: {},
             userService: {
-                getUser: () => Promise.resolve()
+                getUser: () => Promise.resolve({ data: {} })
             },
             userValidationService: {},
             integrationService: {},
@@ -50,7 +52,14 @@ function createWrapper(privileges = []) {
 
                     if (entityName === 'language') {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0
+                            )),
                             get: () => Promise.resolve()
                         };
                     }
@@ -99,9 +108,10 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').languageId = '123456789';
         wrapper = createWrapper();
+        await flushPromises();
     });
 
     afterEach(() => {

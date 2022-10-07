@@ -66,9 +66,7 @@ function createWrapper(defaultFolderId, privileges = []) {
                                     isNew: () => false
                                 };
                             default:
-                                return {
-                                    isNew: () => false
-                                };
+                                return null;
                         }
                     }
                 })

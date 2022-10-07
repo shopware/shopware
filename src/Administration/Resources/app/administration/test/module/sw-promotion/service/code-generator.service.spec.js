@@ -1,8 +1,5 @@
 import generator from 'src/module/sw-promotion/service/code-generator.service';
 
-// Disable developer hints in jest output
-jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
-
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)

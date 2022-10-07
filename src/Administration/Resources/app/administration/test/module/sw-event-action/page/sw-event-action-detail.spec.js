@@ -1,5 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-event-action/page/sw-event-action-detail';
+import flushPromises from 'flush-promises';
+
+const { Classes: { ShopwareError } } = Shopware;
 
 const mockEmptyEventAction = {
     eventName: '',
@@ -116,16 +119,16 @@ function createWrapper(eventActionId = null, privileges = []) {
 }
 
 describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
-    it('should be instantiated', () => {
+    it('should be instantiated', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render all fields', async () => {
         const wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$forceUpdate();
+        await flushPromises();
 
         expect(wrapper.find('.sw-event-action-detail__business-event-select').exists()).toBeTruthy();
         expect(wrapper.find('.sw-event-action-detail__active-toggle').exists()).toBeTruthy();
@@ -137,9 +140,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should load existing event action', async () => {
         const wrapper = createWrapper('12345');
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect to call `event_action` repository get with id
         const expectedCriteria = wrapper.vm.eventActionCriteria;
@@ -159,9 +160,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should create new event action when no id is given', async () => {
         const wrapper = createWrapper();
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect to call `event_action` repository create with shopware context
         expect(wrapper.vm.eventActionRepository.create).toHaveBeenCalledWith();
@@ -179,9 +178,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should load and filter business events', async () => {
         const wrapper = createWrapper();
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect to call businessEventService to load all business events
         expect(wrapper.vm.businessEventService.getBusinessEvents).toHaveBeenCalledTimes(1);
@@ -208,12 +205,10 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should perform save action', async () => {
         const wrapper = createWrapper('54321');
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Change the event name
-        wrapper.setData({
+        await wrapper.setData({
             eventAction: {
                 eventName: 'changed.event.name'
             }
@@ -222,22 +217,25 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
         // Verify event name is inside data prop
         expect(wrapper.vm.eventAction.eventName).toBe('changed.event.name');
 
-        // Execute safe method
         wrapper.vm.onSave();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Ensure `event_action` repository save has been called
-        expect(wrapper.vm.eventActionRepository.save).toHaveBeenCalledWith(wrapper.vm.eventAction);
+        expect(wrapper.vm.eventActionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
+            id: '54321',
+        }));
     });
 
+    /**
+     * Test is skipped due to the component error landing in the jest error stack and therefor always failing this test.
+     */
     it('should not perform save action when no mail template id is given', async () => {
         const wrapper = createWrapper('54321');
+        await flushPromises();
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             eventAction: {
                 config: {
                     mail_template_id: undefined,
@@ -249,22 +247,19 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
         // Verify mail_template_id is not present
         expect(wrapper.vm.eventAction.config.mail_template_id).toBeUndefined();
 
-        // Execute safe method
-        wrapper.vm.onSave();
+        await expect(wrapper.vm.onSave()).rejects.toEqual(expect.any(ShopwareError));
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Ensure `event_action` repository is not being called
         expect(wrapper.vm.eventActionRepository.save).toHaveBeenCalledTimes(0);
     });
 
     it('should convert recipients array on save', async () => {
-        const wrapper = createWrapper('54321');
+        const wrapper = createWrapper('1337');
+        await flushPromises();
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
-
-        wrapper.setData({
+        await wrapper.setData({
             recipients: [{
                 id: '1',
                 email: 'test@example.com',
@@ -276,10 +271,9 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
             }]
         });
 
-        // Execute safe method
         wrapper.vm.onSave();
 
-        await wrapper.vm.$nextTick();
+        // await flushPromises();
 
         // Verify recipients array gets converted and assigned to recipients key in config
         const expectedRecipients = { 'test@example.com': 'Example', 'info@domain.tld': 'Info' };
@@ -288,9 +282,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should detect recipients are not be changed', async () => {
         const wrapper = createWrapper('54321');
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.recipients).toEqual([
             {
@@ -299,10 +291,10 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
             }
         ]);
 
-        // Execute safe method
         wrapper.vm.onSave();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         // Verify recipients array gets converted and assigned to recipients key in config
         expect(wrapper.vm.eventAction.config.recipients).toEqual({
             'mail1@example.com': 'Mail 1'
@@ -311,15 +303,12 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
 
     it('should update recipients when local variable recipients is changed', async () => {
         const wrapper = createWrapper('54321');
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onUpdateRecipientsList([]);
-        // Execute safe method
+
         wrapper.vm.onSave();
 
-        await wrapper.vm.$nextTick();
         // Verify recipients array gets converted and assigned to recipients key in config
         expect(wrapper.vm.eventAction.config.recipients).toBeUndefined();
     });
@@ -328,9 +317,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
         const wrapper = createWrapper('54321', [
             'event_action.viewer'
         ]);
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect save button to be disabled
         expect(wrapper.find('.sw-event-action-detail__save-action').attributes().disabled).toBeTruthy();
@@ -348,9 +335,7 @@ describe('src/module/sw-event-action/page/sw-event-action-detail', () => {
             'event_action.viewer',
             'event_action.editor'
         ]);
-
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect save button to be disabled
         expect(wrapper.find('.sw-event-action-detail__save-action').attributes().disabled).toBeFalsy();

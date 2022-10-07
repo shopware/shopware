@@ -53,7 +53,9 @@ function createWrapper(privileges = []) {
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
             'sw-block-field': Shopware.Component.build('sw-block-field')
-        }
+        },
+
+        attachTo: document.body,
     });
 }
 

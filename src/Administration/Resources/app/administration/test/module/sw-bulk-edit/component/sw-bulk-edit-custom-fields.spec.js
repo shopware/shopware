@@ -109,17 +109,20 @@ function createWrapper(customProps = {}) {
             'sw-text-editor': true
         },
         provide: {
-            validationService: {}
-        }
+            validationService: {},
+            repositoryFactory: {
+                create: () => ({
+                    search: () => Promise.resolve(),
+                    get: () => Promise.resolve(),
+                }),
+            }
+        },
+        attachTo: document.body,
     });
 }
 
 describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     let wrapper;
-
-    beforeAll(() => {
-        global.repositoryFactoryMock.showError = false;
-    });
 
     beforeEach(() => {
         Shopware.Utils.debounce = () => {};
@@ -151,7 +154,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await wrapper.vm.$nextTick();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        changeToggle.find('.sw-field__checkbox input').trigger('click');
+        await changeToggle.find('.sw-field__checkbox input').setChecked();
 
         await wrapper.vm.$nextTick();
 
@@ -165,7 +168,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await wrapper.vm.$nextTick();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        changeToggle.find('.sw-field__checkbox input').trigger('click');
+        await changeToggle.find('.sw-field__checkbox input').setChecked();
 
         await wrapper.vm.$nextTick();
 
@@ -200,7 +203,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.vm.selectedCustomFields.field1).toBe(undefined);
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
-        changeToggle.find('.sw-field__checkbox input').trigger('click');
+        await changeToggle.find('.sw-field__checkbox input').setChecked();
 
         await wrapper.vm.$nextTick();
 

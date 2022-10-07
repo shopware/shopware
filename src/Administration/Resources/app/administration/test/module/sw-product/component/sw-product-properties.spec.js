@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-properties';
 import 'src/app/component/utils/sw-inherit-wrapper';
 import 'src/app/component/base/sw-card';
+import flushPromises from 'flush-promises';
 
 const { Component, State } = Shopware;
 
@@ -162,7 +163,7 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve();
+                        return Promise.resolve({ total: 0 });
                     }
                 })
             },
@@ -353,21 +354,19 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     it('should get properties when changing search term', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
+        const error = new Error('Whoops!');
         wrapper.vm.getProperties = jest.fn(() => {
-            return Promise.reject(new Error('Whoops!'));
+            return Promise.reject(error);
         });
 
-        await wrapper.vm.onChangeSearchTerm('textile');
+        await expect(wrapper.vm.onChangeSearchTerm('textile')).rejects.toEqual(error);
 
         expect(wrapper.vm.searchTerm).toBe('textile');
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('textile');
-        expect(wrapper.vm.getProperties).toHaveBeenCalledTimes(1);
-        wrapper.vm.getProperties.mockRestore();
     });
 
     it('should turn on add properties modal', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
         wrapper.vm.updateNewProperties = jest.fn();
 
         wrapper.vm.turnOnAddPropertiesModal();
@@ -632,13 +631,15 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
     it('should hide sw-inheritance-switch component', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
-        expect(wrapper.find('.sw-inherit-wrapper').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
 
         await wrapper.setProps({
             showInheritanceSwitcher: false
         });
+        expect(wrapper.vm.showInheritanceSwitcher).toBe(false);
 
-        expect(wrapper.find('.sw-inherit-wrapper').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
     });
 });

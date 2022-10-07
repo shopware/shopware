@@ -234,7 +234,12 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     it.each([
         ['.sw-data-grid__row--0 .sw-button-group .sw-button:first-of-type'],
         ['.sw-data-grid__row--2 .sw-button-group .sw-button:last-of-type']
-    ])('should have a first disabled button', (selector) => {
+    ])('should have a first disabled button', async (selector) => {
+        const profileMock = getProfileMock();
+        profileMock.systemDefault = false;
+
+        wrapper = await createWrapper(profileMock);
+
         const upwardsButton = wrapper.find(selector);
 
         expect(upwardsButton.attributes('disabled')).toBe('disabled');

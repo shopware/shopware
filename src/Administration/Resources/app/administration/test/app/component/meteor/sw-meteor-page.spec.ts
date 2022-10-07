@@ -3,6 +3,7 @@ import type { Wrapper } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import flushPromises from 'flush-promises';
 
 const MeteorPage = Shopware.Component.build('sw-meteor-page');
 
@@ -32,7 +33,16 @@ function createWrapper(slotsData = {}) {
                         color: '#189EFF'
                     }
                 }
-            }
+            },
+            $router: {
+                resolve() {
+                    return {
+                        resolved: {
+                            matched: [],
+                        }
+                    };
+                }
+            },
         },
         slots: slotsData,
         propsData: {
@@ -46,8 +56,10 @@ function createWrapper(slotsData = {}) {
 describe('src/app/component/meteor/sw-meteor-page', () => {
     let wrapper: Wrapper<typeof MeteorPage>;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         wrapper = createWrapper();
+
+        await flushPromises();
     });
 
     afterEach(async () => {

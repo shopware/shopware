@@ -20,25 +20,38 @@
     - when: manual
       allow_failure: true
 
+.downstream-release-branch-creation:
+  stage: downstream
+  image: curlimages/curl:7.72.0
+  needs: [ ]
+  variables:
+    DOWNSTREAM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+  rules:
+    - !reference [ .rules, skip ]
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
+    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
+    - when: never
+  script:
+    - .gitlab/bin/create_downstream_branch.sh "${DOWNSTREAM_PROJECT_PATH}" "${DOWNSTREAM_BRANCH}" "${DOWNSTREAM_PARENT_BRANCH}"
+
 .downstream-release:
   stage: downstream
   image: curlimages/curl:7.72.0
   needs: [ ]
   variables:
-    DOWNSTREAM_BRANCH: trunk
+    DOWNSTREAM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
   rules:
     - !reference [ .rules, skip ]
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
     - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
     - when: never
-  before_script:
-    - if [ "${CI_PIPELINE_SOURCE}" = 'merge_request_event' ]; then export DOWNSTREAM_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"; else export DOWNSTREAM_BRANCH="${CI_COMMIT_BRANCH}"; fi
   script:
-    - curl --request POST
-        --form "token=${CI_JOB_TOKEN}"
-        --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}"
-        --form "ref=${DOWNSTREAM_BRANCH}"
+    - >
+      curl -f -X POST \
+        --form "token=${CI_JOB_TOKEN}" \
+        --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}" \
+        --form "ref=${DOWNSTREAM_BRANCH}" \
         "${CI_API_V4_URL}/projects/${DOWNSTREAM_PROJECT_PATH}/trigger/pipeline"
 
 rufus trunk:
@@ -55,8 +68,22 @@ commercial trunk:
     branch: trunk
     strategy: depend
 
+create downstream branch:
+  extends: .downstream-release-branch-creation
+  parallel:
+    matrix:
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
+        DOWNSTREAM_PARENT_BRANCH: 'trunk'
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
+        DOWNSTREAM_PARENT_BRANCH: 'trunk'
+      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
+        DOWNSTREAM_PARENT_BRANCH: '6.4'
+
 trigger downstream build:
   extends: .downstream-release
+  needs:
+    - job: 'create downstream branch'
+      artifacts: false
   parallel:
     matrix:
       - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]

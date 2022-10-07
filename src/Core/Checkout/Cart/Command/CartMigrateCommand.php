@@ -244,7 +244,7 @@ class CartMigrateCommand extends Command
 
         $this->progress->finish();
 
-        $this->io->success('Migration from Redis to SQL was successful');
+        $this->io->success('Migration from SQL to Redis was successful');
 
         $this->io->newLine(2);
 

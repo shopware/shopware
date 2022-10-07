@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-result/';
+import flushPromises from 'flush-promises';
 
+const swSelectResult = Shopware.Component.build('sw-select-result');
+swSelectResult.methods.checkIfSelected = jest.fn();
 
 function createWrapper(innerTemplate = '') {
-    const swSelectResult = Shopware.Component.build('sw-select-result');
     const Parent = {
         components: {
             swSelectResult
@@ -56,7 +58,8 @@ function createWrapper(innerTemplate = '') {
             },
             setActiveItemIndex: () => {
             }
-        }
+        },
+        attachTo: document.body
     });
 }
 
@@ -64,8 +67,9 @@ function createWrapper(innerTemplate = '') {
 describe('src/app/component/form/select/base/sw-select-result/', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         wrapper = createWrapper();
+        await flushPromises();
     });
     afterEach(() => {
         wrapper.destroy();
@@ -77,13 +81,12 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
     });
 
     it('should react on $parent.$parent event', async () => {
-        const swSelectResult = wrapper.find('.sw-select-result').vm;
-        swSelectResult.checkIfSelected = jest.fn();
-        const checkIfSelectedSpy = swSelectResult.checkIfSelected;
-
-        expect(checkIfSelectedSpy).toBeCalledTimes(0);
+        const swSelectResultWrapper = wrapper.find('.sw-select-result').vm;
+        expect(swSelectResult.methods.checkIfSelected).toBeCalledTimes(0);
         wrapper.vm.emitSelectItemByKeyboard();
-        wrapper.vm.$nextTick().then(() => expect(checkIfSelectedSpy).toBeCalledTimes(1));
+        await wrapper.vm.$nextTick();
+        await swSelectResultWrapper.$nextTick();
+        expect(swSelectResult.methods.checkIfSelected).toBeCalledTimes(1);
     });
 
     it('should remove the event listener', async () => {

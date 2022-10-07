@@ -62,6 +62,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     beforeEach(async () => {
+        Shopware.State.registerModule('shopwareExtensions', {
+            state: {
+                myExtensions: { data: { length: 0, find: () => null, } },
+            }
+        });
         wrapper = await createWrapper();
     });
 

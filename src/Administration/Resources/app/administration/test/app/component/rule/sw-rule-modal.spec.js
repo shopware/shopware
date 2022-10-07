@@ -6,10 +6,10 @@ function createRuleMock(isNew) {
         id: '1',
         name: 'Test rule',
         isNew: () => isNew,
-        conditions: {
+        conditions: [{
             entity: 'rule',
             source: 'foo/rule'
-        }
+        }]
     };
 }
 

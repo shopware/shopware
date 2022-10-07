@@ -49,6 +49,7 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
     let wrapper;
 
     beforeEach(() => {
+        Shopware.Application.view.deleteReactive = () => {};
         wrapper = createWrapper();
     });
 

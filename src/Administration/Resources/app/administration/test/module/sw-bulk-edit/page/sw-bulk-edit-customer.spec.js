@@ -160,12 +160,17 @@ function createWrapper(isResponseError = false) {
             'sw-label': true,
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-extension-component-section': true,
+            'sw-help-center': true,
+            'sw-ignore-class': true,
+            'sw-entity-tag-select': true,
         },
         props: {
             title: 'Foo bar'
         },
         provide: {
             validationService: {},
+            orderDocumentApiService: {},
             repositoryFactory: {
                 create: () => {
                     return {
@@ -184,11 +189,11 @@ function createWrapper(isResponseError = false) {
                         },
                         search: () => Promise.resolve([
                             {
-                                id: 1,
+                                id: '1',
                                 name: 'customer 1'
                             },
                             {
-                                id: 2,
+                                id: '2',
                                 name: 'customer 2'
                             }
                         ]),
@@ -210,7 +215,7 @@ function createWrapper(isResponseError = false) {
                     return {
                         bulkEdit: (selectedIds) => {
                             if (isResponseError) {
-                                return Promise.reject(new Error('error occured'));
+                                return Promise.reject(new Error('error occurred'));
                             }
 
                             if (selectedIds.length === 0) {
@@ -222,7 +227,7 @@ function createWrapper(isResponseError = false) {
 
                         bulkEditRequestedGroup: (selectedIds) => {
                             if (isResponseError) {
-                                return Promise.reject(new Error('error occured'));
+                                return Promise.reject(new Error('error occurred'));
                             }
 
                             if (selectedIds.length === 0) {
@@ -238,7 +243,8 @@ function createWrapper(isResponseError = false) {
                 startEventListener: () => {},
                 stopEventListener: () => {}
             }
-        }
+        },
+        attachTo: document.body,
     });
 }
 
@@ -360,6 +366,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
     });
 
     it('should open error modal', async () => {
+        const spy = jest.spyOn(console, 'error').mockImplementation();
         wrapper = createWrapper(true);
         await flushPromises();
 
@@ -385,6 +392,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await flushPromises();
 
         expect(wrapper.vm.$route.path).toEqual('/error');
+        expect(spy).toBeCalledWith(
+            new Error('error occurred')
+        );
     });
 
     it('should show tags and custom fields card', async () => {

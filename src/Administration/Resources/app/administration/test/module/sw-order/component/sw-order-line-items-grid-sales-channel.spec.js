@@ -193,7 +193,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
                     });
                 },
                 getCart: () => {
-                    return Promise.resolve();
+                    return Promise.resolve({ data: { lineItems: [] } });
                 },
             };
         });

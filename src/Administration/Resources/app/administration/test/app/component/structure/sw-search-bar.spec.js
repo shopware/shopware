@@ -238,7 +238,8 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                 }
             }
         },
-        propsData: props
+        propsData: props,
+        attachTo: document.body,
     });
 }
 

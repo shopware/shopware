@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-general-info';
+import flushPromises from 'flush-promises';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const orderMock = {
     orderNumber: 10000,
@@ -104,6 +106,18 @@ function createWrapper() {
             },
             feature: {
                 isActive: () => true
+            },
+            repositoryFactory: {
+                create() {
+                    return {
+                        search: () => Promise.resolve(new EntityCollection(
+                            '',
+                            '',
+                            Shopware.Context.api,
+                            null,
+                        )),
+                    };
+                },
             }
         },
         stubs: {
@@ -130,10 +144,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         });
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
         global.repositoryFactoryMock.showError = false;
         wrapper = createWrapper();
+        await flushPromises();
     });
 
     afterEach(() => {

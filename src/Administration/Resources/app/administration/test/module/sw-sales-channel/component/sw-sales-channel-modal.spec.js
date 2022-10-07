@@ -1,13 +1,21 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    const searchFunction = jest.fn(() => Promise.resolve());
+    const searchFunction = jest.fn(() => Promise.resolve(new EntityCollection(
+        '',
+        '',
+        Shopware.Context.api,
+        null,
+        [],
+        0
+    )));
 
     return {
         searchFunction,
@@ -18,7 +26,10 @@ function createWrapper() {
                 'sw-icon': true,
                 'sw-button': true,
                 'sw-sales-channel-modal-grid': Shopware.Component.build('sw-sales-channel-modal-grid'),
-                'sw-loader': true
+                'sw-sales-channel-modal-detail': true,
+                'sw-loader': true,
+                'sw-grid': true,
+                'sw-grid-column': true,
             },
             provide: {
                 repositoryFactory: {
@@ -33,7 +44,13 @@ function createWrapper() {
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => {
     it('should be a Vue.js component', async () => {
-        const { wrapper } = await createWrapper();
+        const { wrapper } = createWrapper();
+        await wrapper.setData({
+            detailType: 'foo'
+        });
+        await flushPromises();
+
+
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -41,7 +58,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-modal/', () => 
         // set the interface language
         Shopware.State.get('session').languageId = 'dutchLanguageId';
 
-        const { searchFunction } = await createWrapper();
+        const { searchFunction, wrapper } = createWrapper();
+        await wrapper.setData({
+            detailType: 'foo'
+        });
+        await flushPromises();
+
         const lastSearchParameters = searchFunction.mock.calls[searchFunction.mock.calls.length - 1];
 
         expect(lastSearchParameters[1].languageId).toEqual('dutchLanguageId');

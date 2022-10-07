@@ -39,9 +39,11 @@ describe('src/component/grid/sw-pagination', () => {
 
             // visit next page
             await nextPageButton.trigger('click');
+            await wrapper.vm.$nextTick();
         } else {
             // visit next page
             await arrowButton.trigger('click');
+            await wrapper.vm.$nextTick();
         }
 
         if (direction === 'right') {
@@ -50,7 +52,7 @@ describe('src/component/grid/sw-pagination', () => {
             currentPage -= 1;
         }
 
-        checkNextPage(currentPage, direction, arrowButton);
+        await checkNextPage(currentPage, direction, arrowButton);
     }
 
     function createWrapper() {
@@ -68,7 +70,8 @@ describe('src/component/grid/sw-pagination', () => {
                 'sw-field': {
                     template: '<div class="field"></div>'
                 }
-            }
+            },
+            attachTo: document.body,
         });
     }
 
@@ -205,8 +208,8 @@ describe('src/component/grid/sw-pagination', () => {
         const startingPoint = wrapper.vm.currentPage;
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
-        checkNextPage(startingPoint, 'right', rightArrow);
-        checkNextPage(11, 'left', leftArrow);
+        await checkNextPage(startingPoint, 'right', rightArrow);
+        await checkNextPage(11, 'left', leftArrow);
     });
 
     it('should jump to first page', async () => {

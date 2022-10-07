@@ -20,8 +20,12 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
             },
             provide: {
                 repositoryFactory: {},
-                configService: {},
-                mediaService: {}
+                configService: {
+                    getConfig: () => Promise.resolve({ settings: { enableUrlFeature: false } }),
+                },
+                mediaService: {
+                    addListener: () => {},
+                }
             },
             propsData: {
                 uploadTag: 'my-upload'

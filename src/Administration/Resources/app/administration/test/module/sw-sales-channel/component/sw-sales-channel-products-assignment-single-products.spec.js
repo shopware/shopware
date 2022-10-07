@@ -85,7 +85,8 @@ function createWrapper() {
                 name: 'Headless'
             },
             containerStyle: {}
-        }
+        },
+        attachTo: document.body,
     });
 }
 

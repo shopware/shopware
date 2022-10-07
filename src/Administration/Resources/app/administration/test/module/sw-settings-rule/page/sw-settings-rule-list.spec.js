@@ -37,7 +37,10 @@ function createWrapper(privileges = []) {
             filterFactory: {
                 create: (name, filters) => filters,
             },
-            filterService: FilterService,
+            filterService: new FilterService({ userConfigRepository: {
+                search: () => Promise.resolve({ length: 0 }),
+                create: () => ({}),
+            } }),
             ruleConditionDataProviderService: {
                 getConditions: () => {
                     return [{ type: 'foo', label: 'bar' }];
@@ -67,6 +70,15 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
+    beforeEach(() => {
+        Shopware.Application.view.router = {
+            currentRoute: {
+                query: ''
+            },
+            push: () => {}
+        };
+    });
+
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();

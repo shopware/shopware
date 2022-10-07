@@ -79,7 +79,8 @@ function createWrapper(privileges = []) {
             'sw-help-text': true,
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-loader': true,
-            'sw-alert': true
+            'sw-alert': true,
+            'sw-custom-field-type-select': true,
         },
     });
 }

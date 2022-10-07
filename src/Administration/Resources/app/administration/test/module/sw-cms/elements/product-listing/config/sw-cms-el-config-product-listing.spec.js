@@ -3,9 +3,17 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-listing/config';
 import 'src/app/component/data-grid/sw-data-grid';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const productSortingRepositoryMock = {
-    search: () => Promise.resolve([]),
+    search: () => Promise.resolve(new EntityCollection(
+        '',
+        '',
+        Shopware.Context.api,
+        null,
+        [{}],
+        1
+    )),
     route: '/product_sorting',
     schema: {
         entity: 'product_sorting'

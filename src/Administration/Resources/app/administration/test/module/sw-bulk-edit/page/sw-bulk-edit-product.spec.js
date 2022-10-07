@@ -365,11 +365,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const infoForm = wrapper.find('.sw-bulk-edit-product-base__info');
         const activeField = infoForm.find('.sw-bulk-edit-change-field-active');
-        await activeField.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await activeField.find('.sw-bulk-edit-change-field__change input').setChecked();
 
         await wrapper.vm.$nextTick();
 
-        await activeField.find('.sw-field--switch__input input').trigger('click');
+        await activeField.find('.sw-field--switch__input input').setChecked();
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 
@@ -518,7 +518,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const minPurchaseFieldForm = wrapper.find('.sw-bulk-edit-change-field-minPurchase');
-        await minPurchaseFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await minPurchaseFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -539,7 +539,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const minPurchaseField = wrapper.find('.sw-bulk-edit-change-field-minPurchase');
-        await minPurchaseField.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await minPurchaseField.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         await minPurchaseField.find('.sw-select__selection').trigger('click');
@@ -573,7 +573,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await priceGrossInput.setValue('6');
         await wrapper.vm.$nextTick();
 
-        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setChecked();
 
         wrapper.vm.onProcessData();
 
@@ -593,14 +593,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         const priceFields = priceFieldsForm.find('.sw-price-field');
         const priceGrossInput = priceFields.find('#price-gross');
         await priceGrossInput.setValue('6');
         await wrapper.vm.$nextTick();
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
-        await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
@@ -630,7 +630,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await priceGrossInput.setValue('6');
         await wrapper.vm.$nextTick();
 
-        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setChecked();
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
 
@@ -639,7 +639,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await listPriceGrossInput.setValue('5');
         await wrapper.vm.$nextTick();
 
-        await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -667,7 +667,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const categoriesFieldForm = wrapper.find('.sw-bulk-edit-change-field-categories');
-        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -693,7 +693,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const categoriesFieldForm = wrapper.find('.sw-bulk-edit-change-field-visibilities');
-        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -719,7 +719,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const categoriesFieldForm = wrapper.find('.sw-bulk-edit-change-field-media');
-        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -737,7 +737,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const minPurchaseFieldForm = wrapper.find('.sw-bulk-edit-change-field-searchKeywords');
-        await minPurchaseFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await minPurchaseFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.onProcessData();
@@ -763,7 +763,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const advancedPricesFieldForm = wrapper.find('.sw-bulk-edit-product-base__advanced-prices');
-        await advancedPricesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await advancedPricesFieldForm.find('.sw-bulk-edit-change-field__change input').setChecked();
 
         await wrapper.vm.$nextTick();
 

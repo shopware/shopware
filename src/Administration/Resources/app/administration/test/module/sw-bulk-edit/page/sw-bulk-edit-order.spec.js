@@ -160,6 +160,15 @@ function createWrapper(isResponseError = false) {
             'sw-label': true,
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'sw-ignore-class': true,
+            'sw-extension-component-section': true,
+            'sw-bulk-edit-order-documents-generate-invoice': true,
+            'sw-bulk-edit-order-documents-generate-cancellation-invoice': true,
+            'sw-bulk-edit-order-documents-generate-delivery-note': true,
+            'sw-bulk-edit-order-documents-generate-credit-note': true,
+            'sw-bulk-edit-order-documents-download-documents': true,
+            'sw-entity-tag-select': true,
+            'sw-inherit-wrapper': true,
         },
         props: {
             title: 'Foo bar'
@@ -366,7 +375,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').trigger('click');
+        wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setChecked();
 
         await wrapper.vm.$nextTick();
 
@@ -382,7 +391,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').trigger('click');
+        wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').setChecked();
 
         await wrapper.vm.$nextTick();
 
@@ -398,7 +407,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').trigger('click');
+        wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').setChecked();
 
         await wrapper.vm.$nextTick();
 
@@ -624,7 +633,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             field1: 'abc'
         };
 
-        await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').setChecked();
         await wrapper.vm.$nextTick();
 
         const { syncData } = wrapper.vm.onProcessData();
@@ -637,35 +646,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const changeCustomField = syncData[1];
         expect(changeCustomField.field).toBe('customFields');
         expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
-    });
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed
-     */
-    it('should call check using deprecated method on creating component', async () => {
-        const activeFeatureFlags = global.activeFeatureFlags;
-
-        global.activeFeatureFlags = ['v6.5.0.0'];
-
-        wrapper = createWrapper();
-
-        const shouldShowBulkEditDocumentWarningCall = jest.spyOn(wrapper.vm, 'shouldShowBulkEditDocumentWarning');
-
-        await wrapper.vm.createdComponent();
-
-        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(0);
-
-        global.activeFeatureFlags = [];
-
-        await wrapper.vm.createdComponent();
-
-        expect(shouldShowBulkEditDocumentWarningCall).toHaveBeenCalledTimes(1);
-
-        await wrapper.setData({
-            isLoadedData: false,
-        });
-
-        global.activeFeatureFlags = activeFeatureFlags;
     });
 
     it('should set route meta module when component created', () => {

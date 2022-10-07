@@ -110,7 +110,16 @@ describe('components/sw-entity-multi-select', () => {
                                 if (context !== 'test') {
                                     checkAssociation(searchCriteria);
                                 }
-                                return Promise.resolve();
+                                return Promise.resolve(
+                                    new EntityCollection(
+                                        '',
+                                        '',
+                                        Shopware.Context.api,
+                                        new Criteria(1, 1),
+                                        [],
+                                        0
+                                    )
+                                );
                             },
                         };
                     }

@@ -147,7 +147,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(warningModal.isVisible()).toBe(true);
 
         const hideCheckbox = warningModal.find('input[type=\'checkbox\']');
-        hideCheckbox.trigger('click');
+        hideCheckbox.setChecked();
 
         await wrapper.vm.handleUpload([createFile()]);
 

@@ -9,6 +9,13 @@ function createOrderDocumentApiService() {
     const loginService = createLoginService(client, Shopware.Context.api);
     const orderDocumentApiService = new OrderDocumentApiService(client, loginService);
 
+    clientMock.onAny().reply(
+        200,
+        {
+            data: null
+        }
+    );
+
     return { orderDocumentApiService, clientMock };
 }
 

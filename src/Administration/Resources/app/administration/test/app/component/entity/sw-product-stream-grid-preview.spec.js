@@ -79,7 +79,8 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
                         search: () => Promise.resolve(mockProducts)
                     })
                 }
-            }
+            },
+            attachTo: document.body,
         });
     });
 

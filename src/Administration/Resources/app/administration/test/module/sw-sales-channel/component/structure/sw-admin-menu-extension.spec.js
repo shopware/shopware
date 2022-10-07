@@ -26,7 +26,7 @@ function createWrapper(privileges = []) {
                 notifyOnLoginListener: () => {}
             },
             userService: {
-                getUser: () => Promise.resolve({})
+                getUser: () => Promise.resolve({ data: {} })
             },
             menuService,
             acl: {

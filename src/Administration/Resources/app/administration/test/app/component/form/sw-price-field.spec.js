@@ -57,6 +57,26 @@ const setup = (propOverride) => {
 };
 
 describe('components/form/sw-price-field', () => {
+    beforeEach(() => {
+        Shopware.Application.getContainer = () => {
+            return {
+                apiService: {
+                    getByName() {
+                        return {
+                            calculatePrice() {
+                                return Promise.resolve({
+                                    data: {
+                                        calculatedTaxes: [],
+                                    }
+                                });
+                            }
+                        };
+                    }
+                }
+            };
+        };
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = setup();
         expect(wrapper.vm).toBeTruthy();
@@ -125,9 +145,9 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net).toBe(0);
     });
 
-    it('should calculate values if inherited and price is not set', () => {
+    it('should calculate values if inherited and price is not set', async () => {
         const wrapper = setup({ allowEmpty: false });
-        wrapper.setProps({
+        await wrapper.setProps({
             price: [euroPrice]
         });
 
@@ -136,9 +156,9 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
     });
 
-    it('should set values to null if not inherited and price is not set', () => {
+    it('should set values to null if not inherited and price is not set', async () => {
         const wrapper = setup({ allowEmpty: false });
-        wrapper.setProps({
+        await wrapper.setProps({
             price: [euroPrice],
             inherited: false
         });

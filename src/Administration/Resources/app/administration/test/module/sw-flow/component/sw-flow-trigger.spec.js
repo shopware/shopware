@@ -105,7 +105,7 @@ function createWrapper(propsData) {
             eventName: '',
             ...propsData
         },
-        attachTo: document.getElementById('root')
+        attachTo: document.body
     });
 }
 
@@ -276,7 +276,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
     });
 
-    it('should able to close the event selection by tab or escape key', async () => {
+    it('should be able to close the event selection by tab key', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
@@ -298,9 +298,15 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         // Selection is collapsed
         eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
         expect(eventSelection.exists()).toBeFalsy();
+    });
 
+    it('should be able to close the event selection by escape key', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
         await searchField.trigger('focus');
-        eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
+        let eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
         expect(eventSelection.exists()).toBeTruthy();
 
         // Press escape button to close the tree

@@ -202,7 +202,7 @@ Component.register('sw-product-properties', {
 
         onChangeSearchTerm(searchTerm) {
             this.searchTerm = searchTerm;
-            this.getProperties();
+            return this.getProperties();
         },
 
         turnOnAddPropertiesModal() {

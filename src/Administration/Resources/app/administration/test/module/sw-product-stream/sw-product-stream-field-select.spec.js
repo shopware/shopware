@@ -48,11 +48,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have a disabled prop', () => {
+    it('should have a disabled prop', async () => {
         const wrapper = createWrapper();
         expect(wrapper.props('disabled')).toBe(false);
 
-        wrapper.setProps({ disabled: true });
+        await wrapper.setProps({ disabled: true });
+
         expect(wrapper.props('disabled')).toBe(true);
     });
 

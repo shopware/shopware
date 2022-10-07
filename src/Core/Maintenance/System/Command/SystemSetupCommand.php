@@ -101,7 +101,7 @@ class SystemSetupCommand extends Command
         }
 
         if (empty($env['COMPOSER_HOME'])) {
-            $env['COMPOSER_HOME'] = "{$this->projectDir}/var/cache/composer";
+            $env['COMPOSER_HOME'] = $this->projectDir . '/var/cache/composer';
         }
 
         $io = new SymfonyStyle($input, $output);

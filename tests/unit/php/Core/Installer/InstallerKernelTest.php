@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Installer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
 use Shopware\Core\TestBootstrapper;
@@ -15,8 +17,12 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
  */
 class InstallerKernelTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testItCorrectlyConfiguresTheContainer(): void
     {
+        $this->setEnvVars(['COMPOSER_HOME' => null]);
+
         $kernel = new InstallerKernel('test', false);
 
         $kernel->boot();
@@ -35,6 +41,9 @@ class InstallerKernelTest extends TestCase
             $kernel->getContainer()->getParameter('kernel.bundles')
         );
 
-        static::assertSame((new TestBootstrapper())->getProjectDir(), $kernel->getContainer()->getParameter('kernel.project_dir'));
+        $projectDir = (new TestBootstrapper())->getProjectDir();
+
+        static::assertSame($projectDir, $kernel->getContainer()->getParameter('kernel.project_dir'));
+        static::assertSame($projectDir . '/var/cache/composer', EnvironmentHelper::getVariable('COMPOSER_HOME'));
     }
 }

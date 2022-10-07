@@ -4,8 +4,6 @@ Symfony security check:
     extends: .long-running
     stage: unit
     needs: []
-    # Reactivate after NEXT-23464
-    allow_failure: true
     image: shopware/development:7.4-composer-2
     before_script: []
     script:

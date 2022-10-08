@@ -42,6 +42,7 @@ Component.register('sw-settings-country-general', {
 
     data() {
         return {
+            testVatId: '',
             showCurrencyModal: false,
             currencyDependsValue: [],
             currencies: [],
@@ -63,6 +64,25 @@ Component.register('sw-settings-country-general', {
 
         ...mapPropertyErrors('country', ['name']),
 
+        isTestVatValid() {
+            if (this.testVatId === '') {
+                return false;
+            }
+
+            if (!this.country.vatIdPattern) {
+                return true;
+            }
+
+            let pattern = this.country.vatIdPattern;
+
+            if ((pattern.indexOf('^') === -1) && (pattern.indexOf('&') === -1)) {
+                pattern = `^(${pattern})$`;
+            }
+
+            const regex = new RegExp(pattern);
+
+            return regex.test(this.testVatId);
+        },
     },
 
     created() {

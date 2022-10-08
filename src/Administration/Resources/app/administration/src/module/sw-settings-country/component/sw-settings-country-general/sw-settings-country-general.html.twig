@@ -247,6 +247,33 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_general_content_check_vat_id_format %}
+            <sw-text-field
+                v-model="testVatId"
+                :disabled="!country.vatIdPattern"
+                :label="$tc('sw-settings-country.detail.labelCheckVatIdFormat')"
+                :placeholder="country.vatIdPattern ? $tc('sw-settings-country.detail.placeholderTestVatIdFormat') : $tc('sw-settings-country.detail.tooltipTestVatIdFormatNoFormat')"
+            >
+                <template slot="suffix">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_country_general_content_check_vat_id_format_suffix %}
+                        <span v-if="!testVatId"></span>
+                        <sw-icon
+                            v-else-if="isTestVatValid"
+                            v-tooltip="$tc('sw-settings-country.detail.tooltipTestVatIdFormatValid')"
+                            name="regular-checkmark"
+                        />
+                        <sw-icon
+                            v-else
+                            v-tooltip="$tc('sw-settings-country.detail.tooltipTestVatIdFormatInvalid')"
+                            name="regular-times"
+                        />
+                    {% endblock %}
+                </template>
+            </sw-text-field>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_vat_id_required %}
             <sw-switch-field
                 v-model="country.vatIdRequired"

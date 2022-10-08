@@ -141,7 +141,9 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
             <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+                <sw-alert variant="warning">
+                    {{ bulkDeleteWarningMessage(selectionCount) }}
+                </sw-alert>
             </template>
             {% endblock %}
         </sw-entity-listing>

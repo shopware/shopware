@@ -156,7 +156,7 @@ shopware.installer:
     select_country_guy: Guyana
     select_country_hti: Haiti
     select_country_hmd: 'Territory of Heard Island and McDonald Islands'
-    select_country_vat: 'Holy See'
+    select_country_vat: 'Vatican City'
     select_country_hnd: Honduras
     select_country_hkg: 'Hong Kong'
     select_country_ind: India

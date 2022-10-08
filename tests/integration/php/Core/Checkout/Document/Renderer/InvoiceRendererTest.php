@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Document\Renderer;
+namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
@@ -263,6 +264,54 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
                 static::assertStringContainsString('VAT-123123', $rendered);
                 static::assertStringContainsString('123123123', $rendered);
+            },
+        ];
+
+        yield 'render with billing address' => [
+            [7],
+            function (DocumentGenerateOperation $operation): void {
+                $orderId = $operation->getOrderId();
+                $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
+
+                /** @var OrderEntity $order */
+                $order = $this->getContainer()->get('order.repository')
+                    ->search($criteria, $this->context)->get($orderId);
+
+                static::assertNotNull($order->getOrderCustomer());
+                $this->getContainer()->get('customer.repository')->update([[
+                    'id' => $order->getOrderCustomer()->getCustomerId(),
+                    'vatIds' => ['VAT-123123'],
+                ]], $this->context);
+
+                $operation->assign([
+                    'config' => [
+                        'displayLineItems' => true,
+                        'displayFooter' => true,
+                        'displayHeader' => true,
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
+
+                static::assertNotNull($order->getAddresses());
+
+                /** @var OrderAddressEntity $orderAddress */
+                $orderAddress = $order->getAddresses()->first();
+                $rendered = $rendered->getHtml();
+
+                static::assertNotNull($orderAddress->getSalutation());
+                static::assertNotNull($orderAddress->getCountry());
+                static::assertNotNull($orderAddress->getCountry()->getName());
+                static::assertNotNull($orderAddress->getSalutation()->getLetterName());
+                static::assertNotNull($orderAddress->getSalutation()->getDisplayName());
+
+                static::assertStringContainsString($orderAddress->getStreet(), $rendered);
+                static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
+                static::assertStringContainsString($orderAddress->getCity(), $rendered);
+                static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
+                static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
+                static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
             },
         ];
 

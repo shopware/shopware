@@ -85,8 +85,8 @@ describe('Form country state select plugin', () => {
 
                 <select class="country-select" data-initial-country-id="">
                     <option disabled="disabled" value="">Select country...</option>
-                    <option value="1" selected="selected" data-vat-id-required="1" data-state-required="0">Netherlands</option>
-                    <option value="2" data-vat-id-required="0" data-state-required="0">Germany</option>
+                    <option value="1" selected="selected" data-zipcode-required="0" data-vat-id-required="1" data-state-required="0">Netherlands</option>
+                    <option value="2" data-vat-id-required="0" data-zipcode-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
                     <option>Select state..</option>
@@ -113,28 +113,20 @@ describe('Form country state select plugin', () => {
     it('should set zipcode field to required when a country with required one setting is selected', () => {
         template = `
             <form id="registerForm" action="/register" method="post">
-               <div class="form-group col-md-2 col-4">
-                  <label class="form-label" for="addressZipcode">
-                  Postal code<span id="zipcodeRequiredLabel">*</span>
-                  </label>
-                  <input type="text" class="form-control" id="addressZipcode" value="" data-input-name="zipcodeInput">
-               </div>
-               <div class="form-group col-md-6">
-                  <select class="country-select" data-initial-country-id="">
-                     <option disabled="disabled" value="">Select country...</option>
-                     <option value="1" selected="selected" data-placeholder-option="true">Germany</option>
-                     <option value="2">Netherlands</option>
-                  </select>
-               </div>
-               <div class="form-group col-md-6">
-                  <label class="form-label" for="countryState">State</label>
-                  <select class="country-state-select" data-initial-country-state-id="" id="countryState">
-                     <option disabled="disabled" value="">Select state..</option>
-                     <option>Select state..</option>
-                     <option value="1" selected="selected" data-placeholder-option="true">Bavaria</option>
-                     <option value="2">Hamburg</option>
-                  </select>
-               </div>
+               <label class="form-label" for="addressZipcode">
+                   Postal code<span id="zipcodeLabel" class="d-none">*</span>
+               </label>
+
+               <input type="text" class="form-control" id="addressZipcode" value="" data-input-name="zipcodeInput">
+
+               <select class="country-select" data-initial-country-id="">
+                  <option disabled="disabled" value="">Select country...</option>
+                  <option value="1" data-vat-id-required="0" data-zipcode-required="1" data-state-required="1" selected="selected" data-placeholder-option="true">Germany</option>
+               </select>
+
+               <select class="country-state-select" data-initial-country-state-id="">
+                 <option>Select state..</option>
+               </select>
             </form>
         `;
 
@@ -142,21 +134,13 @@ describe('Form country state select plugin', () => {
 
         createPlugin();
 
-        const formCountryStateSelectPlugin = createPlugin();
-        const spy = jest.spyOn(formCountryStateSelectPlugin._client, 'post').mockImplementation(
-            (url, payload,cb) => { cb(
-                JSON.stringify({
-                    zipcodeRequired: true,
-                    states: [],
-                })
-            )});
+        expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(false);
+        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(true);
 
-        formCountryStateSelectPlugin.requestStateData('countryId', 'countryStateId')
+        // Perform selection
+        document.querySelector('.country-select').dispatchEvent(new Event('change'));
 
-        expect(spy).toHaveBeenCalled();
         expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(true);
-        expect(document.querySelector('#zipcodeRequiredLabel').textContent).toBe('*');
-
-        formCountryStateSelectPlugin._client.post.mockRestore();
+        expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(false);
     });
 });

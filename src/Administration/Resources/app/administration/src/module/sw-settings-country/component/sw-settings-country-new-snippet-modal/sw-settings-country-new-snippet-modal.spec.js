@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal';
+import 'src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal/index';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';

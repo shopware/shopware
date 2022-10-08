@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @internal
+ */
 class Migration1658786605AddAddressFormatIntoCountryTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int

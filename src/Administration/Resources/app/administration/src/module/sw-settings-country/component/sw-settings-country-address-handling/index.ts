@@ -63,7 +63,9 @@ const CUSTOM_SNIPPET_TYPE = {
     SNIPPET: 'snippet',
 } as { PLAIN: string, SNIPPET: string };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ */
 Component.register('sw-settings-country-address-handling', {
     template,
 

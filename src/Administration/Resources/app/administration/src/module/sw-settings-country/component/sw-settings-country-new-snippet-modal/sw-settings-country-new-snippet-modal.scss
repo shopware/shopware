@@ -31,6 +31,14 @@
         }
     }
 
+    .sw-tree-item .sw-tree-item__icon span {
+        padding: 3px;
+    }
+
+    .sw-tree-item .sw-tree-item__toggle span {
+        padding: 5px;
+    }
+
     &__search-field {
         position: relative;
 
@@ -80,5 +88,9 @@
 
     .sw-select .sw-label .sw-label__caption {
         text-align: center;
+    }
+
+    .sw-tree > ::-webkit-scrollbar {
+        display: none;
     }
 }

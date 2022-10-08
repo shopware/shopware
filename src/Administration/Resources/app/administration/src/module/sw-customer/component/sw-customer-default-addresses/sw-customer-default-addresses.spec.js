@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-customer/component/sw-customer-default-addresses';
+import 'src/module/sw-customer/component/sw-customer-default-addresses/index';
 import 'src/app/component/base/sw-address';
 
 function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {

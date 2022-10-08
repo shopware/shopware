@@ -33,7 +33,9 @@ interface DragItem {
 const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ */
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
 

@@ -3,7 +3,9 @@ import './sw-settings-country-preview-template.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ */
 Component.register('sw-settings-country-preview-template', {
     template,
 

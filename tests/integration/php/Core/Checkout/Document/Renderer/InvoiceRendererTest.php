@@ -279,7 +279,6 @@ class InvoiceRendererTest extends TestCase
                 /** @var OrderEntity $order */
                 $order = $this->getContainer()->get('order.repository')
                     ->search($criteria, $this->context)->get($orderId);
-
                 static::assertNotNull($order->getOrderCustomer());
                 $this->getContainer()->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
@@ -313,8 +312,10 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);
                 static::assertStringContainsString($orderAddress->getCountry()->getName(), $rendered);
-                static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
-                static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    static::assertStringNotContainsString($orderAddress->getSalutation()->getLetterName(), $rendered);
+                    static::assertStringContainsString($orderAddress->getSalutation()->getDisplayName(), $rendered);
+                }
             },
         ];
 

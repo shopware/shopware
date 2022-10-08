@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 
-import 'src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop';
+import 'src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop/index';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/base/sw-label';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -203,5 +203,53 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         const menuContextButton = wrapper.findAll('.sw-context-menu-item').at(0);
 
         expect(menuContextButton.attributes().disabled).toBeDefined();
+    });
+
+    it('should emit event `drag-start` when starting drag', async () => {
+        const wrapper = await createWrapper({ totalLines: 1 });
+
+        expect(wrapper.emitted()).toEqual({});
+
+        await wrapper.vm.dragStart();
+
+        expect(wrapper.emitted()['drag-start']).toBeTruthy();
+    });
+
+    it('should emit event `drag-enter` when ending drag', async () => {
+        const wrapper = await createWrapper({ totalLines: 1 });
+
+        expect(wrapper.emitted()).toEqual({});
+
+        await wrapper.vm.onDragEnter(null, null);
+        expect(wrapper.emitted()).toEqual({});
+
+        await wrapper.vm.onDragEnter({ data: {} }, { data: {} });
+        expect(wrapper.emitted()['drag-enter']).toBeTruthy();
+    });
+
+    it('should emit event `drag-end` when drop', async () => {
+        const wrapper = await createWrapper({ totalLines: 1 });
+
+        expect(wrapper.emitted()).toEqual({});
+
+        await wrapper.vm.onDragEnter(null, null);
+        expect(wrapper.emitted()).toEqual({});
+
+        await wrapper.vm.dragEnd(
+            {
+                index: 0,
+                linePosition: 1,
+                snippet: {
+                    type: 'snippet',
+                    value: 'address/company'
+                }
+            }, {
+                index: 1,
+                linePosition: 0,
+                snippet: { type: 'plain', value: '-' }
+            },
+        );
+
+        expect(wrapper.emitted()['drag-end']).toBeTruthy();
     });
 });

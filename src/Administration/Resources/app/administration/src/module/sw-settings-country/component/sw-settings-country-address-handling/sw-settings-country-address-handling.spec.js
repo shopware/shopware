@@ -582,6 +582,129 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(swMultiSnippet.length).toEqual(4);
     });
 
+    it('should be able to save config when starting drag', async () => {
+        wrapper = await createWrapper([
+            'country.editor'
+        ]);
+
+        await wrapper.vm.dragStart({
+            data: {
+                index: 0,
+                snippet: [
+                    { value: 'address/company', type: 'snippet' },
+                    { value: '-', type: 'plain' },
+                    { value: 'address/department', type: 'snippet' },
+                ]
+            }
+        });
+
+        expect(wrapper.vm.draggedItem).toEqual({
+            index: 0,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        });
+    });
+
+    it('should not be able to save config with an invalid item when ending drag', async () => {
+        wrapper = await createWrapper([
+            'country.editor'
+        ]);
+
+        expect(wrapper.vm.draggedItem).toBeNull();
+        expect(wrapper.vm.droppedItem).toBeNull();
+
+        await wrapper.vm.onMouseEnter(null, null);
+
+        expect(wrapper.vm.draggedItem).toBeNull();
+        expect(wrapper.vm.droppedItem).toBeNull();
+
+        await wrapper.vm.dragStart({
+            data: {
+                index: 0,
+                snippet: [
+                    { value: 'address/company', type: 'snippet' },
+                    { value: '-', type: 'plain' },
+                    { value: 'address/department', type: 'snippet' },
+                ]
+            }
+        });
+        expect(wrapper.vm.draggedItem).toEqual({
+            index: 0,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        });
+
+        await wrapper.vm.onMouseEnter({
+            index: 0,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        }, null);
+
+        expect(wrapper.vm.droppedItem).toBeNull();
+    });
+
+    it('should be able to save config when drag ends', async () => {
+        wrapper = await createWrapper([
+            'country.editor'
+        ]);
+
+        expect(wrapper.vm.draggedItem).toBeNull();
+        expect(wrapper.vm.droppedItem).toBeNull();
+
+        await wrapper.vm.dragStart({
+            data: {
+                index: 0,
+                snippet: [
+                    { value: 'address/company', type: 'snippet' },
+                    { value: '-', type: 'plain' },
+                    { value: 'address/department', type: 'snippet' },
+                ]
+            }
+        });
+        expect(wrapper.vm.draggedItem).toEqual({
+            index: 0,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        });
+
+        await wrapper.vm.onMouseEnter({
+            index: 0,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        }, {
+            index: 1,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        });
+
+        expect(wrapper.vm.droppedItem).toEqual({
+            index: 1,
+            snippet: [
+                { value: 'address/company', type: 'snippet' },
+                { value: '-', type: 'plain' },
+                { value: 'address/department', type: 'snippet' },
+            ]
+        });
+    });
+
     it('should be able to sort the list on dragging', async () => {
         wrapper = createWrapper([
             'country.editor'
@@ -630,7 +753,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'country.editor'
         ]);
 
@@ -639,7 +762,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             { type: 'plain', value: '-' },
             { type: 'snippet', value: 'address/department' }
         ]);
-
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
             { type: 'snippet', value: 'address/first_name' },
             { type: 'snippet', value: 'address/last_name' }
@@ -676,6 +798,56 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             { value: 'address/last_name', type: 'snippet' },
             { type: 'snippet', value: 'address/department' }
         ]);
+    });
+
+    it('should be able to swap positions in different lines', async () => {
+        wrapper = await createWrapper([
+            'country.editor'
+        ]);
+
+        await wrapper.setProps({
+            country: {
+                addressFormat: [
+                    [
+                        { type: 'snippet', value: 'address/company' },
+                        { type: 'plain', value: '-' },
+                        { type: 'snippet', value: 'address/department' }
+                    ],
+                    [
+                        { type: 'snippet', value: 'address/first_name' },
+                        { type: 'snippet', value: 'address/last_name' }
+                    ]
+                ]
+            }
+        });
+
+        expect(wrapper.vm.country.addressFormat[0][2]).toEqual({ value: 'address/department', type: 'snippet' });
+        expect(wrapper.vm.country.addressFormat[1][1]).toEqual({ value: 'address/last_name', type: 'snippet' });
+
+        await wrapper.vm.onDragEnd(
+            1,
+            {
+                dragData: {
+                    index: 1,
+                    linePosition: 1,
+                    snippet: {
+                        type: 'snippet',
+                        value: 'address/last_name'
+                    }
+                },
+                dropData: {
+                    index: 2,
+                    linePosition: 0,
+                    snippet: {
+                        type: 'snippet',
+                        value: 'address/department'
+                    }
+                }
+            }
+        );
+
+        expect(wrapper.vm.country.addressFormat[0][2]).toEqual({ value: 'address/last_name', type: 'snippet' });
+        expect(wrapper.vm.country.addressFormat[1][1]).toEqual({ value: 'address/department', type: 'snippet' });
     });
 
     it('should be able to preview formatting with the customer', async () => {

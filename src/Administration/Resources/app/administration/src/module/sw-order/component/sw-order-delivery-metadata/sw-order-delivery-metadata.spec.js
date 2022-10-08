@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-order/component/sw-order-delivery-metadata';
+import 'src/module/sw-order/component/sw-order-delivery-metadata/index';
 import 'src/app/component/base/sw-address';
 
 function createWrapper() {

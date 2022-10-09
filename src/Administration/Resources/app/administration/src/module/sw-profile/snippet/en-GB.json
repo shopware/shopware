@@ -22,18 +22,12 @@
       "labelNewPasswordConfirm": "Confirm password",
       "placeholderNewPasswordConfirm": "Re-enter new password...",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "The new password is identical with your old one. Please choose a new password.",
       "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessMessage": "Profile information have been saved.",
       "notificationSaveErrorMessage": "Profile information could not be saved.",
       "labelUploadAvatar": "Upload avatar",
-      "labelUseAsAvatar": "Use as avatar",
-      "titleConfirmPasswordModal": "Confirm password",
-      "labelConfirmPassword": "Password",
-      "placeholderConfirmPassword": "Please enter your current password.",
-      "labelButtonCancel": "Cancel",
-      "labelButtonConfirm": "Confirm"
+      "labelUseAsAvatar": "Use as avatar"
     },
     "tabGeneral": {
       "title": "General"

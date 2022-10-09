@@ -15,8 +15,6 @@
       "labelUsernameField": "Username",
       "labelEmailField": "Email address",
       "labelTimezoneField": "Timezone",
-      "labelOldPassword": "Old password",
-      "placeholderOldPassword": "Enter old password...",
       "labelNewPassword": "New password",
       "placeholderNewPassword": "Enter new password...",
       "labelNewPasswordConfirm": "Confirm password",
@@ -28,12 +26,7 @@
       "notificationSaveSuccessMessage": "Profile information have been saved.",
       "notificationSaveErrorMessage": "Profile information could not be saved.",
       "labelUploadAvatar": "Upload avatar",
-      "labelUseAsAvatar": "Use as avatar",
-      "titleConfirmPasswordModal": "Confirm password",
-      "labelConfirmPassword": "Password",
-      "placeholderConfirmPassword": "Please enter your current password.",
-      "labelButtonCancel": "Cancel",
-      "labelButtonConfirm": "Confirm"
+      "labelUseAsAvatar": "Use as avatar"
     },
     "tabGeneral": {
       "title": "General"

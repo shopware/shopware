@@ -15,8 +15,6 @@
       "labelUsernameField": "Benutzername",
       "labelEmailField": "E-Mail-Adresse",
       "labelTimezoneField": "Zeitzone",
-      "labelOldPassword": "Altes Passwort",
-      "placeholderOldPassword": "Altes Passwort eingeben ...",
       "labelNewPassword": "Neues Passwort",
       "placeholderNewPassword": "Neues Passwort eingeben ...",
       "labelNewPasswordConfirm": "Passwort bestätigen",
@@ -28,15 +26,7 @@
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
       "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
       "labelUploadAvatar": "Lade ein Profilbild hoch",
-      "labelUseAsAvatar": "Als Profilbild nutzen",
-      "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
-      "placeholderNewPassword": "Gib ein neues Passwort ein ...",
-      "placeholderOldPassword": "Gib Dein altes Passwort ein ...",
-      "titleConfirmPasswordModal": "Passwort bestätigen",
-      "labelConfirmPassword": "Passwort",
-      "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
-      "labelButtonCancel": "Abbrechen",
-      "labelButtonConfirm": "Bestätigen"
+      "labelUseAsAvatar": "Als Profilbild nutzen"
     },
     "tabGeneral": {
       "title": "Allgemein"

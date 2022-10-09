@@ -219,7 +219,6 @@ export default {
 
                 if (!localeIds.includes(this.user.localeId)) {
                     this.user.localeId = fallbackId;
-                    this.saveUser();
                 }
                 this.isUserLoading = false;
 
@@ -315,7 +314,7 @@ export default {
             });
         },
 
-        saveUser(authToken) {
+        saveUser(context) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
@@ -331,9 +330,6 @@ export default {
 
                 return;
             }
-
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(async () => {
                 await this.updateCurrentUser();
@@ -381,31 +377,12 @@ export default {
             this.setMediaItem({ targetId: mediaItem.id });
         },
 
-        onSubmitConfirmPassword() {
-            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
-                if (!verifiedToken) {
-                    return;
-                }
+        onSubmitConfirmPassword(context) {
+            this.confirmPasswordModal = false;
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
 
-                const authObject = {
-                    ...this.loginService.getBearerAuthentication(),
-                    ...{
-                        access: verifiedToken,
-                    },
-                };
-
-                this.loginService.setBearerAuthentication(authObject);
-
-                this.confirmPasswordModal = false;
-                this.isSaveSuccessful = false;
-                this.isLoading = true;
-
-                this.saveUser(verifiedToken);
-            }).catch(() => {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
+            this.saveUser(context);
         },
 
         onCloseConfirmPasswordModal() {

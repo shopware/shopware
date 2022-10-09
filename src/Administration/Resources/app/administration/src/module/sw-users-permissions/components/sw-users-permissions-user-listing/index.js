@@ -29,8 +29,9 @@ export default {
             user: [],
             isLoading: false,
             itemToDelete: null,
+            confirmDeleteModal: false,
+            confirmPasswordModal: false,
             disableRouteParams: true,
-            confirmPassword: '',
             sortBy: 'username',
         };
     },
@@ -118,10 +119,23 @@ export default {
         },
 
         onDelete(user) {
+            this.confirmDeleteModal = true;
             this.itemToDelete = user;
         },
 
-        async onConfirmDelete(user) {
+        onCloseDeleteModal() {
+            this.confirmDeleteModal = false;
+        },
+
+        onConfirmDelete() {
+            this.onCloseDeleteModal();
+            this.confirmPasswordModal = true;
+        },
+
+        deleteUser(context) {
+            this.confirmPasswordModal = false;
+            const user = this.itemToDelete;
+
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$tc('global.default.success');
             const messageDeleteSuccess = this.$tc(
@@ -143,30 +157,6 @@ export default {
                 return;
             }
 
-            let verifiedToken;
-            try {
-                verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-            } catch (e) {
-                this.createNotificationError({
-                    title: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
-                    ),
-                    message: this.$tc(
-                        'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
-                    ),
-                });
-            } finally {
-                this.confirmPassword = '';
-            }
-
-            if (!verifiedToken) {
-                return;
-            }
-
-            this.confirmPasswordModal = false;
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = verifiedToken;
-
             this.userRepository.delete(user.id, context).then(() => {
                 this.createNotificationSuccess({
                     title: titleDeleteSuccess,
@@ -179,11 +169,10 @@ export default {
                     message: messageDeleteError,
                 });
             });
-            this.onCloseDeleteModal();
         },
 
-        onCloseDeleteModal() {
-            this.itemToDelete = null;
+        onCloseConfirmPasswordModal() {
+            this.confirmPasswordModal = false;
         },
     },
 };

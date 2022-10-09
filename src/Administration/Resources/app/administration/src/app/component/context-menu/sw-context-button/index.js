@@ -94,7 +94,7 @@ Component.register('sw-context-button', {
         zIndex: {
             type: Number,
             required: false,
-            default: 9000,
+            default: 1100,
         },
     },
 

@@ -219,7 +219,6 @@ export default {
 
                 if (!localeIds.includes(this.user.localeId)) {
                     this.user.localeId = fallbackId;
-                    this.saveUser();
                 }
                 this.isUserLoading = false;
 
@@ -302,7 +301,7 @@ export default {
             });
         },
 
-        saveUser(authToken) {
+        saveUser(context) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
@@ -329,8 +328,13 @@ export default {
                 return;
             }
 
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = authToken;
+            /**
+             * @deprecated tag:v6.6.0 - the "if" block will be removed
+             */
+            if (typeof context === 'string') {
+                context = { ...Shopware.Context.api };
+                context.authToken.access = context;
+            }
 
             this.userRepository.save(this.user, context).then(async () => {
                 await this.updateCurrentUser();
@@ -380,31 +384,8 @@ export default {
             this.setMediaItem({ targetId: mediaItem.id });
         },
 
+        // @deprecated tag:v6.6.0 - Unused
         onSubmitConfirmPassword() {
-            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
-                if (!verifiedToken) {
-                    return;
-                }
-
-                const authObject = {
-                    ...this.loginService.getBearerAuthentication(),
-                    ...{
-                        access: verifiedToken,
-                    },
-                };
-
-                this.loginService.setBearerAuthentication(authObject);
-
-                this.confirmPasswordModal = false;
-                this.isSaveSuccessful = false;
-                this.isLoading = true;
-
-                this.saveUser(verifiedToken);
-            }).catch(() => {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
         },
 
         onCloseConfirmPasswordModal() {
@@ -473,6 +454,14 @@ export default {
                     this.isSaveSuccessful = false;
                     this.createNotificationError({ message: error.message });
                 });
+        },
+
+        onVerifyPasswordFinished(context) {
+            this.confirmPasswordModal = false;
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            this.saveUser(context);
         },
     },
 };

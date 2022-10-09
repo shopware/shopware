@@ -187,4 +187,17 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         wrapper.vm.createNotificationError.mockRestore();
     });
+
+    it('should be able to save the user after verifying password successful', async () => {
+        const wrapper = await createWrapper();
+        const saveUserSpyOn = jest.spyOn(wrapper.vm, 'saveUser');
+
+        wrapper.vm.onVerifyPasswordFinished({ foo: 'bar' });
+
+        expect(wrapper.vm.confirmPasswordModal).toBe(false);
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(true);
+
+        expect(saveUserSpyOn).toHaveBeenCalledWith({ foo: 'bar' });
+    });
 });

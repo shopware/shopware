@@ -82,11 +82,11 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (bool) $var;
             }),
-            new TwigFilter('json_encode', /** @param mixed $var */ function ($var) {
+            new TwigFilter('json_encode', /** @param mixed $var */ function ($var, int $options = 0, int $depth = 512) {
                 try {
                     FieldVisibility::$isInTwigRenderingContext = true;
 
-                    return json_encode($var, \JSON_PRESERVE_ZERO_FRACTION);
+                    return json_encode($var, $options | \JSON_PRESERVE_ZERO_FRACTION, $depth);
                 } finally {
                     FieldVisibility::$isInTwigRenderingContext = false;
                 }

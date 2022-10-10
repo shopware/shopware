@@ -1,5 +1,5 @@
 ---
-title: Deprecate sw-promotion in favor for sw-promotion-v2
+title: Fixed installing multiple plugin in TestBootstrapper
 issue: NEXT-
 author: Florian Liebig
 author_email: mail@florian-liebig.de

@@ -115,6 +115,7 @@
     }
 
     .sw-text-editor__content {
+        background: $color-white;
         transition: 0.3s all ease;
         position: relative;
         display: flex;

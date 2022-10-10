@@ -133,12 +133,8 @@ interface CartDelivery {
     deliveryDate: {
         earliest: string,
     }
-    shippingCosts: CalculatedPrice;
-    shippingMethod: {
-        translated: {
-            name: string,
-        }
-    }
+    shippingCosts: CalculatedPrice,
+    shippingMethod: ShippingMethod,
 }
 
 interface Cart {
@@ -177,10 +173,72 @@ interface ContextSwitchParameters {
     shippingAddressId: string | null,
 }
 
+interface StateMachineState extends Entity {
+    name: string,
+    technicalName: string,
+    translated: {
+        name: string
+    },
+    stateMachineId: string
+}
+
+interface StateMachineHistory extends Entity {
+    fromStateMachineState: StateMachineState,
+    toStateMachineState: StateMachineState,
+    translated: {
+        name: string
+    },
+    createdAt: Date,
+    user: {
+        username: string,
+    },
+    entityName: 'order' | 'order_delivery' | 'order_transaction',
+}
+
+interface OrderDelivery extends Entity {
+    id: string,
+    createdAt: Date,
+    shippingCosts: CalculatedPrice,
+    shippingMethod: ShippingMethod,
+    stateMachineState: StateMachineState,
+}
+
+interface OrderPayment extends Entity {
+    id: string,
+    createdAt: Date,
+    paymentMethod: PaymentMethod,
+    stateMachineState: StateMachineState,
+}
+
+interface OrderDeliveryCollection extends Array<OrderDelivery> {
+    first: () => OrderPayment|null,
+}
+
+interface OrderTransactionCollection extends Array<OrderPayment> {
+    last: () => OrderPayment|null,
+}
+
+interface Order extends Entity {
+    id: string,
+    orderNumber: string,
+    lineItems: LineItem[],
+    orderDateTime: Date,
+    createdAt: Date,
+    user: {
+        username: string,
+    },
+    stateMachineState: StateMachineState,
+    deliveries: OrderDeliveryCollection,
+    transactions: OrderTransactionCollection,
+}
+
 /**
  * @private
  */
 export type {
+    Order,
+    OrderDelivery,
+    OrderPayment,
     CalculatedPrice,
     CalculatedTax,
     Cart,
@@ -196,6 +254,8 @@ export type {
     SalesChannel,
     SalesChannelContext,
     ShippingMethod,
+    StateMachineState,
+    StateMachineHistory,
 };
 
 /**

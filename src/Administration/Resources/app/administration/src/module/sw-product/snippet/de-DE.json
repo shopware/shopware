@@ -223,6 +223,8 @@
       "columnPrice": "Preis",
       "columnInStock": "Lagerbestand",
       "columnAvailableStock": "Verfügbar",
+      "columnCreatedAt": "Hinzugefügt am",
+      "columnUpdatedAt": "Aktualisiert am",
       "columnReleaseDate": "Erscheinungsdatum",
       "columnVisibilities": "Verkaufskanäle",
       "columnCategories": "Kategorien",

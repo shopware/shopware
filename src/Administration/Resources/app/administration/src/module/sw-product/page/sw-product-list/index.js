@@ -361,6 +361,16 @@ Component.register('sw-product-list', {
                 label: this.$tc('sw-product.list.columnAvailableStock'),
                 allowResize: true,
                 align: 'right',
+            }, {
+                property: 'createdAt',
+                label: this.$tc('sw-product.list.columnCreatedAt'),
+                allowResize: true,
+                visible: false,
+            }, {
+                property: 'updatedAt',
+                label: this.$tc('sw-product.list.columnUpdatedAt'),
+                allowResize: true,
+                visible: false,
             }];
         },
 

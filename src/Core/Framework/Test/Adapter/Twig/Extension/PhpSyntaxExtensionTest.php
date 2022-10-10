@@ -44,13 +44,12 @@ class PhpSyntaxExtensionTest extends TestCase
             },
             'arrayValue' => [],
             'jsonEncode' => [
-                'data'     => $jsonEncodeData,
+                'data' => $jsonEncodeData,
                 'expected' => [
-
                     json_encode($jsonEncodeData),
-                    json_encode($jsonEncodeData, JSON_UNESCAPED_SLASHES),
-                    json_encode($jsonEncodeData, JSON_PRETTY_PRINT),
-                    json_encode($jsonEncodeData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+                    json_encode($jsonEncodeData, \JSON_UNESCAPED_SLASHES),
+                    json_encode($jsonEncodeData, \JSON_PRETTY_PRINT),
+                    json_encode($jsonEncodeData, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES),
                 ],
             ],
         ];

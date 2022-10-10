@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;pliki usunięte z katalogów %d',
     'cache_clear_error' => 'Wystąpił błąd. Usuń ręcznie pamięć podręczną po zakończeniu aktualizacji.',
     'finish_update' => 'Zakończ aktualizację',
+    'version' => 'Version',
 ];

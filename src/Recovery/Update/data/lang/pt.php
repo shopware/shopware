@@ -56,4 +56,5 @@ return [
     'deleted_files' => '&nbsp;eliminou ficheiros de %d diretórios',
     'cache_clear_error' => 'Ocorreu um erro. Elimina a cache manualmente após a atualização.',
     'finish_update' => 'Concluir atualização',
+    'version' => 'Version',
 ];

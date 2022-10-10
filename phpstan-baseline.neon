@@ -25197,36 +25197,6 @@ parameters:
 		-
 			message: "#^Cannot call method getLineItems\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
 			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Cannot call method getToken\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\CartRestorerTest\\:\\:createSalesChannelContext\\(\\) has parameter \\$salesChannelData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\CartRestorerTest\\:\\:\\$eventDispatcher \\(Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcher\\) does not accept Symfony\\\\Component\\\\HttpKernel\\\\Debug\\\\TraceableEventDispatcher\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Context\\\\CartRestorerTest\\:\\:\\$events type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/Context/CartRestorerTest.php
-
-		-
-			message: "#^Cannot call method getLineItems\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\|null\\.$#"
-			count: 2
 			path: src/Core/System/Test/SalesChannel/Context/SalesChannelContextRestorerTest.php
 
 		-

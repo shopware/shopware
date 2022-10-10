@@ -30852,21 +30852,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Cache/CacheStateValidatorTest.php
 
 		-
-			message: "#^Cannot access property \\$headers on Symfony\\\\Component\\\\HttpFoundation\\\\Response\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheStoreTest\\:\\:maintenanceRequest\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\CacheStoreTest\\:\\:testMaintenanceRequest\\(\\) has parameter \\$whitelist with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Cache/CacheStoreTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Cache\\\\HttpCacheIntegrationTest\\:\\:createRequest\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Cache/HttpCacheIntegrationTest.php
@@ -31060,36 +31045,6 @@ parameters:
 			message: "#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Media/StorefrontMediaUploaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:errorControllerRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:getRequest\\(\\) has parameter \\$allowedIpAddresses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenanceModeActiveProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenanceModeInactiveProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:maintenancePageRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\MaintenanceModeResolverTest\\:\\:xmlHttpRequestProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Routing/MaintenanceModeResolverTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Routing\\\\NotFound\\\\NotFoundSubscriberTest\\:\\:providerSystemConfigKeys\\(\\) return type has no value type specified in iterable type iterable\\.$#"

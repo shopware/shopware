@@ -71,7 +71,7 @@ class CacheStore implements StoreInterface
     public function lookup(Request $request)
     {
         // maintenance mode active and current ip is whitelisted > disable caching
-        if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
+        if (!$this->maintenanceResolver->shouldBeCached($request)) {
             return null;
         }
 
@@ -143,7 +143,7 @@ class CacheStore implements StoreInterface
 
         /**
          * Symfony pops out in AbstractSessionListener(https://github.com/symfony/symfony/blob/v5.4.5/src/Symfony/Component/HttpKernel/EventListener/AbstractSessionListener.php#L139-L186) the session and assigns it to the Response
-         * We should never cache the cookie of the actual browser session, this part removes it again from the cloned response object. As they poped it out of the PHP stack, we need to from it only from the cached response
+         * We should never cache the cookie of the actual browser session, this part removes it again from the cloned response object. As they popped it out of the PHP stack, we need to from it only from the cached response
          */
         $cacheResponse = clone $response;
         $cacheResponse->headers = clone $response->headers;

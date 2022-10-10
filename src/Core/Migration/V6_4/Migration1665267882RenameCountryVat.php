@@ -1,34 +1,34 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
-use Shopware\Core\Migration\Traits\Translations;
 
 class Migration1665267882RenameCountryVat extends MigrationStep
 {
     use ImportTranslationsTrait;
 
-    public function getCreationTimestamp() : int
+    public function getCreationTimestamp(): int
     {
         return 1665267882;
     }
 
-    public function update(Connection $connection) : void
+    public function update(Connection $connection): void
     {
         $countryId = $connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA', 'iso3' => 'VAT']);
         if ($countryId === false) {
             return;
         }
 
-        $sql = 'SELECT language.name, country_translation.name FROM country_translation
-        LEFT JOIN country ON country.id = country_translation.country_id
-        LEFT JOIN language ON language.id = country_translation.language_id
-        WHERE country.iso = :iso AND country.iso3 = :iso3';
+        $sql = 'SELECT locale.code, country_translation.name FROM country_translation
+                LEFT JOIN country ON country.id = country_translation.country_id
+                LEFT JOIN language ON language.id = country_translation.language_id
+                LEFT JOIN locale ON locale.id = language.locale_id
+                WHERE country.iso = :iso AND country.iso3 = :iso3';
 
         $currentTranslations = $connection->fetchAllKeyValue($sql, ['iso' => 'VA', 'iso3' => 'VAT']);
         if (empty($currentTranslations)) {
@@ -36,27 +36,29 @@ class Migration1665267882RenameCountryVat extends MigrationStep
         }
 
         $replacements = [];
-        if (($currentTranslations['English'] ?? null) === 'Holy See') {
-            $replacements['English'] = 'Vatican City';
+        if (($currentTranslations['en-GB'] ?? null) === 'Holy See') {
+            $replacements['en-GB'] = 'Vatican City';
         }
-        if (($currentTranslations['Deutsch'] ?? null) === 'Heiliger Stuhl') {
-            $replacements['Deutsch'] = 'Staat Vatikanstadt';
+        if (($currentTranslations['de-DE'] ?? null) === 'Heiliger Stuhl') {
+            $replacements['de-DE'] = 'Staat Vatikanstadt';
         }
         if (empty($replacements)) {
             return;
         }
 
-        $languageIds = $connection->fetchAllKeyValue('SELECT language.name, language.id FROM language');
+        $sql = 'SELECT locale.code, language.id FROM language
+                LEFT JOIN locale ON locale.id = language.locale_id';
+        $languageIds = $connection->fetchAllKeyValue($sql);
         if (empty($languageIds)) {
             return;
         }
 
-        foreach ($replacements as $languageName => $newCountryName) {
-            $languageId = $languageIds[$languageName] ?? null;
+        foreach ($replacements as $languageCode => $newCountryName) {
+            $languageId = $languageIds[$languageCode] ?? null;
             if ($languageId === null) {
                 continue;
             }
-            $data     = [
+            $data = [
                 'name' => $newCountryName,
             ];
             $criteria = [
@@ -67,8 +69,7 @@ class Migration1665267882RenameCountryVat extends MigrationStep
         }
     }
 
-    public function updateDestructive(Connection $connection) : void
+    public function updateDestructive(Connection $connection): void
     {
     }
-
 }

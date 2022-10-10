@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
@@ -14,98 +16,100 @@ class Migration1665267882RenameCountryVatTest extends TestCase
 
     private const NAME_EN = 'Holy See';
     private const NAME_DE = 'Heiliger Stuhl';
+
     private Connection $connection;
 
-    public function testCountryVaticanCityExist()
-    {
-        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA', 'iso3' => 'VAT']);
-
-        $this->assertIsNotBool($countryId, 'Country \'Vatican City\' not found');
-    }
-
-    public function testFetchOfNonExistingCountryId()
-    {
-        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA3', 'iso3' => 'VAT3']);
-
-        $this->assertIsBool($countryId);
-        $this->assertEquals($countryId, false);
-    }
-
-    public function testPrepare()
-    {
-        $expected = [
-            'English' => 'Holy See',
-            'Deutsch' => 'Heiliger Stuhl',
-        ];
-        $this->assertEquals($expected, $this->fetchCurrentTranslations());
-    }
-
-    public function testUpdateCountryName() : void
-    {
-        $this->testPrepare();
-        $migration = new Migration1665267882RenameCountryVat();
-        $migration->update($this->connection);
-
-        $expected = [
-            'English' => 'Vatican City',
-            'Deutsch' => 'Staat Vatikanstadt',
-        ];
-        $this->assertEquals($expected, $this->fetchCurrentTranslations());
-    }
-
-    public function testSkipUpdateIfManuelEdited() : void
-    {
-        $this->testPrepare();
-
-        $manuelEditedName = 'Vatikanstadt';
-
-        $this->prepareCurrentName('Deutsch', $manuelEditedName);
-
-        $migration = new Migration1665267882RenameCountryVat();
-        $migration->update($this->connection);
-
-        $expected = [
-            'English' => 'Vatican City',
-            'Deutsch' => $manuelEditedName,
-        ];
-        $this->assertEquals($expected, $this->fetchCurrentTranslations());
-    }
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();
         $this->prepare();
     }
 
-    protected function prepare()
+    public function testCountryVaticanCityExist(): void
     {
-        $this->prepareCurrentName('English', self::NAME_EN);
-        $this->prepareCurrentName('Deutsch', self::NAME_DE);
+        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA', 'iso3' => 'VAT']);
+
+        static::assertIsNotBool($countryId, 'Country \'Vatican City\' not found');
     }
 
-    protected function fetchCurrentTranslations()
+    public function testFetchOfNonExistingCountryId(): void
     {
-        $sql = 'SELECT language.name, country_translation.name FROM country_translation
-        LEFT JOIN country ON country.id = country_translation.country_id
-        LEFT JOIN language ON language.id = country_translation.language_id
-        WHERE country.iso = :iso AND country.iso3 = :iso3';
+        $countryId = $this->connection->fetchOne('SELECT id FROM country WHERE iso = :iso AND iso3 = :iso3', ['iso' => 'VA3', 'iso3' => 'VAT3']);
+
+        static::assertIsBool($countryId);
+        static::assertEquals($countryId, false);
+    }
+
+    public function testPrepare(): void
+    {
+        $expected = [
+            'en-GB' => 'Holy See',
+            'de-DE' => 'Heiliger Stuhl',
+        ];
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+    }
+
+    public function testUpdateCountryName(): void
+    {
+        $this->testPrepare();
+        $migration = new Migration1665267882RenameCountryVat();
+        $migration->update($this->connection);
+
+        $expected = [
+            'en-GB' => 'Vatican City',
+            'de-DE' => 'Staat Vatikanstadt',
+        ];
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+    }
+
+    public function testSkipUpdateIfManuelEdited(): void
+    {
+        $this->testPrepare();
+
+        $manuelEditedName = 'Vatikanstadt';
+
+        $this->prepareCurrentName('de-DE', $manuelEditedName);
+
+        $migration = new Migration1665267882RenameCountryVat();
+        $migration->update($this->connection);
+
+        $expected = [
+            'en-GB' => 'Vatican City',
+            'de-DE' => $manuelEditedName,
+        ];
+        static::assertEquals($expected, $this->fetchCurrentTranslations());
+    }
+
+    protected function prepare(): void
+    {
+        $this->prepareCurrentName('en-GB', self::NAME_EN);
+        $this->prepareCurrentName('de-DE', self::NAME_DE);
+    }
+
+    protected function fetchCurrentTranslations(): array
+    {
+        $sql = 'SELECT locale.code, country_translation.name FROM country_translation
+                LEFT JOIN country ON country.id = country_translation.country_id
+                LEFT JOIN language ON language.id = country_translation.language_id
+                LEFT JOIN locale ON locale.id = language.locale_id
+                WHERE country.iso = :iso AND country.iso3 = :iso3';
 
         return $this->connection->fetchAllKeyValue($sql, ['iso' => 'VA', 'iso3' => 'VAT']);
     }
 
-    protected function prepareCurrentName(string $languageName, string $countryName)
+    protected function prepareCurrentName(string $languageCode, string $countryName): void
     {
         $sql = 'UPDATE `country_translation`
-LEFT JOIN country ON country.id = country_translation.country_id
-LEFT JOIN language ON language.id = country_translation.language_id
-SET country_translation.name = :name
-WHERE language.name = :language AND country.iso3 = \'VAT\'';
+                LEFT JOIN country ON country.id = country_translation.country_id
+                LEFT JOIN language ON language.id = country_translation.language_id
+                LEFT JOIN locale ON locale.id = language.locale_id
+                SET country_translation.name = :name
+                WHERE locale.code = :languageCode AND country.iso3 = \'VAT\'';
 
         $this->connection->executeStatement($sql, [
-            'language' => $languageName,
+            'languageCode' => $languageCode,
             'name' => $countryName,
         ]);
     }
-
 }

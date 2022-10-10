@@ -53,7 +53,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage">
-            <argument type="service" id="shopware.cart.redis"/>
+            <argument type="service" id="shopware.number_range.redis"/>
             <argument type="service" id="lock.factory"/>
             <argument type="service" id="number_range.repository"/>
 

@@ -2741,11 +2741,6 @@ parameters:
 			path: src/Core/Checkout/Test/Customer/Rule/CustomerNumberRuleTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\CustomerTagRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Customer/Rule/CustomerTagRuleTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Rule\\\\EmailRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Rule/EmailRuleTest.php

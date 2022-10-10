@@ -146,10 +146,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_grid_column_actions %}
-                <template
-                    slot="actions"
-                    slot-scope="{ item }"
-                >
+                <template #actions="{ item }">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
                     <sw-context-menu-item

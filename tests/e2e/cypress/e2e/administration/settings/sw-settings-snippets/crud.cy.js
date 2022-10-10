@@ -85,13 +85,16 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains(page.elements.smartBarHeader, 'Snippets of "BASE en-GB"');
-        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`, 'aWonderful.customSnip');
 
         // Edit snippet
-        cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({
-            scrollBehavior: false
-        });
-        cy.get('.sw-settings-snippet-list__edit-action').click();
+        cy.log('Edit snippet');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'aWonderful.customSnip');
+
+        cy.clickContextMenuItem(
+            '.sw-settings-snippet-list__edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

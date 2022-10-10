@@ -2,7 +2,7 @@ import createCustomFieldService from 'src/app/service/custom-field.service';
 
 describe('src/app/service/custom-field.service.js', () => {
     let customFieldService;
-    let expectedTypeConfigs = {
+    const expectedTypeConfigs = {
         number: {
             configRenderComponent: 'sw-custom-field-type-number',
             type: 'int',
@@ -19,7 +19,7 @@ describe('src/app/service/custom-field.service.js', () => {
     });
 
     it('getTypeByName: get number type config', async () => {
-        expect(customFieldService.getTypeByName('number')).toEqual(customFieldService.getTypes()['number']);
+        expect(customFieldService.getTypeByName('number')).toEqual(customFieldService.getTypes().number);
     });
 
     it('getTypeByName: get unknown type config', async () => {
@@ -33,7 +33,7 @@ describe('src/app/service/custom-field.service.js', () => {
     it('upsertType: insert config of new type ', async () => {
         expect(customFieldService.getTypeByName('newType')).toBeUndefined();
 
-        let newTypeConfig = {
+        const newTypeConfig = {
             configRenderComponent: 'sw-custom-field-type-new-type',
             type: 'newType',
             config: {
@@ -41,7 +41,7 @@ describe('src/app/service/custom-field.service.js', () => {
                 type: 'newType',
             }
         };
-        customFieldService.upsertType('newType', newTypeConfig)
+        customFieldService.upsertType('newType', newTypeConfig);
 
         expect(customFieldService.getTypeByName('newType')).toEqual(newTypeConfig);
     });
@@ -49,7 +49,7 @@ describe('src/app/service/custom-field.service.js', () => {
     it('upsertType: upsert config', async () => {
         expect(customFieldService.getTypeByName('number')).toEqual(expectedTypeConfigs.number);
 
-        let newConfig = {
+        const newConfig = {
             ...expectedTypeConfigs.number,
             type: 'float',
             config: {
@@ -62,5 +62,4 @@ describe('src/app/service/custom-field.service.js', () => {
 
         expect(customFieldService.getTypeByName('number')).toEqual(newConfig);
     });
-
 });
